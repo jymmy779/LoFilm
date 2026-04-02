@@ -60,7 +60,7 @@ export default function Header() {
     ];
 
     return (
-        <header className={`w-full fixed top-0 left-0 z-50 transition-all duration-300 border-b ${isScrolled ? "bg-[#0a1628]/85 backdrop-blur-md border-white/5 py-1 lg:px-5" : "bg-transparent border-transparent py-3 lg:px-5"}`}>
+        <header className={`w-full fixed top-0 left-0 z-50 transition-all duration-300 border-b ${isScrolled ? "bg-[#0d1b2e] border-white/10 py-2 lg:px-5 shadow-lg" : "bg-transparent border-transparent py-4 lg:px-5"}`}>
             <div className="flex items-center justify-between h-[54px] md:h-[64px] w-full max-w-[1900px] mx-auto px-4 lg:px-0 gap-4 md:gap-8">
                 <div className="flex xl:hidden items-center justify-between w-full h-full gap-3">
                     <AnimatePresence mode="wait">
@@ -214,7 +214,7 @@ export default function Header() {
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             exit={{ opacity: 0 }}
-                            className="xl:hidden fixed inset-0 z-30 bg-black/40 backdrop-blur-[1px]"
+                            className="xl:hidden fixed inset-0 z-[80] bg-black/60"
                             onClick={() => setIsMenuOpen(false)}
                         />
 
@@ -223,7 +223,7 @@ export default function Header() {
                             animate={{ opacity: 1, y: 0, scale: 1 }}
                             exit={{ opacity: 0, y: -20, scale: 0.95 }}
                             transition={{ type: "spring", damping: 25, stiffness: 200 }}
-                            className="xl:hidden fixed left-4 right-4 top-[64px] md:top-[74px] z-90 bg-[#0a1628]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden origin-top overflow-y-auto max-h-[80vh]"
+                            className="xl:hidden fixed left-4 right-4 top-[64px] md:top-[74px] z-[100] bg-[#111e31] border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden origin-top overflow-y-auto max-h-[80vh]"
                         >
                             <div className="p-5 custom-scrollbar">
                                 <div className="flex flex-col">
