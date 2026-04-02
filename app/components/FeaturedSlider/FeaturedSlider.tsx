@@ -13,7 +13,6 @@ import "swiper/css/thumbs";
 
 import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
-import { useLoading } from "@/app/context/LoadingContext";
 import Skeleton from "react-loading-skeleton";
 
 interface FeaturedSliderProps {
@@ -24,13 +23,11 @@ interface FeaturedSliderProps {
 }
 
 export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider" }: FeaturedSliderProps) {
-    const { register, finish } = useLoading();
     const [movies, setMovies] = useState<Movie[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
 
     useEffect(() => {
-        register(navId);
         const fetchFeatured = async () => {
             try {
                 // Lấy danh sách phim từ apiUrl được truyền vào thông qua proxy để tránh CORS
@@ -68,12 +65,11 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                 console.error("Lỗi tải featured slider:", error);
             } finally {
                 setIsLoading(false);
-                finish(navId);
             }
         };
 
         fetchFeatured();
-    }, [apiUrl, navId, register, finish]);
+    }, [apiUrl, navId]);
 
     if (isLoading) {
         return (
@@ -295,7 +291,6 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                 @media (min-width: 1024px) {
                     .featured-thumbs-slider .thumb-item:hover {
                         border-color: rgba(255, 255, 255, 0.4);
-                        transform: translateY(-5px) translateZ(0);
                     }
                     .featured-thumbs-slider .swiper-slide-thumb-active .thumb-item {
                         border-color: #f5a623;

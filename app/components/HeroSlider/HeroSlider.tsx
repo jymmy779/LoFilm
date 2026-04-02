@@ -15,17 +15,14 @@ import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import Skeleton from "react-loading-skeleton";
 import { motion, AnimatePresence } from "framer-motion";
-import { useLoading } from "@/app/context/LoadingContext";
 
 export default function HeroSlider() {
-    const { register, finish } = useLoading();
     const [movies, setMovies] = useState<Movie[]>([]);
     const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
 
     const [activeIndex, setActiveIndex] = useState(0);
 
     useEffect(() => {
-        register("hero-slider");
         // Lấy phim mới nhất thông qua proxy để tránh CORS
         axios.get(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?page=1")}`)
             .then((res) => {
@@ -59,14 +56,12 @@ export default function HeroSlider() {
                     setMovies((prev) =>
                         prev.map((m) => ({ ...m, content: contentMap[m.slug] }))
                     );
-                    finish("hero-slider");
                 });
             })
             .catch((err) => {
                 console.error("Lỗi fetch phim:", err);
-                finish("hero-slider");
             });
-    }, [register, finish]);
+    }, []);
 
     if (movies.length === 0) {
         return (

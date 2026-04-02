@@ -11,7 +11,6 @@ import "swiper/css/navigation";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
 import Skeleton from "react-loading-skeleton";
-import { useLoading } from "@/app/context/LoadingContext";
 
 interface MovieRowProps {
     title: string;
@@ -20,13 +19,10 @@ interface MovieRowProps {
 }
 
 export default function MovieRow({ title, apiUrl, viewAllLink }: MovieRowProps) {
-    const { register, finish } = useLoading();
     const [movies, setMovies] = useState<Movie[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        const id = `movie-row-${title}`;
-        register(id);
         const fetchMovies = async () => {
             try {
                 const response = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`);
@@ -52,11 +48,10 @@ export default function MovieRow({ title, apiUrl, viewAllLink }: MovieRowProps) 
                 console.error("Lỗi khi tải phim:", error);
             } finally {
                 setIsLoading(false);
-                finish(id);
             }
         };
         fetchMovies();
-    }, [apiUrl, title, register, finish]);
+    }, [apiUrl, title]);
 
     if (isLoading) {
         return (

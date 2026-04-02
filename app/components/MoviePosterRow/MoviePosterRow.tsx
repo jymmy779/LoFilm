@@ -11,7 +11,6 @@ import "swiper/css/navigation";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
 import Skeleton from "react-loading-skeleton";
-import { useLoading } from "@/app/context/LoadingContext";
 
 interface MoviePosterRowProps {
     title: string;
@@ -20,13 +19,11 @@ interface MoviePosterRowProps {
 }
 
 export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePosterRowProps) {
-    const { register, finish } = useLoading();
     const [movies, setMovies] = useState<Movie[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const navId = title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
 
     useEffect(() => {
-        register(navId);
         let isMounted = true;
         const fetchMovies = async (retryCount = 0) => {
             if (!isMounted) return;
@@ -106,13 +103,12 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
             } finally {
                 if (isMounted) {
                     setIsLoading(false);
-                    finish(navId);
                 }
             }
         };
         fetchMovies();
         return () => { isMounted = false; };
-    }, [apiUrl]);
+    }, [apiUrl, navId]);
 
     if (isLoading) {
         return (

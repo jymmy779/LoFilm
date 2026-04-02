@@ -1,7 +1,5 @@
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
-import Preloader from "./components/Preloader/Preloader";
-import { LoadingProvider } from "./context/LoadingContext";
 import "./globals.css";
 import "react-loading-skeleton/dist/skeleton.css";
 import { SkeletonTheme } from "react-loading-skeleton";
@@ -14,16 +12,13 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body className="bg-[#0f1115] text-white" suppressHydrationWarning>
-        <LoadingProvider>
-          <Preloader />
-          <SkeletonTheme baseColor="#1e293b" highlightColor="#334155">
-            <Header />
-            <main className="min-h-screen">
-              {children}
-            </main>
-            <Footer />
-          </SkeletonTheme>
-        </LoadingProvider>
+        <SkeletonTheme baseColor="#1e293b" highlightColor="#334155">
+          <Header />
+          <main className="min-h-screen">
+            {children}
+          </main>
+          <Footer />
+        </SkeletonTheme>
       </body>
     </html>
   );

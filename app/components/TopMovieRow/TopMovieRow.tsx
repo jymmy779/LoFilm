@@ -11,7 +11,6 @@ import "swiper/css/navigation";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
 import Skeleton from "react-loading-skeleton";
-import { useLoading } from "@/app/context/LoadingContext";
 
 interface TopMovieRowProps {
     title: string;
@@ -20,13 +19,11 @@ interface TopMovieRowProps {
 }
 
 export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowProps) {
-    const { register, finish } = useLoading();
     const [movies, setMovies] = useState<Movie[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const navId = title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
 
     useEffect(() => {
-        register(navId);
         let isMounted = true;
         const fetchMovies = async (retryCount = 0) => {
             if (!isMounted) return;
@@ -92,13 +89,12 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
             } finally {
                 if (isMounted) {
                     setIsLoading(false);
-                    finish(navId);
                 }
             }
         };
         fetchMovies();
         return () => { isMounted = false; };
-    }, [apiUrl, navId, register, finish]);
+    }, [apiUrl, navId]);
 
     if (isLoading) {
         // Sawtooth pattern only on TOP edge, BOTTOM remains flat at 100% to keep info aligned
