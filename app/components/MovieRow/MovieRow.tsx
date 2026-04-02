@@ -11,6 +11,7 @@ import "swiper/css/navigation";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
 import Skeleton from "react-loading-skeleton";
+import Image from "next/image";
 
 interface MovieRowProps {
     title: string;
@@ -146,10 +147,12 @@ export default function MovieRow({ title, apiUrl, viewAllLink }: MovieRowProps) 
                                 <SwiperSlide key={movie._id} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
                                     <Link href="/" className="block group/item cursor-pointer">
                                         <div className="relative aspect-video rounded-lg overflow-hidden bg-white/5 mb-3">
-                                            <img
+                                            <Image
                                                 src={imgUrl}
                                                 alt={movie.name}
-                                                className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-110"
+                                                fill
+                                                sizes="(max-width: 768px) 160px, (max-width: 1024px) 240px, 280px"
+                                                className="object-cover transition-transform duration-500 group-hover/item:scale-110"
                                             />
                                             <div className="absolute inset-x-0 bottom-[-1] h-1/2 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
 

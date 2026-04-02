@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
 
 import { MenuItem } from "./types";
 import DropdownMenu from "./DropdownMenu";
@@ -87,10 +88,13 @@ export default function Header() {
                                 </button>
 
                                 <Link href="/" className="shrink-0">
-                                    <img
-                                        className="h-[55px] md:h-[65px]"
+                                    <Image
+                                        width={120}
+                                        height={65}
+                                        className="h-[55px] md:h-[65px] w-auto object-contain"
                                         src="/lofilm_logo.png"
                                         alt="LoFilm"
+                                        priority
                                     />
                                 </Link>
                             </motion.div>
@@ -147,10 +151,13 @@ export default function Header() {
                 <div className="hidden xl:flex items-center justify-between w-full h-full">
                     <div className="flex items-center gap-8 flex-1">
                         <Link href="/" className="shrink-0">
-                            <img
-                                className="h-[80px]"
+                            <Image
+                                width={150}
+                                height={80}
+                                className="h-[80px] w-auto object-contain"
                                 src="/lofilm_logo.png"
                                 alt="LoFilm"
+                                priority
                             />
                         </Link>
 

@@ -14,6 +14,7 @@ import "swiper/css/thumbs";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import Skeleton from "react-loading-skeleton";
+import Image from "next/image";
 
 interface FeaturedSliderProps {
     title: string;
@@ -124,19 +125,20 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                     thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
                     className="featured-section-slider rounded-[30px] overflow-hidden shadow-2xl"
                 >
-                    {movies.map((movie) => (
+                    {movies.map((movie, index) => (
                         <SwiperSlide key={movie._id}>
                             <div className="relative w-full aspect-[21/9] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5] min-h-[500px] bg-[#2F3346]">
 
                                 {/* Background Image Area */}
                                 <div className="absolute top-0 right-0 w-full h-full z-0 select-none pointer-events-none">
                                     <div className="absolute inset-0 bg-gradient-to-t xl:bg-gradient-to-r from-[#2F3346] via-[#2F3346] via-[35%] md:via-[30%] xl:via-[28%] to-transparent z-10" />
-                                    <img
+                                    <Image
                                         src={movie.thumb_url?.startsWith("http") ? movie.thumb_url : `https://phimimg.com/${movie.thumb_url}`}
-                                        className="w-full h-full object-cover object-center"
                                         alt={movie.name}
-                                        loading="lazy"
-                                        decoding="async"
+                                        fill
+                                        priority={index === 0}
+                                        sizes="100vw"
+                                        className="object-cover object-center"
                                     />
                                 </div>
 
@@ -226,11 +228,12 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                         {movies.map((movie) => (
                             <SwiperSlide key={`thumb-${movie._id}`} className="cursor-pointer flex items-center justify-center lg:block">
                                 <div className="thumb-item flex-shrink-0 transition-[width,height,background-color,border-color] duration-300 relative w-2.5 h-2.5 lg:w-full lg:h-auto aspect-square xl:aspect-[2/3] rounded-full xl:rounded-lg overflow-hidden lg:border-2 border-transparent lg:shadow-md bg-white/70 lg:bg-transparent will-change-transform">
-                                    <img
+                                    <Image
                                         src={(movie.poster_url || movie.thumb_url)?.startsWith("http") ? (movie.poster_url || movie.thumb_url) : `https://phimimg.com/${movie.poster_url || movie.thumb_url}`}
                                         alt={movie.name}
-                                        className="hidden lg:block w-full h-full object-cover transform-gpu"
-                                        loading="eager"
+                                        fill
+                                        sizes="100px"
+                                        className="hidden lg:block object-cover"
                                     />
                                     <div className="thumb-overlay absolute inset-0 bg-black/40 lg:bg-black/30 transition-opacity duration-300"></div>
                                 </div>

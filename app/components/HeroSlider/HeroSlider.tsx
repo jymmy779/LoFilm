@@ -15,6 +15,9 @@ import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import Skeleton from "react-loading-skeleton";
 import { motion, AnimatePresence } from "framer-motion";
+import Image from "next/image";
+
+const MotionImage = motion(Image);
 
 export default function HeroSlider() {
     const [movies, setMovies] = useState<Movie[]>([]);
@@ -91,22 +94,24 @@ export default function HeroSlider() {
                 onSlideChange={(s) => setActiveIndex(s.realIndex)}
                 className="w-full h-full"
             >
-                {movies.map((movie) => (
+                {movies.map((movie, index) => (
                     <SwiperSlide key={movie._id}>
                         {({ isActive }) => (
                             <>
                                 <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] lg:overflow-hidden will-change-transform translate-z-0">
-                                    <motion.img
+                                    <MotionImage
                                         src={movie.thumb_url?.startsWith("http") ? movie.thumb_url : `https://phimimg.com/${movie.thumb_url}`}
                                         alt={movie.name}
                                         initial={false}
-                                        loading="eager"
+                                        priority={index === 0}
+                                        fill
+                                        sizes="100vw"
                                         animate={{
                                             x: isActive ? 0 : 40,
                                             scale: isActive ? 1 : 1.05
                                         }}
                                         transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                                        className="w-full h-full object-cover transform-gpu"
+                                        className="object-cover transform-gpu"
                                     />
 
                                     {/* Overlays for readability */}
@@ -252,11 +257,12 @@ export default function HeroSlider() {
                             {movies.map((movie) => (
                                 <SwiperSlide key={movie._id}>
                                     <div className="relative cursor-pointer rounded-full min-[700px]:rounded overflow-hidden aspect-square min-[700px]:aspect-video border-2 border-transparent hover:border-white/40 [.swiper-slide-thumb-active_&]:border-[#f5a623] transition-all duration-300 opacity-60 hover:opacity-90 [.swiper-slide-thumb-active_&]:opacity-100">
-                                        <img
+                                        <Image
                                             src={movie.thumb_url?.startsWith("http") ? movie.thumb_url : `https://phimimg.com/${movie.thumb_url}`}
                                             alt={movie.name}
-                                            className="w-full h-full object-cover"
-                                            loading="lazy"
+                                            fill
+                                            sizes="100px"
+                                            className="object-cover"
                                         />
                                     </div>
                                 </SwiperSlide>

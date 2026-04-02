@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Image from 'next/image';
 
 export default function Footer() {
     return (
@@ -26,7 +27,13 @@ export default function Footer() {
                         {/* Branding & Socials */}
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-8">
                             <Link href="/" className="shrink-0 transition-transform hover:scale-105">
-                                <img src="/lofilm_logo.png" alt="LoFilm Logo" className="h-[70px] object-contain drop-shadow-lg" />
+                                <Image
+                                    src="/lofilm_logo.png"
+                                    alt="LoFilm Logo"
+                                    width={140}
+                                    height={70}
+                                    className="h-[70px] w-auto object-contain drop-shadow-lg"
+                                />
                             </Link>
 
                             <div className="flex flex-wrap items-center gap-3">
@@ -111,8 +118,13 @@ export default function Footer() {
                     {/* Right Column - Decorative Visual */}
                     <div className="col-span-1 lg:col-span-4 hidden lg:flex items-center justify-end select-none pointer-events-none relative">
                         {/* A decorative large blurred logo or graphic for the right side */}
-                        <div className="w-[350px] aspect-square opacity-[0.03] hover:opacity-[0.05] transition-opacity duration-1000">
-                            <img src="/lofilm_logo.png" alt="" className="w-full h-full object-contain filter grayscale" />
+                        <div className="w-[350px] aspect-square opacity-[0.03] hover:opacity-[0.05] transition-opacity duration-1000 relative">
+                            <Image
+                                src="/lofilm_logo.png"
+                                alt=""
+                                fill
+                                className="object-contain filter grayscale"
+                            />
                         </div>
                     </div>
                 </div>

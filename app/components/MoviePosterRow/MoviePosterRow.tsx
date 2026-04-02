@@ -11,6 +11,7 @@ import "swiper/css/navigation";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
 import Skeleton from "react-loading-skeleton";
+import Image from "next/image";
 
 interface MoviePosterRowProps {
     title: string;
@@ -59,35 +60,38 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
                         return timeB - timeA;
                     }).slice(0, 20);
 
-                    // Làm giàu dữ liệu: Fetch theo đợt (chunks) để lấy episode_total
-                    const enriched: Movie[] = [];
+                    setMovies(sortedItems);
+                    setIsLoading(false);
+
+                    // Làm giàu dữ liệu: Fetch theo đợt (chunks) để lấy episode_total - không chặn render
+                    const enriched = [...sortedItems];
                     const chunkSize = 5;
 
                     for (let i = 0; i < sortedItems.length; i += chunkSize) {
                         const chunk = sortedItems.slice(i, i + chunkSize);
-                        const chunkResults = await Promise.all(
-                            chunk.map(async (movie) => {
+                        await Promise.all(
+                            chunk.map(async (movie: Movie, chunkIdx: number) => {
                                 const isMultiEpisode = ["series", "hoathinh", "tvshows"].includes(movie.type || "");
                                 if (isMultiEpisode && !movie.episode_current?.includes("/")) {
                                     try {
                                         const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}`);
                                         if (detailRes.data?.movie?.episode_total) {
-                                            return { ...movie, episode_total: detailRes.data.movie.episode_total };
+                                            const globalIdx = i + chunkIdx;
+                                            enriched[globalIdx] = { ...enriched[globalIdx], episode_total: detailRes.data.movie.episode_total };
                                         }
                                     } catch (e) {
                                         console.error(`Lỗi tải detail cho ${movie.slug}:`, e);
                                     }
                                 }
-                                return movie;
                             })
                         );
-                        enriched.push(...chunkResults);
+                        // Cập nhật state sau mỗi chunk
+                        setMovies([...enriched]);
                         if (i + chunkSize < sortedItems.length) {
                             await new Promise(resolve => setTimeout(resolve, 100));
                         }
                     }
-
-                    setMovies(enriched);
+                    return;
                 } else if (isMounted) {
                     console.warn("MoviePosterRow: API returned invalid status or structure", response.data);
                 }
@@ -191,11 +195,12 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
                                     <div className="sw-item group/item cursor-pointer [contain:layout]">
                                         <Link href="/" className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-white/5">
                                             {/* Poster Image */}
-                                            <img
+                                            <Image
                                                 src={posterImg}
                                                 alt={movie.name}
-                                                loading="lazy"
-                                                className="w-full h-full object-cover transition-transform duration-500 group-hover/item:scale-110 transform-gpu will-change-transform"
+                                                fill
+                                                sizes="(max-width: 640px) 150px, (max-width: 1024px) 200px, 250px"
+                                                className="object-cover transition-transform duration-500 group-hover/item:scale-110 transform-gpu will-change-transform"
                                             />
 
                                             {/* Bottom Gradient overlay */}

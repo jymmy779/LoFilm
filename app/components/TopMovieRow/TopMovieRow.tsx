@@ -11,6 +11,7 @@ import "swiper/css/navigation";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
 import Skeleton from "react-loading-skeleton";
+import Image from "next/image";
 
 interface TopMovieRowProps {
     title: string;
@@ -47,35 +48,39 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
                     };
 
                     const filtered = filterSequels(items);
+                    setMovies(filtered.slice(0, 30));
+                    setIsLoading(false);
+
+                    // Làm giàu dữ liệu một cách bất đồng bộ để không chặn render ảnh
                     const topItems = filtered.slice(0, 30);
-                    const enriched: Movie[] = [];
+                    const enriched = [...topItems];
                     const chunkSize = 5;
 
                     for (let i = 0; i < topItems.length; i += chunkSize) {
                         const chunk = topItems.slice(i, i + chunkSize);
-                        const chunkResults = await Promise.all(
-                            chunk.map(async (movie) => {
+                        await Promise.all(
+                            chunk.map(async (movie: Movie, chunkIdx: number) => {
                                 const isMultiEpisode = ["series", "hoathinh", "tvshows"].includes(movie.type || "");
                                 if (isMultiEpisode && !movie.episode_current?.includes("/")) {
                                     try {
                                         const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}`);
                                         if (detailRes.data?.movie?.episode_total) {
-                                            return { ...movie, episode_total: detailRes.data.movie.episode_total };
+                                            const globalIdx = i + chunkIdx;
+                                            enriched[globalIdx] = { ...enriched[globalIdx], episode_total: detailRes.data.movie.episode_total };
                                         }
                                     } catch (e) {
                                         console.error(`Lỗi tải detail cho ${movie.slug}:`, e);
                                     }
                                 }
-                                return movie;
                             })
                         );
-                        enriched.push(...chunkResults);
+                        // Cập nhật state sau mỗi chunk để UI mượt mà
+                        setMovies([...enriched]);
                         if (i + chunkSize < topItems.length) {
                             await new Promise(resolve => setTimeout(resolve, 100));
                         }
                     }
-
-                    setMovies(enriched);
+                    return;
                 }
             } catch (error: any) {
                 if (isMounted) {
@@ -210,12 +215,12 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
                                         `}} />
                                         <div className="w-full h-full transition-transform duration-500 ease-out group-hover/item:scale-[1.07]">
                                             <div className="w-full h-full group-hover/item:animate-[top-movie-shake_0.15s_ease-in-out_3] will-change-transform">
-                                                <img
+                                                <Image
                                                     src={posterImg}
                                                     alt={movie.name}
-                                                    loading="lazy"
-                                                    decoding="async"
-                                                    className="w-full h-full object-cover transform-gpu will-change-transform"
+                                                    fill
+                                                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 200px"
+                                                    className="object-cover transform-gpu will-change-transform"
                                                 />
                                             </div>
                                         </div>
