@@ -1,0 +1,17 @@
+import type { NextConfig } from "next";
+
+const nextConfig: NextConfig = {
+    experimental: {
+        scrollRestoration: true,
+        optimizePackageImports: ["swiper"],
+    },
+    images: {
+        remotePatterns: [
+            { protocol: "https", hostname: "phimimg.com" },
+            { protocol: "https", hostname: "phimapi.com" },
+            { protocol: "https", hostname: "img.phimapi.com" },
+        ],
+    },
+};
+
+export default nextConfig;
