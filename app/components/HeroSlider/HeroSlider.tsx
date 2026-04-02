@@ -97,7 +97,7 @@ export default function HeroSlider() {
                             <>
                                 <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] lg:overflow-hidden will-change-transform translate-z-0">
                                     <motion.img
-                                        src={movie.thumb_url}
+                                        src={movie.thumb_url?.startsWith("http") ? movie.thumb_url : `https://phimimg.com/${movie.thumb_url}`}
                                         alt={movie.name}
                                         initial={false}
                                         loading="eager"
@@ -253,7 +253,7 @@ export default function HeroSlider() {
                                 <SwiperSlide key={movie._id}>
                                     <div className="relative cursor-pointer rounded-full min-[700px]:rounded overflow-hidden aspect-square min-[700px]:aspect-video border-2 border-transparent hover:border-white/40 [.swiper-slide-thumb-active_&]:border-[#f5a623] transition-all duration-300 opacity-60 hover:opacity-90 [.swiper-slide-thumb-active_&]:opacity-100">
                                         <img
-                                            src={movie.thumb_url}
+                                            src={movie.thumb_url?.startsWith("http") ? movie.thumb_url : `https://phimimg.com/${movie.thumb_url}`}
                                             alt={movie.name}
                                             className="w-full h-full object-cover"
                                             loading="lazy"

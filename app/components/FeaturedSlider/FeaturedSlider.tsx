@@ -132,7 +132,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                 <div className="absolute top-0 right-0 w-full h-full z-0 select-none pointer-events-none">
                                     <div className="absolute inset-0 bg-gradient-to-t xl:bg-gradient-to-r from-[#2F3346] via-[#2F3346] via-[35%] md:via-[30%] xl:via-[28%] to-transparent z-10" />
                                     <img
-                                        src={movie.thumb_url}
+                                        src={movie.thumb_url?.startsWith("http") ? movie.thumb_url : `https://phimimg.com/${movie.thumb_url}`}
                                         className="w-full h-full object-cover object-center"
                                         alt={movie.name}
                                         loading="lazy"
@@ -227,7 +227,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                             <SwiperSlide key={`thumb-${movie._id}`} className="cursor-pointer flex items-center justify-center lg:block">
                                 <div className="thumb-item flex-shrink-0 transition-[width,height,background-color,border-color] duration-300 relative w-2.5 h-2.5 lg:w-full lg:h-auto aspect-square xl:aspect-[2/3] rounded-full xl:rounded-lg overflow-hidden lg:border-2 border-transparent lg:shadow-md bg-white/70 lg:bg-transparent will-change-transform">
                                     <img
-                                        src={movie.poster_url || movie.thumb_url}
+                                        src={(movie.poster_url || movie.thumb_url)?.startsWith("http") ? (movie.poster_url || movie.thumb_url) : `https://phimimg.com/${movie.poster_url || movie.thumb_url}`}
                                         alt={movie.name}
                                         className="hidden lg:block w-full h-full object-cover transform-gpu"
                                         loading="eager"

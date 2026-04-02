@@ -60,7 +60,7 @@ export default function Footer() {
                                 return (
                                     <Link
                                         key={item}
-                                        href={`/${slug}`}
+                                        href={`/`}
                                         className="text-[14px] font-medium text-white/60 hover:text-[#f5a623] hover:underline underline-offset-4 transition-all"
                                     >
                                         {item}
