@@ -190,7 +190,7 @@ export default function Header() {
 
                             {navLinks.map((item) => (
                                 <Link
-                                    key="/"
+                                    key={item.label}
                                     href="/"
                                     className="text-[13px] 2xl:text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 whitespace-nowrap"
                                 >
