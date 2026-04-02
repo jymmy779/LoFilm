@@ -73,39 +73,39 @@ export default function Header() {
                                 transition={{ duration: 0.2 }}
                                 className="flex items-center gap-2"
                             >
-                                    <button
-                                        onClick={() => {
-                                            setIsMenuOpen(!isMenuOpen);
-                                            setIsSearchActive(false);
-                                        }}
-                                        className="p-2 cursor-pointer text-white/70 hover:text-white transition-colors flex items-center justify-center w-10 h-10 shrink-0"
-                                    >
-                                        <AnimatePresence mode="wait">
-                                            {isMenuOpen ? (
-                                                <motion.svg
-                                                    key="menu-close"
-                                                    initial={{ rotate: -90, opacity: 0 }}
-                                                    animate={{ rotate: 0, opacity: 1 }}
-                                                    exit={{ rotate: 90, opacity: 0 }}
-                                                    transition={{ duration: 0.2 }}
-                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                                                >
-                                                    <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
-                                                </motion.svg>
-                                            ) : (
-                                                <motion.svg
-                                                    key="menu-hamburger"
-                                                    initial={{ scale: 0.8, opacity: 0 }}
-                                                    animate={{ scale: 1, opacity: 1 }}
-                                                    exit={{ scale: 0.8, opacity: 0 }}
-                                                    transition={{ duration: 0.2 }}
-                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                                                >
-                                                    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
-                                                </motion.svg>
-                                            )}
-                                        </AnimatePresence>
-                                    </button>
+                                <button
+                                    onClick={() => {
+                                        setIsMenuOpen(!isMenuOpen);
+                                        setIsSearchActive(false);
+                                    }}
+                                    className="p-2 cursor-pointer text-white/70 hover:text-white transition-colors flex items-center justify-center w-10 h-10 shrink-0"
+                                >
+                                    <AnimatePresence mode="wait">
+                                        {isMenuOpen ? (
+                                            <motion.svg
+                                                key="menu-close"
+                                                initial={{ rotate: -90, opacity: 0 }}
+                                                animate={{ rotate: 0, opacity: 1 }}
+                                                exit={{ rotate: 90, opacity: 0 }}
+                                                transition={{ duration: 0.2 }}
+                                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                            >
+                                                <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+                                            </motion.svg>
+                                        ) : (
+                                            <motion.svg
+                                                key="menu-hamburger"
+                                                initial={{ scale: 0.8, opacity: 0 }}
+                                                animate={{ scale: 1, opacity: 1 }}
+                                                exit={{ scale: 0.8, opacity: 0 }}
+                                                transition={{ duration: 0.2 }}
+                                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                            >
+                                                <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+                                            </motion.svg>
+                                        )}
+                                    </AnimatePresence>
+                                </button>
 
                                 <Link href="/" className="shrink-0">
                                     <Image
@@ -247,18 +247,20 @@ export default function Header() {
                             style={{ willChange: "transform, opacity" }}
                         >
                             <div className="p-5 custom-scrollbar">
-                                <div className="flex flex-col">
-                                    <Link
-                                        href="/"
-                                        onClick={() => setIsMenuOpen(false)}
-                                        className="text-base cursor-pointer font-medium text-white/80 py-3 border-b border-white/5 flex items-center justify-between hover:text-[#f5a623] transition-colors"
-                                    >
-                                        Trang chủ
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                                    </Link>
+                                <motion.div layout className="flex flex-col">
+                                    <motion.div layout>
+                                        <Link
+                                            href="/"
+                                            onClick={() => setIsMenuOpen(false)}
+                                            className="text-base cursor-pointer font-medium text-white/80 py-3 border-b border-white/5 flex items-center justify-between hover:text-[#f5a623] transition-colors"
+                                        >
+                                            Trang chủ
+                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                                        </Link>
+                                    </motion.div>
 
                                     {/* Accordion: Thể loại */}
-                                    <div className="border-b border-white/5">
+                                    <motion.div layout className="border-b border-white/5">
                                         <button
                                             onClick={() => setExpandedSections(prev => prev.includes('categories') ? prev.filter(s => s !== 'categories') : [...prev, 'categories'])}
                                             className="w-full flex cursor-pointer items-center justify-between py-3 text-base font-medium text-white/80 hover:text-[#f5a623] transition-colors"
@@ -273,6 +275,7 @@ export default function Header() {
                                         </button>
 
                                         <motion.div
+                                            layout
                                             initial={false}
                                             animate={{ 
                                                 height: expandedSections.includes('categories') ? "auto" : 0,
@@ -280,7 +283,7 @@ export default function Header() {
                                                 marginTop: expandedSections.includes('categories') ? 8 : 0,
                                                 marginBottom: expandedSections.includes('categories') ? 12 : 0
                                             }}
-                                            transition={{ duration: 0.25, ease: [0.33, 1, 0.68, 1] }}
+                                            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
                                             className="overflow-hidden"
                                         >
                                             <div className="grid grid-cols-2 gap-x-4 gap-y-2 p-3 bg-white/5 rounded-xl">
@@ -296,10 +299,10 @@ export default function Header() {
                                                 ))}
                                             </div>
                                         </motion.div>
-                                    </div>
+                                    </motion.div>
 
                                     {/* Accordion: Quốc gia */}
-                                    <div className="border-b border-white/5">
+                                    <motion.div layout className="border-b border-white/5">
                                         <button
                                             onClick={() => setExpandedSections(prev => prev.includes('countries') ? prev.filter(s => s !== 'countries') : [...prev, 'countries'])}
                                             className="w-full flex cursor-pointer items-center justify-between py-3 text-base font-medium text-white/80 hover:text-[#f5a623] transition-colors"
@@ -314,6 +317,7 @@ export default function Header() {
                                         </button>
 
                                         <motion.div
+                                            layout
                                             initial={false}
                                             animate={{ 
                                                 height: expandedSections.includes('countries') ? "auto" : 0,
@@ -321,7 +325,7 @@ export default function Header() {
                                                 marginTop: expandedSections.includes('countries') ? 8 : 0,
                                                 marginBottom: expandedSections.includes('countries') ? 12 : 0
                                             }}
-                                            transition={{ duration: 0.25, ease: [0.33, 1, 0.68, 1] }}
+                                            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
                                             className="overflow-hidden"
                                         >
                                             <div className="grid grid-cols-3 gap-2 p-3 bg-white/5 rounded-xl">
@@ -337,27 +341,26 @@ export default function Header() {
                                                 ))}
                                             </div>
                                         </motion.div>
-                                    </div>
+                                    </motion.div>
 
                                     {/* Common Nav Links */}
-                                    <div className="flex flex-col">
-                                        {navLinks.map((item) => (
+                                    {navLinks.map((item) => (
+                                        <motion.div layout key={item.href}>
                                             <Link
-                                                key={item.href}
                                                 href="/"
                                                 onClick={() => setIsMenuOpen(false)}
-                                                className="text-base text-white/80 py-3 border-b border-white/5 hover:text-[#f5a623] transition-colors font-medium"
+                                                className="text-base text-white/80 py-3 border-b border-white/5 hover:text-[#f5a623] transition-colors font-medium block"
                                             >
                                                 {item.label}
                                             </Link>
-                                        ))}
-                                    </div>
+                                        </motion.div>
+                                    ))}
 
                                     {/* Centered Premium Member Button */}
-                                    <div className="pt-4 pb-2 flex justify-center">
+                                    <motion.div layout className="pt-4 pb-2 flex justify-center">
                                         <MemberButton />
-                                    </div>
-                                </div>
+                                    </motion.div>
+                                </motion.div>
                             </div>
                         </motion.div>
                     </>
