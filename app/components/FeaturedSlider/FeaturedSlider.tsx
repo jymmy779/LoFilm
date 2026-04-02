@@ -127,11 +127,10 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                 >
                     {movies.map((movie, index) => (
                         <SwiperSlide key={movie._id}>
-                            <div className="relative w-full aspect-[21/9] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5] min-h-[500px] bg-[#2F3346]">
+                            <div className="relative w-full aspect-[21/9] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5] min-h-[500px] bg-[#14233E]">
 
                                 {/* Background Image Area */}
-                                <div className="absolute top-0 right-0 w-full h-full z-0 select-none pointer-events-none">
-                                    <div className="absolute inset-0 bg-gradient-to-t xl:bg-gradient-to-r from-[#2F3346] via-[#2F3346] via-[35%] md:via-[30%] xl:via-[28%] to-transparent z-10" />
+                                <div className="absolute top-0 right-0 w-full xl:w-[75%] h-full z-0 select-none pointer-events-none">
                                     <Image
                                         src={movie.thumb_url?.startsWith("http") ? movie.thumb_url : `https://phimimg.com/${movie.thumb_url}`}
                                         alt={movie.name}
@@ -142,8 +141,11 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                     />
                                 </div>
 
+                                {/* Separate Overlay to stay fixed while image moves */}
+                                <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[#14233E] via-[#14233E] via-[30%] to-transparent z-10 pointer-events-none" />
+
                                 {/* Content Area */}
-                                <div className="relative z-20 w-full xl:w-[60%] h-full flex items-end lg:items-start xl:items-center pt-30 xl:pt-0 px-5 md:px-10 text-left">
+                                <div className="relative z-20 w-full xl:w-[60%] h-full flex items-end lg:items-start xl:items-center lg:pb-25 pt-30 xl:pt-0 px-5 md:px-10 text-left">
                                     <div className="lg:max-w-lg xl:max-w-2xl w-full space-y-4 lg:space-y-5">
                                         <div className="space-y-1">
                                             <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white group-hover:text-[#f5a623] transition-colors line-clamp-1">
@@ -181,7 +183,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                         </div>
 
                                         <div className="xl:mb-auto mb-0 min-h-[40px] md:min-h-[48px] flex items-center">
-                                            <p className="text-white/70 text-sm md:text-base leading-relaxed line-clamp-2">
+                                            <p className="text-white/70 text-xs md:text-sm leading-relaxed line-clamp-2">
                                                 {cleanContent(movie.content) || "Nội dung phim đang được cập nhật..."}
                                             </p>
                                         </div>
