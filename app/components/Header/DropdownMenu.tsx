@@ -73,7 +73,7 @@ export default function DropdownMenu({
                         {/* Invisible bridge — covers the mt gap so onMouseLeave doesn't fire */}
                         <div className="absolute top-0 left-0 w-full h-[8px]" />
                         
-                        <div className="min-w-[580px] rounded-[8px] bg-[#0d1e35]/95 backdrop-blur-xl border-t-2 border-[#f5a623] shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/5">
+                        <div className="min-w-[580px] rounded-[8px] bg-[#0d1e35] border-t-2 border-[#f5a623] shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/5">
                             <div className="grid grid-cols-4 gap-x-4 gap-y-3 p-5">
                                 {cols.map((col, colIdx) => (
                                     <div key={colIdx} className="flex flex-col gap-3">
