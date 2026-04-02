@@ -118,7 +118,7 @@ export default function HeroSlider() {
                                     <div className="absolute inset-x-0 top-0 h-20 md:h-30 bg-gradient-to-b from-[#0A1628] to-transparent pointer-events-none" />
                                     <div className="absolute inset-y-0 right-0 md:w-1/6 bg-gradient-to-l from-[#0A1628] to-transparent pointer-events-none" />
                                     <div className="absolute inset-y-0 left-0 md:w-1/4 bg-gradient-to-r from-[#0A1628] md:from-[#0A1628] md:via-[#0A1628]/60 to-transparent" />
-                                    <div className="absolute inset-x-0 bottom-0 h-1/2 md:h-1/3 bg-gradient-to-t from-[#0A1628] via-[#0A1628] md:via-[#0A1628]/60 to-transparent pointer-events-none" />
+                                    <div className="absolute inset-x-0 bottom-0 h-1/2 md:h-1/3 bg-gradient-to-t from-[#0A1628] via-[#0A1628]/60 md:via-[#0A1628]/60 to-transparent pointer-events-none" />
                                 </div>
                             </>
                         )}
@@ -151,7 +151,7 @@ export default function HeroSlider() {
                                 >
                                     {/* Title */}
                                     <div className="min-h-[76px] m-0 md:mb-[16px] flex items-end justify-center min-[700px]:justify-start">
-                                        <h2 className="text-2xl xl:text-4xl font-bold text-white leading-tight drop-shadow-lg line-clamp-1 md:line-clamp-2">
+                                        <h2 className="text-2xl xl:text-4xl font-bold text-white leading-tight drop-shadow-2xl [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)] line-clamp-1 md:line-clamp-2">
                                             <Link href="/" className="hover:text-[#f5a623] transition-colors">
                                                 {decodeHtml(currentMovie.name)}
                                             </Link>
@@ -160,7 +160,7 @@ export default function HeroSlider() {
 
                                     {/* Origin name & Tags */}
                                     <div className="space-y-2 md:mb-[16px] mb-0">
-                                        <p className="font-bold text-xs md:text-sm md:mb-[16px] mb-0 italic h-5 truncate">
+                                        <p className="font-bold text-xs md:text-sm md:mb-[16px] mb-0 italic h-5 truncate [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)]">
                                             {decodeHtml(currentMovie.origin_name)}
                                         </p>
 

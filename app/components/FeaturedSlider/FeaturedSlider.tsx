@@ -142,18 +142,18 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                 </div>
 
                                 {/* Separate Overlay to stay fixed while image moves */}
-                                <div className="absolute inset-0 bg-gradient-to-t lg:bg-gradient-to-r from-[#14233E] via-[#14233E] via-[30%] to-transparent z-10 pointer-events-none" />
+                                <div className="absolute inset-0 bg-gradient-to-t xl:bg-gradient-to-r from-[#14233E] via-[#14233E] via-[30%] to-transparent z-10 pointer-events-none" />
 
                                 {/* Content Area */}
-                                <div className="relative z-20 w-full xl:w-[60%] h-full flex items-end lg:items-start xl:items-center lg:pb-25 pt-30 xl:pt-0 px-5 md:px-10 text-left">
+                                <div className="relative z-20 w-full xl:w-[60%] h-full flex items-end xl:items-center pt-30 xl:pt-0 px-5 md:px-10 lg:pb-30 xl:pb-0 text-left">
                                     <div className="lg:max-w-lg xl:max-w-2xl w-full space-y-4 lg:space-y-5">
                                         <div className="space-y-1">
-                                            <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white group-hover:text-[#f5a623] transition-colors line-clamp-1">
+                                            <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white group-hover:text-[#f5a623] transition-colors line-clamp-1 [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)]">
                                                 <Link href={`/`}>
                                                     {decodeHtml(movie.name)}
                                                 </Link>
                                             </h3>
-                                            <p className="text-sm md:text-base font-medium text-white/70 italic line-clamp-1 mt-1">
+                                            <p className="text-sm md:text-base font-medium text-white/70 italic line-clamp-1 mt-1 [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)]">
                                                 {decodeHtml(movie.origin_name)}
                                             </p>
                                         </div>
