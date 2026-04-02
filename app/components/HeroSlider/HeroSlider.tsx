@@ -111,14 +111,14 @@ export default function HeroSlider() {
                                             scale: isActive ? 1 : 1.05
                                         }}
                                         transition={{ duration: 1.2, ease: [0.16, 1, 0.3, 1] }}
-                                        className="object-cover transform-gpu"
+                                        className="object-cover object-top transform-gpu"
                                     />
 
                                     {/* Overlays for readability */}
-                                    <div className="absolute inset-x-0 top-0 h-48 bg-gradient-to-b from-[#0a1628]/30 to-transparent pointer-events-none" />
-                                    <div className="absolute inset-y-0 right-0 w-1/3 md:w-1/4 bg-gradient-to-l from-[#0a1628]/30 to-transparent pointer-events-none" />
-                                    <div className="absolute inset-y-0 left-0 w-2/3 md:w-1/2 bg-gradient-to-r from-[#0a1628]/30 md:from-[#0a1628] md:via-[#0a1628]/60 to-transparent" />
-                                    <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-[#0a1628] via-[#0a1628]/60 to-transparent pointer-events-none" />
+                                    <div className="absolute inset-x-0 top-0 h-20 md:h-30 bg-gradient-to-b from-[#0A1628] to-transparent pointer-events-none" />
+                                    <div className="absolute inset-y-0 right-0 md:w-1/6 bg-gradient-to-l from-[#0A1628] to-transparent pointer-events-none" />
+                                    <div className="absolute inset-y-0 left-0 md:w-1/4 bg-gradient-to-r from-[#0A1628] md:from-[#0A1628] md:via-[#0A1628]/60 to-transparent" />
+                                    <div className="absolute inset-x-0 bottom-0 h-1/2 md:h-1/3 bg-gradient-to-t from-[#0A1628] via-[#0A1628] md:via-[#0A1628]/60 to-transparent pointer-events-none" />
                                 </div>
                             </>
                         )}
@@ -131,7 +131,7 @@ export default function HeroSlider() {
                 <div className="relative top-[-65px] md:top-[-150px] flex flex-col min-[700px]:flex-row items-center min-[700px]:items-end justify-center min-[700px]:justify-between w-full gap-4 lg:gap-8 xl:gap-12">
 
                     {/* Content (Left side on Desktop, Top on Mobile) */}
-                    <div className="w-full lg:max-w-2xl pointer-events-auto text-center min-[700px]:text-left">
+                    <div className="w-full max-w-sm md:max-w-md xl:max-w-2xl pointer-events-auto text-center min-[700px]:text-left">
                         <AnimatePresence mode="wait">
                             {currentMovie && (
                                 <motion.div
@@ -151,7 +151,7 @@ export default function HeroSlider() {
                                 >
                                     {/* Title */}
                                     <div className="min-h-[76px] m-0 md:mb-[16px] flex items-end justify-center min-[700px]:justify-start">
-                                        <h2 className="text-lg md:text-2xl lg:text-5xl font-bold text-white leading-tight drop-shadow-lg line-clamp-2">
+                                        <h2 className="text-2xl xl:text-4xl font-bold text-white leading-tight drop-shadow-lg line-clamp-1 md:line-clamp-2">
                                             <Link href="/" className="hover:text-[#f5a623] transition-colors">
                                                 {decodeHtml(currentMovie.name)}
                                             </Link>
@@ -167,20 +167,20 @@ export default function HeroSlider() {
                                         {/* Tags */}
                                         <div className="flex flex-wrap items-center justify-center min-[700px]:justify-start gap-2 h-7 overflow-hidden">
                                             {(currentMovie.tmdb?.vote_average || 0) > 0 && (
-                                                <span className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs flex items-center justify-center bg-[#f5a623] text-[#0a1628] font-bold rounded">
+                                                <span className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs border rounded bg-white/20 lg:bg-white/10 border-[#f5a623] text-[#f5a623] transition-colors">
                                                     ★ {(currentMovie.tmdb?.vote_average || 0).toFixed(1)}
                                                 </span>
                                             )}
-                                            <span className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs flex items-center justify-center bg-white/10 text-white/80 rounded">
+                                            <span className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs text-white border rounded bg-white/20 lg:bg-white/10 transition-colors">
                                                 {currentMovie.year}
                                             </span>
                                             {currentMovie.episode_current && (
-                                                <span className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs flex items-center justify-center bg-white/10 text-white/80 rounded truncate max-w-[150px]">
+                                                <span className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs text-white border rounded bg-white/20 lg:bg-white/10 transition-colors">
                                                     {currentMovie.episode_current}
                                                 </span>
                                             )}
                                             {currentMovie.quality && (
-                                                <span className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs flex items-center justify-center bg-blue-500/30 text-blue-200 rounded">
+                                                <span className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs text-white border rounded bg-white/20 lg:bg-white/10 transition-colors">
                                                     {currentMovie.quality}
                                                 </span>
                                             )}
@@ -194,7 +194,7 @@ export default function HeroSlider() {
                                                 <Link
                                                     key={cat.slug}
                                                     href="/"
-                                                    className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs text-white/70 border border-white/20 rounded hover:border-[#f5a623]/60 hover:text-[#f5a623] transition-colors"
+                                                    className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs flex items-center justify-center bg-white/15 hover:text-[#f5a623] rounded"
                                                 >
                                                     {cat.name}
                                                 </Link>
@@ -205,7 +205,7 @@ export default function HeroSlider() {
                                     {/* Description */}
                                     <div className="min-h-[60px] lg:block hidden max-w-lg mx-auto lg:mx-0">
                                         {currentMovie.content ? (
-                                            <p className="text-white/70 text-sm leading-relaxed line-clamp-3">
+                                            <p className=" text-xs xl:text-sm leading-relaxed line-clamp-3">
                                                 {cleanContent(currentMovie.content) || "Nội dung phim đang được cập nhật..."}
                                             </p>
                                         ) : (

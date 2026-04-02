@@ -138,7 +138,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                         fill
                                         priority={index === 0}
                                         sizes="100vw"
-                                        className="object-cover object-center"
+                                        className="object-cover object-top"
                                     />
                                 </div>
 
