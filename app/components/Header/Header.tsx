@@ -60,7 +60,7 @@ export default function Header() {
     ];
 
     return (
-        <header className={`w-full fixed top-0 left-0 z-50 transition-[background-color,border-color,padding,box-shadow] duration-300 border-b ${isScrolled ? "bg-[#0d1b2e] border-white/10 py-2 lg:px-5 shadow-lg" : "bg-transparent border-transparent py-4 lg:px-5"}`}>
+        <header className={`w-full fixed top-0 left-0 z-50 ${isMenuOpen ? "" : "transition-[background-color,border-color,padding,box-shadow] duration-300"} border-b ${isScrolled || isMenuOpen ? "bg-[#0d1b2e] border-white/10 py-2 lg:px-5 shadow-lg" : "bg-transparent border-transparent py-4 lg:px-5"}`}>
             <div className="flex items-center justify-between h-[54px] md:h-[64px] w-full max-w-[1900px] mx-auto px-4 lg:px-0 gap-4 md:gap-8">
                 <div className="flex xl:hidden items-center justify-between w-full h-full gap-3">
                     <AnimatePresence mode="wait">
@@ -239,12 +239,12 @@ export default function Header() {
                         />
 
                         <motion.div
-                            initial={{ opacity: 0, y: -10, scale: 0.98 }}
+                            initial={{ opacity: 0, y: -4, scale: 0.99 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
-                            className="xl:hidden fixed left-4 right-4 top-[64px] md:top-[74px] z-[100] bg-[#111e31] border border-white/10 rounded-2xl shadow-2xl overflow-hidden origin-top overflow-y-auto max-h-[80vh]"
-                            style={{ willChange: "transform, opacity" }}
+                            exit={{ opacity: 0, y: -4, scale: 0.99 }}
+                            transition={{ duration: 0.15, ease: "easeOut" }}
+                            className="xl:hidden fixed left-4 right-4 top-[64px] md:top-[74px] z-[100] bg-[#111e31] border border-white/10 rounded-xl overflow-hidden origin-top overflow-y-auto max-h-[80vh]"
+                            style={{ willChange: "transform, opacity", transform: "translateZ(0)" }}
                         >
                             <div className="p-5 custom-scrollbar">
                                 <motion.div layout className="flex flex-col">
@@ -280,11 +280,12 @@ export default function Header() {
                                             animate={{ 
                                                 height: expandedSections.includes('categories') ? "auto" : 0,
                                                 opacity: expandedSections.includes('categories') ? 1 : 0,
-                                                marginTop: expandedSections.includes('categories') ? 8 : 0,
-                                                marginBottom: expandedSections.includes('categories') ? 12 : 0
+                                                marginTop: expandedSections.includes('categories') ? 6 : 0,
+                                                marginBottom: expandedSections.includes('categories') ? 6 : 0
                                             }}
-                                            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+                                            transition={{ duration: 0.15, ease: "easeOut" }}
                                             className="overflow-hidden"
+                                            style={{ transform: "translateZ(0)" }}
                                         >
                                             <div className="grid grid-cols-2 gap-x-4 gap-y-2 p-3 bg-white/5 rounded-xl">
                                                 {categories.map((cat) => (
@@ -322,11 +323,12 @@ export default function Header() {
                                             animate={{ 
                                                 height: expandedSections.includes('countries') ? "auto" : 0,
                                                 opacity: expandedSections.includes('countries') ? 1 : 0,
-                                                marginTop: expandedSections.includes('countries') ? 8 : 0,
-                                                marginBottom: expandedSections.includes('countries') ? 12 : 0
+                                                marginTop: expandedSections.includes('countries') ? 6 : 0,
+                                                marginBottom: expandedSections.includes('countries') ? 6 : 0
                                             }}
-                                            transition={{ duration: 0.2, ease: [0.23, 1, 0.32, 1] }}
+                                            transition={{ duration: 0.15, ease: "easeOut" }}
                                             className="overflow-hidden"
+                                            style={{ transform: "translateZ(0)" }}
                                         >
                                             <div className="grid grid-cols-3 gap-2 p-3 bg-white/5 rounded-xl">
                                                 {countries.map((country) => (
