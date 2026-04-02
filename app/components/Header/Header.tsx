@@ -73,19 +73,39 @@ export default function Header() {
                                 transition={{ duration: 0.2 }}
                                 className="flex items-center gap-2"
                             >
-                                <button
-                                    onClick={() => {
-                                        setIsMenuOpen(!isMenuOpen);
-                                        setIsSearchActive(false);
-                                    }}
-                                    className="p-2 cursor-pointer text-white/70 hover:text-white transition-colors"
-                                >
-                                    {isMenuOpen ? (
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                                    ) : (
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
-                                    )}
-                                </button>
+                                    <button
+                                        onClick={() => {
+                                            setIsMenuOpen(!isMenuOpen);
+                                            setIsSearchActive(false);
+                                        }}
+                                        className="p-2 cursor-pointer text-white/70 hover:text-white transition-colors flex items-center justify-center w-10 h-10 shrink-0"
+                                    >
+                                        <AnimatePresence mode="wait">
+                                            {isMenuOpen ? (
+                                                <motion.svg
+                                                    key="menu-close"
+                                                    initial={{ rotate: -90, opacity: 0 }}
+                                                    animate={{ rotate: 0, opacity: 1 }}
+                                                    exit={{ rotate: 90, opacity: 0 }}
+                                                    transition={{ duration: 0.2 }}
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                                >
+                                                    <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+                                                </motion.svg>
+                                            ) : (
+                                                <motion.svg
+                                                    key="menu-hamburger"
+                                                    initial={{ scale: 0.8, opacity: 0 }}
+                                                    animate={{ scale: 1, opacity: 1 }}
+                                                    exit={{ scale: 0.8, opacity: 0 }}
+                                                    transition={{ duration: 0.2 }}
+                                                    xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+                                                >
+                                                    <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+                                                </motion.svg>
+                                            )}
+                                        </AnimatePresence>
+                                    </button>
 
                                 <Link href="/" className="shrink-0">
                                     <Image
@@ -252,36 +272,30 @@ export default function Header() {
                                             </motion.svg>
                                         </button>
 
-                                        <AnimatePresence>
-                                            {expandedSections.includes('categories') && (
-                                                <motion.div
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: "auto", opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    transition={{ duration: 0.25, ease: [0.04, 0.62, 0.23, 0.98] }}
-                                                    className="overflow-hidden"
-                                                >
-                                                    <motion.div 
-                                                        initial={{ y: -10 }}
-                                                        animate={{ y: 0 }}
-                                                        exit={{ y: -10 }}
-                                                        transition={{ duration: 0.2 }}
-                                                        className="grid grid-cols-2 gap-x-4 gap-y-2 mb-3 p-3 bg-white/5 rounded-xl"
+                                        <motion.div
+                                            initial={false}
+                                            animate={{ 
+                                                height: expandedSections.includes('categories') ? "auto" : 0,
+                                                opacity: expandedSections.includes('categories') ? 1 : 0,
+                                                marginTop: expandedSections.includes('categories') ? 8 : 0,
+                                                marginBottom: expandedSections.includes('categories') ? 12 : 0
+                                            }}
+                                            transition={{ duration: 0.25, ease: [0.33, 1, 0.68, 1] }}
+                                            className="overflow-hidden"
+                                        >
+                                            <div className="grid grid-cols-2 gap-x-4 gap-y-2 p-3 bg-white/5 rounded-xl">
+                                                {categories.map((cat) => (
+                                                    <Link
+                                                        key={cat._id}
+                                                        href="/"
+                                                        onClick={() => setIsMenuOpen(false)}
+                                                        className="text-sm text-white/60 hover:text-[#f5a623] py-1 transition-colors"
                                                     >
-                                                        {categories.map((cat) => (
-                                                            <Link
-                                                                key={cat._id}
-                                                                href="/"
-                                                                onClick={() => setIsMenuOpen(false)}
-                                                                className="text-sm text-white/60 hover:text-[#f5a623] py-1 transition-colors"
-                                                            >
-                                                                • {cat.name}
-                                                            </Link>
-                                                        ))}
-                                                    </motion.div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
+                                                        • {cat.name}
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        </motion.div>
                                     </div>
 
                                     {/* Accordion: Quốc gia */}
@@ -299,36 +313,30 @@ export default function Header() {
                                             </motion.svg>
                                         </button>
 
-                                        <AnimatePresence>
-                                            {expandedSections.includes('countries') && (
-                                                <motion.div
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: "auto", opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    transition={{ duration: 0.25, ease: [0.04, 0.62, 0.23, 0.98] }}
-                                                    className="overflow-hidden"
-                                                >
-                                                    <motion.div 
-                                                        initial={{ y: -10 }}
-                                                        animate={{ y: 0 }}
-                                                        exit={{ y: -10 }}
-                                                        transition={{ duration: 0.2 }}
-                                                        className="grid grid-cols-3 gap-2 mb-3 p-3 bg-white/5 rounded-xl"
+                                        <motion.div
+                                            initial={false}
+                                            animate={{ 
+                                                height: expandedSections.includes('countries') ? "auto" : 0,
+                                                opacity: expandedSections.includes('countries') ? 1 : 0,
+                                                marginTop: expandedSections.includes('countries') ? 8 : 0,
+                                                marginBottom: expandedSections.includes('countries') ? 12 : 0
+                                            }}
+                                            transition={{ duration: 0.25, ease: [0.33, 1, 0.68, 1] }}
+                                            className="overflow-hidden"
+                                        >
+                                            <div className="grid grid-cols-3 gap-2 p-3 bg-white/5 rounded-xl">
+                                                {countries.map((country) => (
+                                                    <Link
+                                                        key={country._id}
+                                                        href="/"
+                                                        onClick={() => setIsMenuOpen(false)}
+                                                        className="text-xs text-white/60 hover:text-[#f5a623] py-1 transition-colors"
                                                     >
-                                                        {countries.map((country) => (
-                                                            <Link
-                                                                key={country._id}
-                                                                href="/"
-                                                                onClick={() => setIsMenuOpen(false)}
-                                                                className="text-xs text-white/60 hover:text-[#f5a623] py-1 transition-colors"
-                                                            >
-                                                                {country.name}
-                                                            </Link>
-                                                        ))}
-                                                    </motion.div>
-                                                </motion.div>
-                                            )}
-                                        </AnimatePresence>
+                                                        {country.name}
+                                                    </Link>
+                                                ))}
+                                            </div>
+                                        </motion.div>
                                     </div>
 
                                     {/* Common Nav Links */}
