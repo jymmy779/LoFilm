@@ -268,15 +268,16 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                 }
 
                 /* Dưới 1024px: Active biến thành chấm phát sáng (Dự phòng) */
-                .featured-thumbs-slider .swiper-slide-thumb-active .thumb-item {
-                    background-color: #f5a623;
-                    transform: scale(1.1);
-                }
-                
-                /* Đảm bảo ảnh Poster luôn có độ mờ là 1 khi load */
+                /* Dot color for inactive state - brighter white/gray */
                 .featured-thumbs-slider .thumb-item {
                     opacity: 1 !important;
-                    background-color: transparent;
+                    background-color: rgba(255, 255, 255, 1);
+                }
+
+                /* Active dot color - must be below to override */
+                .featured-thumbs-slider .swiper-slide-thumb-active .thumb-item {
+                    background-color: #f5a623 !important;
+                    transform: scale(1.1);
                 }
                 
                 /* Overlay mặc định mờ mờ, khi Active hoặc Hover mới biến mất */
