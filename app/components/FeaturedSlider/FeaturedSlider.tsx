@@ -94,7 +94,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                 <h2 className="text-[20px] lg:text-[28px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-green-200 via-green-100 to-white drop-shadow-sm flex items-center gap-4">
                     {title}
                     <Link
-                        href={viewAllLink}
+                        href="/"
                         className="group/more flex items-center justify-center bg-[#1a1c23] border border-white/10 rounded-full h-8 w-8 lg:h-10 lg:w-10 transition-all duration-500 hover:border-[#f1c40f]/50 hover:w-[110px] lg:hover:w-[130px] overflow-hidden"
                     >
                         <span className="max-w-0 overflow-hidden whitespace-nowrap text-[#f1c40f] text-[10px] lg:text-xs font-medium transition-all duration-500 group-hover/more:max-w-[80px] group-hover/more:mr-2 leading-none opacity-0 group-hover/more:opacity-100">
@@ -145,7 +145,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                     <div className="lg:max-w-lg xl:max-w-2xl w-full space-y-4 lg:space-y-5">
                                         <div className="space-y-1">
                                             <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white group-hover:text-[#f5a623] transition-colors line-clamp-1">
-                                                <Link href={`/phim/${movie.slug}`}>
+                                                <Link href={`/`}>
                                                     {decodeHtml(movie.name)}
                                                 </Link>
                                             </h3>
@@ -169,7 +169,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                                 {movie.category?.slice(0, 3).map((cat: any) => (
                                                     <Link
                                                         key={cat.id}
-                                                        href={`/the-loai/${cat.slug}`}
+                                                        href={`/`}
                                                         className="px-2 flex items-center justify-center py-0.5 text-[11px] text-white/40 border border-white/10 rounded hover:border-[#f5a623]/60 hover:text-[#f5a623] transition-colors"
                                                     >
                                                         {cat.name}
@@ -186,7 +186,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
 
                                         <div className="flex items-center gap-6 pt-4">
                                             <Link
-                                                href={`/phim/${movie.slug}`}
+                                                href={`/`}
                                                 className="relative hidden lg:flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-[#f5a623] to-[#ffcc33] text-[#0a1628] shadow-[0_4px_15px_rgba(245,166,35,0.4)] ring-4 ring-[#f5a623]/20 hover:shadow-[0_0_30px_rgba(245,166,35,0.8)] hover:scale-110 active:scale-95 transition-all duration-300"
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="20" height="20" fill="currentColor" className="ml-1 relative z-10">
@@ -195,7 +195,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                             </Link>
 
                                             <Link
-                                                href={`/phim/${movie.slug}`}
+                                                href={`/`}
                                                 className="lg:block hidden px-8 py-3 bg-white/10 hover:bg-white/20 text-white text-sm rounded-full transition-colors duration-300 border border-white/10 shadow-xl"
                                             >
                                                 Chi tiết phim

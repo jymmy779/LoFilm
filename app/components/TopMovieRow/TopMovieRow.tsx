@@ -106,8 +106,8 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
                 <Skeleton width={300} height={40} className="mb-8 rounded-lg" />
                 <div className="flex gap-[10px] sm:gap-[13px] xl:gap-[15px] overflow-hidden">
                     {[...Array(10)].map((_, i) => (
-                        <div 
-                            key={i} 
+                        <div
+                            key={i}
                             className="flex-none mt-4 w-[calc((100%-10px)/2)] sm:w-[calc((100%-13px*2)/3)] md:w-[calc((100%-13px*3)/4)] xl:w-[calc((100%-13px*5)/6)] 2xl:w-[calc((100%-15px*7)/8)]"
                         >
                             <div className="bg-white/5 rounded-2xl overflow-hidden aspect-[2/3] mb-4">
@@ -194,7 +194,7 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
                             <SwiperSlide key={movie._id}>
                                 <div className="sw-item group/item cursor-pointer mt-4">
                                     <Link
-                                        href={`/phim/${movie.slug}`}
+                                        href="/"
                                         className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/5 transition-[transform,box-shadow] duration-500 ease-out group-hover/item:shadow-[0_15px_35px_rgba(0,0,0,0.6)]"
                                         style={{
                                             WebkitClipPath: isEven ? clipPathEven : clipPathOdd,

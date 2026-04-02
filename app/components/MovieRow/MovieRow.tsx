@@ -108,7 +108,7 @@ export default function MovieRow({ title, apiUrl, viewAllLink }: MovieRowProps) 
                     </h2>
 
                     <Link
-                        href={viewAllLink}
+                        href="/"
                         className="text-white/60 hover:text-white transition-colors flex items-center gap-2 text-sm tracking-wider w-max md:mt-2"
                     >
                         <span className="md:block hidden">Xem toàn bộ</span>
@@ -144,7 +144,7 @@ export default function MovieRow({ title, apiUrl, viewAllLink }: MovieRowProps) 
 
                             return (
                                 <SwiperSlide key={movie._id} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
-                                    <Link href={`/phim/${movie.slug}`} className="block group/item cursor-pointer">
+                                    <Link href="/" className="block group/item cursor-pointer">
                                         <div className="relative aspect-video rounded-lg overflow-hidden bg-white/5 mb-3">
                                             <img
                                                 src={imgUrl}

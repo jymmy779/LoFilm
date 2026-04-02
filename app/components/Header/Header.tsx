@@ -183,8 +183,8 @@ export default function Header() {
 
                             {navLinks.map((item) => (
                                 <Link
-                                    key={item.href}
-                                    href={item.href}
+                                    key="/"
+                                    href="/"
                                     className="text-[13px] 2xl:text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 whitespace-nowrap"
                                 >
                                     {item.label}
@@ -257,7 +257,7 @@ export default function Header() {
                                                         {categories.map((cat) => (
                                                             <Link
                                                                 key={cat._id}
-                                                                href={`/the-loai/${cat.slug}`}
+                                                                href="/"
                                                                 onClick={() => setIsMenuOpen(false)}
                                                                 className="text-sm text-white/60 hover:text-[#f5a623] py-1 transition-colors"
                                                             >
@@ -298,7 +298,7 @@ export default function Header() {
                                                         {countries.map((country) => (
                                                             <Link
                                                                 key={country._id}
-                                                                href={`/quoc-gia/${country.slug}`}
+                                                                href="/"
                                                                 onClick={() => setIsMenuOpen(false)}
                                                                 className="text-xs text-white/60 hover:text-[#f5a623] py-1 transition-colors"
                                                             >
@@ -316,7 +316,7 @@ export default function Header() {
                                         {navLinks.map((item) => (
                                             <Link
                                                 key={item.href}
-                                                href={item.href}
+                                                href="/"
                                                 onClick={() => setIsMenuOpen(false)}
                                                 className="text-base text-white/80 py-3 border-b border-white/5 hover:text-[#f5a623] transition-colors font-medium"
                                             >

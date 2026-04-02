@@ -65,7 +65,7 @@ export default function CategoriesSection() {
                     return (
                         <Link
                             key={cat.slug}
-                            href={`/the-loai/${cat.slug}`}
+                            href={`/`}
                             className="block w-full h-[120px] rounded-xl p-5 relative overflow-hidden group transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_20px_rgba(0,0,0,0.4)]"
                         >
                             {/* Gradient nền có hover */}

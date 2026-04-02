@@ -116,8 +116,8 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
                 <Skeleton width={200} height={32} className="mb-6 rounded" />
                 <div className="flex gap-2.5 md:gap-4 lg:gap-[15px] overflow-hidden">
                     {[...Array(10)].map((_, i) => (
-                        <div 
-                            key={i} 
+                        <div
+                            key={i}
                             className="flex-none w-[calc((100%-10px)/2)] sm:w-[calc((100%-13px*2)/3)] md:w-[calc((100%-13px*3)/4)] xl:w-[calc((100%-13px*5)/6)] 2xl:w-[calc((100%-15px*7)/8)]"
                         >
                             <Skeleton className="aspect-[2/3] rounded-2xl" />
@@ -136,7 +136,7 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
                 <h2 className="text-[20px] lg:text-[28px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-blue-100 to-white drop-shadow-sm flex items-center gap-4">
                     {title}
                     <Link
-                        href={viewAllLink}
+                        href="/"
                         className="group/more flex items-center justify-center bg-[#1a1c23] border border-white/10 rounded-full h-8 w-8 lg:h-10 lg:w-10 transition-all duration-500 hover:border-[#f1c40f]/50 hover:w-[110px] lg:hover:w-[130px] overflow-hidden"
                     >
                         <span className="max-w-0 overflow-hidden whitespace-nowrap text-[#f1c40f] text-[10px] lg:text-xs font-medium transition-all duration-500 group-hover/more:max-w-[80px] group-hover/more:mr-2 leading-none opacity-0 group-hover/more:opacity-100">
@@ -189,7 +189,7 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
                             return (
                                 <SwiperSlide key={movie._id}>
                                     <div className="sw-item group/item cursor-pointer [contain:layout]">
-                                        <Link href={`/phim/${movie.slug}`} className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-white/5">
+                                        <Link href="/" className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-white/5">
                                             {/* Poster Image */}
                                             <img
                                                 src={posterImg}
@@ -242,10 +242,10 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
 
                                         <div className="info text-center space-y-1">
                                             <h4 className="item-title text-white text-sm lg:text-base line-clamp-1 group-hover/item:text-blue-300 transition-colors">
-                                                <Link href={`/phim/${movie.slug}`} title={movie.name}>{decodeHtml(movie.name)}</Link>
+                                                <Link href="/" title={movie.name}>{decodeHtml(movie.name)}</Link>
                                             </h4>
                                             <h4 className="alias-title text-white/40 text-xs line-clamp-1 font-medium">
-                                                <Link href={`/phim/${movie.slug}`}>{decodeHtml(movie.origin_name)}</Link>
+                                                <Link href="/">{decodeHtml(movie.origin_name)}</Link>
                                             </h4>
                                         </div>
                                     </div>

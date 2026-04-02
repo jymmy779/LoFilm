@@ -132,22 +132,22 @@ export default function HeroSlider() {
                                 <motion.div
                                     key={activeIndex}
                                     initial={{ opacity: 0, x: -50 }}
-                                    animate={{ 
-                                        opacity: 1, 
-                                        x: 0, 
-                                        transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] } 
+                                    animate={{
+                                        opacity: 1,
+                                        x: 0,
+                                        transition: { duration: 1.2, ease: [0.16, 1, 0.3, 1] }
                                     }}
-                                    exit={{ 
-                                        opacity: 0, 
-                                        x: -30, 
-                                        transition: { duration: 0.1, ease: "easeIn" } 
+                                    exit={{
+                                        opacity: 0,
+                                        x: -30,
+                                        transition: { duration: 0.1, ease: "easeIn" }
                                     }}
                                     className="space-y-4 transform-gpu will-change-[transform,opacity]"
                                 >
                                     {/* Title */}
                                     <div className="min-h-[76px] m-0 md:mb-[16px] flex items-end justify-center min-[700px]:justify-start">
                                         <h2 className="text-lg md:text-2xl lg:text-5xl font-bold text-white leading-tight drop-shadow-lg line-clamp-2">
-                                            <Link href={`/phim/${currentMovie.slug}`} className="hover:text-[#f5a623] transition-colors">
+                                            <Link href="/" className="hover:text-[#f5a623] transition-colors">
                                                 {decodeHtml(currentMovie.name)}
                                             </Link>
                                         </h2>
@@ -188,7 +188,7 @@ export default function HeroSlider() {
                                             {currentMovie.category.slice(0, 3).map((cat) => (
                                                 <Link
                                                     key={cat.slug}
-                                                    href={`/the-loai/${cat.slug}`}
+                                                    href="/"
                                                     className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs text-white/70 border border-white/20 rounded hover:border-[#f5a623]/60 hover:text-[#f5a623] transition-colors"
                                                 >
                                                     {cat.name}
@@ -214,7 +214,7 @@ export default function HeroSlider() {
                                     {/* Buttons */}
                                     <div className="flex min-[700px]:flex hidden items-center justify-center min-[700px]:justify-start gap-5 pt-4">
                                         <Link
-                                            href={`/phim/${currentMovie.slug}`}
+                                            href="/"
                                             className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-15 lg:h-15 rounded-full bg-gradient-to-tr from-[#f5a623] to-[#ffcc33] text-[#0a1628] ring-4 ring-[#f5a623]/20 shadow-[0_4px_15px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.8)] hover:scale-110 active:scale-95 transition-all duration-300"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="20" height="20" fill="currentColor" className="ml-1 relative z-10">
@@ -222,7 +222,7 @@ export default function HeroSlider() {
                                             </svg>
                                         </Link>
                                         <Link
-                                            href={`/phim/${currentMovie.slug}`}
+                                            href="/"
                                             className="lg:px-6 lg:py-2.5 md:px-4 py-1.5 px-3  bg-white/10 hover:bg-white/20 text-white text-xs md:text-sm font-medium rounded-full transition-all duration-300 border border-white/10 backdrop-blur-sm"
                                         >
                                             Chi tiết phim
