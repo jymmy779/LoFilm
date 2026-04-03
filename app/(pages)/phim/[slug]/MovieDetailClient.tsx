@@ -415,14 +415,14 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                                 { label: 'Thể loại', value: movie.category?.map(c => c.name).join(', ') || 'N/A' },
                                                 { label: 'Đạo diễn', value: movie.director?.filter(d => d !== '').join(', ') || 'N/A' }
                                             ] as any[]).map((item, idx) => (
-                                                <div key={idx} className="flex items-center justify-between border-b border-white/5 pb-3">
-                                                    <span className="text-gray-500 text-xs font-bold uppercase tracking-widest">{item.label}</span>
+                                                <div key={idx} className="flex items-start justify-between border-b border-white/5 pb-3 gap-4">
+                                                    <span className="text-gray-500 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap shrink-0 pt-0.5">{item.label}</span>
                                                     {item.isTag ? (
-                                                        <span className="px-2 py-0.5 bg-white/10 rounded text-[11px] text-white/80">{item.value}</span>
+                                                        <span className="px-2 py-0.5 bg-white/10 rounded text-[11px] text-white/80 text-right">{item.value}</span>
                                                     ) : item.isLink ? (
-                                                        <span className="text-[#f5a623] text-sm font-medium hover:underline cursor-pointer">{item.value}</span>
+                                                        <span className="text-[#f5a623] text-sm font-medium hover:underline cursor-pointer text-right">{item.value}</span>
                                                     ) : (
-                                                        <span className={`text-sm font-medium ${item.color || 'text-white/80'}`}>{item.value}</span>
+                                                        <span className={`text-sm font-medium ${item.color || 'text-white/80'} text-right`}>{item.value}</span>
                                                     )}
                                                 </div>
                                             ))}
