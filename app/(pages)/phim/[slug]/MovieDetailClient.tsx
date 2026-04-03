@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useMemo } from "react";
+import Image from "next/image";
 import Container from "@/app/components/Container";
 import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
 import { Movie, EpisodeServer } from "@/app/types/movie";
@@ -18,10 +19,13 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
     const [isEpisodesCollapsed, setIsEpisodesCollapsed] = useState(false);
 
     // Build tabs dynamically based on available data
-    const tabs = ['Tập phim', 'Tổng quan'];
-    if (movie.trailer_url) tabs.push('Trailer');
-    if (movie.actor && movie.actor.length > 0) tabs.push('Diễn viên');
-    if (suggestedMovies.length > 0) tabs.push('Đề xuất');
+    const tabs = useMemo(() => {
+        const t = ['Tập phim', 'Tổng quan'];
+        if (movie.trailer_url) t.push('Trailer');
+        if (movie.actor && movie.actor.length > 0) t.push('Diễn viên');
+        if (suggestedMovies.length > 0) t.push('Đề xuất');
+        return t;
+    }, [movie.trailer_url, movie.actor, suggestedMovies.length]);
 
     // Get poster & thumb URLs
     const posterUrl = getImageUrl(movie.poster_url);
@@ -59,11 +63,15 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
     return (
         <main className="min-h-screen pb-20">
             {/* Background Cover */}
-            <div className="relative w-full h-[30vh] md:h-[50vh] xl:h-[80vh] overflow-hidden">
-                <div
-                    className="absolute inset-0 bg-cover bg-center bg-no-repeat scale-105"
-                    style={{ backgroundImage: `url('${thumbUrl}')` }}
-                >
+            <div className="relative w-full h-[30vh] md:h-[50vh] xl:h-[80vh] overflow-hidden transform-gpu">
+                <div className="absolute inset-0 scale-105 will-change-transform">
+                    <Image
+                        src={thumbUrl}
+                        alt={movie.name}
+                        fill
+                        priority
+                        className="object-cover object-top"
+                    />
                     <div className="absolute inset-0 bg-black/30" />
                 </div>
                 <div className="absolute inset-x-0 top-0 h-[20%] bg-gradient-to-b from-[#0a1628]/80 to-transparent z-10" />
@@ -78,15 +86,18 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
 
                     {/* DC SIDE - Movie Info Column */}
                     <div className="dc-side w-full xl:w-[440px] shrink-0">
-                        <div className="ds-info p-[20px] lg:p-[40px] lg:backdrop-blur-md rounded-3xl shadow-2xl">
+                        <div className="ds-info p-[20px] lg:p-[40px] lg:backdrop-blur-md rounded-3xl shadow-2xl relative transform-gpu will-change-[filter]">
 
                             {/* Thumbnail */}
                             <div className="v-thumb-l xl:block flex justify-center mb-6">
-                                <div className="v-thumbnail relative w-[120px] h-[180px] lg:w-[160px] lg:h-[240px] rounded-2xl overflow-hidden shadow-lg ring-1 ring-white/20">
-                                    <img
+                                <div className="v-thumbnail relative w-[120px] h-[180px] lg:w-[160px] lg:h-[240px] rounded-2xl overflow-hidden shadow-lg ring-1 ring-white/20 transform-gpu">
+                                    <Image
                                         className="absolute inset-0 w-full h-full object-cover"
                                         src={posterUrl}
                                         alt={movie.name}
+                                        fill
+                                        priority
+                                        sizes="(max-width: 768px) 120px, 160px"
                                     />
                                 </div>
                             </div>
@@ -180,7 +191,7 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
 
                     {/* Right Column - Tabs Content */}
                     <div className="dc-side w-full flex-1 shrink-0">
-                        <div className="ds-info p-[20px] lg:p-[40px] backdrop-blur-md rounded-3xl shadow-2xl">
+                        <div className="ds-info p-[20px] lg:p-[40px] lg:backdrop-blur-md rounded-3xl shadow-2xl relative transform-gpu will-change-[filter]">
                             {/* DM Bar: Watch Now & Rating */}
                             <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
                                 <button className="group flex items-center gap-3 bg-gradient-to-r from-[#f5a623] to-[#ffcc33] hover:from-[#ffcc33] hover:to-[#f5a623] text-[#0a1628] py-2 px-6 md:py-4 md:px-8 rounded-full font-bold transition-all transform cursor-pointer shadow-[0_0_20px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.6)]">
@@ -228,7 +239,7 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                                 <div className="w-1.5 h-1.5 rounded-full bg-[#ffcc33] animate-pulse"></div>
                                                 <h3 className="text-xs md:text-sm font-bold text-gray-400 uppercase tracking-widest">Danh sách tập</h3>
                                             </div>
-                                            <button 
+                                            <button
                                                 onClick={() => setIsEpisodesCollapsed(!isEpisodesCollapsed)}
                                                 className="group flex items-center gap-2 text-[10px] md:text-xs font-bold text-gray-500 hover:text-white transition-colors uppercase tracking-widest cursor-pointer"
                                             >
@@ -257,15 +268,15 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                 {activeTab === 'Tổng quan' && (
                                     <div className="space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-                                            {( [
+                                            {([
                                                 { label: 'Trạng thái', value: statusText, color: isCompleted ? 'text-green-400' : 'text-yellow-400' },
                                                 { label: 'Số tập', value: `${getEpisodeStatus(movie)} / ${movie.episode_total || '??'} Tập` },
                                                 { label: 'Thời lượng', value: movie.time || 'N/A' },
                                                 { label: 'Chất lượng', value: `${movie.quality || 'HD'} - ${movie.lang || 'Vietsub'}` },
                                                 { label: 'Năm', value: String(movie.year) },
-                                                ...(movie.country?.map(c => ({ label: 'Quốc gia', value: c.name, isTag: true })) || []),
-                                                ...(movie.category?.map(c => ({ label: 'Thể loại', value: c.name, isTag: true })) || []),
-                                                ...(movie.director?.filter(d => d !== '').map(d => ({ label: 'Đạo diễn', value: d, isLink: true })) || [])
+                                                { label: 'Quốc gia', value: movie.country?.map(c => c.name).join(', ') || 'N/A' },
+                                                { label: 'Thể loại', value: movie.category?.map(c => c.name).join(', ') || 'N/A' },
+                                                { label: 'Đạo diễn', value: movie.director?.filter(d => d !== '').join(', ') || 'N/A' }
                                             ] as any[]).map((item, idx) => (
                                                 <div key={idx} className="flex items-center justify-between border-b border-white/5 pb-3">
                                                     <span className="text-gray-500 text-xs font-bold uppercase tracking-widest">{item.label}</span>

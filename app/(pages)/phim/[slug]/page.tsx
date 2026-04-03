@@ -76,12 +76,15 @@ export default async function MoviePage({
     params: Promise<{ slug: string }>;
 }) {
     const { slug } = await params;
+    
+    // Fetch movie detail first to get category for suggestions
     const detail = await getMovieDetail(slug);
 
     if (!detail) {
         notFound();
     }
 
+    // Suggested movies can be fetched in parallel with rendering or right after detail
     const suggestedMovies = await getSuggestedMovies(detail.movie);
 
     return (
