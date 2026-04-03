@@ -15,6 +15,7 @@ interface MovieDetailClientProps {
 
 export default function MovieDetailClient({ movie, episodes, suggestedMovies }: MovieDetailClientProps) {
     const [activeTab, setActiveTab] = useState('Tập phim');
+    const [isEpisodesCollapsed, setIsEpisodesCollapsed] = useState(false);
 
     // Build tabs dynamically based on available data
     const tabs = ['Tập phim', 'Tổng quan'];
@@ -227,23 +228,28 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                                 <div className="w-1.5 h-1.5 rounded-full bg-[#ffcc33] animate-pulse"></div>
                                                 <h3 className="text-xs md:text-sm font-bold text-gray-400 uppercase tracking-widest">Danh sách tập</h3>
                                             </div>
-                                            <button className="group flex items-center gap-2 text-[10px] md:text-xs font-bold text-gray-500 hover:text-white transition-colors uppercase tracking-widest">
-                                                <span>Rút gọn</span>
-                                                <i className="fa-solid fa-chevron-up group-hover:-translate-y-0.5 transition-transform"></i>
+                                            <button 
+                                                onClick={() => setIsEpisodesCollapsed(!isEpisodesCollapsed)}
+                                                className="group flex items-center gap-2 text-[10px] md:text-xs font-bold text-gray-500 hover:text-white transition-colors uppercase tracking-widest cursor-pointer"
+                                            >
+                                                <span>{isEpisodesCollapsed ? 'Mở rộng' : 'Rút gọn'}</span>
+                                                <i className={`fa-solid ${isEpisodesCollapsed ? 'fa-chevron-down group-hover:translate-y-0.5' : 'fa-chevron-up group-hover:-translate-y-0.5'} transition-transform`}></i>
                                             </button>
                                         </div>
                                         {/* Episode Grid */}
-                                        <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
-                                            {firstServerEpisodes.map((ep, idx) => (
-                                                <a
-                                                    key={idx}
-                                                    href="#"
-                                                    className="px-1 py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
-                                                >
-                                                    {parseEpNumber(ep.name)}
-                                                </a>
-                                            ))}
-                                        </div>
+                                        {!isEpisodesCollapsed && (
+                                            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+                                                {firstServerEpisodes.map((ep, idx) => (
+                                                    <a
+                                                        key={idx}
+                                                        href="#"
+                                                        className="px-1 py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
+                                                    >
+                                                        {parseEpNumber(ep.name)}
+                                                    </a>
+                                                ))}
+                                            </div>
+                                        )}
                                     </>
                                 )}
 
