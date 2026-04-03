@@ -15,9 +15,29 @@ interface MovieDetailClientProps {
     suggestedMovies: Movie[];
 }
 
+// Helper functions moved outside component to avoid initialization issues and improve performance
+const parseEpNumber = (name: string) => {
+    const match = name.match(/\d+/);
+    return match ? parseInt(match[0]) : name;
+};
+
+const getYoutubeEmbedUrl = (url?: string) => {
+    if (!url) return '';
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+    return match ? `https://www.youtube.com/embed/${match[1]}` : '';
+};
+
+const stripHtml = (html?: string) => {
+    if (!html) return '';
+    return html.replace(/<[^>]*>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
+};
+
 export default function MovieDetailClient({ movie, episodes, suggestedMovies }: MovieDetailClientProps) {
     const [activeTab, setActiveTab] = useState('Tập phim');
     const [isEpisodesCollapsed, setIsEpisodesCollapsed] = useState(false);
+    const [activeRangeIndex, setActiveRangeIndex] = useState(0);
+
+    const CHUNK_SIZE = 100;
 
     // Build tabs dynamically based on available data
     const tabs = useMemo(() => {
@@ -32,21 +52,56 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
     const posterUrl = getImageUrl(movie.poster_url);
     const thumbUrl = getImageUrl(movie.thumb_url);
 
-    // Parse trailer YouTube ID
-    const getYoutubeEmbedUrl = (url?: string) => {
-        if (!url) return '';
-        const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
-        return match ? `https://www.youtube.com/embed/${match[1]}` : '';
-    };
-
     // Get first server episodes
     const firstServerEpisodes = episodes?.[0]?.server_data || [];
 
-    // Parse episode number from name like "Tập 01" => 1
-    const parseEpNumber = (name: string) => {
-        const match = name.match(/\d+/);
-        return match ? parseInt(match[0]) : name;
-    };
+    // Calculate episode ranges based on ACTUAL episode numbers
+    const episodeRanges = useMemo(() => {
+        let maxEpNum = 0;
+        firstServerEpisodes.forEach(ep => {
+            const num = parseEpNumber(ep.name);
+            if (typeof num === 'number' && num > maxEpNum) maxEpNum = num;
+        });
+
+        if (maxEpNum <= CHUNK_SIZE) return [];
+
+        const ranges = [];
+        for (let i = 1; i <= maxEpNum; i += CHUNK_SIZE) {
+            const start = i;
+            const end = i + CHUNK_SIZE - 1;
+
+            // Check if any episodes actually exist in this numeric range
+            const hasEpisodesInRange = firstServerEpisodes.some(ep => {
+                const num = parseEpNumber(ep.name);
+                return typeof num === 'number' && num >= start && num <= end;
+            });
+
+            if (hasEpisodesInRange) {
+                ranges.push({
+                    label: `Tập ${start} - ${Math.min(end, maxEpNum)}`,
+                    startValue: start,
+                    endValue: end
+                });
+            }
+        }
+        return ranges;
+    }, [firstServerEpisodes, CHUNK_SIZE]);
+
+    // Current displayed episodes based on active range selection
+    const displayedEpisodes = useMemo(() => {
+        if (episodeRanges.length === 0) return firstServerEpisodes;
+        const range = episodeRanges[activeRangeIndex];
+
+        return firstServerEpisodes.filter(ep => {
+            const num = parseEpNumber(ep.name);
+            // If it's a number, check if it's in the selected range
+            if (typeof num === 'number') {
+                return num >= range.startValue && num <= range.endValue;
+            }
+            // If it's not a number (e.g. "Full", "Special"), include it in the first range
+            return activeRangeIndex === 0;
+        });
+    }, [firstServerEpisodes, episodeRanges, activeRangeIndex]);
 
     // Status text
     const statusText = movie.status === 'completed' ? 'Hoàn thành' : 'Đang cập nhật';
@@ -54,12 +109,6 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
 
     // TMDB rating
     const rating = movie.tmdb?.vote_average ? movie.tmdb.vote_average.toFixed(1) : null;
-
-    // Strip HTML tags from content
-    const stripHtml = (html?: string) => {
-        if (!html) return '';
-        return html.replace(/<[^>]*>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-    };
 
     return (
         <main className="min-h-screen pb-20">
@@ -248,10 +297,29 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                                 <i className={`fa-solid ${isEpisodesCollapsed ? 'fa-chevron-down group-hover:translate-y-0.5' : 'fa-chevron-up group-hover:-translate-y-0.5'} transition-transform`}></i>
                                             </button>
                                         </div>
+                                        {/* Episode Ranges Selection */}
+                                        {episodeRanges.length > 0 && !isEpisodesCollapsed && (
+                                            <div className="flex flex-wrap gap-2 mb-6">
+                                                {episodeRanges.map((range, idx) => (
+                                                    <button
+                                                        key={idx}
+                                                        onClick={() => setActiveRangeIndex(idx)}
+                                                        className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer border ${activeRangeIndex === idx
+                                                            ? 'bg-[#F0F0F0] text-[#0a1628] border-[#F0F0F0] shadow-[0_0_10px_rgba(255,255,255,0.1)]'
+                                                            : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white'
+                                                            }`}
+                                                    >
+                                                        {range.label}
+                                                    </button>
+                                                ))}
+                                            </div>
+                                        )}
+
                                         {/* Episode Grid with Animation */}
-                                        <AnimatePresence initial={false}>
+                                        <AnimatePresence initial={false} mode="wait">
                                             {!isEpisodesCollapsed && (
                                                 <motion.div
+                                                    key={activeRangeIndex}
                                                     initial={{ height: 0, opacity: 0, y: -5 }}
                                                     animate={{ height: 'auto', opacity: 1, y: 0 }}
                                                     exit={{ height: 0, opacity: 0, y: -5 }}
@@ -260,7 +328,7 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                                     style={{ willChange: "height, opacity, transform", transform: "translateZ(0)" }}
                                                 >
                                                     <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
-                                                        {firstServerEpisodes.map((ep, idx) => (
+                                                        {displayedEpisodes.map((ep, idx) => (
                                                             <a
                                                                 key={idx}
                                                                 href="#"
