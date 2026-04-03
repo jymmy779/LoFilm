@@ -461,7 +461,7 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
 
                                 {/* Suggestions Tab */}
                                 {activeTab === 'Đề xuất' && enrichedSuggestions.length > 0 && (
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
+                                    <div className="grid grid-cols-2 min-w[500px]-grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 lg:gap-6">
                                         {enrichedSuggestions.map((m) => (
                                             <div key={m._id} className="transform hover:scale-[1.02] transition-transform">
                                                 <MoviePosterCard movie={m} />

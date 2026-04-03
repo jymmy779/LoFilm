@@ -27,7 +27,7 @@ async function getSuggestedMovies(movie: Movie): Promise<Movie[]> {
         const firstCategory = movie.category?.[0]?.slug;
         if (!firstCategory) return [];
 
-        const res = await fetch(`${API_BASE}/v1/api/the-loai/${firstCategory}?page=1&limit=12`, {
+        const res = await fetch(`${API_BASE}/v1/api/the-loai/${firstCategory}?page=1&limit=20`, {
             next: { revalidate: 3600 },
         });
         if (!res.ok) return [];
@@ -35,7 +35,7 @@ async function getSuggestedMovies(movie: Movie): Promise<Movie[]> {
 
         // Filter out current movie from suggestions
         const items: Movie[] = data.data?.items || [];
-        return items.filter((m: Movie) => m.slug !== movie.slug).slice(0, 12);
+        return items.filter((m: Movie) => m.slug !== movie.slug).slice(0, 18);
     } catch {
         return [];
     }

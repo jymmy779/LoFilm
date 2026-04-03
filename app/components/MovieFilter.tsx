@@ -213,9 +213,9 @@ function FilterRow({ label, items, activeValue, onSelect, useValueField = false 
                         <div
                             key={val || item.label || item.name}
                             onClick={() => onSelect(val)}
-                            className={`item px-3 py-1 rounded-md text-xs transition-all cursor-pointer select-none ${isActive
-                                ? "bg-[#f5a623] text-[#0a1628] font-bold"
-                                : "text-white/60 hover:text-white hover:bg-white/5"
+                            className={`item px-3 py-1.5 rounded-lg text-xs transition-all cursor-pointer select-none border ${isActive
+                                ? "bg-[#f5a623] border-[#f5a623] text-[#0a1628] font-bold shadow-lg shadow-[#f5a623]/20"
+                                : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-[#f5a623]/50"
                                 }`}
                         >
                             {item.name || item.label}
