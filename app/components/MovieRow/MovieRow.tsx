@@ -10,6 +10,7 @@ import "swiper/css/navigation";
 
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
+import { filterDuplicateMovies, getImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
 import Image from "next/image";
 
@@ -30,19 +31,7 @@ export default function MovieRow({ title, apiUrl, viewAllLink }: MovieRowProps) 
                 if (response.data?.status === "success" && response.data?.data?.items) {
                     const items: Movie[] = response.data.data.items;
 
-                    // Lọc trùng theo Root Name (loại bỏ SS1, SS2, Phần 1, Phần 2...)
-                    const seen = new Set<string>();
-                    const filtered = items.filter((movie) => {
-                        const rootName = movie.name
-                            .replace(/\s*\(?(Phần|P\.|Season|SS|Tập|Season|ss)\s*(\d+|Cuối|Đặc Biệt)\)?.*$/i, "")
-                            .trim()
-                            .toLowerCase();
-
-                        if (seen.has(rootName)) return false;
-                        seen.add(rootName);
-                        return true;
-                    });
-
+                    const filtered = filterDuplicateMovies(items);
                     setMovies(filtered);
                 }
             } catch (error) {
@@ -57,7 +46,7 @@ export default function MovieRow({ title, apiUrl, viewAllLink }: MovieRowProps) 
     if (isLoading) {
         return (
             <section className="relative z-30 w-full max-w-[1900px] mx-auto px-5 lg:px-12 mb-16 mt-8">
-                <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/20 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 backdrop-blur-sm overflow-hidden">
+                <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/30 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 overflow-hidden">
                     {/* Left title area skeleton */}
                     <div className="w-full xl:w-[260px] xl:flex-shrink-0 flex xl:flex-col justify-between xl:justify-center gap-4">
                         <Skeleton height={40} width={200} />
@@ -100,7 +89,7 @@ export default function MovieRow({ title, apiUrl, viewAllLink }: MovieRowProps) 
 
     return (
         <section className="relative z-30 w-full max-w-[1900px] mx-auto px-5 lg:px-12 mb-8 md:mb-12 lg:mb-16 mt-8">
-            <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/20 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 backdrop-blur-sm">
+            <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/30 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5">
 
                 {/* === LEFT SIDE: TITLE & LINK === */}
                 <div className="w-full xl:w-[260px] xl:flex-shrink-0 flex xl:flex-col justify-between xl:justify-center gap-4">
@@ -139,9 +128,7 @@ export default function MovieRow({ title, apiUrl, viewAllLink }: MovieRowProps) 
                         className="swiper-carousel"
                     >
                         {movies.map((movie) => {
-                            const imgUrl = movie.thumb_url.startsWith("http")
-                                ? movie.thumb_url
-                                : `https://phimimg.com/${movie.thumb_url}`;
+                            const imgUrl = getImageUrl(movie.thumb_url);
 
                             return (
                                 <SwiperSlide key={movie._id} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
@@ -151,13 +138,14 @@ export default function MovieRow({ title, apiUrl, viewAllLink }: MovieRowProps) 
                                                 src={imgUrl}
                                                 alt={movie.name}
                                                 fill
+                                                loading="eager"
                                                 sizes="(max-width: 768px) 160px, (max-width: 1024px) 240px, 280px"
                                                 className="object-cover transition-transform duration-500 group-hover/item:scale-110"
                                             />
                                             <div className="absolute inset-x-0 bottom-[-1] h-1/2 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
 
                                             {movie.episode_current && (
-                                                <div className="absolute bottom-2 left-2 px-1.5 py-0.5 bg-white/20 backdrop-blur-md rounded border border-white/20">
+                                                <div className="absolute bottom-2 left-2 px-1.5 py-0.5 bg-white/30 rounded border border-white/20">
                                                     <span className="text-[8px] md:text-xs md:font-semibold text-white truncate max-w-[120px] block">
                                                         {movie.episode_current}
                                                     </span>

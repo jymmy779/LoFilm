@@ -33,8 +33,8 @@ export default function Header() {
             }
         };
 
-        window.addEventListener("scroll", handleScroll);
-        window.addEventListener("resize", handleResize);
+        window.addEventListener("scroll", handleScroll, { passive: true });
+        window.addEventListener("resize", handleResize, { passive: true });
 
         axios.get<MenuItem[]>("https://phimapi.com/the-loai")
             .then((res) => setCategories(res.data))

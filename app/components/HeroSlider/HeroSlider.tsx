@@ -13,11 +13,12 @@ import "swiper/css/thumbs";
 import "swiper/css/free-mode";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
+import { filterDuplicateMovies, getImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
-const MotionImage = motion(Image);
+const MotionImage = motion.create(Image);
 
 export default function HeroSlider() {
     const [movies, setMovies] = useState<Movie[]>([]);
@@ -31,18 +32,7 @@ export default function HeroSlider() {
             .then((res) => {
                 const items: Movie[] = res.data.items || [];
 
-                // Lọc trùng theo Root Name (loại bỏ SS1, SS2, Phần 1, Phần 2...)
-                const seen = new Set<string>();
-                const filtered = items.filter((movie) => {
-                    const rootName = movie.name
-                        .replace(/\s*\(?(Phần|P\.|Season|SS|Tập|Season|ss)\s*(\d+|Cuối|Đặc Biệt)\)?.*$/i, "")
-                        .trim()
-                        .toLowerCase();
-
-                    if (seen.has(rootName)) return false;
-                    seen.add(rootName);
-                    return true;
-                });
+                const filtered = filterDuplicateMovies(items);
 
                 const first8 = filtered.slice(0, 8);
                 setMovies(first8);
@@ -98,12 +88,13 @@ export default function HeroSlider() {
                     <SwiperSlide key={movie._id}>
                         {({ isActive }) => (
                             <>
-                                <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] lg:overflow-hidden will-change-transform translate-z-0">
+                                <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] lg:overflow-hidden [transform:translateZ(0)]">
                                     <MotionImage
-                                        src={movie.thumb_url?.startsWith("http") ? movie.thumb_url : `https://phimimg.com/${movie.thumb_url}`}
+                                        src={getImageUrl(movie.thumb_url)}
                                         alt={movie.name}
                                         initial={false}
                                         priority={index === 0}
+                                        loading="eager"
                                         fill
                                         sizes="100vw"
                                         animate={{
@@ -131,7 +122,7 @@ export default function HeroSlider() {
                 <div className="relative top-[-65px] md:top-[-150px] flex flex-col min-[700px]:flex-row items-center min-[700px]:items-end justify-center min-[700px]:justify-between w-full gap-4 lg:gap-8 xl:gap-12">
 
                     {/* Content (Left side on Desktop, Top on Mobile) */}
-                    <div className="w-full max-w-sm md:max-w-md xl:max-w-2xl pointer-events-auto text-center min-[700px]:text-left">
+                    <div className="w-full max-w-[300px] md:max-w-md xl:max-w-2xl pointer-events-auto text-center min-[700px]:text-left">
                         <AnimatePresence mode="wait">
                             {currentMovie && (
                                 <motion.div
@@ -228,7 +219,7 @@ export default function HeroSlider() {
                                         </Link>
                                         <Link
                                             href="/"
-                                            className="lg:px-6 lg:py-2.5 md:px-4 py-1.5 px-3  bg-white/10 hover:bg-white/20 text-white text-xs md:text-sm font-medium rounded-full transition-all duration-300 border border-white/10 backdrop-blur-sm"
+                                            className="lg:px-6 lg:py-2.5 md:px-4 py-1.5 px-3  bg-white/10 hover:bg-white/20 text-white text-xs md:text-sm font-medium rounded-full transition-all duration-300 border border-white/10"
                                         >
                                             Chi tiết phim
                                         </Link>
@@ -258,9 +249,10 @@ export default function HeroSlider() {
                                 <SwiperSlide key={movie._id}>
                                     <div className="relative cursor-pointer rounded-full min-[700px]:rounded overflow-hidden aspect-square min-[700px]:aspect-video border-2 border-transparent hover:border-white/40 [.swiper-slide-thumb-active_&]:border-[#f5a623] transition-all duration-300 opacity-60 hover:opacity-90 [.swiper-slide-thumb-active_&]:opacity-100">
                                         <Image
-                                            src={movie.thumb_url?.startsWith("http") ? movie.thumb_url : `https://phimimg.com/${movie.thumb_url}`}
+                                            src={getImageUrl(movie.thumb_url)}
                                             alt={movie.name}
                                             fill
+                                            loading="eager"
                                             sizes="100px"
                                             className="object-cover"
                                         />

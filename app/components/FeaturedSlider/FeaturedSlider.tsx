@@ -13,6 +13,7 @@ import "swiper/css/thumbs";
 
 import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
+import { filterDuplicateMovies, getImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
 import Image from "next/image";
 
@@ -36,18 +37,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                 if (res.data?.status === "success" || res.data?.status === true) {
                     const items: Movie[] = res.data.data.items || [];
 
-                    // Lọc trùng theo Root Name (loại bỏ SS1, SS2, Phần 1, Phần 2...)
-                    const seen = new Set<string>();
-                    const filtered = items.filter((movie) => {
-                        const rootName = movie.name
-                            .replace(/\s*\(?(Phần|P\.|Season|SS|Tập|Season|ss)\s*(\d+|Cuối|Đặc Biệt)\)?.*$/i, "")
-                            .trim()
-                            .toLowerCase();
-
-                        if (seen.has(rootName)) return false;
-                        seen.add(rootName);
-                        return true;
-                    });
+                    const filtered = filterDuplicateMovies(items);
 
                     // Lấy chi tiết cho tối đa 10 phim sau khi đã lọc trùng
                     const detailed = await Promise.all(
@@ -132,7 +122,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                 {/* Background Image Area */}
                                 <div className="absolute top-0 right-0 w-full xl:w-[75%] h-full z-0 select-none pointer-events-none">
                                     <Image
-                                        src={movie.thumb_url?.startsWith("http") ? movie.thumb_url : `https://phimimg.com/${movie.thumb_url}`}
+                                        src={getImageUrl(movie.thumb_url)}
                                         alt={movie.name}
                                         fill
                                         priority={index === 0}
@@ -229,9 +219,9 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                     >
                         {movies.map((movie) => (
                             <SwiperSlide key={`thumb-${movie._id}`} className="cursor-pointer flex items-center justify-center lg:block">
-                                <div className="thumb-item flex-shrink-0 transition-[width,height,background-color,border-color] duration-300 relative w-2.5 h-2.5 lg:w-full lg:h-auto aspect-square xl:aspect-[2/3] rounded-full xl:rounded-lg overflow-hidden lg:border-2 border-transparent lg:shadow-md bg-white/70 lg:bg-transparent will-change-transform">
+                                <div className="thumb-item flex-shrink-0 transition-[width,height,background-color,border-color] duration-300 relative w-2.5 h-2.5 lg:w-full lg:h-auto aspect-square xl:aspect-[2/3] rounded-full xl:rounded-lg overflow-hidden lg:border-2 border-transparent lg:shadow-md bg-white/70 lg:bg-transparent">
                                     <Image
-                                        src={(movie.poster_url || movie.thumb_url)?.startsWith("http") ? (movie.poster_url || movie.thumb_url) : `https://phimimg.com/${movie.poster_url || movie.thumb_url}`}
+                                        src={getImageUrl(movie.poster_url || movie.thumb_url)}
                                         alt={movie.name}
                                         fill
                                         sizes="100px"

@@ -10,6 +10,7 @@ import "swiper/css/navigation";
 
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
+import { filterDuplicateMovies, getEpisodeStatus, getImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
 import Image from "next/image";
 
@@ -33,22 +34,7 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
                 if (isMounted && (response.data?.status === "success" || response.data?.status === true) && response.data?.data?.items) {
                     const items: Movie[] = response.data.data.items;
 
-                    // Lọc trùng theo Root Name (loại bỏ SS1, SS2, Phần 1, Phần 2...)
-                    const filterSequels = (list: Movie[]) => {
-                        const seen = new Set<string>();
-                        return list.filter((movie) => {
-                            const rootName = movie.name
-                                .replace(/\s*\(?(Phần|P\.|Season|SS|Tập|Season|ss)\s*(\d+|Cuối|Đặc Biệt)\)?.*$/i, "")
-                                .trim()
-                                .toLowerCase();
-
-                            if (seen.has(rootName)) return false;
-                            seen.add(rootName);
-                            return true;
-                        });
-                    };
-
-                    const filtered = filterSequels(items);
+                    const filtered = filterDuplicateMovies(items);
 
                     // Sắp xếp và lấy 20 phim đầu tiên sau khi đã lọc trùng
                     const sortedItems = filtered.sort((a, b) => {
@@ -135,7 +121,7 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
     if (movies.length === 0) return null;
 
     return (
-        <section className="movie-row-section relative z-30 w-full max-w-[1900px] mx-auto px-5 lg:px-12 mb-8 md:mb-12 lg:mb-16 mt-8 [content-visibility:auto] [contain-intrinsic-size:500px]">
+        <section className="movie-row-section relative z-30 w-full max-w-[1900px] mx-auto px-5 lg:px-12 mb-8 md:mb-12 lg:mb-16 mt-8">
             <div className="row-header flex items-center justify-between mb-6">
                 <h2 className="text-[20px] lg:text-[28px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-blue-100 to-white drop-shadow-sm flex items-center gap-4">
                     {title}
@@ -186,9 +172,7 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
                         className="swiper-carousel"
                     >
                         {movies.map((movie) => {
-                            const posterImg = movie.poster_url?.startsWith("http")
-                                ? movie.poster_url
-                                : `https://phimimg.com/${movie.poster_url}`;
+                            const posterImg = getImageUrl(movie.poster_url);
 
                             return (
                                 <SwiperSlide key={movie._id}>
@@ -199,8 +183,9 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
                                                 src={posterImg}
                                                 alt={movie.name}
                                                 fill
+                                                loading="eager"
                                                 sizes="(max-width: 640px) 150px, (max-width: 1024px) 200px, 250px"
-                                                className="object-cover transition-transform duration-500 group-hover/item:scale-110 transform-gpu will-change-transform"
+                                                className="object-cover transition-transform duration-500 group-hover/item:scale-110 transform-gpu"
                                             />
 
                                             {/* Bottom Gradient overlay */}
@@ -209,38 +194,18 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
                                             {/* Badges: Quality, Language, Status */}
                                             <div className="pin-new absolute bottom-2 left-0 right-0 flex items-center justify-center gap-1.5 px-2">
                                                 {/* Badge Quality - Xám */}
-                                                <div className="h-5 px-1 md:px-2 bg-white/30 backdrop-blur-md rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
+                                                <div className="h-5 px-1 md:px-2 bg-white/30 rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
                                                     {movie.quality || "HD"}
                                                 </div>
 
                                                 {/* Badge Language - Xanh (Vietsub, LT, TM) */}
-                                                <div className="h-5 px-1 md:px-2 bg-green-500/40 backdrop-blur-md rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
+                                                <div className="h-5 px-1 md:px-2 bg-green-500/60 rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
                                                     {(movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
                                                 </div>
 
                                                 {/* Badge Status - Cam (Full, Trailer, HT) */}
-                                                <div className="h-5 px-1 md:px-2 bg-orange-500/60 backdrop-blur-md rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
-                                                    {(() => {
-                                                        const cur = (movie.episode_current || "").toLowerCase();
-                                                        if (cur.includes("trailer")) return "Trailer";
-
-                                                        // Ưu tiên lấy dạng x/y (ví dụ 12/12) từ chuỗi (Hoàn Tất (12/12))
-                                                        const matchSlash = movie.episode_current?.match(/(\d+)\/(\d+)/);
-                                                        if (matchSlash) return `HT (${matchSlash[1]}/${matchSlash[2]})`;
-
-                                                        if (cur.includes("full") || cur.includes("hoàn tất")) return "Full";
-
-                                                        // Nếu chỉ có số (Tập 5)
-                                                        const matchNum = movie.episode_current?.match(/\d+/);
-                                                        if (matchNum) {
-                                                            const num = matchNum[0];
-                                                            // Sử dụng dữ liệu đã enriched từ detail API
-                                                            const total = movie.episode_total || "??";
-                                                            return `HT (${num}/${total})`;
-                                                        }
-
-                                                        return "Full";
-                                                    })()}
+                                                <div className="h-5 px-1 md:px-2 bg-orange-500/70 rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
+                                                    {getEpisodeStatus(movie)}
                                                 </div>
                                             </div>
                                         </Link>
@@ -260,12 +225,12 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
                     </Swiper>
 
                     {/* Navigation Buttons */}
-                    <button className={`hidden xl:block sw-button sw-prev sw-prev-${navId} absolute -left-6 lg:-left-12 top-[40%] -translate-y-1/2 z-40 text-white/50 hover:text-white transition-all disabled:opacity-0 cursor-pointer`}>
+                    <button className={`hidden xl:block sw-button sw-prev sw-prev-${navId} absolute -left-6 lg:-left-12 top-[40%] -translate-y-1/2 z-40 text-white/50 hover:text-white transition-colors disabled:opacity-0 cursor-pointer`}>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="47" height="47" fill="currentColor">
                             <path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s-12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"></path>
                         </svg>
                     </button>
-                    <button className={`hidden xl:block sw-button sw-next sw-next-${navId} absolute -right-6 lg:-right-12 top-[40%] -translate-y-1/2 z-40 text-white/50 hover:text-white transition-all disabled:opacity-0 cursor-pointer`}>
+                    <button className={`hidden xl:block sw-button sw-next sw-next-${navId} absolute -right-6 lg:-right-12 top-[40%] -translate-y-1/2 z-40 text-white/50 hover:text-white transition-colors disabled:opacity-0 cursor-pointer`}>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="47" height="47" fill="currentColor">
                             <path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path>
                         </svg>

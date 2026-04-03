@@ -5,8 +5,8 @@ export default function Footer() {
     return (
         <footer className="relative w-full border-t border-white/5 bg-[#0F111A] overflow-hidden mt-10 pb-6">
             {/* Background Ornaments */}
-            <div className="absolute top-0 right-0 w-[600px] h-[600px] pointer-events-none opacity-20 bg-gradient-to-bl from-orange-500/20 via-yellow-500/10 to-transparent blur-[100px] rounded-full translate-x-1/2 -translate-y-1/2"></div>
-            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] pointer-events-none opacity-10 bg-gradient-to-tr from-blue-500/20 to-transparent blur-[80px] rounded-full -translate-x-1/2 translate-y-1/2"></div>
+            <div className="absolute top-0 right-0 w-[600px] h-[600px] pointer-events-none opacity-[0.08] bg-gradient-to-bl from-orange-500/40 via-yellow-500/20 to-transparent rounded-full translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] pointer-events-none opacity-[0.05] bg-gradient-to-tr from-blue-500/30 to-transparent rounded-full -translate-x-1/2 translate-y-1/2"></div>
 
             <div className="relative z-10 w-full max-w-[1900px] mx-auto px-5 lg:px-12 pt-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
@@ -32,7 +32,7 @@ export default function Footer() {
                                     alt="LoFilm Logo"
                                     width={140}
                                     height={70}
-                                    className="h-[70px] w-auto object-contain drop-shadow-lg"
+                                    className=" object-contain drop-shadow-lg"
                                 />
                             </Link>
 
@@ -86,8 +86,8 @@ export default function Footer() {
                             </p>
                             <p className="flex items-center gap-2 pt-2">
                                 <span className="text-white/50">Liên hệ:</span>
-                                <a href="https://t.me/janencl" target="_blank" rel="noopener noreferrer" className="relative group overflow-hidden bg-white/10 px-3 py-1 rounded-md transition-colors hover:bg-white/20">
-                                    <span className="blur-[4px] group-hover:blur-none transition-all duration-300 opacity-60 group-hover:opacity-100 text-white font-medium tracking-wider">
+                                <a href="https://t.me/janencl" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center bg-white/5 px-2 py-0.5 rounded border border-white/5 hover:border-white/20 transition-all duration-300">
+                                    <span className="opacity-0 group-hover:opacity-100 transition-opacity duration-300 text-white/60 text-[13px] font-medium whitespace-nowrap">
                                         @janencl
                                     </span>
                                 </a>
@@ -121,8 +121,10 @@ export default function Footer() {
                         <div className="w-[350px] aspect-square opacity-[0.03] hover:opacity-[0.05] transition-opacity duration-1000 relative">
                             <Image
                                 src="/lofilm_logo.png"
-                                alt=""
                                 fill
+                                alt=''
+                                loading='eager'
+                                sizes="350px"
                                 className="object-contain filter grayscale"
                             />
                         </div>

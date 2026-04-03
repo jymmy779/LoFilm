@@ -10,6 +10,7 @@ import "swiper/css/navigation";
 
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
+import { filterDuplicateMovies, getEpisodeStatus, getImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
 import Image from "next/image";
 
@@ -33,21 +34,7 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
                 if (isMounted && (response.data?.status === "success" || response.data?.status === true) && response.data?.data?.items) {
                     const items: Movie[] = response.data.data.items;
 
-                    const filterSequels = (list: Movie[]) => {
-                        const seen = new Set<string>();
-                        return list.filter((movie) => {
-                            const normalizedName = movie.name
-                                .replace(/\s*\(?(Phần|P\.|Season|SS|Tập|Season|ss)\s*(\d+|Cuối|Đặc Biệt)\)?.*$/i, "")
-                                .trim()
-                                .toLowerCase();
-
-                            if (seen.has(normalizedName)) return false;
-                            seen.add(normalizedName);
-                            return true;
-                        });
-                    };
-
-                    const filtered = filterSequels(items);
+                    const filtered = filterDuplicateMovies(items);
                     setMovies(filtered.slice(0, 30));
                     setIsLoading(false);
 
@@ -102,7 +89,6 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
     }, [apiUrl, navId]);
 
     if (isLoading) {
-        // Sawtooth pattern only on TOP edge, BOTTOM remains flat at 100% to keep info aligned
         const clipPathEven = 'polygon(0% calc(5% + 16px), 1.2px calc(5% + 9.9px), 4.7px calc(5% + 4.7px), 9.9px calc(5% + 1.2px), 16px 5%, 100% 0, 100% 100%, 0% 100%)';
         const clipPathOdd = 'polygon(0 0, calc(100% - 16px) 5%, calc(100% - 9.9px) calc(5% + 1.2px), calc(100% - 4.7px) calc(5% + 4.7px), calc(100% - 1.2px) calc(5% + 9.9px), 100% calc(5% + 16px), 100% 100%, 0% 100%)';
 
@@ -136,29 +122,12 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
 
     if (movies.length === 0) return null;
 
-    const getStatus = (movie: any) => {
-        const cur = (movie.episode_current || "").toLowerCase();
-        if (cur.includes("trailer")) return "Trailer";
-
-        // Ưu tiên x/y (ví dụ 12/12)
-        const matchSlash = movie.episode_current?.match(/(\d+)\/(\d+)/);
-        if (matchSlash) return `HT (${matchSlash[1]}/${matchSlash[2]})`;
-
-        if (cur.includes("full") || cur.includes("hoàn tất")) return "Full";
-
-        // Nếu chỉ có số (Tập 5) -> Luôn có /y
-        const matchNum = movie.episode_current?.match(/\d+/);
-        if (matchNum) {
-            const num = matchNum[0];
-            const total = movie.episode_total || "??";
-            return `HT (${num}/${total})`;
-        }
-
-        return "Full";
-    };
+    // Sawtooth clip-path constants (hoisted outside render loop)
+    const clipPathEven = 'polygon(0% calc(5% + 16px), 1.2px calc(5% + 9.9px), 4.7px calc(5% + 4.7px), 9.9px calc(5% + 1.2px), 16px 5%, 100% 0, 100% 100%, 0% 100%)';
+    const clipPathOdd = 'polygon(0 0, calc(100% - 16px) 5%, calc(100% - 9.9px) calc(5% + 1.2px), calc(100% - 4.7px) calc(5% + 4.7px), calc(100% - 1.2px) calc(5% + 9.9px), 100% calc(5% + 16px), 100% 100%, 0% 100%)';
 
     return (
-        <section className="top-movie-row-section relative z-30 w-full max-w-[1900px] mx-auto px-5 lg:px-12 mb-16 mt-8 [content-visibility:auto] [contain-intrinsic-size:600px]">
+        <section className="top-movie-row-section relative z-30 w-full max-w-[1900px] mx-auto px-5 lg:px-12 mb-16 mt-8">
             <div className="row-header flex items-center justify-between mb-8">
                 <h2 className="text-[22px] lg:text-[32px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-orange-100 to-white drop-shadow-sm flex items-center gap-4">
                     {title}
@@ -187,13 +156,8 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
                     className="swiper-carousel"
                 >
                     {movies.map((movie, index) => {
-                        const posterImg = movie.poster_url?.startsWith("http")
-                            ? movie.poster_url
-                            : `https://phimimg.com/${movie.poster_url}`;
-
+                        const posterImg = getImageUrl(movie.poster_url);
                         const isEven = index % 2 !== 0;
-                        const clipPathEven = 'polygon(0% calc(5% + 16px), 1.2px calc(5% + 9.9px), 4.7px calc(5% + 4.7px), 9.9px calc(5% + 1.2px), 16px 5%, 100% 0, 100% 100%, 0% 100%)';
-                        const clipPathOdd = 'polygon(0 0, calc(100% - 16px) 5%, calc(100% - 9.9px) calc(5% + 1.2px), calc(100% - 4.7px) calc(5% + 4.7px), calc(100% - 1.2px) calc(5% + 9.9px), 100% calc(5% + 16px), 100% 100%, 0% 100%)';
 
                         return (
                             <SwiperSlide key={movie._id}>
@@ -206,21 +170,16 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
                                             clipPath: isEven ? clipPathEven : clipPathOdd
                                         }}
                                     >
-                                        <style dangerouslySetInnerHTML={{
-                                            __html: `
-                                            @keyframes top-movie-shake {
-                                                0%, 100% { transform: rotate(0.2deg); }
-                                                50% { transform: rotate(-0.2deg); }
-                                            }
-                                        `}} />
+
                                         <div className="w-full h-full transition-transform duration-500 ease-out group-hover/item:scale-[1.07]">
-                                            <div className="w-full h-full group-hover/item:animate-[top-movie-shake_0.15s_ease-in-out_3] will-change-transform">
+                                            <div className="w-full h-full relative group-hover/item:animate-[top-movie-shake_0.15s_ease-in-out_3]">
                                                 <Image
                                                     src={posterImg}
                                                     alt={movie.name}
                                                     fill
+                                                    loading="eager"
                                                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 200px"
-                                                    className="object-cover transform-gpu will-change-transform"
+                                                    className="object-cover transform-gpu"
                                                 />
                                             </div>
                                         </div>
@@ -229,18 +188,18 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
                                         {/* Badges - Back to bottom as before */}
                                         <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-1.5 px-3 z-10">
                                             {movie.quality && (
-                                                <div className="h-5 px-1 md:px-2 bg-white/30 backdrop-blur-md rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
+                                                <div className="h-5 px-1 md:px-2 bg-white/30 rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
                                                     {movie.quality}
                                                 </div>
                                             )}
                                             {movie.lang && (
-                                                <div className="h-5 px-1 md:px-2 bg-green-500/40 backdrop-blur-md rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
+                                                <div className="h-5 px-1 md:px-2 bg-green-500/60 rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
                                                     {(movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
                                                 </div>
                                             )}
-                                            {getStatus(movie) && (
-                                                <div className="h-5 px-1 md:px-2 bg-orange-500/60 backdrop-blur-md rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
-                                                    {getStatus(movie)}
+                                            {getEpisodeStatus(movie) && (
+                                                <div className="h-5 px-1 md:px-2 bg-orange-500/70 rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
+                                                    {getEpisodeStatus(movie)}
                                                 </div>
                                             )}
                                         </div>
@@ -273,12 +232,12 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
                 </Swiper>
 
                 {/* Navigation Buttons */}
-                <button className={`xl:block hidden sw-button sw-prev sw-prev-${navId} absolute -left-6 lg:-left-12 top-[35%] -translate-y-1/2 z-40 text-white/30 hover:text-white transition-all disabled:opacity-0 cursor-pointer`}>
+                <button className={`xl:block hidden sw-button sw-prev sw-prev-${navId} absolute -left-6 lg:-left-12 top-[35%] -translate-y-1/2 z-40 text-white/30 hover:text-white transition-colors disabled:opacity-0 cursor-pointer`}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="47" height="47" fill="currentColor">
                         <path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s-12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"></path>
                     </svg>
                 </button>
-                <button className={`xl:block hidden sw-button sw-next sw-next-${navId} absolute -right-6 lg:-right-12 top-[35%] -translate-y-1/2 z-40 text-white/30 hover:text-white transition-all disabled:opacity-0 cursor-pointer`}>
+                <button className={`xl:block hidden sw-button sw-next sw-next-${navId} absolute -right-6 lg:-right-12 top-[35%] -translate-y-1/2 z-40 text-white/30 hover:text-white transition-colors disabled:opacity-0 cursor-pointer`}>
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="47" height="47" fill="currentColor">
                         <path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path>
                     </svg>
@@ -286,9 +245,13 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
             </div>
 
             <style jsx global>{`
-                .swiper-top-chart .swiper-wrapper {
+                .swiper-carousel .swiper-wrapper {
                     padding-bottom: 20px;
                     padding-top: 5px;
+                }
+                @keyframes top-movie-shake {
+                    0%, 100% { transform: rotate(0.2deg); }
+                    50% { transform: rotate(-0.2deg); }
                 }
             `}</style>
         </section>
