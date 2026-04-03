@@ -108,7 +108,7 @@ export default function MovieFilter({
                         initial={{ height: 0, opacity: 0 }}
                         animate={{ height: "auto", opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.3, ease: "easeInOut" }}
+                        transition={{ duration: 0.25, ease: "easeOut" }}
                         className="overflow-hidden bg-white/5 border border-white/10 rounded-2xl mt-4"
                     >
                         <div className="p-4 md:p-6 space-y-6">
@@ -173,7 +173,7 @@ export default function MovieFilter({
                             <div className="flex items-center gap-3 pt-4 border-t border-white/5">
                                 <button
                                     onClick={handleApply}
-                                    className="px-6 py-2.5 rounded-full bg-gradient-to-r from-[#f5a623] to-[#ffcc33] text-[#0a1628] font-bold text-sm flex items-center gap-2 hover:scale-105 active:scale-95 transition-all shadow-lg shadow-[#f5a623]/20 cursor-pointer"
+                                    className="md:px-6 px-4 py-2 md:py-2.5 rounded-full bg-gradient-to-r from-[#f5a623] to-[#ffcc33] text-[#0a1628] font-bold text-xs md:text-sm flex items-center gap-2 hover:opacity-90 transition-all shadow-lg shadow-[#f5a623]/20 cursor-pointer"
                                 >
                                     Lọc kết quả
                                     <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 448 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
@@ -182,13 +182,13 @@ export default function MovieFilter({
                                 </button>
                                 <button
                                     onClick={handleToggle}
-                                    className="px-6 py-2.5 rounded-full border border-white/10 text-white/70 text-sm hover:bg-white/5 hover:text-white transition-all cursor-pointer"
+                                    className="md:px-6 px-4 py-2 md:py-2.5 text-xs md:text-sm rounded-full border border-white/10 text-white/70 hover:bg-white/5 hover:text-white transition-all cursor-pointer"
                                 >
                                     Đóng
                                 </button>
                                 <button
                                     onClick={handleReset}
-                                    className="px-6 py-2.5 text-white/40 text-xs hover:text-[#f5a623] transition-all cursor-pointer ml-auto"
+                                    className="md:px-6 px-4 py-2 md:py-2.5 text-white/40 text-xs md:text-sm hover:text-[#f5a623] transition-all cursor-pointer ml-auto"
                                 >
                                     Làm mới
                                 </button>
