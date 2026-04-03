@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import axios from "axios";
 import Image from "next/image";
 import Container from "@/app/components/Container";
 import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
@@ -36,8 +37,52 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
     const [activeTab, setActiveTab] = useState('Tập phim');
     const [isEpisodesCollapsed, setIsEpisodesCollapsed] = useState(false);
     const [activeRangeIndex, setActiveRangeIndex] = useState(0);
+    const [enrichedSuggestions, setEnrichedSuggestions] = useState<Movie[]>(suggestedMovies);
 
     const CHUNK_SIZE = 100;
+
+    // Effect to enrich suggested movies data (episode_total)
+    useEffect(() => {
+        setEnrichedSuggestions(suggestedMovies);
+
+        if (suggestedMovies.length === 0) return;
+
+        const enrichData = async () => {
+            const enriched = [...suggestedMovies];
+            const fetchChunkSize = 4;
+
+            for (let i = 0; i < suggestedMovies.length; i += fetchChunkSize) {
+                const chunk = suggestedMovies.slice(i, i + fetchChunkSize);
+                await Promise.all(
+                    chunk.map(async (m, chunkIdx) => {
+                        const isMultiEp = ["series", "hoathinh", "tvshows"].includes(m.type || "");
+                        // Fetch detail if it's a series and missing exact episode ratio
+                        if (isMultiEp && !m.episode_current?.includes("/")) {
+                            try {
+                                const res = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${m.slug}`)}`);
+                                if (res.data?.movie?.episode_total) {
+                                    enriched[i + chunkIdx] = {
+                                        ...enriched[i + chunkIdx],
+                                        episode_total: res.data.movie.episode_total
+                                    };
+                                }
+                            } catch (error) {
+                                console.error(`Error enriching movie ${m.slug}:`, error);
+                            }
+                        }
+                    })
+                );
+                // Update state after each chunk
+                setEnrichedSuggestions([...enriched]);
+                // Brief pause between chunks to keep UI responsive
+                if (i + fetchChunkSize < suggestedMovies.length) {
+                    await new Promise(r => setTimeout(r, 100));
+                }
+            }
+        };
+
+        enrichData();
+    }, [suggestedMovies]);
 
     // Build tabs dynamically based on available data
     const tabs = useMemo(() => {
@@ -305,7 +350,7 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                                         key={idx}
                                                         onClick={() => setActiveRangeIndex(idx)}
                                                         className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer border ${activeRangeIndex === idx
-                                                            ? 'bg-[#F0F0F0] text-[#0a1628] border-[#F0F0F0] shadow-[0_0_10px_rgba(255,255,255,0.1)]'
+                                                            ? 'bg-[#FFFFFF] text-[#0a1628] border-[#FFFFFF] shadow-[0_0_10px_rgba(255,255,255,0.2)]'
                                                             : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white'
                                                             }`}
                                                     >
@@ -415,9 +460,9 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                 )}
 
                                 {/* Suggestions Tab */}
-                                {activeTab === 'Đề xuất' && suggestedMovies.length > 0 && (
+                                {activeTab === 'Đề xuất' && enrichedSuggestions.length > 0 && (
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-6">
-                                        {suggestedMovies.map((m) => (
+                                        {enrichedSuggestions.map((m) => (
                                             <div key={m._id} className="transform hover:scale-[1.02] transition-transform">
                                                 <MoviePosterCard movie={m} />
                                             </div>
