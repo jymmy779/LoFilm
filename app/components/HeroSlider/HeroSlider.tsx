@@ -199,7 +199,7 @@ export default function HeroSlider() {
                                     {/* Description */}
                                     <div className="min-h-[60px] lg:block hidden max-w-lg mx-auto lg:mx-0">
                                         {currentMovie.content ? (
-                                            <p className=" text-xs xl:text-sm leading-relaxed line-clamp-3">
+                                            <p className=" text-xs xl:text-sm leading-relaxed drop-shadow-2xl [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)] line-clamp-3">
                                                 {cleanContent(currentMovie.content) || "Nội dung phim đang được cập nhật..."}
                                             </p>
                                         ) : (
