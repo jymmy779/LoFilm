@@ -10,6 +10,7 @@ const nextConfig: NextConfig = {
             { protocol: "https", hostname: "phimimg.com" },
             { protocol: "https", hostname: "phimapi.com" },
             { protocol: "https", hostname: "img.phimapi.com" },
+            { protocol: "https", hostname: "images.unsplash.com" },
         ],
     },
 };

@@ -133,7 +133,7 @@ export default function MovieRow({ title, apiUrl, viewAllLink }: MovieRowProps) 
 
                             return (
                                 <SwiperSlide key={movie._id} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
-                                    <Link href="/" className="block group/item cursor-pointer">
+                                    <Link href={`/phim/${movie.slug}`} className="block group/item cursor-pointer">
                                         <div className="relative aspect-video rounded-lg overflow-hidden bg-white/5 mb-3">
                                             <Image
                                                 src={imgUrl}

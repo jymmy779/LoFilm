@@ -161,7 +161,7 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
                             <SwiperSlide key={movie._id}>
                                 <div className="sw-item group/item cursor-pointer mt-4">
                                     <Link
-                                        href="/"
+                                        href={`/phim/${movie.slug}`}
                                         className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/5 transition-[transform,box-shadow] duration-500 ease-out group-hover/item:shadow-[0_15px_35px_rgba(0,0,0,0.6)]"
                                         style={{
                                             WebkitClipPath: isEven ? clipPathEven : clipPathOdd,

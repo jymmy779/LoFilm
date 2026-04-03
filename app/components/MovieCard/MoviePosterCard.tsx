@@ -15,7 +15,7 @@ export default function MoviePosterCard({ movie }: MoviePosterCardProps) {
 
     return (
         <div className="sw-item group/item cursor-pointer [contain:layout]">
-            <Link href="/" className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-white/5">
+            <Link href={`/phim/${movie.slug}`} className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-white/5">
                 {/* Poster Image */}
                 <Image
                     src={posterImg}
@@ -50,10 +50,10 @@ export default function MoviePosterCard({ movie }: MoviePosterCardProps) {
 
             <div className="info text-center space-y-1">
                 <h4 className="item-title text-white text-sm lg:text-base line-clamp-1 group-hover/item:text-blue-300 transition-colors">
-                    <Link href="/" title={movie.name}>{decodeHtml(movie.name)}</Link>
+                    <Link href={`/phim/${movie.slug}`} title={movie.name}>{decodeHtml(movie.name)}</Link>
                 </h4>
                 <h4 className="alias-title text-white/40 text-xs line-clamp-1 font-medium">
-                    <Link href="/">{decodeHtml(movie.origin_name)}</Link>
+                    <Link href={`/phim/${movie.slug}`}>{decodeHtml(movie.origin_name)}</Link>
                 </h4>
             </div>
         </div>

@@ -146,7 +146,7 @@ export default function HeroSlider() {
                                     {/* Title */}
                                     <div className="min-h-[76px] m-0 md:mb-[16px] flex items-end justify-center min-[700px]:justify-start">
                                         <h2 className="text-2xl xl:text-4xl font-bold text-white leading-tight drop-shadow-2xl [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)] line-clamp-1 md:line-clamp-2">
-                                            <Link href="/" className="hover:text-[#f5a623] transition-colors">
+                                            <Link href={`/phim/${currentMovie.slug}`} className="hover:text-[#f5a623] transition-colors">
                                                 {decodeHtml(currentMovie.name)}
                                             </Link>
                                         </h2>
@@ -187,7 +187,7 @@ export default function HeroSlider() {
                                             {currentMovie.category.slice(0, 3).map((cat) => (
                                                 <Link
                                                     key={cat.slug}
-                                                    href="/"
+                                                    href={`/phim/${currentMovie.slug}`}
                                                     className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs flex items-center justify-center bg-white/15 hover:text-[#f5a623] rounded"
                                                 >
                                                     {cat.name}
@@ -213,7 +213,7 @@ export default function HeroSlider() {
                                     {/* Buttons */}
                                     <div className="flex min-[700px]:flex hidden items-center justify-center min-[700px]:justify-start gap-5 pt-4">
                                         <Link
-                                            href="/"
+                                            href={`/phim/${currentMovie.slug}`}
                                             className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-15 lg:h-15 rounded-full bg-gradient-to-tr from-[#f5a623] to-[#ffcc33] text-[#0a1628] ring-4 ring-[#f5a623]/20 shadow-[0_4px_15px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.8)] hover:scale-110 active:scale-95 transition-all duration-300"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="20" height="20" fill="currentColor" className="ml-1 relative z-10">
@@ -221,7 +221,7 @@ export default function HeroSlider() {
                                             </svg>
                                         </Link>
                                         <Link
-                                            href="/"
+                                            href={`/phim/${currentMovie.slug}`}
                                             className="lg:px-6 lg:py-2.5 md:px-4 py-1.5 px-3  bg-white/10 hover:bg-white/20 text-white text-xs md:text-sm font-medium rounded-full transition-all duration-300 border border-white/10"
                                         >
                                             Chi tiết phim
