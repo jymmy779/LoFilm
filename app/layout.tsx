@@ -11,6 +11,9 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" suppressHydrationWarning>
+      <head>
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+      </head>
       <body className="bg-[#0f1115] text-white" suppressHydrationWarning>
         <SkeletonTheme baseColor="#1e293b" highlightColor="#334155">
           <Header />
