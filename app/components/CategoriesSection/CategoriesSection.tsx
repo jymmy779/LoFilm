@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import axios from "axios";
+import Container from "@/app/components/Container";
 
 interface Category {
     _id: string;
@@ -39,14 +40,14 @@ export default function CategoriesSection() {
     // Hiển thị skeleton loading nếu chưa tải xong
     if (categories.length === 0) {
         return (
-            <section className="relative z-30  w-full max-w-[1900px] mx-auto px-5 lg:px-12 mb-10 pointer-events-none">
+            <Container as="section" className="relative z-30 mb-10 pointer-events-none">
                 <h2 className="text-2xl font-bold text-white mb-6">Bạn đang quan tâm gì?</h2>
                 <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-4 pointer-events-auto">
                     {[...Array(8)].map((_, i) => (
                         <div key={i} className="w-full h-[120px] rounded-xl bg-white/5 animate-pulse" />
                     ))}
                 </div>
-            </section>
+            </Container>
         );
     }
 
@@ -54,7 +55,7 @@ export default function CategoriesSection() {
     const displayCategories = categories.slice(0, 8);
 
     return (
-        <section className="relative z-30 -mt-[80px] md:-mt-[140px] w-full max-w-[1900px] mx-auto px-5 lg:px-12 mb-10 pointer-events-none">
+        <Container as="section" className="relative z-30 -mt-[80px] md:-mt-[140px] mb-10 pointer-events-none">
             <h2 className=" text-xl lg:text-2xl font-bold text-white mb-6">Bạn đang quan tâm gì?</h2>
 
             {/* Grid layout cho 8 danh mục */}
@@ -88,6 +89,6 @@ export default function CategoriesSection() {
                     );
                 })}
             </div>
-        </section>
+        </Container>
     );
 }

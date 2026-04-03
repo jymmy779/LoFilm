@@ -13,6 +13,7 @@ import { decodeHtml } from "@/app/utils/textUtils";
 import { filterDuplicateMovies, getEpisodeStatus, getImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
 import Image from "next/image";
+import Container from "@/app/components/Container";
 
 interface TopMovieRowProps {
     title: string;
@@ -89,11 +90,8 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
     }, [apiUrl, navId]);
 
     if (isLoading) {
-        const clipPathEven = 'polygon(0% calc(5% + 16px), 1.2px calc(5% + 9.9px), 4.7px calc(5% + 4.7px), 9.9px calc(5% + 1.2px), 16px 5%, 100% 0, 100% 100%, 0% 100%)';
-        const clipPathOdd = 'polygon(0 0, calc(100% - 16px) 5%, calc(100% - 9.9px) calc(5% + 1.2px), calc(100% - 4.7px) calc(5% + 4.7px), calc(100% - 1.2px) calc(5% + 9.9px), 100% calc(5% + 16px), 100% 100%, 0% 100%)';
-
         return (
-            <section className="relative z-30 w-full max-w-[1900px] mx-auto px-5 lg:px-12 mb-8 md:mb-12 lg:mb-16 mt-8">
+            <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
                 <Skeleton width={300} height={40} className="mb-8 rounded-lg" />
                 <div className="flex gap-[10px] sm:gap-[13px] xl:gap-[15px] overflow-hidden">
                     {[...Array(10)].map((_, i) => (
@@ -116,7 +114,7 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
                         </div>
                     ))}
                 </div>
-            </section>
+            </Container>
         );
     }
 
@@ -127,7 +125,7 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
     const clipPathOdd = 'polygon(0 0, calc(100% - 16px) 5%, calc(100% - 9.9px) calc(5% + 1.2px), calc(100% - 4.7px) calc(5% + 4.7px), calc(100% - 1.2px) calc(5% + 9.9px), 100% calc(5% + 16px), 100% 100%, 0% 100%)';
 
     return (
-        <section className="top-movie-row-section relative z-30 w-full max-w-[1900px] mx-auto px-5 lg:px-12 mb-16 mt-8">
+        <Container as="section" className="top-movie-row-section relative z-30 mb-16 mt-8">
             <div className="row-header flex items-center justify-between mb-8">
                 <h2 className="text-[22px] lg:text-[32px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-orange-100 to-white drop-shadow-sm flex items-center gap-4">
                     {title}
@@ -185,23 +183,22 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
                                         </div>
                                         <div className="absolute inset-x-0 bottom-[-1px] h-1/2 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
 
-                                        {/* Badges - Back to bottom as before */}
-                                        <div className="absolute bottom-3 left-0 right-0 flex items-center justify-center gap-1.5 px-3 z-10">
-                                            {movie.quality && (
-                                                <div className="h-5 px-1 md:px-2 bg-white/30 rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
-                                                    {movie.quality}
-                                                </div>
-                                            )}
-                                            {movie.lang && (
-                                                <div className="h-5 px-1 md:px-2 bg-green-500/60 rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
-                                                    {(movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
-                                                </div>
-                                            )}
-                                            {getEpisodeStatus(movie) && (
-                                                <div className="h-5 px-1 md:px-2 bg-orange-500/70 rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
-                                                    {getEpisodeStatus(movie)}
-                                                </div>
-                                            )}
+                                        {/* Badges: Quality, Language, Status */}
+                                        <div className="pin-new absolute bottom-2 left-0 right-0 flex items-center justify-center flex-wrap gap-x-1 gap-y-1 px-2">
+                                            {/* Badge Quality - Xám */}
+                                            <div className="h-5 px-1 bg-gray-600 rounded-full text-white text-[10px]  border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
+                                                {movie.quality || "HD"}
+                                            </div>
+
+                                            {/* Badge Language - Xanh (Vietsub, LT, TM) */}
+                                            <div className="h-5 px-1 bg-green-600 rounded-full text-white text-[10px]  border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
+                                                {(movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
+                                            </div>
+
+                                            {/* Badge Status - Cam (Full, Trailer, HT) */}
+                                            <div className="h-5 px-1 bg-orange-600 rounded-full text-white text-[10px]  border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
+                                                {getEpisodeStatus(movie)}
+                                            </div>
                                         </div>
                                     </Link>
 
@@ -254,6 +251,6 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
                     50% { transform: rotate(-0.2deg); }
                 }
             `}</style>
-        </section>
+        </Container>
     );
 }

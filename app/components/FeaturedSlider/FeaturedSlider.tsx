@@ -16,6 +16,7 @@ import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import { filterDuplicateMovies, getImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
 import Image from "next/image";
+import Container from "@/app/components/Container";
 
 interface FeaturedSliderProps {
     title: string;
@@ -64,7 +65,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
 
     if (isLoading) {
         return (
-            <section className="relative w-full max-w-[1900px] mx-auto px-5 lg:px-12 md:my-12 my-8 lg:my-16">
+            <Container as="section" className="relative md:my-12 my-8 lg:my-16">
                 <Skeleton width={300} height={35} className="mb-6 rounded" />
                 <div className="relative aspect-[21/9] rounded-3xl overflow-hidden">
                     <Skeleton className="w-full h-full" />
@@ -73,14 +74,14 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                         <Skeleton count={3} className="mb-2" />
                     </div>
                 </div>
-            </section>
+            </Container>
         );
     }
 
     if (movies.length === 0) return null;
 
     return (
-        <section className="relative w-full max-w-[1900px] mx-auto px-5 lg:px-12 my-16">
+        <Container as="section" className="relative my-16">
             <div className="row-header flex items-center justify-between mb-6">
                 <h2 className="text-[20px] lg:text-[28px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-green-200 via-green-100 to-white drop-shadow-sm flex items-center gap-4">
                     {title}
@@ -298,6 +299,6 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                     }
                 }
             `}</style>
-        </section>
+        </Container>
     );
 }

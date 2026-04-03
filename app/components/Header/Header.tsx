@@ -53,10 +53,10 @@ export default function Header() {
     const dropdownProps = { activeMenu, setActiveMenu, closeTimeout };
 
     const navLinks = [
-        { href: "/phim-moi", label: "Phim mới" },
-        { href: "/phim-bo", label: "Phim bộ" },
-        { href: "/phim-le", label: "Phim lẻ" },
-        { href: "/phim-chieu-rap", label: "Phim chiếu rạp" },
+        { href: "/danh-sach/phim-moi", label: "Phim mới" },
+        { href: "/danh-sach/phim-bo", label: "Phim bộ" },
+        { href: "/danh-sach/phim-le", label: "Phim lẻ" },
+        { href: "/danh-sach/phim-chieu-rap", label: "Phim chiếu rạp" },
     ];
 
     return (
@@ -211,7 +211,7 @@ export default function Header() {
                             {navLinks.map((item) => (
                                 <Link
                                     key={item.label}
-                                    href="/"
+                                    href={item.href}
                                     className="text-[13px] 2xl:text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 whitespace-nowrap"
                                 >
                                     {item.label}
@@ -291,7 +291,7 @@ export default function Header() {
                                                 {categories.map((cat) => (
                                                     <Link
                                                         key={cat._id}
-                                                        href="/"
+                                                        href={`/the-loai/${cat.slug}`}
                                                         onClick={() => setIsMenuOpen(false)}
                                                         className="text-sm text-white/60 hover:text-[#f5a623] py-1 transition-colors"
                                                     >
@@ -334,7 +334,7 @@ export default function Header() {
                                                 {countries.map((country) => (
                                                     <Link
                                                         key={country._id}
-                                                        href="/"
+                                                        href={`/quoc-gia/${country.slug}`}
                                                         onClick={() => setIsMenuOpen(false)}
                                                         className="text-xs text-white/60 hover:text-[#f5a623] py-1 transition-colors"
                                                     >
@@ -349,7 +349,7 @@ export default function Header() {
                                     {navLinks.map((item) => (
                                         <motion.div layout key={item.href}>
                                             <Link
-                                                href="/"
+                                                href={item.href}
                                                 onClick={() => setIsMenuOpen(false)}
                                                 className="text-base text-white/80 py-3 border-b border-white/5 hover:text-[#f5a623] transition-colors font-medium block"
                                             >

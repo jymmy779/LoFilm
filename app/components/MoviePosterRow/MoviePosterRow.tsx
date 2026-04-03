@@ -10,9 +10,10 @@ import "swiper/css/navigation";
 
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
-import { filterDuplicateMovies, getEpisodeStatus, getImageUrl } from "@/app/utils/movieUtils";
+import { filterDuplicateMovies, getImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
-import Image from "next/image";
+import Container from "@/app/components/Container";
+import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
 
 interface MoviePosterRowProps {
     title: string;
@@ -102,7 +103,7 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
 
     if (isLoading) {
         return (
-            <section className="relative z-30 w-full max-w-[1900px] mx-auto px-5 lg:px-12 mb-16 mt-8">
+            <Container as="section" className="relative z-30 mb-16 mt-8">
                 <Skeleton width={200} height={32} className="mb-6 rounded" />
                 <div className="flex gap-2.5 md:gap-4 lg:gap-[15px] overflow-hidden">
                     {[...Array(10)].map((_, i) => (
@@ -114,14 +115,14 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
                         </div>
                     ))}
                 </div>
-            </section>
+            </Container>
         );
     }
 
     if (movies.length === 0) return null;
 
     return (
-        <section className="movie-row-section relative z-30 w-full max-w-[1900px] mx-auto px-5 lg:px-12 mb-8 md:mb-12 lg:mb-16 mt-8">
+        <Container as="section" className="movie-row-section relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
             <div className="row-header flex items-center justify-between mb-6">
                 <h2 className="text-[20px] lg:text-[28px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-blue-100 to-white drop-shadow-sm flex items-center gap-4">
                     {title}
@@ -171,57 +172,11 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
                         }}
                         className="swiper-carousel"
                     >
-                        {movies.map((movie) => {
-                            const posterImg = getImageUrl(movie.poster_url);
-
-                            return (
-                                <SwiperSlide key={movie._id}>
-                                    <div className="sw-item group/item cursor-pointer [contain:layout]">
-                                        <Link href="/" className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-white/5">
-                                            {/* Poster Image */}
-                                            <Image
-                                                src={posterImg}
-                                                alt={movie.name}
-                                                fill
-                                                loading="eager"
-                                                sizes="(max-width: 640px) 150px, (max-width: 1024px) 200px, 250px"
-                                                className="object-cover transition-transform duration-500 group-hover/item:scale-110 transform-gpu"
-                                            />
-
-                                            {/* Bottom Gradient overlay */}
-                                            <div className="absolute inset-x-0 bottom-[-1px] h-1/2 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none" />
-
-                                            {/* Badges: Quality, Language, Status */}
-                                            <div className="pin-new absolute bottom-2 left-0 right-0 flex items-center justify-center gap-1.5 px-2">
-                                                {/* Badge Quality - Xám */}
-                                                <div className="h-5 px-1 md:px-2 bg-white/30 rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
-                                                    {movie.quality || "HD"}
-                                                </div>
-
-                                                {/* Badge Language - Xanh (Vietsub, LT, TM) */}
-                                                <div className="h-5 px-1 md:px-2 bg-green-500/60 rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
-                                                    {(movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
-                                                </div>
-
-                                                {/* Badge Status - Cam (Full, Trailer, HT) */}
-                                                <div className="h-5 px-1 md:px-2 bg-orange-500/70 rounded-full text-white text-[8px] md:text-[9px] lg:text-[10px] lg:font-bold border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
-                                                    {getEpisodeStatus(movie)}
-                                                </div>
-                                            </div>
-                                        </Link>
-
-                                        <div className="info text-center space-y-1">
-                                            <h4 className="item-title text-white text-sm lg:text-base line-clamp-1 group-hover/item:text-blue-300 transition-colors">
-                                                <Link href="/" title={movie.name}>{decodeHtml(movie.name)}</Link>
-                                            </h4>
-                                            <h4 className="alias-title text-white/40 text-xs line-clamp-1 font-medium">
-                                                <Link href="/">{decodeHtml(movie.origin_name)}</Link>
-                                            </h4>
-                                        </div>
-                                    </div>
-                                </SwiperSlide>
-                            );
-                        })}
+                        {movies.map((movie) => (
+                            <SwiperSlide key={movie._id}>
+                                <MoviePosterCard movie={movie} />
+                            </SwiperSlide>
+                        ))}
                     </Swiper>
 
                     {/* Navigation Buttons */}
@@ -244,6 +199,6 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
                     padding-top: 5px;
                 }
             `}</style>
-        </section>
+        </Container>
     );
 }

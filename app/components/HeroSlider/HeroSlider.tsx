@@ -15,6 +15,7 @@ import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import { filterDuplicateMovies, getImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
+import Container from "@/app/components/Container";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 
@@ -60,11 +61,13 @@ export default function HeroSlider() {
         return (
             <div className="relative w-full h-[600px] lg:h-[750px] bg-[#0f1115]">
                 <Skeleton className="w-full h-full" containerClassName="h-full" />
-                <div className="absolute top-1/2 left-5 lg:left-12 -translate-y-1/2 w-full max-w-xl">
-                    <Skeleton height={60} width="90%" className="mb-4" />
-                    <Skeleton height={20} width="60%" className="mb-8" />
-                    <Skeleton count={3} />
-                </div>
+                <Container className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full">
+                    <div className="max-w-xl">
+                        <Skeleton height={60} width="90%" className="mb-4" />
+                        <Skeleton height={20} width="60%" className="mb-8" />
+                        <Skeleton count={3} />
+                    </div>
+                </Container>
             </div>
         );
     }
@@ -118,7 +121,7 @@ export default function HeroSlider() {
             </Swiper>
 
             {/* === COMBINED CONTENT & THUMBS OVERLAY === */}
-            <div className="absolute inset-x-0 bottom-0 z-30 w-full max-w-[1900px] mx-auto px-5 lg:px-12 pb-16 pointer-events-none">
+            <Container className="absolute inset-x-0 bottom-0 z-30 pb-16 pointer-events-none left-1/2 -translate-x-1/2">
                 <div className="relative top-[-65px] md:top-[-150px] flex flex-col min-[700px]:flex-row items-center min-[700px]:items-end justify-center min-[700px]:justify-between w-full gap-4 lg:gap-8 xl:gap-12">
 
                     {/* Content (Left side on Desktop, Top on Mobile) */}
@@ -263,7 +266,7 @@ export default function HeroSlider() {
                     </div>
 
                 </div>
-            </div>
+            </Container>
         </section>
     );
 }
