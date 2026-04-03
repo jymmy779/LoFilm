@@ -252,11 +252,12 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                         <AnimatePresence initial={false}>
                                             {!isEpisodesCollapsed && (
                                                 <motion.div
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    transition={{ duration: 0.3, ease: "easeOut" }}
+                                                    initial={{ height: 0, opacity: 0, y: -5 }}
+                                                    animate={{ height: 'auto', opacity: 1, y: 0 }}
+                                                    exit={{ height: 0, opacity: 0, y: -5 }}
+                                                    transition={{ duration: 0.15, ease: "easeOut" }}
                                                     className="overflow-hidden"
+                                                    style={{ willChange: "height, opacity, transform", transform: "translateZ(0)" }}
                                                 >
                                                     <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
                                                         {firstServerEpisodes.map((ep, idx) => (
