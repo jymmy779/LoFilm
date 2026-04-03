@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Container from "@/app/components/Container";
 import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
@@ -247,20 +248,30 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                                 <i className={`fa-solid ${isEpisodesCollapsed ? 'fa-chevron-down group-hover:translate-y-0.5' : 'fa-chevron-up group-hover:-translate-y-0.5'} transition-transform`}></i>
                                             </button>
                                         </div>
-                                        {/* Episode Grid */}
-                                        {!isEpisodesCollapsed && (
-                                            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
-                                                {firstServerEpisodes.map((ep, idx) => (
-                                                    <a
-                                                        key={idx}
-                                                        href="#"
-                                                        className="px-1 py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
-                                                    >
-                                                        {parseEpNumber(ep.name)}
-                                                    </a>
-                                                ))}
-                                            </div>
-                                        )}
+                                        {/* Episode Grid with Animation */}
+                                        <AnimatePresence initial={false}>
+                                            {!isEpisodesCollapsed && (
+                                                <motion.div
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: 'auto', opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    transition={{ duration: 0.3, ease: "easeOut" }}
+                                                    className="overflow-hidden"
+                                                >
+                                                    <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+                                                        {firstServerEpisodes.map((ep, idx) => (
+                                                            <a
+                                                                key={idx}
+                                                                href="#"
+                                                                className="px-1 py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
+                                                            >
+                                                                {parseEpNumber(ep.name)}
+                                                            </a>
+                                                        ))}
+                                                    </div>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
                                     </>
                                 )}
 
