@@ -8,9 +8,18 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
-    // Map slug to country name if needed, or simply title case it
-    const displaySlug = slug.split("-").join(" ");
-    const title = displaySlug.charAt(0).toUpperCase() + displaySlug.slice(1);
+    
+    let title = slug.split("-").join(" ");
+    title = title.charAt(0).toUpperCase() + title.slice(1);
+
+    try {
+        const res = await fetch("https://phimapi.com/quoc-gia");
+        const countries = await res.json();
+        const country = countries.find((item: any) => item.slug === slug);
+        if (country) title = country.name;
+    } catch (err) {
+        console.error("Lỗi fetch metadata quốc gia:", err);
+    }
 
     return {
         title: `Phim ${title} | LoFilm - Xem phim online chất lượng cao`,

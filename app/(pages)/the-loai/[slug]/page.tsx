@@ -8,9 +8,18 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
-    // Có thể fetch title từ API nếu muốn chi tiết hơn, hoặc capitalize slug
-    const displaySlug = slug.split("-").join(" ");
-    const title = displaySlug.charAt(0).toUpperCase() + displaySlug.slice(1);
+    
+    let title = slug.split("-").join(" ");
+    title = title.charAt(0).toUpperCase() + title.slice(1);
+
+    try {
+        const res = await fetch("https://phimapi.com/the-loai");
+        const categories = await res.json();
+        const category = categories.find((cat: any) => cat.slug === slug);
+        if (category) title = category.name;
+    } catch (err) {
+        console.error("Lỗi fetch metadata thể loại:", err);
+    }
 
     return {
         title: `Phim ${title} | LoFilm - Xem phim online chất lượng cao`,
