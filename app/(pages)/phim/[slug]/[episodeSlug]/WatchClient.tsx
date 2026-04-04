@@ -137,7 +137,7 @@ export default function WatchClient({
                 enterFullscreen: '',
                 exitFullscreen: '',
             },
-            tooltips: { controls: false, seek: false },
+            tooltips: { controls: false, seek: true },
             seekTime: 10
         };
 
