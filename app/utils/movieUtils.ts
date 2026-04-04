@@ -39,9 +39,10 @@ export function getEpisodeStatus(movie: Movie): string {
 }
 
 /**
- * Build full image URL from potentially relative path
+ * Build full image URL from potentially relative path and wrap with WebP proxy
  */
 export function getImageUrl(url: string | undefined): string {
     if (!url) return "";
-    return url.startsWith("http") ? url : `https://phimimg.com/${url}`;
+    const fullUrl = url.startsWith("http") ? url : `https://phimimg.com/${url}`;
+    return `https://phimapi.com/image.php?url=${encodeURIComponent(fullUrl)}`;
 }
