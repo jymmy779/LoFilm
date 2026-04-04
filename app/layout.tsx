@@ -1,5 +1,6 @@
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
+import InitialLoader from "./components/Transition/InitialLoader";
 import "./globals.css";
 import "react-loading-skeleton/dist/skeleton.css";
 import { SkeletonTheme } from "react-loading-skeleton";
@@ -15,6 +16,7 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
       </head>
       <body className="bg-[#0f1115] text-white" suppressHydrationWarning>
+        <InitialLoader />
         <SkeletonTheme baseColor="#1e293b" highlightColor="#334155">
           <Header />
           <main className="min-h-screen">
