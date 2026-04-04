@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
+import { usePathname } from "next/navigation";
 import Image from "next/image";
 
 import { MenuItem } from "./types";
@@ -21,6 +22,8 @@ export default function Header() {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [isSearchActive, setIsSearchActive] = useState(false);
     const [expandedSections, setExpandedSections] = useState<string[]>([]);
+    const pathname = usePathname();
+    const isHomePage = pathname === "/";
 
     useEffect(() => {
         const handleScroll = () => {
@@ -60,7 +63,7 @@ export default function Header() {
     ];
 
     return (
-        <header className={`w-full fixed top-0 left-0 z-50 ${isMenuOpen ? "" : "transition-[background-color,border-color,padding,box-shadow] duration-300"} border-b ${isScrolled || isMenuOpen ? "bg-[#0d1b2e] border-white/10 py-3 lg:px-5 shadow-lg" : "bg-transparent border-transparent py-2 lg:px-5"}`}>
+        <header className={`w-full fixed top-0 left-0 z-50 ${isMenuOpen ? "" : "transition-[background-color,border-color,padding,box-shadow] duration-300"} border-b ${(!isHomePage || isScrolled || isMenuOpen) ? "bg-[#0d1b2e] border-white/10 py-3 lg:px-5 shadow-lg" : "bg-transparent border-transparent py-2 lg:px-5"}`}>
             <div className="flex items-center justify-between h-[54px] md:h-[64px] w-full max-w-[1900px] mx-auto px-4 lg:px-0 gap-4 md:gap-8">
                 <div className="flex xl:hidden items-center justify-between w-full h-full gap-3">
                     <AnimatePresence mode="wait">

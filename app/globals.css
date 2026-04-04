@@ -36,3 +36,162 @@ body {
 @theme {
   --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
 }
+
+/* Theater Mode Styles */
+body.theater-mode header,
+body.theater-mode footer {
+  opacity: 0.2 !important;
+  filter: blur(3px) !important;
+  pointer-events: auto !important;
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
+  will-change: opacity, filter;
+}
+
+body.theater-mode header:hover,
+body.theater-mode footer:hover {
+  opacity: 1 !important;
+  filter: blur(0) !important;
+  pointer-events: all !important;
+  transition-duration: 0.1s !important;
+  z-index: 100 !important;
+}
+
+/* Plyr Custom Styles */
+.plyr__poster {
+  background-size: cover !important;
+  background-position: center !important;
+}
+
+.plyr--video {
+  height: 100%;
+}
+
+/* Custom Cursor for Plyr Ranges & Player */
+.plyr--video,
+.plyr__video-wrapper,
+.plyr input[type='range'],
+.plyr__progress,
+.plyr__progress__container,
+.plyr__volume,
+.plyr__control {
+  cursor: pointer !important;
+}
+
+/* Custom Plyr Hover Effect - ONLY highlight on actual hover */
+.plyr__control {
+  background: transparent !important;
+}
+
+.plyr__control svg {
+  color: white !important;
+  transition: color 0.3s ease !important;
+}
+
+.plyr__control:hover svg {
+  color: #fbbf24 !important; /* amber-400 - ONLY on hover */
+}
+
+/* Force Reset for Focus/Active/Expanded when NOT hovered */
+.plyr__control:not(:hover) svg,
+.plyr__control:focus:not(:hover) svg,
+.plyr__control[aria-expanded="true"]:not(:hover) svg {
+  color: white !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Reset original Plyr behavior contextually */
+.plyr--full-ui.plyr--video .plyr__control:hover {
+  color: #fbbf24 !important;
+  background: transparent !important;
+}
+
+.plyr--full-ui.plyr--video .plyr__control:focus,
+.plyr--full-ui.plyr--video .plyr__control:active,
+.plyr--full-ui.plyr--video .plyr__control[aria-expanded="true"] {
+  background: transparent !important;
+}
+
+.plyr--full-ui.plyr--video .plyr__control--overlaid {
+  background: #fbbf24 !important;
+  border: 1px solid rgba(245, 158, 11, 0.4) !important;
+}
+
+.plyr--full-ui.plyr--video .plyr__control--overlaid:hover {
+  background: rgba(245, 158, 11, 0.4) !important;
+  color: white !important;
+}
+
+/* Hide Mute/Volume Tooltip Completely */
+.plyr__control[data-plyr="mute"] .plyr__tooltip,
+.plyr__control[data-plyr="unmute"] .plyr__tooltip,
+.plyr__control[data-plyr="volume"] .plyr__tooltip,
+.plyr__volume .plyr__tooltip,
+.plyr__volume--display .plyr__tooltip {
+  display: none !important;
+  visibility: hidden !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
+
+/* Remove Range Focus Ring */
+.plyr input[type='range']:focus,
+.plyr input[type='range']:focus-visible,
+.plyr input[type='range']:active,
+.plyr input[type='range']::-moz-focus-outer {
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+/* Scale Seek Bar on hover */
+.plyr__progress {
+  transition: transform 0.2s ease;
+  transform-origin: center;
+  transform: scaleY(1.4);
+  /* Slightly thicker by default */
+}
+
+.plyr__progress:hover {
+  transform: scaleY(2.2);
+  /* Even thicker on hover */
+}
+
+.plyr__progress .plyr__tooltip {
+  /* Counter-scale the parent's scaleY to stay normal (1 / 1.4 ≈ 0.71) */
+  transform: scaleY(0.71) translateX(-50%);
+  transform-origin: bottom;
+}
+
+.plyr__progress:hover .plyr__tooltip {
+  /* Counter-scale the parent's hover scaleY (1 / 2.2 ≈ 0.45) */
+  transform: scaleY(0.45) translateX(-50%);
+}
+
+/* Hide Seek Thumb by default and show on hover */
+.plyr__progress input[type='range']::-webkit-slider-thumb {
+  opacity: 0;
+  transition: all 0.2s ease;
+  /* Counter-scale the parent's default scaleY(1.4) to keep it round (1 / 1.4 ≈ 0.71) */
+  transform: scaleY(0.71) scaleX(1);
+}
+
+.plyr__progress input[type='range']::-moz-range-thumb {
+  opacity: 0;
+  transition: all 0.2s ease;
+  /* Counter-scale the parent's default scaleY(1.4) to keep it round (1 / 1.4 ≈ 0.71) */
+  transform: scaleY(0.71) scaleX(1);
+}
+
+.plyr__progress:hover input[type='range']::-webkit-slider-thumb,
+.plyr__progress input[type='range']:active::-webkit-slider-thumb {
+  opacity: 1;
+  /* Counter-scale the parent's hover scaleY(2.2) to keep it round (1 / 2.2 ≈ 0.45) */
+  transform: scaleY(0.45) scaleX(1);
+}
+
+.plyr__progress:hover input[type='range']::-moz-range-thumb,
+.plyr__progress input[type='range']:active::-moz-range-thumb {
+  opacity: 1;
+  /* Counter-scale the parent's hover scaleY(2.2) to keep it round (1 / 2.2 ≈ 0.45) */
+  transform: scaleY(0.45) scaleX(1);
+}
