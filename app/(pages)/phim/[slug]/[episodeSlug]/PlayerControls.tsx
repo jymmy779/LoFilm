@@ -16,6 +16,8 @@ interface PlayerControlsProps {
   onToggleExpanded: () => void;
   isTheaterMode: boolean;
   onToggleTheater: () => void;
+  isAutoNext: boolean;
+  onToggleAutoNext: () => void;
   episodes: Array<{
     server_name: string;
   }>;
@@ -28,12 +30,13 @@ const PlayerControls = ({
   onToggleExpanded,
   isTheaterMode,
   onToggleTheater,
+  isAutoNext,
+  onToggleAutoNext,
   episodes,
   activeServer,
   onServerChange
 }: PlayerControlsProps) => {
   const [showServers, setShowServers] = useState(false);
-  const [autoNext, setAutoNext] = useState(true);
 
   return (
     <div className={`w-full bg-white/5 border border-white/10 p-3 md:p-4 mt-4 backdrop-blur-md transition-all duration-500 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-xl'}`}>
@@ -89,11 +92,11 @@ const PlayerControls = ({
         {/* Chuyển tập (Toggle) */}
         <div
           className="flex items-center gap-3 cursor-pointer group"
-          onClick={() => setAutoNext(!autoNext)}
+          onClick={onToggleAutoNext}
         >
           <span className="md:text-sm text-xs font-medium text-white/80 group-hover:text-white transition-colors">Chuyển tập</span>
-          <div className={`md:w-9 md:h-5 w-7 h-4 rounded-full relative transition-colors duration-300 ${autoNext ? 'bg-amber-500' : 'bg-white/20'}`}>
-            <div className={`absolute md:top-1 top-[3px] md:w-3 md:h-3 w-2.5 h-2.5 rounded-full bg-white transition-all duration-300 ${autoNext ? 'md:left-5 left-[15px]' : 'md:left-1 left-[3px]'}`} />
+          <div className={`md:w-9 md:h-5 w-7 h-4 rounded-full relative transition-colors duration-300 ${isAutoNext ? 'bg-amber-500' : 'bg-white/20'}`}>
+            <div className={`absolute md:top-1 top-[3px] md:w-3 md:h-3 w-2.5 h-2.5 rounded-full bg-white transition-all duration-300 ${isAutoNext ? 'md:left-5 left-[15px]' : 'md:left-1 left-[3px]'}`} />
           </div>
         </div>
 

@@ -1,5 +1,6 @@
 import WatchClient from "./WatchClient";
 import { Movie } from "@/app/types/movie";
+import { AlertTriangle } from "lucide-react";
 
 const API_BASE = "https://phimapi.com";
 
@@ -30,8 +31,75 @@ interface Props {
 export default async function WatchPage({ params }: Props) {
     const { slug, episodeSlug } = await params;
 
-    const res = await fetch(`https://phimapi.com/phim/${slug}`);
-    const data = await res.json();
+    let data: any = null;
+    try {
+        // Thêm signal timeout 10s để tránh server treo khi API lỗi
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
+
+        const res = await fetch(`https://phimapi.com/phim/${slug}`, {
+            signal: controller.signal,
+            next: { revalidate: 3600 } // Cache 1 tiếng
+        });
+        
+        clearTimeout(timeoutId);
+
+        if (!res.ok) throw new Error("API response not ok");
+        data = await res.json();
+    } catch (error) {
+        console.error("Fetch movie error:", error);
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#0a1628] text-white p-6 relative overflow-hidden">
+                {/* Minimal Background Decor - No Blur for Performance */}
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-500/5 rounded-full pointer-events-none" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full pointer-events-none" />
+
+                <div className="max-w-md w-full text-center relative z-10">
+                    <div className="bg-[#111e35] border border-white/5 p-10 md:p-14 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)]">
+                        <div className="w-24 h-24 bg-white/5 border border-white/10 rounded-3xl flex items-center justify-center mx-auto mb-8 rotate-12 hover:rotate-0 transition-transform duration-500">
+                            <AlertTriangle size={48} className="text-amber-500" />
+                        </div>
+                        
+                        <h1 className="text-2xl md:text-3xl font-black mb-4 uppercase tracking-[0.2em] font-montserrat">
+                            Mất Kết Nối
+                        </h1>
+                        
+                        <p className="text-white/40 text-sm md:text-base mb-10 leading-relaxed font-medium">
+                            Đường truyền đang gặp sự cố hoặc máy chủ phim không phản hồi. Hãy thử tải lại hoặc quay về trang chủ nhé!
+                        </p>
+
+                        <div className="flex flex-col gap-4">
+                            <button 
+                                onClick={() => window.location.reload()}
+                                className="w-full py-4 bg-amber-500 text-[#0a1628] font-black rounded-2xl hover:bg-amber-400 hover:scale-[1.02] active:scale-95 transition-all duration-300 shadow-lg shadow-amber-500/10"
+                            >
+                                THỬ LẠI NGAY
+                            </button>
+                            <a 
+                                href="/" 
+                                className="w-full py-4 bg-white/5 border border-white/10 text-white font-bold rounded-2xl hover:bg-white/10 transition-all duration-300 uppercase tracking-widest text-xs"
+                            >
+                                Về trang chủ
+                            </a>
+                        </div>
+                    </div>
+
+                    <p className="mt-8 text-white/20 text-[10px] uppercase tracking-[0.4em] font-bold">LoFilm Lightweight Experience</p>
+                </div>
+            </div>
+        );
+    }
+
+    if (!data || !data.movie) {
+        return (
+            <div className="min-h-screen flex items-center justify-center bg-[#0a1628] text-white">
+                <div className="text-center">
+                    <h1 className="text-2xl font-bold mb-4 uppercase tracking-wider italic">PHIM KHÔNG TỒN TẠI</h1>
+                    <a href="/" className="text-amber-400 hover:underline">Về trang chủ</a>
+                </div>
+            </div>
+        );
+    }
 
     const movie = data.movie;
     const episodes = data.episodes;

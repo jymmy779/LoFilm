@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import Link from "next/link";
-import { ChevronLeft, ChevronRight, AlertTriangle, RefreshCcw } from "lucide-react";
+import { ChevronRight, AlertTriangle, RefreshCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Hls from "hls.js";
 import Plyr from "plyr";
@@ -58,15 +58,32 @@ export default function WatchClient({
 }: WatchClientProps) {
     const [isExpanded, setIsExpanded] = useState(false);
     const [isTheaterMode, setIsTheaterMode] = useState(false);
+    const [isAutoNext, setIsAutoNext] = useState(true);
+    const [showNextButton, setShowNextButton] = useState(false);
     const [activeServerIndex, setActiveServerIndex] = useState(0);
     const [hasError, setHasError] = useState(false);
+    const [isEnded, setIsEnded] = useState(false);
+
     const videoRef = useRef<HTMLVideoElement>(null);
     const hlsRef = useRef<Hls | null>(null);
     const plyrRef = useRef<Plyr | null>(null);
 
-    // Reset lỗi khi đổi server hoặc tập phim
+    // Tìm tập tiếp theo
+    const nextEpisode = useMemo(() => {
+        if (!episodes || episodes.length === 0) return null;
+        const server = episodes[activeServerIndex] || episodes[0];
+        const currentIndex = server.server_data.findIndex(ep => ep.slug === episodeSlug);
+        if (currentIndex !== -1 && currentIndex < server.server_data.length - 1) {
+            return server.server_data[currentIndex + 1];
+        }
+        return null;
+    }, [episodes, activeServerIndex, episodeSlug]);
+
+    // Reset lỗi và UI khi đổi server hoặc tập phim
     useEffect(() => {
         setHasError(false);
+        setShowNextButton(false);
+        setIsEnded(false);
     }, [activeServerIndex, episodeSlug]);
 
     // Tìm link video dựa trên server đang chọn và episodeSlug
@@ -93,12 +110,26 @@ export default function WatchClient({
         if (newQuality === 0) {
             hlsRef.current.currentLevel = -1; // Auto
         } else {
+            // @ts-ignore
             hlsRef.current.levels.forEach((level, levelIndex) => {
                 if (level.height === newQuality) {
                     hlsRef.current!.currentLevel = levelIndex;
                 }
             });
         }
+    };
+
+    useEffect(() => {
+        const savedAutoNext = localStorage.getItem('lofilm-auto-next');
+        if (savedAutoNext !== null) {
+            setIsAutoNext(savedAutoNext === 'true');
+        }
+    }, []);
+
+    const toggleAutoNext = () => {
+        const newValue = !isAutoNext;
+        setIsAutoNext(newValue);
+        localStorage.setItem('lofilm-auto-next', String(newValue));
     };
 
     useEffect(() => {
@@ -151,6 +182,35 @@ export default function WatchClient({
             const player = new Plyr(videoRef.current, defaultOptions);
             plyrRef.current = player;
 
+            // Lắng nghe sự kiện kết thúc và thời gian để hiện nút chuyển tập
+            player.on('timeupdate', () => {
+                const remaining = player.duration - player.currentTime;
+                // Hiện nút khi còn 60s (1 phút) hoặc phim đã gần hết
+                if (remaining <= 60 && player.duration > 0 && nextEpisode) {
+                    setShowNextButton(true);
+                } else if (remaining > 60) {
+                    setShowNextButton(false);
+                }
+            });
+
+            player.on('play', () => {
+                setIsEnded(false);
+            });
+
+            player.on('seeking', () => {
+                setIsEnded(false);
+            });
+
+            player.on('ended', () => {
+                const currentAutoNext = localStorage.getItem('lofilm-auto-next') !== 'false';
+                if (currentAutoNext && nextEpisode) {
+                    window.location.href = `/phim/${slug}/${nextEpisode.slug}`;
+                } else {
+                    setIsEnded(true);
+                    setShowNextButton(false);
+                }
+            });
+
             if (Hls.isSupported() && videoSrc.endsWith('.m3u8')) {
                 const hls = new Hls({
                     capLevelToPlayerSize: true,
@@ -186,7 +246,7 @@ export default function WatchClient({
                 try { hlsRef.current.destroy(); } catch (e) { }
             }
         };
-    }, [videoSrc]);
+    }, [videoSrc, nextEpisode, slug]);
 
     // Xử lý phím tắt Space (Play/Pause) toàn cục
     useEffect(() => {
@@ -238,6 +298,7 @@ export default function WatchClient({
                     className={`
                         aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden shadow-2xl transition-all duration-500 z-10
                         ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'}
+                        ${isEnded ? 'plyr--ended' : ''}
                         [--plyr-color-main:#f59e0b]
                     `}
                 >
@@ -247,6 +308,61 @@ export default function WatchClient({
                         playsInline
                         poster={getImageUrl(movie.thumb_url)}
                     />
+
+                    {/* Overlay Phát lại khi phim kết thúc và không tự chuyển tập */}
+                    <AnimatePresence>
+                        {isEnded && (
+                            <motion.div
+                                initial={{ opacity: 0 }}
+                                animate={{ opacity: 1 }}
+                                exit={{ opacity: 0 }}
+                                onClick={() => {
+                                    if (plyrRef.current) {
+                                        plyrRef.current.restart();
+                                        plyrRef.current.play();
+                                        setIsEnded(false);
+                                    }
+                                }}
+                                className="absolute inset-0 bottom-20 z-40 flex items-center justify-center bg-black/80 cursor-pointer group"
+                            >
+                                <div className="flex flex-col items-center gap-4">
+                                    <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-amber-500 transition-all duration-300">
+                                        <RefreshCcw size={32} className="text-white group-hover:text-[#0a1628]" />
+                                    </div>
+                                    <span className="text-white font-bold text-sm uppercase tracking-[0.2em] group-hover:text-amber-500 transition-colors">Phát lại</span>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
+                    {/* Ẩn nút Play mặc định khi hiện overlay Kết thúc phim */}
+                    <style jsx global>{`
+                        .plyr--ended .plyr__control--overlaid,
+                        .plyr--ended .plyr__controls [data-plyr="play"],
+                        .plyr--ended .plyr__controls [data-plyr="pause"] {
+                            display: none !important;
+                        }
+                    `}</style>
+
+                    {/* Nút Tập Tiếp Theo Overlay */}
+                    <AnimatePresence>
+                        {showNextButton && nextEpisode && (
+                            <motion.div
+                                initial={{ opacity: 0, y: 10 }}
+                                animate={{ opacity: 1, y: 0 }}
+                                exit={{ opacity: 0 }}
+                                className="absolute bottom-28 right-6 z-40"
+                            >
+                                <Link
+                                    href={`/phim/${slug}/${nextEpisode.slug}`}
+                                    className="flex items-center gap-2 bg-black/80 border border-white/20 py-2 px-5 rounded-md hover:bg-amber-500 hover:text-[#0a1628] hover:border-amber-500 transition-all duration-300 text-white font-bold text-xs uppercase tracking-wider"
+                                >
+                                    Tập tiếp theo
+                                    <ChevronRight size={16} />
+                                </Link>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
 
                     {/* Lỗi luồng phát Overlay */}
                     <AnimatePresence>
@@ -294,6 +410,8 @@ export default function WatchClient({
                         onToggleExpanded={() => setIsExpanded(!isExpanded)}
                         isTheaterMode={isTheaterMode}
                         onToggleTheater={() => setIsTheaterMode(!isTheaterMode)}
+                        isAutoNext={isAutoNext}
+                        onToggleAutoNext={toggleAutoNext}
                         episodes={episodes}
                         activeServer={activeServerIndex}
                         onServerChange={setActiveServerIndex}
