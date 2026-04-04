@@ -80,8 +80,9 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                     <p className="text-[10px] text-white/60 tracking-widest">Cảm xúc hiện tại của người xem</p>
                 </div>
 
-                <motion.div layout className="flex flex-col">
-                    {emotions.slice(0, 3).map((item, index) => (
+                <div className="flex flex-col">
+                    {/* First 3 emotions - Always visible */}
+                    {emotions.slice(0, 3).map((item) => (
                         <div key={item.key} className="flex flex-col gap-2 mb-4">
                             <div className="flex items-center justify-between text-[12px]">
                                 <div className="flex items-center gap-2">
@@ -91,71 +92,56 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                                 <span className="text-amber-400">{item.percent}%</span>
                             </div>
                             <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden relative border border-white/5">
-                                <motion.div
-                                    initial={{ width: 0 }}
-                                    animate={{ width: `${item.percent}%` }}
-                                    transition={{ duration: 1, delay: 0.1 + index * 0.1, ease: "easeOut" }}
-                                    className="h-full rounded-full relative overflow-hidden shadow-[0_0_10px_rgba(255,255,255,0.15)]"
+                                <div
+                                    className="h-full rounded-full relative shadow-[0_0_10px_rgba(255,255,255,0.15)] transform-gpu"
                                     style={{
+                                        width: `${item.percent}%`,
                                         background: `linear-gradient(90deg, ${item.color}, ${item.color}cc)`,
-                                        backgroundColor: item.color
+                                        backgroundColor: item.color,
                                     }}
                                 />
                             </div>
                         </div>
                     ))}
 
-                    <AnimatePresence initial={false}>
-                        {isEmotionExpanded && (
-                            <motion.div
-                                initial={{ height: 0, opacity: 0 }}
-                                animate={{ height: "auto", opacity: 1 }}
-                                exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.3, ease: "easeInOut" }}
-                                className="overflow-hidden flex flex-col pt-0"
-                                style={{ willChange: "height, opacity" }}
-                            >
-                                {emotions.slice(3).map((item, index) => (
-                                    <div key={item.key} className="flex flex-col gap-2 mb-4">
-                                        <div className="flex items-center justify-between text-[12px] font-bold">
-                                            <div className="flex items-center gap-2">
-                                                <span className="text-sm">{item.icon}</span>
-                                                <span className="text-white/60">{item.name}</span>
-                                            </div>
-                                            <span className="text-amber-400">{item.percent}%</span>
-                                        </div>
-                                        <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden relative border border-white/5">
-                                            <motion.div
-                                                initial={{ scaleX: 0 }}
-                                                animate={{ scaleX: 1 }}
-                                                transition={{ duration: 0.5, delay: 0.1 + index * 0.1, ease: "easeOut" }}
-                                                className="h-full rounded-full relative overflow-hidden shadow-[0_0_10px_rgba(255,255,255,0.15)] origin-left transform-gpu"
-                                                style={{
-                                                    width: `${item.percent}%`,
-                                                    background: `linear-gradient(90deg, ${item.color}, ${item.color}cc)`,
-                                                    backgroundColor: item.color,
-                                                    willChange: "transform"
-                                                }}
-                                            />
-                                        </div>
+                    {/* Expandable part - Optimized with CSS for zero-lag */}
+                    <div 
+                        className={`overflow-hidden transition-all duration-300 ease-in-out transform-gpu ${isEmotionExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}
+                        style={{ willChange: "max-height, opacity" }}
+                    >
+                        {emotions.slice(3).map((item) => (
+                            <div key={item.key} className="flex flex-col gap-2 mb-4">
+                                <div className="flex items-center justify-between text-[12px] font-bold">
+                                    <div className="flex items-center gap-2">
+                                        <span className="text-sm">{item.icon}</span>
+                                        <span className="text-white/60">{item.name}</span>
                                     </div>
-                                ))}
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-                </motion.div>
+                                    <span className="text-amber-400">{item.percent}%</span>
+                                </div>
+                                <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden relative border border-white/5">
+                                    <div
+                                        className="h-full rounded-full relative shadow-[0_0_10px_rgba(255,255,255,0.15)] transform-gpu"
+                                        style={{
+                                            width: `${item.percent}%`,
+                                            background: `linear-gradient(90deg, ${item.color}, ${item.color}cc)`,
+                                            backgroundColor: item.color,
+                                        }}
+                                    />
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
                 <button
                     onClick={() => setIsEmotionExpanded(!isEmotionExpanded)}
-                    className="w-full mt-6 flex items-center justify-center gap-2 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-[11px] text-white/60 hover:text-white transition-all group cursor-pointer"
+                    className="w-full mt-2 flex items-center justify-center gap-2 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-[11px] text-white/60 hover:text-white transition-all group cursor-pointer"
                 >
                     {isEmotionExpanded ? "Thu gọn" : "Xem đầy đủ"}
-                    <motion.div
-                        animate={{ rotate: isEmotionExpanded ? 180 : 0 }}
-                        transition={{ type: "spring", stiffness: 200, damping: 15 }}
-                    >
-                        <ChevronDown size={14} />
-                    </motion.div>
+                    <ChevronDown 
+                      size={14} 
+                      className={`transition-transform duration-300 ${isEmotionExpanded ? 'rotate-180' : 'rotate-0'}`} 
+                    />
                 </button>
             </div>
 

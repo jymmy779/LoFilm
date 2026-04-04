@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { ChevronUp, ChevronDown, Server } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -22,13 +22,65 @@ interface EpisodeListProps {
   onServerChange?: (index: number) => void;
 }
 
+const parseEpNumber = (name: string) => {
+  const match = name.match(/\d+/);
+  return match ? parseInt(match[0]) : name;
+};
+
 const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServerChange }: EpisodeListProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
+  const [activeRangeIndex, setActiveRangeIndex] = useState(0);
+  const CHUNK_SIZE = 100;
 
   if (!episodes || episodes.length === 0) return null;
 
   const currentServer = episodes[activeServer];
   const episodeData = currentServer.server_data;
+
+  // Calculate episode ranges based on ACTUAL episode numbers
+  const episodeRanges = useMemo(() => {
+    let maxEpNum = 0;
+    episodeData.forEach(ep => {
+      const num = parseEpNumber(ep.name);
+      if (typeof num === 'number' && num > maxEpNum) maxEpNum = num;
+    });
+
+    if (maxEpNum <= CHUNK_SIZE) return [];
+
+    const ranges = [];
+    for (let i = 1; i <= maxEpNum; i += CHUNK_SIZE) {
+      const start = i;
+      const end = i + CHUNK_SIZE - 1;
+
+      const hasEpisodesInRange = episodeData.some(ep => {
+        const num = parseEpNumber(ep.name);
+        return typeof num === 'number' && num >= start && num <= end;
+      });
+
+      if (hasEpisodesInRange) {
+        ranges.push({
+          label: `Tập ${start} - ${Math.min(end, maxEpNum)}`,
+          startValue: start,
+          endValue: end
+        });
+      }
+    }
+    return ranges;
+  }, [episodeData, CHUNK_SIZE]);
+
+  // Current displayed episodes based on active range selection
+  const displayedEpisodes = useMemo(() => {
+    if (episodeRanges.length === 0) return episodeData;
+    const range = episodeRanges[activeRangeIndex];
+
+    return episodeData.filter(ep => {
+      const num = parseEpNumber(ep.name);
+      if (typeof num === 'number') {
+        return num >= range.startValue && num <= range.endValue;
+      }
+      return activeRangeIndex === 0;
+    });
+  }, [episodeData, episodeRanges, activeRangeIndex]);
 
   return (
     <div className="w-full pt-10">
@@ -38,7 +90,10 @@ const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServe
           {episodes.map((server, index) => (
             <button
               key={index}
-              onClick={() => onServerChange?.(index)}
+              onClick={() => {
+                onServerChange?.(index);
+                setActiveRangeIndex(0);
+              }}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] md:text-xs tracking-wider transition-all cursor-pointer font-medium whitespace-nowrap ${activeServer === index
                 ? "bg-amber-500 text-[#0a1628]"
                 : "bg-white/5 text-gray-500 hover:text-white"
@@ -72,28 +127,57 @@ const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServe
             exit={{ height: 0, opacity: 0 }}
             transition={{ duration: 0.3, ease: "easeInOut" }}
             className="overflow-hidden"
+            style={{ willChange: "height, opacity" }}
           >
-            <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 pt-2">
-              {episodeData.map((ep, i) => {
-                const isActive = ep.slug === currentEpisode;
-
-                return (
-                  <Link
-                    key={i}
-                    href={`/phim/${slug}/${ep.slug}`}
-                    className={`
-                      py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border
-                      ${isActive
-                        ? "bg-[#F0F0F0] text-[#0a1628] border-[#F0F0F0] shadow-[0_0_10px_rgba(255,255,255,0.15)] z-10"
-                        : "bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
-                      }
-                    `}
+            {/* Episode Ranges Selection */}
+            {episodeRanges.length > 0 && (
+              <div className="flex flex-wrap gap-2 mb-6 pt-2">
+                {episodeRanges.map((range, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setActiveRangeIndex(idx)}
+                    className={`px-4 py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all cursor-pointer border ${activeRangeIndex === idx
+                      ? 'bg-[#FFFFFF] text-[#0a1628] border-[#FFFFFF] shadow-[0_0_10px_rgba(255,255,255,0.2)]'
+                      : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white'
+                      }`}
                   >
-                    {ep.name.replace(/Tập\s*/i, "").replace(/^0+/, "")}
-                  </Link>
-                );
-              })}
-            </div>
+                    {range.label}
+                  </button>
+                ))}
+              </div>
+            )}
+
+            <AnimatePresence initial={false} mode="wait">
+              <motion.div
+                key={activeRangeIndex}
+                initial={{ opacity: 0, y: 5 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -5 }}
+                transition={{ duration: 0.2 }}
+                className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 pt-2"
+                style={{ willChange: "opacity, transform" }}
+              >
+                {displayedEpisodes.map((ep, i) => {
+                  const isActive = ep.slug === currentEpisode;
+
+                  return (
+                    <Link
+                      key={i}
+                      href={`/phim/${slug}/${ep.slug}`}
+                      className={`
+                        py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border
+                        ${isActive
+                          ? "bg-[#F0F0F0] text-[#0a1628] border-[#F0F0F0] shadow-[0_0_10px_rgba(255,255,255,0.15)] z-10"
+                          : "bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
+                        }
+                      `}
+                    >
+                      {ep.name.replace(/Tập\s*/i, "").replace(/^0+/, "")}
+                    </Link>
+                  );
+                })}
+              </motion.div>
+            </AnimatePresence>
           </motion.div>
         )}
       </AnimatePresence>

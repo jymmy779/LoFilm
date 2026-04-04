@@ -137,6 +137,9 @@ export default function WatchClient({
                 enterFullscreen: '',
                 exitFullscreen: '',
             },
+            displayDuration: true,
+            fullscreen: { enabled: true, fallback: true, iosNative: true },
+            storage: { enabled: true, key: 'plyr' },
             tooltips: { controls: false, seek: true },
             seekTime: 10
         };
