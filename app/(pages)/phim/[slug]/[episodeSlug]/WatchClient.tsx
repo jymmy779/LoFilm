@@ -110,28 +110,34 @@ export default function WatchClient({
         const defaultOptions: Plyr.Options = {
             captions: { active: true, update: true, language: 'vi' },
             controls: [
-                'play-large', 'play', 'rewind', 'fast-forward',
-                'progress', 'current-time', 'duration',
-                'mute', 'volume', 'captions', 'settings', 'pip', 'airplay', 'fullscreen'
+                'play-large',
+                'progress',
+                'play',
+                'rewind',
+                'fast-forward',
+                'current-time',
+                'duration',
+                'mute',
+                'volume',
+                'captions',
+                'pip',
+                'airplay',
+                'fullscreen'
             ],
-            settings: ['quality', 'speed', 'loop'],
             i18n: {
-                restart: 'Xem lại',
-                rewind: 'Tua lại 10s',
-                play: 'Phát',
-                pause: 'Tạm dừng',
-                forward: 'Tua tới 10s',
-                fastForward: 'Tua tới 10s',
-                quality: 'Chất lượng',
-                speed: 'Tốc độ',
-                loop: 'Vòng lặp',
+                restart: '',
+                rewind: '',
+                play: '',
+                pause: '',
+                forward: '',
+                fastForward: '',
                 mute: '',
                 unmute: '',
-                settings: 'Cài đặt',
-                enterFullscreen: 'Toàn màn hình',
-                exitFullscreen: 'Thoát toàn màn hình',
+                settings: '',
+                enterFullscreen: '',
+                exitFullscreen: '',
             },
-            tooltips: { controls: true, seek: true },
+            tooltips: { controls: false, seek: false },
             seekTime: 10
         };
 
@@ -214,17 +220,17 @@ export default function WatchClient({
             {/* Watch Header (Catalog) */}
             <AnimatePresence>
                 {!isTheaterMode && (
-                    <MovieHeader 
-                        slug={slug} 
-                        movieName={movie.name} 
-                        episodeName={episode.name} 
+                    <MovieHeader
+                        slug={slug}
+                        movieName={movie.name}
+                        episodeName={episode.name}
                     />
                 )}
             </AnimatePresence>
 
             <div className={`transition-all duration-500 ease-in-out relative ${isExpanded ? 'w-full' : 'max-w-[1900px] mx-auto px-5 lg:px-12'}`}>
                 {/* Plyr Video Section */}
-                <div 
+                <div
                     key={videoSrc}
                     className={`
                         aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden shadow-2xl transition-all duration-500 z-10
@@ -246,29 +252,29 @@ export default function WatchClient({
                                 initial={{ opacity: 0 }}
                                 animate={{ opacity: 1 }}
                                 exit={{ opacity: 0 }}
-                                className="absolute inset-0 z-10 flex items-center justify-center bg-black/80 backdrop-blur-md p-6 text-center"
+                                className="absolute inset-0 z-50 flex items-center justify-center bg-black/95 p-4 md:p-6 text-center"
                             >
-                                <div className="flex flex-col items-center max-w-sm">
-                                    <div className="w-16 h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-6">
-                                        <AlertTriangle size={32} className="text-red-500" />
+                                <div className="flex flex-col items-center max-w-[280px] sm:max-w-sm">
+                                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4 md:mb-6">
+                                        <AlertTriangle size={24} className="text-red-500 md:w-8 md:h-8" />
                                     </div>
-                                    <h3 className="text-xl font-bold text-white mb-2 font-montserrat uppercase tracking-wider">Link phim bị lỗi (404)</h3>
-                                    <p className="text-white/60 text-sm mb-8 leading-relaxed">
+                                    <h3 className="text-lg md:text-xl font-bold text-white mb-2 font-montserrat uppercase tracking-wider">Link phim bị lỗi (404)</h3>
+                                    <p className="text-white/60 text-[11px] md:text-sm mb-6 md:mb-8 leading-relaxed">
                                         Máy chủ hiện không phản hồi luồng phát này. Vui lòng **thử đổi sang Server khác** bên dưới.
                                     </p>
-                                    <div className="flex gap-4">
-                                        <button 
+                                    <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full sm:w-auto">
+                                        <button
                                             onClick={() => window.location.reload()}
-                                            className="flex items-center gap-2 px-6 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-xs font-bold text-white transition-all cursor-pointer"
+                                            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] md:text-xs font-bold text-white transition-all cursor-pointer"
                                         >
                                             <RefreshCcw size={14} /> Tải lại trang
                                         </button>
-                                        <button 
+                                        <button
                                             onClick={() => {
                                                 const el = document.querySelector('.wc-main');
                                                 el?.scrollIntoView({ behavior: 'smooth' });
                                             }}
-                                            className="px-6 py-2.5 bg-amber-500 hover:bg-amber-400 rounded-xl text-xs font-bold text-[#0a1628] transition-all cursor-pointer"
+                                            className="flex items-center justify-center px-6 py-2.5 bg-amber-500 hover:bg-amber-400 rounded-xl text-[10px] md:text-xs font-bold text-[#0a1628] transition-all cursor-pointer"
                                         >
                                             Đổi Server khác
                                         </button>
@@ -307,10 +313,10 @@ export default function WatchClient({
                             <div className="flex flex-col xl:flex-row gap-8">
                                 <div className="flex-1">
                                     <div className="flex flex-col gap-6 p-5 md:p-10 bg-white/[0.03] border border-white/10 rounded-3xl shadow-2xl">
-                                        <MovieInfo 
-                                            slug={slug} 
-                                            movie={movie} 
-                                            episode={episode} 
+                                        <MovieInfo
+                                            slug={slug}
+                                            movie={movie}
+                                            episode={episode}
                                         />
                                         <EpisodeList
                                             slug={slug}

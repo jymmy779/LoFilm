@@ -56,6 +56,23 @@ body.theater-mode footer:hover {
   z-index: 100 !important;
 }
 
+/* Disable backdrop-blur everywhere as per user request to optimize performance */
+.backdrop-blur-3xl,
+.backdrop-blur-2xl,
+.backdrop-blur-xl,
+.backdrop-blur-lg,
+.backdrop-blur-md,
+.backdrop-blur-sm,
+.backdrop-blur-none {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+}
+
+/* Optimize scroll performance */
+* {
+  -webkit-overflow-scrolling: touch;
+}
+
 /* Plyr Custom Styles */
 .plyr__poster {
   background-size: cover !important;
@@ -88,7 +105,8 @@ body.theater-mode footer:hover {
 }
 
 .plyr__control:hover svg {
-  color: #fbbf24 !important; /* amber-400 - ONLY on hover */
+  color: #fbbf24 !important;
+  /* amber-400 - ONLY on hover */
 }
 
 /* Force Reset for Focus/Active/Expanded when NOT hovered */
@@ -122,6 +140,59 @@ body.theater-mode footer:hover {
   color: white !important;
 }
 
+/* Custom Plyr Layout: Progress Bar above other controls */
+.plyr__controls {
+  flex-wrap: wrap !important;
+  display: flex !important;
+  align-items: center !important;
+  padding: 10px 15px !important;
+  padding-top: 5px !important;
+  background: linear-gradient(to top, rgba(0, 0, 0, 0.9), transparent) !important;
+}
+
+.plyr__progress__container {
+  flex-basis: 100% !important;
+  order: -1 !important;
+  margin-left: 0 !important;
+  margin-bottom: 8px !important;
+  padding: 0 !important;
+}
+
+/* Push icons to sides */
+/* Play, Rewind, Fast-forward are first by default */
+.plyr__time--current {
+  margin-left: auto !important;
+  /* Push everything after this to the right */
+}
+
+.plyr__volume {
+  max-width: 100px !important;
+}
+
+/* Tablet & Mobile Icon Size Reductions */
+@media (max-width: 1024px) {
+  .plyr__controls {
+    padding: 8px 10px !important;
+  }
+
+  .plyr__control {
+    padding: 4px !important;
+  }
+
+  .plyr__control svg {
+    width: 15px !important;
+    height: 15px !important;
+  }
+
+  .plyr__time {
+    font-size: 10px !important;
+  }
+
+  .plyr__progress__container {
+    margin-bottom: 4px !important;
+  }
+}
+
 /* Hide Mute/Volume Tooltip Completely */
 .plyr__control[data-plyr="mute"] .plyr__tooltip,
 .plyr__control[data-plyr="unmute"] .plyr__tooltip,
@@ -144,42 +215,108 @@ body.theater-mode footer:hover {
 }
 
 /* Scale Seek Bar on hover */
+/* Slim Progress Bar for All Screens */
+/* Slim Progress Bar for All Screens */
 .plyr__progress {
-  transition: transform 0.2s ease;
-  transform-origin: center;
-  transform: scaleY(1.4);
-  /* Slightly thicker by default */
+  transition: all 0.3s ease !important;
+  transform-origin: bottom !important;
+  transform: scaleY(0.6) !important;
+  /* Mobile/Tablet: Extremely thin default */
+}
+
+/* Desktop: Slightly thicker bar when not hovered */
+@media (min-width: 1451px) {
+  .plyr__progress {
+    transform: scaleY(1.1) !important;
+  }
 }
 
 .plyr__progress:hover {
-  transform: scaleY(2.2);
-  /* Even thicker on hover */
+  transform: scaleY(1.5) !important;
+  /* Default Desktop hover */
+}
+
+/* Specific Hover Reduction for Tablet & Mobile (≤ 1450px) */
+@media (max-width: 1450px) {
+  .plyr__progress:hover {
+    transform: scaleY(0.9) !important;
+    /* Low profile hover on small screens */
+  }
 }
 
 .plyr__progress .plyr__tooltip {
-  /* Counter-scale the parent's scaleY to stay normal (1 / 1.4 ≈ 0.71) */
-  transform: scaleY(0.71) translateX(-50%);
-  transform-origin: bottom;
+  /* Default Desktop counter-scale (1 / 1.1 ≈ 0.9) */
+  transform: scaleY(0.9) translateX(-50%) !important;
+  transform-origin: bottom !important;
+}
+
+/* Mobile/Tablet default counter-scale (1 / 0.6 ≈ 1.66) */
+@media (max-width: 1450px) {
+  .plyr__progress .plyr__tooltip {
+    transform: scaleY(1.66) translateX(-50%) !important;
+  }
 }
 
 .plyr__progress:hover .plyr__tooltip {
-  /* Counter-scale the parent's hover scaleY (1 / 2.2 ≈ 0.45) */
-  transform: scaleY(0.45) translateX(-50%);
+  /* Desktop hover counter-scale (1 / 1.5 ≈ 0.66) */
+  transform: scaleY(0.66) translateX(-50%) !important;
 }
+
+/* Mobile/Tablet hover counter-scale (1 / 0.9 ≈ 1.11) */
+@media (max-width: 1450px) {
+  .plyr__progress:hover .plyr__tooltip {
+    transform: scaleY(1.11) translateX(-50%) !important;
+  }
+}
+
+/* Custom Thumb Styling - Smaller and Elegant */
+.plyr--full-ui input[type='range']::-webkit-slider-thumb {
+  width: 8px !important;
+  height: 8px !important;
+  background: white !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3) !important;
+  margin-top: -1px !important;
+  /* Lowered even more to center perfectly */
+}
+
+/* Desktop: Slightly larger thumb for wider bar */
+@media (min-width: 1451px) {
+  .plyr--full-ui input[type='range']::-webkit-slider-thumb {
+    width: 10px !important;
+    height: 7px !important;
+    margin-top: -1px !important;
+  }
+}
+
+.plyr--full-ui input[type='range']::-moz-range-thumb {
+  width: 8px !important;
+  height: 8px !important;
+  background: white !important;
+  border: 1px solid rgba(0, 0, 0, 0.1) !important;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3) !important;
+}
+
+/* Chỉnh riêng đầu tròn của thanh âm lượng */
+.plyr--full-ui input[data-plyr="volume"]::-webkit-slider-thumb {
+  width: 8px !important;
+  height: 8px !important;
+  margin-top: -1.5px !important;
+  /* Căn giữa cục tròn 8px trên thanh volume mặc định */
+}
+
+/* .plyr--full-ui input[data-plyr="volume"]::-moz-range-thumb {
+  width: 8px !important;
+  height: 8px !important;
+} */
+
 
 /* Hide Seek Thumb by default and show on hover */
 .plyr__progress input[type='range']::-webkit-slider-thumb {
   opacity: 0;
   transition: all 0.2s ease;
-  /* Counter-scale the parent's default scaleY(1.4) to keep it round (1 / 1.4 ≈ 0.71) */
-  transform: scaleY(0.71) scaleX(1);
-}
-
-.plyr__progress input[type='range']::-moz-range-thumb {
-  opacity: 0;
-  transition: all 0.2s ease;
-  /* Counter-scale the parent's default scaleY(1.4) to keep it round (1 / 1.4 ≈ 0.71) */
-  transform: scaleY(0.71) scaleX(1);
+  transform: scaleY(1) scaleX(1) !important;
+  /* Simplified transform */
 }
 
 .plyr__progress:hover input[type='range']::-webkit-slider-thumb,

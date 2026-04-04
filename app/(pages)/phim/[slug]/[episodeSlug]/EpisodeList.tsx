@@ -39,11 +39,10 @@ const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServe
             <button
               key={index}
               onClick={() => onServerChange?.(index)}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] md:text-xs font-bold uppercase tracking-wider transition-all cursor-pointer whitespace-nowrap ${
-                activeServer === index 
-                  ? "bg-amber-500 text-[#0a1628] shadow-[0_0_15px_rgba(245,166,35,0.3)]" 
-                  : "bg-white/5 text-gray-500 hover:text-white"
-              }`}
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] md:text-xs tracking-wider transition-all cursor-pointer font-medium whitespace-nowrap ${activeServer === index
+                ? "bg-amber-500 text-[#0a1628]"
+                : "bg-white/5 text-gray-500 hover:text-white"
+                }`}
             >
               <Server size={12} />
               {server.server_name}
@@ -83,14 +82,14 @@ const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServe
                     key={i}
                     href={`/phim/${slug}/${ep.slug}`}
                     className={`
-                      py-3 md:py-4 flex items-center justify-center rounded-xl text-sm font-bold transition-all transform border
+                      py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border
                       ${isActive
                         ? "bg-[#F0F0F0] text-[#0a1628] border-[#F0F0F0] shadow-[0_0_10px_rgba(255,255,255,0.15)] z-10"
                         : "bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
                       }
                     `}
                   >
-                    {ep.name}
+                    {ep.name.replace(/Tập\s*/i, "").replace(/^0+/, "")}
                   </Link>
                 );
               })}

@@ -67,26 +67,14 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                 <div className="w-full pt-6 border-t border-white/5 flex flex-col items-center">
                     <div className="flex items-center gap-2">
                         <Star size={16} fill="#f5c518" stroke="#f5c518" />
-                        <span className="text-xl font-black text-white">{rating}</span>
-                        <span className="text-[12px] text-white/40 font-bold uppercase tracking-wider ml-1 pt-1">Đánh giá</span>
+                        <span className="text-lg font-black text-white">{rating}</span>
+                        <span className="text-[12px] text-white/40 uppercase tracking-wider ml-1 pt-1">Đánh giá</span>
                     </div>
                 </div>
             </div>
 
             {/* Emotion Chart */}
-            <div className="relative overflow-hidden border border-white/20 bg-white/[0.06] rounded-3xl p-6 backdrop-blur-3xl shadow-2xl shadow-black/80 bg-gradient-to-br from-white/10 via-white/3 to-transparent flex flex-col">
-                <motion.div
-                    initial={{ x: "-200%", y: "200%", rotate: -30 }}
-                    animate={{ x: "200%", y: "-200%", rotate: -30 }}
-                    transition={{
-                        repeat: Infinity,
-                        duration: 20,
-                        ease: [0.33, 1, 0.68, 1],
-                        repeatDelay: 0
-                    }}
-                    className="absolute inset-0 w-[400%] h-[400%] -top-[150%] -left-[150%] bg-gradient-to-r from-transparent via-white/[0.01] via-white/[0.08] via-white/[0.01] to-transparent blur-[80px] pointer-events-none"
-                />
-
+            <div className="sidebar-card relative overflow-hidden border border-white/20 bg-white/[0.06] rounded-3xl p-6 shadow-2xl shadow-black/80 flex flex-col transform-gpu">
                 <div className="relative mb-6 text-center">
                     <h3 className="text-[16px] font-bold text-white tracking-[0.2em] mb-1 drop-shadow-sm">Biểu đồ cảm xúc</h3>
                     <p className="text-[10px] text-white/60 tracking-widest">Cảm xúc hiện tại của người xem</p>
@@ -95,7 +83,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                 <motion.div layout className="flex flex-col">
                     {emotions.slice(0, 3).map((item, index) => (
                         <div key={item.key} className="flex flex-col gap-2 mb-4">
-                            <div className="flex items-center justify-between text-[12px] font-bold">
+                            <div className="flex items-center justify-between text-[12px]">
                                 <div className="flex items-center gap-2">
                                     <span className="text-sm animate-bounce duration-[2000ms]" style={{ animationDelay: `${index * 200}ms` }}>{item.icon}</span>
                                     <span className="text-white/60">{item.name}</span>
@@ -129,8 +117,9 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                                 initial={{ height: 0, opacity: 0 }}
                                 animate={{ height: "auto", opacity: 1 }}
                                 exit={{ height: 0, opacity: 0 }}
-                                transition={{ duration: 0.4, ease: [0.33, 1, 0.68, 1] }}
+                                transition={{ duration: 0.3, ease: "easeInOut" }}
                                 className="overflow-hidden flex flex-col pt-0"
+                                style={{ willChange: "height, opacity" }}
                             >
                                 {emotions.slice(3).map((item, index) => (
                                     <div key={item.key} className="flex flex-col gap-2 mb-4">
@@ -142,12 +131,16 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                                             <span className="text-amber-400">{item.percent}%</span>
                                         </div>
                                         <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden relative border border-white/5">
-                                            <div
-                                                className="h-full rounded-full relative overflow-hidden shadow-[0_0_10px_rgba(255,255,255,0.15)]"
+                                            <motion.div
+                                                initial={{ scaleX: 0 }}
+                                                animate={{ scaleX: 1 }}
+                                                transition={{ duration: 0.5, delay: 0.1 + index * 0.1, ease: "easeOut" }}
+                                                className="h-full rounded-full relative overflow-hidden shadow-[0_0_10px_rgba(255,255,255,0.15)] origin-left transform-gpu"
                                                 style={{
                                                     width: `${item.percent}%`,
                                                     background: `linear-gradient(90deg, ${item.color}, ${item.color}cc)`,
-                                                    backgroundColor: item.color
+                                                    backgroundColor: item.color,
+                                                    willChange: "transform"
                                                 }}
                                             />
                                         </div>
@@ -160,7 +153,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
 
                 <button
                     onClick={() => setIsEmotionExpanded(!isEmotionExpanded)}
-                    className="w-full mt-6 flex items-center justify-center gap-2 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-[11px] font-bold text-white/60 hover:text-white transition-all group cursor-pointer"
+                    className="w-full mt-6 flex items-center justify-center gap-2 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-[11px] text-white/60 hover:text-white transition-all group cursor-pointer"
                 >
                     {isEmotionExpanded ? "Thu gọn" : "Xem đầy đủ"}
                     <motion.div
@@ -208,7 +201,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                                 <div className="text-[11px] text-white/40 font-medium italic line-clamp-1 mb-2">{movie.alias}</div>
                                 <div className="flex gap-2">
                                     <span className="px-1.5 py-0.5 bg-white/5 rounded text-[9px] text-white/50">{movie.year}</span>
-                                    <span className="px-1.5 py-0.5 bg-amber-500 rounded text-[#0a1628] text-[9px] font-black uppercase tracking-tighter shadow-lg">
+                                    <span className="px-1.5 py-0.5 bg-amber-500 rounded text-[#0a1628] text-[9px]  tracking-tighter shadow-lg">
                                         {movie.ep}
                                     </span>
                                 </div>
