@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { Suspense } from "react";
 import CountryClient from "./CountryClient";
 
 type Props = {
@@ -20,8 +21,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CountryPage({ params }: Props) {
     const { slug } = await params;
     return (
-        <>
+        <Suspense>
             <CountryClient slug={slug} />
-        </>
+        </Suspense>
     );
 }

@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { Suspense } from "react";
 import TheatersClient from "./TheatersClient";
 
 export const metadata: Metadata = {
@@ -8,8 +9,8 @@ export const metadata: Metadata = {
 
 export default function TheatersPage() {
     return (
-        <>
+        <Suspense>
             <TheatersClient />
-        </>
+        </Suspense>
     );
 }
