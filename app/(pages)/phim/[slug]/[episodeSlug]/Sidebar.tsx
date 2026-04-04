@@ -85,7 +85,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                         <div key={item.key} className="flex flex-col gap-2 mb-4">
                             <div className="flex items-center justify-between text-[12px]">
                                 <div className="flex items-center gap-2">
-                                    <span className="text-sm animate-bounce duration-[2000ms]" style={{ animationDelay: `${index * 200}ms` }}>{item.icon}</span>
+                                    <span className="text-sm">{item.icon}</span>
                                     <span className="text-white/60">{item.name}</span>
                                 </div>
                                 <span className="text-amber-400">{item.percent}%</span>
@@ -100,13 +100,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                                         background: `linear-gradient(90deg, ${item.color}, ${item.color}cc)`,
                                         backgroundColor: item.color
                                     }}
-                                >
-                                    <motion.div
-                                        animate={{ x: ["-100%", "200%"] }}
-                                        transition={{ repeat: Infinity, duration: 2, ease: "linear", repeatDelay: 1.5 }}
-                                        className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent"
-                                    />
-                                </motion.div>
+                                />
                             </div>
                         </div>
                     ))}
