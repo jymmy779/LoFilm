@@ -80,7 +80,7 @@ export default function DropdownMenu({
                                         {col.map((item) => (
                                             <Link
                                                 key={item._id}
-                                                href={`/`}
+                                                href={`${hrefPrefix}/${item.slug}`}
                                                 className="text-sm text-white/70 hover:text-[#f5a623] hover:translate-x-1 transition-all duration-150 whitespace-nowrap block"
                                             >
                                                 {item.name}
