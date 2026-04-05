@@ -1,6 +1,7 @@
 import WatchClient from "./WatchClient";
 import { Movie } from "@/app/types/movie";
 import { AlertTriangle } from "lucide-react";
+import { Metadata } from "next";
 
 const API_BASE = "https://phimapi.com";
 
@@ -26,6 +27,57 @@ interface Props {
         slug: string;
         episodeSlug: string;
     }>;
+}
+
+// Reuse fetch logic for metadata
+async function getMovieDetail(slug: string) {
+    try {
+        const res = await fetch(`${API_BASE}/phim/${slug}`, {
+            next: { revalidate: 3600 }
+        });
+        if (!res.ok) return null;
+        return await res.json();
+    } catch {
+        return null;
+    }
+}
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+    const { slug, episodeSlug } = await params;
+    const data = await getMovieDetail(slug);
+
+    if (!data || !data.movie) {
+        return { title: "Xem phim - LoFilm" };
+    }
+
+    const { movie, episodes } = data;
+    
+    // Tìm tập phim hiện tại
+    let currentEpisodeName = "";
+    if (episodes && episodes.length > 0) {
+        // Lấy slug thực tế (tap-full -> full)
+        const realEpisodeSlug = episodeSlug === "tap-full" ? "full" : episodeSlug;
+        
+        const allEpisodes = episodes.flatMap((server: any) => server.server_data);
+        const episode = allEpisodes.find((ep: any) => ep.slug === realEpisodeSlug);
+        
+        if (episode) {
+            currentEpisodeName = ` - Tập ${episode.name}`;
+        }
+    }
+
+    const title = `Xem phim ${movie.name}${currentEpisodeName} | LoFilm`;
+    const description = `Xem phim ${movie.name} (${movie.origin_name}) ${currentEpisodeName} chất lượng cao, thuyết minh vietsub cực hay tại LoFilm.`;
+
+    return {
+        title,
+        description,
+        openGraph: {
+            title,
+            description,
+            images: [movie.poster_url],
+        },
+    };
 }
 
 export default async function WatchPage({ params }: Props) {
