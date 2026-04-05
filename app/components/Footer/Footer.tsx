@@ -62,18 +62,21 @@ export default function Footer() {
 
                         {/* Menu Links */}
                         <div className="flex flex-wrap items-center gap-x-8 gap-y-3 mt-2">
-                            {['Hỏi-Đáp', 'Chính sách bảo mật', 'Điều khoản sử dụng', 'Giới thiệu', 'Liên hệ'].map(item => {
-                                const slug = item.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/\s+/g, '-');
-                                return (
-                                    <Link
-                                        key={item}
-                                        href={`/`}
-                                        className="text-[14px] font-medium text-white/60 hover:text-[#f5a623] hover:underline underline-offset-4 transition-all"
-                                    >
-                                        {item}
-                                    </Link>
-                                );
-                            })}
+                            {[
+                                { label: 'Hỏi-Đáp', href: '/faq' },
+                                { label: 'Chính sách bảo mật', href: '/chinh-sach-bao-mat' },
+                                { label: 'Điều khoản sử dụng', href: '/dieu-khoan-su-dung' },
+                                { label: 'Giới thiệu', href: '/gioi-thieu' },
+                                { label: 'Liên hệ', href: '/lien-he' }
+                            ].map(item => (
+                                <Link
+                                    key={item.label}
+                                    href={item.href}
+                                    className="text-[14px] font-medium text-white/60 hover:text-[#f5a623] hover:underline underline-offset-4 transition-all"
+                                >
+                                    {item.label}
+                                </Link>
+                            ))}
                         </div>
 
                         {/* Description Notice */}
