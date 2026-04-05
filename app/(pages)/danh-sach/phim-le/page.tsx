@@ -1,16 +1,16 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
-import MoviesClient from "./MoviesClient";
+import MovieListClient from "./MovieListClient";
 
 export const metadata: Metadata = {
-    title: "Danh sách Phim Lẻ | LoFilm - Xem phim lẻ online hay nhất",
-    description: "Tổng hợp các bộ phim lẻ mới nhất, phim hành động, tình cảm, kinh dị cực hay, cập nhật liên tục mỗi ngày trên LoFilm.",
+    title: "Danh sách Phim Lẻ mới nhất | LoFilm - Kho phim lẻ Việt Nam, Quốc Tế",
+    description: "Tổng hợp các phim lẻ, phim một tập mới nhất từ khắp nơi trên thế giới, cập nhật liên tục.",
 };
 
-export default function MoviesPage() {
+export default function MovieListPage() {
     return (
         <Suspense>
-            <MoviesClient />
+            <MovieListClient />
         </Suspense>
     );
 }

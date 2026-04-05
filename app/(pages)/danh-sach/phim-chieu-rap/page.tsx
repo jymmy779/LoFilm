@@ -1,16 +1,16 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
-import TheatersClient from "./TheatersClient";
+import TheaterMoviesClient from "./TheaterMoviesClient";
 
 export const metadata: Metadata = {
-    title: "Danh sách Phim Chiếu Rạp | LoFilm - Xem phim chiếu rạp mới nhất",
-    description: "Tổng hợp các bộ phim vừa chiếu rạp, phim bom tấn mới nhất được cập nhật liên tục trên LoFilm.",
+    title: "Danh sách Phim Chiếu Rạp Mới Nhất | LoFilm",
+    description: "Khám phá danh sách các bộ phim chiếu rạp mới được cập nhật liên tục.",
 };
 
-export default function TheatersPage() {
+export default function TheaterMoviesPage() {
     return (
         <Suspense>
-            <TheatersClient />
+            <TheaterMoviesClient />
         </Suspense>
     );
 }
