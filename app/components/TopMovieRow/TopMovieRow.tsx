@@ -151,14 +151,6 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                         nextEl: `.sw-next-${navId}`,
                         prevEl: `.sw-prev-${navId}`,
                     }}
-                    // === Tối ưu hóa hiệu năng lướt ===
-                    watchSlidesProgress={true}
-                    grabCursor={true}
-                    preventClicks={true}
-                    preventClicksPropagation={true}
-                    touchStartPreventDefault={false}
-                    resistanceRatio={0.7}
-                    roundLengths={true}
                     breakpoints={{
                         576: { slidesPerView: 3, spaceBetween: 13 },
                         767: { slidesPerView: 4, spaceBetween: 13 },
