@@ -7,6 +7,8 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
+import { usePageTransition } from "@/app/components/Transition/PageTransitionContext";
+
 export default function AuthContent() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
@@ -15,6 +17,7 @@ export default function AuthContent() {
   const [fullName, setFullName] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
+  const { navigateWithTransition } = usePageTransition();
   const supabase = createClient();
 
   const translateError = (error: string) => {
@@ -39,8 +42,8 @@ export default function AuthContent() {
         });
         if (error) throw error;
         toast.success("Chào mừng bạn trở lại!");
-        router.push("/");
-        router.refresh();
+        navigateWithTransition("/");
+        setTimeout(() => router.refresh(), 500);
       } else {
         // Validation
         if (password.length < 6) {
@@ -74,6 +77,24 @@ export default function AuthContent() {
     } finally {
       setIsLoading(false);
     }
+  };
+
+  const handleForgotPassword = async () => {
+    if (!email) {
+      toast.error("Vui lòng nhập Email trước khi khôi phục mật khẩu!");
+      return;
+    }
+    setIsLoading(true);
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/dat-lai-mat-khau`,
+    });
+
+    if (error) {
+      toast.error(translateError(error.message));
+    } else {
+      toast.success("Link khôi phục mật khẩu đã được gửi tới Email của bạn!");
+    }
+    setIsLoading(false);
   };
 
   return (
@@ -211,7 +232,11 @@ export default function AuthContent() {
 
         {isLogin && (
           <div className="mt-8 text-center">
-            <button className="text-white/30 hover:text-white text-xs transition-colors cursor-pointer">
+            <button
+              onClick={handleForgotPassword}
+              disabled={isLoading}
+              className="text-white/30 hover:text-white text-xs transition-colors cursor-pointer disabled:opacity-50"
+            >
               Quên mật khẩu?
             </button>
           </div>

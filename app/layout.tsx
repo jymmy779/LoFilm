@@ -23,6 +23,8 @@ export const metadata: Metadata = {
   },
 };
 
+import AuthListener from "./components/Auth/AuthListener";
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -40,6 +42,7 @@ export default function RootLayout({
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
       </head>
       <body className="bg-[#0f1115] text-white" suppressHydrationWarning>
+        <AuthListener />
         <InitialLoader />
         <PageTransitionProvider>
           <PageTransitionOverlay />

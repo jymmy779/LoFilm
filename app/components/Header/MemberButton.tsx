@@ -88,15 +88,23 @@ export default function MemberButton() {
                             <p className="text-sm font-bold text-amber-400 truncate mt-1">{displayName}</p>
                         </div>
                         
-                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer">
+                        <TransitionLink 
+                            href="/trang-ca-nhan"
+                            onClick={() => setShowMenu(false)}
+                            className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer"
+                        >
                             <User size={16} className="text-white/40" />
                             Trang cá nhân
-                        </button>
+                        </TransitionLink>
                         
-                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer">
+                        <TransitionLink 
+                            href="/trang-ca-nhan"
+                            onClick={() => setShowMenu(false)}
+                            className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer"
+                        >
                             <Settings size={16} className="text-white/40" />
                             Cài đặt
-                        </button>
+                        </TransitionLink>
 
                         <div className="h-[1px] bg-white/5 my-1 mx-2" />
 
