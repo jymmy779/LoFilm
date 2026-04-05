@@ -1,5 +1,6 @@
 "use client"
 
+import { usePathname } from "next/navigation";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
@@ -13,6 +14,7 @@ import MemberButton from "./MemberButton";
 
 // --- Main Header ---
 export default function Header() {
+    const pathname = usePathname();
     const [categories, setCategories] = useState<MenuItem[]>([]);
     const [countries, setCountries] = useState<MenuItem[]>([]);
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
@@ -59,8 +61,11 @@ export default function Header() {
         { href: "/danh-sach/phim-chieu-rap", label: "Phim chiếu rạp" },
     ];
 
+    const isSolid = pathname !== "/";
+    const showBackground = isSolid || isScrolled || isMenuOpen;
+
     return (
-        <header className={`w-full fixed top-0 left-0 z-50 ${isMenuOpen ? "" : "transition-[background-color,border-color,padding,box-shadow] duration-300"} border-b ${isScrolled || isMenuOpen ? "bg-[#0d1b2e] border-white/10 py-3 lg:px-5 shadow-lg" : "bg-transparent border-transparent py-2 lg:px-5"}`}>
+        <header className={`w-full fixed top-0 left-0 z-50 ${isMenuOpen ? "" : "transition-all duration-300"} border-b ${showBackground ? "bg-[#0d1b2e] border-white/10 py-3 lg:px-5 shadow-lg" : "bg-transparent border-transparent py-2 lg:px-5"}`}>
             <div className="flex items-center justify-between h-[54px] md:h-[64px] w-full max-w-[1900px] mx-auto px-4 lg:px-0 gap-4 md:gap-8">
                 <div className="flex xl:hidden items-center justify-between w-full h-full gap-3">
                     <AnimatePresence mode="wait">
