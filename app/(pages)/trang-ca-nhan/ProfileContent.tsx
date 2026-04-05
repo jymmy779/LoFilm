@@ -337,53 +337,64 @@ export default function ProfileContent() {
                   </div>
 
                   <div className="space-y-6">
-                    <div className="p-5 md:p-6 bg-white/5 rounded-2xl md:rounded-3xl border border-white/5 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-                      <div className="flex-1">
-                        <h4 className="text-sm md:text-base font-bold text-white">Tên hiển thị</h4>
-                        {isEditingName ? (
-                          <div className="mt-2 flex flex-col sm:flex-row gap-2">
-                            <input
-                              type="text"
-                              value={newName}
-                              onChange={(e) => setNewName(e.target.value)}
-                              className="flex-1 bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-amber-400/50"
-                              placeholder="Nhập tên mới..."
-                              autoFocus
-                            />
-                            <div className="flex gap-2">
-                              <button
-                                onClick={handleUpdateName}
-                                disabled={isUpdating}
-                                className="px-4 py-2 bg-amber-400 text-black text-[10px] font-bold rounded-xl hover:bg-amber-300 disabled:opacity-50 transition-all cursor-pointer"
-                              >
-                                {isUpdating ? "..." : "Lưu"}
-                              </button>
-                              <button
-                                onClick={() => { setIsEditingName(false); setNewName(user?.user_metadata?.full_name || ""); }}
-                                className="px-4 py-2 bg-white/5 text-white text-[10px] font-bold rounded-xl hover:bg-white/10 transition-all cursor-pointer"
-                              >
-                                Hủy
-                              </button>
-                            </div>
-                          </div>
-                        ) : (
+                    <div className="p-5 md:p-6 bg-white/5 rounded-2xl md:rounded-3xl border border-white/5">
+                      <div className="flex items-center justify-between gap-4">
+                        <div className="flex-1">
+                          <h4 className="text-sm md:text-base font-bold text-white">Tên hiển thị</h4>
                           <p className="text-white/30 text-[10px] md:text-xs">
                             Họ tên hiện tại: <span className="text-white/50 font-bold ml-1">{user?.user_metadata?.full_name || "Chưa đặt"}</span>
                           </p>
+                        </div>
+                        {!isEditingName && (
+                          <button
+                            onClick={() => setIsEditingName(true)}
+                            className="px-4 md:px-5 py-2 bg-white/5 hover:bg-white text-white hover:text-black text-[10px] md:text-xs font-bold rounded-xl transition-all cursor-pointer whitespace-nowrap"
+                          >
+                            Thay đổi
+                          </button>
                         )}
                       </div>
-                      {!isEditingName && (
-                        <button
-                          onClick={() => setIsEditingName(true)}
-                          className="px-4 md:px-5 py-2 bg-white/5 hover:bg-white text-white hover:text-black text-[10px] md:text-xs font-bold rounded-xl transition-all cursor-pointer whitespace-nowrap"
-                        >
-                          Sửa đổi
-                        </button>
-                      )}
+
+                      <AnimatePresence>
+                        {isEditingName && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="mt-4 flex flex-col sm:flex-row gap-2 bg-white/5 p-4 rounded-2xl border border-white/5">
+                              <input
+                                type="text"
+                                value={newName}
+                                onChange={(e) => setNewName(e.target.value)}
+                                className="flex-1 bg-[#0f1115] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-amber-400/50"
+                                placeholder="Nhập tên mới..."
+                                autoFocus
+                              />
+                              <div className="flex gap-2 justify-end">
+                                <button
+                                  onClick={handleUpdateName}
+                                  disabled={isUpdating}
+                                  className="px-6 py-2 bg-amber-400 text-black text-[10px] font-bold rounded-xl hover:bg-amber-300 disabled:opacity-50 transition-all cursor-pointer"
+                                >
+                                  {isUpdating ? "..." : "Lưu"}
+                                </button>
+                                <button
+                                  onClick={() => { setIsEditingName(false); setNewName(user?.user_metadata?.full_name || ""); }}
+                                  className="px-4 py-2 bg-white/5 text-white text-[10px] font-bold rounded-xl hover:bg-white/10 transition-all cursor-pointer"
+                                >
+                                  Hủy
+                                </button>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
 
-                    <div className="p-5 md:p-6 bg-white/5 rounded-2xl md:rounded-3xl border border-white/5 flex flex-col justify-between gap-4">
-                      <div className="flex items-center justify-between">
+                    <div className="p-5 md:p-6 bg-white/5 rounded-2xl md:rounded-3xl border border-white/5">
+                      <div className="flex items-center justify-between gap-4">
                         <div>
                           <h4 className="text-sm md:text-base font-bold text-white">Mật khẩu</h4>
                           <p className="text-white/30 text-[10px] md:text-xs">Nên cập nhật thường xuyên</p>
@@ -398,39 +409,48 @@ export default function ProfileContent() {
                         )}
                       </div>
 
-                      {isChangingPassword && (
-                        <div className="mt-2 space-y-3 bg-white/5 p-4 rounded-2xl border border-white/5">
-                          <input
-                            type="password"
-                            value={password}
-                            onChange={(e) => setPassword(e.target.value)}
-                            placeholder="Mật khẩu mới (ít nhất 6 ký tự)"
-                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-amber-400/50"
-                          />
-                          <input
-                            type="password"
-                            value={confirmPassword}
-                            onChange={(e) => setConfirmPassword(e.target.value)}
-                            placeholder="Xác nhận mật khẩu mới"
-                            className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-amber-400/50"
-                          />
-                          <div className="flex gap-2 justify-end">
-                            <button
-                              onClick={() => setIsChangingPassword(false)}
-                              className="px-4 py-2 text-[10px] font-bold text-white/50 hover:text-white transition-all cursor-pointer"
-                            >
-                              Hủy
-                            </button>
-                            <button
-                              onClick={handleDirectUpdatePassword}
-                              disabled={isUpdating}
-                              className="px-6 py-2 bg-amber-400 text-black text-[10px] font-bold rounded-xl hover:bg-amber-300 disabled:opacity-50 transition-all cursor-pointer"
-                            >
-                              {isUpdating ? "Đang cập nhật..." : "Cập nhật mật khẩu"}
-                            </button>
-                          </div>
-                        </div>
-                      )}
+                      <AnimatePresence>
+                        {isChangingPassword && (
+                          <motion.div
+                            initial={{ height: 0, opacity: 0 }}
+                            animate={{ height: "auto", opacity: 1 }}
+                            exit={{ height: 0, opacity: 0 }}
+                            className="overflow-hidden"
+                          >
+                            <div className="mt-4 space-y-3 bg-white/5 p-4 rounded-2xl border border-white/5">
+                              <input
+                                type="password"
+                                value={password}
+                                onChange={(e) => setPassword(e.target.value)}
+                                placeholder="Mật khẩu mới (ít nhất 6 ký tự)"
+                                className="w-full bg-[#0f1115] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-amber-400/50"
+                              />
+                              <input
+                                type="password"
+                                value={confirmPassword}
+                                onChange={(e) => setConfirmPassword(e.target.value)}
+                                placeholder="Xác nhận mật khẩu mới"
+                                className="w-full bg-[#0f1115] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-amber-400/50"
+                              />
+                              <div className="flex gap-2 justify-end">
+                                <button
+                                  onClick={() => setIsChangingPassword(false)}
+                                  className="px-4 py-2 text-[10px] font-bold text-white/50 hover:text-white transition-all cursor-pointer"
+                                >
+                                  Hủy
+                                </button>
+                                <button
+                                  onClick={handleDirectUpdatePassword}
+                                  disabled={isUpdating}
+                                  className="px-6 py-2 bg-amber-400 text-black text-[10px] font-bold rounded-xl hover:bg-amber-300 disabled:opacity-50 transition-all cursor-pointer"
+                                >
+                                  {isUpdating ? "..." : "Cập nhật mật khẩu"}
+                                </button>
+                              </div>
+                            </div>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </div>
 
                     <div className="p-5 md:p-6 bg-red-500/5 rounded-2xl md:rounded-3xl border border-red-500/10 flex items-center justify-between gap-4">
