@@ -7,7 +7,8 @@ import {
   Maximize2,
   Flag,
   Play,
-  Monitor
+  Monitor,
+  Heart
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -18,6 +19,8 @@ interface PlayerControlsProps {
   onToggleTheater: () => void;
   isAutoNext: boolean;
   onToggleAutoNext: () => void;
+  isFavorited: boolean;
+  onToggleFavorite: () => void;
   episodes: Array<{
     server_name: string;
   }>;
@@ -33,6 +36,8 @@ const PlayerControls = ({
   onToggleTheater,
   isAutoNext,
   onToggleAutoNext,
+  isFavorited,
+  onToggleFavorite,
   episodes,
   activeServer,
   onServerChange,
@@ -122,10 +127,24 @@ const PlayerControls = ({
           <span className={`md:text-sm text-xs font-medium ${isExpanded ? 'text-amber-400' : ''}`}>Mở rộng</span>
         </button>
 
+        {/* Thêm vào yêu thích (New Style) */}
+        <button 
+          onClick={onToggleFavorite}
+          className={`
+            md:w-10 md:h-10 w-9 h-9 flex items-center justify-center rounded-full border transition-all cursor-pointer shadow-lg 
+            ${isFavorited 
+              ? "bg-rose-500 border-rose-500 text-white shadow-rose-500/20" 
+              : "bg-white/5 border-white/10 text-white/60 hover:text-rose-400 hover:border-rose-400/30"
+            }
+          `}
+          title={isFavorited ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
+        >
+          <Heart size={20} className={isFavorited ? "fill-white" : ""} />
+        </button>
+
         {/* Reaction (Emoji Picker) */}
         <div className="flex items-center gap-1.5 px-2 py-1 bg-white/5 border border-white/10 rounded-full">
           {[
-            { id: 'heart', emoji: '❤️', title: 'Yêu thích' },
             { id: 'laugh', emoji: '😂', title: 'Hài hước' },
             { id: 'wow', emoji: '😮', title: 'Thú vị' },
             { id: 'cry', emoji: '😢', title: 'Buồn' },

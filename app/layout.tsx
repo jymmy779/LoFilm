@@ -12,7 +12,7 @@ import { Toaster } from "react-hot-toast";
 export const metadata: Metadata = {
   title: "LoFilm - Xem Phim Online Chất Lượng Cao",
   description: "LoFilm - Không gian điện ảnh chill nhất. Cập nhật liên tục phim lẻ, phim bộ, hoạt hình và TV Shows chất lượng cao hoàn toàn miễn phí.",
-  keywords: ["LoFilm", "lofim", "lọ phim", "xem phim online", "phim bộ hd", "phim chiếu rạp", "phim mới"],
+  keywords: ["LoFilm", "lofim", "lọ phim", "lo phim", "lỏ phim", "phim", "xem phim online", "phim bộ hd", "phim chiếu rạp", "phim mới"],
   openGraph: {
     title: "LoFilm - Thế giới Điện Ảnh",
     description: "LoFilm - Xem phim với chất lượng cao nhất",
@@ -54,8 +54,8 @@ export default function RootLayout({
             <Footer />
           </SkeletonTheme>
         </PageTransitionProvider>
-        <Toaster 
-          position="top-center" 
+        <Toaster
+          position="top-center"
           reverseOrder={false}
           toastOptions={{
             style: {

@@ -15,6 +15,8 @@ import MovieHeader from "./MovieHeader";
 import MovieInfo from "./MovieInfo";
 import ReportModal from "@/app/components/Common/ReportModal";
 import { getImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
+import { createClient } from "@/app/utils/supabase/client";
+import { toast } from "react-hot-toast";
 
 interface WatchClientProps {
     slug: string;
@@ -64,6 +66,13 @@ export default function WatchClient({
     const [activeServerIndex, setActiveServerIndex] = useState(0);
     const [hasError, setHasError] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
+    const [user, setUser] = useState<any>(null);
+    const userRef = useRef<any>(null); // Dùng Ref để tránh stale closure trong sự kiện video
+    useEffect(() => { userRef.current = user; }, [user]);
+
+    const [hasResumed, setHasResumed] = useState(false);
+    const [isFavorited, setIsFavorited] = useState(false);
+    const supabase = createClient();
 
     const videoRef = useRef<HTMLVideoElement>(null);
     const hlsRef = useRef<Hls | null>(null);
@@ -104,6 +113,14 @@ export default function WatchClient({
         return episode.link_m3u8;
     }, [activeServerIndex, episodeSlug, episodes, episode.link_m3u8]);
 
+    useEffect(() => {
+        const fetchUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
+        };
+        fetchUser();
+    }, [supabase]);
+
     // Hàm cập nhật chất lượng (Resolution)
     const updateQuality = (newQuality: number) => {
         if (!hlsRef.current) return;
@@ -130,6 +147,81 @@ export default function WatchClient({
         const newValue = !isAutoNext;
         setIsAutoNext(newValue);
         localStorage.setItem('lofilm-auto-next', String(newValue));
+    };
+
+    // Kiểm tra trạng thái yêu thích
+    useEffect(() => {
+        const checkFavorite = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            if (user) {
+                const { data } = await supabase
+                    .from('favorites')
+                    .select('id')
+                    .eq('user_id', user.id)
+                    .eq('movie_slug', slug)
+                    .single();
+                if (data) setIsFavorited(true);
+            }
+        };
+        checkFavorite();
+    }, [slug, supabase]);
+
+    const toggleFavorite = async () => {
+        if (!user) {
+            toast.error("Vui lòng đăng nhập để lưu phim yêu thích!");
+            return;
+        }
+
+        const prevStatus = isFavorited;
+        setIsFavorited(!isFavorited); // Cập nhật ngay lập tức (Optimistic Update)
+
+        try {
+            if (prevStatus) {
+                // Xóa khỏi DB
+                const { error } = await supabase.from('favorites').delete().eq('movie_slug', slug).eq('user_id', user.id);
+                if (error) throw error;
+                toast.success("Đã xóa khỏi danh sách yêu thích");
+            } else {
+                // Thêm vào DB
+                const { error } = await supabase.from('favorites').insert({
+                    user_id: user.id,
+                    movie_slug: slug,
+                    movie_name: movie.name,
+                    movie_poster: movie.poster_url
+                });
+                if (error) throw error;
+                toast.success("Đã thêm vào danh sách yêu thích");
+            }
+        } catch (err: any) {
+            // Rollback nếu lỗi
+            setIsFavorited(prevStatus);
+            toast.error("Lỗi: " + err.message);
+        }
+    };
+
+    // Hàm lưu tiến độ xem phim vào Supabase
+    const lastSavedTime = useRef(0);
+    const saveProgress = async (currentTime: number, duration: number) => {
+        const currentUser = userRef.current;
+        if (!currentUser || !currentTime || duration <= 0) return;
+
+        // Chỉ lưu sau mỗi 10s để giảm tải API
+        if (Math.abs(currentTime - lastSavedTime.current) < 10) return;
+        lastSavedTime.current = currentTime;
+
+        const { error } = await supabase.from('watch_history').upsert({
+            user_id: currentUser.id,
+            movie_slug: slug,
+            movie_name: movie.name,
+            movie_poster: movie.poster_url || movie.thumb_url,
+            episode_name: episode.name,
+            episode_slug: episodeSlug,
+            watched_seconds: Math.floor(currentTime),
+            duration: Math.floor(duration),
+            updated_at: new Date().toISOString()
+        }, { onConflict: 'user_id,movie_slug,episode_slug' });
+
+        if (error) console.error("Lỗi khi lưu lịch sử xem:", error.message);
     };
 
     useEffect(() => {
@@ -170,21 +262,61 @@ export default function WatchClient({
             },
             displayDuration: true,
             fullscreen: { enabled: true, fallback: true, iosNative: true },
-            storage: { enabled: true, key: 'plyr' },
+            storage: { enabled: false }, // Vô hiệu hóa storage mặc định của Plyr để dùng database của LoFilm
             tooltips: { controls: false, seek: true },
             seekTime: 10
         };
 
-        // Đợi 1 nhịp để DOM ổn định sau navigation
-        const initTimeout = setTimeout(() => {
+        // Đợi 1 nhịp cực ngắn để DOM ổn định
+        const initTimeout = setTimeout(async () => {
             if (!isMounted || !videoRef.current) return;
+
+            let startFrom = 0;
+            // Lấy thông tin user và lịch sử xem đồng thời
+            const { data: { user: currentUser } } = await supabase.auth.getUser();
+            if (isMounted) setUser(currentUser);
+
+            if (currentUser && !hasResumed) {
+                const { data: history } = await supabase
+                    .from('watch_history')
+                    .select('watched_seconds')
+                    .eq('user_id', currentUser.id)
+                    .eq('movie_slug', slug)
+                    .eq('episode_slug', episodeSlug)
+                    .single();
+
+                if (history && history.watched_seconds > 10) {
+                    startFrom = history.watched_seconds;
+                }
+            }
 
             const player = new Plyr(videoRef.current, defaultOptions);
             plyrRef.current = player;
 
+            if (startFrom > 0 && !hasResumed) {
+                const doResume = () => {
+                    if (player && player.currentTime < startFrom - 5) {
+                        player.currentTime = startFrom;
+                        toast.success(`Đã khôi phục vị trí xem cũ: ${Math.floor(startFrom / 60)} phút`, {
+                            icon: '🕒',
+                            duration: 2500
+                        });
+                    }
+                };
+
+                player.once('ready', doResume);
+                setHasResumed(true);
+            }
+
             // Lắng nghe sự kiện kết thúc và thời gian để hiện nút chuyển tập
             player.on('timeupdate', () => {
-                const remaining = player.duration - player.currentTime;
+                const currentTime = player.currentTime;
+                const duration = player.duration;
+
+                // Lưu lịch sử xem
+                saveProgress(currentTime, duration);
+
+                const remaining = duration - currentTime;
                 // Hiện nút khi còn 60s (1 phút) hoặc phim đã gần hết
                 if (remaining <= 60 && player.duration > 0 && nextEpisode) {
                     setShowNextButton(true);
@@ -213,6 +345,7 @@ export default function WatchClient({
                     capLevelToPlayerSize: true,
                     autoStartLoad: true,
                     startLevel: -1,
+                    startPosition: startFrom > 0 ? startFrom : -1, // NHẢY NGAY LẬP TỨC TỪ ĐẦU
                 });
                 hls.loadSource(videoSrc);
                 hls.attachMedia(videoRef.current);
@@ -375,6 +508,8 @@ export default function WatchClient({
                         onToggleTheater={() => setIsTheaterMode(!isTheaterMode)}
                         isAutoNext={isAutoNext}
                         onToggleAutoNext={toggleAutoNext}
+                        isFavorited={isFavorited}
+                        onToggleFavorite={toggleFavorite}
                         episodes={episodes}
                         activeServer={activeServerIndex}
                         onServerChange={setActiveServerIndex}
@@ -421,9 +556,9 @@ export default function WatchClient({
                     </motion.div>
                 )}
             </AnimatePresence>
-            
-            <ReportModal 
-                isOpen={showReportModal} 
+
+            <ReportModal
+                isOpen={showReportModal}
                 onClose={() => setShowReportModal(false)}
                 movieName={movie.name}
                 episodeName={episode.name}

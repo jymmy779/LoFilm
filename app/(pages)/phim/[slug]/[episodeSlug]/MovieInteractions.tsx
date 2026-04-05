@@ -14,7 +14,6 @@ export default function MovieInteractions({ movieSlug }: MovieInteractionsProps)
     const [dislikes, setDislikes] = useState(0);
     const [userInteraction, setUserInteraction] = useState<'like' | 'dislike' | null>(null);
     const [loading, setLoading] = useState(true);
-    const [isProcessing, setIsProcessing] = useState(false);
     
     const supabase = createClient();
 
@@ -22,14 +21,10 @@ export default function MovieInteractions({ movieSlug }: MovieInteractionsProps)
         const fetchData = async () => {
             try {
                 // 1. Get counts
-                const { data: counts, error: countError } = await supabase
+                const { data: counts } = await supabase
                     .from('movie_interactions')
-                    .select('type', { count: 'exact' })
+                    .select('type')
                     .eq('movie_slug', movieSlug);
-
-                if (countError && !countError.message.includes("does not exist")) {
-                    console.error(countError);
-                }
 
                 if (counts) {
                     setLikes(counts.filter(c => c.type === 'like').length);
@@ -39,15 +34,15 @@ export default function MovieInteractions({ movieSlug }: MovieInteractionsProps)
                 // 2. Get user current interaction
                 const { data: { user } } = await supabase.auth.getUser();
                 if (user) {
-                    const { data: interaction } = await supabase
+                    const { data: interactionRes } = await supabase
                         .from('movie_interactions')
                         .select('type')
                         .eq('movie_slug', movieSlug)
                         .eq('user_id', user.id)
                         .single();
                     
-                    if (interaction) {
-                        setUserInteraction(interaction.type as 'like' | 'dislike');
+                    if (interactionRes) {
+                        setUserInteraction(interactionRes.type as 'like' | 'dislike');
                     }
                 }
             } catch (err) {
@@ -62,56 +57,34 @@ export default function MovieInteractions({ movieSlug }: MovieInteractionsProps)
 
     const handleInteraction = async (type: 'like' | 'dislike') => {
         const { data: { user } } = await supabase.auth.getUser();
-        
         if (!user) {
-            toast.error("Bạn cần đăng nhập để thực hiện tính năng này!");
+            toast.error("Bạn cần đăng nhập để thực hiện!");
             return;
         }
 
-        // --- OPTIMISTIC UPDATE ---
         const prevInteraction = userInteraction;
         const prevLikes = likes;
         const prevDislikes = dislikes;
 
-        // Cập nhật UI ngay lập tức
         if (userInteraction === type) {
-            // Un-vote
             setUserInteraction(null);
             if (type === 'like') setLikes(prev => prev - 1);
             else setDislikes(prev => prev - 1);
         } else {
-            // Change vote or New vote
             if (userInteraction === 'like') setLikes(prev => prev - 1);
             if (userInteraction === 'dislike') setDislikes(prev => prev - 1);
-            
             if (type === 'like') setLikes(prev => prev + 1);
             if (type === 'dislike') setDislikes(prev => prev + 1);
             setUserInteraction(type);
         }
-        // -------------------------
 
         try {
             if (prevInteraction === type) {
-                // Remove interaction from DB
-                const { error } = await supabase
-                    .from('movie_interactions')
-                    .delete()
-                    .eq('movie_slug', movieSlug)
-                    .eq('user_id', user.id);
-                if (error) throw error;
+                await supabase.from('movie_interactions').delete().eq('movie_slug', movieSlug).eq('user_id', user.id);
             } else {
-                // Upsert interaction to DB
-                const { error } = await supabase
-                    .from('movie_interactions')
-                    .upsert({
-                        movie_slug: movieSlug,
-                        user_id: user.id,
-                        type: type
-                    });
-                if (error) throw error;
+                await supabase.from('movie_interactions').upsert({ movie_slug: movieSlug, user_id: user.id, type: type });
             }
         } catch (err: any) {
-            // Rollback if error
             setUserInteraction(prevInteraction);
             setLikes(prevLikes);
             setDislikes(prevDislikes);
@@ -128,31 +101,31 @@ export default function MovieInteractions({ movieSlug }: MovieInteractionsProps)
 
     return (
         <div className="flex items-center gap-3">
-            <button 
-                onClick={() => handleInteraction('like')}
-                disabled={isProcessing}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all cursor-pointer ${
-                    userInteraction === 'like' 
-                    ? "bg-amber-400 text-black border-amber-400 font-bold" 
-                    : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white"
-                }`}
-            >
-                <ThumbsUp size={16} className={userInteraction === 'like' ? "fill-black" : ""} />
-                <span className="text-xs">{likes}</span>
-            </button>
+            <div className="flex bg-[#111b33] p-1 rounded-2xl border border-white/5">
+                <button 
+                    onClick={() => handleInteraction('like')}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all cursor-pointer ${
+                        userInteraction === 'like' 
+                        ? "bg-amber-400 text-black font-bold" 
+                        : "text-white/40 hover:text-white"
+                    }`}
+                >
+                    <ThumbsUp size={16} className={userInteraction === 'like' ? "fill-black" : ""} />
+                    <span className="text-xs">{likes}</span>
+                </button>
 
-            <button 
-                onClick={() => handleInteraction('dislike')}
-                disabled={isProcessing}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl border transition-all cursor-pointer ${
-                    userInteraction === 'dislike' 
-                    ? "bg-red-500 text-white border-red-500 font-bold" 
-                    : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white"
-                }`}
-            >
-                <ThumbsDown size={16} className={userInteraction === 'dislike' ? "fill-white" : ""} />
-                <span className="text-xs">{dislikes}</span>
-            </button>
+                <button 
+                    onClick={() => handleInteraction('dislike')}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all cursor-pointer ${
+                        userInteraction === 'dislike' 
+                        ? "bg-red-500 text-white font-bold" 
+                        : "text-white/40 hover:text-white border-l border-white/10"
+                    }`}
+                >
+                    <ThumbsDown size={16} className={userInteraction === 'dislike' ? "fill-white" : ""} />
+                    <span className="text-xs">{dislikes}</span>
+                </button>
+            </div>
         </div>
     );
 }

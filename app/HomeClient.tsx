@@ -7,12 +7,14 @@ import MovieRow from "./components/MovieRow/MovieRow";
 import FeaturedSlider from "./components/FeaturedSlider/FeaturedSlider";
 import MoviePosterRow from "./components/MoviePosterRow/MoviePosterRow";
 import TopMovieRow from "./components/TopMovieRow/TopMovieRow";
+import ContinueWatchingRow from "./components/MovieRow/ContinueWatchingRow";
 
 export default function HomeClient({ prefetched }: { prefetched: HomePrefetch }) {
     return (
         <>
             <HeroSlider initialMovies={prefetched.hero} />
             <CategoriesSection initialCategories={prefetched.categories} />
+            <ContinueWatchingRow />
             <MovieRow
                 title="Phim Hàn Quốc mới"
                 apiUrl="https://phimapi.com/v1/api/quoc-gia/han-quoc?limit=20"

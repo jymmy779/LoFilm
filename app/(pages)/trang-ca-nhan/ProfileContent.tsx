@@ -11,6 +11,9 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import { Suspense } from 'react';
+import { getImageUrl } from "@/app/utils/movieUtils";
+import Image from "next/image";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 
 type TabType = 'overview' | 'history' | 'favorites' | 'settings';
 
@@ -21,6 +24,10 @@ export default function ProfileContent() {
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
+  const [watchHistory, setWatchHistory] = useState<any[]>([]);
+  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
+  const [favorites, setFavorites] = useState<any[]>([]);
+  const [isFavoritesLoading, setIsFavoritesLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
@@ -46,6 +53,42 @@ export default function ProfileContent() {
     };
     fetchUser();
   }, [supabase, router]);
+
+  useEffect(() => {
+    if (activeTab === 'history' && user) {
+      const fetchHistory = async () => {
+        setIsHistoryLoading(true);
+        const { data, error } = await supabase
+          .from('watch_history')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('updated_at', { ascending: false });
+
+        if (!error && data) {
+          setWatchHistory(data);
+        }
+        setIsHistoryLoading(false);
+      };
+      fetchHistory();
+    }
+
+    if (activeTab === 'favorites' && user) {
+      const fetchFavorites = async () => {
+        setIsFavoritesLoading(true);
+        const { data, error } = await supabase
+          .from('favorites')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false });
+
+        if (!error && data) {
+          setFavorites(data);
+        }
+        setIsFavoritesLoading(false);
+      };
+      fetchFavorites();
+    }
+  }, [activeTab, user, supabase]);
 
   const [isChangingPassword, setIsChangingPassword] = useState(false);
   const [password, setPassword] = useState("");
@@ -74,7 +117,7 @@ export default function ProfileContent() {
 
       if (uploadError) {
         if (uploadError.message.includes("not found")) {
-            throw new Error("Bucket 'avatars' chưa được tạo trong Supabase Storage.");
+          throw new Error("Bucket 'avatars' chưa được tạo trong Supabase Storage.");
         }
         throw uploadError;
       }
@@ -195,24 +238,24 @@ export default function ProfileContent() {
                 <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black text-3xl md:text-4xl font-bold shadow-xl shadow-amber-400/20 border-4 border-[#111b33] relative z-10 overflow-hidden">
                   {isUpdatingAvatar ? (
                     <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-[#111b33]/80 rounded-full z-[15]">
-                        <div className="w-8 h-8 border-2 border-amber-400/20 border-t-amber-400 rounded-full animate-spin" />
+                      <div className="w-8 h-8 border-2 border-amber-400/20 border-t-amber-400 rounded-full animate-spin" />
                     </div>
                   ) : user?.user_metadata?.avatar_url ? (
-                    <img 
-                      src={user.user_metadata.avatar_url} 
-                      alt={displayName} 
+                    <img
+                      src={user.user_metadata.avatar_url}
+                      alt={displayName}
                       className="w-full h-full object-cover"
                     />
                   ) : (
                     userAvatar
                   )}
                 </div>
-                
+
                 <label className="absolute bottom-0 right-0 p-2 bg-white text-black rounded-full shadow-lg border-2 border-[#111b33] z-20 opacity-0 group-hover/avatar:opacity-100 translate-y-2 group-hover/avatar:translate-y-0 transition-all cursor-pointer hover:bg-amber-400">
                   <Camera size={14} />
-                  <input 
-                    type="file" 
-                    className="hidden" 
+                  <input
+                    type="file"
+                    className="hidden"
                     accept="image/*"
                     onChange={handleUpdateAvatar}
                     disabled={isUpdatingAvatar}
@@ -343,7 +386,7 @@ export default function ProfileContent() {
                             <p className="text-xs font-mono text-white/80 break-all">{user?.id}</p>
                           </div>
                         </div>
-                        <button 
+                        <button
                           onClick={() => {
                             if (user?.id) {
                               navigator.clipboard.writeText(user.id);
@@ -372,32 +415,152 @@ export default function ProfileContent() {
               )}
 
               {activeTab === 'history' && (
-                <div className="space-y-8 h-full flex flex-col items-center justify-center min-h-[400px]">
-                  <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center text-white/10 mb-6">
-                    <History size={40} />
+                <div className="space-y-8 min-h-[400px]">
+                  <div className="flex items-center justify-between border-b border-white/5 pb-6">
+                    <h2 className="text-2xl font-bold text-white uppercase italic tracking-tighter">Dấu vết điện ảnh</h2>
+                    <p className="text-white/40 text-xs">{watchHistory.length} bộ phim đã xem</p>
                   </div>
-                  <div className="text-center">
-                    <h3 className="text-xl font-bold text-white mb-2 italic uppercase">Dấu tích trống trơn...</h3>
-                    <p className="text-white/30 text-sm max-w-sm mx-auto">Bạn chưa xem bộ phim nào gần đây trên hệ thống LoFilm. Hãy bắt đầu chuyến phiêu lưu của mình ngay!</p>
-                    <button
-                      onClick={() => router.push("/")}
-                      className="mt-8 bg-amber-400 text-black px-8 py-3 rounded-full text-sm hover:scale-105 active:scale-95 transition-all shadow-xl shadow-amber-400/20 cursor-pointer"
+
+                  {isHistoryLoading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {[1, 2, 3].map(i => (
+                        <div key={i} className="h-48 bg-white/5 animate-pulse rounded-2xl" />
+                      ))}
+                    </div>
+                  ) : watchHistory.length > 0 ? (
+                    <motion.div
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                     >
-                      BẮT ĐẦU XEM PHIM
-                    </button>
-                  </div>
+                      {watchHistory.map((item) => {
+                        const progress = (item.watched_seconds / item.duration) * 100;
+                        return (
+                          <TransitionLink
+                            key={item.id}
+                            href={`/phim/${item.movie_slug}/${item.episode_slug}`}
+                            className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden group cursor-pointer hover:border-amber-400/30 transition-all block"
+                          >
+                            <div className="relative aspect-video overflow-hidden">
+                              <Image
+                                src={getImageUrl(item.movie_poster)}
+                                alt={item.movie_name}
+                                fill
+                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                              />
+                              <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
+                                <div className="w-12 h-12 rounded-full bg-amber-400 flex items-center justify-center text-black shadow-xl transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                                  <Play size={24} className="fill-current ml-1" />
+                                </div>
+                              </div>
+                              <div className="absolute bottom-0 inset-x-0 h-1 bg-white/10 z-20">
+                                <div className="h-full bg-amber-400" style={{ width: `${progress}%` }} />
+                              </div>
+                              {item.episode_name && (
+                                <div className="absolute top-3 left-3 px-2 py-1 bg-black/60 rounded-lg text-[10px] font-bold text-white border border-white/10 whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px] z-20">
+                                  {item.episode_name}
+                                </div>
+                              )}
+                            </div>
+                            <div className="p-4">
+                              <h4 className="text-white font-bold text-sm line-clamp-1 group-hover:text-amber-400 transition-colors">{item.movie_name}</h4>
+                              <div className="flex items-center justify-between mt-2">
+                                <span className="text-[10px] text-white/40 tracking-widest">
+                                  Đã xem {Math.floor(item.watched_seconds / 60)} phút
+                                </span>
+                                <span className="text-[10px] text-white/20">
+                                  {new Date(item.updated_at).toLocaleDateString('vi-VN')}
+                                </span>
+                              </div>
+                            </div>
+                          </TransitionLink>
+                        );
+                      })}
+                    </motion.div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center pt-12">
+                      <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center text-white/10 mb-6">
+                        <History size={40} />
+                      </div>
+                      <div className="text-center">
+                        <h3 className="text-xl font-bold text-white mb-2 italic uppercase">Dấu tích trống trơn...</h3>
+                        <p className="text-white/30 text-sm max-w-sm mx-auto">Bạn chưa xem bộ phim nào gần đây trên hệ thống LoFilm. Hãy bắt đầu chuyến phiêu lưu của mình ngay!</p>
+                        <button
+                          onClick={() => router.push("/")}
+                          className="mt-8 bg-amber-400 text-black px-8 py-3 rounded-full text-sm hover:scale-105 active:scale-95 transition-all shadow-xl shadow-amber-400/20 cursor-pointer"
+                        >
+                          BẮT ĐẦU XEM PHIM
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
               {activeTab === 'favorites' && (
-                <div className="space-y-8 h-full flex flex-col items-center justify-center min-h-[400px]">
-                  <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center text-white/10 mb-6">
-                    <Heart size={40} />
+                <div className="space-y-8 min-h-[400px]">
+                  <div className="flex items-center justify-between border-b border-white/5 pb-6">
+                    <h2 className="text-2xl font-bold text-white uppercase italic tracking-tighter text-rose-400">Kho tàng yêu thích</h2>
+                    <p className="text-white/40 text-xs">{favorites.length} tác phẩm tâm đắc</p>
                   </div>
-                  <div className="text-center">
-                    <h3 className="text-xl font-bold text-white mb-2 italic uppercase">Danh sách trống</h3>
-                    <p className="text-white/30 text-sm max-w-sm mx-auto">Nơi lưu giữ những tuyệt tác phim ảnh bạn yêu thích nhất. Hãy thả tim cho bộ phim bạn muốn xem lại sau!</p>
-                  </div>
+
+                  {isFavoritesLoading ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                      {[1, 2, 3].map(i => (
+                        <div key={i} className="h-48 bg-white/5 animate-pulse rounded-2xl" />
+                      ))}
+                    </div>
+                  ) : favorites.length > 0 ? (
+                    <motion.div 
+                      initial={{ opacity: 0, y: 20 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+                    >
+                      {favorites.map((item) => (
+                        <TransitionLink 
+                          key={item.id} 
+                          href={`/phim/${item.movie_slug}`}
+                          className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden group cursor-pointer hover:border-rose-500/30 transition-all block"
+                        >
+                          <div className="relative aspect-[2/3] sm:aspect-video overflow-hidden">
+                            <Image 
+                              src={getImageUrl(item.movie_poster)} 
+                              alt={item.movie_name}
+                              fill
+                              className="object-cover transition-transform duration-700 group-hover:scale-110"
+                            />
+                            <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
+                              <div className="w-12 h-12 rounded-full bg-rose-500 flex items-center justify-center text-white shadow-xl transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                                <Heart size={24} className="fill-current" />
+                              </div>
+                            </div>
+                          </div>
+                          <div className="p-4">
+                            <h4 className="text-white font-bold text-sm line-clamp-1 group-hover:text-rose-400 transition-colors">{item.movie_name}</h4>
+                            <p className="text-[10px] text-white/20 mt-2">
+                              Đã lưu vào {new Date(item.created_at).toLocaleDateString('vi-VN')}
+                            </p>
+                          </div>
+                        </TransitionLink>
+                      ))}
+                    </motion.div>
+                  ) : (
+                    <div className="flex flex-col items-center justify-center pt-12">
+                      <div className="w-20 h-20 bg-white/5 rounded-full flex items-center justify-center text-white/10 mb-6">
+                        <Heart size={40} />
+                      </div>
+                      <div className="text-center">
+                        <h3 className="text-xl font-bold text-white mb-2 italic uppercase">Trái tim còn trống...</h3>
+                        <p className="text-white/30 text-sm max-w-sm mx-auto">Nơi lưu giữ những tuyệt tác phim ảnh bạn yêu thích nhất. Hãy thả tim cho bộ phim bạn muốn xem lại sau!</p>
+                        <button
+                          onClick={() => router.push("/")}
+                          className="mt-8 bg-rose-500 text-white px-8 py-3 rounded-full text-sm font-bold hover:scale-105 active:scale-95 transition-all shadow-xl shadow-rose-500/20 cursor-pointer"
+                        >
+                          KHÁM PHÁ NGAY
+                        </button>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 

@@ -57,10 +57,14 @@ const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
             <div className="px-1.5 py-0.5 bg-white/10 rounded text-white/70 text-[10px] font-medium uppercase tracking-wider">{movie.quality}</div>
             <div className="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded text-amber-400 text-[10px] tracking-tight font-medium uppercase">{episode.name}</div>
           </div>
-          
+
           <div className="hidden md:block h-4 w-[1px] bg-white/10" />
 
-          <MovieInteractions movieSlug={slug} />
+          <MovieInteractions
+            movieSlug={slug}
+            movieName={movie.name}
+            moviePoster={movie.poster_url}
+          />
         </div>
       </div>
 
