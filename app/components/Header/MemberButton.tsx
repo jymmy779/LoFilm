@@ -1,13 +1,115 @@
-"use client"
+"use client";
+
+import { useEffect, useState } from "react";
+import { User, LogOut, Settings } from "lucide-react";
+import { createClient } from "@/app/utils/supabase/client";
+import { motion, AnimatePresence } from "framer-motion";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
+import { useRouter } from "next/navigation";
 
 export default function MemberButton() {
+    const [user, setUser] = useState<any>(null);
+    const [loading, setLoading] = useState(true);
+    const [showMenu, setShowMenu] = useState(false);
+    const supabase = createClient();
+    const router = useRouter();
+
+    useEffect(() => {
+        const getUser = async () => {
+            const { data: { user } } = await supabase.auth.getUser();
+            setUser(user);
+            setLoading(false);
+        };
+        getUser();
+
+        const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            setUser(session?.user || null);
+            setLoading(false);
+        });
+
+        return () => subscription.unsubscribe();
+    }, [supabase]);
+
+    const handleLogout = async () => {
+        setLoading(true);
+        await supabase.auth.signOut();
+        setShowMenu(false);
+        setLoading(false);
+        router.refresh();
+    };
+
+    if (loading) {
+        return (
+            <div className="w-24 h-10 bg-white/5 animate-pulse rounded-full" />
+        );
+    }
+
+    if (!user) {
+        return (
+            <TransitionLink 
+                href="/dang-nhap"
+                className="flex items-center cursor-pointer gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-gradient-to-r from-[#FED877] to-[#F5A623] text-[#0A1628] font-bold text-xs md:text-sm shadow-[0_4px_15px_rgba(245,166,35,0.3)] hover:shadow-[0_8px_25px_rgba(245,166,35,0.5)] hover:-translate-y-0.5 active:scale-95 transition-all duration-300 whitespace-nowrap shrink-0 overflow-hidden relative group/btn"
+            >
+                <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 skew-x-[-20deg]" />
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="14" height="14" fill="currentColor" className="relative z-10">
+                    <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7c0-98.5-79.8-178.3-178.3-178.3H178.3z" />
+                </svg>
+                <span className="relative z-10">Đăng nhập</span>
+            </TransitionLink>
+        );
+    }
+
+    const displayName = user.user_metadata?.full_name || user.email?.split("@")[0];
+
     return (
-        <button className="flex items-center cursor-pointer gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-gradient-to-r from-[#FED877] to-[#F5A623] text-[#0A1628] font-bold text-xs md:text-sm shadow-[0_4px_15px_rgba(245,166,35,0.3)] hover:shadow-[0_8px_25px_rgba(245,166,35,0.5)] hover:-translate-y-0.5 active:scale-95 transition-all duration-300 whitespace-nowrap shrink-0 overflow-hidden relative group/btn">
-            <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 skew-x-[-20deg]" />
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="14" height="14" fill="currentColor" className="relative z-10">
-                <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7c0-98.5-79.8-178.3-178.3-178.3H178.3z" />
-            </svg>
-            <span className="relative z-10">Thành viên</span>
-        </button>
+        <div className="relative">
+            <button 
+                onClick={() => setShowMenu(!showMenu)}
+                className="flex items-center cursor-pointer gap-2 pr-1 pl-1 py-1 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 group"
+            >
+                <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold text-sm shadow-lg group-hover:scale-105 transition-transform overflow-hidden border border-white/20">
+                    {displayName.charAt(0).toUpperCase()}
+                </div>
+                <span className="hidden md:block text-xs font-semibold text-white/80 max-w-[100px] truncate pr-2">
+                    {displayName}
+                </span>
+            </button>
+
+            <AnimatePresence>
+                {showMenu && (
+                    <motion.div
+                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
+                        className="absolute right-0 mt-3 w-48 bg-[#0d1b2e] border border-white/10 rounded-2xl shadow-2xl p-2 z-[100] backdrop-blur-xl overflow-hidden"
+                    >
+                        <div className="px-3 py-2 border-b border-white/5 mb-1">
+                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Thành viên</p>
+                            <p className="text-sm font-bold text-amber-400 truncate mt-1">{displayName}</p>
+                        </div>
+                        
+                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer">
+                            <User size={16} className="text-white/40" />
+                            Trang cá nhân
+                        </button>
+                        
+                        <button className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer">
+                            <Settings size={16} className="text-white/40" />
+                            Cài đặt
+                        </button>
+
+                        <div className="h-[1px] bg-white/5 my-1 mx-2" />
+
+                        <button 
+                            onClick={handleLogout}
+                            className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-all cursor-pointer"
+                        >
+                            <LogOut size={16} />
+                            Đăng xuất
+                        </button>
+                    </motion.div>
+                )}
+            </AnimatePresence>
+        </div>
     );
 }

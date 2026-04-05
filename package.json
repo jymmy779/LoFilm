@@ -9,6 +9,8 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@supabase/ssr": "^0.10.0",
+    "@supabase/supabase-js": "^2.101.1",
     "@upstash/redis": "^1.37.0",
     "axios": "^1.14.0",
     "framer-motion": "^12.38.0",
