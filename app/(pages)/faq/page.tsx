@@ -25,18 +25,18 @@ export default function FAQ() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0f1115] text-white/80 py-20 md:py-32 px-4 shadow-inner">
-      <div className="max-w-4xl mx-auto bg-[#14233e]/60 backdrop-blur-xl border border-white/10 rounded-2xl md:rounded-[32px] p-6 md:p-12 shadow-2xl">
-        <h1 className="text-2xl md:text-3xl font-bold text-white mb-6 md:mb-8 border-b border-white/10 pb-4 md:pb-6">Câu hỏi thường gặp (FAQ)</h1>
+    <div className="min-h-screen bg-gradient-to-b from-[#111b33] to-[#0d162b] text-white/80 pt-32 pb-20 md:pt-40 md:pb-32 px-4 shadow-inner">
+      <div className="max-w-4xl mx-auto bg-[#16213e] border border-white/5 rounded-2xl md:rounded-[32px] p-6 md:p-12 shadow-2xl">
+        <h1 className="text-xl md:text-2xl font-bold text-white mb-6 md:mb-8 border-b border-white/5 pb-4 md:pb-6 uppercase tracking-wider italic">Câu hỏi thường gặp (FAQ)</h1>
 
         <div className="space-y-4 md:space-y-6">
           {faqs.map((faq, index) => (
-            <div key={index} className="p-4 md:p-6 bg-white/5 border border-white/5 rounded-xl md:rounded-2xl hover:bg-white/10 transition-all">
-              <h3 className="text-base md:text-lg font-bold text-amber-400 mb-2 md:mb-3 flex items-start gap-3 md:gap-4">
-                <span className="text-white/20 font-bold text-xs md:text-sm bg-white/5 w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded-lg flex-shrink-0">{index + 1}</span>
+            <div key={index} className="p-4 md:p-6 bg-white/5 border border-white/5 rounded-xl md:rounded-2xl hover:bg-white/[0.08] transition-all group">
+              <h3 className="text-sm md:text-base font-bold text-amber-400 mb-2 md:mb-3 flex items-start gap-3 md:gap-4 group-hover:text-amber-300 transition-colors">
+                <span className="text-white/20 font-bold text-[10px] md:text-xs bg-white/5 w-6 h-6 md:w-8 md:h-8 flex items-center justify-center rounded-lg flex-shrink-0">{index + 1}</span>
                 {faq.q}
               </h3>
-              <p className="pl-9 md:pl-12 leading-relaxed text-sm md:text-base opacity-80">
+              <p className="pl-9 md:pl-12 leading-relaxed text-xs md:text-sm opacity-60 group-hover:opacity-100 transition-opacity">
                 {faq.a}
               </p>
             </div>
