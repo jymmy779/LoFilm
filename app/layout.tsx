@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
 import InitialLoader from "./components/Transition/InitialLoader";
@@ -6,6 +7,20 @@ import PageTransitionOverlay from "./components/Transition/PageTransitionOverlay
 import "./globals.css";
 import "react-loading-skeleton/dist/skeleton.css";
 import { SkeletonTheme } from "react-loading-skeleton";
+
+export const metadata: Metadata = {
+  title: "LoFilm - Xem Phim Online Chất Lượng Cao",
+  description: "LoFilm - Không gian điện ảnh chill nhất. Cập nhật liên tục phim lẻ, phim bộ, hoạt hình và TV Shows chất lượng cao hoàn toàn miễn phí.",
+  keywords: ["LoFilm", "lofim", "lọ phim", "xem phim online", "phim bộ hd", "phim chiếu rạp", "phim mới"],
+  openGraph: {
+    title: "LoFilm - Thế giới Điện Ảnh",
+    description: "LoFilm - Xem phim với chất lượng cao nhất",
+    url: "https://munos.store",
+    siteName: "LoFilm",
+    locale: "vi_VN",
+    type: "website",
+  },
+};
 
 export default function RootLayout({
   children,
