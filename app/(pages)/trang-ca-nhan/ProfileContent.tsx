@@ -185,16 +185,10 @@ export default function ProfileContent() {
 
   return (
     <div className="min-h-screen bg-[#0f1115] pt-24 md:pt-32 pb-16 md:pb-20 px-4">
-      {/* Background Decor */}
-      <div className="fixed top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-        <div className="absolute top-[10%] right-[5%] w-[40vw] h-[40vw] bg-amber-500/5 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[10%] left-[5%] w-[35vw] h-[35vw] bg-blue-500/5 rounded-full blur-[100px] animate-pulse delay-1000" />
-      </div>
-
       <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-6 md:gap-8">
         {/* Sidebar Navigation */}
         <div className="w-full lg:w-72 shrink-0">
-          <div className="bg-[#14233e]/60 backdrop-blur-xl border border-white/10 rounded-3xl md:rounded-[32px] p-5 md:p-6 sticky lg:top-32 shadow-2xl overflow-hidden group">
+          <div className="bg-[#14233e] border border-white/10 rounded-3xl md:rounded-[32px] p-5 md:p-6 sticky lg:top-32 shadow-xl overflow-hidden group">
             {/* User Profile Summary */}
             <div className="text-center mb-6 md:mb-8 relative">
               <div className="relative inline-block group/avatar">
@@ -264,16 +258,16 @@ export default function ProfileContent() {
           </div>
         </div>
 
-        {/* Main Content Area */}
+        {/* Main Content Area - Optimized for performance */}
         <div className="flex-1 min-h-[400px] md:min-h-[600px]">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
-              initial={{ opacity: 0, x: 10 }}
-              animate={{ opacity: 1, x: 0 }}
-              exit={{ opacity: 0, x: -10 }}
-              transition={{ duration: 0.2 }}
-              className="bg-[#14233e]/40 backdrop-blur-xl border border-white/10 rounded-3xl md:rounded-[40px] p-6 md:p-12 shadow-2xl min-h-full"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.15, ease: "linear" }}
+              className="bg-[#14233e] border border-white/10 rounded-3xl md:rounded-[40px] p-6 md:p-12 shadow-xl min-h-full"
             >
               {activeTab === 'overview' && (
                 <div className="space-y-10">
@@ -439,6 +433,7 @@ export default function ProfileContent() {
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.25, ease: "easeOut" }}
                             className="overflow-hidden"
                           >
                             <div className="mt-4 flex flex-col sm:flex-row gap-2 bg-white/5 p-4 rounded-2xl border border-white/5">
@@ -493,6 +488,7 @@ export default function ProfileContent() {
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
+                            transition={{ duration: 0.25, ease: "easeOut" }}
                             className="overflow-hidden"
                           >
                             <div className="mt-4 space-y-3 bg-white/5 p-4 rounded-2xl border border-white/5">
