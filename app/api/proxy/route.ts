@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { fetchWithRedis } from '@/app/lib/fetch-with-redis';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -9,16 +10,11 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    // Sử dụng fetch thay vì axios để tận dụng cache hệ thống của Next.js
-    const response = await fetch(targetUrl, {
-      next: { revalidate: 3600 } // Tự động cache kết quả trong 1 giờ
-    });
+    const data = await fetchWithRedis(targetUrl);
     
-    if (!response.ok) {
-        throw new Error(`PhimAPI returned ${response.status}`);
+    if (!data) {
+        throw new Error('Data source and Redis fallback both unavailable');
     }
-
-    const data = await response.json();
     
     return NextResponse.json(data, {
       headers: {

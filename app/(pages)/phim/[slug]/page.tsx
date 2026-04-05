@@ -2,23 +2,16 @@ import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import MovieDetailClient from "./MovieDetailClient";
 import { MovieDetailResponse, Movie } from "@/app/types/movie";
+import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 
 // API base URL
 const API_BASE = "https://phimapi.com";
 
 // Fetch movie detail by slug
 async function getMovieDetail(slug: string): Promise<MovieDetailResponse | null> {
-    try {
-        const res = await fetch(`${API_BASE}/phim/${slug}`, {
-            next: { revalidate: 3600 }, // Cache 1 hour
-        });
-        if (!res.ok) return null;
-        const data: MovieDetailResponse = await res.json();
-        if (!data.status || !data.movie) return null;
-        return data;
-    } catch {
-        return null;
-    }
+    const data = await fetchWithRedis(`${API_BASE}/phim/${slug}`);
+    if (!data || !data.status || !data.movie) return null;
+    return data;
 }
 
 // Fetch suggested movies by first category
@@ -27,11 +20,8 @@ async function getSuggestedMovies(movie: Movie): Promise<Movie[]> {
         const firstCategory = movie.category?.[0]?.slug;
         if (!firstCategory) return [];
 
-        const res = await fetch(`${API_BASE}/v1/api/the-loai/${firstCategory}?page=1&limit=20`, {
-            next: { revalidate: 3600 },
-        });
-        if (!res.ok) return [];
-        const data = await res.json();
+        const data = await fetchWithRedis(`${API_BASE}/v1/api/the-loai/${firstCategory}?page=1&limit=20`);
+
 
         // Filter out current movie from suggestions
         const items: Movie[] = data.data?.items || [];

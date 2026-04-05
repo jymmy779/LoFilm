@@ -5,16 +5,12 @@ import {
     sortAndSlicePosterRowMovies,
 } from "@/app/utils/movieUtils";
 
+import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
+
 const REVALIDATE_SEC = 3600;
 
 async function fetchPhimJson(url: string): Promise<unknown> {
-    try {
-        const res = await fetch(url, { next: { revalidate: REVALIDATE_SEC } });
-        if (!res.ok) return null;
-        return res.json();
-    } catch {
-        return null;
-    }
+    return await fetchWithRedis(url);
 }
 
 function parseV1Items(payload: unknown): Movie[] {
