@@ -1,5 +1,5 @@
-import Link from 'next/link';
 import Image from 'next/image';
+import TransitionLink from '@/app/components/Transition/TransitionLink';
 
 export default function Footer() {
     return (
@@ -26,7 +26,7 @@ export default function Footer() {
 
                         {/* Branding & Socials */}
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-8">
-                            <Link href="/" className="shrink-0 transition-transform hover:scale-105">
+                            <TransitionLink href="/" className="shrink-0 transition-transform hover:scale-105">
                                 <Image
                                     src="/lofilm_logo.png"
                                     alt="LoFilm Logo"
@@ -34,7 +34,7 @@ export default function Footer() {
                                     height={70}
                                     className=" object-contain drop-shadow-lg"
                                 />
-                            </Link>
+                            </TransitionLink>
 
                             <div className="flex flex-wrap items-center gap-3">
                                 {/* Telegram */}
@@ -69,13 +69,13 @@ export default function Footer() {
                                 { label: 'Giới thiệu', href: '/gioi-thieu' },
                                 { label: 'Liên hệ', href: '/lien-he' }
                             ].map(item => (
-                                <Link
+                                <TransitionLink
                                     key={item.label}
                                     href={item.href}
                                     className="text-[14px] font-medium text-white/60 hover:text-[#f5a623] hover:underline underline-offset-4 transition-all"
                                 >
                                     {item.label}
-                                </Link>
+                                </TransitionLink>
                             ))}
                         </div>
 
