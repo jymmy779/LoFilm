@@ -6,6 +6,7 @@ const nextConfig: NextConfig = {
         optimizePackageImports: ["swiper", "lucide-react", "framer-motion"],
     },
     images: {
+        unoptimized: true,
         remotePatterns: [
             { protocol: "https", hostname: "phimimg.com" },
             { protocol: "https", hostname: "phimapi.com" },
