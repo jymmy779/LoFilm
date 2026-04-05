@@ -116,8 +116,8 @@ export function PageTransitionProvider({
       // After exit animation, navigate
       setTimeout(() => {
         router.push(href);
-        // Fallback: forcefully enter after 2 seconds if Next.js routing hasn't updated URL
-        // Ensures the screen doesn't get stuck blank on weird edge cases or hashes
+        // Fallback: forcefully enter after 10 seconds if Next.js routing hasn't updated URL
+        // Ensures the screen doesn't get stuck blank on weird edge cases or extremely slow API
         setTimeout(() => {
           setPhase((prev) => {
             if (prev === "exiting") {
@@ -126,7 +126,7 @@ export function PageTransitionProvider({
             }
             return prev;
           });
-        }, 2000);
+        }, 10000);
       }, EXIT_DURATION);
     },
     [pathname, phase, router]
