@@ -5,7 +5,7 @@ import CatalogLayout from "@/app/components/MovieCatalog/CatalogLayout";
 
 export default function TheatersClient() {
     const {
-        movies, isLoading, currentPage, totalPages, isFilterOpen,
+        movies, isLoading, isPageLoading, currentPage, totalPages, isFilterOpen,
         activeFilters, categories, countries, handlePageChange,
         handleFilterChange, handleToggleFilter
     } = useMovieCatalog({
@@ -16,6 +16,7 @@ export default function TheatersClient() {
         <CatalogLayout
             title="Danh sách Phim chiếu rạp"
             isLoading={isLoading}
+            isPageLoading={isPageLoading}
             movies={movies}
             currentPage={currentPage}
             totalPages={totalPages}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import axios from "axios";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -19,13 +19,17 @@ interface MovieRowProps {
     title: string;
     apiUrl: string;
     viewAllLink: string;
+    initialMovies?: Movie[];
 }
 
-export default function MovieRow({ title, apiUrl, viewAllLink }: MovieRowProps) {
-    const [movies, setMovies] = useState<Movie[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+export default function MovieRow({ title, apiUrl, viewAllLink, initialMovies }: MovieRowProps) {
+    const seeded = !!(initialMovies && initialMovies.length > 0);
+    const [movies, setMovies] = useState<Movie[]>(() => initialMovies ?? []);
+    const [isLoading, setIsLoading] = useState(!seeded);
 
     useEffect(() => {
+        if (seeded) return;
+
         const fetchMovies = async () => {
             try {
                 const response = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`);
@@ -42,7 +46,7 @@ export default function MovieRow({ title, apiUrl, viewAllLink }: MovieRowProps) 
             }
         };
         fetchMovies();
-    }, [apiUrl, title]);
+    }, [apiUrl, title, seeded]);
 
     if (isLoading) {
         return (
@@ -98,15 +102,15 @@ export default function MovieRow({ title, apiUrl, viewAllLink }: MovieRowProps) 
                         {splitTitle()}
                     </h2>
 
-                    <Link
-                        href="/"
+                    <TransitionLink
+                        href={viewAllLink}
                         className="text-white/60 hover:text-white transition-colors flex items-center gap-2 text-sm tracking-wider w-max md:mt-2"
                     >
                         <span className="md:block hidden">Xem toàn bộ</span>
                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="12" height="12" fill="currentColor">
                             <path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path>
                         </svg>
-                    </Link>
+                    </TransitionLink>
                 </div>
 
                 {/* === RIGHT SIDE: SWIPER === */}
@@ -128,18 +132,20 @@ export default function MovieRow({ title, apiUrl, viewAllLink }: MovieRowProps) 
                         }}
                         className="swiper-carousel"
                     >
-                        {movies.map((movie) => {
+                        {movies.map((movie, index) => {
                             const imgUrl = getImageUrl(movie.thumb_url);
+                            const eager = index < 4;
 
                             return (
                                 <SwiperSlide key={movie._id} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
-                                    <Link href={`/phim/${movie.slug}`} className="block group/item cursor-pointer">
+                                    <TransitionLink href={`/phim/${movie.slug}`} className="block group/item cursor-pointer">
                                         <div className="relative aspect-video rounded-lg overflow-hidden bg-white/5 mb-3">
                                             <Image
                                                 src={imgUrl}
                                                 alt={movie.name}
                                                 fill
-                                                loading="eager"
+                                                priority={eager}
+                                                loading={eager ? "eager" : "lazy"}
                                                 sizes="(max-width: 768px) 160px, (max-width: 1024px) 240px, 280px"
                                                 className="object-cover transition-transform duration-500 group-hover/item:scale-110"
                                             />
@@ -162,7 +168,7 @@ export default function MovieRow({ title, apiUrl, viewAllLink }: MovieRowProps) 
                                                 {decodeHtml(movie.origin_name)}
                                             </p>
                                         </div>
-                                    </Link>
+                                    </TransitionLink>
                                 </SwiperSlide>
                             );
                         })}

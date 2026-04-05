@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import Link from "next/link";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { Star, ChevronDown, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getImageUrl } from "@/app/utils/movieUtils";
@@ -167,7 +167,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                 <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-6">Đề xuất cho bạn</h3>
                 <div className="flex flex-col">
                     {displaySuggestions.map((movie, idx) => (
-                        <Link
+                        <TransitionLink
                             key={idx}
                             href={`/phim/${movie.slug}`}
                             className="flex gap-4 py-3 border-b border-white/5 hover:bg-white/[0.02] -mx-4 px-4 transition-all group first:pt-0 last:border-0"
@@ -186,7 +186,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                                     </span>
                                 </div>
                             </div>
-                        </Link>
+                        </TransitionLink>
                     ))}
                 </div>
             </div>

@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react";
-import Link from "next/link";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import axios from "axios";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade, Thumbs, FreeMode } from "swiper/modules";
@@ -21,40 +21,59 @@ import Image from "next/image";
 
 const MotionImage = motion.create(Image);
 
-export default function HeroSlider() {
-    const [movies, setMovies] = useState<Movie[]>([]);
+interface HeroSliderProps {
+    initialMovies?: Movie[];
+}
+
+export default function HeroSlider({ initialMovies }: HeroSliderProps) {
+    const [movies, setMovies] = useState<Movie[]>(() =>
+        initialMovies && initialMovies.length > 0 ? initialMovies : []
+    );
     const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
 
     const [activeIndex, setActiveIndex] = useState(0);
 
+    const scheduleContentEnrich = (first8: Movie[]) => {
+        const runEnrich = () => {
+            void Promise.all(
+                first8.map((m) =>
+                    axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${m.slug}`)}`)
+                        .then((r) => ({ slug: m.slug, content: r.data.movie?.content ?? "" }))
+                        .catch(() => ({ slug: m.slug, content: "" }))
+                )
+            ).then((details) => {
+                const contentMap = Object.fromEntries(details.map((d) => [d.slug, d.content]));
+                setMovies((prev) =>
+                    prev.map((m) => ({ ...m, content: contentMap[m.slug] }))
+                );
+            });
+        };
+        if (typeof requestIdleCallback !== "undefined") {
+            requestIdleCallback(runEnrich, { timeout: 2500 });
+        } else {
+            setTimeout(runEnrich, 1);
+        }
+    };
+
     useEffect(() => {
-        // Lấy phim mới nhất thông qua proxy để tránh CORS
+        if (initialMovies && initialMovies.length > 0) {
+            scheduleContentEnrich(initialMovies);
+            return;
+        }
+
         axios.get(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?page=1")}`)
             .then((res) => {
                 const items: Movie[] = res.data.items || [];
-
                 const filtered = filterDuplicateMovies(items);
-
                 const first8 = filtered.slice(0, 8);
                 setMovies(first8);
-
-                // Fetch tóm tắt nội dung song song cho 8 phim này
-                Promise.all(
-                    first8.map((m) =>
-                        axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${m.slug}`)}`)
-                            .then((r) => ({ slug: m.slug, content: r.data.movie?.content ?? "" }))
-                            .catch(() => ({ slug: m.slug, content: "" }))
-                    )
-                ).then((details) => {
-                    const contentMap = Object.fromEntries(details.map((d) => [d.slug, d.content]));
-                    setMovies((prev) =>
-                        prev.map((m) => ({ ...m, content: contentMap[m.slug] }))
-                    );
-                });
+                scheduleContentEnrich(first8);
             })
             .catch((err) => {
                 console.error("Lỗi fetch phim:", err);
             });
+        // Chỉ chạy một lần khi mount; initialMovies đến từ server snapshot
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     if (movies.length === 0) {
@@ -97,7 +116,7 @@ export default function HeroSlider() {
                                         alt={movie.name}
                                         initial={false}
                                         priority={index === 0}
-                                        loading="eager"
+                                        loading={index === 0 ? "eager" : "lazy"}
                                         fill
                                         sizes="100vw"
                                         animate={{
@@ -146,9 +165,9 @@ export default function HeroSlider() {
                                     {/* Title */}
                                     <div className="min-h-[76px] m-0 md:mb-[16px] flex items-end justify-center min-[700px]:justify-start">
                                         <h2 className="text-2xl xl:text-4xl font-bold text-white leading-tight drop-shadow-2xl [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)] line-clamp-1 md:line-clamp-2">
-                                            <Link href={`/phim/${currentMovie.slug}`} className="hover:text-[#f5a623] transition-colors">
+                                            <TransitionLink href={`/phim/${currentMovie.slug}`} className="hover:text-[#f5a623] transition-colors">
                                                 {decodeHtml(currentMovie.name)}
-                                            </Link>
+                                            </TransitionLink>
                                         </h2>
                                     </div>
 
@@ -185,13 +204,13 @@ export default function HeroSlider() {
                                     {currentMovie.category && currentMovie.category.length > 0 && (
                                         <div className="min-[700px]:flex flex-wrap hidden justify-center min-[700px]:justify-start gap-1.5">
                                             {currentMovie.category.slice(0, 3).map((cat) => (
-                                                <Link
+                                                <TransitionLink
                                                     key={cat.slug}
                                                     href={`/phim/${currentMovie.slug}`}
                                                     className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs flex items-center justify-center bg-white/15 hover:text-[#f5a623] rounded"
                                                 >
                                                     {cat.name}
-                                                </Link>
+                                                </TransitionLink>
                                             ))}
                                         </div>
                                     )}
@@ -212,20 +231,20 @@ export default function HeroSlider() {
 
                                     {/* Buttons */}
                                     <div className="flex min-[700px]:flex hidden items-center justify-center min-[700px]:justify-start gap-5 pt-4">
-                                        <Link
+                                        <TransitionLink
                                             href={`/phim/${currentMovie.slug}`}
                                             className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-15 lg:h-15 rounded-full bg-gradient-to-tr from-[#f5a623] to-[#ffcc33] text-[#0a1628] ring-4 ring-[#f5a623]/20 shadow-[0_4px_15px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.8)] hover:scale-110 active:scale-95 transition-all duration-300"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="20" height="20" fill="currentColor" className="ml-1 relative z-10">
                                                 <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z" />
                                             </svg>
-                                        </Link>
-                                        <Link
+                                        </TransitionLink>
+                                        <TransitionLink
                                             href={`/phim/${currentMovie.slug}`}
                                             className="lg:px-6 lg:py-2.5 md:px-4 py-1.5 px-3  bg-white/10 hover:bg-white/20 text-white text-xs md:text-sm font-medium rounded-full transition-all duration-300 border border-white/10"
                                         >
                                             Chi tiết phim
-                                        </Link>
+                                        </TransitionLink>
                                     </div>
                                 </motion.div>
                             )}
@@ -248,14 +267,15 @@ export default function HeroSlider() {
                             loop
                             className="w-full"
                         >
-                            {movies.map((movie) => (
+                            {movies.map((movie, index) => (
                                 <SwiperSlide key={movie._id}>
                                     <div className="relative cursor-pointer rounded-full min-[700px]:rounded overflow-hidden aspect-square min-[700px]:aspect-video border-2 border-transparent hover:border-white/40 [.swiper-slide-thumb-active_&]:border-[#f5a623] transition-all duration-300 opacity-60 hover:opacity-90 [.swiper-slide-thumb-active_&]:opacity-100">
                                         <Image
                                             src={getImageUrl(movie.thumb_url)}
                                             alt={movie.name}
                                             fill
-                                            loading="eager"
+                                            priority={index < 5}
+                                            loading={index < 5 ? "eager" : "lazy"}
                                             sizes="100px"
                                             className="object-cover"
                                         />

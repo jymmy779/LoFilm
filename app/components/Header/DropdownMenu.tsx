@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { MenuItem } from "./types";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -78,13 +78,13 @@ export default function DropdownMenu({
                                 {cols.map((col, colIdx) => (
                                     <div key={colIdx} className="flex flex-col gap-3">
                                         {col.map((item) => (
-                                            <Link
+                                            <TransitionLink
                                                 key={item._id}
                                                 href={`${hrefPrefix}/${item.slug}`}
                                                 className="text-sm text-white/70 hover:text-[#f5a623] hover:translate-x-1 transition-all duration-150 whitespace-nowrap block"
                                             >
                                                 {item.name}
-                                            </Link>
+                                            </TransitionLink>
                                         ))}
                                     </div>
                                 ))}

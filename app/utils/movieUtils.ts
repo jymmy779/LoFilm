@@ -18,6 +18,21 @@ export function filterDuplicateMovies(movies: Movie[]): Movie[] {
 }
 
 /**
+ * Giống logic MoviePosterRow: lọc trùng → sort theo năm / modified → tối đa 20 phim
+ */
+export function sortAndSlicePosterRowMovies(items: Movie[]): Movie[] {
+    const filtered = filterDuplicateMovies(items);
+    return [...filtered].sort((a, b) => {
+        if ((b.year || 0) !== (a.year || 0)) {
+            return (b.year || 0) - (a.year || 0);
+        }
+        const timeA = a.modified?.time ? new Date(a.modified.time).getTime() : 0;
+        const timeB = b.modified?.time ? new Date(b.modified.time).getTime() : 0;
+        return timeB - timeA;
+    }).slice(0, 20);
+}
+
+/**
  * Parse episode_current into display-friendly status text
  */
 export function getEpisodeStatus(movie: Movie): string {

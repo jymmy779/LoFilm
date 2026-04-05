@@ -1,15 +1,11 @@
 "use client"
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import axios from "axios";
 import Container from "@/app/components/Container";
-
-interface Category {
-    _id: string;
-    name: string;
-    slug: string;
-}
+import Skeleton from "react-loading-skeleton";
+import type { HomeCategory } from "@/app/types/home-prefetch";
 
 // Các màu gradient giống với màn hình tham khảo
 const gradientVariants = [
@@ -23,28 +19,34 @@ const gradientVariants = [
     "from-[#7faa8a] to-[#c27a72]", // Hành động (Xanh rêu - Đỏ nhạt)
 ];
 
-export default function CategoriesSection() {
-    const [categories, setCategories] = useState<Category[]>([]);
+interface CategoriesSectionProps {
+    initialCategories?: HomeCategory[];
+}
+
+export default function CategoriesSection({ initialCategories }: CategoriesSectionProps) {
+    const [categories, setCategories] = useState<HomeCategory[]>(() => initialCategories ?? []);
 
     useEffect(() => {
-        axios.get("https://phimapi.com/the-loai")
+        if ((initialCategories?.length ?? 0) > 0) return;
+
+        axios.get(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/the-loai")}`)
             .then(res => {
-                const sortedCategories = res.data.sort((a: Category, b: Category) =>
-                    a.name.localeCompare(b.name)
+                const sortedCategories = (res.data as HomeCategory[]).sort((a, b) =>
+                    a.name.localeCompare(b.name, "vi")
                 );
                 setCategories(sortedCategories);
             })
             .catch(err => console.error("Lỗi fetch the-loai:", err));
-    }, []);
+    }, [initialCategories?.length]);
 
     // Hiển thị skeleton loading nếu chưa tải xong
     if (categories.length === 0) {
         return (
             <Container as="section" className="relative z-30 mb-10 pointer-events-none">
-                <h2 className="text-2xl font-bold text-white mb-6">Bạn đang quan tâm gì?</h2>
+                <Skeleton width={250} height={32} className="mb-6 rounded-lg" />
                 <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-4 pointer-events-auto">
                     {[...Array(8)].map((_, i) => (
-                        <div key={i} className="w-full h-[120px] rounded-xl bg-white/5 animate-pulse" />
+                        <Skeleton key={i} height={120} className="w-full rounded-xl" />
                     ))}
                 </div>
             </Container>
@@ -64,7 +66,7 @@ export default function CategoriesSection() {
                     const gradientClass = gradientVariants[index % gradientVariants.length];
 
                     return (
-                        <Link
+                        <TransitionLink
                             key={cat.slug}
                             href={`/the-loai/${cat.slug}`}
                             className="block w-full h-[120px] rounded-xl p-5 relative overflow-hidden group transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_20px_rgba(0,0,0,0.4)]"
@@ -85,7 +87,7 @@ export default function CategoriesSection() {
                                     <span className="text-[14px] leading-none mb-[2px]">›</span>
                                 </p>
                             </div>
-                        </Link>
+                        </TransitionLink>
                     );
                 })}
             </div>

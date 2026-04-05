@@ -8,7 +8,7 @@ type Props = {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug } = await params;
-    
+
     let title = slug.split("-").join(" ");
     title = title.charAt(0).toUpperCase() + title.slice(1);
 

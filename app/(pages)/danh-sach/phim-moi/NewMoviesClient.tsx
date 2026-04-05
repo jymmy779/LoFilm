@@ -15,7 +15,7 @@ export default function NewMoviesClient() {
     // ta sẽ tinh chỉnh hook một chút.
     
     const {
-        movies, isLoading, currentPage, totalPages, isFilterOpen,
+        movies, isLoading, isPageLoading, currentPage, totalPages, isFilterOpen,
         activeFilters, categories, countries, handlePageChange,
         handleFilterChange, handleToggleFilter
     } = useMovieCatalog({
@@ -27,6 +27,7 @@ export default function NewMoviesClient() {
         <CatalogLayout
             title="Danh sách Phim mới"
             isLoading={isLoading}
+            isPageLoading={isPageLoading}
             movies={movies}
             currentPage={currentPage}
             totalPages={totalPages}

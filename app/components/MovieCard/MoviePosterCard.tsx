@@ -1,6 +1,6 @@
 "use client";
 
-import Link from "next/link";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import Image from "next/image";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
@@ -8,20 +8,23 @@ import { getEpisodeStatus, getImageUrl } from "@/app/utils/movieUtils";
 
 interface MoviePosterCardProps {
     movie: Movie;
+    /** Ưu tiên tải poster cho các ô đầu (trong viewport) */
+    priority?: boolean;
 }
 
-export default function MoviePosterCard({ movie }: MoviePosterCardProps) {
+export default function MoviePosterCard({ movie, priority = false }: MoviePosterCardProps) {
     const posterImg = getImageUrl(movie.poster_url);
 
     return (
         <div className="sw-item group/item cursor-pointer [contain:layout]">
-            <Link href={`/phim/${movie.slug}`} className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-white/5">
+            <TransitionLink href={`/phim/${movie.slug}`} className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-white/5">
                 {/* Poster Image */}
                 <Image
                     src={posterImg}
                     alt={movie.name}
                     fill
-                    loading="eager"
+                    priority={priority}
+                    loading={priority ? "eager" : "lazy"}
                     sizes="(max-width: 640px) 150px, (max-width: 1024px) 200px, 250px"
                     className="object-cover transition-transform duration-500 group-hover/item:scale-110 transform-gpu"
                 />
@@ -46,14 +49,14 @@ export default function MoviePosterCard({ movie }: MoviePosterCardProps) {
                         {getEpisodeStatus(movie)}
                     </div>
                 </div>
-            </Link>
+            </TransitionLink>
 
             <div className="info text-center space-y-1">
                 <h4 className="item-title text-white text-sm lg:text-base line-clamp-1 group-hover/item:text-blue-300 transition-colors">
-                    <Link href={`/phim/${movie.slug}`} title={movie.name}>{decodeHtml(movie.name)}</Link>
+                    <TransitionLink href={`/phim/${movie.slug}`} title={movie.name}>{decodeHtml(movie.name)}</TransitionLink>
                 </h4>
                 <h4 className="alias-title text-white/40 text-xs line-clamp-1 font-medium">
-                    <Link href={`/phim/${movie.slug}`}>{decodeHtml(movie.origin_name)}</Link>
+                    <TransitionLink href={`/phim/${movie.slug}`}>{decodeHtml(movie.origin_name)}</TransitionLink>
                 </h4>
             </div>
         </div>

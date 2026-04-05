@@ -9,18 +9,31 @@ export default function InitialLoader() {
   useEffect(() => {
     document.body.style.overflow = "hidden";
 
-    const fadeTimeout = setTimeout(() => {
+    let done = false;
+    const startFadeOut = () => {
+      if (done) return;
+      done = true;
       setFadingOut(true);
-    }, 1800);
+      window.setTimeout(() => {
+        setShow(false);
+        document.body.style.overflow = "unset";
+      }, 600);
+    };
 
-    const removeTimeout = setTimeout(() => {
-      setShow(false);
-      document.body.style.overflow = "unset";
-    }, 2400); // 1800ms + 600ms transition
+    // Ẩn ngay sau frame vẽ đầu tiên (không chờ toàn bộ ảnh/font) — giảm tối đa thời gian chặn UI
+    let raf1 = 0;
+    let raf2 = 0;
+    raf1 = requestAnimationFrame(() => {
+      raf2 = requestAnimationFrame(startFadeOut);
+    });
+
+    // Dự phòng: nếu có sự cố, gỡ overlay tối đa sau 2s
+    const safety = window.setTimeout(startFadeOut, 2000);
 
     return () => {
-      clearTimeout(fadeTimeout);
-      clearTimeout(removeTimeout);
+      cancelAnimationFrame(raf1);
+      cancelAnimationFrame(raf2);
+      window.clearTimeout(safety);
       document.body.style.overflow = "unset";
     };
   }, []);

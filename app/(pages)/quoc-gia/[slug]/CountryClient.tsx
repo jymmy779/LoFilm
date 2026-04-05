@@ -9,7 +9,7 @@ interface CountryClientProps {
 
 export default function CountryClient({ slug }: CountryClientProps) {
     const {
-        movies, isLoading, currentPage, totalPages, isFilterOpen,
+        movies, isLoading, isPageLoading, currentPage, totalPages, isFilterOpen,
         activeFilters, categories, countries, handlePageChange,
         handleFilterChange, handleToggleFilter, pageTitle
     } = useMovieCatalog({
@@ -24,6 +24,7 @@ export default function CountryClient({ slug }: CountryClientProps) {
         <CatalogLayout
             title={displayTitle}
             isLoading={isLoading}
+            isPageLoading={isPageLoading}
             movies={movies}
             currentPage={currentPage}
             totalPages={totalPages}

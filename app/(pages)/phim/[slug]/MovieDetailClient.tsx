@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import axios from "axios";
 import Image from "next/image";
-import Link from "next/link";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import Container from "@/app/components/Container";
 import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
 import { Movie, EpisodeServer } from "@/app/types/movie";
@@ -290,7 +290,7 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                         <div className="ds-info p-[20px] lg:p-[40px] lg:backdrop-blur-md rounded-3xl shadow-2xl relative transform-gpu will-change-[filter]">
                             {/* DM Bar: Watch Now & Rating */}
                             <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
-                                <Link
+                                <TransitionLink
                                     href={`/phim/${movie.slug}/${getFriendlyEpisodeSlug(firstServerEpisodes[0]?.slug || 'tap-1')}`}
                                     className="group flex items-center gap-3 bg-gradient-to-r from-[#f5a623] to-[#ffcc33] hover:from-[#ffcc33] hover:to-[#f5a623] text-[#0a1628] py-2 px-6 md:py-4 md:px-8 rounded-full font-bold transition-all transform cursor-pointer shadow-[0_0_20px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.6)]"
                                 >
@@ -298,7 +298,7 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                         <i className="fa-solid fa-play text-sm ml-0.5"></i>
                                     </div>
                                     <span className="tracking-wider text-lg">Xem Ngay</span>
-                                </Link>
+                                </TransitionLink>
                                 <div className="flex items-center gap-2 md:gap-4 bg-white/5 md:px-4 md:py-2 px-2 py-1 rounded-2xl border border-white/10">
                                     <div className="flex items-center gap-1 md:gap-2">
                                         <i className="text-yellow-500 text-xl">★</i>
@@ -388,13 +388,13 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                                         >
                                                             <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
                                                                 {displayedEpisodes.map((ep, idx) => (
-                                                                    <Link
+                                                                    <TransitionLink
                                                                         key={idx}
                                                                         href={`/phim/${movie.slug}/${getFriendlyEpisodeSlug(ep.slug)}`}
                                                                         className="px-1 py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
                                                                     >
                                                                         {parseEpNumber(ep.name)}
-                                                                    </Link>
+                                                                    </TransitionLink>
                                                                 ))}
                                                             </div>
                                                         </motion.div>
@@ -478,9 +478,9 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                 {/* Suggestions Tab */}
                                 {activeTab === 'Đề xuất' && enrichedSuggestions.length > 0 && (
                                     <div className="grid grid-cols-2 min-w[500px]-grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 lg:gap-6">
-                                        {enrichedSuggestions.map((m) => (
+                                        {enrichedSuggestions.map((m, index) => (
                                             <div key={m._id} className="transform hover:scale-[1.02] transition-transform">
-                                                <MoviePosterCard movie={m} />
+                                                <MoviePosterCard movie={m} priority={index < 12} />
                                             </div>
                                         ))}
                                     </div>

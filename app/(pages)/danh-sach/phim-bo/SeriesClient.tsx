@@ -5,7 +5,7 @@ import CatalogLayout from "@/app/components/MovieCatalog/CatalogLayout";
 
 export default function SeriesClient() {
     const {
-        movies, isLoading, currentPage, totalPages, isFilterOpen,
+        movies, isLoading, isPageLoading, currentPage, totalPages, isFilterOpen,
         activeFilters, categories, countries, handlePageChange,
         handleFilterChange, handleToggleFilter
     } = useMovieCatalog({
@@ -16,6 +16,7 @@ export default function SeriesClient() {
         <CatalogLayout
             title="Danh sách Phim bộ"
             isLoading={isLoading}
+            isPageLoading={isPageLoading}
             movies={movies}
             currentPage={currentPage}
             totalPages={totalPages}

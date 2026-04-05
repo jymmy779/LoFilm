@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import axios from "axios";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -10,7 +10,7 @@ import "swiper/css/navigation";
 
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
-import { filterDuplicateMovies, getImageUrl } from "@/app/utils/movieUtils";
+import { getImageUrl, sortAndSlicePosterRowMovies } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
 import Container from "@/app/components/Container";
 import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
@@ -19,42 +19,21 @@ interface MoviePosterRowProps {
     title: string;
     apiUrl: string;
     viewAllLink: string;
+    initialMovies?: Movie[];
 }
 
-export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePosterRowProps) {
-    const [movies, setMovies] = useState<Movie[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies }: MoviePosterRowProps) {
+    const seeded = !!(initialMovies && initialMovies.length > 0);
+    const [movies, setMovies] = useState<Movie[]>(() => initialMovies ?? []);
+    const [isLoading, setIsLoading] = useState(!seeded);
     const navId = title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
 
-    useEffect(() => {
-        let isMounted = true;
-        const fetchMovies = async (retryCount = 0) => {
-            if (!isMounted) return;
-            try {
-                const response = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`);
-                if (isMounted && (response.data?.status === "success" || response.data?.status === true) && response.data?.data?.items) {
-                    const items: Movie[] = response.data.data.items;
-
-                    const filtered = filterDuplicateMovies(items);
-
-                    // Sắp xếp và lấy 20 phim đầu tiên sau khi đã lọc trùng
-                    const sortedItems = filtered.sort((a, b) => {
-                        if ((b.year || 0) !== (a.year || 0)) {
-                            return (b.year || 0) - (a.year || 0);
-                        }
-                        const timeA = a.modified?.time ? new Date(a.modified.time).getTime() : 0;
-                        const timeB = b.modified?.time ? new Date(b.modified.time).getTime() : 0;
-                        return timeB - timeA;
-                    }).slice(0, 20);
-
-                    setMovies(sortedItems);
-                    setIsLoading(false);
-
-                    // Làm giàu dữ liệu: Fetch theo đợt (chunks) để lấy episode_total - không chặn render
+    const enrichEpisodeTotals = async (sortedItems: Movie[], isMounted: () => boolean) => {
                     const enriched = [...sortedItems];
                     const chunkSize = 5;
 
                     for (let i = 0; i < sortedItems.length; i += chunkSize) {
+                        if (!isMounted()) break;
                         const chunk = sortedItems.slice(i, i + chunkSize);
                         await Promise.all(
                             chunk.map(async (movie: Movie, chunkIdx: number) => {
@@ -72,12 +51,32 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
                                 }
                             })
                         );
-                        // Cập nhật state sau mỗi chunk
                         setMovies([...enriched]);
-                        if (i + chunkSize < sortedItems.length) {
-                            await new Promise(resolve => setTimeout(resolve, 100));
-                        }
                     }
+    };
+
+    useEffect(() => {
+        let isMounted = true;
+        const mounted = () => isMounted;
+
+        if (seeded && initialMovies!.length > 0) {
+            setIsLoading(false);
+            void enrichEpisodeTotals(initialMovies!, mounted);
+            return () => { isMounted = false; };
+        }
+
+        const fetchMovies = async (retryCount = 0) => {
+            if (!isMounted) return;
+            try {
+                const response = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`);
+                if (isMounted && (response.data?.status === "success" || response.data?.status === true) && response.data?.data?.items) {
+                    const items: Movie[] = response.data.data.items;
+                    const sortedItems = sortAndSlicePosterRowMovies(items);
+
+                    setMovies(sortedItems);
+                    setIsLoading(false);
+
+                    await enrichEpisodeTotals(sortedItems, mounted);
                     return;
                 } else if (isMounted) {
                     console.warn("MoviePosterRow: API returned invalid status or structure", response.data);
@@ -99,7 +98,7 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
         };
         fetchMovies();
         return () => { isMounted = false; };
-    }, [apiUrl, navId]);
+    }, [apiUrl, navId, seeded]);
 
     if (isLoading) {
         return (
@@ -126,7 +125,7 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
             <div className="row-header flex items-center justify-between mb-6">
                 <h2 className="text-[20px] lg:text-[28px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-blue-100 to-white drop-shadow-sm flex items-center gap-4">
                     {title}
-                    <Link
+                    <TransitionLink
                         href={viewAllLink || "/"}
                         className="group/more flex items-center justify-center bg-[#1a1c23] border border-white/10 rounded-full h-8 w-8 lg:h-10 lg:w-10 transition-all duration-500 hover:border-[#f1c40f]/50 hover:w-[110px] lg:hover:w-[130px] overflow-hidden"
                     >
@@ -143,7 +142,7 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
                         >
                             <path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path>
                         </svg>
-                    </Link>
+                    </TransitionLink>
                 </h2>
 
             </div>
@@ -172,9 +171,9 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink }: MoviePost
                         }}
                         className="swiper-carousel"
                     >
-                        {movies.map((movie) => (
+                        {movies.map((movie, index) => (
                             <SwiperSlide key={movie._id}>
-                                <MoviePosterCard movie={movie} />
+                                <MoviePosterCard movie={movie} priority={index < 8} />
                             </SwiperSlide>
                         ))}
                     </Swiper>

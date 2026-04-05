@@ -9,7 +9,7 @@ interface CategoryClientProps {
 
 export default function CategoryClient({ slug }: CategoryClientProps) {
     const {
-        movies, isLoading, currentPage, totalPages, isFilterOpen,
+        movies, isLoading, isPageLoading, currentPage, totalPages, isFilterOpen,
         activeFilters, categories, countries, handlePageChange,
         handleFilterChange, handleToggleFilter, pageTitle
     } = useMovieCatalog({
@@ -24,6 +24,7 @@ export default function CategoryClient({ slug }: CategoryClientProps) {
         <CatalogLayout
             title={displayTitle}
             isLoading={isLoading}
+            isPageLoading={isPageLoading}
             movies={movies}
             currentPage={currentPage}
             totalPages={totalPages}

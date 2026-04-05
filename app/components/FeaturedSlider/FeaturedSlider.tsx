@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import axios from "axios";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination, EffectFade, Thumbs } from "swiper/modules";
@@ -23,45 +23,58 @@ interface FeaturedSliderProps {
     apiUrl: string;
     viewAllLink: string;
     navId?: string;
+    initialMovies?: Movie[];
 }
 
-export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider" }: FeaturedSliderProps) {
-    const [movies, setMovies] = useState<Movie[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider", initialMovies }: FeaturedSliderProps) {
+    const seeded = !!(initialMovies && initialMovies.length > 0);
+    const [movies, setMovies] = useState<Movie[]>(() => initialMovies ?? []);
+    const [isLoading, setIsLoading] = useState(!seeded);
     const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
 
+    const enrichDetails = (slice: Movie[]) => {
+        void Promise.all(
+            slice.map(async (movie: Movie) => {
+                try {
+                    const detail = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}`);
+                    return { ...movie, ...detail.data.movie } as Movie;
+                } catch {
+                    return movie;
+                }
+            })
+        ).then((detailed) => setMovies(detailed));
+    };
+
     useEffect(() => {
+        if (seeded) {
+            setIsLoading(false);
+            enrichDetails(initialMovies!);
+            return;
+        }
+
         const fetchFeatured = async () => {
             try {
-                // Lấy danh sách phim từ apiUrl được truyền vào thông qua proxy để tránh CORS
                 const res = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`);
                 if (res.data?.status === "success" || res.data?.status === true) {
                     const items: Movie[] = res.data.data.items || [];
 
                     const filtered = filterDuplicateMovies(items);
+                    const slice = filtered.slice(0, 10);
 
-                    // Lấy chi tiết cho tối đa 10 phim sau khi đã lọc trùng
-                    const detailed = await Promise.all(
-                        filtered.slice(0, 10).map(async (movie: any) => {
-                            try {
-                                const detail = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}`);
-                                return { ...movie, ...detail.data.movie };
-                            } catch (e) {
-                                return movie;
-                            }
-                        })
-                    );
-                    setMovies(detailed);
+                    setMovies(slice);
+                    setIsLoading(false);
+                    enrichDetails(slice);
+                } else {
+                    setIsLoading(false);
                 }
             } catch (error) {
                 console.error("Lỗi tải featured slider:", error);
-            } finally {
                 setIsLoading(false);
             }
         };
 
         fetchFeatured();
-    }, [apiUrl, navId]);
+    }, [apiUrl, navId, seeded]);
 
     if (isLoading) {
         return (
@@ -85,7 +98,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
             <div className="row-header flex items-center justify-between mb-6">
                 <h2 className="text-[20px] lg:text-[28px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-green-200 via-green-100 to-white drop-shadow-sm flex items-center gap-4">
                     {title}
-                    <Link
+                    <TransitionLink
                         href={viewAllLink || "/"}
                         className="group/more flex items-center justify-center bg-[#1a1c23] border border-white/10 rounded-full h-8 w-8 lg:h-10 lg:w-10 transition-all duration-500 hover:border-[#f1c40f]/50 hover:w-[110px] lg:hover:w-[130px] overflow-hidden"
                     >
@@ -102,7 +115,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                         >
                             <path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path>
                         </svg>
-                    </Link>
+                    </TransitionLink>
                 </h2>
             </div>
 
@@ -127,6 +140,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                         alt={movie.name}
                                         fill
                                         priority={index === 0}
+                                        loading={index === 0 ? "eager" : "lazy"}
                                         sizes="100vw"
                                         className="object-cover object-top"
                                     />
@@ -140,9 +154,9 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                     <div className="lg:max-w-lg xl:max-w-2xl w-full space-y-4 lg:space-y-5">
                                         <div className="space-y-1">
                                             <h3 className="text-xl md:text-2xl lg:text-3xl font-bold text-white group-hover:text-[#f5a623] transition-colors line-clamp-1 [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)]">
-                                                <Link href={`/phim/${movie.slug}`}>
+                                                <TransitionLink href={`/phim/${movie.slug}`}>
                                                     {decodeHtml(movie.name)}
-                                                </Link>
+                                                </TransitionLink>
                                             </h3>
                                             <p className="text-sm md:text-base font-medium text-white/70 italic line-clamp-1 mt-1 [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)]">
                                                 {decodeHtml(movie.origin_name)}
@@ -162,13 +176,13 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
 
                                             <div className="flex gap-2 ml-2 pl-4 border-l border-white/10">
                                                 {movie.category?.slice(0, 3).map((cat: any) => (
-                                                    <Link
+                                                    <TransitionLink
                                                         key={cat.id}
                                                         href={`/the-loai/${cat.slug}`}
                                                         className="px-2 flex items-center justify-center py-0.5 text-[11px] text-white/40 border border-white/10 rounded hover:border-[#f5a623]/60 hover:text-[#f5a623] transition-colors"
                                                     >
                                                         {cat.name}
-                                                    </Link>
+                                                    </TransitionLink>
                                                 ))}
                                             </div>
                                         </div>
@@ -180,21 +194,21 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                         </div>
 
                                         <div className="flex items-center gap-6 pt-4">
-                                            <Link
+                                            <TransitionLink
                                                 href={`/phim/${movie.slug}`}
                                                 className="relative hidden lg:flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-[#f5a623] to-[#ffcc33] text-[#0a1628] shadow-[0_4px_15px_rgba(245,166,35,0.4)] ring-4 ring-[#f5a623]/20 hover:shadow-[0_0_30px_rgba(245,166,35,0.8)] hover:scale-110 active:scale-95 transition-all duration-300"
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="20" height="20" fill="currentColor" className="ml-1 relative z-10">
                                                     <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z" />
                                                 </svg>
-                                            </Link>
+                                            </TransitionLink>
 
-                                            <Link
+                                            <TransitionLink
                                                 href={`/phim/${movie.slug}`}
                                                 className="lg:block hidden px-8 py-3 bg-white/10 hover:bg-white/20 text-white text-sm rounded-full transition-colors duration-300 border border-white/10 shadow-xl"
                                             >
                                                 Chi tiết phim
-                                            </Link>
+                                            </TransitionLink>
                                         </div>
                                     </div>
                                 </div>
@@ -226,6 +240,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                         alt={movie.name}
                                         fill
                                         sizes="100px"
+                                        loading="lazy"
                                         className="hidden lg:block object-cover"
                                     />
                                     <div className="thumb-overlay absolute inset-0 bg-black/40 lg:bg-black/30 transition-opacity duration-300"></div>

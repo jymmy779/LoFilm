@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useMemo } from "react";
-import Link from "next/link";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { ChevronUp, ChevronDown, Server } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
@@ -162,9 +162,10 @@ const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServe
                   const isActive = getFriendlyEpisodeSlug(ep.slug) === currentEpisode;
 
                   return (
-                    <Link
+                    <TransitionLink
                       key={i}
                       href={`/phim/${slug}/${getFriendlyEpisodeSlug(ep.slug)}`}
+                      transition={false}
                       className={`
                         py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border
                         ${isActive
@@ -174,7 +175,7 @@ const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServe
                       `}
                     >
                       {ep.name.replace(/Tập\s*/i, "").replace(/^0+/, "")}
-                    </Link>
+                    </TransitionLink>
                   );
                 })}
               </motion.div>

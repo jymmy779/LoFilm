@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import Link from "next/link";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { ChevronRight, AlertTriangle, RefreshCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Hls from "hls.js";
@@ -313,13 +313,14 @@ export default function WatchClient({
                                 exit={{ opacity: 0 }}
                                 className="absolute bottom-12 md:bottom-16 lg:bottom-24 right-4 md:right-6 z-40"
                             >
-                                <Link
+                                <TransitionLink
                                     href={`/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`}
+                                    transition={false}
                                     className="flex items-center gap-1.5 md:gap-2 bg-black/80 border border-white/20 py-1.5 px-3 md:py-2 md:px-5 lg:py-2.5 lg:px-6 rounded-md hover:bg-amber-500 hover:text-[#0a1628] hover:border-amber-500 transition-all duration-300 text-white font-bold text-[10px] md:text-xs uppercase tracking-wider shadow-2xl"
                                 >
                                     Tập tiếp theo
                                     <ChevronRight size={16} />
-                                </Link>
+                                </TransitionLink>
                             </motion.div>
                         )}
                     </AnimatePresence>

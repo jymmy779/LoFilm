@@ -195,8 +195,8 @@ function SearchContent() {
                     ) : movies.length > 0 ? (
                         <>
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 mt-8">
-                                {movies.map((movie) => (
-                                    <MoviePosterCard key={movie._id} movie={movie} />
+                                {movies.map((movie, index) => (
+                                    <MoviePosterCard key={movie._id} movie={movie} priority={index < 16} />
                                 ))}
                             </div>
 

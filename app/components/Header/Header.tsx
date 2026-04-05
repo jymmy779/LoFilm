@@ -1,6 +1,6 @@
 "use client"
 
-import Link from "next/link";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
@@ -107,7 +107,7 @@ export default function Header() {
                                     </AnimatePresence>
                                 </button>
 
-                                <Link href="/" className="shrink-0">
+                                <TransitionLink href="/" className="shrink-0">
                                     <Image
                                         width={120}
                                         height={65}
@@ -116,7 +116,7 @@ export default function Header() {
                                         alt="LoFilm"
                                         priority
                                     />
-                                </Link>
+                                </TransitionLink>
                             </motion.div>
                         ) : (
                             <motion.div
@@ -170,7 +170,7 @@ export default function Header() {
                 {/* XL Desktop Header Content */}
                 <div className="hidden xl:flex items-center justify-between w-full h-full">
                     <div className="flex items-center gap-8 flex-1">
-                        <Link href="/" className="shrink-0">
+                        <TransitionLink href="/" className="shrink-0">
                             <Image
                                 width={150}
                                 height={80}
@@ -179,16 +179,16 @@ export default function Header() {
                                 alt="LoFilm"
                                 priority
                             />
-                        </Link>
+                        </TransitionLink>
 
                         <div className="md:ml-4">
                             <SearchBox />
                         </div>
 
                         <nav className="flex items-center gap-4 2xl:gap-6">
-                            <Link href="/" className="text-[13px] 2xl:text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 whitespace-nowrap">
+                            <TransitionLink href="/" className="text-[13px] 2xl:text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 whitespace-nowrap">
                                 Trang chủ
-                            </Link>
+                            </TransitionLink>
 
                             <DropdownMenu
                                 id="the-loai"
@@ -209,13 +209,13 @@ export default function Header() {
                             />
 
                             {navLinks.map((item) => (
-                                <Link
+                                <TransitionLink
                                     key={item.label}
                                     href={item.href}
                                     className="text-[13px] 2xl:text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 whitespace-nowrap"
                                 >
                                     {item.label}
-                                </Link>
+                                </TransitionLink>
                             ))}
                         </nav>
                     </div>
@@ -249,14 +249,14 @@ export default function Header() {
                             <div className="p-5 custom-scrollbar">
                                 <motion.div layout className="flex flex-col">
                                     <motion.div layout>
-                                        <Link
+                                        <TransitionLink
                                             href="/"
                                             onClick={() => setIsMenuOpen(false)}
                                             className="text-base cursor-pointer font-medium text-white/80 py-3 border-b border-white/5 flex items-center justify-between hover:text-[#f5a623] transition-colors"
                                         >
                                             Trang chủ
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                                        </Link>
+                                        </TransitionLink>
                                     </motion.div>
 
                                     {/* Accordion: Thể loại */}
@@ -289,14 +289,14 @@ export default function Header() {
                                         >
                                             <div className="grid grid-cols-2 gap-x-4 gap-y-2 p-3 bg-white/5 rounded-xl">
                                                 {categories.map((cat) => (
-                                                    <Link
+                                                    <TransitionLink
                                                         key={cat._id}
                                                         href={`/the-loai/${cat.slug}`}
                                                         onClick={() => setIsMenuOpen(false)}
                                                         className="text-sm text-white/60 hover:text-[#f5a623] py-1 transition-colors"
                                                     >
                                                         • {cat.name}
-                                                    </Link>
+                                                    </TransitionLink>
                                                 ))}
                                             </div>
                                         </motion.div>
@@ -332,14 +332,14 @@ export default function Header() {
                                         >
                                             <div className="grid grid-cols-3 gap-2 p-3 bg-white/5 rounded-xl">
                                                 {countries.map((country) => (
-                                                    <Link
+                                                    <TransitionLink
                                                         key={country._id}
                                                         href={`/quoc-gia/${country.slug}`}
                                                         onClick={() => setIsMenuOpen(false)}
                                                         className="text-xs text-white/60 hover:text-[#f5a623] py-1 transition-colors"
                                                     >
                                                         {country.name}
-                                                    </Link>
+                                                    </TransitionLink>
                                                 ))}
                                             </div>
                                         </motion.div>
@@ -348,13 +348,13 @@ export default function Header() {
                                     {/* Common Nav Links */}
                                     {navLinks.map((item) => (
                                         <motion.div layout key={item.href}>
-                                            <Link
+                                            <TransitionLink
                                                 href={item.href}
                                                 onClick={() => setIsMenuOpen(false)}
                                                 className="text-base text-white/80 py-3 border-b border-white/5 hover:text-[#f5a623] transition-colors font-medium block"
                                             >
                                                 {item.label}
-                                            </Link>
+                                            </TransitionLink>
                                         </motion.div>
                                     ))}
 

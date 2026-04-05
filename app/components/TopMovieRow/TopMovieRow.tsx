@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import axios from "axios";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -19,15 +19,52 @@ interface TopMovieRowProps {
     title: string;
     apiUrl: string;
     viewAllLink: string;
+    initialMovies?: Movie[];
 }
 
-export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowProps) {
-    const [movies, setMovies] = useState<Movie[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowProps) {
+    const seeded = !!(initialMovies && initialMovies.length > 0);
+    const [movies, setMovies] = useState<Movie[]>(() => initialMovies ?? []);
+    const [isLoading, setIsLoading] = useState(!seeded);
     const navId = title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
+
+    const enrichEpisodeTotals = async (topItems: Movie[], isMounted: () => boolean) => {
+        const enriched = [...topItems];
+        const chunkSize = 5;
+
+        for (let i = 0; i < topItems.length; i += chunkSize) {
+            if (!isMounted()) break;
+            const chunk = topItems.slice(i, i + chunkSize);
+            await Promise.all(
+                chunk.map(async (movie: Movie, chunkIdx: number) => {
+                    const isMultiEpisode = ["series", "hoathinh", "tvshows"].includes(movie.type || "");
+                    if (isMultiEpisode && !movie.episode_current?.includes("/")) {
+                        try {
+                            const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}`);
+                            if (detailRes.data?.movie?.episode_total) {
+                                const globalIdx = i + chunkIdx;
+                                enriched[globalIdx] = { ...enriched[globalIdx], episode_total: detailRes.data.movie.episode_total };
+                            }
+                        } catch (e) {
+                            console.error(`Lỗi tải detail cho ${movie.slug}:`, e);
+                        }
+                    }
+                })
+            );
+            setMovies([...enriched]);
+        }
+    };
 
     useEffect(() => {
         let isMounted = true;
+        const mounted = () => isMounted;
+
+        if (seeded && initialMovies!.length > 0) {
+            setIsLoading(false);
+            void enrichEpisodeTotals(initialMovies!, mounted);
+            return () => { isMounted = false; };
+        }
+
         const fetchMovies = async (retryCount = 0) => {
             if (!isMounted) return;
             try {
@@ -36,38 +73,11 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
                     const items: Movie[] = response.data.data.items;
 
                     const filtered = filterDuplicateMovies(items);
-                    setMovies(filtered.slice(0, 30));
+                    const topItems = filtered.slice(0, 30);
+                    setMovies(topItems);
                     setIsLoading(false);
 
-                    // Làm giàu dữ liệu một cách bất đồng bộ để không chặn render ảnh
-                    const topItems = filtered.slice(0, 30);
-                    const enriched = [...topItems];
-                    const chunkSize = 5;
-
-                    for (let i = 0; i < topItems.length; i += chunkSize) {
-                        const chunk = topItems.slice(i, i + chunkSize);
-                        await Promise.all(
-                            chunk.map(async (movie: Movie, chunkIdx: number) => {
-                                const isMultiEpisode = ["series", "hoathinh", "tvshows"].includes(movie.type || "");
-                                if (isMultiEpisode && !movie.episode_current?.includes("/")) {
-                                    try {
-                                        const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}`);
-                                        if (detailRes.data?.movie?.episode_total) {
-                                            const globalIdx = i + chunkIdx;
-                                            enriched[globalIdx] = { ...enriched[globalIdx], episode_total: detailRes.data.movie.episode_total };
-                                        }
-                                    } catch (e) {
-                                        console.error(`Lỗi tải detail cho ${movie.slug}:`, e);
-                                    }
-                                }
-                            })
-                        );
-                        // Cập nhật state sau mỗi chunk để UI mượt mà
-                        setMovies([...enriched]);
-                        if (i + chunkSize < topItems.length) {
-                            await new Promise(resolve => setTimeout(resolve, 100));
-                        }
-                    }
+                    await enrichEpisodeTotals(topItems, mounted);
                     return;
                 }
             } catch (error: any) {
@@ -87,7 +97,7 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
         };
         fetchMovies();
         return () => { isMounted = false; };
-    }, [apiUrl, navId]);
+    }, [apiUrl, navId, seeded]);
 
     if (isLoading) {
         return (
@@ -160,7 +170,7 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
                         return (
                             <SwiperSlide key={movie._id}>
                                 <div className="sw-item group/item cursor-pointer mt-4">
-                                    <Link
+                                    <TransitionLink
                                         href={`/phim/${movie.slug}`}
                                         className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/5 transition-[transform,box-shadow] duration-500 ease-out group-hover/item:shadow-[0_15px_35px_rgba(0,0,0,0.6)]"
                                         style={{
@@ -175,7 +185,8 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
                                                     src={posterImg}
                                                     alt={movie.name}
                                                     fill
-                                                    loading="eager"
+                                                    priority={index < 8}
+                                                    loading={index < 8 ? "eager" : "lazy"}
                                                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 200px"
                                                     className="object-cover transform-gpu"
                                                 />
@@ -200,7 +211,7 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink }: TopMovieRowP
                                                 {getEpisodeStatus(movie)}
                                             </div>
                                         </div>
-                                    </Link>
+                                    </TransitionLink>
 
                                     {/* Movie Info */}
                                     <div className="flex gap-2 items-start pr-2">

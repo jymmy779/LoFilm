@@ -3,7 +3,7 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
     experimental: {
         scrollRestoration: true,
-        optimizePackageImports: ["swiper"],
+        optimizePackageImports: ["swiper", "lucide-react", "framer-motion"],
     },
     images: {
         unoptimized: true,

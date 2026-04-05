@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { ChevronRight } from "lucide-react";
 import { getImageUrl } from "@/app/utils/movieUtils";
 
@@ -41,9 +41,9 @@ const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
 
       <div className="flex-1 min-w-0">
         <h1 className="text-lg md:text-xl font-bold text-white mb-1 font-montserrat tracking-tight leading-tight">
-          <Link href={`/phim/${slug}`} className="hover:text-amber-400 transition-colors">
+          <TransitionLink href={`/phim/${slug}`} className="hover:text-amber-400 transition-colors">
             {movie.name}
-          </Link>
+          </TransitionLink>
         </h1>
         <div className="text-[12px] text-white/40 mb-3 font-medium italic leading-none">{movie.origin_name}</div>
 
@@ -61,13 +61,13 @@ const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
         <div className="text-[13.5px] text-white/40 leading-relaxed line-clamp-4 font-light">
           <div dangerouslySetInnerHTML={{ __html: movie.content }} />
         </div>
-        <Link
+        <TransitionLink
           href={`/phim/${slug}`}
           className="inline-flex items-center gap-1 mt-8 text-amber-400 hover:text-amber-300 text-[13px] transition-colors group"
         >
           Thông tin phim
           <ChevronRight size={10} className="group-hover:translate-x-0.5 transition-transform" />
-        </Link>
+        </TransitionLink>
       </div>
     </div>
   );

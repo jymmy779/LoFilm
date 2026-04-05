@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import HomeClient from "./HomeClient";
 import SearchClient from "./SearchClient";
+import { prefetchHomePageData } from "./lib/prefetch-home";
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<any> }): Promise<Metadata> {
     const params = await searchParams;
@@ -27,9 +28,10 @@ export default async function Home({
   const resolvedParams = await searchParams;
   const isSearch = !!resolvedParams.search;
 
-  return (
-    <>
-      {isSearch ? <SearchClient /> : <HomeClient />}
-    </>
-  );
+  if (isSearch) {
+    return <SearchClient />;
+  }
+
+  const homePrefetch = await prefetchHomePageData();
+  return <HomeClient prefetched={homePrefetch} />;
 }

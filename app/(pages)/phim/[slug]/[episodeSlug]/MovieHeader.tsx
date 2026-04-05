@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { ChevronLeft } from "lucide-react";
 import { motion } from "framer-motion";
 import Container from "@/app/components/Container";
@@ -24,12 +24,12 @@ const MovieHeader = ({ slug, movieName, episodeName }: MovieHeaderProps) => {
     >
       <Container>
         <div className="flex items-center gap-3">
-          <Link
+          <TransitionLink
             href={`/phim/${slug}`}
             className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 transition-all duration-300"
           >
             <ChevronLeft size={16} />
-          </Link>
+          </TransitionLink>
           <h2 className="text-base md:text-lg font-semibold text-white/90 font-montserrat tracking-wide">
             Xem phim {movieName} - {episodeName}
           </h2>
