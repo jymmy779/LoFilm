@@ -8,7 +8,7 @@ import Link from "next/link";
 import Container from "@/app/components/Container";
 import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
 import { Movie, EpisodeServer } from "@/app/types/movie";
-import { getImageUrl, getEpisodeStatus } from "@/app/utils/movieUtils";
+import { getImageUrl, getEpisodeStatus, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
 import { decodeHtml } from "@/app/utils/textUtils";
 
 interface MovieDetailClientProps {
@@ -291,7 +291,7 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                             {/* DM Bar: Watch Now & Rating */}
                             <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
                                 <Link
-                                    href={`/phim/${movie.slug}/${firstServerEpisodes[0]?.slug || 'tap-1'}`}
+                                    href={`/phim/${movie.slug}/${getFriendlyEpisodeSlug(firstServerEpisodes[0]?.slug || 'tap-1')}`}
                                     className="group flex items-center gap-3 bg-gradient-to-r from-[#f5a623] to-[#ffcc33] hover:from-[#ffcc33] hover:to-[#f5a623] text-[#0a1628] py-2 px-6 md:py-4 md:px-8 rounded-full font-bold transition-all transform cursor-pointer shadow-[0_0_20px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.6)]"
                                 >
                                     <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
@@ -390,7 +390,7 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                                                 {displayedEpisodes.map((ep, idx) => (
                                                                     <Link
                                                                         key={idx}
-                                                                        href={`/phim/${movie.slug}/${ep.slug}`}
+                                                                        href={`/phim/${movie.slug}/${getFriendlyEpisodeSlug(ep.slug)}`}
                                                                         className="px-1 py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
                                                                     >
                                                                         {parseEpNumber(ep.name)}

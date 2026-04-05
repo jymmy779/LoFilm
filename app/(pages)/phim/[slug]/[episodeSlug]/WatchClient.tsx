@@ -13,7 +13,7 @@ import EpisodeList from "./EpisodeList";
 import Sidebar from "./Sidebar";
 import MovieHeader from "./MovieHeader";
 import MovieInfo from "./MovieInfo";
-import { getImageUrl } from "@/app/utils/movieUtils";
+import { getImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
 
 interface WatchClientProps {
     slug: string;
@@ -62,7 +62,6 @@ export default function WatchClient({
     const [showNextButton, setShowNextButton] = useState(false);
     const [activeServerIndex, setActiveServerIndex] = useState(0);
     const [hasError, setHasError] = useState(false);
-    const [isEnded, setIsEnded] = useState(false);
 
     const videoRef = useRef<HTMLVideoElement>(null);
     const hlsRef = useRef<Hls | null>(null);
@@ -72,7 +71,7 @@ export default function WatchClient({
     const nextEpisode = useMemo(() => {
         if (!episodes || episodes.length === 0) return null;
         const server = episodes[activeServerIndex] || episodes[0];
-        const currentIndex = server.server_data.findIndex(ep => ep.slug === episodeSlug);
+        const currentIndex = server.server_data.findIndex(ep => getFriendlyEpisodeSlug(ep.slug) === episodeSlug);
         if (currentIndex !== -1 && currentIndex < server.server_data.length - 1) {
             return server.server_data[currentIndex + 1];
         }
@@ -83,7 +82,6 @@ export default function WatchClient({
     useEffect(() => {
         setHasError(false);
         setShowNextButton(false);
-        setIsEnded(false);
     }, [activeServerIndex, episodeSlug]);
 
     // Tìm link video dựa trên server đang chọn và episodeSlug
@@ -91,13 +89,13 @@ export default function WatchClient({
         if (!episodes || episodes.length === 0) return episode.link_m3u8;
 
         const server = episodes[activeServerIndex] || episodes[0];
-        const found = server.server_data.find((ep) => ep.slug === episodeSlug);
+        const found = server.server_data.find((ep) => getFriendlyEpisodeSlug(ep.slug) === episodeSlug);
 
         if (found) return found.link_m3u8;
 
         // Fallback: Tìm ở bất kỳ server nào nếu server hiện tại không có
         for (const s of episodes) {
-            const f = s.server_data.find((ep) => ep.slug === episodeSlug);
+            const f = s.server_data.find((ep) => getFriendlyEpisodeSlug(ep.slug) === episodeSlug);
             if (f) return f.link_m3u8;
         }
 
@@ -194,19 +192,16 @@ export default function WatchClient({
             });
 
             player.on('play', () => {
-                setIsEnded(false);
             });
 
             player.on('seeking', () => {
-                setIsEnded(false);
             });
 
             player.on('ended', () => {
                 const currentAutoNext = localStorage.getItem('lofilm-auto-next') !== 'false';
                 if (currentAutoNext && nextEpisode) {
-                    window.location.href = `/phim/${slug}/${nextEpisode.slug}`;
+                    window.location.href = `/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`;
                 } else {
-                    setIsEnded(true);
                     setShowNextButton(false);
                 }
             });
@@ -298,7 +293,6 @@ export default function WatchClient({
                     className={`
                         aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden shadow-2xl transition-all duration-500 z-10
                         ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'}
-                        ${isEnded ? 'plyr--ended' : ''}
                         [--plyr-color-main:#f59e0b]
                     `}
                 >
@@ -309,40 +303,6 @@ export default function WatchClient({
                         poster={getImageUrl(movie.thumb_url)}
                     />
 
-                    {/* Overlay Phát lại khi phim kết thúc và không tự chuyển tập */}
-                    <AnimatePresence>
-                        {isEnded && (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                onClick={() => {
-                                    if (plyrRef.current) {
-                                        plyrRef.current.restart();
-                                        plyrRef.current.play();
-                                        setIsEnded(false);
-                                    }
-                                }}
-                                className="absolute inset-0 bottom-20 z-40 flex items-center justify-center bg-black/80 cursor-pointer group"
-                            >
-                                <div className="flex flex-col items-center gap-4">
-                                    <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center group-hover:scale-110 group-hover:bg-amber-500 transition-all duration-300">
-                                        <RefreshCcw size={32} className="text-white group-hover:text-[#0a1628]" />
-                                    </div>
-                                    <span className="text-white font-bold text-sm uppercase tracking-[0.2em] group-hover:text-amber-500 transition-colors">Phát lại</span>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
-
-                    {/* Ẩn nút Play mặc định khi hiện overlay Kết thúc phim */}
-                    <style jsx global>{`
-                        .plyr--ended .plyr__control--overlaid,
-                        .plyr--ended .plyr__controls [data-plyr="play"],
-                        .plyr--ended .plyr__controls [data-plyr="pause"] {
-                            display: none !important;
-                        }
-                    `}</style>
 
                     {/* Nút Tập Tiếp Theo Overlay */}
                     <AnimatePresence>
@@ -351,11 +311,11 @@ export default function WatchClient({
                                 initial={{ opacity: 0, y: 10 }}
                                 animate={{ opacity: 1, y: 0 }}
                                 exit={{ opacity: 0 }}
-                                className="absolute bottom-28 right-6 z-40"
+                                className="absolute bottom-12 md:bottom-16 lg:bottom-24 right-4 md:right-6 z-40"
                             >
                                 <Link
-                                    href={`/phim/${slug}/${nextEpisode.slug}`}
-                                    className="flex items-center gap-2 bg-black/80 border border-white/20 py-2 px-5 rounded-md hover:bg-amber-500 hover:text-[#0a1628] hover:border-amber-500 transition-all duration-300 text-white font-bold text-xs uppercase tracking-wider"
+                                    href={`/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`}
+                                    className="flex items-center gap-1.5 md:gap-2 bg-black/80 border border-white/20 py-1.5 px-3 md:py-2 md:px-5 lg:py-2.5 lg:px-6 rounded-md hover:bg-amber-500 hover:text-[#0a1628] hover:border-amber-500 transition-all duration-300 text-white font-bold text-[10px] md:text-xs uppercase tracking-wider shadow-2xl"
                                 >
                                     Tập tiếp theo
                                     <ChevronRight size={16} />

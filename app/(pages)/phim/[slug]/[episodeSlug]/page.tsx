@@ -120,6 +120,7 @@ export default async function WatchPage({ params }: Props) {
                 const found = server.server_data.find((ep: any) => 
                     ep.slug === episodeSlug || 
                     ep.slug === `tap-${episodeSlug}` ||
+                    (episodeSlug === "tap-full" && ep.slug === "full") ||
                     ep.name.toLowerCase() === `tập ${episodeSlug}` ||
                     ep.name.toLowerCase() === `tập ${episodeSlug.padStart(2, '0')}`
                 );

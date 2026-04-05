@@ -4,6 +4,7 @@ import React, { useState, useMemo } from "react";
 import Link from "next/link";
 import { ChevronUp, ChevronDown, Server } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
 
 interface EpisodeListProps {
   slug: string;
@@ -158,12 +159,12 @@ const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServe
                 style={{ willChange: "opacity, transform" }}
               >
                 {displayedEpisodes.map((ep, i) => {
-                  const isActive = ep.slug === currentEpisode;
+                  const isActive = getFriendlyEpisodeSlug(ep.slug) === currentEpisode;
 
                   return (
                     <Link
                       key={i}
-                      href={`/phim/${slug}/${ep.slug}`}
+                      href={`/phim/${slug}/${getFriendlyEpisodeSlug(ep.slug)}`}
                       className={`
                         py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border
                         ${isActive

@@ -46,3 +46,12 @@ export function getImageUrl(url: string | undefined): string {
     const fullUrl = url.startsWith("http") ? url : `https://phimimg.com/${url}`;
     return `https://phimapi.com/image.php?url=${encodeURIComponent(fullUrl)}`;
 }
+
+/**
+ * Get friendly episode slug for display and routing
+ * Specifically handles 'full' -> 'tap-full' for single movies
+ */
+export function getFriendlyEpisodeSlug(slug: string): string {
+    if (slug === "full") return "tap-full";
+    return slug;
+}
