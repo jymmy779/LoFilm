@@ -7,6 +7,7 @@ import PageTransitionOverlay from "./components/Transition/PageTransitionOverlay
 import "./globals.css";
 import "react-loading-skeleton/dist/skeleton.css";
 import { SkeletonTheme } from "react-loading-skeleton";
+import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
   title: "LoFilm - Xem Phim Online Chất Lượng Cao",
@@ -50,6 +51,18 @@ export default function RootLayout({
             <Footer />
           </SkeletonTheme>
         </PageTransitionProvider>
+        <Toaster 
+          position="top-center" 
+          reverseOrder={false}
+          toastOptions={{
+            style: {
+              background: '#14233e',
+              color: '#fff',
+              border: '1px solid rgba(255, 255, 254, 0.1)',
+              borderRadius: '16px',
+            },
+          }}
+        />
       </body>
     </html>
   );

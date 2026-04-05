@@ -13,6 +13,7 @@ import EpisodeList from "./EpisodeList";
 import Sidebar from "./Sidebar";
 import MovieHeader from "./MovieHeader";
 import MovieInfo from "./MovieInfo";
+import ReportModal from "@/app/components/Common/ReportModal";
 import { getImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
 
 interface WatchClientProps {
@@ -62,6 +63,7 @@ export default function WatchClient({
     const [showNextButton, setShowNextButton] = useState(false);
     const [activeServerIndex, setActiveServerIndex] = useState(0);
     const [hasError, setHasError] = useState(false);
+    const [showReportModal, setShowReportModal] = useState(false);
 
     const videoRef = useRef<HTMLVideoElement>(null);
     const hlsRef = useRef<Hls | null>(null);
@@ -376,6 +378,7 @@ export default function WatchClient({
                         episodes={episodes}
                         activeServer={activeServerIndex}
                         onServerChange={setActiveServerIndex}
+                        onReport={() => setShowReportModal(true)}
                     />
                 </div>
             </div>
@@ -418,6 +421,13 @@ export default function WatchClient({
                     </motion.div>
                 )}
             </AnimatePresence>
+            
+            <ReportModal 
+                isOpen={showReportModal} 
+                onClose={() => setShowReportModal(false)}
+                movieName={movie.name}
+                episodeName={episode.name}
+            />
         </div>
     );
 }

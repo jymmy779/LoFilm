@@ -23,6 +23,7 @@ interface PlayerControlsProps {
   }>;
   activeServer: number;
   onServerChange: (index: number) => void;
+  onReport?: () => void;
 }
 
 const PlayerControls = ({
@@ -34,7 +35,8 @@ const PlayerControls = ({
   onToggleAutoNext,
   episodes,
   activeServer,
-  onServerChange
+  onServerChange,
+  onReport
 }: PlayerControlsProps) => {
   const [showServers, setShowServers] = useState(false);
 
@@ -142,7 +144,10 @@ const PlayerControls = ({
 
         {/* Báo lỗi (Float Right on MD+) */}
         <div className="flex-grow" />
-        <button className="flex items-center cursor-pointer gap-2 text-white/60 hover:text-red-400 transition-colors group">
+        <button 
+          onClick={onReport}
+          className="flex items-center cursor-pointer gap-2 text-white/60 hover:text-red-400 transition-colors group"
+        >
           <Flag size={14} />
           <span className="md:text-sm text-xs font-medium">Báo lỗi</span>
         </button>
