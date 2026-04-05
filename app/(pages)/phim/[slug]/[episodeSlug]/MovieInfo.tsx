@@ -62,8 +62,6 @@ const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
 
           <MovieInteractions
             movieSlug={slug}
-            movieName={movie.name}
-            moviePoster={movie.poster_url}
           />
         </div>
       </div>
