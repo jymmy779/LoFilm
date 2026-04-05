@@ -8,8 +8,9 @@ import {
   Play, Trash2, Calendar, Mail, CheckCircle2
 } from 'lucide-react';
 import { createClient } from "@/app/utils/supabase/client";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
+import { Suspense } from 'react';
 
 type TabType = 'overview' | 'history' | 'favorites' | 'settings';
 
@@ -21,7 +22,15 @@ export default function ProfileContent() {
   const [newName, setNewName] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
   const router = useRouter();
+  const searchParams = useSearchParams();
   const supabase = createClient();
+
+  useEffect(() => {
+    const tabParam = searchParams.get('tab');
+    if (tabParam && ['overview', 'history', 'favorites', 'settings'].includes(tabParam)) {
+      setActiveTab(tabParam as TabType);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -42,6 +51,55 @@ export default function ProfileContent() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false);
+
+  const handleUpdateAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    if (file.size > 2 * 1024 * 1024) {
+      toast.error("Ảnh quá lớn! Vui lòng chọn ảnh dưới 2MB.");
+      return;
+    }
+
+    setIsUpdatingAvatar(true);
+    const fileExt = file.name.split('.').pop();
+    const fileName = `${user.id}-${Math.random()}.${fileExt}`;
+
+    try {
+      // 1. Upload to Storage
+      const { error: uploadError } = await supabase.storage
+        .from('avatars')
+        .upload(fileName, file);
+
+      if (uploadError) {
+        if (uploadError.message.includes("not found")) {
+            throw new Error("Bucket 'avatars' chưa được tạo trong Supabase Storage.");
+        }
+        throw uploadError;
+      }
+
+      // 2. Get Public URL
+      const { data: { publicUrl } } = supabase.storage
+        .from('avatars')
+        .getPublicUrl(fileName);
+
+      // 3. Update Auth Metadata
+      const { error: updateError } = await supabase.auth.updateUser({
+        data: { avatar_url: publicUrl }
+      });
+
+      if (updateError) throw updateError;
+
+      toast.success("Đã cập nhật ảnh đại diện!");
+      setUser({ ...user, user_metadata: { ...user.user_metadata, avatar_url: publicUrl } });
+      router.refresh();
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setIsUpdatingAvatar(false);
+    }
+  };
 
   const handleUpdateName = async () => {
     if (!newName.trim()) return;
@@ -140,12 +198,32 @@ export default function ProfileContent() {
             {/* User Profile Summary */}
             <div className="text-center mb-6 md:mb-8 relative">
               <div className="relative inline-block group/avatar">
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black text-3xl md:text-4xl font-bold shadow-xl shadow-amber-400/20 border-4 border-[#0f1115] relative z-10">
-                  {userAvatar}
+                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black text-3xl md:text-4xl font-bold shadow-xl shadow-amber-400/20 border-4 border-[#0f1115] relative z-10 overflow-hidden">
+                  {isUpdatingAvatar ? (
+                    <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-[#0f1115]/80 rounded-full z-[15]">
+                        <div className="w-8 h-8 border-2 border-amber-400/20 border-t-amber-400 rounded-full animate-spin" />
+                    </div>
+                  ) : user?.user_metadata?.avatar_url ? (
+                    <img 
+                      src={user.user_metadata.avatar_url} 
+                      alt={displayName} 
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    userAvatar
+                  )}
                 </div>
-                <button className="absolute bottom-0 right-0 p-2 bg-white text-black rounded-full shadow-lg border-2 border-[#0f1115] z-20 opacity-0 group-hover/avatar:opacity-100 translate-y-2 group-hover/avatar:translate-y-0 transition-all cursor-pointer">
+                
+                <label className="absolute bottom-0 right-0 p-2 bg-white text-black rounded-full shadow-lg border-2 border-[#0f1115] z-20 opacity-0 group-hover/avatar:opacity-100 translate-y-2 group-hover/avatar:translate-y-0 transition-all cursor-pointer hover:bg-amber-400">
                   <Camera size={14} />
-                </button>
+                  <input 
+                    type="file" 
+                    className="hidden" 
+                    accept="image/*"
+                    onChange={handleUpdateAvatar}
+                    disabled={isUpdatingAvatar}
+                  />
+                </label>
               </div>
               <h2 className="text-lg md:text-xl font-bold text-white mt-3 md:mt-4 truncate px-2">{displayName}</h2>
               <p className="text-white/40 text-[10px] md:text-xs mt-0.5 md:mt-1 truncate px-2 uppercase tracking-widest">{user?.email}</p>

@@ -68,7 +68,15 @@ export default function MemberButton() {
                 className="flex items-center cursor-pointer gap-2 pr-1 pl-1 py-1 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 group"
             >
                 <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold text-sm shadow-lg group-hover:scale-105 transition-transform overflow-hidden border border-white/20">
-                    {displayName.charAt(0).toUpperCase()}
+                    {user?.user_metadata?.avatar_url ? (
+                        <img 
+                            src={user.user_metadata.avatar_url} 
+                            alt={displayName} 
+                            className="w-full h-full object-cover"
+                        />
+                    ) : (
+                        displayName.charAt(0).toUpperCase()
+                    )}
                 </div>
                 <span className="hidden md:block text-xs font-semibold text-white/80 max-w-[100px] truncate pr-2">
                     {displayName}
@@ -98,7 +106,7 @@ export default function MemberButton() {
                         </TransitionLink>
                         
                         <TransitionLink 
-                            href="/trang-ca-nhan"
+                            href="/trang-ca-nhan?tab=settings"
                             onClick={() => setShowMenu(false)}
                             className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer"
                         >
