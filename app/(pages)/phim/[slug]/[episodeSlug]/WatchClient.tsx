@@ -4,10 +4,8 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { ChevronRight, AlertTriangle, RefreshCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import Hls from "hls.js";
-import Plyr from "plyr";
-import "plyr/dist/plyr.css";
 import Container from "@/app/components/Container";
+import PremiumVideoPlayer from "@/app/components/VideoPlayer/PremiumVideoPlayer";
 import PlayerControls from "./PlayerControls";
 import EpisodeList from "./EpisodeList";
 import Sidebar from "./Sidebar";
@@ -63,7 +61,6 @@ export default function WatchClient({
     const [isExpanded, setIsExpanded] = useState(false);
     const [isTheaterMode, setIsTheaterMode] = useState(false);
     const [isAutoNext, setIsAutoNext] = useState(true);
-    const [showNextButton, setShowNextButton] = useState(false);
     const [activeServerIndex, setActiveServerIndex] = useState(0);
     const [hasError, setHasError] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
@@ -76,24 +73,11 @@ export default function WatchClient({
     const supabase = createClient();
 
     const videoRef = useRef<HTMLVideoElement>(null);
-    const hlsRef = useRef<Hls | null>(null);
-    const plyrRef = useRef<Plyr | null>(null);
 
     // Tìm tập tiếp theo
-    const nextEpisode = useMemo(() => {
-        if (!episodes || episodes.length === 0) return null;
-        const server = episodes[activeServerIndex] || episodes[0];
-        const currentIndex = server.server_data.findIndex(ep => getFriendlyEpisodeSlug(ep.slug) === episodeSlug);
-        if (currentIndex !== -1 && currentIndex < server.server_data.length - 1) {
-            return server.server_data[currentIndex + 1];
-        }
-        return null;
-    }, [episodes, activeServerIndex, episodeSlug]);
-
     // Reset lỗi và UI khi đổi server hoặc tập phim
     useEffect(() => {
         setHasError(false);
-        setShowNextButton(false);
     }, [activeServerIndex, episodeSlug]);
 
     // Tìm link video dựa trên server đang chọn và episodeSlug
@@ -121,21 +105,6 @@ export default function WatchClient({
         };
         fetchUser();
     }, [supabase]);
-
-    // Hàm cập nhật chất lượng (Resolution)
-    const updateQuality = (newQuality: number) => {
-        if (!hlsRef.current) return;
-        if (newQuality === 0) {
-            hlsRef.current.currentLevel = -1; // Auto
-        } else {
-            // @ts-ignore
-            hlsRef.current.levels.forEach((level, levelIndex) => {
-                if (level.height === newQuality) {
-                    hlsRef.current!.currentLevel = levelIndex;
-                }
-            });
-        }
-    };
 
     useEffect(() => {
         const savedAutoNext = localStorage.getItem('lofilm-auto-next');
@@ -225,189 +194,29 @@ export default function WatchClient({
         if (error) console.error("Lỗi khi lưu lịch sử xem:", error.message);
     };
 
+    // Trạng thái đã resumed (tránh nhảy thời gian liên tục)
+    const [startFrom, setStartFrom] = useState(0);
+
+    // Lấy lịch sử xem khi khởi tạo
     useEffect(() => {
-        let isMounted = true;
-        const video = videoRef.current;
-        if (!video) return;
+        const fetchHistory = async () => {
+             const { data: { user: currentUser } } = await supabase.auth.getUser();
+             if (currentUser) {
+                 const { data: history } = await supabase
+                     .from('watch_history')
+                     .select('watched_seconds')
+                     .eq('user_id', currentUser.id)
+                     .eq('movie_slug', slug)
+                     .eq('episode_slug', episodeSlug)
+                     .maybeSingle();
 
-        // Cấu hình Plyr cơ bản
-        const defaultOptions: Plyr.Options = {
-            captions: { active: true, update: true, language: 'vi' },
-            controls: [
-                'play-large',
-                'progress',
-                'play',
-                'rewind',
-                'fast-forward',
-                'current-time',
-                'duration',
-                'mute',
-                'volume',
-                'captions',
-                'pip',
-                'airplay',
-                'fullscreen'
-            ],
-            i18n: {
-                restart: '',
-                rewind: '',
-                play: '',
-                pause: '',
-                forward: '',
-                fastForward: '',
-                mute: '',
-                unmute: '',
-                settings: '',
-                enterFullscreen: '',
-                exitFullscreen: '',
-            },
-            displayDuration: true,
-            fullscreen: { enabled: true, fallback: true, iosNative: true },
-            storage: { enabled: false }, // Vô hiệu hóa storage mặc định của Plyr để dùng database của LoFilm
-            tooltips: { controls: false, seek: true },
-            seekTime: 10
+                 if (history && history.watched_seconds > 10) {
+                     setStartFrom(history.watched_seconds);
+                 }
+             }
         };
-
-        // Đợi 1 nhịp cực ngắn để DOM ổn định
-        const initTimeout = setTimeout(async () => {
-            if (!isMounted || !videoRef.current) return;
-
-            let startFrom = 0;
-            // Lấy thông tin user và lịch sử xem đồng thời
-            const { data: { user: currentUser } } = await supabase.auth.getUser();
-            if (isMounted) setUser(currentUser);
-
-            if (currentUser && !hasResumed) {
-                const { data: history } = await supabase
-                    .from('watch_history')
-                    .select('watched_seconds')
-                    .eq('user_id', currentUser.id)
-                    .eq('movie_slug', slug)
-                    .eq('episode_slug', episodeSlug)
-                    .single();
-
-                if (history && history.watched_seconds > 10) {
-                    startFrom = history.watched_seconds;
-                }
-            }
-
-            const player = new Plyr(videoRef.current, defaultOptions);
-            plyrRef.current = player;
-
-            if (startFrom > 0 && !hasResumed) {
-                const doResume = () => {
-                    if (player && player.currentTime < startFrom - 5) {
-                        player.currentTime = startFrom;
-                        toast.success(`Đã khôi phục vị trí xem cũ: ${Math.floor(startFrom / 60)} phút`, {
-                            icon: '🕒',
-                            duration: 2500
-                        });
-                    }
-                };
-
-                player.once('ready', doResume);
-                setHasResumed(true);
-            }
-
-            // Lắng nghe sự kiện kết thúc và thời gian để hiện nút chuyển tập
-            player.on('timeupdate', () => {
-                const currentTime = player.currentTime;
-                const duration = player.duration;
-
-                // Lưu lịch sử xem
-                saveProgress(currentTime, duration);
-
-                const remaining = duration - currentTime;
-                // Hiện nút khi còn 60s (1 phút) hoặc phim đã gần hết
-                if (remaining <= 60 && player.duration > 0 && nextEpisode) {
-                    setShowNextButton(true);
-                } else if (remaining > 60) {
-                    setShowNextButton(false);
-                }
-            });
-
-            player.on('play', () => {
-            });
-
-            player.on('seeking', () => {
-            });
-
-            player.on('ended', () => {
-                const currentAutoNext = localStorage.getItem('lofilm-auto-next') !== 'false';
-                if (currentAutoNext && nextEpisode) {
-                    window.location.href = `/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`;
-                } else {
-                    setShowNextButton(false);
-                }
-            });
-
-            if (Hls.isSupported() && videoSrc.endsWith('.m3u8')) {
-                const hls = new Hls({
-                    capLevelToPlayerSize: true,
-                    autoStartLoad: true,
-                    startLevel: -1,
-                    startPosition: startFrom > 0 ? startFrom : -1, // NHẢY NGAY LẬP TỨC TỪ ĐẦU
-                });
-                hls.loadSource(videoSrc);
-                hls.attachMedia(videoRef.current);
-                hlsRef.current = hls;
-
-                hls.on(Hls.Events.ERROR, (event, data) => {
-                    if (data.fatal) {
-                        setHasError(true);
-                        switch (data.type) {
-                            case Hls.ErrorTypes.NETWORK_ERROR: hls.startLoad(); break;
-                            case Hls.ErrorTypes.MEDIA_ERROR: hls.recoverMediaError(); break;
-                            default: hls.destroy(); break;
-                        }
-                    }
-                });
-            } else {
-                videoRef.current.src = videoSrc;
-            }
-        }, 100);
-
-        return () => {
-            isMounted = false;
-            clearTimeout(initTimeout);
-            if (plyrRef.current) {
-                try { plyrRef.current.destroy(); } catch (e) { }
-            }
-            if (hlsRef.current) {
-                try { hlsRef.current.destroy(); } catch (e) { }
-            }
-        };
-    }, [videoSrc, nextEpisode, slug]);
-
-    // Xử lý phím tắt Space (Play/Pause) toàn cục
-    useEffect(() => {
-        const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.code === 'Space' || e.keyCode === 32) {
-                const target = e.target as HTMLElement;
-                if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) {
-                    return;
-                }
-
-                if (plyrRef.current) {
-                    e.preventDefault();
-                    plyrRef.current.togglePlay();
-                }
-            }
-        };
-
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
-    }, []);
-
-    // Đồng bộ class theater-mode cho body
-    useEffect(() => {
-        if (isTheaterMode) {
-            document.body.classList.add('theater-mode');
-        } else {
-            document.body.classList.remove('theater-mode');
-        }
-        return () => document.body.classList.remove('theater-mode');
-    }, [isTheaterMode]);
+        fetchHistory();
+    }, [slug, episodeSlug, supabase]);
 
     return (
         <div className={`pt-35 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} bg-[#0a1628] transition-all duration-500`}>
@@ -423,43 +232,31 @@ export default function WatchClient({
             </AnimatePresence>
 
             <div className={`transition-all duration-500 ease-in-out relative ${isExpanded ? 'w-full' : 'max-w-[1900px] mx-auto px-5 lg:px-12'}`}>
-                {/* Plyr Video Section */}
+                {/* Premium Video Player Container */}
                 <div
                     key={videoSrc}
                     className={`
                         aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden shadow-2xl transition-all duration-500 z-10
-                        ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'}
-                        [--plyr-color-main:#f59e0b]
+                        ${isExpanded ? 'rounded-none border-x-0' : 'rounded-3xl'}
                     `}
                 >
-                    <video
-                        ref={videoRef}
-                        className="w-full h-full object-contain"
-                        playsInline
+                    <PremiumVideoPlayer 
+                        src={videoSrc}
                         poster={getImageUrl(movie.thumb_url)}
+                        title={movie.name}
+                        subTitle={episode.name}
+                        autoPlay={true}
+                        startTime={startFrom}
+                        onTimeUpdate={(currentTime: number, duration: number) => {
+                            saveProgress(currentTime, duration);
+                        }}
+                        episodes={episodes[activeServerIndex]?.server_data || episodes[0]?.server_data || []}
+                        currentEpisodeSlug={episodeSlug}
+                        recommendedMovies={suggestedMovies}
+                        onNavigateToEpisode={(newEpSlug) => {
+                            window.location.href = `/phim/${slug}/${getFriendlyEpisodeSlug(newEpSlug)}`;
+                        }}
                     />
-
-
-                    {/* Nút Tập Tiếp Theo Overlay */}
-                    <AnimatePresence>
-                        {showNextButton && nextEpisode && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0 }}
-                                className="absolute bottom-12 md:bottom-16 lg:bottom-24 right-4 md:right-6 z-40"
-                            >
-                                <TransitionLink
-                                    href={`/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`}
-                                    transition={false}
-                                    className="flex items-center gap-1.5 md:gap-2 bg-black/80 border border-white/20 py-1.5 px-3 md:py-2 md:px-5 lg:py-2.5 lg:px-6 rounded-md hover:bg-amber-500 hover:text-[#0a1628] hover:border-amber-500 transition-all duration-300 text-white font-bold text-[10px] md:text-xs uppercase tracking-wider shadow-2xl"
-                                >
-                                    Tập tiếp theo
-                                    <ChevronRight size={16} />
-                                </TransitionLink>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
 
                     {/* Lỗi luồng phát Overlay */}
                     <AnimatePresence>
