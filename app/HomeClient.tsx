@@ -8,6 +8,7 @@ import FeaturedSlider from "./components/FeaturedSlider/FeaturedSlider";
 import MoviePosterRow from "./components/MoviePosterRow/MoviePosterRow";
 import TopMovieRow from "./components/TopMovieRow/TopMovieRow";
 import ContinueWatchingRow from "./components/MovieRow/ContinueWatchingRow";
+import LazyRow from "./components/Common/LazyRow";
 
 export default function HomeClient({ prefetched }: { prefetched: HomePrefetch }) {
     return (
@@ -15,76 +16,107 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <HeroSlider initialMovies={prefetched.hero} />
             <CategoriesSection initialCategories={prefetched.categories} />
             <ContinueWatchingRow initialHistory={prefetched.initialHistory} />
+            
+            {/* Phim Hàn Quốc load ngay vì có thể nằm trong fold đầu */}
             <MovieRow
                 title="Phim Hàn Quốc mới"
                 apiUrl="https://phimapi.com/v1/api/quoc-gia/han-quoc?limit=20"
                 viewAllLink="/quoc-gia/han-quoc"
                 initialMovies={prefetched.movieRowHan}
             />
-            <MovieRow
-                title="Phim Trung Quốc mới"
-                apiUrl="https://phimapi.com/v1/api/quoc-gia/trung-quoc?limit=20"
-                viewAllLink="/quoc-gia/trung-quoc"
-                initialMovies={prefetched.movieRowTrung}
-            />
-            <MovieRow
-                title="Phim Âu Mỹ mới"
-                apiUrl="https://phimapi.com/v1/api/quoc-gia/au-my?limit=20"
-                viewAllLink="/quoc-gia/au-my"
-                initialMovies={prefetched.movieRowAuMy}
-            />
 
-            <FeaturedSlider
-                title="TV Shows Truyền Hình"
-                apiUrl="https://phimapi.com/v1/api/danh-sach/tv-shows?limit=20"
-                viewAllLink="/danh-sach/tv-shows"
-                navId="featured-tv"
-                initialMovies={prefetched.featuredTv}
-            />
+            {/* Các dãy bên dưới dùng LazyRow để giảm TBT (Total Blocking Time) */}
+            <LazyRow estimatedHeight="480px">
+                <MovieRow
+                    title="Phim Trung Quốc mới"
+                    apiUrl="https://phimapi.com/v1/api/quoc-gia/trung-quoc?limit=20"
+                    viewAllLink="/quoc-gia/trung-quoc"
+                    initialMovies={prefetched.movieRowTrung}
+                />
+            </LazyRow>
+            
+            <LazyRow estimatedHeight="480px">
+                <MovieRow
+                    title="Phim Âu Mỹ mới"
+                    apiUrl="https://phimapi.com/v1/api/quoc-gia/au-my?limit=20"
+                    viewAllLink="/quoc-gia/au-my"
+                    initialMovies={prefetched.movieRowAuMy}
+                />
+            </LazyRow>
 
-            <MoviePosterRow
-                title="Phim Chiếu Rạp Mới"
-                apiUrl="https://phimapi.com/v1/api/danh-sach/phim-chieu-rap?limit=20"
-                viewAllLink="/danh-sach/phim-chieu-rap"
-                initialMovies={prefetched.posterChieuRap}
-            />
-            <MoviePosterRow
-                title="Phim Bộ Mới Nhất"
-                apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=20"
-                viewAllLink="/danh-sach/phim-bo"
-                initialMovies={prefetched.posterPhimBo}
-            />
-            <TopMovieRow
-                title="Top 30 Phim Lẻ Hôm Nay"
-                apiUrl="https://phimapi.com/v1/api/danh-sach/phim-le?limit=30"
-                viewAllLink="/danh-sach/phim-le"
-                initialMovies={prefetched.topPhimLe}
-            />
-            <TopMovieRow
-                title="Top 30 Phim Bộ Hôm Nay"
-                apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=30"
-                viewAllLink="/danh-sach/phim-bo"
-                initialMovies={prefetched.topPhimBo}
-            />
-            <FeaturedSlider
-                title="Hoạt Hình Anime Hay"
-                apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=20"
-                viewAllLink="/danh-sach/hoat-hinh"
-                navId="featured-anime"
-                initialMovies={prefetched.featuredAnime}
-            />
-            <MoviePosterRow
-                title="Phim Kinh Dị"
-                apiUrl="https://phimapi.com/v1/api/the-loai/kinh-di?limit=20"
-                viewAllLink="/the-loai/kinh-di"
-                initialMovies={prefetched.posterKinhDi}
-            />
-            <MoviePosterRow
-                title="Phim Hoạt Hình"
-                apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=20"
-                viewAllLink="/danh-sach/hoat-hinh"
-                initialMovies={prefetched.posterHoatHinh}
-            />
+            <LazyRow estimatedHeight="500px">
+                <FeaturedSlider
+                    title="TV Shows Truyền Hình"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/tv-shows?limit=20"
+                    viewAllLink="/danh-sach/tv-shows"
+                    navId="featured-tv"
+                    initialMovies={prefetched.featuredTv}
+                />
+            </LazyRow>
+
+            <LazyRow estimatedHeight="400px">
+                <MoviePosterRow
+                    title="Phim Chiếu Rạp Mới"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/phim-chieu-rap?limit=20"
+                    viewAllLink="/danh-sach/phim-chieu-rap"
+                    initialMovies={prefetched.posterChieuRap}
+                />
+            </LazyRow>
+
+            <LazyRow estimatedHeight="400px">
+                <MoviePosterRow
+                    title="Phim Bộ Mới Nhất"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=20"
+                    viewAllLink="/danh-sach/phim-bo"
+                    initialMovies={prefetched.posterPhimBo}
+                />
+            </LazyRow>
+
+            <LazyRow estimatedHeight="500px">
+                <TopMovieRow
+                    title="Top 30 Phim Lẻ Hôm Nay"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/phim-le?limit=30"
+                    viewAllLink="/danh-sach/phim-le"
+                    initialMovies={prefetched.topPhimLe}
+                />
+            </LazyRow>
+
+            <LazyRow estimatedHeight="500px">
+                <TopMovieRow
+                    title="Top 30 Phim Bộ Hôm Nay"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=30"
+                    viewAllLink="/danh-sach/phim-bo"
+                    initialMovies={prefetched.topPhimBo}
+                />
+            </LazyRow>
+
+            <LazyRow estimatedHeight="500px">
+                <FeaturedSlider
+                    title="Hoạt Hình Anime Hay"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=20"
+                    viewAllLink="/danh-sach/hoat-hinh"
+                    navId="featured-anime"
+                    initialMovies={prefetched.featuredAnime}
+                />
+            </LazyRow>
+
+            <LazyRow estimatedHeight="400px">
+                <MoviePosterRow
+                    title="Phim Kinh Dị"
+                    apiUrl="https://phimapi.com/v1/api/the-loai/kinh-di?limit=20"
+                    viewAllLink="/the-loai/kinh-di"
+                    initialMovies={prefetched.posterKinhDi}
+                />
+            </LazyRow>
+
+            <LazyRow estimatedHeight="400px">
+                <MoviePosterRow
+                    title="Phim Hoạt Hình"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=20"
+                    viewAllLink="/danh-sach/hoat-hinh"
+                    initialMovies={prefetched.posterHoatHinh}
+                />
+            </LazyRow>
         </>
     );
 }

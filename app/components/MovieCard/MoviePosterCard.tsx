@@ -13,7 +13,7 @@ interface MoviePosterCardProps {
 }
 
 export default function MoviePosterCard({ movie, priority = false }: MoviePosterCardProps) {
-    const posterImg = getImageUrl(movie.poster_url);
+    const posterImg = getImageUrl(movie.poster_url, { width: 250, quality: 75 });
 
     return (
         <div className="sw-item group/item cursor-pointer [contain:layout]">

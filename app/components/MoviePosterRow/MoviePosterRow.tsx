@@ -157,7 +157,7 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovi
                     >
                         {movies.map((movie, index) => (
                             <SwiperSlide key={movie._id}>
-                                <MoviePosterCard movie={movie} priority={index < 16} />
+                                <MoviePosterCard movie={movie} priority={false} />
                             </SwiperSlide>
                         ))}
                     </Swiper>

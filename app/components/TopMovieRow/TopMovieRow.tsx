@@ -166,11 +166,11 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                                         <div className="w-full h-full transition-transform duration-500 ease-out group-hover/item:scale-[1.07]">
                                             <div className="w-full h-full relative group-hover/item:animate-[top-movie-shake_0.15s_ease-in-out_3]">
                                                 <Image
-                                                    src={posterImg}
+                                                    src={getImageUrl(movie.poster_url, { width: 250, quality: 75 })}
                                                     alt={movie.name}
                                                     fill
-                                                    priority={index < 16}
-                                                    loading={index < 16 ? "eager" : "lazy"}
+                                                    priority={false}
+                                                    loading="lazy"
                                                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 200px"
                                                     className="object-cover transform-gpu"
                                                 />

@@ -133,9 +133,9 @@ export default function MovieRow({ title, apiUrl, viewAllLink, initialMovies }: 
                         className="swiper-carousel"
                     >
                         {movies.map((movie, index) => {
-                            const imgUrl = getImageUrl(movie.thumb_url);
-                            // Tăng số lượng ảnh load trước để khi vuốt qua là có ngay (eager/priority)
-                            const eager = index < 12;
+                            const imgUrl = getImageUrl(movie.thumb_url, { width: 300, quality: 75 });
+                            // Chỉ load trước 3 ảnh đầu để đảm bảo Speed Index tốt (nhất là mobile chỉ thấy 1.5-2 card)
+                            const eager = index < 3;
 
                             return (
                                 <SwiperSlide key={movie._id} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
