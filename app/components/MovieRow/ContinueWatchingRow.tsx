@@ -137,10 +137,11 @@ export default function ContinueWatchingRow({ initialHistory }: ContinueWatching
                                     >
                                         <div className="relative aspect-video rounded-xl overflow-hidden bg-white/5 mb-3 border border-white/5">
                                             <Image
-                                                src={getImageUrl(item.movie_poster)}
+                                                src={getImageUrl(item.movie_poster, { width: 320, quality: 75 })}
                                                 alt={item.movie_name}
                                                 fill
-                                                priority={isPriority}
+                                                priority={false}
+                                                loading="lazy"
                                                 sizes="(max-width: 768px) 220px, (max-width: 1024px) 260px, 300px"
                                                 className="object-cover transition-transform duration-700 group-hover/item:scale-110"
                                             />

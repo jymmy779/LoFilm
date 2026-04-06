@@ -54,12 +54,25 @@ export function getEpisodeStatus(movie: Movie): string {
 }
 
 /**
- * Build full image URL from potentially relative path and wrap with WebP proxy
+ * Build full image URL from potentially relative path and wrap with high-performance WebP proxy (wsrv.nl)
+ * Supports resizing and optimization.
  */
-export function getImageUrl(url: string | undefined): string {
+export function getImageUrl(url: string | undefined, options?: { width?: number; quality?: number; format?: string }): string {
     if (!url) return "";
+    
+    // 1. Chuẩn hóa URL gốc
     const fullUrl = url.startsWith("http") ? url : `https://phimimg.com/${url}`;
-    return `https://phimapi.com/image.php?url=${encodeURIComponent(fullUrl)}`;
+    
+    // 2. Sử dụng wsrv.nl làm proxy mặc định (nhanh, miễn phí, hỗ trợ xử lý ảnh tốt hơn)
+    const { width, quality = 80, format = "webp" } = options || {};
+    
+    let proxyUrl = `https://wsrv.nl/?url=${encodeURIComponent(fullUrl)}&output=${format}&q=${quality}&af`;
+    
+    if (width) {
+        proxyUrl += `&w=${width}&we`;
+    }
+    
+    return proxyUrl;
 }
 
 /**

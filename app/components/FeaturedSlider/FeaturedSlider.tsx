@@ -136,7 +136,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                 {/* Background Image Area */}
                                 <div className="absolute top-0 right-0 w-full xl:w-[75%] h-full z-0 select-none pointer-events-none">
                                     <Image
-                                        src={getImageUrl(movie.thumb_url)}
+                                        src={getImageUrl(movie.thumb_url, { quality: index === 0 ? 90 : 80 })}
                                         alt={movie.name}
                                         fill
                                         priority={index === 0}
@@ -236,7 +236,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                             <SwiperSlide key={`thumb-${movie._id}`} className="cursor-pointer flex items-center justify-center lg:block">
                                 <div className="thumb-item flex-shrink-0 transition-[width,height,background-color,border-color] duration-300 relative w-2.5 h-2.5 lg:w-full lg:h-auto aspect-square xl:aspect-[2/3] rounded-full xl:rounded-lg overflow-hidden lg:border-2 border-transparent lg:shadow-md bg-white/70 lg:bg-transparent">
                                     <Image
-                                        src={getImageUrl(movie.poster_url || movie.thumb_url)}
+                                        src={getImageUrl(movie.poster_url || movie.thumb_url, { width: 120, quality: 70 })}
                                         alt={movie.name}
                                         fill
                                         sizes="100px"

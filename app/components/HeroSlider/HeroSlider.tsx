@@ -128,7 +128,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                             <>
                                 <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] lg:overflow-hidden [transform:translateZ(0)]">
                                     <MotionImage
-                                        src={getImageUrl(movie.thumb_url)}
+                                        src={getImageUrl(movie.thumb_url, { quality: index === 0 ? 90 : 80 })}
                                         alt={movie.name}
                                         initial={false}
                                         priority={index === 0}
@@ -287,11 +287,11 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                 <SwiperSlide key={movie._id}>
                                     <div className="relative cursor-pointer rounded-full min-[700px]:rounded overflow-hidden aspect-square min-[700px]:aspect-video border-2 border-transparent hover:border-white/40 [.swiper-slide-thumb-active_&]:border-[#f5a623] transition-all duration-300 opacity-60 hover:opacity-90 [.swiper-slide-thumb-active_&]:opacity-100">
                                         <Image
-                                            src={getImageUrl(movie.thumb_url)}
+                                            src={getImageUrl(movie.thumb_url, { width: 120, quality: 70 })}
                                             alt={movie.name}
                                             fill
-                                            priority={index < 5}
-                                            loading={index < 5 ? "eager" : "lazy"}
+                                            priority={index < 3}
+                                            loading={index < 3 ? "eager" : "lazy"}
                                             sizes="100px"
                                             className="object-cover"
                                         />
