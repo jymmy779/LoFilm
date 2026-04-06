@@ -10,19 +10,41 @@ const REVALIDATE_SEC = 3600; // Mặc định Vercel Cache 1 tiếng
  * 3. Nếu thất bại / Lỗi API gốc -> Nhanh chóng kéo dữ liệu dự phòng từ Redis lên để hotswap
  */
 export async function fetchWithRedis(url: string, options?: RequestInit): Promise<any> {
+    // 1. KIỂM TRA REDIS TRƯỚC (Cache-First) - Phản hồi cực nhanh <50ms
+    if (process.env.UPSTASH_REDIS_REST_URL) {
+        try {
+            const cachedData = await redis.get(url);
+            if (cachedData) {
+                // Trình duyệt nhận được data ngay lập tức ở đây
+                // Kích hoạt cập nhật ngầm (Background Revalidation) để cache luôn mới
+                void fetch(url, {
+                    ...options,
+                    next: { revalidate: options?.next?.revalidate ?? REVALIDATE_SEC },
+                }).then(async (res) => {
+                    if (res.ok) {
+                        const newData = await res.json();
+                        redis.set(url, newData, { ex: 604800 }).catch(() => {});
+                    }
+                }).catch(() => {});
+
+                return cachedData;
+            }
+        } catch (e) {
+            console.error("Redis get error:", e);
+        }
+    }
+
+    // 2. NẾU CACHE MISS -> MỚI GỌI API GỐC (Chấp nhận chờ 1.8s lần đầu)
     try {
-        // 1. Thử lấy dữ liệu thật từ API nguồn (Next.js sẽ chèn cache ISR vào đây)
         const response = await fetch(url, {
             ...options,
             next: { revalidate: options?.next?.revalidate ?? REVALIDATE_SEC },
         });
 
         if (response.ok) {
-            // 2. Chuyển thành JSON và lưu vào Hầm Trú Ẩn (Redis)
             const data = await response.json();
             
-            // Lưu lại trong Redis với thời lượng sống 7 ngày
-            // Catch error để không làm sập luồng nếu Redis lỗi/chưa config
+            // Lưu lại trong Redis cho lần sau (7 ngày)
             if (process.env.UPSTASH_REDIS_REST_URL) {
                 redis.set(url, data, { ex: 604800 }).catch((e) => console.error("Redis set error:", e));
             }
@@ -33,21 +55,6 @@ export async function fetchWithRedis(url: string, options?: RequestInit): Promis
         }
     } catch (error) {
         console.error(`[Fetch Error] Gọi API thất bại: ${url}`);
-        
-        // 3. KHẨN CẤP: Lấy data từ Redis thay thế để cứu trang web khỏi văng lỗi
-        if (process.env.UPSTASH_REDIS_REST_URL) {
-            console.log(`[Redis Fallback] Đang kéo data từ Redis hỏa tốc cho: ${url}`);
-            try {
-                const fallbackData = await redis.get(url);
-                if (fallbackData) {
-                    return fallbackData; // CỨU CÁNH THÀNH CÔNG!
-                }
-            } catch (redisError) {
-                console.error("Lỗi khi đọc từ Redis:", redisError);
-            }
-        }
-        
-        // Trả về null nếu không có cách nào cứu được
         return null;
     }
 }
