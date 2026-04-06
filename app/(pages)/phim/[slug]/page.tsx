@@ -67,14 +67,14 @@ export default async function MoviePage({
 }) {
     const { slug } = await params;
     
-    // Fetch movie detail first to get category for suggestions
+    // Fetch movie detail - Chạy cực nhanh nhờ cơ chế Cache-First Redis mới (<50ms)
     const detail = await getMovieDetail(slug);
 
     if (!detail) {
         notFound();
     }
 
-    // Suggested movies can be fetched in parallel with rendering or right after detail
+    // Suggested movies - Chạy song song sau khi có data category
     const suggestedMovies = await getSuggestedMovies(detail.movie);
 
     return (

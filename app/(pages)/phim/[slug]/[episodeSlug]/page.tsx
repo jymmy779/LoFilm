@@ -2,6 +2,7 @@ import WatchClient from "./WatchClient";
 import { Movie } from "@/app/types/movie";
 import { AlertTriangle } from "lucide-react";
 import { Metadata } from "next";
+import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 
 const API_BASE = "https://phimapi.com";
 
@@ -10,12 +11,11 @@ async function getSuggestedMovies(movie: any): Promise<any[]> {
         const firstCategory = movie.category?.[0]?.slug;
         if (!firstCategory) return [];
 
-        const res = await fetch(`${API_BASE}/v1/api/the-loai/${firstCategory}?page=1&limit=10`, {
+        const data = await fetchWithRedis(`${API_BASE}/v1/api/the-loai/${firstCategory}?page=1&limit=10`, {
             next: { revalidate: 3600 },
         });
-        if (!res.ok) return [];
-        const data = await res.json();
-        const items = data.data?.items || [];
+        
+        const items = data?.data?.items || [];
         return items.filter((m: any) => m.slug !== movie.slug).slice(0, 10);
     } catch {
         return [];
@@ -31,15 +31,9 @@ interface Props {
 
 // Reuse fetch logic for metadata
 async function getMovieDetail(slug: string) {
-    try {
-        const res = await fetch(`${API_BASE}/phim/${slug}`, {
-            next: { revalidate: 3600 }
-        });
-        if (!res.ok) return null;
-        return await res.json();
-    } catch {
-        return null;
-    }
+    return await fetchWithRedis(`${API_BASE}/phim/${slug}`, {
+        next: { revalidate: 3600 }
+    });
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
@@ -85,19 +79,9 @@ export default async function WatchPage({ params }: Props) {
 
     let data: any = null;
     try {
-        // Thêm signal timeout 10s để tránh server treo khi API lỗi
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 10000);
-
-        const res = await fetch(`https://phimapi.com/phim/${slug}`, {
-            signal: controller.signal,
+        data = await fetchWithRedis(`${API_BASE}/phim/${slug}`, {
             next: { revalidate: 3600 } // Cache 1 tiếng
         });
-        
-        clearTimeout(timeoutId);
-
-        if (!res.ok) throw new Error("API response not ok");
-        data = await res.json();
     } catch (error) {
         console.error("Fetch movie error:", error);
         return (
