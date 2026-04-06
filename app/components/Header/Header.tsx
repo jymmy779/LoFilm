@@ -61,7 +61,10 @@ export default function Header() {
         { href: "/danh-sach/phim-chieu-rap", label: "Phim chiếu rạp" },
     ];
 
-    const isSolid = pathname !== "/";
+    const segments = pathname.split('/').filter(Boolean);
+    const isMovieDetail = segments.length === 2 && segments[0] === "phim";
+    const isTransparentPage = pathname === "/" || isMovieDetail;
+    const isSolid = !isTransparentPage;
     const showBackground = isSolid || isScrolled || isMenuOpen;
 
     return (
