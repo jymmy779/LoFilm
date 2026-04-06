@@ -26,7 +26,8 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
         country: searchParams.get("country") || (baseApiUrl.includes("quoc-gia") && slug ? slug : "") || "",
         type: searchParams.get("type") || "",
         year: searchParams.get("year") || "",
-        sort: searchParams.get("sort") || "update"
+        sort: searchParams.get("sort") || "update",
+        rating: searchParams.get("rating") || ""
     };
     const initialPage = Number(searchParams.get("page")) || 1;
     const initialFilterOpen = searchParams.get("filter") === "open";
@@ -65,6 +66,7 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
         if (filters.type) params.set("type", filters.type);
         if (filters.year) params.set("year", filters.year);
         if (filters.sort !== "update") params.set("sort", filters.sort);
+        if (filters.rating) params.set("rating", filters.rating);
         if (isOpen) params.set("filter", "open");
 
         router.push(`?${params.toString()}`, { scroll: false });

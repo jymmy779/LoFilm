@@ -10,6 +10,7 @@ export interface FilterState {
     category: string;
     year: string;
     sort: string;
+    rating: string;
 }
 
 interface MovieFilterProps {
@@ -35,7 +36,8 @@ export default function MovieFilter({
         type: "",
         category: "",
         year: "",
-        sort: "update"
+        sort: "update",
+        rating: ""
     });
 
     // Đồng bộ state nội bộ khi initialFilters từ URL thay đổi (ví dụ khi load trang)
@@ -70,7 +72,8 @@ export default function MovieFilter({
             type: "",
             category: "",
             year: "",
-            sort: "update"
+            sort: "update",
+            rating: ""
         };
         setFilters(resetFilters);
         onFilterChange(resetFilters);
