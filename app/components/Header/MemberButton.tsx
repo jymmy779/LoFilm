@@ -6,6 +6,7 @@ import { createClient } from "@/app/utils/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { useRouter } from "next/navigation";
+import LogoutModal from "@/app/components/Modals/LogoutModal";
 
 interface MemberButtonProps {
     flatten?: boolean;
@@ -67,55 +68,7 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
 
     const displayName = user.user_metadata?.full_name || user.email?.split("@")[0];
 
-    // Common Logout Confirmation Modal
-    const renderLogoutModal = () => (
-        <AnimatePresence>
-            {showLogoutModal && (
-                <div className="fixed inset-0 z-[999] flex items-center justify-center px-4">
-                    <motion.div
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        onClick={() => setShowLogoutModal(false)}
-                        className="absolute inset-0 bg-black/85"
-                        style={{ willChange: "opacity" }}
-                    />
-                    <motion.div
-                        initial={{ opacity: 0, scale: 0.98, y: 8 }}
-                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                        exit={{ opacity: 0, scale: 0.98, y: 8 }}
-                        transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="relative w-[90%] max-w-[320px] md:max-w-xs bg-[#111e31] border border-white/10 rounded-2xl p-5 md:p-6 overflow-hidden shadow-2xl"
-                        style={{ willChange: "transform, opacity" }}
-                    >
-                        <div className="flex flex-col items-center text-center">
-                            <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-red-500/10 flex items-center justify-center mb-3 md:mb-4">
-                                <LogOut size={20} className="text-red-500 md:w-6 md:h-6" />
-                            </div>
-                            <h3 className="text-base md:text-lg font-bold text-white mb-1.5 md:mb-2">Đăng xuất?</h3>
-                            <p className="text-[11px] md:text-xs text-white/50 mb-5 md:mb-6 px-2 md:px-4 leading-relaxed">
-                                Bạn có chắc chắn muốn rời khỏi phiên làm việc này không?
-                            </p>
-                            <div className="flex w-full gap-2">
-                                <button
-                                    onClick={() => setShowLogoutModal(false)}
-                                    className="flex-1 px-3 md:px-4 cursor-pointer py-2 md:py-2.5 rounded-xl bg-white/5 border border-white/10 text-[11px] md:text-xs font-semibold text-white/50 hover:text-white hover:bg-white/10 transition-all"
-                                >
-                                    Hủy
-                                </button>
-                                <button
-                                    onClick={handleLogout}
-                                    className="flex-1 cursor-pointer px-3 md:px-4 py-2 md:py-2.5 rounded-xl bg-red-500 text-[11px] md:text-xs font-bold text-white hover:bg-red-600 transition-all active:scale-95"
-                                >
-                                    Đăng xuất
-                                </button>
-                            </div>
-                        </div>
-                    </motion.div>
-                </div>
-            )}
-        </AnimatePresence>
-    );
+    // Using centralized LogoutModal...
 
     if (flatten) {
         return (
@@ -194,7 +147,11 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
                         </button>
                     </motion.div>
                 </motion.div>
-                {renderLogoutModal()}
+            <LogoutModal
+                isOpen={showLogoutModal}
+                onClose={() => setShowLogoutModal(false)}
+                onConfirm={handleLogout}
+            />
             </>
         );
     }
@@ -267,7 +224,11 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
                     </motion.div>
                 )}
             </AnimatePresence>
-            {renderLogoutModal()}
+            <LogoutModal
+                isOpen={showLogoutModal}
+                onClose={() => setShowLogoutModal(false)}
+                onConfirm={handleLogout}
+            />
         </div>
     );
 }

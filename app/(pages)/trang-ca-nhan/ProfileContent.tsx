@@ -14,6 +14,7 @@ import { Suspense } from 'react';
 import { getImageUrl } from "@/app/utils/movieUtils";
 import Image from "next/image";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
+import LogoutModal from "@/app/components/Modals/LogoutModal";
 
 type TabType = 'overview' | 'history' | 'favorites' | 'settings';
 
@@ -94,6 +95,7 @@ export default function ProfileContent() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false);
 
   const handleUpdateAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -296,7 +298,7 @@ export default function ProfileContent() {
             <div className="h-[1px] bg-white/5 mb-3 md:mb-4 hidden lg:block" />
 
             <button
-              onClick={handleLogout}
+              onClick={() => setShowLogoutModal(true)}
               className="w-full flex items-center justify-center lg:justify-start gap-2 md:gap-3 px-4 py-2.5 md:py-3 text-red-400 hover:bg-red-500/10 rounded-xl md:rounded-2xl transition-all cursor-pointer text-xs md:text-sm font-medium"
             >
               <LogOut size={16} className="md:w-[18px] md:h-[18px]" />
@@ -320,7 +322,7 @@ export default function ProfileContent() {
                 <div className="space-y-10">
                   <div className="flex items-center justify-between border-b border-white/5 pb-6">
                     <div>
-                      <h1 className="text-3xl font-bold text-white tracking-tighter uppercase">Trung tâm điều khiển</h1>
+                      <h1 className="text-2xl font-bold text-white tracking-tighter uppercase">Trung tâm điều khiển</h1>
                       <p className="text-white/40 text-sm mt-1">Chào mừng {displayName}, quản lý mọi thứ ngay tại đây.</p>
                     </div>
                     <div className="hidden sm:flex items-center gap-2 bg-green-500/10 border border-green-500/20 px-4 py-2 rounded-full">
@@ -753,6 +755,11 @@ export default function ProfileContent() {
           </div>
         )}
       </AnimatePresence>
+      <LogoutModal
+        isOpen={showLogoutModal}
+        onClose={() => setShowLogoutModal(false)}
+        onConfirm={handleLogout}
+      />
     </div>
   );
 }
