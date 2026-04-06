@@ -107,15 +107,15 @@ export default async function WatchPage({ params }: Props) {
                         </p>
 
                         <div className="flex flex-col gap-4">
-                            <button 
-                                onClick={() => window.location.reload()}
-                                className="w-full py-4 bg-amber-500 text-[#0a1628] font-black rounded-2xl hover:bg-amber-400 hover:scale-[1.02] active:scale-95 transition-all duration-300 shadow-lg shadow-amber-500/10"
+                            <a 
+                                href="" 
+                                className="w-full py-4 bg-amber-500 text-[#0a1628] font-black rounded-2xl hover:bg-amber-400 hover:scale-[1.02] active:scale-95 transition-all duration-300 shadow-lg shadow-amber-500/10 text-center"
                             >
-                                THỬ LẠI NGAY
-                            </button>
+                                THỬ TẢI LẠI TRANG
+                            </a>
                             <a 
                                 href="/" 
-                                className="w-full py-4 bg-white/5 border border-white/10 text-white font-bold rounded-2xl hover:bg-white/10 transition-all duration-300 uppercase tracking-widest text-xs"
+                                className="w-full py-4 bg-white/5 border border-white/10 text-white font-bold rounded-2xl hover:bg-white/10 transition-all duration-300 uppercase tracking-widest text-xs text-center"
                             >
                                 Về trang chủ
                             </a>
@@ -198,7 +198,7 @@ export default async function WatchPage({ params }: Props) {
                 content: movie.content,
                 quality: movie.quality,
                 episode_current: movie.episode_current,
-                actors: movie.actor,
+                actors: movie.actor || [],
             }}
             episode={{
                 name: currentEpisode.name,

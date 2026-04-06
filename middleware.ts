@@ -2,13 +2,11 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
-  // Check maintenance mode
+  // 1. Kiểm tra Maintenance Mode trước (Không cần Auth)
   const isMaintenanceMode = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true';
   const { pathname } = request.nextUrl;
 
   if (isMaintenanceMode) {
-    // If it's maintenance mode, redirect every request to /maintenance 
-    // unless it's already /maintenance or a static asset
     const isStaticAsset = pathname.startsWith('/_next') || 
                           pathname.startsWith('/api') || 
                           pathname.includes('.') ||
@@ -17,14 +15,23 @@ export async function middleware(request: NextRequest) {
     if (pathname !== '/maintenance' && !isStaticAsset) {
       return NextResponse.redirect(new URL('/maintenance', request.url));
     }
-  } else {
-    // Handle the case where maintenance is turned OFF:
-    // If the user manually navigates to /maintenance, send them home
-    if (pathname === '/maintenance') {
-      return NextResponse.redirect(new URL('/', request.url));
-    }
+  } else if (pathname === '/maintenance') {
+    return NextResponse.redirect(new URL('/', request.url));
   }
 
+  // 2. OPTIMIZATION: Nếu là trang PHIM hoặc trang công cộng, cho đi thẳng luôn
+  // Việc này cực kỳ quan trọng để Next.js không gắn header 'private'
+  const isPublicRoute = pathname.startsWith('/phim/') || 
+                         pathname === '/' || 
+                         pathname.startsWith('/danh-sach/') ||
+                         pathname.startsWith('/the-loai/') ||
+                         pathname.startsWith('/quoc-gia/');
+
+  if (isPublicRoute && !pathname.includes('api')) {
+     return NextResponse.next();
+  }
+
+  // 3. Chỉ xử lý Supabase Auth cho các trang cần thiết (Cá nhân, API, v.v.)
   let supabaseResponse = NextResponse.next({
     request,
   })
@@ -38,7 +45,7 @@ export async function middleware(request: NextRequest) {
           return request.cookies.getAll()
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
           supabaseResponse = NextResponse.next({
             request,
           })
@@ -50,13 +57,10 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // OPTIMIZATION: Only check for session if we have a supabase cookie or if it's a protected route
-  // This saves a remote API call to Supabase for every public or non-logged-in request.
   const hasAuthCookie = request.cookies.getAll().some(c => c.name.startsWith('sb-'));
-  const isProtectedRoute = pathname.startsWith('/profile') || pathname.startsWith('/history');
+  const isProtectedRoute = pathname.startsWith('/trang-ca-nhan') || pathname.startsWith('/history');
 
   if (hasAuthCookie || isProtectedRoute) {
-    // This will refresh session if expired - essential for Server Components
     await supabase.auth.getUser()
   }
 

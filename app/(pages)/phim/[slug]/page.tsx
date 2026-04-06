@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import MovieDetailClient from "./MovieDetailClient";
 import { MovieDetailResponse, Movie } from "@/app/types/movie";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
+export const revalidate = 3600; // Cache 1 tiếng
 
 // API base URL
 const API_BASE = "https://phimapi.com";
