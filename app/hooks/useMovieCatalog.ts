@@ -140,7 +140,6 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
 
             try {
                 // 1. Determine the appropriate endpoint based on documentations
-                // Generic filtered endpoint is /v1/api/danh-sach/{type}
                 let apiUrl = baseApiUrl;
                 const params = new URLSearchParams();
                 
@@ -152,13 +151,17 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                     "tvshows": "tv-shows"
                 };
 
-                // If any filter is applied, it's safer to use the 'danh-sach' endpoint
-                // which supports all filtering parameters (category, country, year, etc.)
-                const isFiltered = !!(activeFilters.type || activeFilters.category || activeFilters.country || activeFilters.year);
-                
-                if (isFiltered) {
-                    const typeSlug = activeFilters.type ? typeMap[activeFilters.type] : "phim-moi";
+                // Determine if we are on a specialized page (country/category)
+                const isSpecializedPage = baseApiUrl.includes("quoc-gia") || baseApiUrl.includes("the-loai");
+
+                // If a specific movie type is selected, we must use the 'danh-sach/{type}' endpoint
+                if (activeFilters.type) {
+                    const typeSlug = typeMap[activeFilters.type] || "phim-moi";
                     apiUrl = `https://phimapi.com/v1/api/danh-sach/${typeSlug}`;
+                } 
+                // If no type is selected, but other filters are applied on a generic page
+                else if (!isSpecializedPage && (activeFilters.category || activeFilters.country || activeFilters.year)) {
+                    apiUrl = `https://phimapi.com/v1/api/danh-sach/phim-moi`;
                 }
 
                 // 2. Set Query Parameters
