@@ -1,0 +1,16 @@
+{
+  "name": "LoFilm - Xem Phim Online Chất Lượng Cao",
+  "short_name": "LoFilm",
+  "description": "Trải nghiệm xem phim online đỉnh cao tại LoFilm. Kho phim HD khổng lồ, vietsub chuẩn, tốc độ cực nhanh.",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0a1628",
+  "theme_color": "#fbbf24",
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "64x64 32x32 24x24 16x16",
+      "type": "image/x-icon"
+    }
+  ]
+}

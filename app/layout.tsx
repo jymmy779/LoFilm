@@ -10,8 +10,16 @@ import { SkeletonTheme } from "react-loading-skeleton";
 import { Toaster } from "react-hot-toast";
 
 export const metadata: Metadata = {
-  title: "LoFilm - Xem Phim Online Chất Lượng Cao",
-  description: "LoFilm - Không gian điện ảnh chill nhất. Cập nhật liên tục phim lẻ, phim bộ, hoạt hình và TV Shows chất lượng cao hoàn toàn miễn phí.",
+  title: "LoFilm - Xem Phim Online Chất Lượng Cao, Tốc Độ Mượt Mà",
+  description: "Trải nghiệm xem phim online đỉnh cao tại LoFilm. Kho phim HD khổng lồ, vietsub chuẩn, tốc độ load cực nhanh và hoàn toàn miễn phí. Truy cập ngay!",
+  manifest: '/manifest.json',
+  themeColor: '#0a1628',
+  viewport: {
+    width: 'device-width',
+    initialScale: 1,
+    maximumScale: 1,
+    userScalable: false,
+  },
   keywords: ["LoFilm", "lofim", "lọ phim", "lo phim", "lỏ phim", "phim", "xem phim online", "phim bộ hd", "phim chiếu rạp", "phim mới"],
   openGraph: {
     title: "LoFilm - Thế giới Điện Ảnh",
