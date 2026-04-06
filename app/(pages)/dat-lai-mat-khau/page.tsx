@@ -18,10 +18,10 @@ export default function ResetPasswordPage() {
   useEffect(() => {
     // Check if we have a recovery session
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        toast.error("Phiên làm việc đã hết hạn hoặc không hợp lệ.");
-        router.push("/dang-nhap");
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Phiên làm việc đã hết hạn hoặc không hợp lệ. Vui lòng thực hiện lại từ trang đăng nhập.");
+        setTimeout(() => router.push("/dang-nhap"), 2000);
       }
     };
     checkSession();

@@ -15,10 +15,20 @@ export default function AuthContent() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
+  const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { navigateWithTransition } = usePageTransition();
   const supabase = createClient();
+
+  React.useEffect(() => {
+    // Tải thông tin "Ghi nhớ" từ localStorage
+    const savedEmail = localStorage.getItem("rememberedEmail");
+    const savedRememberMe = localStorage.getItem("rememberMe");
+
+    if (savedEmail) setEmail(savedEmail);
+    if (savedRememberMe !== null) setRememberMe(savedRememberMe === "true");
+  }, []);
 
   const translateError = (error: string) => {
     if (error.includes("Invalid login credentials")) return "Email hoặc mật khẩu không chính xác!";
@@ -41,6 +51,16 @@ export default function AuthContent() {
           password,
         });
         if (error) throw error;
+
+        // Lưu thông tin "Ghi nhớ"
+        if (rememberMe) {
+          localStorage.setItem("rememberedEmail", email);
+          localStorage.setItem("rememberMe", "true");
+        } else {
+          localStorage.removeItem("rememberedEmail");
+          localStorage.setItem("rememberMe", "false");
+        }
+
         toast.success("Chào mừng bạn trở lại!");
         
         // Lấy trang trước đó từ referrer để giữ transition
@@ -162,6 +182,8 @@ export default function AuthContent() {
                 </div>
                 <input
                   type="text"
+                  name="name"
+                  autoComplete="name"
                   required
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
@@ -178,6 +200,8 @@ export default function AuthContent() {
             </div>
             <input
               type="email"
+              name="email"
+              autoComplete="username email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
@@ -192,6 +216,8 @@ export default function AuthContent() {
             </div>
             <input
               type="password"
+              name="password"
+              autoComplete={isLogin ? "current-password" : "new-password"}
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
@@ -214,6 +240,8 @@ export default function AuthContent() {
                 </div>
                 <input
                   type="password"
+                  name="confirm-password"
+                  autoComplete="new-password"
                   required
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
@@ -223,6 +251,38 @@ export default function AuthContent() {
               </motion.div>
             )}
           </AnimatePresence>
+
+          {isLogin && (
+            <div className="flex items-center justify-between px-2">
+              <label className="flex items-center gap-3 group cursor-pointer select-none">
+                <div className="relative">
+                  <input
+                    type="checkbox"
+                    checked={rememberMe}
+                    onChange={(e) => setRememberMe(e.target.checked)}
+                    className="sr-only peer"
+                  />
+                  <div className={`w-5 h-5 rounded-md border-2 transition-all duration-300 flex items-center justify-center ${rememberMe ? 'bg-amber-400 border-amber-400 rotate-0' : 'bg-transparent border-white/20 -rotate-12'}`}>
+                    <CheckCircle2 size={14} className={`text-black transition-opacity duration-300 ${rememberMe ? 'opacity-100' : 'opacity-0'}`} />
+                  </div>
+                  {/* Subtle Glow Effect when checked */}
+                  {rememberMe && (
+                    <div className="absolute inset-0 bg-amber-400 blur-md opacity-20 -z-10 animate-pulse" />
+                  )}
+                </div>
+                <span className="text-xs text-white/50 group-hover:text-white/80 transition-colors">Ghi nhớ đăng nhập</span>
+              </label>
+
+              <button
+                type="button"
+                onClick={handleForgotPassword}
+                className="text-amber-400/60 hover:text-amber-400 text-xs transition-colors cursor-pointer"
+              >
+                Quên mật khẩu?
+              </button>
+            </div>
+          )}
+
           <button
             type="submit"
             disabled={isLoading}
@@ -239,17 +299,6 @@ export default function AuthContent() {
           </button>
         </form>
 
-        {isLogin && (
-          <div className="mt-8 text-center">
-            <button
-              onClick={handleForgotPassword}
-              disabled={isLoading}
-              className="text-white/30 hover:text-white text-xs transition-colors cursor-pointer disabled:opacity-50"
-            >
-              Quên mật khẩu?
-            </button>
-          </div>
-        )}
 
         {/* Membership Privileges Grid */}
         <div className="mt-10 pt-8 border-t border-white/5 grid grid-cols-2 gap-3">
