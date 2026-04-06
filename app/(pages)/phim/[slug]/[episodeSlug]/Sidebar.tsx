@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import Image from "next/image";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { Star, ChevronDown, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
@@ -173,7 +174,13 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                             className="flex gap-4 py-3 border-b border-white/5 hover:bg-white/[0.02] -mx-4 px-4 transition-all group first:pt-0 last:border-0"
                         >
                             <div className="w-16 h-20 shrink-0 rounded-lg overflow-hidden relative shadow-lg">
-                                <img src={getImageUrl(movie.thumb_url)} alt={movie.title} className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" />
+                                <Image 
+                                    src={getImageUrl(movie.thumb_url)} 
+                                    alt={movie.title} 
+                                    fill 
+                                    sizes="64px"
+                                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                                />
                                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
                             </div>
                             <div className="flex flex-col justify-center min-w-0">

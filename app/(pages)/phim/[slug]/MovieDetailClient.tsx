@@ -166,6 +166,8 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                         alt={movie.name}
                         fill
                         priority
+                        quality={60}
+                        sizes="(max-width: 1280px) 100vw, 1920px"
                         className="object-cover object-top"
                     />
                     <div className="absolute inset-0 bg-black/30" />
@@ -478,9 +480,9 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                 {/* Suggestions Tab */}
                                 {activeTab === 'Đề xuất' && enrichedSuggestions.length > 0 && (
                                     <div className="grid grid-cols-2 min-w[500px]-grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 lg:gap-6">
-                                        {enrichedSuggestions.map((m, index) => (
+                                        {enrichedSuggestions.map((m) => (
                                             <div key={m._id} className="transform hover:scale-[1.02] transition-transform">
-                                                <MoviePosterCard movie={m} priority={index < 12} />
+                                                <MoviePosterCard movie={m} />
                                             </div>
                                         ))}
                                     </div>

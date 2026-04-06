@@ -243,9 +243,11 @@ export default function ProfileContent() {
                       <div className="w-8 h-8 border-2 border-amber-400/20 border-t-amber-400 rounded-full animate-spin" />
                     </div>
                   ) : user?.user_metadata?.avatar_url ? (
-                    <img
+                    <Image
                       src={user.user_metadata.avatar_url}
                       alt={displayName}
+                      width={96}
+                      height={96}
                       className="w-full h-full object-cover"
                     />
                   ) : (

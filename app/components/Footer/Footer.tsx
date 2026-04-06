@@ -105,7 +105,13 @@ export default function Footer() {
 
                             <div className="flex items-center gap-4">
                                 <a href="https://www.dmca.com/Protection/Status.aspx" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 outline-none transition-opacity">
-                                    <img src="https://images.dmca.com/Badges/dmca-badge-w250-5x1-11.png" alt="DMCA.com Protection Status" className="h-6" />
+                                    <Image 
+                                      src="https://images.dmca.com/Badges/dmca-badge-w250-5x1-11.png" 
+                                      alt="DMCA.com Protection Status" 
+                                      width={121} 
+                                      height={24} 
+                                      className="h-6 w-auto" 
+                                    />
                                 </a>
                                 {/* Hidden SEO Links */}
                                 <div className="hidden">

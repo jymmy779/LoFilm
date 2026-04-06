@@ -5,6 +5,7 @@ import { User, LogOut, Settings } from "lucide-react";
 import { createClient } from "@/app/utils/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import LogoutModal from "@/app/components/Modals/LogoutModal";
 
@@ -97,7 +98,13 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
                     >
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold text-sm border border-white/20 overflow-hidden shrink-0">
                             {user?.user_metadata?.avatar_url ? (
-                                <img src={user.user_metadata.avatar_url} alt={displayName} className="w-full h-full object-cover" />
+                                <Image 
+                                    src={user.user_metadata.avatar_url} 
+                                    alt={displayName} 
+                                    width={36} 
+                                    height={36} 
+                                    className="w-full h-full object-cover" 
+                                />
                             ) : (
                                 displayName.charAt(0).toUpperCase()
                             )}
@@ -164,9 +171,11 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
             >
                 <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold text-sm shadow-lg group-hover:scale-105 transition-transform overflow-hidden border border-white/20 shrink-0">
                     {user?.user_metadata?.avatar_url ? (
-                        <img
+                        <Image
                             src={user.user_metadata.avatar_url}
                             alt={displayName}
+                            width={36}
+                            height={36}
                             className="w-full h-full object-cover"
                         />
                     ) : (

@@ -30,7 +30,7 @@ export default function ContactPage() {
               </div>
               <h3 className="text-sm md:text-base font-bold text-white mb-2 uppercase tracking-widest">Telegram</h3>
               <p className="text-white/20 text-[10px] md:text-xs mb-3">Kết nối nhanh nhất qua kênh cộng đồng.</p>
-              <a href="https://t.me/+5S1xkPn1SCAxZWZl" className="text-blue-400 font-bold text-xs md:text-sm hover:underline">@LoFilmSupport</a>
+              <a href="https://t.me/+5S1xkPn1SCAxZWZl" target='blank' className="text-blue-400 font-bold text-xs md:text-sm hover:underline">@LoFilmSupport</a>
             </div>
 
             <div className="bg-[#16213e] border border-white/5 p-6 md:p-8 rounded-2xl md:rounded-[32px] hover:border-purple-400/20 transition-all group shadow-xl">
