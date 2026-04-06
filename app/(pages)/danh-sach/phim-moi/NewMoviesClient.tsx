@@ -2,25 +2,46 @@
 
 import { useMovieCatalog } from "@/app/hooks/useMovieCatalog";
 import CatalogLayout from "@/app/components/MovieCatalog/CatalogLayout";
+import { useSearchParams } from "next/navigation";
 
 export default function NewMoviesClient() {
-    // Logic đặc biệt cho Phim mới: mặc định v3, nếu có filter thì dùng v1
-    // Để tích hợp với hook, ta xác định baseApiUrl dựa trên logic tương tự trước đây
-    
-    // Tuy nhiên, để đơn giản và đồng bộ, ta có thể dùng luôn v1 hoặc 
-    // giữ logic cũ nhưng bọc vào component sạch sẽ hơn.
-    
-    // Ở đây tôi sẽ dùng hook với baseApiUrl là v3 mặc định.
-    // Nếu bạn muốn hỗ trợ filter nâng cao cho cả trang Phim mới, 
-    // ta sẽ tinh chỉnh hook một chút.
-    
+    // Logic đặc biệt cho Phim mới: mặc định v3, nếu có lọc thì chuyển sang v1/api
+    // để PhimAPI có thể thực hiện lọc theo Category/Country/Year
+
+    const searchParams = useSearchParams();
+    const categoryFilter = searchParams.get("cat");
+    const countryFilter = searchParams.get("country");
+    const typeFilter = searchParams.get("type");
+    const yearFilter = searchParams.get("year");
+
+    // Xác định baseApiUrl dựa trên filter
+    // Nếu có lọc, ta phải chuyển sang v1/api vì danh-sach/phim-moi-cap-nhat không hỗ trợ tham số lọc
+    let baseApiUrl = "https://phimapi.com/danh-sach/phim-moi-cap-nhat-v2";
+
+    if (categoryFilter) {
+        baseApiUrl = `https://phimapi.com/v1/api/the-loai/${categoryFilter}`;
+    } else if (countryFilter) {
+        baseApiUrl = `https://phimapi.com/v1/api/quoc-gia/${countryFilter}`;
+    } else if (typeFilter) {
+        const typeMap: Record<string, string> = {
+            "single": "phim-le",
+            "series": "phim-bo",
+            "hoathinh": "hoat-hinh",
+            "tvshows": "tv-shows"
+        };
+        const typeSlug = typeMap[typeFilter] || "phim-moi";
+        baseApiUrl = `https://phimapi.com/v1/api/danh-sach/${typeSlug}`;
+    } else if (yearFilter) {
+        // Fallback dùng phim-le nếu chỉ lọc mỗi năm
+        baseApiUrl = "https://phimapi.com/v1/api/danh-sach/phim-le";
+    }
+
     const {
         movies, isLoading, isPageLoading, currentPage, totalPages, isFilterOpen,
         activeFilters, categories, countries, handlePageChange,
         handleFilterChange, handleToggleFilter
     } = useMovieCatalog({
-        // Logic switch API nằm trong fetchMovies của hook (đã được tối ưu để xử lý cả v1/v3)
-        baseApiUrl: "https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3" 
+        baseApiUrl
     });
 
     return (

@@ -263,7 +263,7 @@ export default function ProfileContent() {
                 </label>
               </div>
               <h2 className="text-lg md:text-xl font-bold text-white mt-3 md:mt-4 truncate px-2">{displayName}</h2>
-              <p className="text-white/40 text-[10px] md:text-xs mt-0.5 md:mt-1 truncate px-2 uppercase tracking-widest">{user?.email}</p>
+              <p className="text-white/40 text-[10px] md:text-xs mt-0.5 md:mt-1 truncate px-2 tracking-widest">{user?.email}</p>
             </div>
 
             {/* Nav Menu */}
@@ -273,7 +273,11 @@ export default function ProfileContent() {
                 return (
                   <button
                     key={tab.id}
-                    onClick={() => setActiveTab(tab.id as TabType)}
+                    onClick={() => {
+                      setActiveTab(tab.id as TabType);
+                      // Update URL without full refresh to persist tab state on reload
+                      router.push(`/trang-ca-nhan?tab=${tab.id}`, { scroll: false });
+                    }}
                     className={`w-full flex items-center justify-between px-3 md:px-4 py-2.5 md:py-3 rounded-xl md:rounded-2xl transition-all cursor-pointer ${activeTab === tab.id
                       ? "bg-amber-400 text-black font-bold shadow-lg shadow-amber-400/10"
                       : "text-white/60 hover:text-white hover:bg-white/5"
@@ -511,20 +515,20 @@ export default function ProfileContent() {
                       ))}
                     </div>
                   ) : favorites.length > 0 ? (
-                    <motion.div 
+                    <motion.div
                       initial={{ opacity: 0, y: 20 }}
                       animate={{ opacity: 1, y: 0 }}
                       className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
                     >
                       {favorites.map((item) => (
-                        <TransitionLink 
-                          key={item.id} 
+                        <TransitionLink
+                          key={item.id}
                           href={`/phim/${item.movie_slug}`}
                           className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden group cursor-pointer hover:border-rose-500/30 transition-all block"
                         >
-                          <div className="relative aspect-[2/3] sm:aspect-video overflow-hidden">
-                            <Image 
-                              src={getImageUrl(item.movie_poster)} 
+                          <div className="relative aspect-video overflow-hidden">
+                            <Image
+                              src={getImageUrl(item.movie_poster)}
                               alt={item.movie_name}
                               fill
                               className="object-cover transition-transform duration-700 group-hover:scale-110"

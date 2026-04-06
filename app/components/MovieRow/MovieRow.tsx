@@ -134,7 +134,8 @@ export default function MovieRow({ title, apiUrl, viewAllLink, initialMovies }: 
                     >
                         {movies.map((movie, index) => {
                             const imgUrl = getImageUrl(movie.thumb_url);
-                            const eager = index < 4;
+                            // Tăng số lượng ảnh load trước để khi vuốt qua là có ngay (eager/priority)
+                            const eager = index < 12;
 
                             return (
                                 <SwiperSlide key={movie._id} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">

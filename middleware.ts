@@ -17,6 +17,12 @@ export async function middleware(request: NextRequest) {
     if (pathname !== '/maintenance' && !isStaticAsset) {
       return NextResponse.redirect(new URL('/maintenance', request.url));
     }
+  } else {
+    // Handle the case where maintenance is turned OFF:
+    // If the user manually navigates to /maintenance, send them home
+    if (pathname === '/maintenance') {
+      return NextResponse.redirect(new URL('/', request.url));
+    }
   }
 
   let supabaseResponse = NextResponse.next({
@@ -44,8 +50,15 @@ export async function middleware(request: NextRequest) {
     }
   )
 
-  // This will refresh session if expired - essential for Server Components
-  await supabase.auth.getUser()
+  // OPTIMIZATION: Only check for session if we have a supabase cookie or if it's a protected route
+  // This saves a remote API call to Supabase for every public or non-logged-in request.
+  const hasAuthCookie = request.cookies.getAll().some(c => c.name.startsWith('sb-'));
+  const isProtectedRoute = pathname.startsWith('/profile') || pathname.startsWith('/history');
+
+  if (hasAuthCookie || isProtectedRoute) {
+    // This will refresh session if expired - essential for Server Components
+    await supabase.auth.getUser()
+  }
 
   return supabaseResponse
 }

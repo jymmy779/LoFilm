@@ -7,20 +7,25 @@ import { motion, AnimatePresence } from "framer-motion";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { useRouter } from "next/navigation";
 
-export default function MemberButton() {
+interface MemberButtonProps {
+    flatten?: boolean;
+}
+
+export default function MemberButton({ flatten = false }: MemberButtonProps) {
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [showMenu, setShowMenu] = useState(false);
+    const [showLogoutModal, setShowLogoutModal] = useState(false);
     const supabase = createClient();
     const router = useRouter();
 
     useEffect(() => {
-        const getUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
+        const checkUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            setUser(session?.user || null);
             setLoading(false);
         };
-        getUser();
+        checkUser();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user || null);
@@ -34,11 +39,12 @@ export default function MemberButton() {
         setLoading(true);
         await supabase.auth.signOut();
         setShowMenu(false);
+        setShowLogoutModal(false);
         setLoading(false);
         router.refresh();
     };
 
-    if (loading) {
+    if (loading && !showLogoutModal) {
         return (
             <div className="w-24 h-10 bg-white/5 animate-pulse rounded-full" />
         );
@@ -46,7 +52,7 @@ export default function MemberButton() {
 
     if (!user) {
         return (
-            <TransitionLink 
+            <TransitionLink
                 href="/dang-nhap"
                 className="flex items-center cursor-pointer gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-gradient-to-r from-[#FED877] to-[#F5A623] text-[#0A1628] font-bold text-xs md:text-sm shadow-[0_4px_15px_rgba(245,166,35,0.3)] hover:shadow-[0_8px_25px_rgba(245,166,35,0.5)] hover:-translate-y-0.5 active:scale-95 transition-all duration-300 whitespace-nowrap shrink-0 overflow-hidden relative group/btn"
             >
@@ -61,17 +67,149 @@ export default function MemberButton() {
 
     const displayName = user.user_metadata?.full_name || user.email?.split("@")[0];
 
+    // Common Logout Confirmation Modal
+    const renderLogoutModal = () => (
+        <AnimatePresence>
+            {showLogoutModal && (
+                <div className="fixed inset-0 z-[999] flex items-center justify-center px-4">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        exit={{ opacity: 0 }}
+                        onClick={() => setShowLogoutModal(false)}
+                        className="absolute inset-0 bg-black/85"
+                        style={{ willChange: "opacity" }}
+                    />
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.98, y: 8 }}
+                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                        exit={{ opacity: 0, scale: 0.98, y: 8 }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="relative w-[90%] max-w-[320px] md:max-w-xs bg-[#111e31] border border-white/10 rounded-2xl p-5 md:p-6 overflow-hidden shadow-2xl"
+                        style={{ willChange: "transform, opacity" }}
+                    >
+                        <div className="flex flex-col items-center text-center">
+                            <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-red-500/10 flex items-center justify-center mb-3 md:mb-4">
+                                <LogOut size={20} className="text-red-500 md:w-6 md:h-6" />
+                            </div>
+                            <h3 className="text-base md:text-lg font-bold text-white mb-1.5 md:mb-2">Đăng xuất?</h3>
+                            <p className="text-[11px] md:text-xs text-white/50 mb-5 md:mb-6 px-2 md:px-4 leading-relaxed">
+                                Bạn có chắc chắn muốn rời khỏi phiên làm việc này không?
+                            </p>
+                            <div className="flex w-full gap-2">
+                                <button
+                                    onClick={() => setShowLogoutModal(false)}
+                                    className="flex-1 px-3 md:px-4 cursor-pointer py-2 md:py-2.5 rounded-xl bg-white/5 border border-white/10 text-[11px] md:text-xs font-semibold text-white/50 hover:text-white hover:bg-white/10 transition-all"
+                                >
+                                    Hủy
+                                </button>
+                                <button
+                                    onClick={handleLogout}
+                                    className="flex-1 cursor-pointer px-3 md:px-4 py-2 md:py-2.5 rounded-xl bg-red-500 text-[11px] md:text-xs font-bold text-white hover:bg-red-600 transition-all active:scale-95"
+                                >
+                                    Đăng xuất
+                                </button>
+                            </div>
+                        </div>
+                    </motion.div>
+                </div>
+            )}
+        </AnimatePresence>
+    );
+
+    if (flatten) {
+        return (
+            <>
+                <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={{
+                        visible: {
+                            transition: {
+                                staggerChildren: 0.05
+                            }
+                        }
+                    }}
+                    className="w-full flex flex-col gap-3"
+                    style={{ willChange: "transform, opacity" }}
+                >
+                    <motion.div
+                        variants={{
+                            hidden: { opacity: 0, y: 8 },
+                            visible: { opacity: 1, y: 0 }
+                        }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="flex items-center gap-3 px-1 py-1 rounded-full bg-white/5 border border-white/10 w-max mx-auto shadow-sm"
+                        style={{ willChange: "transform, opacity" }}
+                    >
+                        <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold text-sm border border-white/20 overflow-hidden shrink-0">
+                            {user?.user_metadata?.avatar_url ? (
+                                <img src={user.user_metadata.avatar_url} alt={displayName} className="w-full h-full object-cover" />
+                            ) : (
+                                displayName.charAt(0).toUpperCase()
+                            )}
+                        </div>
+                        <span className="text-xs font-bold text-white/90 pr-3">{displayName}</span>
+                    </motion.div>
+
+                    <motion.div
+                        variants={{
+                            hidden: { opacity: 0, y: 8 },
+                            visible: { opacity: 1, y: 0 }
+                        }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="grid grid-cols-2 gap-2 mt-2"
+                        style={{ willChange: "transform, opacity" }}
+                    >
+                        <TransitionLink
+                            href="/trang-ca-nhan"
+                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white/80 hover:bg-white/10 transition-all font-semibold"
+                        >
+                            <User size={14} className="text-amber-400" />
+                            Cá nhân
+                        </TransitionLink>
+                        <TransitionLink
+                            href="/trang-ca-nhan?tab=settings"
+                            className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white/80 hover:bg-white/10 transition-all font-semibold"
+                        >
+                            <Settings size={14} className="text-amber-400" />
+                            Cài đặt
+                        </TransitionLink>
+                    </motion.div>
+
+                    <motion.div
+                        variants={{
+                            hidden: { opacity: 0, y: 8 },
+                            visible: { opacity: 1, y: 0 }
+                        }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
+                        style={{ willChange: "transform, opacity" }}
+                    >
+                        <button
+                            onClick={() => setShowLogoutModal(true)}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-300 hover:bg-red-500/20 transition-all font-semibold mt-1 cursor-pointer"
+                        >
+                            <LogOut size={14} />
+                            Đăng xuất
+                        </button>
+                    </motion.div>
+                </motion.div>
+                {renderLogoutModal()}
+            </>
+        );
+    }
+
     return (
         <div className="relative">
-            <button 
+            <button
                 onClick={() => setShowMenu(!showMenu)}
                 className="flex items-center cursor-pointer gap-2 pr-1 pl-1 py-1 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 group"
             >
-                <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold text-sm shadow-lg group-hover:scale-105 transition-transform overflow-hidden border border-white/20">
+                <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold text-sm shadow-lg group-hover:scale-105 transition-transform overflow-hidden border border-white/20 shrink-0">
                     {user?.user_metadata?.avatar_url ? (
-                        <img 
-                            src={user.user_metadata.avatar_url} 
-                            alt={displayName} 
+                        <img
+                            src={user.user_metadata.avatar_url}
+                            alt={displayName}
                             className="w-full h-full object-cover"
                         />
                     ) : (
@@ -92,11 +230,11 @@ export default function MemberButton() {
                         className="absolute right-0 mt-3 w-48 bg-[#0d1b2e] border border-white/10 rounded-2xl shadow-2xl p-2 z-[100] backdrop-blur-xl overflow-hidden"
                     >
                         <div className="px-3 py-2 border-b border-white/5 mb-1">
-                            <p className="text-[10px] text-white/40 uppercase tracking-widest font-bold">Thành viên</p>
+                            <p className="text-[10px] text-white/40 tracking-widest">Thành viên</p>
                             <p className="text-sm font-bold text-amber-400 truncate mt-1">{displayName}</p>
                         </div>
-                        
-                        <TransitionLink 
+
+                        <TransitionLink
                             href="/trang-ca-nhan"
                             onClick={() => setShowMenu(false)}
                             className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer"
@@ -104,8 +242,8 @@ export default function MemberButton() {
                             <User size={16} className="text-white/40" />
                             Trang cá nhân
                         </TransitionLink>
-                        
-                        <TransitionLink 
+
+                        <TransitionLink
                             href="/trang-ca-nhan?tab=settings"
                             onClick={() => setShowMenu(false)}
                             className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer"
@@ -116,8 +254,11 @@ export default function MemberButton() {
 
                         <div className="h-[1px] bg-white/5 my-1 mx-2" />
 
-                        <button 
-                            onClick={handleLogout}
+                        <button
+                            onClick={() => {
+                                setShowMenu(false);
+                                setShowLogoutModal(true);
+                            }}
                             className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-all cursor-pointer"
                         >
                             <LogOut size={16} />
@@ -126,6 +267,7 @@ export default function MemberButton() {
                     </motion.div>
                 )}
             </AnimatePresence>
+            {renderLogoutModal()}
         </div>
     );
 }

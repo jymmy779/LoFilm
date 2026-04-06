@@ -30,28 +30,38 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
 
     const enrichEpisodeTotals = async (topItems: Movie[], isMounted: () => boolean) => {
         const enriched = [...topItems];
-        const chunkSize = 5;
+        
+        // Smart filter: only multi-episode series that lack total/slash info
+        const targets = topItems.map((movie, idx) => ({ movie, idx }))
+            .filter(({ movie }) => {
+                const isMulti = ["series", "hoathinh", "tvshows"].includes(movie.type || "");
+                const hasTotal = movie.episode_total && movie.episode_total !== "??";
+                const hasSlash = movie.episode_current?.includes("/");
+                const isOngoing = movie.status === "ongoing";
+                return isMulti && (!hasTotal || isOngoing) && !hasSlash;
+            });
 
-        for (let i = 0; i < topItems.length; i += chunkSize) {
+        if (targets.length === 0) return;
+
+        const chunkSize = 3; // Even smaller chunks for homepage rows
+        for (let i = 0; i < targets.length; i += chunkSize) {
             if (!isMounted()) break;
-            const chunk = topItems.slice(i, i + chunkSize);
+            const chunk = targets.slice(i, i + chunkSize);
+            
             await Promise.all(
-                chunk.map(async (movie: Movie, chunkIdx: number) => {
-                    const isMultiEpisode = ["series", "hoathinh", "tvshows"].includes(movie.type || "");
-                    if (isMultiEpisode && !movie.episode_current?.includes("/")) {
-                        try {
-                            const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}`);
-                            if (detailRes.data?.movie?.episode_total) {
-                                const globalIdx = i + chunkIdx;
-                                enriched[globalIdx] = { ...enriched[globalIdx], episode_total: detailRes.data.movie.episode_total };
-                            }
-                        } catch (e) {
-                            console.error(`Lỗi tải detail cho ${movie.slug}:`, e);
+                chunk.map(async ({ movie, idx }) => {
+                    try {
+                        const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}`);
+                        if (detailRes.data?.movie?.episode_total) {
+                            enriched[idx] = { ...enriched[idx], episode_total: detailRes.data.movie.episode_total };
                         }
-                    }
+                    } catch (e) {}
                 })
             );
-            setMovies([...enriched]);
+            
+            if (isMounted()) setMovies([...enriched]);
+            // Yield to main thread for smoothness
+            await new Promise(r => setTimeout(r, 60));
         }
     };
 
@@ -185,8 +195,8 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                                                     src={posterImg}
                                                     alt={movie.name}
                                                     fill
-                                                    priority={index < 8}
-                                                    loading={index < 8 ? "eager" : "lazy"}
+                                                    priority={index < 16}
+                                                    loading={index < 16 ? "eager" : "lazy"}
                                                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 200px"
                                                     className="object-cover transform-gpu"
                                                 />

@@ -29,30 +29,40 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovi
     const navId = title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
 
     const enrichEpisodeTotals = async (sortedItems: Movie[], isMounted: () => boolean) => {
-                    const enriched = [...sortedItems];
-                    const chunkSize = 5;
+        const enriched = [...sortedItems];
+        
+        // Smart filter: only multi-episode series that lack total/slash info
+        const targets = sortedItems.map((movie, idx) => ({ movie, idx }))
+            .filter(({ movie }) => {
+                const isMulti = ["series", "hoathinh", "tvshows"].includes(movie.type || "");
+                const hasTotal = movie.episode_total && movie.episode_total !== "??";
+                const hasSlash = movie.episode_current?.includes("/");
+                const isOngoing = movie.status === "ongoing";
+                return isMulti && (!hasTotal || isOngoing) && !hasSlash;
+            });
 
-                    for (let i = 0; i < sortedItems.length; i += chunkSize) {
-                        if (!isMounted()) break;
-                        const chunk = sortedItems.slice(i, i + chunkSize);
-                        await Promise.all(
-                            chunk.map(async (movie: Movie, chunkIdx: number) => {
-                                const isMultiEpisode = ["series", "hoathinh", "tvshows"].includes(movie.type || "");
-                                if (isMultiEpisode && !movie.episode_current?.includes("/")) {
-                                    try {
-                                        const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}`);
-                                        if (detailRes.data?.movie?.episode_total) {
-                                            const globalIdx = i + chunkIdx;
-                                            enriched[globalIdx] = { ...enriched[globalIdx], episode_total: detailRes.data.movie.episode_total };
-                                        }
-                                    } catch (e) {
-                                        console.error(`Lỗi tải detail cho ${movie.slug}:`, e);
-                                    }
-                                }
-                            })
-                        );
-                        setMovies([...enriched]);
-                    }
+        if (targets.length === 0) return;
+
+        const chunkSize = 3; // Even smaller chunks for homepage rows
+        for (let i = 0; i < targets.length; i += chunkSize) {
+            if (!isMounted()) break;
+            const chunk = targets.slice(i, i + chunkSize);
+            
+            await Promise.all(
+                chunk.map(async ({ movie, idx }) => {
+                    try {
+                        const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}`);
+                        if (detailRes.data?.movie?.episode_total) {
+                            enriched[idx] = { ...enriched[idx], episode_total: detailRes.data.movie.episode_total };
+                        }
+                    } catch (e) {}
+                })
+            );
+            
+            if (isMounted()) setMovies([...enriched]);
+            // Yield to main thread for smoothness
+            await new Promise(r => setTimeout(r, 60));
+        }
     };
 
     useEffect(() => {
@@ -173,7 +183,7 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovi
                     >
                         {movies.map((movie, index) => (
                             <SwiperSlide key={movie._id}>
-                                <MoviePosterCard movie={movie} priority={index < 8} />
+                                <MoviePosterCard movie={movie} priority={index < 16} />
                             </SwiperSlide>
                         ))}
                     </Swiper>

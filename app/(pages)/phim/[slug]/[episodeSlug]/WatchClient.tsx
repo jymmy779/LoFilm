@@ -475,7 +475,7 @@ export default function WatchClient({
                                     </div>
                                     <h3 className="text-lg md:text-xl font-bold text-white mb-2 font-montserrat uppercase tracking-wider">Link phim bị lỗi (404)</h3>
                                     <p className="text-white/60 text-[11px] md:text-sm mb-6 md:mb-8 leading-relaxed">
-                                        Máy chủ hiện không phản hồi luồng phát này. Vui lòng **thử đổi sang Server khác** bên dưới.
+                                        Máy chủ hiện không phản hồi luồng phát này. Vui lòng **thử đổi sang Server khác** bên dưới hoặc **tắt VPN** nếu có.
                                     </p>
                                     <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full sm:w-auto">
                                         <button

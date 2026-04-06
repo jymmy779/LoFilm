@@ -115,25 +115,34 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
             // Still run enrichment for initial data
             const enrichInitial = async () => {
                 const enriched = [...initialData!.movies];
-                const chunkSize = 8;
-                for (let i = 0; i < enriched.length; i += chunkSize) {
-                    const chunk = enriched.slice(i, i + chunkSize);
+                
+                // Only target items that are series and don't have total/slash info
+                const targets = enriched.map((movie, idx) => ({ movie, idx }))
+                    .filter(({ movie }) => {
+                        const isMulti = ["series", "hoathinh", "tvshows"].includes(movie.type || "") || movie.tmdb?.type === "tv";
+                        const hasTotal = movie.episode_total && movie.episode_total !== "??";
+                        const hasSlash = movie.episode_current?.includes("/");
+                        const isOngoing = movie.status === "ongoing";
+                        return isMulti && (!hasTotal || isOngoing) && !hasSlash;
+                    });
+
+                if (targets.length === 0) return;
+
+                const chunkSize = 4;
+                for (let i = 0; i < targets.length; i += chunkSize) {
+                    const chunk = targets.slice(i, i + chunkSize);
                     await Promise.all(
-                        chunk.map(async (movie, indexInChunk) => {
-                            const isMultiEpisode = ["series", "hoathinh", "tvshows"].includes(movie.type || "");
-                            const needsTotal = !movie.episode_total || movie.episode_total === "??";
-                            if (isMultiEpisode && needsTotal) {
-                                try {
-                                    const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}`);
-                                    if (detailRes.data?.movie?.episode_total) {
-                                        const actualIndex = i + indexInChunk;
-                                        enriched[actualIndex] = { ...enriched[actualIndex], episode_total: detailRes.data.movie.episode_total };
-                                    }
-                                } catch (e) {}
-                            }
+                        chunk.map(async ({ movie, idx }) => {
+                            try {
+                                const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}`);
+                                if (detailRes.data?.movie?.episode_total) {
+                                    enriched[idx] = { ...enriched[idx], episode_total: detailRes.data.movie.episode_total };
+                                }
+                            } catch (e) {}
                         })
                     );
                     setMovies([...enriched]);
+                    await new Promise(r => setTimeout(r, 50));
                 }
             };
             enrichInitial();
@@ -196,28 +205,35 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                     setIsPageLoading(false);
                 }
 
-                // Data Enrichment (Episode totals) — runs AFTER skeleton is removed
+                // Data Enrichment (Episode totals) — smarter post-render process
                 const enriched = [...items];
-                const chunkSize = 8;
-                for (let i = 0; i < enriched.length; i += chunkSize) {
-                    if (!isMounted) break;
-                    const chunk = enriched.slice(i, i + chunkSize);
-                    await Promise.all(
-                        chunk.map(async (movie, indexInChunk) => {
-                            const isMultiEpisode = ["series", "hoathinh", "tvshows"].includes(movie.type || "");
-                            const needsTotal = !movie.episode_total || movie.episode_total === "??";
-                            if (isMultiEpisode && needsTotal) {
+                const targets = items.map((m, idx) => ({ m, idx }))
+                    .filter(({ m }) => {
+                        const isMulti = ["series", "hoathinh", "tvshows"].includes(m.type || "") || m.tmdb?.type === "tv";
+                        const hasTotal = m.episode_total && m.episode_total !== "??";
+                        const hasSlash = m.episode_current?.includes("/");
+                        const isOngoing = m.status === "ongoing";
+                        return isMulti && (!hasTotal || isOngoing) && !hasSlash;
+                    });
+
+                if (targets.length > 0) {
+                    const chunkSize = 4;
+                    for (let i = 0; i < targets.length; i += chunkSize) {
+                        if (!isMounted) break;
+                        const chunk = targets.slice(i, i + chunkSize);
+                        await Promise.all(
+                            chunk.map(async ({ m, idx }) => {
                                 try {
-                                    const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}`);
+                                    const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${m.slug}`)}`);
                                     if (detailRes.data?.movie?.episode_total) {
-                                        const actualIndex = i + indexInChunk;
-                                        enriched[actualIndex] = { ...enriched[actualIndex], episode_total: detailRes.data.movie.episode_total };
+                                        enriched[idx] = { ...enriched[idx], episode_total: detailRes.data.movie.episode_total };
                                     }
                                 } catch (e) {}
-                            }
-                        })
-                    );
-                    if (isMounted) setMovies([...enriched]);
+                            })
+                        );
+                        if (isMounted) setMovies([...enriched]);
+                        await new Promise(r => setTimeout(r, 50));
+                    }
                 }
             } catch (error) {
                 console.error("Lỗi fetch phim:", error);

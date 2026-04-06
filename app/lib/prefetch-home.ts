@@ -45,9 +45,25 @@ function mapMovieRow(items: Movie[]): Movie[] {
     return filterDuplicateMovies(items);
 }
 
-function mapHero(payload: unknown): Movie[] {
+async function mapHero(payload: unknown): Promise<Movie[]> {
     const raw = parseV3HeroItems(payload);
-    return filterDuplicateMovies(raw).slice(0, 8);
+    const movies = filterDuplicateMovies(raw).slice(0, 8);
+    
+    // Nâng cao: Lấy thêm content cho hero movies ngay từ server
+    // Chỉ lấy cho 4 phim đầu để tối ưu TTFB
+    const enriched = await Promise.all(
+        movies.map(async (m, i) => {
+            if (i > 3) return m; 
+            try {
+                const detail = await fetchPhimJson(`https://phimapi.com/phim/${m.slug}`);
+                return { ...m, content: (detail as any)?.movie?.content || "" };
+            } catch {
+                return m;
+            }
+        })
+    );
+    
+    return enriched;
 }
 
 const URLS = {
@@ -97,8 +113,10 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
         fetchPhimJson(URLS.posterHoatHinh),
     ]);
 
+    const heroMovies = await mapHero(heroRaw);
+
     return {
-        hero: mapHero(heroRaw),
+        hero: heroMovies,
         categories: parseCategories(catRaw),
         movieRowHan: mapMovieRow(parseV1Items(hanRaw)),
         movieRowTrung: mapMovieRow(parseV1Items(trungRaw)),

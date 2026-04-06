@@ -34,22 +34,38 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
     const [activeIndex, setActiveIndex] = useState(0);
 
     const scheduleContentEnrich = (first8: Movie[]) => {
-        const runEnrich = () => {
-            void Promise.all(
-                first8.map((m) =>
-                    axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${m.slug}`)}`)
-                        .then((r) => ({ slug: m.slug, content: r.data.movie?.content ?? "" }))
-                        .catch(() => ({ slug: m.slug, content: "" }))
-                )
-            ).then((details) => {
-                const contentMap = Object.fromEntries(details.map((d) => [d.slug, d.content]));
-                setMovies((prev) =>
-                    prev.map((m) => ({ ...m, content: contentMap[m.slug] }))
-                );
-            });
+        const runEnrich = async () => {
+            const fetchSingle = async (m: Movie) => {
+                // Nếu đã có content từ server prefetch thì không gọi lại nữa
+                if (m.content) return;
+
+                try {
+                    const r = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${m.slug}`)}`);
+                    const content = r.data.movie?.content ?? "";
+                    if (content) {
+                        setMovies((prev) =>
+                            prev.map((item) => item.slug === m.slug ? { ...item, content } : item)
+                        );
+                    }
+                } catch (error) {
+                    console.error(`Lỗi fetch content cho ${m.slug}:`, error);
+                }
+            };
+
+            // Ưu tiên phim đầu tiên
+            if (first8.length > 0) {
+                await fetchSingle(first8[0]);
+            }
+
+            // Các phim còn lại
+            if (first8.length > 1) {
+                const rest = first8.slice(1);
+                rest.forEach(m => fetchSingle(m));
+            }
         };
+
         if (typeof requestIdleCallback !== "undefined") {
-            requestIdleCallback(runEnrich, { timeout: 2500 });
+            requestIdleCallback(() => runEnrich(), { timeout: 800 });
         } else {
             setTimeout(runEnrich, 1);
         }
@@ -206,7 +222,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                             {currentMovie.category.slice(0, 3).map((cat) => (
                                                 <TransitionLink
                                                     key={cat.slug}
-                                                    href={`/phim/${currentMovie.slug}`}
+                                                    href={`/the-loai/${cat.slug}`}
                                                     className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs flex items-center justify-center bg-white/15 hover:text-[#f5a623] rounded"
                                                 >
                                                     {cat.name}

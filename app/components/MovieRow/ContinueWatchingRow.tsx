@@ -9,30 +9,37 @@ import "swiper/css/navigation";
 
 import { createClient } from "@/app/utils/supabase/client";
 import { getImageUrl } from "@/app/utils/movieUtils";
-import Skeleton from "react-loading-skeleton";
 import Image from "next/image";
+import { motion } from "framer-motion";
 import Container from "@/app/components/Container";
 import { Play } from "lucide-react";
 
-export default function ContinueWatchingRow() {
-    const [history, setHistory] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+interface ContinueWatchingRowProps {
+    initialHistory?: any[];
+}
+
+export default function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
+    const [history, setHistory] = useState<any[]>(initialHistory || []);
+    const [isLoading, setIsLoading] = useState(!initialHistory);
     const [user, setUser] = useState<any>(null);
     const supabase = createClient();
 
     useEffect(() => {
         const fetchHistory = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            if (!user) {
+            // Dùng getSession nhanh hơn getUser vì thường lấy từ local storage
+            const { data: { session } } = await supabase.auth.getSession();
+            const currentUser = session?.user;
+            
+            if (!currentUser) {
                 setIsLoading(false);
                 return;
             }
-            setUser(user);
+            setUser(currentUser);
 
             const { data, error } = await supabase
                 .from('watch_history')
                 .select('*')
-                .eq('user_id', user.id)
+                .eq('user_id', currentUser.id)
                 .order('updated_at', { ascending: false })
                 .limit(20);
 
@@ -46,17 +53,23 @@ export default function ContinueWatchingRow() {
 
     if (isLoading) {
         return (
-            <Container as="section" className="relative z-30 mb-8 mt-8">
-                <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/30 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 overflow-hidden">
-                    <div className="w-full xl:w-[260px] xl:flex-shrink-0 flex xl:flex-col justify-center gap-4">
-                        <Skeleton height={40} width={200} baseColor="#1e293b" highlightColor="#334155" />
-                        <Skeleton height={20} width={100} baseColor="#1e293b" highlightColor="#334155" />
+            <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
+                <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/40 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 overflow-hidden animate-pulse">
+                    <div className="w-full xl:w-[260px] xl:flex-shrink-0 flex xl:flex-col justify-between xl:justify-center gap-4">
+                        <div className="space-y-2">
+                             <div className="h-8 w-32 bg-white/10 rounded-lg" />
+                             <div className="h-4 w-20 bg-white/5 rounded" />
+                        </div>
+                        <div className="h-4 w-24 bg-white/5 rounded" />
                     </div>
                     <div className="flex gap-4 overflow-hidden">
                         {[...Array(4)].map((_, i) => (
-                            <div key={i} className="flex-none w-[280px]">
-                                <Skeleton className="aspect-video rounded-lg mb-3" baseColor="#1e293b" highlightColor="#334155" />
-                                <Skeleton height={18} baseColor="#1e293b" highlightColor="#334155" />
+                            <div key={i} className="flex-none w-[220px] sm:w-[260px] md:w-[300px]">
+                                <div className="aspect-video rounded-xl bg-white/5 mb-3 border border-white/5" />
+                                <div className="space-y-2 px-1">
+                                    <div className="h-4 w-3/4 bg-white/10 rounded" />
+                                    <div className="h-3 w-1/2 bg-white/5 rounded" />
+                                </div>
                             </div>
                         ))}
                     </div>
@@ -65,11 +78,16 @@ export default function ContinueWatchingRow() {
         );
     }
 
-    if (!user || history.length === 0) return null;
+    if (history.length === 0 && !isLoading) return null;
 
     return (
         <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
-            <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/40 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 relative overflow-hidden">
+            <motion.div 
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.6 }}
+                className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/40 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 relative overflow-hidden"
+            >
                 {/* Background Decor subtle */}
                 <div className="absolute top-0 left-0 w-32 h-32 bg-amber-400/5 blur-[100px] pointer-events-none"></div>
 
@@ -79,7 +97,7 @@ export default function ContinueWatchingRow() {
                         <h2 className="text-[20px] lg:text-[28px] font-bold !leading-tight text-white">
                             Xem Tiếp
                         </h2>
-                        <p className="text-white/40 text-[10px] mt-1 uppercase tracking-[0.2em] font-bold">Lịch sử của bạn</p>
+                        <p className="text-white/40 text-[10px] mt-1 tracking-[0.2em]">Lịch sử của bạn</p>
                     </div>
 
                     <TransitionLink
@@ -106,9 +124,10 @@ export default function ContinueWatchingRow() {
                         }}
                         className="swiper-carousel"
                     >
-                        {history.map((item) => {
+                        {history.map((item, index) => {
                             const progress = (item.watched_seconds / item.duration) * 100;
                             const isFinished = progress > 90;
+                            const isPriority = index < 4;
 
                             return (
                                 <SwiperSlide key={item.id} className="!w-[220px] sm:!w-[260px] md:!w-[300px]">
@@ -121,6 +140,8 @@ export default function ContinueWatchingRow() {
                                                 src={getImageUrl(item.movie_poster)}
                                                 alt={item.movie_name}
                                                 fill
+                                                priority={isPriority}
+                                                sizes="(max-width: 768px) 220px, (max-width: 1024px) 260px, 300px"
                                                 className="object-cover transition-transform duration-700 group-hover/item:scale-110"
                                             />
 
@@ -176,7 +197,7 @@ export default function ContinueWatchingRow() {
                         </svg>
                     </button>
                 </div>
-            </div>
+            </motion.div>
         </Container>
     );
 }
