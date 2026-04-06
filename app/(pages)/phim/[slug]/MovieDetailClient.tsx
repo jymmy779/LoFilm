@@ -190,7 +190,7 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                             <div className="v-thumb-l xl:block flex justify-center mb-6">
                                 <div className="v-thumbnail relative w-[120px] h-[180px] lg:w-[160px] lg:h-[240px] rounded-2xl overflow-hidden shadow-lg ring-1 ring-white/20 transform-gpu">
                                     <Image
-                                        className="absolute inset-0 w-full h-full object-cover"
+                                        className="absolute inset-0 w-full h-full object-cover object-top"
                                         src={getImageUrl(movie.poster_url, { width: 300, quality: 75 })}
                                         alt={movie.name}
                                         fill
