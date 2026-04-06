@@ -1,10 +1,12 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
+import Image from "next/image";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { ChevronRight, AlertTriangle, RefreshCcw } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Hls from "hls.js";
+// @ts-ignore
 import Plyr from "plyr";
 import "plyr/dist/plyr.css";
 import Container from "@/app/components/Container";
@@ -68,18 +70,23 @@ export default function WatchClient({
     const [hasError, setHasError] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
     const [user, setUser] = useState<any>(null);
-    const userRef = useRef<any>(null); // Dùng Ref để tránh stale closure trong sự kiện video
+    const userRef = useRef<any>(null);
     useEffect(() => { userRef.current = user; }, [user]);
+    const autoNextRef = useRef(isAutoNext);
+    useEffect(() => { autoNextRef.current = isAutoNext; }, [isAutoNext]);
 
     const [hasResumed, setHasResumed] = useState(false);
     const [isFavorited, setIsFavorited] = useState(false);
+
+    const [showEndOverlay, setShowEndOverlay] = useState(false);
+    const showEndOverlayRef = useRef(false);
+    useEffect(() => { showEndOverlayRef.current = showEndOverlay; }, [showEndOverlay]);
     const supabase = createClient();
 
     const videoRef = useRef<HTMLVideoElement>(null);
     const hlsRef = useRef<Hls | null>(null);
     const plyrRef = useRef<Plyr | null>(null);
 
-    // Tìm tập tiếp theo
     const nextEpisode = useMemo(() => {
         if (!episodes || episodes.length === 0) return null;
         const server = episodes[activeServerIndex] || episodes[0];
@@ -90,27 +97,26 @@ export default function WatchClient({
         return null;
     }, [episodes, activeServerIndex, episodeSlug]);
 
-    // Reset lỗi và UI khi đổi server hoặc tập phim
+    const isSeries = useMemo(() => {
+        if (!episodes || episodes.length === 0) return false;
+        const server = episodes[0];
+        return server.server_data.length > 1;
+    }, [episodes]);
+
     useEffect(() => {
         setHasError(false);
         setShowNextButton(false);
     }, [activeServerIndex, episodeSlug]);
 
-    // Tìm link video dựa trên server đang chọn và episodeSlug
     const videoSrc = useMemo(() => {
         if (!episodes || episodes.length === 0) return episode.link_m3u8;
-
         const server = episodes[activeServerIndex] || episodes[0];
         const found = server.server_data.find((ep) => getFriendlyEpisodeSlug(ep.slug) === episodeSlug);
-
         if (found) return found.link_m3u8;
-
-        // Fallback: Tìm ở bất kỳ server nào nếu server hiện tại không có
         for (const s of episodes) {
             const f = s.server_data.find((ep) => getFriendlyEpisodeSlug(ep.slug) === episodeSlug);
             if (f) return f.link_m3u8;
         }
-
         return episode.link_m3u8;
     }, [activeServerIndex, episodeSlug, episodes, episode.link_m3u8]);
 
@@ -122,20 +128,9 @@ export default function WatchClient({
         fetchUser();
     }, [supabase]);
 
-    // Hàm cập nhật chất lượng (Resolution)
-    const updateQuality = (newQuality: number) => {
-        if (!hlsRef.current) return;
-        if (newQuality === 0) {
-            hlsRef.current.currentLevel = -1; // Auto
-        } else {
-            // @ts-ignore
-            hlsRef.current.levels.forEach((level, levelIndex) => {
-                if (level.height === newQuality) {
-                    hlsRef.current!.currentLevel = levelIndex;
-                }
-            });
-        }
-    };
+    useEffect(() => {
+        setShowEndOverlay(false);
+    }, [episodeSlug]);
 
     useEffect(() => {
         const savedAutoNext = localStorage.getItem('lofilm-auto-next');
@@ -150,7 +145,6 @@ export default function WatchClient({
         localStorage.setItem('lofilm-auto-next', String(newValue));
     };
 
-    // Kiểm tra trạng thái yêu thích
     useEffect(() => {
         const checkFavorite = async () => {
             const { data: { user } } = await supabase.auth.getUser();
@@ -172,18 +166,14 @@ export default function WatchClient({
             toast.error("Vui lòng đăng nhập để lưu phim yêu thích!");
             return;
         }
-
         const prevStatus = isFavorited;
-        setIsFavorited(!isFavorited); // Cập nhật ngay lập tức (Optimistic Update)
-
+        setIsFavorited(!isFavorited);
         try {
             if (prevStatus) {
-                // Xóa khỏi DB
                 const { error } = await supabase.from('favorites').delete().eq('movie_slug', slug).eq('user_id', user.id);
                 if (error) throw error;
                 toast.success("Đã xóa khỏi danh sách yêu thích");
             } else {
-                // Thêm vào DB
                 const { error } = await supabase.from('favorites').insert({
                     user_id: user.id,
                     movie_slug: slug,
@@ -194,23 +184,18 @@ export default function WatchClient({
                 toast.success("Đã thêm vào danh sách yêu thích");
             }
         } catch (err: any) {
-            // Rollback nếu lỗi
             setIsFavorited(prevStatus);
             toast.error("Lỗi: " + err.message);
         }
     };
 
-    // Hàm lưu tiến độ xem phim vào Supabase
     const lastSavedTime = useRef(0);
     const saveProgress = async (currentTime: number, duration: number) => {
         const currentUser = userRef.current;
         if (!currentUser || !currentTime || duration <= 0) return;
-
-        // Chỉ lưu sau mỗi 10s để giảm tải API
         if (Math.abs(currentTime - lastSavedTime.current) < 10) return;
         lastSavedTime.current = currentTime;
-
-        const { error } = await supabase.from('watch_history').upsert({
+        await supabase.from('watch_history').upsert({
             user_id: currentUser.id,
             movie_slug: slug,
             movie_name: movie.name,
@@ -221,8 +206,6 @@ export default function WatchClient({
             duration: Math.floor(duration),
             updated_at: new Date().toISOString()
         }, { onConflict: 'user_id,movie_slug,episode_slug' });
-
-        if (error) console.error("Lỗi khi lưu lịch sử xem:", error.message);
     };
 
     useEffect(() => {
@@ -230,50 +213,25 @@ export default function WatchClient({
         const video = videoRef.current;
         if (!video) return;
 
-        // Cấu hình Plyr cơ bản
         const defaultOptions: Plyr.Options = {
             captions: { active: true, update: true, language: 'vi' },
             controls: [
-                'play-large',
-                'progress',
-                'play',
-                'rewind',
-                'fast-forward',
-                'current-time',
-                'duration',
-                'mute',
-                'volume',
-                'captions',
-                'pip',
-                'airplay',
-                'fullscreen'
+                'play-large', 'progress', 'play', 'rewind', 'fast-forward',
+                'current-time', 'duration', 'mute', 'volume', 'captions',
+                'pip', 'airplay', 'fullscreen'
             ],
-            i18n: {
-                restart: '',
-                rewind: '',
-                play: '',
-                pause: '',
-                forward: '',
-                fastForward: '',
-                mute: '',
-                unmute: '',
-                settings: '',
-                enterFullscreen: '',
-                exitFullscreen: '',
-            },
+            i18n: { restart: '', rewind: '', play: '', pause: '', forward: '', fastForward: '', mute: '', unmute: '', settings: '', enterFullscreen: '', exitFullscreen: '' },
             displayDuration: true,
             fullscreen: { enabled: true, fallback: true, iosNative: true },
-            storage: { enabled: false }, // Vô hiệu hóa storage mặc định của Plyr để dùng database của LoFilm
+            storage: { enabled: false },
             tooltips: { controls: false, seek: true },
-            seekTime: 10
+            seekTime: 10,
+            loop: { active: false }
         };
 
-        // Đợi 1 nhịp cực ngắn để DOM ổn định
         const initTimeout = setTimeout(async () => {
             if (!isMounted || !videoRef.current) return;
-
             let startFrom = 0;
-            // Lấy thông tin user và lịch sử xem đồng thời
             const { data: { user: currentUser } } = await supabase.auth.getUser();
             if (isMounted) setUser(currentUser);
 
@@ -285,7 +243,6 @@ export default function WatchClient({
                     .eq('movie_slug', slug)
                     .eq('episode_slug', episodeSlug)
                     .single();
-
                 if (history && history.watched_seconds > 10) {
                     startFrom = history.watched_seconds;
                 }
@@ -294,64 +251,73 @@ export default function WatchClient({
             const player = new Plyr(videoRef.current, defaultOptions);
             plyrRef.current = player;
 
-            if (startFrom > 0 && !hasResumed) {
-                const doResume = () => {
-                    if (player && player.currentTime < startFrom - 5) {
-                        player.currentTime = startFrom;
-                        toast.success(`Đã khôi phục vị trí xem cũ: ${Math.floor(startFrom / 60)} phút`, {
-                            icon: '🕒',
-                            duration: 2500
-                        });
-                    }
-                };
-
-                player.once('ready', doResume);
-                setHasResumed(true);
-            }
-
-            // Lắng nghe sự kiện kết thúc và thời gian để hiện nút chuyển tập
-            player.on('timeupdate', () => {
-                const currentTime = player.currentTime;
-                const duration = player.duration;
-
-                // Lưu lịch sử xem
-                saveProgress(currentTime, duration);
-
-                const remaining = duration - currentTime;
-                // Hiện nút khi còn 60s (1 phút) hoặc phim đã gần hết
-                if (remaining <= 60 && player.duration > 0 && nextEpisode) {
-                    setShowNextButton(true);
-                } else if (remaining > 60) {
-                    setShowNextButton(false);
+            // Xử lý nút Mute trên Mobile: Chỉ hiện Popup, không được Mute
+            player.on('ready', () => {
+                const container = player.elements.container;
+                const muteButton = container?.querySelector('button[data-plyr="mute"]');
+                if (muteButton) {
+                    muteButton.addEventListener('click', (e: Event) => {
+                        if (window.innerWidth < 768) {
+                            // Chặn Plyr thực hiện lệnh Mute mặc định
+                            e.stopImmediatePropagation();
+                            e.preventDefault();
+                            // Popup âm lượng sẽ hiện ra nhờ CSS :focus-within
+                        }
+                    }, { capture: true }); // Chạy trước cả listener mặc định của Plyr
                 }
             });
 
             player.on('play', () => {
+                if (showEndOverlayRef.current) player.pause();
             });
 
-            player.on('seeking', () => {
-            });
+            if (startFrom > 0 && !hasResumed) {
+                player.once('ready', () => {
+                    if (player.currentTime < startFrom - 5) {
+                        player.currentTime = startFrom;
+                        toast.success(`Đã khôi phục vị trí xem cũ: ${Math.floor(startFrom / 60)} phút`, { icon: '🕒', duration: 2500 });
+                    }
+                });
+                setHasResumed(true);
+            }
 
-            player.on('ended', () => {
-                const currentAutoNext = localStorage.getItem('lofilm-auto-next') !== 'false';
-                if (currentAutoNext && nextEpisode) {
-                    window.location.href = `/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`;
-                } else {
+            player.on('timeupdate', () => {
+                const currentTime = player.currentTime;
+                const duration = player.duration;
+                const remaining = duration - currentTime;
+                saveProgress(currentTime, duration);
+                if (isSeries && nextEpisode && remaining <= 120 && player.duration > 0) {
+                    setShowNextButton(true);
+                } else if (remaining > 120) {
                     setShowNextButton(false);
                 }
             });
 
+            player.on('seeked', () => {
+                if (player.duration > 0 && player.currentTime >= player.duration - 0.5) {
+                    if (!(isSeries && nextEpisode && autoNextRef.current)) {
+                        player.pause();
+                        player.currentTime = player.duration - 0.1;
+                        setShowEndOverlay(true);
+                    }
+                }
+            });
+
+            player.on('ended', () => {
+                if (isSeries && nextEpisode && autoNextRef.current) {
+                    window.location.href = `/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`;
+                } else {
+                    player.pause();
+                    player.currentTime = player.duration - 0.1;
+                    setShowEndOverlay(true);
+                }
+            });
+
             if (Hls.isSupported() && videoSrc.endsWith('.m3u8')) {
-                const hls = new Hls({
-                    capLevelToPlayerSize: true,
-                    autoStartLoad: true,
-                    startLevel: -1,
-                    startPosition: startFrom > 0 ? startFrom : -1, // NHẢY NGAY LẬP TỨC TỪ ĐẦU
-                });
+                const hls = new Hls({ capLevelToPlayerSize: true, autoStartLoad: true, startLevel: -1, startPosition: startFrom > 0 ? startFrom : -1 });
                 hls.loadSource(videoSrc);
                 hls.attachMedia(videoRef.current);
                 hlsRef.current = hls;
-
                 hls.on(Hls.Events.ERROR, (event, data) => {
                     if (data.fatal) {
                         setHasError(true);
@@ -370,128 +336,151 @@ export default function WatchClient({
         return () => {
             isMounted = false;
             clearTimeout(initTimeout);
-            if (plyrRef.current) {
-                try { plyrRef.current.destroy(); } catch (e) { }
-            }
-            if (hlsRef.current) {
-                try { hlsRef.current.destroy(); } catch (e) { }
-            }
+            if (plyrRef.current) try { plyrRef.current.destroy(); } catch (e) { }
+            if (hlsRef.current) try { hlsRef.current.destroy(); } catch (e) { }
         };
     }, [videoSrc, nextEpisode, slug]);
 
-    // Xử lý phím tắt Space (Play/Pause) toàn cục
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
             if (e.code === 'Space' || e.keyCode === 32) {
                 const target = e.target as HTMLElement;
-                if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) {
-                    return;
-                }
-
+                if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) return;
                 if (plyrRef.current) {
                     e.preventDefault();
                     plyrRef.current.togglePlay();
                 }
             }
         };
-
         window.addEventListener('keydown', handleKeyDown);
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
-    // Đồng bộ class theater-mode cho body
     useEffect(() => {
-        if (isTheaterMode) {
-            document.body.classList.add('theater-mode');
-        } else {
-            document.body.classList.remove('theater-mode');
-        }
+        if (isTheaterMode) document.body.classList.add('theater-mode');
+        else document.body.classList.remove('theater-mode');
         return () => document.body.classList.remove('theater-mode');
     }, [isTheaterMode]);
 
     return (
         <div className={`pt-35 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} bg-[#0a1628] transition-all duration-500`}>
-            {/* Watch Header (Catalog) */}
             <AnimatePresence>
                 {!isTheaterMode && (
-                    <MovieHeader
-                        slug={slug}
-                        movieName={movie.name}
-                        episodeName={episode.name}
-                    />
+                    <MovieHeader slug={slug} movieName={movie.name} episodeName={episode.name} />
                 )}
             </AnimatePresence>
 
             <div className={`transition-all duration-500 ease-in-out relative ${isExpanded ? 'w-full' : 'max-w-[1900px] mx-auto px-5 lg:px-12'}`}>
-                {/* Plyr Video Section */}
-                <div
-                    key={videoSrc}
-                    className={`
-                        aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden shadow-2xl transition-all duration-500 z-10
-                        ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'}
-                        [--plyr-color-main:#f59e0b]
-                    `}
-                >
-                    <video
-                        ref={videoRef}
-                        className="w-full h-full object-contain"
-                        playsInline
-                        poster={getImageUrl(movie.thumb_url)}
-                    />
+                <div key={videoSrc} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden shadow-2xl transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b]`}>
+                    <style jsx global>{`
+                        .hide-large-play .plyr__control--overlaid { display: none !important; }
+                        .plyr { z-index: auto !important; }
+                        .plyr__controls { z-index: 100 !important; background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5)) !important; }
+                        .hide-large-play .plyr__controls { opacity: 1 !important; visibility: visible !important; }
+                        
+                        /* Hiện thời gian trên mọi thiết bị */
+                        .plyr__time--current,
+                        .plyr__time--duration {
+                            display: block !important;
+                        }
+                        
+                        /* Thu hẹp khoảng cách dấu gạch chéo thời gian */
+                        .plyr__time + .plyr__time::before {
+                            margin-right: 4px !important;
+                        }
 
+                        /* Thu nhỏ cụn nút điều khiển trên Mobile-Tablet */
+                        @media (max-width: 767px) {
+                            .plyr__control {
+                                padding: 5px !important;
+                            }
+                            .plyr__control svg {
+                                width: 14px !important;
+                                height: 14px !important;
+                            }
 
-                    {/* Nút Tập Tiếp Theo Overlay */}
+                            /* Popup âm lượng trên mobile */
+                            .plyr__volume {
+                                position: relative !important;
+                                min-width: 32px !important;
+                            }
+                            .plyr__volume input {
+                                position: absolute !important;
+                                bottom: calc(100% + 15px) !important;
+                                left: 50% !important;
+                                transform: translateX(-50%) !important;
+                                width: 100px !important;
+                                background: rgba(10, 22, 40, 0.95) !important;
+                                border: 1px solid rgba(255, 255, 255, 0.1) !important;
+                                padding: 12px 10px !important;
+                                border-radius: 12px !important;
+                                opacity: 0 !important;
+                                pointer-events: none !important;
+                                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                                z-index: 100 !important;
+                                box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
+                                backdrop-filter: blur(8px) !important;
+                            }
+                            /* Hiện popup khi click/focus vào cụm volume */
+                            .plyr__volume:focus-within input,
+                            .plyr__volume:active input {
+                                opacity: 1 !important;
+                                pointer-events: auto !important;
+                                bottom: calc(100% + 10px) !important;
+                            }
+                        }
+                    `}</style>
+                    <video ref={videoRef} className="w-full h-full object-contain" playsInline loop={false} poster={getImageUrl(movie.thumb_url)} />
+
                     <AnimatePresence>
-                        {showNextButton && nextEpisode && (
-                            <motion.div
-                                initial={{ opacity: 0, y: 10 }}
-                                animate={{ opacity: 1, y: 0 }}
-                                exit={{ opacity: 0 }}
-                                className="absolute bottom-12 md:bottom-16 lg:bottom-24 right-4 md:right-6 z-40"
-                            >
-                                <TransitionLink
-                                    href={`/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`}
-                                    transition={false}
-                                    className="flex items-center gap-1.5 md:gap-2 bg-black/80 border border-white/20 py-1.5 px-3 md:py-2 md:px-5 lg:py-2.5 lg:px-6 rounded-md hover:bg-amber-500 hover:text-[#0a1628] hover:border-amber-500 transition-all duration-300 text-white font-bold text-[10px] md:text-xs uppercase tracking-wider shadow-2xl"
-                                >
+                        {showNextButton && nextEpisode && !showEndOverlay && (
+                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute bottom-24 md:bottom-26 right-4 md:right-8 z-40">
+                                <TransitionLink href={`/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`} transition={false} className="group flex items-center gap-1.5 md:gap-2 bg-black/90 border border-white/40 py-1.5 px-3 md:py-2 md:px-5 rounded-lg hover:bg-white hover:text-[#0a1628] transition-all duration-300 text-white font-bold text-[9px] md:text-[11px] tracking-widest shadow-2xl">
                                     Tập tiếp theo
-                                    <ChevronRight size={16} />
+                                    <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
                                 </TransitionLink>
                             </motion.div>
                         )}
                     </AnimatePresence>
 
-                    {/* Lỗi luồng phát Overlay */}
+                    <AnimatePresence>
+                        {showEndOverlay && (
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-40 bg-black/90 flex flex-col items-center justify-center p-3 md:p-6 text-center pointer-events-none">
+                                <div className="flex items-center justify-center gap-4 md:gap-8 pointer-events-auto scale-90 md:scale-100">
+                                    <motion.button initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} onClick={() => { setShowEndOverlay(false); if (plyrRef.current) { plyrRef.current.currentTime = 0; plyrRef.current.play(); } }} className="group flex flex-col items-center gap-3 hover:scale-105 transition-transform">
+                                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shadow-lg group-hover:bg-white/20">
+                                            <RefreshCcw size={20} className="md:w-6 md:h-6" />
+                                        </div>
+                                        <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Xem lại</span>
+                                    </motion.button>
+                                    {isSeries && nextEpisode && (
+                                        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
+                                            <TransitionLink href={`/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`} className="group flex flex-col items-center gap-3 hover:scale-105 transition-transform">
+                                                <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-amber-500 flex items-center justify-center text-[#0a1628] shadow-lg shadow-amber-500/20 group-hover:bg-amber-400">
+                                                    <ChevronRight size={28} className="md:w-8 md:h-8" />
+                                                </div>
+                                                <span className="text-amber-500 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Tập tiếp theo</span>
+                                            </TransitionLink>
+                                        </motion.div>
+                                    )}
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+
                     <AnimatePresence>
                         {hasError && (
-                            <motion.div
-                                initial={{ opacity: 0 }}
-                                animate={{ opacity: 1 }}
-                                exit={{ opacity: 0 }}
-                                className="absolute inset-0 z-50 flex items-center justify-center bg-black/95 p-4 md:p-6 text-center"
-                            >
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center bg-black/95 p-4 md:p-6 text-center">
                                 <div className="flex flex-col items-center max-w-[280px] sm:max-w-sm">
                                     <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4 md:mb-6">
                                         <AlertTriangle size={24} className="text-red-500 md:w-8 md:h-8" />
                                     </div>
-                                    <h3 className="text-lg md:text-xl font-bold text-white mb-2 font-montserrat uppercase tracking-wider">Link phim bị lỗi (404)</h3>
-                                    <p className="text-white/60 text-[11px] md:text-sm mb-6 md:mb-8 leading-relaxed">
-                                        Máy chủ hiện không phản hồi luồng phát này. Vui lòng **thử đổi sang Server khác** bên dưới hoặc **tắt VPN** nếu có.
-                                    </p>
+                                    <p className="text-white/60 text-[11px] md:text-sm mb-6 md:mb-8 leading-relaxed">Máy chủ hiện không phản hồi luồng phát này. Vui lòng thử đổi sang Server khác bên dưới hoặc tắt VPN nếu có.</p>
                                     <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full sm:w-auto">
-                                        <button
-                                            onClick={() => window.location.reload()}
-                                            className="flex items-center justify-center gap-2 px-6 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] md:text-xs font-bold text-white transition-all cursor-pointer"
-                                        >
+                                        <button onClick={() => window.location.reload()} className="flex items-center justify-center gap-2 px-6 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] md:text-xs font-bold text-white transition-all cursor-pointer">
                                             <RefreshCcw size={14} /> Tải lại trang
                                         </button>
-                                        <button
-                                            onClick={() => {
-                                                const el = document.querySelector('.wc-main');
-                                                el?.scrollIntoView({ behavior: 'smooth' });
-                                            }}
-                                            className="flex items-center justify-center px-6 py-2.5 bg-amber-500 hover:bg-amber-400 rounded-xl text-[10px] md:text-xs font-bold text-[#0a1628] transition-all cursor-pointer"
-                                        >
+                                        <button onClick={() => { const el = document.querySelector('.wc-main'); el?.scrollIntoView({ behavior: 'smooth' }); }} className="flex items-center justify-center px-6 py-2.5 bg-amber-500 hover:bg-amber-400 rounded-xl text-[10px] md:text-xs font-bold text-[#0a1628] transition-all cursor-pointer">
                                             Đổi Server khác
                                         </button>
                                     </div>
@@ -502,58 +491,24 @@ export default function WatchClient({
                 </div>
 
                 <div className="relative z-20">
-                    <PlayerControls
-                        isExpanded={isExpanded}
-                        onToggleExpanded={() => setIsExpanded(!isExpanded)}
-                        isTheaterMode={isTheaterMode}
-                        onToggleTheater={() => setIsTheaterMode(!isTheaterMode)}
-                        isAutoNext={isAutoNext}
-                        onToggleAutoNext={toggleAutoNext}
-                        isFavorited={isFavorited}
-                        onToggleFavorite={toggleFavorite}
-                        episodes={episodes}
-                        activeServer={activeServerIndex}
-                        onServerChange={setActiveServerIndex}
-                        onReport={() => setShowReportModal(true)}
-                    />
+                    <PlayerControls isExpanded={isExpanded} onToggleExpanded={() => setIsExpanded(!isExpanded)} isTheaterMode={isTheaterMode} onToggleTheater={() => setIsTheaterMode(!isTheaterMode)} isAutoNext={isAutoNext} onToggleAutoNext={toggleAutoNext} isFavorited={isFavorited} onToggleFavorite={toggleFavorite} episodes={episodes} activeServer={activeServerIndex} onServerChange={setActiveServerIndex} onReport={() => setShowReportModal(true)} />
                 </div>
             </div>
 
-            {/* Watch Content Area (wc-main) */}
             <AnimatePresence>
                 {!isTheaterMode && (
-                    <motion.div
-                        key="watch-content"
-                        initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                        animate={{ height: "auto", opacity: 1, marginTop: 32 }}
-                        exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                        transition={{ duration: 0.5, ease: "easeInOut" }}
-                        className="overflow-hidden"
-                    >
+                    <motion.div key="watch-content" initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: "auto", opacity: 1, marginTop: 32 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} transition={{ duration: 0.5, ease: "easeInOut" }} className="overflow-hidden">
                         <Container className="wc-main">
                             <div className="flex flex-col xl:flex-row gap-8">
                                 <div className="flex-1">
                                     <div className="flex flex-col gap-6 p-5 md:p-10 bg-white/[0.03] border border-white/10 rounded-3xl shadow-2xl">
-                                        <MovieInfo
-                                            slug={slug}
-                                            movie={movie}
-                                            episode={episode}
-                                        />
-                                        <EpisodeList
-                                            slug={slug}
-                                            currentEpisode={episodeSlug}
-                                            episodes={episodes}
-                                            activeServer={activeServerIndex}
-                                            onServerChange={setActiveServerIndex}
-                                        />
-                                        
-                                        {/* Phần bình luận */}
+                                        <MovieInfo slug={slug} movie={movie} episode={episode} />
+                                        <EpisodeList slug={slug} currentEpisode={episodeSlug} episodes={episodes} activeServer={activeServerIndex} onServerChange={setActiveServerIndex} />
                                         <div className="mt-6 pt-6 border-t border-white/5">
                                             <CommentSection movieSlug={slug} />
                                         </div>
                                     </div>
                                 </div>
-
                                 <div className="w-full xl:w-100">
                                     <Sidebar movie={movie} suggestedMovies={suggestedMovies} />
                                 </div>
@@ -563,12 +518,7 @@ export default function WatchClient({
                 )}
             </AnimatePresence>
 
-            <ReportModal
-                isOpen={showReportModal}
-                onClose={() => setShowReportModal(false)}
-                movieName={movie.name}
-                episodeName={episode.name}
-            />
+            <ReportModal isOpen={showReportModal} onClose={() => setShowReportModal(false)} movieName={movie.name} episodeName={episode.name} />
         </div>
     );
 }
