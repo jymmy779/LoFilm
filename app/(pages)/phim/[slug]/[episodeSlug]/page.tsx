@@ -4,7 +4,6 @@ import { AlertTriangle } from "lucide-react";
 import { Metadata } from "next";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 
-export const dynamic = 'force-static';
 export const revalidate = 3600; // Cache 1 tiếng trên toàn hệ thống
 
 const API_BASE = "https://phimapi.com";
