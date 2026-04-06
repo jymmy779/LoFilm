@@ -48,7 +48,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
             alias: m.origin_name,
             year: m.year,
             ep: m.episode_current?.includes('Hoàn tất') ? 'HT' : (m.episode_current || "Full"),
-            thumb_url: m.thumb_url,
+            poster_url: m.poster_url,
             slug: m.slug
         }))
         : [];
@@ -173,9 +173,9 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                             href={`/phim/${movie.slug}`}
                             className="flex gap-4 py-3 border-b border-white/5 hover:bg-white/[0.02] -mx-4 px-4 transition-all group first:pt-0 last:border-0"
                         >
-                            <div className="w-16 h-20 shrink-0 rounded-lg overflow-hidden relative shadow-lg">
+                            <div className="w-16 h-24 shrink-0 rounded-lg overflow-hidden relative shadow-lg">
                                 <Image 
-                                    src={getImageUrl(movie.thumb_url)} 
+                                    src={getImageUrl(movie.poster_url)} 
                                     alt={movie.title} 
                                     fill 
                                     sizes="64px"
