@@ -1,22 +1,20 @@
 import redis from './redis';
+import { cache } from 'react';
 
 const REVALIDATE_SEC = 3600; // Mặc định Vercel Cache 1 tiếng
 
 /**
  * Hàm fetch an toàn kết hợp Vercel Cache (ISR) và Upstash Redis
- * Luồng hoạt động:
- * 1. Gọi fetch() nguyên thủy (có Next.js Cache)
- * 2. Nếu thành công -> Lưu dữ liệu dự phòng vào Redis -> Trả về Client
- * 3. Nếu thất bại / Lỗi API gốc -> Nhanh chóng kéo dữ liệu dự phòng từ Redis lên để hotswap
+ * Đã được wrap bởi React.cache() để tránh double transfer giữa Metadata và Page Component
  */
-export async function fetchWithRedis(url: string, options?: RequestInit): Promise<any> {
+export const fetchWithRedis = cache(async (url: string, options?: RequestInit): Promise<any> => {
     // 1. KIỂM TRA REDIS TRƯỚC (Cache-First) - Phản hồi cực nhanh <50ms
     if (process.env.UPSTASH_REDIS_REST_URL) {
         try {
             const cachedData = await redis.get(url);
             if (cachedData) {
                 // Trình duyệt nhận được data ngay lập tức ở đây
-                // Kích hoạt cập nhật ngầm (Background Revalidation) để cache luôn mới
+                // Kích hoạt cập nhật ngầm mà không đợi phản hồi (Fire and forget)
                 void fetch(url, {
                     ...options,
                     next: { revalidate: options?.next?.revalidate ?? REVALIDATE_SEC },
@@ -34,12 +32,18 @@ export async function fetchWithRedis(url: string, options?: RequestInit): Promis
         }
     }
 
-    // 2. NẾU CACHE MISS -> MỚI GỌI API GỐC (Chấp nhận chờ 1.8s lần đầu)
+    // 2. NẾU CACHE MISS -> GỌI API GỐC VỚI TIMEOUT 10S
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 giây là tối đa
+
     try {
         const response = await fetch(url, {
             ...options,
+            signal: controller.signal,
             next: { revalidate: options?.next?.revalidate ?? REVALIDATE_SEC },
         });
+        
+        clearTimeout(timeoutId);
 
         if (response.ok) {
             const data = await response.json();
@@ -53,8 +57,13 @@ export async function fetchWithRedis(url: string, options?: RequestInit): Promis
         } else {
             throw new Error(`API Endpoint returned status: ${response.status}`);
         }
-    } catch (error) {
-        console.error(`[Fetch Error] Gọi API thất bại: ${url}`);
+    } catch (error: any) {
+        clearTimeout(timeoutId);
+        if (error.name === 'AbortError') {
+            console.error(`[Timeout] API phản hồi quá lâu (>10s): ${url}`);
+        } else {
+            console.error(`[Fetch Error] Gọi API thất bại: ${url}`);
+        }
         return null;
     }
-}
+});

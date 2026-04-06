@@ -7,7 +7,6 @@ import { MenuItem } from "@/app/components/Header/types";
 export interface FilterState {
     country: string;
     type: string;
-    rating: string;
     category: string;
     year: string;
     sort: string;
@@ -34,7 +33,6 @@ export default function MovieFilter({
     const [filters, setFilters] = useState<FilterState>(initialFilters || {
         country: "",
         type: "",
-        rating: "",
         category: "",
         year: "",
         sort: "update"
@@ -50,13 +48,7 @@ export default function MovieFilter({
     }, [initialIsOpen]);
 
     const years = Array.from({ length: 17 }, (_, i) => (2026 - i).toString());
-    const ratings = [
-        { label: "P (Mọi lứa tuổi)", value: "P" },
-        { label: "K (Dưới 13 tuổi)", value: "K" },
-        { label: "T13 (13 tuổi trở lên)", value: "T13" },
-        { label: "T16 (16 tuổi trở lên)", value: "T16" },
-        { label: "T18 (18 tuổi trở lên)", value: "T18" }
-    ];
+
 
     const handleSelect = (key: keyof FilterState, value: string) => {
         setFilters(prev => ({ ...prev, [key]: value }));
@@ -76,7 +68,6 @@ export default function MovieFilter({
         const resetFilters = {
             country: "",
             type: "",
-            rating: "",
             category: "",
             year: "",
             sort: "update"
@@ -132,14 +123,7 @@ export default function MovieFilter({
                                 onSelect={(val: string) => handleSelect("type", val)}
                             />
 
-                            {/* Row: Xếp hạng */}
-                            <FilterRow
-                                label="Xếp hạng"
-                                items={[{ label: "Tất cả", value: "" }, ...ratings]}
-                                activeValue={filters.rating}
-                                onSelect={(val: string) => handleSelect("rating", val)}
-                                useValueField
-                            />
+
 
                             {/* Row: Thể loại */}
                             <FilterRow
@@ -162,7 +146,7 @@ export default function MovieFilter({
                                 label="Sắp xếp"
                                 items={[
                                     { name: "Mới nhất", slug: "update" },
-                                    { name: "Điểm IMDb", slug: "imdb" },
+                                    { name: "Điểm đánh giá", slug: "imdb" },
                                     { name: "Lượt xem", slug: "view" }
                                 ]}
                                 activeValue={filters.sort}
