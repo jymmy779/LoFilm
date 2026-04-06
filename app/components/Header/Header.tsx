@@ -83,33 +83,35 @@ export default function Header() {
                                         setIsMenuOpen(!isMenuOpen);
                                         setIsSearchActive(false);
                                     }}
-                                    className="p-2 cursor-pointer text-white/70 hover:text-white transition-colors flex items-center justify-center w-10 h-10 shrink-0"
+                                    className="p-2 cursor-pointer text-white/70 hover:text-white transition-colors flex items-center justify-center w-10 h-10 shrink-0 relative"
                                 >
-                                    <AnimatePresence mode="wait">
-                                        {isMenuOpen ? (
-                                            <motion.svg
-                                                key="menu-close"
-                                                initial={{ rotate: -90, opacity: 0 }}
-                                                animate={{ rotate: 0, opacity: 1 }}
-                                                exit={{ rotate: 90, opacity: 0 }}
-                                                transition={{ duration: 0.2 }}
-                                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                                            >
-                                                <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
-                                            </motion.svg>
-                                        ) : (
-                                            <motion.svg
-                                                key="menu-hamburger"
-                                                initial={{ scale: 0.8, opacity: 0 }}
-                                                animate={{ scale: 1, opacity: 1 }}
-                                                exit={{ scale: 0.8, opacity: 0 }}
-                                                transition={{ duration: 0.2 }}
-                                                xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
-                                            >
-                                                <line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line>
-                                            </motion.svg>
-                                        )}
-                                    </AnimatePresence>
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                        <motion.line
+                                            x1="3" y1="6" x2="21" y2="6"
+                                            animate={{ 
+                                                rotate: isMenuOpen ? 45 : 0,
+                                                y: isMenuOpen ? 6 : 0,
+                                                x1: isMenuOpen ? 4.5 : 3,
+                                                x2: isMenuOpen ? 19.5 : 21
+                                            }}
+                                            transition={{ duration: 0.2 }}
+                                        />
+                                        <motion.line
+                                            x1="3" y1="12" x2="21" y2="12"
+                                            animate={{ opacity: isMenuOpen ? 0 : 1 }}
+                                            transition={{ duration: 0.1 }}
+                                        />
+                                        <motion.line
+                                            x1="3" y1="18" x2="21" y2="18"
+                                            animate={{ 
+                                                rotate: isMenuOpen ? -45 : 0,
+                                                y: isMenuOpen ? -6 : 0,
+                                                x1: isMenuOpen ? 4.5 : 3,
+                                                x2: isMenuOpen ? 19.5 : 21
+                                            }}
+                                            transition={{ duration: 0.2 }}
+                                        />
+                                    </svg>
                                 </button>
 
                                 <TransitionLink href="/" className="shrink-0">
@@ -244,16 +246,16 @@ export default function Header() {
                         />
 
                         <motion.div
-                            initial={{ opacity: 0, y: -4, scale: 0.99 }}
+                            initial={{ opacity: 0, y: -8, scale: 0.98 }}
                             animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -4, scale: 0.99 }}
-                            transition={{ duration: 0.15, ease: "easeOut" }}
+                            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+                            transition={{ duration: 0.2, ease: "easeOut" }}
                             className="xl:hidden fixed left-4 right-4 top-[64px] md:top-[74px] z-[100] bg-[#111e31] border border-white/10 rounded-xl overflow-hidden origin-top overflow-y-auto max-h-[80vh]"
                             style={{ willChange: "transform, opacity", transform: "translateZ(0)" }}
                         >
                             <div className="p-5 custom-scrollbar">
-                                <motion.div layout className="flex flex-col">
-                                    <motion.div layout>
+                                <div className="flex flex-col">
+                                    <div>
                                         <TransitionLink
                                             href="/"
                                             onClick={() => setIsMenuOpen(false)}
@@ -262,10 +264,10 @@ export default function Header() {
                                             Trang chủ
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                         </TransitionLink>
-                                    </motion.div>
+                                    </div>
 
                                     {/* Accordion: Thể loại */}
-                                    <motion.div layout className="border-b border-white/5">
+                                    <div className="border-b border-white/5">
                                         <button
                                             onClick={() => setExpandedSections(prev => prev.includes('categories') ? prev.filter(s => s !== 'categories') : [...prev, 'categories'])}
                                             className="w-full flex cursor-pointer items-center justify-between py-3 text-base font-medium text-white/80 hover:text-[#f5a623] transition-colors"
@@ -280,7 +282,6 @@ export default function Header() {
                                         </button>
 
                                         <motion.div
-                                            layout
                                             initial={false}
                                             animate={{
                                                 height: expandedSections.includes('categories') ? "auto" : 0,
@@ -292,7 +293,7 @@ export default function Header() {
                                             className="overflow-hidden"
                                             style={{ transform: "translateZ(0)" }}
                                         >
-                                            <div className="grid grid-cols-2 gap-x-4 gap-y-2 p-3 bg-white/5 rounded-xl">
+                                            <div className="grid grid-cols-2 gap-x-4 gap-y-2 p-3 bg-white/5 rounded-xl border border-white/5">
                                                 {categories.map((cat) => (
                                                     <TransitionLink
                                                         key={cat._id}
@@ -305,10 +306,10 @@ export default function Header() {
                                                 ))}
                                             </div>
                                         </motion.div>
-                                    </motion.div>
+                                    </div>
 
                                     {/* Accordion: Quốc gia */}
-                                    <motion.div layout className="border-b border-white/5">
+                                    <div className="border-b border-white/5">
                                         <button
                                             onClick={() => setExpandedSections(prev => prev.includes('countries') ? prev.filter(s => s !== 'countries') : [...prev, 'countries'])}
                                             className="w-full flex cursor-pointer items-center justify-between py-3 text-base font-medium text-white/80 hover:text-[#f5a623] transition-colors"
@@ -323,7 +324,6 @@ export default function Header() {
                                         </button>
 
                                         <motion.div
-                                            layout
                                             initial={false}
                                             animate={{
                                                 height: expandedSections.includes('countries') ? "auto" : 0,
@@ -335,7 +335,7 @@ export default function Header() {
                                             className="overflow-hidden"
                                             style={{ transform: "translateZ(0)" }}
                                         >
-                                            <div className="grid grid-cols-3 gap-2 p-3 bg-white/5 rounded-xl">
+                                            <div className="grid grid-cols-3 gap-2 p-3 bg-white/5 rounded-xl border border-white/5">
                                                 {countries.map((country) => (
                                                     <TransitionLink
                                                         key={country._id}
@@ -348,11 +348,11 @@ export default function Header() {
                                                 ))}
                                             </div>
                                         </motion.div>
-                                    </motion.div>
+                                    </div>
 
                                     {/* Common Nav Links */}
                                     {navLinks.map((item) => (
-                                        <motion.div layout key={item.href}>
+                                        <div key={item.href}>
                                             <TransitionLink
                                                 href={item.href}
                                                 onClick={() => setIsMenuOpen(false)}
@@ -360,14 +360,14 @@ export default function Header() {
                                             >
                                                 {item.label}
                                             </TransitionLink>
-                                        </motion.div>
+                                        </div>
                                     ))}
 
                                     {/* Centered Premium Member Button */}
-                                    <motion.div layout className="pt-4 pb-2 flex justify-center">
-                                        <MemberButton />
-                                    </motion.div>
-                                </motion.div>
+                                    <div className="pt-4 pb-2 flex justify-center border-t border-white/5 mt-4">
+                                        <MemberButton flatten={true} />
+                                    </div>
+                                </div>
                             </div>
                         </motion.div>
                     </>

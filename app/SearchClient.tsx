@@ -39,6 +39,7 @@ function SearchContent() {
     const [isFilterOpen, setIsFilterOpen] = useState(searchParams.get("filter") === "open");
     const [movies, setMovies] = useState<Movie[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isPageLoading, setIsPageLoading] = useState(false);
     const [currentPage, setCurrentPage] = useState(initialPage);
     const [totalPages, setTotalPages] = useState(1);
 
@@ -85,8 +86,18 @@ function SearchContent() {
     useEffect(() => {
         let isMounted = true;
         const fetchMovies = async () => {
-            if (!keyword) return;
-            setIsLoading(true);
+            if (!keyword) {
+                setIsLoading(false);
+                return;
+            }
+
+            // Use lightweight loading indicator if we already have movies on screen
+            if (movies.length > 0) {
+                setIsPageLoading(true);
+            } else {
+                setIsLoading(true);
+            }
+
             try {
                 const params = new URLSearchParams();
                 params.set("keyword", keyword);
@@ -97,7 +108,7 @@ function SearchContent() {
                 if (activeFilters.country) params.set("country", activeFilters.country);
                 if (activeFilters.year) params.set("year", activeFilters.year);
                 
-                // Mặc định sort_field = modified.time
+                // Sort logic
                 let sortField = "modified.time";
                 if (activeFilters.sort === "year") sortField = "year";
                 if (activeFilters.sort === "_id") sortField = "_id";
@@ -107,6 +118,8 @@ function SearchContent() {
                 const apiUrl = `https://phimapi.com/v1/api/tim-kiem?${params.toString()}`;
                 const res = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`);
 
+                if (!isMounted) return;
+
                 if (res.data?.status === "success" || res.data?.status === true) {
                     const items = res.data.data?.items || [];
                     const totalItems = res.data.data?.params?.pagination?.totalItems || 0;
@@ -114,26 +127,46 @@ function SearchContent() {
                     if (isMounted) {
                         setMovies(items);
                         setTotalPages(Math.ceil(totalItems / 32) || 1);
+                        setIsLoading(false);
+                        setIsPageLoading(false);
                     }
 
-                    // --- Enrich data (optional but kept as same as NewMoviesClient) ---
+                    // --- Background Enrichment (Smarter & Non-blocking) ---
+                    // Wait a bit for initial render to settle
+                    await new Promise(r => setTimeout(r, 100));
+                    
                     const enriched = [...items];
-                    const chunkSize = 8;
-                    for (let i = 0; i < enriched.length; i += chunkSize) {
-                        if (!isMounted) break;
-                        const chunk = enriched.slice(i, i + chunkSize);
-                        await Promise.all(chunk.map(async (movie, indexInChunk) => {
-                            if (movie.episode_total === "??" || !movie.episode_total) {
+                    // Only target items that are series and don't have total/slash info
+                    const targets = items.map((m: Movie, idx: number) => ({ m, idx }))
+                        .filter(({ m }: { m: Movie }) => {
+                            const isMulti = ["series", "hoathinh", "tvshows"].includes(m.type || "");
+                            const hasTotal = m.episode_total && m.episode_total !== "??";
+                            const hasSlash = m.episode_current?.includes("/");
+                            return isMulti && !hasTotal && !hasSlash;
+                        });
+
+                    if (targets.length > 0) {
+                        const chunkSize = 4; // Smaller chunks for better responsiveness
+                        for (let i = 0; i < targets.length; i += chunkSize) {
+                            if (!isMounted) break;
+                            const chunk = targets.slice(i, i + chunkSize);
+                            
+                            await Promise.all(chunk.map(async ({ m, idx }: { m: Movie; idx: number }) => {
                                 try {
-                                    const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}`);
+                                    const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${m.slug}`)}`);
                                     if (detailRes.data?.movie?.episode_total) {
-                                        enriched[i + indexInChunk] = { ...enriched[i + indexInChunk], episode_total: detailRes.data.movie.episode_total };
+                                        enriched[idx] = { 
+                                            ...enriched[idx], 
+                                            episode_total: detailRes.data.movie.episode_total 
+                                        };
                                     }
                                 } catch (e) {}
-                            }
-                        }));
-                        if (isMounted) setMovies([...enriched]);
-                        if (i + chunkSize < enriched.length) await new Promise(r => setTimeout(r, 50));
+                            }));
+                            
+                            if (isMounted) setMovies([...enriched]);
+                            // Yield to main thread to keep scrolling smooth
+                            await new Promise(r => setTimeout(r, 50));
+                        }
                     }
                 } else {
                     if (isMounted) {
@@ -145,7 +178,10 @@ function SearchContent() {
                 console.error("Lỗi fetch search:", error);
                 if (isMounted) setMovies([]);
             } finally {
-                if (isMounted) setIsLoading(false);
+                if (isMounted) {
+                    setIsLoading(false);
+                    setIsPageLoading(false);
+                }
             }
         };
 
@@ -180,41 +216,52 @@ function SearchContent() {
                         onToggle={handleToggleFilter}
                     />
 
-                    {isLoading ? (
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 mt-8">
-                            {[...Array(32)].map((_, i) => (
-                                <div key={i} className="space-y-3">
-                                    <Skeleton className="aspect-[2/3] rounded-2xl" />
-                                    <div className="space-y-1.5 px-1">
-                                        <Skeleton height={16} width="90%" />
-                                        <Skeleton height={12} width="60%" />
-                                    </div>
-                                </div>
-                            ))}
-                        </div>
-                    ) : movies.length > 0 ? (
-                        <>
-                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 mt-8">
-                                {movies.map((movie, index) => (
-                                    <MoviePosterCard key={movie._id} movie={movie} priority={index < 16} />
-                                ))}
+                    <div className="relative">
+                        {/* Loading Overlay for pagination/filter changes */}
+                        {(isLoading === false && isPageLoading) && (
+                            <div className="absolute inset-x-0 -top-4 bottom-0 z-40 flex justify-center pt-20 pointer-events-none">
+                                <div className="sticky top-1/2 -translate-y-1/2 w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin"></div>
                             </div>
+                        )}
 
-                            <Pagination
-                                currentPage={currentPage}
-                                totalPages={totalPages}
-                                onPageChange={handlePageChange}
-                            />
-                        </>
-                    ) : (
-                        /* No content section */
-                        <div className="text-center py-20" style={{ color: 'rgba(255, 255, 255, 0.4)' }}>
-                            <div style={{ fontSize: '5rem', marginBottom: '16px' }}>
-                                <i className="fa-solid fa-film"></i>
-                            </div>
-                            <div className="text-lg">Không có nội dung cho mục này.</div>
+                        <div className={`transition-opacity duration-300 ${(isLoading === false && isPageLoading) ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
+                            {isLoading ? (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 mt-8">
+                                    {[...Array(32)].map((_, i) => (
+                                        <div key={i} className="space-y-3">
+                                            <Skeleton className="aspect-[2/3] rounded-2xl" />
+                                            <div className="space-y-1.5 px-1">
+                                                <Skeleton height={16} width="90%" />
+                                                <Skeleton height={12} width="60%" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : movies.length > 0 ? (
+                                <>
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 mt-8">
+                                        {movies.map((movie, index) => (
+                                            <MoviePosterCard key={movie._id} movie={movie} priority={index < 16} />
+                                        ))}
+                                    </div>
+
+                                    <Pagination
+                                        currentPage={currentPage}
+                                        totalPages={totalPages}
+                                        onPageChange={handlePageChange}
+                                    />
+                                </>
+                            ) : (
+                                /* No content section */
+                                <div className="text-center py-20" style={{ color: 'rgba(255, 255, 255, 0.4)' }}>
+                                    <div style={{ fontSize: '5rem', marginBottom: '16px' }}>
+                                        <i className="fa-solid fa-film"></i>
+                                    </div>
+                                    <div className="text-lg">Không có nội dung cho mục này.</div>
+                                </div>
+                            )}
                         </div>
-                    )}
+                    </div>
                 </div>
             </Container>
         </main>

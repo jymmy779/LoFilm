@@ -14,7 +14,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
         <>
             <HeroSlider initialMovies={prefetched.hero} />
             <CategoriesSection initialCategories={prefetched.categories} />
-            <ContinueWatchingRow />
+            <ContinueWatchingRow initialHistory={prefetched.initialHistory} />
             <MovieRow
                 title="Phim Hàn Quốc mới"
                 apiUrl="https://phimapi.com/v1/api/quoc-gia/han-quoc?limit=20"

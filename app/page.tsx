@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { createClient } from "@/app/utils/supabase/server";
 import HomeClient from "./HomeClient";
 import SearchClient from "./SearchClient";
 import { prefetchHomePageData } from "./lib/prefetch-home";
@@ -32,6 +33,25 @@ export default async function Home({
     return <SearchClient />;
   }
 
-  const homePrefetch = await prefetchHomePageData();
+  const [homePrefetch, supabase] = await Promise.all([
+      prefetchHomePageData(),
+      createClient()
+  ]);
+
+  // Thử lấy lịch sử xem ngay từ server nạp xuống
+  const { data: { session } } = await supabase.auth.getSession();
+  if (session?.user) {
+      const { data: history } = await supabase
+          .from('watch_history')
+          .select('*')
+          .eq('user_id', session.user.id)
+          .order('updated_at', { ascending: false })
+          .limit(20);
+      
+      if (history) {
+          homePrefetch.initialHistory = history;
+      }
+  }
+
   return <HomeClient prefetched={homePrefetch} />;
 }
