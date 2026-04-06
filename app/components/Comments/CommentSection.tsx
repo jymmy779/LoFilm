@@ -126,7 +126,7 @@ export default function CommentSection({ movieSlug }: CommentSectionProps) {
                 ) : (
                     <div className="text-center py-20 bg-white/[0.02] border border-white/5 rounded-[2rem]">
                         <div className="w-16 h-16 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-4 text-white/10">
-                            <i className="fa-solid fa-message-slash text-2xl"></i>
+                            <i className="fa-solid fa-comment-slash text-2xl"></i>
                         </div>
                         <p className="text-white/20 italic font-medium">Chưa có bình luận nào. Hãy là người đầu tiên chia sẻ cảm xúc!</p>
                     </div>
