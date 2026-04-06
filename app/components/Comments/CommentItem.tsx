@@ -9,6 +9,7 @@ import { createClient } from "@/app/utils/supabase/client";
 import CommentInput from "./CommentInput";
 import { toast } from "react-hot-toast";
 import ConfirmModal from "./ConfirmModal";
+import { reportCommentToTelegram } from "@/app/actions/reportActions";
 
 interface CommentItemProps {
     comment: any;
@@ -16,9 +17,10 @@ interface CommentItemProps {
     onReplyAdded: () => void;
     onDelete?: (id: string) => void;
     isReply?: boolean;
+    movieSlug?: string;
 }
 
-export default function CommentItem({ comment, user, onReplyAdded, onDelete, isReply = false }: CommentItemProps) {
+export default function CommentItem({ comment, user, onReplyAdded, onDelete, isReply = false, movieSlug }: CommentItemProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showReplyForm, setShowReplyForm] = useState(false);
     const [replies, setReplies] = useState<any[]>([]);
@@ -167,11 +169,30 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
     };
 
     const reportComment = async () => {
-        const { error } = await supabase.from('comments').update({ is_reported: true }).eq('id', comment.id);
-        if (!error) {
-            toast.success("Cảm ơn bạn đã báo cáo, chúng tôi sẽ sớm xem xét!");
+        if (!user) {
+            toast.error("Bạn cần đăng nhập để báo cáo!");
+            return;
         }
+
+        // Báo thành công và đóng menu ngay lập tức cho mượt
+        toast.success("Báo cáo của bạn đã được gởi tới ban quản trị!");
         setIsMenuOpen(false);
+
+        try {
+            // 1. Cập nhật vào DB (Chạy ngầm)
+            await supabase.from('comments').update({ is_reported: true }).eq('id', comment.id);
+
+            // 2. Gởi về Telegram (Chạy ngầm, không await để tránh delay UI)
+            reportCommentToTelegram({
+                author: displayName,
+                content: comment.content,
+                commentId: comment.id,
+                movieSlug: movieSlug,
+                reportedBy: user.email || user.id
+            });
+        } catch (error) {
+            console.error("Lỗi khi gởi báo cáo:", error);
+        }
     };
 
     const handleDelete = () => {
@@ -220,15 +241,9 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                     </div>
 
                     <div className="text text-sm">
-                        {comment.is_reported ? (
-                            <div className="py-2 px-4 bg-red-500/10 border border-red-500/20 rounded-lg text-red-400 text-[11px] italic mb-2">
-                                Bình luận này đã bị báo cáo và đang chờ kiểm duyệt.
-                            </div>
-                        ) : (
-                            <div className={comment.is_spoiler && !showSpoiler ? "text-spoiler" : "text-spoiler revealed"}>
-                                {comment.content}
-                            </div>
-                        )}
+                        <div className={comment.is_spoiler && !showSpoiler ? "text-spoiler" : "text-spoiler revealed"}>
+                            {comment.content}
+                        </div>
                     </div>
 
                     <div className="comment-bottom line-center d-flex">
@@ -341,6 +356,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                                 key={reply.id}
                                 comment={reply}
                                 user={user}
+                                movieSlug={movieSlug}
                                 isReply={true}
                                 onReplyAdded={() => {/* NOP */ }}
                                 onDelete={(id) => setReplies(replies.filter(r => r.id !== id))}

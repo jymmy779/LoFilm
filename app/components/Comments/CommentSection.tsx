@@ -114,6 +114,7 @@ export default function CommentSection({ movieSlug }: CommentSectionProps) {
                             key={comment.id}
                             comment={comment}
                             user={user}
+                            movieSlug={movieSlug}
                             onReplyAdded={() => { }}
                             onDelete={(id) => setComments(comments.filter(c => c.id !== id))}
                         />
