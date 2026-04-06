@@ -2,7 +2,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { ThumbsUp, ThumbsDown, Reply, MoreHorizontal, Eye, Flag, Trash2, EyeOff } from "lucide-react";
+import { ThumbsUp, ThumbsDown, Reply, MoreHorizontal, Eye, Flag, Trash2, EyeOff, Pencil } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { createClient } from "@/app/utils/supabase/client";
@@ -30,6 +30,8 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
     const [showSpoiler, setShowSpoiler] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [commentContent, setCommentContent] = useState(comment.content);
     const supabase = createClient();
 
     const displayName = comment.user_name || "Thành viên";
@@ -195,6 +197,32 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
         }
     };
 
+    const handleEdit = () => {
+        setIsEditing(true);
+        setIsMenuOpen(false);
+    };
+
+    const handleUpdate = async (content: string, isSpoiler: boolean) => {
+        try {
+            const { error } = await supabase
+                .from('comments')
+                .update({ content, is_spoiler: isSpoiler })
+                .eq('id', comment.id);
+
+            if (error) {
+                toast.error("Không thể cập nhật bình luận");
+            } else {
+                setCommentContent(content);
+                comment.is_spoiler = isSpoiler;
+                comment.content = content; // Cập nhật cho logic spoiler
+                setIsEditing(false);
+                toast.success("Đã cập nhật bình luận");
+            }
+        } catch (err) {
+            toast.error("Lỗi kết nối");
+        }
+    };
+
     const handleDelete = () => {
         setIsDeleteModalOpen(true);
         setIsMenuOpen(false);
@@ -240,10 +268,35 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                         </div>
                     </div>
 
-                    <div className="text text-sm">
-                        <div className={comment.is_spoiler && !showSpoiler ? "text-spoiler" : "text-spoiler revealed"}>
-                            {comment.content}
-                        </div>
+                    <div className="text text-sm overflow-hidden">
+                        <AnimatePresence mode="wait">
+                            {isEditing ? (
+                                <motion.div
+                                    key="edit-form"
+                                    initial={{ height: 0, opacity: 0 }}
+                                    animate={{ height: 'auto', opacity: 1 }}
+                                    exit={{ height: 0, opacity: 0 }}
+                                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                                >
+                                    <CommentInput 
+                                        isEdit={true}
+                                        initialContent={commentContent}
+                                        onSubmit={handleUpdate}
+                                        onCancel={() => setIsEditing(false)}
+                                    />
+                                </motion.div>
+                            ) : (
+                                <motion.div
+                                    key="comment-text"
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className={comment.is_spoiler && !showSpoiler ? "text-spoiler" : "text-spoiler revealed"}
+                                >
+                                    {commentContent}
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
                     </div>
 
                     <div className="comment-bottom line-center d-flex">
@@ -286,11 +339,11 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                             <AnimatePresence>
                                 {isMenuOpen && (
                                     <motion.div 
-                                        initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                                        transition={{ duration: 0.2 }}
-                                        className="v-dropdown-menu dropdown-menu bg-dark"
+                                        initial={{ opacity: 0, y: 5 }}
+                                        animate={{ opacity: 1, y: 0 }}
+                                        exit={{ opacity: 0, y: 5 }}
+                                        transition={{ duration: 0.15, ease: "easeOut" }}
+                                        className="v-dropdown-menu dropdown-menu border border-white/10 bg-[#16181a] shadow-2xl rounded-2xl p-1.5 will-change-transform"
                                     >
                                         {comment.is_spoiler && (
                                             <button className="dropdown-item text-amber-500" onClick={() => { setShowSpoiler(!showSpoiler); setIsMenuOpen(false); }}>
@@ -301,9 +354,14 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                                             <Flag size={14} /> <span>Báo xấu</span>
                                         </button>
                                         {user?.id === comment.user_id && (
-                                            <button className="dropdown-item text-red-500/80" onClick={handleDelete}>
-                                                <Trash2 size={14} /> <span>Xóa bình luận</span>
-                                            </button>
+                                            <>
+                                                <button className="dropdown-item text-amber-500/80" onClick={handleEdit}>
+                                                    <Pencil size={14} /> <span>Chỉnh sửa</span>
+                                                </button>
+                                                <button className="dropdown-item text-red-500/80" onClick={handleDelete}>
+                                                    <Trash2 size={14} /> <span>Xóa bình luận</span>
+                                                </button>
+                                            </>
                                         )}
                                     </motion.div>
                                 )}

@@ -1,17 +1,30 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Send, EyeOff } from "lucide-react";
+import { Send, EyeOff, CheckCircle2 } from "lucide-react";
 
 interface CommentInputProps {
     onSubmit: (content: string, isSpoiler: boolean) => Promise<void>;
     placeholder?: string;
     isReply?: boolean;
+    isEdit?: boolean;
+    initialContent?: string;
+    hasCommented?: boolean;
+    userCommentId?: string;
     onCancel?: () => void;
 }
 
-export default function CommentInput({ onSubmit, placeholder = "Viết bình luận của bạn...", isReply = false, onCancel }: CommentInputProps) {
-    const [content, setContent] = useState("");
+export default function CommentInput({ 
+    onSubmit, 
+    placeholder = "Viết bình luận của bạn...", 
+    isReply = false, 
+    isEdit = false, 
+    initialContent = "",
+    hasCommented = false,
+    userCommentId,
+    onCancel 
+}: CommentInputProps) {
+    const [content, setContent] = useState(initialContent);
     const [isSpoiler, setIsSpoiler] = useState(false);
     const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -59,18 +72,60 @@ export default function CommentInput({ onSubmit, placeholder = "Viết bình lu�
         }
     };
 
+    const scrollToMyComment = () => {
+        if (!userCommentId) return;
+        const targetComment = document.getElementById(`comment-${userCommentId}`);
+        if (targetComment) {
+            targetComment.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            // Highlight hiệu ứng nháy nhẹ
+            targetComment.style.transition = 'all 0.5s ease-in-out';
+            targetComment.style.backgroundColor = 'rgba(245, 166, 35, 0.1)';
+            targetComment.style.transform = 'scale(1.02)';
+            
+            setTimeout(() => {
+                targetComment.style.backgroundColor = '';
+                targetComment.style.transform = '';
+            }, 1500);
+        }
+    };
+
+    if (hasCommented && !isReply && !isEdit) {
+        return (
+            <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8 text-center">
+                <div className="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-500">
+                    <CheckCircle2 size={24} />
+                </div>
+                <p className="text-white/60 text-sm font-medium">Bạn đã chia sẻ nhận xét về phim này.</p>
+                <div className="flex flex-col gap-2 mt-4 max-w-xs mx-auto">
+                    {userCommentId && (
+                        <button
+                            onClick={scrollToMyComment}
+                            className="w-full py-3 bg-amber-400 text-black rounded-2xl text-[11px] font-bold hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
+                        >
+                            <Send size={12} className="rotate-[-45deg] translate-y-[-1px]" />
+                            Đi tới bình luận của tôi
+                        </button>
+                    )}
+                    <p className="text-white/20 text-[10px]">Bạn có thể chỉnh sửa bình luận hiện có của mình bên dưới.</p>
+                </div>
+            </div>
+        );
+    }
+
     return (
-        <form onSubmit={handleSubmit} className={`comment-form-container ${isReply ? 'mt-4 border-l-2 border-amber-400/20' : ''}`}>
+        <form onSubmit={handleSubmit} className={`comment-form-container ${isReply || isEdit ? 'mt-4 border-l-2 border-amber-400/20' : ''}`}>
             <textarea
                 className="comment-textarea"
-                placeholder={placeholder}
+                placeholder={isEdit ? "Chỉnh sửa bình luận..." : placeholder}
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
+                autoFocus={isEdit}
                 disabled={isSubmitting}
             />
             <div className="form-footer flex justify-end items-center w-full">
                 <div className="flex items-center gap-3">
-                    {isReply && onCancel && (
+                    {(isReply || isEdit) && onCancel && (
                         <button
                             type="button"
                             onClick={onCancel}
@@ -82,14 +137,14 @@ export default function CommentInput({ onSubmit, placeholder = "Viết bình lu�
                     <button
                         type="submit"
                         className="btn-submit flex items-center gap-2"
-                        disabled={!content.trim() || isSubmitting}
+                        disabled={(!content.trim() || isSubmitting) || (isEdit && content === initialContent)}
                     >
                         {isSubmitting ? (
                             <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
                         ) : (
                             <Send size={14} />
                         )}
-                        <span>{isReply ? "Trả lời" : "Gửi"}</span>
+                        <span>{isEdit ? "Cập nhật" : (isReply ? "Trả lời" : "Gửi")}</span>
                     </button>
                 </div>
             </div>

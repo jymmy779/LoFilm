@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle2 } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle2, ThumbsUp, Star, History as HistoryIcon } from "lucide-react";
 import { createClient } from "@/app/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
@@ -42,7 +42,16 @@ export default function AuthContent() {
         });
         if (error) throw error;
         toast.success("Chào mừng bạn trở lại!");
-        navigateWithTransition("/");
+        
+        // Lấy trang trước đó từ referrer để giữ transition
+        const referrer = typeof document !== "undefined" ? document.referrer : "";
+        const isInternal = referrer && referrer.includes(window.location.origin) && !referrer.includes("/dang-nhap");
+        
+        if (isInternal) {
+          navigateWithTransition(referrer);
+        } else {
+          navigateWithTransition("/");
+        }
         setTimeout(() => router.refresh(), 500);
       } else {
         // Validation
@@ -241,6 +250,41 @@ export default function AuthContent() {
             </button>
           </div>
         )}
+
+        {/* Membership Privileges Grid */}
+        <div className="mt-10 pt-8 border-t border-white/5 grid grid-cols-2 gap-3">
+          <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-center group hover:bg-white/5 transition-all">
+            <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 mx-auto mb-3 group-hover:scale-110 transition-transform">
+              <CheckCircle2 size={20} />
+            </div>
+            <div className="text-[12px] font-bold text-white mb-1">Bình luận phim</div>
+            <div className="text-[10px] text-white/30 leading-tight">Chia sẻ nhận xét với cộng đồng</div>
+          </div>
+
+          <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-center group hover:bg-white/5 transition-all">
+            <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 mx-auto mb-3 group-hover:scale-110 transition-transform">
+              <ThumbsUp size={20} />
+            </div>
+            <div className="text-[12px] font-bold text-white mb-1">Like / Dislike</div>
+            <div className="text-[10px] text-white/30 leading-tight">Bày tỏ cảm xúc với từng tập phim</div>
+          </div>
+
+          <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-center group hover:bg-white/5 transition-all">
+            <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 mx-auto mb-3 group-hover:scale-110 transition-transform">
+              <HistoryIcon size={20} />
+            </div>
+            <div className="text-[12px] font-bold text-white mb-1">Lịch sử xem</div>
+            <div className="text-[10px] text-white/30 leading-tight">Đồng bộ mọi khoảnh khắc xem phim</div>
+          </div>
+
+          <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-center group hover:bg-white/5 transition-all">
+            <div className="w-10 h-10 bg-rose-500/10 rounded-xl flex items-center justify-center text-rose-500 mx-auto mb-3 group-hover:scale-110 transition-transform">
+              <Star size={20} />
+            </div>
+            <div className="text-[12px] font-bold text-white mb-1">Đánh giá phim</div>
+            <div className="text-[10px] text-white/30 leading-tight">Chấm điểm bộ phim yêu thích</div>
+          </div>
+        </div>
       </motion.div>
     </div>
   );

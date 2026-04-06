@@ -204,8 +204,10 @@ export default function ProfileContent() {
     const { error } = await supabase.auth.signOut();
     if (!error) {
       toast.success("Đã đăng xuất thành công!");
-      router.push("/");
-      router.refresh();
+      setUser(null);
+      
+      // Giữ người dùng ở nguyên trang và làm mới dữ liệu
+      window.location.reload();
     }
   };
 

@@ -43,10 +43,13 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
     const handleLogout = async () => {
         setLoading(true);
         await supabase.auth.signOut();
+        setUser(null); // Ép state về null ngay lập tức
         setShowMenu(false);
         setShowLogoutModal(false);
         setLoading(false);
-        router.refresh();
+        
+        // Làm mới trang hiện tại để cập nhật trạng thái auth mà không chuyển hướng
+        window.location.reload();
     };
 
     if (loading && !showLogoutModal) {

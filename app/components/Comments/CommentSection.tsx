@@ -96,7 +96,11 @@ export default function CommentSection({ movieSlug }: CommentSectionProps) {
             </h3>
 
             {user ? (
-                <CommentInput onSubmit={handleAddComment} />
+                <CommentInput 
+                    onSubmit={handleAddComment} 
+                    hasCommented={comments.some(c => c.user_id === user.id)}
+                    userCommentId={comments.find(c => c.user_id === user.id)?.id}
+                />
             ) : (
                 <AuthPrompt />
             )}
