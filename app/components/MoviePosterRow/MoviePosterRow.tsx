@@ -14,6 +14,7 @@ import { getImageUrl, sortAndSlicePosterRowMovies } from "@/app/utils/movieUtils
 import Skeleton from "react-loading-skeleton";
 import Container from "@/app/components/Container";
 import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
+import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
 
 interface MoviePosterRowProps {
     title: string;
@@ -29,40 +30,13 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovi
     const navId = title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
 
     const enrichEpisodeTotals = async (sortedItems: Movie[], isMounted: () => boolean) => {
-        const enriched = [...sortedItems];
-        
-        // Smart filter: only multi-episode series that lack total/slash info
-        const targets = sortedItems.map((movie, idx) => ({ movie, idx }))
-            .filter(({ movie }) => {
-                const isMulti = ["series", "hoathinh", "tvshows"].includes(movie.type || "");
-                const hasTotal = movie.episode_total && movie.episode_total !== "??";
-                const hasSlash = movie.episode_current?.includes("/");
-                const isOngoing = movie.status === "ongoing";
-                return isMulti && (!hasTotal || isOngoing) && !hasSlash;
-            });
-
-        if (targets.length === 0) return;
-
-        const chunkSize = 3; // Even smaller chunks for homepage rows
-        for (let i = 0; i < targets.length; i += chunkSize) {
-            if (!isMounted()) break;
-            const chunk = targets.slice(i, i + chunkSize);
-            
-            await Promise.all(
-                chunk.map(async ({ movie, idx }) => {
-                    try {
-                        const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}`);
-                        if (detailRes.data?.movie?.episode_total) {
-                            enriched[idx] = { ...enriched[idx], episode_total: detailRes.data.movie.episode_total };
-                        }
-                    } catch (e) {}
-                })
-            );
-            
-            if (isMounted()) setMovies([...enriched]);
-            // Yield to main thread for smoothness
-            await new Promise(r => setTimeout(r, 60));
-        }
+        await enrichMoviesMetadata({
+            items: sortedItems,
+            setItems: setMovies,
+            isMounted,
+            chunkSize: 3,
+            delay: 60
+        });
     };
 
     useEffect(() => {

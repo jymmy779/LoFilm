@@ -22,7 +22,7 @@ interface CatalogLayoutProps {
     onFilterChange: (filters: FilterState) => void;
     onToggleFilter: (isOpen: boolean) => void;
     onPageChange: (page: number) => void;
-    emptyMessage?: string;
+    emptyMessage?: React.ReactNode;
     isPageLoading?: boolean;
 }
 

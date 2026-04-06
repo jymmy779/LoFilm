@@ -11,8 +11,13 @@ import Pagination from "@/app/components/Pagination";
 import CatalogHeader from "@/app/components/CatalogHeader";
 import MovieFilter, { FilterState } from "@/app/components/MovieFilter";
 import { MenuItem } from "@/app/components/Header/types";
+import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
+
+import CatalogLayout from "@/app/components/MovieCatalog/CatalogLayout";
+import { Film } from "lucide-react";
 
 export default function SearchClient() {
+// ... existing search client wrapper ...
     return (
         <Suspense fallback={<div className="min-h-screen pt-32 text-center text-white/50">Đang tải...</div>}>
             <SearchContent />
@@ -135,39 +140,14 @@ function SearchContent() {
                     // Wait a bit for initial render to settle
                     await new Promise(r => setTimeout(r, 100));
                     
-                    const enriched = [...items];
-                    // Only target items that are series and don't have total/slash info
-                    const targets = items.map((m: Movie, idx: number) => ({ m, idx }))
-                        .filter(({ m }: { m: Movie }) => {
-                            const isMulti = ["series", "hoathinh", "tvshows"].includes(m.type || "");
-                            const hasTotal = m.episode_total && m.episode_total !== "??";
-                            const hasSlash = m.episode_current?.includes("/");
-                            return isMulti && !hasTotal && !hasSlash;
-                        });
-
-                    if (targets.length > 0) {
-                        const chunkSize = 4; // Smaller chunks for better responsiveness
-                        for (let i = 0; i < targets.length; i += chunkSize) {
-                            if (!isMounted) break;
-                            const chunk = targets.slice(i, i + chunkSize);
-                            
-                            await Promise.all(chunk.map(async ({ m, idx }: { m: Movie; idx: number }) => {
-                                try {
-                                    const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${m.slug}`)}`);
-                                    if (detailRes.data?.movie?.episode_total) {
-                                        enriched[idx] = { 
-                                            ...enriched[idx], 
-                                            episode_total: detailRes.data.movie.episode_total 
-                                        };
-                                    }
-                                } catch (e) {}
-                            }));
-                            
-                            if (isMounted) setMovies([...enriched]);
-                            // Yield to main thread to keep scrolling smooth
-                            await new Promise(r => setTimeout(r, 50));
-                        }
-                    }
+                    const mounted = () => isMounted;
+                    await enrichMoviesMetadata({
+                        items,
+                        setItems: setMovies,
+                        isMounted: mounted,
+                        chunkSize: 4,
+                        delay: 100
+                    });
                 } else {
                     if (isMounted) {
                         setMovies([]);
@@ -202,68 +182,27 @@ function SearchContent() {
     };
 
     return (
-        <main className="pt-24 md:pt-28 lg:pt-32 pb-12 min-h-screen">
-            <Container>
-                <div className="catalog-page">
-                    <CatalogHeader title={`Tìm kiếm phim: ${keyword}`} />
-
-                    <MovieFilter
-                        categories={categories}
-                        countries={countries}
-                        initialFilters={activeFilters}
-                        initialIsOpen={isFilterOpen}
-                        onFilterChange={handleFilterChange}
-                        onToggle={handleToggleFilter}
-                    />
-
-                    <div className="relative">
-                        {/* Loading Overlay for pagination/filter changes */}
-                        {(isLoading === false && isPageLoading) && (
-                            <div className="absolute inset-x-0 -top-4 bottom-0 z-40 flex justify-center pt-20 pointer-events-none">
-                                <div className="sticky top-1/2 -translate-y-1/2 w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin"></div>
-                            </div>
-                        )}
-
-                        <div className={`transition-opacity duration-300 ${(isLoading === false && isPageLoading) ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
-                            {isLoading ? (
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 mt-8">
-                                    {[...Array(32)].map((_, i) => (
-                                        <div key={i} className="space-y-3">
-                                            <Skeleton className="aspect-[2/3] rounded-2xl" />
-                                            <div className="space-y-1.5 px-1">
-                                                <Skeleton height={16} width="90%" />
-                                                <Skeleton height={12} width="60%" />
-                                            </div>
-                                        </div>
-                                    ))}
-                                </div>
-                            ) : movies.length > 0 ? (
-                                <>
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 mt-8">
-                                        {movies.map((movie, index) => (
-                                            <MoviePosterCard key={movie._id} movie={movie} priority={index < 16} />
-                                        ))}
-                                    </div>
-
-                                    <Pagination
-                                        currentPage={currentPage}
-                                        totalPages={totalPages}
-                                        onPageChange={handlePageChange}
-                                    />
-                                </>
-                            ) : (
-                                /* No content section */
-                                <div className="text-center py-20" style={{ color: 'rgba(255, 255, 255, 0.4)' }}>
-                                    <div style={{ fontSize: '5rem', marginBottom: '16px' }}>
-                                        <i className="fa-solid fa-film"></i>
-                                    </div>
-                                    <div className="text-lg">Không có nội dung cho mục này.</div>
-                                </div>
-                            )}
-                        </div>
-                    </div>
+        <CatalogLayout
+            title={`Tìm kiếm phim: ${keyword}`}
+            isLoading={isLoading}
+            isPageLoading={isPageLoading}
+            movies={movies}
+            currentPage={currentPage}
+            totalPages={totalPages}
+            isFilterOpen={isFilterOpen}
+            activeFilters={activeFilters}
+            categories={categories}
+            countries={countries}
+            onFilterChange={handleFilterChange}
+            onToggleFilter={handleToggleFilter}
+            onPageChange={handlePageChange}
+            emptyMessage={
+                <div className="flex flex-col items-center justify-center py-20 text-white/30">
+                    <Film size={80} strokeWidth={1} className="mb-6 opacity-40" />
+                    <p className="text-xl font-light">Không có nội dung cho phim: <span className="text-amber-500 font-medium italic">"{keyword}"</span></p>
+                    <p className="text-sm mt-2 opacity-50 italic">Thử với từ khóa khác hoặc điều chỉnh bộ lọc xem?</p>
                 </div>
-            </Container>
-        </main>
+            }
+        />
     );
 }
