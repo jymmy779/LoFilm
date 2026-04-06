@@ -20,7 +20,7 @@ export const metadata: Metadata = {
     maximumScale: 1,
     userScalable: false,
   },
-  keywords: ["LoFilm", "lofim", "lọ phim", "lo phim", "lỏ phim", "phim", "xem phim online", "phim bộ hd", "phim chiếu rạp", "phim mới"],
+  keywords: ["LoFilm", "lofim", "lọ phim", "lo film", "lo phim", "lỏ phim", "phim", "xem phim online", "phim bộ hd", "phim chiếu rạp", "phim mới"],
   openGraph: {
     title: "LoFilm - Thế giới Điện Ảnh",
     description: "LoFilm - Xem phim với chất lượng cao nhất",
