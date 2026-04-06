@@ -16,8 +16,8 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     }
 
     return {
-        title: "LoFilm - Xem Phim Online Chất Lượng Cao, Tốc Độ Mượt Mà",
-        description: "Trải nghiệm xem phim online đỉnh cao tại LoFilm. Kho phim HD khổng lồ, vietsub chuẩn, tốc độ load cực nhanh và hoàn toàn miễn phí. Truy cập ngay!",
+        title: "LoFilm - Xem Phim Online Chất Lượng Cao, Phim 4K, Vietsub",
+        description: "Trải nghiệm xem phim online chất lượng cao 4K, Vietsub tại LoFilm. Kho phim lẻ, phim bộ, anime mới nhất 2026 cập nhật mỗi ngày với tốc độ cực nhanh và không quảng cáo!",
     };
 }
 
