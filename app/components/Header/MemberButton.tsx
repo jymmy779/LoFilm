@@ -8,6 +8,8 @@ import TransitionLink from "@/app/components/Transition/TransitionLink";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import LogoutModal from "@/app/components/Modals/LogoutModal";
+import ComingSoonModal from "@/app/components/Modals/ComingSoonModal";
+import { Crown } from "lucide-react";
 
 interface MemberButtonProps {
     flatten?: boolean;
@@ -18,6 +20,7 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
     const [loading, setLoading] = useState(true);
     const [showMenu, setShowMenu] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
+    const [showPremiumModal, setShowPremiumModal] = useState(false);
     const supabase = createClient();
     const router = useRouter();
 
@@ -98,12 +101,12 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
                     >
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold text-sm border border-white/20 overflow-hidden shrink-0">
                             {user?.user_metadata?.avatar_url ? (
-                                <Image 
-                                    src={user.user_metadata.avatar_url} 
-                                    alt={displayName} 
-                                    width={36} 
-                                    height={36} 
-                                    className="w-full h-full object-cover" 
+                                <Image
+                                    src={user.user_metadata.avatar_url}
+                                    alt={displayName}
+                                    width={36}
+                                    height={36}
+                                    className="w-full h-full object-cover"
                                 />
                             ) : (
                                 displayName.charAt(0).toUpperCase()
@@ -143,6 +146,24 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
                             visible: { opacity: 1, y: 0 }
                         }}
                         transition={{ duration: 0.2, ease: "easeOut" }}
+                        className="w-full"
+                        style={{ willChange: "transform, opacity" }}
+                    >
+                        <button
+                            onClick={() => setShowPremiumModal(true)}
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-500/30 rounded-xl text-[11px] text-amber-400 hover:from-amber-500/30 hover:to-amber-600/30 transition-all font-bold cursor-pointer"
+                        >
+                            <Crown size={14} className="animate-pulse" />
+                            NÂNG CẤP LOFILM PREMIUM
+                        </button>
+                    </motion.div>
+
+                    <motion.div
+                        variants={{
+                            hidden: { opacity: 0, y: 8 },
+                            visible: { opacity: 1, y: 0 }
+                        }}
+                        transition={{ duration: 0.2, ease: "easeOut" }}
                         style={{ willChange: "transform, opacity" }}
                     >
                         <button
@@ -154,10 +175,16 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
                         </button>
                     </motion.div>
                 </motion.div>
-            <LogoutModal
-                isOpen={showLogoutModal}
-                onClose={() => setShowLogoutModal(false)}
-                onConfirm={handleLogout}
+                <LogoutModal
+                    isOpen={showLogoutModal}
+                    onClose={() => setShowLogoutModal(false)}
+                    onConfirm={handleLogout}
+                />
+            <ComingSoonModal 
+                isOpen={showPremiumModal}
+                onClose={() => setShowPremiumModal(false)}
+                title="LOFILM Premium"
+                message="Dịch vụ nâng cấp Premium trên điện thoại đang được tối ưu. Bạn sẽ sớm được tận hưởng các đặc quyền 4K ngay trên lòng bàn tay!"
             />
             </>
         );
@@ -196,8 +223,18 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
                         className="absolute right-0 mt-3 w-48 bg-[#0d1b2e] border border-white/10 rounded-2xl shadow-2xl p-2 z-[100] backdrop-blur-xl overflow-hidden"
                     >
                         <div className="px-3 py-2 border-b border-white/5 mb-1">
-                            <p className="text-[10px] text-white/40 tracking-widest">Thành viên</p>
-                            <p className="text-sm font-bold text-amber-400 truncate mt-1">{displayName}</p>
+                            <p className="text-[10px] text-white/40 tracking-widest uppercase">Thành viên</p>
+                            <p className="text-sm font-bold text-white/90 truncate mt-1">{displayName}</p>
+                            <button
+                                onClick={() => {
+                                    setShowMenu(false);
+                                    setShowPremiumModal(true);
+                                }}
+                                className="mt-2 flex items-center gap-2 px-2.5 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg text-[10px] font-bold text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer w-full"
+                            >
+                                <Crown size={12} className="animate-pulse" />
+                                Nâng cấp Premium
+                            </button>
                         </div>
 
                         <TransitionLink
@@ -237,6 +274,12 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
                 isOpen={showLogoutModal}
                 onClose={() => setShowLogoutModal(false)}
                 onConfirm={handleLogout}
+            />
+            <ComingSoonModal
+                isOpen={showPremiumModal}
+                onClose={() => setShowPremiumModal(false)}
+                title="LOFILM Premium"
+                message="Tính năng nâng cấp tài khoản Premium đang được hoàn thiện."
             />
         </div>
     );

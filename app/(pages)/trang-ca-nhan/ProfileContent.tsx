@@ -15,6 +15,7 @@ import { getImageUrl } from "@/app/utils/movieUtils";
 import Image from "next/image";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import LogoutModal from "@/app/components/Modals/LogoutModal";
+import ComingSoonModal from "@/app/components/Modals/ComingSoonModal";
 
 type TabType = 'overview' | 'history' | 'favorites' | 'settings';
 
@@ -96,6 +97,7 @@ export default function ProfileContent() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
+  const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false);
 
   const handleUpdateAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -341,7 +343,10 @@ export default function ProfileContent() {
                       </div>
                       <h3 className="text-white/40 text-xs font-bold uppercase tracking-widest mb-1">Thành viên</h3>
                       <p className="text-xl font-bold text-white uppercase italic">LoFilm Free+</p>
-                      <button className="text-amber-400 text-xs font-bold mt-4 hover:underline cursor-pointer flex items-center gap-1 group/btn">
+                      <button 
+                        onClick={() => setShowPremiumModal(true)}
+                        className="text-amber-400 text-xs font-bold mt-4 hover:underline cursor-pointer flex items-center gap-1 group/btn"
+                      >
                         Nâng cấp Premium <ChevronRight size={12} className="group-hover/btn:translate-x-1 transition-transform" />
                       </button>
                     </div>
@@ -761,6 +766,12 @@ export default function ProfileContent() {
         isOpen={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}
         onConfirm={handleLogout}
+      />
+      <ComingSoonModal 
+        isOpen={showPremiumModal}
+        onClose={() => setShowPremiumModal(false)}
+        title="LOFILM Premium"
+        message="Dịch vụ nâng cấp Premium đang được triển khai. Bạn sẽ sớm được tận hưởng đặc quyền xem phim không quảng cáo, chất lượng 4K và nhiều tính năng độc quyền khác!"
       />
     </div>
   );
