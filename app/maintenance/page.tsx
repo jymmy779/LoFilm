@@ -11,11 +11,11 @@ export default function MaintenancePage() {
   useEffect(() => {
     // Save original styles
     const originalStyle = window.getComputedStyle(document.body).overflow;
-    
+
     // Lock scroll
     document.body.style.overflow = "hidden";
     document.body.style.height = "100vh";
-    
+
     // Hide header/footer using CSS if they exist in the DOM
     const header = document.querySelector('header');
     const footer = document.querySelector('footer');
@@ -93,7 +93,7 @@ export default function MaintenancePage() {
 
         {/* Text Content */}
         <div className="space-y-4 md:space-y-6">
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold tracking-tight text-white mb-2 md:mb-4 px-4">
+          <h1 className="text-3xl whitespace-nowrap sm:text-4xl md:text-5xl font-bold tracking-tight text-white mb-2 md:mb-4 px-4">
             Website Đang <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Bảo Trì</span>{dots}
           </h1>
 
