@@ -19,7 +19,7 @@ interface PageTransitionContextType {
 }
 
 const PageTransitionContext = createContext<PageTransitionContextType>({
-  navigateWithTransition: () => {},
+  navigateWithTransition: () => { },
   phase: "idle",
 });
 

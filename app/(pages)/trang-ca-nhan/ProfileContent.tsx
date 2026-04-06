@@ -454,7 +454,7 @@ export default function ProfileContent() {
                                 src={getImageUrl(item.movie_poster)}
                                 alt={item.movie_name}
                                 fill
-                                className="object-cover transition-transform duration-700 group-hover:scale-110"
+                                className="object-cover object-top transition-transform duration-700 group-hover:scale-110"
                               />
                               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
                                 <div className="w-12 h-12 rounded-full bg-amber-400 flex items-center justify-center text-black shadow-xl transform scale-75 group-hover:scale-100 transition-transform duration-300">
@@ -535,7 +535,7 @@ export default function ProfileContent() {
                               src={getImageUrl(item.movie_poster)}
                               alt={item.movie_name}
                               fill
-                              className="object-cover transition-transform duration-700 group-hover:scale-110"
+                              className="object-cover object-top transition-transform duration-700 group-hover:scale-110"
                             />
                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
                               <div className="w-12 h-12 rounded-full bg-rose-500 flex items-center justify-center text-white shadow-xl transform scale-75 group-hover:scale-100 transition-transform duration-300">

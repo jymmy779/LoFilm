@@ -5,7 +5,6 @@ import Image from "next/image";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { ChevronRight } from "lucide-react";
 import { getImageUrl } from "@/app/utils/movieUtils";
-import MovieInteractions from "./MovieInteractions";
 
 interface MovieInfoProps {
   slug: string;
@@ -57,15 +56,9 @@ const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
               <span className="text-[8px]">★</span>
               <span>{rating}</span>
             </div>
-            <div className="px-1.5 py-0.5 bg-white/10 rounded text-white/70 text-[10px] font-medium uppercase tracking-wider">{movie.quality}</div>
-            <div className="px-1.5 py-0.5 bg-amber-500/10 border border-amber-500/20 rounded text-amber-400 text-[10px] tracking-tight font-medium uppercase">{episode.name}</div>
+            <div className="px-1.5 py-0.5 bg-white/10 rounded flex items-center justify-center text-white/70 text-[9px] font-medium uppercase tracking-wider">{movie.quality}</div>
+            <div className="px-1.5 py-0.5 bg-amber-500/10 border flex items-center justify-center border-amber-500/20 rounded text-amber-400 text-[9px] tracking-tight font-medium uppercase">{episode.name}</div>
           </div>
-
-          <div className="hidden md:block h-4 w-[1px] bg-white/10" />
-
-          <MovieInteractions
-            movieSlug={slug}
-          />
         </div>
       </div>
 

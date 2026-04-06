@@ -13,6 +13,7 @@ import EpisodeList from "./EpisodeList";
 import Sidebar from "./Sidebar";
 import MovieHeader from "./MovieHeader";
 import MovieInfo from "./MovieInfo";
+import CommentSection from "@/app/components/Comments/CommentSection";
 import ReportModal from "@/app/components/Common/ReportModal";
 import { getImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
 import { createClient } from "@/app/utils/supabase/client";
@@ -545,6 +546,11 @@ export default function WatchClient({
                                             activeServer={activeServerIndex}
                                             onServerChange={setActiveServerIndex}
                                         />
+                                        
+                                        {/* Phần bình luận */}
+                                        <div className="mt-6 pt-6 border-t border-white/5">
+                                            <CommentSection movieSlug={slug} />
+                                        </div>
                                     </div>
                                 </div>
 

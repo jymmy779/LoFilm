@@ -64,7 +64,7 @@ const PlayerControls = ({
             {/* Server Dropdown */}
             <AnimatePresence>
               {showServers && (
-                <motion.div 
+                <motion.div
                   initial={{ opacity: 0, y: 10, scale: 0.95 }}
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: 10, scale: 0.95 }}
@@ -128,12 +128,12 @@ const PlayerControls = ({
         </button>
 
         {/* Thêm vào yêu thích (New Style) */}
-        <button 
+        <button
           onClick={onToggleFavorite}
           className={`
-            md:w-10 md:h-10 w-9 h-9 flex items-center justify-center rounded-full border transition-all cursor-pointer shadow-lg 
-            ${isFavorited 
-              ? "bg-rose-500 border-rose-500 text-white shadow-rose-500/20" 
+            lg:w-10 lg:h-10 w-8 h-8 flex items-center justify-center rounded-full border transition-all cursor-pointer shadow-lg 
+            ${isFavorited
+              ? "bg-rose-500 border-rose-500 text-white shadow-rose-500/20"
               : "bg-white/5 border-white/10 text-white/60 hover:text-rose-400 hover:border-rose-400/30"
             }
           `}
@@ -163,7 +163,7 @@ const PlayerControls = ({
 
         {/* Báo lỗi (Float Right on MD+) */}
         <div className="flex-grow" />
-        <button 
+        <button
           onClick={onReport}
           className="flex items-center cursor-pointer gap-2 text-white/60 hover:text-red-400 transition-colors group"
         >

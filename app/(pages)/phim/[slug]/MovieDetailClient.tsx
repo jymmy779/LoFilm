@@ -10,6 +10,7 @@ import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
 import { Movie, EpisodeServer } from "@/app/types/movie";
 import { getImageUrl, getEpisodeStatus, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
 import { decodeHtml } from "@/app/utils/textUtils";
+import CommentSection from "@/app/components/Comments/CommentSection";
 
 interface MovieDetailClientProps {
     movie: Movie;
@@ -488,6 +489,11 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                     </div>
                                 )}
                             </div>
+                        </div>
+
+                        {/* Phần bình luận */}
+                        <div className="mt-8 pt-8 border-t border-white/5">
+                            <CommentSection movieSlug={movie.slug} />
                         </div>
                     </div>
 
