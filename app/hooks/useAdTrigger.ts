@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import nProgress from "nprogress";
 
-const DIRECT_LINK = "https://www.profitablecpmratenetwork.com/spiq19tyef?key=d39f70b4dd9f52658e17b3f334f9e49a";
+const DIRECT_LINK = "https://www.profitablecpmratenetwork.com/gjpjtakf?key=d7e338d56830d226ea3f31e0ab349478";
 const AD_COOLDOWN = 4 * 60 * 60 * 1000; // 4 hours
 
 export function useAdTrigger() {
