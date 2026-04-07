@@ -40,6 +40,7 @@ export const metadata: Metadata = {
   },
 };
 
+import TopProgressBar from "./components/Transition/TopProgressBar";
 import AuthListener from "./components/Auth/AuthListener";
 import NetworkMonitor from "./components/Network/NetworkMonitor";
 
@@ -124,6 +125,7 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-[#0f1115] text-white" suppressHydrationWarning>
+        <TopProgressBar />
         <NetworkMonitor />
         <AuthListener />
         <InitialLoader />
