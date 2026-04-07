@@ -1,5 +1,6 @@
 "use client";
 
+import React, { useEffect } from "react";
 import type { HomePrefetch } from "@/app/types/home-prefetch";
 import CategoriesSection from "./components/CategoriesSection/CategoriesSection";
 import HeroSlider from "./components/HeroSlider/HeroSlider";
@@ -9,8 +10,27 @@ import MoviePosterRow from "./components/MoviePosterRow/MoviePosterRow";
 import TopMovieRow from "./components/TopMovieRow/TopMovieRow";
 import ContinueWatchingRow from "./components/MovieRow/ContinueWatchingRow";
 import LazyRow from "./components/Common/LazyRow";
+import { toast } from "react-hot-toast";
 
 export default function HomeClient({ prefetched }: { prefetched: HomePrefetch }) {
+    useEffect(() => {
+        const params = new URLSearchParams(window.location.search);
+        if (params.get('status') === 'verified') {
+            toast.success("Xác thực thành công! Chào mừng bạn đến với thế giới điện ảnh LoFilm! ✨🎬", {
+                duration: 5000,
+                icon: '🎬',
+                style: {
+                    borderRadius: '16px',
+                    background: '#14233e',
+                    color: '#fff',
+                    border: '1px solid rgba(251, 191, 36, 0.2)'
+                }
+            });
+            // Xóa param trên URL cho đẹp
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+    }, []);
+
     return (
         <>
             <HeroSlider initialMovies={prefetched.hero} />

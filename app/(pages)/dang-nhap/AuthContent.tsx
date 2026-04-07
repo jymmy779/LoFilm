@@ -22,13 +22,31 @@ export default function AuthContent() {
   const supabase = createClient();
 
   React.useEffect(() => {
-    // Tải thông tin "Ghi nhớ" từ localStorage
+    // 1. Kiểm tra session ngay lập tức khi vào trang
+    const checkSession = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (session) {
+        router.push("/");
+      }
+    };
+    checkSession();
+
+    // 2. Tải thông tin "Ghi nhớ" từ localStorage
     const savedEmail = localStorage.getItem("rememberedEmail");
     const savedRememberMe = localStorage.getItem("rememberMe");
 
     if (savedEmail) setEmail(savedEmail);
     if (savedRememberMe !== null) setRememberMe(savedRememberMe === "true");
-  }, []);
+
+    // 3. Lắng nghe thay đổi trạng thái đăng nhập (để đồng bộ giữa các Tab)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if ((event === "SIGNED_IN" || event === "USER_UPDATED") && session) {
+        router.push("/");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [supabase, router]);
 
   const translateError = (error: string) => {
     if (error.includes("Invalid login credentials")) return "Email hoặc mật khẩu không chính xác!";
@@ -62,11 +80,11 @@ export default function AuthContent() {
         }
 
         toast.success("Chào mừng bạn trở lại!");
-        
+
         // Lấy trang trước đó từ referrer để giữ transition
         const referrer = typeof document !== "undefined" ? document.referrer : "";
         const isInternal = referrer && referrer.includes(window.location.origin) && !referrer.includes("/dang-nhap");
-        
+
         if (isInternal) {
           navigateWithTransition(referrer);
         } else {
@@ -94,9 +112,31 @@ export default function AuthContent() {
             data: {
               full_name: fullName,
             },
+            emailRedirectTo: `${window.location.origin}/auth/callback`,
           },
         });
-        if (error) throw error;
+        
+        if (error) {
+          // Xử lý trường hợp User đã đăng ký nhưng chưa xác thực (đăng ký lại)
+          if (error.message.includes("User already registered") || error.message.includes("is not confirmed")) {
+            const { error: resendError } = await supabase.auth.resend({
+              type: 'signup',
+              email: email,
+              options: {
+                emailRedirectTo: `${window.location.origin}/auth/callback`,
+              }
+            });
+            
+            if (resendError) throw resendError;
+            
+            toast.success("Tài khoản này đã tồn tại nhưng chưa xác thực. Một email xác nhận mới đã được gửi đi!", { duration: 5000 });
+            setIsLogin(true);
+            setIsLoading(false);
+            return;
+          }
+          throw error;
+        }
+
         toast.success("Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.");
         setIsLogin(true);
       }
@@ -167,23 +207,23 @@ export default function AuthContent() {
           </p>
         </div>
 
-        <motion.form 
+        <motion.form
           layout
-          onSubmit={handleAuth} 
+          onSubmit={handleAuth}
           className="space-y-4"
         >
           {/* Full Name Input - Only for Sign up */}
           <motion.div
             layout
             initial={false}
-            animate={{ 
-              height: isLogin ? 0 : "auto", 
+            animate={{
+              height: isLogin ? 0 : "auto",
               opacity: isLogin ? 0 : 1,
               marginBottom: isLogin ? 0 : 16,
               scale: isLogin ? 0.95 : 1,
               pointerEvents: isLogin ? "none" : "auto",
             }}
-            transition={{ 
+            transition={{
               height: { duration: 0.35, ease: "circOut" },
               opacity: { duration: 0.2, delay: isLogin ? 0 : 0.1 },
               layout: { duration: 0.35, ease: "circOut" }
@@ -241,14 +281,14 @@ export default function AuthContent() {
           <motion.div
             layout
             initial={false}
-            animate={{ 
-              height: isLogin ? 0 : "auto", 
+            animate={{
+              height: isLogin ? 0 : "auto",
               opacity: isLogin ? 0 : 1,
               marginTop: isLogin ? 0 : 16,
               scale: isLogin ? 0.95 : 1,
               pointerEvents: isLogin ? "none" : "auto",
             }}
-            transition={{ 
+            transition={{
               height: { duration: 0.35, ease: "circOut" },
               opacity: { duration: 0.2, delay: isLogin ? 0 : 0.1 },
               layout: { duration: 0.35, ease: "circOut" }
@@ -271,7 +311,7 @@ export default function AuthContent() {
           </motion.div>
 
           {isLogin && (
-            <motion.div 
+            <motion.div
               layout
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

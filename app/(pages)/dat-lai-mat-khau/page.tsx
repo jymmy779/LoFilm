@@ -12,18 +12,29 @@ export default function ResetPasswordPage() {
   const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [isChecking, setIsChecking] = useState(true); // Trạng thái kiểm tra quyền truy cập
   const router = useRouter();
   const supabase = createClient();
 
   useEffect(() => {
     // Check if we have a recovery session
     const checkSession = async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) {
-        toast.error("Phiên làm việc đã hết hạn hoặc không hợp lệ. Vui lòng thực hiện lại từ trang đăng nhập.");
-        setTimeout(() => router.push("/dang-nhap"), 2000);
+      try {
+        const { data: { user }, error } = await supabase.auth.getUser();
+        
+        if (error || !user) {
+          toast.error("Phiên làm việc trái phép hoặc đã hết hạn!");
+          router.push("/dang-nhap");
+          return;
+        }
+        
+        // Nếu ok thì mới cho hiện form
+        setIsChecking(false);
+      } catch (err) {
+        router.push("/dang-nhap");
       }
     };
+    
     checkSession();
   }, [supabase, router]);
 
@@ -57,6 +68,18 @@ export default function ResetPasswordPage() {
       setIsLoading(false);
     }
   };
+
+  // Giao diện Loading lúc đang kiểm tra quyền truy cập
+  if (isChecking) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-[#0a1628] px-4">
+        <div className="flex flex-col items-center gap-4">
+          <div className="w-12 h-12 border-4 border-amber-400/20 border-t-amber-400 rounded-full animate-spin" />
+          <p className="text-white/40 text-sm animate-pulse italic">Đang xác thực quyền truy cập...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0a1628] px-4">
