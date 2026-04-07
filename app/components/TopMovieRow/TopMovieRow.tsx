@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import TransitionLink from "@/app/components/Transition/TransitionLink";
 import axios from "axios";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -15,6 +14,7 @@ import Skeleton from "react-loading-skeleton";
 import Image from "next/image";
 import Container from "@/app/components/Container";
 import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
+import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 
 interface TopMovieRowProps {
     title: string;
@@ -24,10 +24,17 @@ interface TopMovieRowProps {
 }
 
 export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowProps) {
+    const { triggerAd } = useAdTrigger();
     const seeded = !!(initialMovies && initialMovies.length > 0);
     const [movies, setMovies] = useState<Movie[]>(() => initialMovies ?? []);
     const [isLoading, setIsLoading] = useState(!seeded);
     const navId = title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
+
+    const handleTopMovieClick = (e: React.MouseEvent, movieSlug: string) => {
+        if (e.metaKey || e.ctrlKey || (e.button && e.button === 1)) return;
+        e.preventDefault();
+        triggerAd(`/phim/${movieSlug}`, "top_movie");
+    };
 
     const enrichEpisodeTotals = async (topItems: Movie[], isMounted: () => boolean) => {
         await enrichMoviesMetadata({
@@ -138,31 +145,26 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                     breakpoints={{
                         576: { slidesPerView: 3, spaceBetween: 13 },
                         767: { slidesPerView: 4, spaceBetween: 13 },
-                        // Laptop: Hiện 6 cái...
                         1200: { slidesPerView: 6, spaceBetween: 13 },
-                        // Desktop: Hiện 7 cái...
                         1400: { slidesPerView: 7, spaceBetween: 15 },
-                        // Màn hình lớn nhất: Hiện 8 cái... 
                         1536: { slidesPerView: 8, spaceBetween: 15 }
                     }}
                     className="swiper-carousel"
                 >
                     {movies.map((movie, index) => {
-                        const posterImg = getImageUrl(movie.poster_url);
                         const isEven = index % 2 !== 0;
 
                         return (
                             <SwiperSlide key={movie._id} className="transform-gpu">
                                 <div className="sw-item group/item cursor-pointer mt-4 transform-gpu">
-                                    <TransitionLink
-                                        href={`/phim/${movie.slug}`}
-                                        className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/5 transition-[transform,box-shadow] duration-500 ease-out group-hover/item:shadow-[0_15px_35px_rgba(0,0,0,0.6)] transform-gpu"
+                                    <div
+                                        onClick={(e) => handleTopMovieClick(e, movie.slug)}
+                                        className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/5 transition-[transform,box-shadow] duration-500 ease-out group-hover/item:shadow-[0_15px_35px_rgba(0,0,0,0.6)] transform-gpu cursor-pointer"
                                         style={{
                                             WebkitClipPath: isEven ? clipPathEven : clipPathOdd,
                                             clipPath: isEven ? clipPathEven : clipPathOdd
                                         }}
                                     >
-
                                         <div className="w-full h-full transition-transform duration-500 ease-out group-hover/item:scale-[1.07]">
                                             <div className="w-full h-full relative group-hover/item:animate-[top-movie-shake_0.15s_ease-in-out_3]">
                                                 <Image
@@ -178,24 +180,18 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                                         </div>
                                         <div className="absolute inset-x-0 bottom-[-1px] h-1/2 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
 
-                                        {/* Badges: Quality, Language, Status */}
                                         <div className="pin-new absolute bottom-2 left-0 right-0 flex items-center justify-center flex-wrap gap-x-1 gap-y-1 px-2">
-                                            {/* Badge Quality - Xám */}
-                                            <div className="h-5 px-1 bg-gray-600 rounded-full text-white text-[10px]  border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
+                                            <div className="h-5 px-1 bg-gray-600 rounded-full text-white text-[10px] border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
                                                 {movie.quality || "HD"}
                                             </div>
-
-                                            {/* Badge Language - Xanh (Vietsub, LT, TM) */}
-                                            <div className="h-5 px-1 bg-green-600 rounded-full text-white text-[10px]  border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
+                                            <div className="h-5 px-1 bg-green-600 rounded-full text-white text-[10px] border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
                                                 {(movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
                                             </div>
-
-                                            {/* Badge Status - Cam (Full, Trailer, HT) */}
-                                            <div className="h-5 px-1 bg-orange-600 rounded-full text-white text-[10px]  border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
+                                            <div className="h-5 px-1 bg-orange-600 rounded-full text-white text-[10px] border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
                                                 {getEpisodeStatus(movie)}
                                             </div>
                                         </div>
-                                    </TransitionLink>
+                                    </div>
 
                                     {/* Movie Info */}
                                     <div className="flex gap-2 items-start pr-2">
@@ -209,7 +205,10 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                                             {index + 1}
                                         </div>
                                         <div className="flex flex-col gap-1 min-w-0 pt-2 lg:pt-3">
-                                            <h3 className="text-white text-sm md:text-base leading-tight hover:text-[#FED877] transition-colors line-clamp-1 lg:font-bold">
+                                            <h3 
+                                                className="text-white text-sm md:text-base leading-tight hover:text-[#FED877] transition-colors line-clamp-1 lg:font-bold cursor-pointer"
+                                                onClick={(e) => handleTopMovieClick(e, movie.slug)}
+                                            >
                                                 {decodeHtml(movie.name)}
                                             </h3>
                                             <p className="text-white/40 text-[10px] md:text-xs truncate font-medium">

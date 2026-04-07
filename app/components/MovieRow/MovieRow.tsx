@@ -22,10 +22,19 @@ interface MovieRowProps {
     initialMovies?: Movie[];
 }
 
+import { useAdTrigger } from "@/app/hooks/useAdTrigger";
+
 export default function MovieRow({ title, apiUrl, viewAllLink, initialMovies }: MovieRowProps) {
+    const { triggerAd } = useAdTrigger();
     const seeded = !!(initialMovies && initialMovies.length > 0);
     const [movies, setMovies] = useState<Movie[]>(() => initialMovies ?? []);
     const [isLoading, setIsLoading] = useState(!seeded);
+
+    const handleMovieRowClick = (e: React.MouseEvent, movieSlug: string) => {
+        if (e.metaKey || e.ctrlKey || (e.button && e.button === 1)) return;
+        e.preventDefault();
+        triggerAd(`/phim/${movieSlug}`, "movie_row");
+    };
 
     useEffect(() => {
         if (seeded) return;
@@ -139,7 +148,10 @@ export default function MovieRow({ title, apiUrl, viewAllLink, initialMovies }: 
 
                             return (
                                 <SwiperSlide key={movie._id} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
-                                    <TransitionLink href={`/phim/${movie.slug}`} className="block group/item cursor-pointer">
+                                    <div 
+                                        onClick={(e) => handleMovieRowClick(e, movie.slug)} 
+                                        className="block group/item cursor-pointer"
+                                    >
                                         <div className="relative aspect-video rounded-lg overflow-hidden bg-white/5 mb-3">
                                             <Image
                                                 src={imgUrl}
@@ -169,7 +181,7 @@ export default function MovieRow({ title, apiUrl, viewAllLink, initialMovies }: 
                                                 {decodeHtml(movie.origin_name)}
                                             </p>
                                         </div>
-                                    </TransitionLink>
+                                    </div>
                                 </SwiperSlide>
                             );
                         })}

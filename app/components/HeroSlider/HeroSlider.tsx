@@ -25,13 +25,22 @@ interface HeroSliderProps {
     initialMovies?: Movie[];
 }
 
+import { useAdTrigger } from "@/app/hooks/useAdTrigger";
+
 export default function HeroSlider({ initialMovies }: HeroSliderProps) {
+    const { triggerAd } = useAdTrigger();
     const [movies, setMovies] = useState<Movie[]>(() =>
         initialMovies && initialMovies.length > 0 ? initialMovies : []
     );
     const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
 
     const [activeIndex, setActiveIndex] = useState(0);
+
+    const handleHeroClick = (e: React.MouseEvent, movieSlug: string) => {
+        if (e.metaKey || e.ctrlKey || (e.button && e.button === 1)) return;
+        e.preventDefault();
+        triggerAd(`/phim/${movieSlug}`, "hero_slider");
+    };
 
     const scheduleContentEnrich = (first8: Movie[]) => {
         const runEnrich = async () => {
@@ -180,10 +189,11 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                 >
                                     {/* Title */}
                                     <div className="min-h-[76px] m-0 md:mb-[16px] flex items-end justify-center min-[700px]:justify-start">
-                                        <h2 className="text-2xl xl:text-4xl font-bold text-white leading-tight drop-shadow-2xl [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)] line-clamp-1 md:line-clamp-2">
-                                            <TransitionLink href={`/phim/${currentMovie.slug}`} className="hover:text-[#f5a623] transition-colors">
-                                                {decodeHtml(currentMovie.name)}
-                                            </TransitionLink>
+                                        <h2 
+                                            className="text-2xl xl:text-4xl font-bold text-white leading-tight drop-shadow-2xl [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)] line-clamp-1 md:line-clamp-2 cursor-pointer hover:text-[#f5a623] transition-colors"
+                                            onClick={(e) => handleHeroClick(e, currentMovie.slug)}
+                                        >
+                                            {decodeHtml(currentMovie.name)}
                                         </h2>
                                     </div>
 
@@ -247,20 +257,20 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
 
                                     {/* Buttons */}
                                     <div className="flex min-[700px]:flex hidden items-center justify-center min-[700px]:justify-start gap-5 pt-4">
-                                        <TransitionLink
-                                            href={`/phim/${currentMovie.slug}`}
-                                            className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-15 lg:h-15 rounded-full bg-gradient-to-tr from-[#f5a623] to-[#ffcc33] text-[#0a1628] ring-4 ring-[#f5a623]/20 shadow-[0_4px_15px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.8)] hover:scale-110 active:scale-95 transition-all duration-300"
+                                        <div
+                                            onClick={(e) => handleHeroClick(e, currentMovie.slug)}
+                                            className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-15 lg:h-15 rounded-full bg-gradient-to-tr from-[#f5a623] to-[#ffcc33] text-[#0a1628] ring-4 ring-[#f5a623]/20 shadow-[0_4px_15px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.8)] hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="20" height="20" fill="currentColor" className="ml-1 relative z-10">
                                                 <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z" />
                                             </svg>
-                                        </TransitionLink>
-                                        <TransitionLink
-                                            href={`/phim/${currentMovie.slug}`}
-                                            className="lg:px-6 lg:py-2.5 md:px-4 py-1.5 px-3  bg-white/10 hover:bg-white/20 text-white text-xs md:text-sm font-medium rounded-full transition-all duration-300 border border-white/10"
+                                        </div>
+                                        <div
+                                            onClick={(e) => handleHeroClick(e, currentMovie.slug)}
+                                            className="lg:px-6 lg:py-2.5 md:px-4 py-1.5 px-3 bg-white/10 hover:bg-white/20 text-white text-xs md:text-sm font-medium rounded-full transition-all duration-300 border border-white/10 cursor-pointer"
                                         >
                                             Chi tiết phim
-                                        </TransitionLink>
+                                        </div>
                                     </div>
                                 </motion.div>
                             )}
