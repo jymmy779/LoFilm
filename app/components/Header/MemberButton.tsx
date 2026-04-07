@@ -6,16 +6,17 @@ import { createClient } from "@/app/utils/supabase/client";
 import { motion, AnimatePresence } from "framer-motion";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import LogoutModal from "@/app/components/Modals/LogoutModal";
 import ComingSoonModal from "@/app/components/Modals/ComingSoonModal";
 import { Crown } from "lucide-react";
 
 interface MemberButtonProps {
     flatten?: boolean;
+    onClick?: () => void;
 }
 
-export default function MemberButton({ flatten = false }: MemberButtonProps) {
+export default function MemberButton({ flatten = false, onClick }: MemberButtonProps) {
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
     const [showMenu, setShowMenu] = useState(false);
@@ -23,6 +24,7 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
     const [showPremiumModal, setShowPremiumModal] = useState(false);
     const supabase = createClient();
     const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
         const checkUser = async () => {
@@ -62,6 +64,7 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
         return (
             <TransitionLink
                 href="/dang-nhap"
+                onClick={() => { if (pathname !== "/dang-nhap") onClick?.(); }}
                 className="flex items-center cursor-pointer gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-gradient-to-r from-[#FED877] to-[#F5A623] text-[#0A1628] font-bold text-xs md:text-sm shadow-[0_4px_15px_rgba(245,166,35,0.3)] hover:shadow-[0_8px_25px_rgba(245,166,35,0.5)] hover:-translate-y-0.5 active:scale-95 transition-all duration-300 whitespace-nowrap shrink-0 overflow-hidden relative group/btn"
             >
                 <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 skew-x-[-20deg]" />
@@ -129,6 +132,7 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
                     >
                         <TransitionLink
                             href="/trang-ca-nhan"
+                            onClick={() => { if (pathname !== "/trang-ca-nhan") { setShowMenu(false); onClick?.(); } }}
                             className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white/80 hover:bg-white/10 transition-all font-semibold"
                         >
                             <User size={14} className="text-amber-400" />
@@ -136,6 +140,7 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
                         </TransitionLink>
                         <TransitionLink
                             href="/trang-ca-nhan?tab=settings"
+                            onClick={() => { if (pathname !== "/trang-ca-nhan?tab=settings") { setShowMenu(false); onClick?.(); } }}
                             className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white/80 hover:bg-white/10 transition-all font-semibold"
                         >
                             <Settings size={14} className="text-amber-400" />
@@ -242,7 +247,7 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
 
                         <TransitionLink
                             href="/trang-ca-nhan"
-                            onClick={() => setShowMenu(false)}
+                            onClick={() => { if (pathname !== "/trang-ca-nhan") { setShowMenu(false); onClick?.(); } }}
                             className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer"
                         >
                             <User size={16} className="text-white/40" />
@@ -251,7 +256,7 @@ export default function MemberButton({ flatten = false }: MemberButtonProps) {
 
                         <TransitionLink
                             href="/trang-ca-nhan?tab=settings"
-                            onClick={() => setShowMenu(false)}
+                            onClick={() => { if (pathname !== "/trang-ca-nhan?tab=settings") { setShowMenu(false); onClick?.(); } }}
                             className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer"
                         >
                             <Settings size={16} className="text-white/40" />

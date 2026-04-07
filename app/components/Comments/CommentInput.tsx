@@ -92,9 +92,9 @@ export default function CommentInput({
 
     if (hasCommented && !isReply && !isEdit) {
         return (
-            <div className="bg-white/[0.02] border border-white/5 rounded-[2rem] p-8 text-center">
-                <div className="w-12 h-12 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-4 text-amber-500">
-                    <CheckCircle2 size={24} />
+            <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 text-center">
+                <div className="w-10 h-10 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-3 text-amber-500">
+                    <CheckCircle2 size={20} />
                 </div>
                 <p className="text-white/60 text-sm font-medium">Bạn đã chia sẻ nhận xét về phim này.</p>
                 <div className="flex flex-col gap-2 mt-4 max-w-xs mx-auto">

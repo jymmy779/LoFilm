@@ -21,7 +21,7 @@ export default function ContactPage() {
               </div>
               <h3 className="text-sm md:text-base font-bold text-white mb-2 uppercase tracking-widest">Email hỗ trợ</h3>
               <p className="text-white/20 text-[10px] md:text-xs mb-3">Gửi thư cho chúng tôi nếu bạn có bất kỳ thắc mắc nào.</p>
-              <a href="mailto:janencl1125@gmail.com" className="text-amber-400 font-bold text-xs md:text-sm hover:underline break-all">janencl1125@gmail.com</a>
+              <a href="mailto:contactlofilm@gmail.com" className="text-amber-400 font-bold text-xs md:text-sm hover:underline break-all">contactlofilm@gmail.com</a>
             </div>
 
             <div className="bg-[#16213e] border border-white/5 p-6 md:p-8 rounded-2xl md:rounded-[32px] hover:border-blue-400/20 transition-all group shadow-xl">

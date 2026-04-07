@@ -261,7 +261,7 @@ export default function Header() {
                                     <div>
                                         <TransitionLink
                                             href="/"
-                                            onClick={() => setIsMenuOpen(false)}
+                                            onClick={() => { if (pathname !== "/") setIsMenuOpen(false); }}
                                             className="text-base cursor-pointer font-medium text-white/80 py-3 border-b border-white/5 flex items-center justify-between hover:text-[#f5a623] transition-colors"
                                         >
                                             Trang chủ
@@ -301,7 +301,7 @@ export default function Header() {
                                                     <TransitionLink
                                                         key={cat._id}
                                                         href={`/the-loai/${cat.slug}`}
-                                                        onClick={() => setIsMenuOpen(false)}
+                                                        onClick={() => { if (pathname !== `/the-loai/${cat.slug}`) setIsMenuOpen(false); }}
                                                         className="text-sm text-white/60 hover:text-[#f5a623] py-1 transition-colors"
                                                     >
                                                         • {cat.name}
@@ -343,8 +343,8 @@ export default function Header() {
                                                     <TransitionLink
                                                         key={country._id}
                                                         href={`/quoc-gia/${country.slug}`}
-                                                        onClick={() => setIsMenuOpen(false)}
-                                                        className="text-xs text-white/60 hover:text-[#f5a623] py-1 transition-colors"
+                                                        onClick={() => { if (pathname !== `/quoc-gia/${country.slug}`) setIsMenuOpen(false); }}
+                                                        className="text-sm text-white/60 hover:text-[#f5a623] py-1 transition-colors"
                                                     >
                                                         {country.name}
                                                     </TransitionLink>
@@ -358,7 +358,7 @@ export default function Header() {
                                         <div key={item.href}>
                                             <TransitionLink
                                                 href={item.href}
-                                                onClick={() => setIsMenuOpen(false)}
+                                                onClick={() => { if (pathname !== item.href) setIsMenuOpen(false); }}
                                                 className="text-base text-white/80 py-3 border-b border-white/5 hover:text-[#f5a623] transition-colors font-medium block"
                                             >
                                                 {item.label}
@@ -368,7 +368,7 @@ export default function Header() {
 
                                     {/* Centered Premium Member Button */}
                                     <div className="pt-4 pb-2 flex justify-center border-t border-white/5 mt-4">
-                                        <MemberButton flatten={true} />
+                                        <MemberButton flatten={true} onClick={() => setIsMenuOpen(false)} />
                                     </div>
                                 </div>
                             </div>

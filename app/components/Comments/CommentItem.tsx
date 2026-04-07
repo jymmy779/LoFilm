@@ -339,11 +339,11 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                             <AnimatePresence>
                                 {isMenuOpen && (
                                     <motion.div 
-                                        initial={{ opacity: 0, y: 5 }}
-                                        animate={{ opacity: 1, y: 0 }}
-                                        exit={{ opacity: 0, y: 5 }}
-                                        transition={{ duration: 0.15, ease: "easeOut" }}
-                                        className="v-dropdown-menu dropdown-menu border border-white/10 bg-[#16181a] shadow-2xl rounded-2xl p-1.5 will-change-transform"
+                                        initial={{ opacity: 0, scale: 0.95, y: 5 }}
+                                        animate={{ opacity: 1, scale: 1, y: 0 }}
+                                        exit={{ opacity: 0, scale: 0.95, y: 5 }}
+                                        transition={{ duration: 0.1, ease: "easeOut" }}
+                                        className="v-dropdown-menu border border-white/10 shadow-2xl will-change-transform"
                                     >
                                         {comment.is_spoiler && (
                                             <button className="dropdown-item text-amber-500" onClick={() => { setShowSpoiler(!showSpoiler); setIsMenuOpen(false); }}>
