@@ -376,7 +376,7 @@ export default function WatchClient({
                         .hide-large-play .plyr__control--overlaid { display: none !important; }
                         .plyr { z-index: auto !important; }
                         .plyr__controls { z-index: 100 !important; background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5)) !important; }
-                        .hide-large-play .plyr__controls { opacity: 1 !important; visibility: visible !important; }
+                        .hide-large-play .plyr__controls { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
                         
                         /* Hiện thời gian trên mọi thiết bị */
                         .plyr__time--current,
@@ -445,10 +445,10 @@ export default function WatchClient({
 
                     <AnimatePresence>
                         {showEndOverlay && (
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-40 bg-black/90 flex flex-col items-center justify-center p-3 md:p-6 text-center pointer-events-none">
+                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-[110] bg-black/90 flex flex-col items-center justify-center p-3 md:p-6 text-center pointer-events-auto">
                                 <div className="flex items-center justify-center gap-4 md:gap-8 pointer-events-auto scale-90 md:scale-100">
-                                    <motion.button initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} onClick={() => { setShowEndOverlay(false); if (plyrRef.current) { plyrRef.current.currentTime = 0; plyrRef.current.play(); } }} className="group flex flex-col items-center gap-3 hover:scale-105 transition-transform">
-                                        <div className="w-12 h-12 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shadow-lg group-hover:bg-white/20">
+                                    <motion.button initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} onClick={() => { setShowEndOverlay(false); if (plyrRef.current) { plyrRef.current.currentTime = 0; plyrRef.current.play(); } }} className="group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-transform">
+                                        <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shadow-lg group-hover:bg-white/20">
                                             <RefreshCcw size={20} className="md:w-6 md:h-6" />
                                         </div>
                                         <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Xem lại</span>
@@ -456,7 +456,7 @@ export default function WatchClient({
                                     {isSeries && nextEpisode && (
                                         <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
                                             <TransitionLink href={`/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`} className="group flex flex-col items-center gap-3 hover:scale-105 transition-transform">
-                                                <div className="w-14 h-14 md:w-16 md:h-16 rounded-full bg-amber-500 flex items-center justify-center text-[#0a1628] shadow-lg shadow-amber-500/20 group-hover:bg-amber-400">
+                                                <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-amber-500 flex items-center justify-center text-[#0a1628] shadow-lg shadow-amber-500/20 group-hover:bg-amber-400">
                                                     <ChevronRight size={28} className="md:w-8 md:h-8" />
                                                 </div>
                                                 <span className="text-amber-500 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Tập tiếp theo</span>
