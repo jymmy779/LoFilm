@@ -10,6 +10,7 @@ import {
   Suspense,
 } from "react";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { toast } from "react-hot-toast";
 
 interface PageTransitionContextType {
   /** Trigger a transition then navigate to the given href */
@@ -102,6 +103,15 @@ export function PageTransitionProvider({
       // Don't trigger if already transitioning
       if (phase !== "idle") return;
 
+      // NEW: Check for internet connection
+      if (typeof window !== "undefined" && !navigator.onLine) {
+        toast.error("Không có kết nối mạng. Vui lòng kiểm tra lại đường truyền!", {
+          id: "offline-error",
+          duration: 3000,
+        });
+        return;
+      }
+
       // Same pathname + query = same document
       if (typeof window !== "undefined") {
         try {
@@ -142,7 +152,7 @@ export function PageTransitionProvider({
             }
             return prev;
           });
-        }, 8000);
+        }, 4000); // Giảm từ 8s xuống 4s để người dùng không phải chờ quá lâu nếu có lỗi tải trang
 
         return () => clearTimeout(safetyTimeout);
       }, EXIT_DURATION);

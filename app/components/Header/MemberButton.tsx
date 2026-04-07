@@ -7,6 +7,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
+import { toast } from "react-hot-toast";
 import LogoutModal from "@/app/components/Modals/LogoutModal";
 import ComingSoonModal from "@/app/components/Modals/ComingSoonModal";
 import { Crown } from "lucide-react";
@@ -43,6 +44,11 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
     }, [supabase]);
 
     const handleLogout = async () => {
+        if (typeof window !== "undefined" && !navigator.onLine) {
+            setShowLogoutModal(false);
+            toast.error("Vui lòng kết nối mạng để đăng xuất an toàn!", { id: "logout-error" });
+            return;
+        }
         setLoading(true);
         await supabase.auth.signOut();
         setUser(null); // Ép state về null ngay lập tức

@@ -41,6 +41,7 @@ export const metadata: Metadata = {
 };
 
 import AuthListener from "./components/Auth/AuthListener";
+import NetworkMonitor from "./components/Network/NetworkMonitor";
 
 export default function RootLayout({
   children,
@@ -123,6 +124,7 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-[#0f1115] text-white" suppressHydrationWarning>
+        <NetworkMonitor />
         <AuthListener />
         <InitialLoader />
         <PageTransitionProvider>

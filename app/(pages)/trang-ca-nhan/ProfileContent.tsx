@@ -201,6 +201,10 @@ export default function ProfileContent() {
   };
 
   const handleLogout = async () => {
+    if (typeof window !== "undefined" && !navigator.onLine) {
+      toast.error("Vui lòng kết nối mạng để đăng xuất an toàn!", { id: "logout-error" });
+      return;
+    }
     const { error } = await supabase.auth.signOut();
     if (!error) {
       toast.success("Đã đăng xuất thành công!");
