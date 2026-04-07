@@ -36,7 +36,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <HeroSlider initialMovies={prefetched.hero} />
             <CategoriesSection initialCategories={prefetched.categories} />
             <ContinueWatchingRow initialHistory={prefetched.initialHistory} />
-            
+
             {/* Phim Hàn Quốc load ngay vì có thể nằm trong fold đầu */}
             <MovieRow
                 title="Phim Hàn Quốc mới"
@@ -54,7 +54,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     initialMovies={prefetched.movieRowTrung}
                 />
             </LazyRow>
-            
+
             <LazyRow estimatedHeight="300px">
                 <MovieRow
                     title="Phim Âu Mỹ mới"
@@ -132,7 +132,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <LazyRow estimatedHeight="480px">
                 <MoviePosterRow
                     title="Phim Hoạt Hình"
-                    apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=20"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=30"
                     viewAllLink="/danh-sach/hoat-hinh"
                     initialMovies={prefetched.posterHoatHinh}
                 />
