@@ -5,7 +5,7 @@ export default function PrivacyPolicy() {
     <div className="min-h-screen bg-gradient-to-b from-[#111b33] to-[#0d162b] text-white/80 pt-32 pb-20 md:pt-40 md:pb-32 px-4 shadow-inner">
       <div className="max-w-4xl mx-auto bg-[#16213e] border border-white/5 rounded-2xl md:rounded-[32px] p-6 md:p-12 shadow-2xl">
         <h1 className="text-xl md:text-2xl font-bold text-white mb-6 md:mb-8 border-b border-white/5 pb-4 md:pb-6 uppercase tracking-wider italic">Chính Sách Bảo Mật</h1>
-        
+
         <div className="space-y-6 md:space-y-10">
           <section>
             <h2 className="text-sm md:text-base font-semibold text-amber-400 mb-2 md:mb-3 flex items-center gap-2">
@@ -50,7 +50,7 @@ export default function PrivacyPolicy() {
           <section className="bg-white/5 p-5 md:p-6 rounded-xl md:rounded-2xl border border-white/5">
             <h2 className="text-xs md:text-sm font-semibold text-white mb-2 uppercase tracking-widest">Thông tin liên hệ</h2>
             <p className="text-[10px] md:text-xs opacity-50">Mọi thắc mắc về chính sách bảo mật xin vui lòng gửi về hòm thư:</p>
-            <p className="text-amber-400 font-bold mt-1 uppercase tracking-wider text-xs md:text-sm">janencl1125@gmail.com</p>
+            <p className="text-amber-400 font-bold mt-1 tracking-wider text-xs md:text-sm">contactlofilm@gmail.com</p>
           </section>
         </div>
       </div>

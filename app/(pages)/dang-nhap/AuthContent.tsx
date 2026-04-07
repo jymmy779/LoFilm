@@ -169,8 +169,9 @@ export default function AuthContent() {
   return (
     <div className="min-h-[90vh] flex items-start justify-center pt-32 md:pt-40 pb-20 px-4">
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-amber-500/10 rounded-full blur-[120px] animate-pulse" />
-        <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-blue-500/10 rounded-full blur-[100px] animate-pulse delay-1000" />
+        {/* Bỏ animate-pulse và tinh giản blur để mobile/tablet không bị lag */}
+        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-amber-500/10 rounded-full blur-[100px]" />
+        <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-blue-500/10 rounded-full blur-[80px]" />
       </div>
 
       <motion.div
@@ -207,45 +208,39 @@ export default function AuthContent() {
           </p>
         </div>
 
-        <motion.form
-          layout
+        <form
           onSubmit={handleAuth}
           className="space-y-4"
         >
           {/* Full Name Input - Only for Sign up */}
-          <motion.div
-            layout
-            initial={false}
-            animate={{
-              height: isLogin ? 0 : "auto",
-              opacity: isLogin ? 0 : 1,
-              marginBottom: isLogin ? 0 : 16,
-              scale: isLogin ? 0.95 : 1,
-              pointerEvents: isLogin ? "none" : "auto",
-            }}
-            transition={{
-              height: { duration: 0.35, ease: "circOut" },
-              opacity: { duration: 0.2, delay: isLogin ? 0 : 0.1 },
-              layout: { duration: 0.35, ease: "circOut" }
-            }}
-            className="relative overflow-hidden origin-top"
-          >
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
-              <User size={18} />
-            </div>
-            <input
-              type="text"
-              name="name"
-              autoComplete="name"
-              required={!isLogin}
-              value={fullName}
-              onChange={(e) => setFullName(e.target.value)}
-              placeholder="Họ và tên của bạn"
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
-            />
-          </motion.div>
+          <AnimatePresence initial={false}>
+            {!isLogin && (
+              <motion.div
+                key="fullname-field"
+                initial={{ height: 0, opacity: 0, scale: 0.95 }}
+                animate={{ height: "auto", opacity: 1, scale: 1 }}
+                exit={{ height: 0, opacity: 0, scale: 0.95 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="relative overflow-hidden origin-top mb-4"
+              >
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
+                  <User size={18} />
+                </div>
+                <input
+                  type="text"
+                  name="name"
+                  autoComplete="name"
+                  required={!isLogin}
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Họ và tên của bạn"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
-          <motion.div layout className="relative">
+          <div className="relative">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
               <Mail size={18} />
             </div>
@@ -259,9 +254,9 @@ export default function AuthContent() {
               placeholder="Email của bạn"
               className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
             />
-          </motion.div>
+          </div>
 
-          <motion.div layout className="relative">
+          <div className="relative">
             <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
               <Lock size={18} />
             </div>
@@ -275,49 +270,38 @@ export default function AuthContent() {
               placeholder={isLogin ? "Mật khẩu" : "Tạo mật khẩu"}
               className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
             />
-          </motion.div>
+          </div>
 
           {/* Confirm Password - Only for Sign up */}
-          <motion.div
-            layout
-            initial={false}
-            animate={{
-              height: isLogin ? 0 : "auto",
-              opacity: isLogin ? 0 : 1,
-              marginTop: isLogin ? 0 : 16,
-              scale: isLogin ? 0.95 : 1,
-              pointerEvents: isLogin ? "none" : "auto",
-            }}
-            transition={{
-              height: { duration: 0.35, ease: "circOut" },
-              opacity: { duration: 0.2, delay: isLogin ? 0 : 0.1 },
-              layout: { duration: 0.35, ease: "circOut" }
-            }}
-            className="relative overflow-hidden origin-top"
-          >
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
-              <Lock size={18} />
-            </div>
-            <input
-              type="password"
-              name="confirm-password"
-              autoComplete="new-password"
-              required={!isLogin}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              placeholder="Xác nhận mật khẩu"
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
-            />
-          </motion.div>
+          <AnimatePresence initial={false}>
+            {!isLogin && (
+              <motion.div
+                key="confirm-password-field"
+                initial={{ height: 0, opacity: 0, scale: 0.95, marginTop: 0 }}
+                animate={{ height: "auto", opacity: 1, scale: 1, marginTop: 16 }}
+                exit={{ height: 0, opacity: 0, scale: 0.95, marginTop: 0 }}
+                transition={{ duration: 0.2, ease: "easeOut" }}
+                className="relative overflow-hidden origin-top"
+              >
+                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
+                  <Lock size={18} />
+                </div>
+                <input
+                  type="password"
+                  name="confirm-password"
+                  autoComplete="new-password"
+                  required={!isLogin}
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  placeholder="Xác nhận mật khẩu"
+                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
 
           {isLogin && (
-            <motion.div
-              layout
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.1 }}
-              className="flex items-center justify-between px-2"
-            >
+            <div className="flex items-center justify-between px-2">
               <label className="flex items-center gap-3 group cursor-pointer select-none">
                 <div className="relative">
                   <input
@@ -344,11 +328,10 @@ export default function AuthContent() {
               >
                 Quên mật khẩu?
               </button>
-            </motion.div>
+            </div>
           )}
 
-          <motion.button
-            layout
+          <button
             type="submit"
             disabled={isLoading}
             className="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:translate-y-[-2px] hover:shadow-lg hover:shadow-amber-500/20 active:translate-y-0 transition-all cursor-pointer mt-4"
@@ -361,8 +344,8 @@ export default function AuthContent() {
                 <ArrowRight size={18} />
               </>
             )}
-          </motion.button>
-        </motion.form>
+          </button>
+        </form>
 
 
         {/* Membership Privileges Grid */}

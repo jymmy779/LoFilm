@@ -21,7 +21,7 @@ export default function TermsOfService() {
               Quyền sở hữu nội dung
             </h2>
             <p className="leading-relaxed text-xs md:text-sm opacity-60">
-              Tất cả các bộ phim trên LoFilm được cung cấp từ các nguồn API bên thứ ba. Bản quyền phim thuộc về các nhà sản xuất và đơn vị phát hành chính thức. LoFilm chỉ đóng vai trò là trình phát đa phương tiện.
+              Tất cả nội dung video, hình ảnh và thông tin trên LoFilm được tổng hợp từ các nguồn API và dịch vụ lưu trữ của bên thứ ba. LoFilm không sở hữu, không trực tiếp lưu trữ bất kỳ tệp tin đa phương tiện nào trên máy chủ của mình. Mọi vấn đề liên quan đến bản quyền, vui lòng liên hệ trực tiếp với các đơn vị cung cấp hoặc nguồn phát gốc.
             </p>
           </section>
 
@@ -39,15 +39,24 @@ export default function TermsOfService() {
 
           <section>
             <h2 className="text-sm md:text-base font-semibold text-amber-400 mb-2 md:mb-3 flex items-center gap-2 underline underline-offset-8 decoration-white/5">
+              Dịch vụ và Quảng cáo
+            </h2>
+            <p className="leading-relaxed text-xs md:text-sm opacity-60">
+              Để duy trì nguồn lực vận hành hệ thống và cung cấp dịch vụ xem phim hoàn toàn miễn phí cho cộng đồng, website có thể hiển thị các nội dung quảng cáo từ các đối tác bên thứ ba. Việc người dùng truy cập và sử dụng dịch vụ trên website đồng nghĩa với việc chấp thuận sự xuất hiện của các quảng cáo này. Chúng tôi luôn nỗ lực để các quảng cáo không gây ảnh hưởng tiêu cực đến trải nghiệm xem phim của bạn.
+            </p>
+          </section>
+
+          <section>
+            <h2 className="text-sm md:text-base font-semibold text-amber-400 mb-2 md:mb-3 flex items-center gap-2 underline underline-offset-8 decoration-white/5">
               Miễn trừ trách nhiệm
             </h2>
             <p className="leading-relaxed text-xs md:text-sm opacity-60">
-              Chúng tôi không chịu trách nhiệm về nội dung của các bộ phim được cung cấp từ API bên thứ ba. Nội dung trên website mang tính chất tham khảo và giải trí cá nhân.
+              LoFilm cung cấp dịch vụ "Nguyên trạng" và không chịu trách nhiệm về tính chính xác, tính pháp lý hoặc tính lành mạnh của nội dung do API bên thứ ba cung cấp. Chúng tôi cũng không chịu trách nhiệm đối với bất kỳ thiệt hại trực tiếp hoặc gián tiếp nào phát sinh từ việc sử dụng nội dung trên website, bao gồm nhưng không giới hạn ở các liên kết hoặc nội dung từ các đối tác quảng cáo.
             </p>
           </section>
 
           <section className="bg-white/5 p-5 md:p-6 rounded-xl md:rounded-2xl border border-white/5 italic">
-            <p className="text-[10px] md:text-xs opacity-40">LoFilm có quyền thay đổi các điều khoản này bất kỳ lúc nào mà không cần thông báo trước. Cập nhật cuối cùng vào ngày 05/04/2026.</p>
+            <p className="text-[10px] md:text-xs opacity-40">LoFilm có quyền thay đổi các điều khoản này bất kỳ lúc nào mà không cần thông báo trước. Cập nhật cuối cùng vào ngày {new Date().toLocaleDateString('vi-VN')}.</p>
           </section>
         </div>
       </div>
