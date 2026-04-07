@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
 import InitialLoader from "./components/Transition/InitialLoader";
@@ -8,18 +8,20 @@ import "./globals.css";
 import "react-loading-skeleton/dist/skeleton.css";
 import { SkeletonTheme } from "react-loading-skeleton";
 import { Toaster } from "react-hot-toast";
+import { Suspense } from "react";
+
+export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+  themeColor: '#0a1628',
+};
 
 export const metadata: Metadata = {
   title: "LoFilm - Xem Phim Online Chất Lượng Cao, Phim 4K, Vietsub",
   description: "Trải nghiệm xem phim online chất lượng cao 4K, Vietsub tại LoFilm. Kho phim lẻ, phim bộ, anime mới nhất 2026 cập nhật mỗi ngày với tốc độ cực nhanh và không quảng cáo!",
   manifest: '/manifest.json',
-  themeColor: '#0a1628',
-  viewport: {
-    width: 'device-width',
-    initialScale: 1,
-    maximumScale: 1,
-    userScalable: false,
-  },
   keywords: ["LoFilm", "lofim", "lo film", "xem phim lofilm", "xem phim lo film", "lofilm tv", "lofilm net", "lofilm me", "lofilm chill", "lo phim"],
   robots: {
     index: true,
@@ -125,7 +127,9 @@ export default function RootLayout({
         />
       </head>
       <body className="bg-[#0f1115] text-white" suppressHydrationWarning>
-        <TopProgressBar />
+        <Suspense fallback={null}>
+          <TopProgressBar />
+        </Suspense>
         <NetworkMonitor />
         <AuthListener />
         <InitialLoader />
