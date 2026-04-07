@@ -129,7 +129,7 @@ export default function Footer() {
                         {/* A decorative large blurred logo or graphic for the right side */}
                         <div className="w-[350px] aspect-square opacity-[0.03] hover:opacity-[0.05] transition-opacity duration-1000 relative">
                             <Image
-                                src="/lofilm_logo.webpg"
+                                src="/lofilm_logo.webp"
                                 fill
                                 alt=''
                                 loading='eager'
