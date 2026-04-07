@@ -17,22 +17,21 @@ export default function PageTransitionOverlay() {
   const { phase } = usePageTransition();
   const overlayRef = useRef<HTMLDivElement>(null);
 
-  // Scroll to top when entering phase starts
-  useEffect(() => {
-    if (phase === "entering") {
-      window.scrollTo({ top: 0, behavior: "instant" });
-    }
-  }, [phase]);
+  // Syncing scroll logic moved to Context (in 'exiting' phase hidden by curtain)
+  // for better stability on weak networks.
 
-  // Lock body scroll during transition
+  // Lock body & html scroll during transition
   useEffect(() => {
     if (phase !== "idle") {
       document.body.style.overflow = "hidden";
+      document.documentElement.style.overflow = "hidden";
     } else {
       document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
     }
     return () => {
       document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
     };
   }, [phase]);
 
@@ -57,8 +56,8 @@ export default function PageTransitionOverlay() {
         .ptr-overlay {
           position: fixed;
           inset: 0;
-          z-index: 9998;
-          pointer-events: none;
+          z-index: 10000;
+          pointer-events: all; /* Block interactions during transition */
           overflow: hidden;
         }
 
@@ -102,25 +101,27 @@ export default function PageTransitionOverlay() {
 
         /* ── EXIT Phase: curtain slides in from left ── */
         .ptr-exiting .ptr-curtain {
-          animation: ptrCurtainIn 0.4s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+          animation: ptrCurtainIn 0.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
         }
         .ptr-exiting .ptr-accent {
-          animation: ptrAccentSweep 0.4s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+          animation: ptrAccentSweep 0.5s cubic-bezier(0.65, 0, 0.35, 1) forwards,
+                     ptrAccentPulse 2s ease-in-out 0.5s infinite;
         }
         .ptr-exiting .ptr-logo {
-          animation: ptrLogoIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.15s forwards;
+          animation: ptrLogoIn 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.2s forwards,
+                     ptrPulse 1.5s ease-in-out 0.6s infinite;
           opacity: 0;
         }
 
         /* ── ENTER Phase: curtain reveals (slides out right) ── */
         .ptr-entering .ptr-curtain {
-          animation: ptrCurtainOut 0.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+          animation: ptrCurtainOut 0.6s cubic-bezier(0.65, 0, 0.35, 1) forwards;
         }
         .ptr-entering .ptr-accent {
-          animation: ptrAccentOut 0.5s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+          animation: ptrAccentOut 0.6s cubic-bezier(0.65, 0, 0.35, 1) forwards;
         }
         .ptr-entering .ptr-logo {
-          animation: ptrLogoOut 0.3s cubic-bezier(0.55, 0, 1, 0.45) forwards;
+          animation: ptrLogoOut 0.4s cubic-bezier(0.55, 0, 1, 0.45) forwards;
         }
 
         /* ── Keyframes ── */
@@ -150,6 +151,16 @@ export default function PageTransitionOverlay() {
         @keyframes ptrLogoOut {
           from { opacity: 1; transform: translate(-50%, -50%) scale(1); }
           to   { opacity: 0; transform: translate(-50%, -50%) scale(1.1); }
+        }
+
+        @keyframes ptrPulse {
+          0%, 100% { opacity: 1; filter: drop-shadow(0 0 0px rgba(255,255,255,0)); }
+          50% { opacity: 0.5; filter: drop-shadow(0 0 8px rgba(255,255,255,0.3)); }
+        }
+
+        @keyframes ptrAccentPulse {
+          0%, 100% { opacity: 1; filter: brightness(1); }
+          50% { opacity: 0.4; filter: brightness(1.5); }
         }
       `}</style>
 

@@ -28,8 +28,9 @@ export function usePageTransition() {
 }
 
 // Duration in ms for each phase
-const EXIT_DURATION = 400;
-const ENTER_DURATION = 500;
+const EXIT_DURATION = 500; // Tăng nhẹ để mượt hơn
+const ENTER_DURATION = 600;
+const MIN_HOLD_DURATION = 200; // Thời gian tối thiểu màn hình bị che hoàn toàn
 
 function SearchParamsListener({
   onSearchChange,
@@ -62,8 +63,11 @@ export function PageTransitionProvider({
         prevSearch.current = search;
         setPhase((prev) => {
           if (prev === "exiting") {
-            setTimeout(() => setPhase("idle"), ENTER_DURATION);
-            return "entering";
+            setTimeout(() => {
+              setPhase("entering");
+              setTimeout(() => setPhase("idle"), ENTER_DURATION);
+            }, MIN_HOLD_DURATION);
+            return "exiting";
           }
           return prev;
         });
@@ -76,11 +80,17 @@ export function PageTransitionProvider({
   useEffect(() => {
     if (pathname !== prevPathname.current) {
       prevPathname.current = pathname;
+      
       // If we were exiting, switch to entering
       setPhase((prev) => {
         if (prev === "exiting") {
-          setTimeout(() => setPhase("idle"), ENTER_DURATION);
-          return "entering";
+          // Thêm một chút delay (MIN_HOLD_DURATION) để đảm bảo Next.js đã hoán đổi DOM xong
+          // Khắc phục triệt để lỗi "lộ trang cũ" khi mạng yếu/DOM nặng
+          setTimeout(() => {
+            setPhase("entering");
+            setTimeout(() => setPhase("idle"), ENTER_DURATION);
+          }, MIN_HOLD_DURATION);
+          return "exiting"; // Giữ nguyên phase exiting cho đến khi timeout trên chạy
         }
         return prev;
       });
@@ -92,7 +102,7 @@ export function PageTransitionProvider({
       // Don't trigger if already transitioning
       if (phase !== "idle") return;
 
-      // Same pathname + query = same document (e.g. /?search=x vs / are different)
+      // Same pathname + query = same document
       if (typeof window !== "undefined") {
         try {
           const target = new URL(href, window.location.origin);
@@ -104,7 +114,7 @@ export function PageTransitionProvider({
             return;
           }
         } catch {
-          /* invalid href — continue and let router.push handle it */
+          /* invalid href */
         }
       } else if (href === pathname) {
         return;
@@ -113,12 +123,18 @@ export function PageTransitionProvider({
       pendingHref.current = href;
       setPhase("exiting");
 
-      // After exit animation, navigate
+      // 1. Scroll lên đầu ngay khi curtain đang đóng để che đi sự thay đổi (jump)
       setTimeout(() => {
+        window.scrollTo({ top: 0, behavior: "instant" });
+      }, 300);
+
+      // 2. Chờ curtain đóng hẳn rồi mới gọi router.push
+      setTimeout(() => {
+        // Sử dụng router.push bình thường, phase change sẽ được detect bởi useEffect(pathname)
         router.push(href);
-        // Fallback: forcefully enter after 10 seconds if Next.js routing hasn't updated URL
-        // Ensures the screen doesn't get stuck blank on weird edge cases or extremely slow API
-        setTimeout(() => {
+        
+        // Dự phòng cho trường hợp URL không đổi hoặc lag cực nặng
+        const safetyTimeout = setTimeout(() => {
           setPhase((prev) => {
             if (prev === "exiting") {
               setTimeout(() => setPhase("idle"), ENTER_DURATION);
@@ -126,7 +142,9 @@ export function PageTransitionProvider({
             }
             return prev;
           });
-        }, 10000);
+        }, 8000);
+
+        return () => clearTimeout(safetyTimeout);
       }, EXIT_DURATION);
     },
     [pathname, phase, router]
