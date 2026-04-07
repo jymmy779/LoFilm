@@ -42,7 +42,7 @@ export default function CategoriesSection({ initialCategories }: CategoriesSecti
     // Hiển thị skeleton loading nếu chưa tải xong
     if (categories.length === 0) {
         return (
-            <Container as="section" className="relative z-30 mb-10 pointer-events-none">
+            <Container as="section" className="relative z-30 -mt-[80px] md:-mt-[140px] mb-10 pointer-events-none">
                 <Skeleton width={250} height={32} className="mb-6 rounded-lg" />
                 <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-4 pointer-events-auto">
                     {[...Array(8)].map((_, i) => (

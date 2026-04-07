@@ -94,7 +94,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
 
     if (movies.length === 0) {
         return (
-            <div className="relative w-full h-[600px] lg:h-[750px] bg-[#0f1115]">
+            <div className="relative w-full h-[500px] md:h-[700px] lg:h-[850px] bg-[#0f1115]">
                 <Skeleton className="w-full h-full" containerClassName="h-full" />
                 <Container className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full">
                     <div className="max-w-xl">
@@ -128,7 +128,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                             <>
                                 <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] lg:overflow-hidden [transform:translateZ(0)]">
                                     <MotionImage
-                                        src={getImageUrl(movie.thumb_url, { quality: index === 0 ? 90 : 80 })}
+                                        src={getImageUrl(movie.thumb_url, { quality: index === 0 ? 80 : 70 })}
                                         alt={movie.name}
                                         initial={false}
                                         priority={index === 0}

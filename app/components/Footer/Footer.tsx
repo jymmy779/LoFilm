@@ -28,7 +28,7 @@ export default function Footer() {
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-8">
                             <TransitionLink href="/" className="shrink-0 transition-transform hover:scale-105">
                                 <Image
-                                    src="/lofilm_logo.png"
+                                    src="/lofilm_logo.webp"
                                     alt="LoFilm Logo"
                                     width={140}
                                     height={70}
@@ -105,12 +105,12 @@ export default function Footer() {
 
                             <div className="flex items-center gap-4">
                                 <a href="https://www.dmca.com/Protection/Status.aspx" target="_blank" rel="noopener noreferrer" className="opacity-50 hover:opacity-100 outline-none transition-opacity">
-                                    <Image 
-                                      src="https://images.dmca.com/Badges/dmca-badge-w250-5x1-11.png" 
-                                      alt="DMCA.com Protection Status" 
-                                      width={121} 
-                                      height={24} 
-                                      className="h-6 w-auto" 
+                                    <Image
+                                        src="https://images.dmca.com/Badges/dmca-badge-w250-5x1-11.png"
+                                        alt="DMCA.com Protection Status"
+                                        width={121}
+                                        height={24}
+                                        className="h-6 w-auto"
                                     />
                                 </a>
                                 {/* Hidden SEO Links */}
@@ -129,7 +129,7 @@ export default function Footer() {
                         {/* A decorative large blurred logo or graphic for the right side */}
                         <div className="w-[350px] aspect-square opacity-[0.03] hover:opacity-[0.05] transition-opacity duration-1000 relative">
                             <Image
-                                src="/lofilm_logo.png"
+                                src="/lofilm_logo.webpg"
                                 fill
                                 alt=''
                                 loading='eager'

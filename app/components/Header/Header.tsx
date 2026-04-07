@@ -91,7 +91,7 @@ export default function Header() {
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                         <motion.line
                                             x1="3" y1="6" x2="21" y2="6"
-                                            animate={{ 
+                                            animate={{
                                                 rotate: isMenuOpen ? 45 : 0,
                                                 y: isMenuOpen ? 6 : 0,
                                                 x1: isMenuOpen ? 4.5 : 3,
@@ -106,7 +106,7 @@ export default function Header() {
                                         />
                                         <motion.line
                                             x1="3" y1="18" x2="21" y2="18"
-                                            animate={{ 
+                                            animate={{
                                                 rotate: isMenuOpen ? -45 : 0,
                                                 y: isMenuOpen ? -6 : 0,
                                                 x1: isMenuOpen ? 4.5 : 3,
@@ -119,12 +119,13 @@ export default function Header() {
 
                                 <TransitionLink href="/" className="shrink-0">
                                     <Image
-                                        width={120}
-                                        height={65}
-                                        className="h-[55px] md:h-[65px] w-auto object-contain"
-                                        src="/lofilm_logo.png"
+                                        width={140}
+                                        height={70}
+                                        className="h-[50px] md:h-[65px] w-auto object-contain"
+                                        src="/lofilm_logo.webp"
                                         alt="LoFilm"
                                         priority
+                                        sizes="(max-width: 768px) 140px, 140px"
                                     />
                                 </TransitionLink>
                             </motion.div>
@@ -185,7 +186,7 @@ export default function Header() {
                                 width={150}
                                 height={80}
                                 className="h-[65px] w-auto object-contain"
-                                src="/lofilm_logo.png"
+                                src="/lofilm_logo.webp"
                                 alt="LoFilm"
                                 priority
                             />

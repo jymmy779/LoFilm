@@ -461,10 +461,11 @@ export default function ProfileContent() {
                             className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden group cursor-pointer hover:border-amber-400/30 transition-all block"
                           >
                             <div className="relative aspect-video overflow-hidden">
-                              <Image
-                                src={getImageUrl(item.movie_poster)}
+                               <Image
+                                src={getImageUrl(item.movie_poster, { width: 400, quality: 70 })}
                                 alt={item.movie_name}
                                 fill
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                                 className="object-cover object-top transition-transform duration-700 group-hover:scale-110"
                               />
                               <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
@@ -504,12 +505,12 @@ export default function ProfileContent() {
                       <div className="text-center">
                         <h3 className="text-xl font-bold text-white mb-2 italic uppercase">Dấu tích trống trơn...</h3>
                         <p className="text-white/30 text-sm max-w-sm mx-auto">Bạn chưa xem bộ phim nào gần đây trên hệ thống LoFilm. Hãy bắt đầu chuyến phiêu lưu của mình ngay!</p>
-                        <button
-                          onClick={() => router.push("/")}
-                          className="mt-8 bg-amber-400 text-black px-8 py-3 rounded-full text-sm hover:scale-105 active:scale-95 transition-all shadow-xl shadow-amber-400/20 cursor-pointer"
+                        <TransitionLink
+                          href="/"
+                          className="mt-8 inline-block bg-amber-400 text-black px-8 py-3 rounded-full text-sm font-bold hover:scale-105 active:scale-95 transition-all shadow-xl shadow-amber-400/20 cursor-pointer text-center"
                         >
                           BẮT ĐẦU XEM PHIM
-                        </button>
+                        </TransitionLink>
                       </div>
                     </div>
                   )}
@@ -543,9 +544,10 @@ export default function ProfileContent() {
                         >
                           <div className="relative aspect-video overflow-hidden">
                             <Image
-                              src={getImageUrl(item.movie_poster)}
+                              src={getImageUrl(item.movie_poster, { width: 400, quality: 70 })}
                               alt={item.movie_name}
                               fill
+                              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
                               className="object-cover object-top transition-transform duration-700 group-hover:scale-110"
                             />
                             <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
@@ -571,12 +573,12 @@ export default function ProfileContent() {
                       <div className="text-center">
                         <h3 className="text-xl font-bold text-white mb-2 italic uppercase">Trái tim còn trống...</h3>
                         <p className="text-white/30 text-sm max-w-sm mx-auto">Nơi lưu giữ những tuyệt tác phim ảnh bạn yêu thích nhất. Hãy thả tim cho bộ phim bạn muốn xem lại sau!</p>
-                        <button
-                          onClick={() => router.push("/")}
-                          className="mt-8 bg-rose-500 text-white px-8 py-3 rounded-full text-sm font-bold hover:scale-105 active:scale-95 transition-all shadow-xl shadow-rose-500/20 cursor-pointer"
+                        <TransitionLink
+                          href="/"
+                          className="mt-8 inline-block bg-rose-500 text-white px-8 py-3 rounded-full text-sm font-bold hover:scale-105 active:scale-95 transition-all shadow-xl shadow-rose-500/20 cursor-pointer text-center"
                         >
                           KHÁM PHÁ NGAY
-                        </button>
+                        </TransitionLink>
                       </div>
                     </div>
                   )}
