@@ -31,14 +31,15 @@ export default function TopProgressBar() {
       if (!anchor) return;
 
       const href = anchor.getAttribute("href");
+      const currentFullUrl = pathname + (searchParams.toString() ? `?${searchParams.toString()}` : "");
       
       // Chỉ chạy progress bar nếu là link nội bộ, không phải link cùng mã hash (#) 
-      // và không phải là trang hiện tại
+      // và không phải là trang hiện tại (bao gồm cả search params)
       if (
         href && 
         href.startsWith("/") && 
         !href.startsWith("#") &&
-        href !== pathname && // <--- QUAN TRỌNG: Kiểm tra nếu không phải trang hiện tại
+        href !== currentFullUrl && 
         anchor.target !== "_blank" &&
         !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey
       ) {
@@ -48,7 +49,7 @@ export default function TopProgressBar() {
 
     window.addEventListener("click", handleAnchorClick);
     return () => window.removeEventListener("click", handleAnchorClick);
-  }, [pathname]); // <--- Thêm pathname vào dependency để handleAnchorClick luôn có giá trị mới nhất
+  }, [pathname, searchParams]); // <--- Thêm searchParams vào dependency
 
   return (
     <style jsx global>{`

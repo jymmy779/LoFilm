@@ -9,6 +9,7 @@ import FeaturedSlider from "./components/FeaturedSlider/FeaturedSlider";
 import MoviePosterRow from "./components/MoviePosterRow/MoviePosterRow";
 import TopMovieRow from "./components/TopMovieRow/TopMovieRow";
 import ContinueWatchingRow from "./components/MovieRow/ContinueWatchingRow";
+import RandomMovieRow from "./components/MovieRow/RandomMovieRow";
 import LazyRow from "./components/Common/LazyRow";
 import { toast } from "react-hot-toast";
 
@@ -36,6 +37,10 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <HeroSlider initialMovies={prefetched.hero} />
             <CategoriesSection initialCategories={prefetched.categories} />
             <ContinueWatchingRow initialHistory={prefetched.initialHistory} />
+            
+            <LazyRow estimatedHeight="500px">
+                <RandomMovieRow />
+            </LazyRow>
 
             {/* Phim Hàn Quốc load ngay vì có thể nằm trong fold đầu */}
             <MovieRow
