@@ -19,7 +19,7 @@ import { Film } from "lucide-react";
 export default function SearchClient() {
 // ... existing search client wrapper ...
     return (
-        <Suspense fallback={<div className="min-h-screen pt-32 text-center text-white/50">Đang tải...</div>}>
+        <Suspense fallback={<div className="min-h-screen bg-[#0f1115]" />}>
             <SearchContent />
         </Suspense>
     );
