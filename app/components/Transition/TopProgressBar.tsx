@@ -32,11 +32,13 @@ export default function TopProgressBar() {
 
       const href = anchor.getAttribute("href");
       
-      // Chỉ chạy progress bar nếu là link nội bộ và không phải link cùng mã hash (#)
+      // Chỉ chạy progress bar nếu là link nội bộ, không phải link cùng mã hash (#) 
+      // và không phải là trang hiện tại
       if (
         href && 
         href.startsWith("/") && 
         !href.startsWith("#") &&
+        href !== pathname && // <--- QUAN TRỌNG: Kiểm tra nếu không phải trang hiện tại
         anchor.target !== "_blank" &&
         !event.metaKey && !event.ctrlKey && !event.shiftKey && !event.altKey
       ) {
@@ -46,7 +48,7 @@ export default function TopProgressBar() {
 
     window.addEventListener("click", handleAnchorClick);
     return () => window.removeEventListener("click", handleAnchorClick);
-  }, []);
+  }, [pathname]); // <--- Thêm pathname vào dependency để handleAnchorClick luôn có giá trị mới nhất
 
   return (
     <style jsx global>{`
