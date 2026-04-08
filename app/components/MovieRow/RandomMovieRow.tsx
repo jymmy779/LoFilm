@@ -93,18 +93,18 @@ export default function RandomMovieRow() {
     };
 
     return (
-        <Container as="section" className="relative z-30 mb-14 mt-12">
+        <Container as="section" className="relative z-30 md:mb-20 mb-15 mt-12">
             {/* Header */}
             <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-5">
                 <div className="flex items-center gap-3">
-                    <h3 className="text-lg font-bold md:text-xl text-white tracking-widest uppercase relative italic">
-                        Tâm Trạng <span className="text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.8)]">Của Bạn</span>
-                        <div className="absolute -bottom-[21px] left-0 w-full h-0.5 bg-gradient-to-r from-amber-500 to-transparent opacity-70" />
+                    <h3 className="text-lg font-bold md:text-xl tracking-widest uppercase relative italic text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-purple-100 to-white drop-shadow-sm">
+                        Tâm Trạng Của Bạn
+                        <div className="absolute -bottom-[21px] left-0 w-full h-0.5 bg-gradient-to-r from-purple-200 to-transparent opacity-70" />
                     </h3>
                 </div>
                 <button
                     onClick={handleRandomMood}
-                    className="w-10 h-10 flex cursor-pointer items-center justify-center bg-white/5 hover:bg-amber-500 hover:text-[#0a1628] text-white rounded-full transition-all duration-500 group shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:shadow-amber-500/40 z-10"
+                    className="w-10 h-10 flex cursor-pointer items-center justify-center bg-gradient-to-br from-[#C6ADE8] to-[#9474cc] text-white rounded-full transition-all duration-500 group shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:shadow-[#C6ADE8]/50 z-10"
                     title="Ngẫu nhiên tâm trạng"
                 >
                     <Dices size={20} className="group-hover:rotate-180 transition-transform duration-500" />
@@ -149,7 +149,7 @@ export default function RandomMovieRow() {
             </div>
 
             {/* Movies Swiper */}
-            <div className="relative min-h-[300px]">
+            <div className="relative ">
                 <AnimatePresence mode="wait">
                     {isLoading ? (
                         <motion.div

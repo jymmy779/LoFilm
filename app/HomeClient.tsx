@@ -37,7 +37,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <HeroSlider initialMovies={prefetched.hero} />
             <CategoriesSection initialCategories={prefetched.categories} />
             <ContinueWatchingRow initialHistory={prefetched.initialHistory} />
-            
+
             <LazyRow estimatedHeight="500px">
                 <RandomMovieRow />
             </LazyRow>
@@ -91,7 +91,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <LazyRow estimatedHeight="480px">
                 <MoviePosterRow
                     title="Phim Bộ Mới Nhất"
-                    apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=20"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=30"
                     viewAllLink="/danh-sach/phim-bo"
                     initialMovies={prefetched.posterPhimBo}
                 />
