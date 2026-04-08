@@ -43,6 +43,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                 type="text"
                 placeholder="Tìm kiếm phim..."
                 autoFocus={autoFocus}
+                aria-label="Tìm kiếm phim"
                 className="bg-transparent outline-none text-base text-white w-full placeholder:text-white/30"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}

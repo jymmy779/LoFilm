@@ -98,7 +98,7 @@ export default function CatalogLayout({
                                                     : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
                                                 }`}>
                                                     {movies.map((movie, index) => (
-                                                        <MoviePosterCard key={movie._id} movie={movie} priority={index < 12} />
+                                                        <MoviePosterCard key={movie._id} movie={movie} priority={index < 6} />
                                                     ))}
                                                 </div>
                                             ) : (

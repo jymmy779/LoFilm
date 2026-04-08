@@ -14,7 +14,7 @@ interface MoviePosterCardProps {
 
 export default function MoviePosterCard({ movie, priority = false }: MoviePosterCardProps) {
     const { triggerAd } = useAdTrigger();
-    const posterImg = getImageUrl(movie.poster_url, { width: 250, quality: 75 });
+    const posterImg = getImageUrl(movie.poster_url, { width: 250, quality: 70 });
     const moviePath = `/phim/${movie.slug}`;
 
     const handleMovieClick = (e: React.MouseEvent) => {

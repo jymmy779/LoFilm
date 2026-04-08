@@ -139,11 +139,12 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
             }
 
             try {
-                // 1. Determine the appropriate endpoint based on documentations
-                let apiUrl = baseApiUrl;
+                // 1. Unified Search Strategy (Priority-based endpoint selection)
+                // PhimAPI/KKPhim specialized endpoints actually support secondary filters better than generic list endpoints.
+                const { category, country, year, type, sort } = activeFilters;
+                let apiUrl = "";
                 const params = new URLSearchParams();
                 
-                // Mapping for type to API list slug
                 const typeMap: Record<string, string> = {
                     "single": "phim-le",
                     "series": "phim-bo",
@@ -151,56 +152,42 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                     "tvshows": "tv-shows"
                 };
 
-                // Determine if we are on a specialized page (country/category)
-                const isSpecializedPage = baseApiUrl.includes("quoc-gia") || baseApiUrl.includes("the-loai");
-
-                // If a specific movie type is selected, we must use the 'danh-sach/{type}' endpoint
-                if (activeFilters.type) {
-                    const typeSlug = typeMap[activeFilters.type] || "phim-moi";
+                // Priority Logic: Type > Category > Country > Year
+                if (type) {
+                    const typeSlug = typeMap[type] || "phim-moi";
                     apiUrl = `https://phimapi.com/v1/api/danh-sach/${typeSlug}`;
-                } 
-                // If no type is selected, but other filters are applied on a generic page
-                else if (!isSpecializedPage && (activeFilters.category || activeFilters.country || activeFilters.year)) {
-                    apiUrl = `https://phimapi.com/v1/api/danh-sach/phim-moi`;
+                    if (category) params.set("category", category);
+                    if (country) params.set("country", country);
+                    if (year) params.set("year", year);
+                } else if (category) {
+                    apiUrl = `https://phimapi.com/v1/api/the-loai/${category}`;
+                    if (country) params.set("country", country);
+                    if (year) params.set("year", year);
+                } else if (country) {
+                    apiUrl = `https://phimapi.com/v1/api/quoc-gia/${country}`;
+                    if (year) params.set("year", year);
+                } else if (year) {
+                    apiUrl = `https://phimapi.com/v1/api/nam/${year}`;
+                } else {
+                    // Default Page: Use baseApiUrl (usually phim-moi-cap-nhat)
+                    // If baseApiUrl is a specialized page (like Category/Country) but NO filter is active,
+                    // we still use it to get the correct title/metadata from API.
+                    apiUrl = baseApiUrl;
                 }
 
-                // 2. Set Query Parameters
+                // 2. Set Standard Parameters
                 params.set("page", currentPage.toString());
                 params.set("limit", itemsPerPage.toString());
 
-                // Only the 'danh-sach' endpoints reliably support category/country/year filters
-                if (apiUrl.includes("danh-sach")) {
-                    // Category
-                    if (activeFilters.category) {
-                        params.set("category", activeFilters.category);
-                    } else if (slug && baseApiUrl.includes("the-loai")) {
-                        // Preserve context if we are on a category page but didn't pick a different one
-                        params.set("category", slug);
-                    }
-
-                    // Country
-                    if (activeFilters.country) {
-                        params.set("country", activeFilters.country);
-                    } else if (slug && baseApiUrl.includes("quoc-gia")) {
-                        // Preserve context if we are on a country page
-                        params.set("country", slug);
-                    }
-
-                    // Year
-                    if (activeFilters.year) {
-                        params.set("year", activeFilters.year);
-                    }
-                }
-
-                // Sorting (v1 API uses sort_field and sort_type)
-                if (activeFilters.sort) {
+                // Sorting (Applied to all endpoints, though some might ignore it)
+                if (sort) {
                     const sortMap: Record<string, string> = {
                         "update": "modified.time",
                         "view": "view",
                         "imdb": "tmdb.vote_average",
                         "year": "year"
                     };
-                    params.set("sort_field", sortMap[activeFilters.sort] || "modified.time");
+                    params.set("sort_field", sortMap[sort] || "modified.time");
                     params.set("sort_type", "desc");
                 }
 

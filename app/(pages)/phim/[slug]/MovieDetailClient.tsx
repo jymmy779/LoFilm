@@ -10,7 +10,11 @@ import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
 import { Movie, EpisodeServer } from "@/app/types/movie";
 import { getImageUrl, getEpisodeStatus, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
 import { decodeHtml } from "@/app/utils/textUtils";
-import CommentSection from "@/app/components/Comments/CommentSection";
+import dynamic from "next/dynamic";
+const CommentSection = dynamic(() => import("@/app/components/Comments/CommentSection"), {
+    loading: () => <div className="h-40 animate-pulse bg-white/5 rounded-2xl" />,
+    ssr: false
+});
 
 interface MovieDetailClientProps {
     movie: Movie;

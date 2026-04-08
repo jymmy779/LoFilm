@@ -137,7 +137,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                             <>
                                 <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] lg:overflow-hidden [transform:translateZ(0)]">
                                     <MotionImage
-                                        src={getImageUrl(movie.thumb_url, { quality: index === 0 ? 80 : 70 })}
+                                        src={getImageUrl(movie.thumb_url, { quality: index === 0 ? 75 : 65 })}
                                         alt={movie.name}
                                         initial={false}
                                         priority={index === 0}

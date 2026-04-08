@@ -7,6 +7,21 @@ import PageTransitionOverlay from "./components/Transition/PageTransitionOverlay
 import "./globals.css";
 import "react-loading-skeleton/dist/skeleton.css";
 import { SkeletonTheme } from "react-loading-skeleton";
+import { Inter, Montserrat } from "next/font/google";
+
+const inter = Inter({
+  subsets: ["latin", "vietnamese"],
+  variable: "--font-inter",
+  display: "swap",
+});
+
+const montserrat = Montserrat({
+  subsets: ["latin", "vietnamese"],
+  variable: "--font-montserrat",
+  display: "swap",
+});
+
+import FontAwesomeLoader from "@/app/components/Common/FontAwesomeLoader";
 import { Toaster } from "react-hot-toast";
 import { Suspense } from "react";
 
@@ -55,15 +70,14 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
+    <html lang="vi" suppressHydrationWarning>
       <head>
+        <link rel="dns-prefetch" href="https://wsrv.nl" />
         <link rel="preconnect" href="https://phimimg.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://img.phimapi.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://phimapi.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
+        <FontAwesomeLoader />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -147,7 +161,7 @@ export default function RootLayout({
           }}
         />
       </head>
-      <body className="bg-[#0f1115] text-white" suppressHydrationWarning>
+      <body className={`${inter.variable} ${montserrat.variable} bg-[#0f1115] text-white font-sans`} suppressHydrationWarning>
         <Suspense fallback={null}>
           <TopProgressBar />
         </Suspense>
