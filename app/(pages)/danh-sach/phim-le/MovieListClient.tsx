@@ -9,7 +9,8 @@ export default function MovieListClient() {
         activeFilters, categories, countries, handlePageChange,
         handleFilterChange, handleToggleFilter
     } = useMovieCatalog({
-        baseApiUrl: "https://phimapi.com/v1/api/danh-sach/phim-le"
+        baseApiUrl: "https://phimapi.com/v1/api/danh-sach/phim-le",
+        itemsPerPage: 32
     });
 
     return (
@@ -27,6 +28,7 @@ export default function MovieListClient() {
             onFilterChange={handleFilterChange}
             onToggleFilter={handleToggleFilter}
             onPageChange={handlePageChange}
+            hideSidebar={true}
         />
     );
 }

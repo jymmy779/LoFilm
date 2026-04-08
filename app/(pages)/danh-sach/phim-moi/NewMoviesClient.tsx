@@ -41,7 +41,8 @@ export default function NewMoviesClient() {
         activeFilters, categories, countries, handlePageChange,
         handleFilterChange, handleToggleFilter
     } = useMovieCatalog({
-        baseApiUrl
+        baseApiUrl,
+        itemsPerPage: 32
     });
 
     return (
@@ -59,6 +60,7 @@ export default function NewMoviesClient() {
             onFilterChange={handleFilterChange}
             onToggleFilter={handleToggleFilter}
             onPageChange={handlePageChange}
+            hideSidebar={true}
         />
     );
 }

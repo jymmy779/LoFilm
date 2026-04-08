@@ -14,7 +14,8 @@ export default function CountryClient({ slug }: CountryClientProps) {
         handleFilterChange, handleToggleFilter, pageTitle
     } = useMovieCatalog({
         baseApiUrl: `https://phimapi.com/v1/api/quoc-gia/${slug}`,
-        slug
+        slug,
+        itemsPerPage: 48
     });
 
     const currentCountry = countries.find(c => c.slug === slug);

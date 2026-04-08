@@ -19,6 +19,8 @@ import ComingSoonModal from "@/app/components/Modals/ComingSoonModal";
 
 type TabType = 'overview' | 'history' | 'favorites' | 'settings';
 
+import Sidebar from "@/app/components/Sidebar/Sidebar";
+
 export default function ProfileContent() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [user, setUser] = useState<any>(null);
@@ -238,87 +240,89 @@ export default function ProfileContent() {
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#111b33] to-[#0d162b] pt-24 md:pt-32 pb-16 md:pb-20 px-4">
-      <div className="max-w-6xl mx-auto flex flex-col lg:flex-row gap-6 md:gap-8">
-        {/* Sidebar Navigation */}
-        <div className="w-full lg:w-72 shrink-0">
-          <div className="bg-[#16213e] border border-white/5 rounded-3xl md:rounded-[32px] p-5 md:p-6 sticky lg:top-32 shadow-2xl overflow-hidden group">
-            {/* User Profile Summary */}
-            <div className="text-center mb-6 md:mb-8 relative">
-              <div className="relative inline-block group/avatar">
-                <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black text-3xl md:text-4xl font-bold shadow-xl shadow-amber-400/20 border-4 border-[#111b33] relative z-10 overflow-hidden">
-                  {isUpdatingAvatar ? (
-                    <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-[#111b33]/80 rounded-full z-[15]">
-                      <div className="w-8 h-8 border-2 border-amber-400/20 border-t-amber-400 rounded-full animate-spin" />
-                    </div>
-                  ) : user?.user_metadata?.avatar_url ? (
-                    <Image
-                      src={user.user_metadata.avatar_url}
-                      alt={displayName}
-                      width={96}
-                      height={96}
-                      className="w-full h-full object-cover"
+      <div className="max-w-[1440px] mx-auto flex flex-col xl:flex-row items-start gap-8">
+        {/* Nội dung chính bên trái và giữa */}
+        <div className="flex-1 flex flex-col lg:flex-row items-start gap-6 md:gap-8 w-full">
+          {/* Sidebar Navigation */}
+          <div className="w-full lg:w-72 shrink-0">
+            <div className="bg-[#16213e] border border-white/5 rounded-3xl md:rounded-[32px] p-5 md:p-6 sticky lg:top-32 shadow-2xl overflow-hidden group">
+              {/* User Profile Summary */}
+              <div className="text-center mb-6 md:mb-8 relative">
+                <div className="relative inline-block group/avatar">
+                  <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black text-3xl md:text-4xl font-bold shadow-xl shadow-amber-400/20 border-4 border-[#111b33] relative z-10 overflow-hidden">
+                    {isUpdatingAvatar ? (
+                      <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-[#111b33]/80 rounded-full z-[15]">
+                        <div className="w-8 h-8 border-2 border-amber-400/20 border-t-amber-400 rounded-full animate-spin" />
+                      </div>
+                    ) : user?.user_metadata?.avatar_url ? (
+                      <Image
+                        src={user.user_metadata.avatar_url}
+                        alt={displayName}
+                        width={96}
+                        height={96}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      userAvatar
+                    )}
+                  </div>
+
+                  <label className="absolute bottom-0 right-0 p-2 bg-white text-black rounded-full shadow-lg border-2 border-[#111b33] z-20 opacity-0 group-hover/avatar:opacity-100 translate-y-2 group-hover/avatar:translate-y-0 transition-all cursor-pointer hover:bg-amber-400">
+                    <Camera size={14} />
+                    <input
+                      type="file"
+                      className="hidden"
+                      accept="image/*"
+                      onChange={handleUpdateAvatar}
+                      disabled={isUpdatingAvatar}
                     />
-                  ) : (
-                    userAvatar
-                  )}
+                  </label>
                 </div>
-
-                <label className="absolute bottom-0 right-0 p-2 bg-white text-black rounded-full shadow-lg border-2 border-[#111b33] z-20 opacity-0 group-hover/avatar:opacity-100 translate-y-2 group-hover/avatar:translate-y-0 transition-all cursor-pointer hover:bg-amber-400">
-                  <Camera size={14} />
-                  <input
-                    type="file"
-                    className="hidden"
-                    accept="image/*"
-                    onChange={handleUpdateAvatar}
-                    disabled={isUpdatingAvatar}
-                  />
-                </label>
+                <h2 className="text-lg md:text-xl font-bold text-white mt-3 md:mt-4 truncate px-2">{displayName}</h2>
+                <p className="text-white/40 text-[10px] md:text-xs mt-0.5 md:mt-1 truncate px-2 tracking-widest">{user?.email}</p>
               </div>
-              <h2 className="text-lg md:text-xl font-bold text-white mt-3 md:mt-4 truncate px-2">{displayName}</h2>
-              <p className="text-white/40 text-[10px] md:text-xs mt-0.5 md:mt-1 truncate px-2 tracking-widest">{user?.email}</p>
+
+              {/* Nav Menu */}
+              <nav className="grid grid-cols-2 lg:grid-cols-1 gap-2 lg:gap-1 mb-4 md:mb-6">
+                {tabs.map((tab) => {
+                  const Icon = tab.icon;
+                  return (
+                    <button
+                      key={tab.id}
+                      onClick={() => {
+                        setActiveTab(tab.id as TabType);
+                        // Update URL without full refresh to persist tab state on reload
+                        router.push(`/trang-ca-nhan?tab=${tab.id}`, { scroll: false });
+                      }}
+                      className={`w-full flex items-center justify-between px-3 md:px-4 py-2.5 md:py-3 rounded-xl md:rounded-2xl transition-all cursor-pointer ${activeTab === tab.id
+                        ? "bg-amber-400 text-black font-bold shadow-lg shadow-amber-400/10"
+                        : "text-white/60 hover:text-white hover:bg-white/5"
+                        }`}
+                    >
+                      <div className="flex items-center gap-2 md:gap-3">
+                        <Icon size={16} className="md:w-[18px] md:h-[18px]" />
+                        <span className="text-xs md:text-sm">{tab.label}</span>
+                      </div>
+                      {activeTab === tab.id && <ChevronRight size={14} className="hidden lg:block md:w-4 md:h-4" />}
+                    </button>
+                  );
+                })}
+              </nav>
+
+              <div className="h-[1px] bg-white/5 mb-3 md:mb-4 hidden lg:block" />
+
+              <button
+                onClick={() => setShowLogoutModal(true)}
+                className="w-full flex items-center justify-center lg:justify-start gap-2 md:gap-3 px-4 py-2.5 md:py-3 text-red-400 hover:bg-red-500/10 rounded-xl md:rounded-2xl transition-all cursor-pointer text-xs md:text-sm font-medium"
+              >
+                <LogOut size={16} className="md:w-[18px] md:h-[18px]" />
+                Đăng xuất
+              </button>
             </div>
-
-            {/* Nav Menu */}
-            <nav className="grid grid-cols-2 lg:grid-cols-1 gap-2 lg:gap-1 mb-4 md:mb-6">
-              {tabs.map((tab) => {
-                const Icon = tab.icon;
-                return (
-                  <button
-                    key={tab.id}
-                    onClick={() => {
-                      setActiveTab(tab.id as TabType);
-                      // Update URL without full refresh to persist tab state on reload
-                      router.push(`/trang-ca-nhan?tab=${tab.id}`, { scroll: false });
-                    }}
-                    className={`w-full flex items-center justify-between px-3 md:px-4 py-2.5 md:py-3 rounded-xl md:rounded-2xl transition-all cursor-pointer ${activeTab === tab.id
-                      ? "bg-amber-400 text-black font-bold shadow-lg shadow-amber-400/10"
-                      : "text-white/60 hover:text-white hover:bg-white/5"
-                      }`}
-                  >
-                    <div className="flex items-center gap-2 md:gap-3">
-                      <Icon size={16} className="md:w-[18px] md:h-[18px]" />
-                      <span className="text-xs md:text-sm">{tab.label}</span>
-                    </div>
-                    {activeTab === tab.id && <ChevronRight size={14} className="hidden lg:block md:w-4 md:h-4" />}
-                  </button>
-                );
-              })}
-            </nav>
-
-            <div className="h-[1px] bg-white/5 mb-3 md:mb-4 hidden lg:block" />
-
-            <button
-              onClick={() => setShowLogoutModal(true)}
-              className="w-full flex items-center justify-center lg:justify-start gap-2 md:gap-3 px-4 py-2.5 md:py-3 text-red-400 hover:bg-red-500/10 rounded-xl md:rounded-2xl transition-all cursor-pointer text-xs md:text-sm font-medium"
-            >
-              <LogOut size={16} className="md:w-[18px] md:h-[18px]" />
-              Đăng xuất
-            </button>
           </div>
-        </div>
 
-        {/* Main Content Area - Optimized for performance */}
-        <div className="flex-1 min-h-[400px] md:min-h-[600px]">
+          {/* Main Content Area */}
+          <div className="flex-1 min-h-[400px] md:min-h-[600px]">
           <AnimatePresence mode="wait">
             <motion.div
               key={activeTab}
@@ -326,7 +330,7 @@ export default function ProfileContent() {
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               transition={{ duration: 0.15, ease: "linear" }}
-              className="bg-[#16213e] border border-white/5 rounded-3xl md:rounded-[40px] p-6 md:p-12 shadow-2xl min-h-full"
+              className="bg-[#16213e] border border-white/5 rounded-3xl md:rounded-[40px] p-6 md:p-12 shadow-2xl"
             >
               {activeTab === 'overview' && (
                 <div className="space-y-10">
@@ -729,7 +733,18 @@ export default function ProfileContent() {
             </motion.div>
           </AnimatePresence>
         </div>
+        {/* Kết thúc Cột nội dung chính giữa */}
       </div>
+      {/* Kết thúc Khối bọc trái + giữa */}
+
+      {/* Cột Sidebar phim bên phải */}
+      <aside className="w-full xl:w-[320px] shrink-0">
+        <Sidebar />
+      </aside>
+    </div>
+    {/* Kết thúc Container 1440px */}
+
+      {/* Các Modal xác nhận */}
 
       {/* Delete Account Modal */}
       <AnimatePresence>

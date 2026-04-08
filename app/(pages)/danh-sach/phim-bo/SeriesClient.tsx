@@ -9,7 +9,8 @@ export default function SeriesClient() {
         activeFilters, categories, countries, handlePageChange,
         handleFilterChange, handleToggleFilter
     } = useMovieCatalog({
-        baseApiUrl: "https://phimapi.com/v1/api/danh-sach/phim-bo"
+        baseApiUrl: "https://phimapi.com/v1/api/danh-sach/phim-bo",
+        itemsPerPage: 32
     });
 
     return (
@@ -27,6 +28,7 @@ export default function SeriesClient() {
             onFilterChange={handleFilterChange}
             onToggleFilter={handleToggleFilter}
             onPageChange={handlePageChange}
+            hideSidebar={true}
         />
     );
 }

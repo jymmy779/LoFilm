@@ -11,6 +11,9 @@ import { usePageTransition } from "@/app/components/Transition/PageTransitionCon
 import CatalogHeader from "../../components/CatalogHeader";
 import Container from "../../components/Container";
 
+// Import Sidebar từ đúng thư mục
+import SidebarComp from "@/app/components/Sidebar/Sidebar";
+
 export default function AuthContent() {
   const [isLogin, setIsLogin] = useState(true);
   const [email, setEmail] = useState("");
@@ -191,216 +194,226 @@ export default function AuthContent() {
   };
 
   return (
-    <div className="min-h-[90vh] flex flex-col items-center pt-30 md:pt-40 pb-30 px-4 relative">
-      <Container className="mb-10 md:mb-20 w-full">
+    <div className="min-h-[90vh] pt-30 md:pt-40 pb-30 px-4 relative">
+      <Container className="mb-10 md:mb-12 w-full">
         <CatalogHeader
           title={"Thành viên"}
-          showTitle={false}
+          showTitle={true}
         />
       </Container>
-      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-        {/* Bỏ animate-pulse và tinh giản blur để mobile/tablet không bị lag */}
-        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-amber-500/10 rounded-full blur-[100px]" />
-        <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-blue-500/10 rounded-full blur-[80px]" />
-      </div>
 
-      <div className="w-full max-w-md bg-[#14233e]/60 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl relative overflow-hidden">
-        {/* Header Tabs */}
-        <div className="flex justify-center mb-8 relative">
-          <div className="flex bg-white/5 p-1 rounded-2xl w-full border border-white/5">
-            <button
-              onClick={() => setIsLogin(true)}
-              className={`flex-1 py-3 text-sm font-semibold rounded-xl transition-all cursor-pointer ${isLogin ? "bg-amber-400 text-black" : "text-white/60 hover:text-white"
-                }`}
-            >
-              Đăng nhập
-            </button>
-            <button
-              onClick={() => setIsLogin(false)}
-              className={`flex-1 py-3 text-sm font-semibold rounded-xl transition-all cursor-pointer ${!isLogin ? "bg-amber-400 text-black" : "text-white/60 hover:text-white"
-                }`}
-            >
-              Đăng ký
-            </button>
-          </div>
-        </div>
-
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={isLogin ? 'login' : 'register'}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.2 }}
-          >
-            <div className="text-center mb-8">
-              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-                {isLogin ? "Chào mừng trở lại!" : "Tạo tài khoản mới"}
-              </h2>
-              <p className="text-white/40 text-sm">
-                {isLogin ? "Cùng LoFilm tiếp tục cuộc hành trình điện ảnh của bạn." : "Trở thành thành viên và khám phá kho phim khổng lồ."}
-              </p>
-            </div>
-
-            <form
-              onSubmit={handleAuth}
-              className="space-y-4"
-            >
-              {/* Full Name Input - Only for Sign up */}
-              {!isLogin && (
-                <div className="relative mb-4">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
-                    <User size={18} />
-                  </div>
-                  <input
-                    type="text"
-                    name="name"
-                    autoComplete="name"
-                    required={!isLogin}
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    placeholder="Họ và tên của bạn"
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
-                  />
-                </div>
-              )}
-
-              <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
-                  <Mail size={18} />
-                </div>
-                <input
-                  type="email"
-                  name="email"
-                  autoComplete="username email"
-                  required
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="Email của bạn"
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
-                />
-              </div>
-
-              <div className="relative">
-                <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
-                  <Lock size={18} />
-                </div>
-                <input
-                  type="password"
-                  name="password"
-                  autoComplete={isLogin ? "current-password" : "new-password"}
-                  required
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder={isLogin ? "Mật khẩu" : "Tạo mật khẩu"}
-                  className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
-                />
-              </div>
-
-              {/* Confirm Password - Only for Sign up */}
-              {!isLogin && (
-                <div className="relative mt-4">
-                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
-                    <Lock size={18} />
-                  </div>
-                  <input
-                    type="password"
-                    name="confirm-password"
-                    autoComplete="new-password"
-                    required={!isLogin}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Xác nhận mật khẩu"
-                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
-                  />
-                </div>
-              )}
-
-              {isLogin && (
-                <div className="flex items-center justify-between px-2">
-                  <label className="flex items-center gap-3 group cursor-pointer select-none">
-                    <div className="relative">
-                      <input
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                        className="sr-only peer"
-                      />
-                      <div className={`w-5 h-5 rounded-md border-2 transition-all duration-300 flex items-center justify-center ${rememberMe ? 'bg-amber-400 border-amber-400 rotate-0' : 'bg-transparent border-white/20 -rotate-12'}`}>
-                        <CheckCircle2 size={14} className={`text-black transition-opacity duration-300 ${rememberMe ? 'opacity-100' : 'opacity-0'}`} />
-                      </div>
-                      {/* Subtle Glow Effect when checked */}
-                      {rememberMe && (
-                        <div className="absolute inset-0 bg-amber-400 blur-md opacity-20 -z-10 animate-pulse" />
-                      )}
-                    </div>
-                    <span className="text-xs text-white/50 group-hover:text-white/80 transition-colors">Ghi nhớ đăng nhập</span>
-                  </label>
-
+      <Container>
+        <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start">
+          {/* Main Auth Form Area */}
+          <div className="flex-grow w-full flex justify-center lg:justify-start">
+            <div className="w-full max-w-md bg-[#14233e]/60 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl relative overflow-hidden">
+              {/* Header Tabs */}
+              <div className="flex justify-center mb-8 relative">
+                <div className="flex bg-white/5 p-1 rounded-2xl w-full border border-white/5">
                   <button
-                    type="button"
-                    onClick={handleForgotPassword}
-                    className="text-amber-400/60 hover:text-amber-400 text-xs transition-colors cursor-pointer"
+                    onClick={() => setIsLogin(true)}
+                    className={`flex-1 py-3 text-sm font-semibold rounded-xl transition-all cursor-pointer ${isLogin ? "bg-amber-400 text-black" : "text-white/60 hover:text-white"
+                      }`}
                   >
-                    Quên mật khẩu?
+                    Đăng nhập
+                  </button>
+                  <button
+                    onClick={() => setIsLogin(false)}
+                    className={`flex-1 py-3 text-sm font-semibold rounded-xl transition-all cursor-pointer ${!isLogin ? "bg-amber-400 text-black" : "text-white/60 hover:text-white"
+                      }`}
+                  >
+                    Đăng ký
                   </button>
                 </div>
-              )}
+              </div>
 
-              <button
-                type="submit"
-                disabled={isLoading}
-                className="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:translate-y-[-2px] hover:shadow-lg hover:shadow-amber-500/20 active:translate-y-0 transition-all cursor-pointer mt-4"
-              >
-                {isLoading ? (
-                  <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-                ) : (
-                  <>
-                    {isLogin ? "Đăng nhập" : "Tạo tài khoản"}
-                    <ArrowRight size={18} />
-                  </>
-                )}
-              </button>
-            </form>
-          </motion.div>
-        </AnimatePresence>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={isLogin ? 'login' : 'register'}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  <div className="text-center mb-8">
+                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                      {isLogin ? "Chào mừng trở lại!" : "Tạo tài khoản mới"}
+                    </h2>
+                    <p className="text-white/40 text-sm">
+                      {isLogin ? "Cùng LoFilm tiếp tục cuộc hành trình điện ảnh của bạn." : "Trở thành thành viên và khám phá kho phim khổng lồ."}
+                    </p>
+                  </div>
 
+                  <form
+                    onSubmit={handleAuth}
+                    className="space-y-4"
+                  >
+                    {/* Full Name Input - Only for Sign up */}
+                    {!isLogin && (
+                      <div className="relative mb-4">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
+                          <User size={18} />
+                        </div>
+                        <input
+                          type="text"
+                          name="name"
+                          autoComplete="name"
+                          required={!isLogin}
+                          value={fullName}
+                          onChange={(e) => setFullName(e.target.value)}
+                          placeholder="Họ và tên của bạn"
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
+                        />
+                      </div>
+                    )}
 
+                    <div className="relative">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
+                        <Mail size={18} />
+                      </div>
+                      <input
+                        type="email"
+                        name="email"
+                        autoComplete="username email"
+                        required
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        placeholder="Email của bạn"
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
+                      />
+                    </div>
 
-        {/* Membership Privileges Grid */}
-        <div className="mt-10 pt-8 border-t border-white/5 grid grid-cols-2 gap-3">
-          <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-center group hover:bg-white/5 transition-all">
-            <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 mx-auto mb-3 group-hover:scale-110 transition-transform">
-              <CheckCircle2 size={20} />
+                    <div className="relative">
+                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
+                        <Lock size={18} />
+                      </div>
+                      <input
+                        type="password"
+                        name="password"
+                        autoComplete={isLogin ? "current-password" : "new-password"}
+                        required
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        placeholder={isLogin ? "Mật khẩu" : "Tạo mật khẩu"}
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
+                      />
+                    </div>
+
+                    {/* Confirm Password - Only for Sign up */}
+                    {!isLogin && (
+                      <div className="relative mt-4">
+                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
+                          <Lock size={18} />
+                        </div>
+                        <input
+                          type="password"
+                          name="confirm-password"
+                          autoComplete="new-password"
+                          required={!isLogin}
+                          value={confirmPassword}
+                          onChange={(e) => setConfirmPassword(e.target.value)}
+                          placeholder="Xác nhận mật khẩu"
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
+                        />
+                      </div>
+                    )}
+
+                    {isLogin && (
+                      <div className="flex items-center justify-between px-2">
+                        <label className="flex items-center gap-3 group cursor-pointer select-none">
+                          <div className="relative">
+                            <input
+                              type="checkbox"
+                              checked={rememberMe}
+                              onChange={(e) => setRememberMe(e.target.checked)}
+                              className="sr-only peer"
+                            />
+                            <div className={`w-5 h-5 rounded-md border-2 transition-all duration-300 flex items-center justify-center ${rememberMe ? 'bg-amber-400 border-amber-400 rotate-0' : 'bg-transparent border-white/20 -rotate-12'}`}>
+                              <CheckCircle2 size={14} className={`text-black transition-opacity duration-300 ${rememberMe ? 'opacity-100' : 'opacity-0'}`} />
+                            </div>
+                            {/* Subtle Glow Effect when checked */}
+                            {rememberMe && (
+                              <div className="absolute inset-0 bg-amber-400 blur-md opacity-20 -z-10 animate-pulse" />
+                            )}
+                          </div>
+                          <span className="text-xs text-white/50 group-hover:text-white/80 transition-colors">Ghi nhớ đăng nhập</span>
+                        </label>
+
+                        <button
+                          type="button"
+                          onClick={handleForgotPassword}
+                          className="text-amber-400/60 hover:text-amber-400 text-xs transition-colors cursor-pointer"
+                        >
+                          Quên mật khẩu?
+                        </button>
+                      </div>
+                    )}
+
+                    <button
+                      type="submit"
+                      disabled={isLoading}
+                      className="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:translate-y-[-2px] hover:shadow-lg hover:shadow-amber-500/20 active:translate-y-0 transition-all cursor-pointer mt-4"
+                    >
+                      {isLoading ? (
+                        <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                      ) : (
+                        <>
+                          {isLogin ? "Đăng nhập" : "Tạo tài khoản"}
+                          <ArrowRight size={18} />
+                        </>
+                      )}
+                    </button>
+                  </form>
+                </motion.div>
+              </AnimatePresence>
+
+              {/* Membership Privileges Grid */}
+              <div className="mt-10 pt-8 border-t border-white/5 grid grid-cols-2 gap-3">
+                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-center group hover:bg-white/5 transition-all">
+                  <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 mx-auto mb-3 group-hover:scale-110 transition-transform">
+                    <CheckCircle2 size={20} />
+                  </div>
+                  <div className="text-[12px] font-bold text-white mb-1">Bình luận phim</div>
+                  <div className="text-[10px] text-white/30 leading-tight">Chia sẻ nhận xét với cộng đồng</div>
+                </div>
+
+                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-center group hover:bg-white/5 transition-all">
+                  <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 mx-auto mb-3 group-hover:scale-110 transition-transform">
+                    <ThumbsUp size={20} />
+                  </div>
+                  <div className="text-[12px] font-bold text-white mb-1">Like / Dislike</div>
+                  <div className="text-[10px] text-white/30 leading-tight">Bày tỏ cảm xúc với từng tập phim</div>
+                </div>
+
+                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-center group hover:bg-white/5 transition-all">
+                  <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 mx-auto mb-3 group-hover:scale-110 transition-transform">
+                    <HistoryIcon size={20} />
+                  </div>
+                  <div className="text-[12px] font-bold text-white mb-1">Lịch sử xem</div>
+                  <div className="text-[10px] text-white/30 leading-tight">Đồng bộ mọi khoảnh khắc xem phim</div>
+                </div>
+
+                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-center group hover:bg-white/5 transition-all">
+                  <div className="w-10 h-10 bg-rose-500/10 rounded-xl flex items-center justify-center text-rose-500 mx-auto mb-3 group-hover:scale-110 transition-transform">
+                    <Star size={20} />
+                  </div>
+                  <div className="text-[12px] font-bold text-white mb-1">Đánh giá phim</div>
+                  <div className="text-[10px] text-white/30 leading-tight">Chấm điểm bộ phim yêu thích</div>
+                </div>
+              </div>
             </div>
-            <div className="text-[12px] font-bold text-white mb-1">Bình luận phim</div>
-            <div className="text-[10px] text-white/30 leading-tight">Chia sẻ nhận xét với cộng đồng</div>
           </div>
 
-          <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-center group hover:bg-white/5 transition-all">
-            <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 mx-auto mb-3 group-hover:scale-110 transition-transform">
-              <ThumbsUp size={20} />
-            </div>
-            <div className="text-[12px] font-bold text-white mb-1">Like / Dislike</div>
-            <div className="text-[10px] text-white/30 leading-tight">Bày tỏ cảm xúc với từng tập phim</div>
-          </div>
-
-          <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-center group hover:bg-white/5 transition-all">
-            <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 mx-auto mb-3 group-hover:scale-110 transition-transform">
-              <HistoryIcon size={20} />
-            </div>
-            <div className="text-[12px] font-bold text-white mb-1">Lịch sử xem</div>
-            <div className="text-[10px] text-white/30 leading-tight">Đồng bộ mọi khoảnh khắc xem phim</div>
-          </div>
-
-          <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-center group hover:bg-white/5 transition-all">
-            <div className="w-10 h-10 bg-rose-500/10 rounded-xl flex items-center justify-center text-rose-500 mx-auto mb-3 group-hover:scale-110 transition-transform">
-              <Star size={20} />
-            </div>
-            <div className="text-[12px] font-bold text-white mb-1">Đánh giá phim</div>
-            <div className="text-[10px] text-white/30 leading-tight">Chấm điểm bộ phim yêu thích</div>
+          {/* Sidebar */}
+          <div className="w-full lg:w-[320px] shrink-0 mt-10 lg:mt-0">
+            <SidebarComp />
           </div>
         </div>
+      </Container>
+
+      <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
+        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-amber-500/10 rounded-full blur-[100px]" />
+        <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-blue-500/10 rounded-full blur-[80px]" />
       </div>
     </div>
   );

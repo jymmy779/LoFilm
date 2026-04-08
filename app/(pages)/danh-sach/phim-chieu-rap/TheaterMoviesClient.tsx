@@ -9,7 +9,8 @@ export default function TheaterMoviesClient() {
         activeFilters, categories, countries, handlePageChange,
         handleFilterChange, handleToggleFilter
     } = useMovieCatalog({
-        baseApiUrl: "https://phimapi.com/v1/api/danh-sach/phim-chieu-rap"
+        baseApiUrl: "https://phimapi.com/v1/api/danh-sach/phim-chieu-rap",
+        itemsPerPage: 32
     });
 
     return (
@@ -27,6 +28,7 @@ export default function TheaterMoviesClient() {
             onFilterChange={handleFilterChange}
             onToggleFilter={handleToggleFilter}
             onPageChange={handlePageChange}
+            hideSidebar={true}
         />
     );
 }

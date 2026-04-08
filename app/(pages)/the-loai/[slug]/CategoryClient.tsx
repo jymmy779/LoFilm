@@ -14,7 +14,8 @@ export default function CategoryClient({ slug }: CategoryClientProps) {
         handleFilterChange, handleToggleFilter, pageTitle
     } = useMovieCatalog({
         baseApiUrl: `https://phimapi.com/v1/api/the-loai/${slug}`,
-        slug
+        slug,
+        itemsPerPage: 48
     });
 
     const currentCategory = categories.find(c => c.slug === slug);
