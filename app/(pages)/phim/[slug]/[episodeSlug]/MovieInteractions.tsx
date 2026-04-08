@@ -14,7 +14,7 @@ export default function MovieInteractions({ movieSlug }: MovieInteractionsProps)
     const [dislikes, setDislikes] = useState(0);
     const [userInteraction, setUserInteraction] = useState<'like' | 'dislike' | null>(null);
     const [loading, setLoading] = useState(true);
-    
+
     const supabase = createClient();
 
     useEffect(() => {
@@ -40,7 +40,7 @@ export default function MovieInteractions({ movieSlug }: MovieInteractionsProps)
                         .eq('movie_slug', movieSlug)
                         .eq('user_id', user.id)
                         .single();
-                    
+
                     if (interactionRes) {
                         setUserInteraction(interactionRes.type as 'like' | 'dislike');
                     }
@@ -102,25 +102,23 @@ export default function MovieInteractions({ movieSlug }: MovieInteractionsProps)
     return (
         <div className="flex items-center gap-3">
             <div className="flex bg-[#111b33] p-1 rounded-2xl border border-white/5">
-                <button 
+                <button
                     onClick={() => handleInteraction('like')}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all cursor-pointer ${
-                        userInteraction === 'like' 
-                        ? "bg-amber-400 text-black font-bold" 
-                        : "text-white/40 hover:text-white"
-                    }`}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all cursor-pointer ${userInteraction === 'like'
+                            ? "bg-amber-400 text-black font-bold"
+                            : "text-white/40 hover:text-white"
+                        }`}
                 >
                     <ThumbsUp size={16} className={userInteraction === 'like' ? "fill-black" : ""} />
                     <span className="text-xs">{likes}</span>
                 </button>
 
-                <button 
+                <button
                     onClick={() => handleInteraction('dislike')}
-                    className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all cursor-pointer ${
-                        userInteraction === 'dislike' 
-                        ? "bg-red-500 text-white font-bold" 
-                        : "text-white/40 hover:text-white border-l border-white/10"
-                    }`}
+                    className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all cursor-pointer ${userInteraction === 'dislike'
+                            ? "bg-red-500 text-white font-bold"
+                            : "text-white/40 hover:text-white border-l border-white/10"
+                        }`}
                 >
                     <ThumbsDown size={16} className={userInteraction === 'dislike' ? "fill-white" : ""} />
                     <span className="text-xs">{dislikes}</span>

@@ -6,9 +6,10 @@ import TransitionLink from "@/app/components/Transition/TransitionLink";
 interface CatalogHeaderProps {
     title: string;
     breadcrumbText?: string;
+    showTitle?: boolean;
 }
 
-export default function CatalogHeader({ title, breadcrumbText }: CatalogHeaderProps) {
+export default function CatalogHeader({ title, breadcrumbText, showTitle = true }: CatalogHeaderProps) {
     const displayBreadcrumb = breadcrumbText || title;
 
     return (
@@ -39,12 +40,14 @@ export default function CatalogHeader({ title, breadcrumbText }: CatalogHeaderPr
             </nav>
 
             {/* Catalog Title */}
-            <div className="mb-8 md:mb-10">
-                <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-blue-100 to-white mb-2 leading-tight">
-                    {title}
-                </h1>
-                <div className="h-1 w-20 bg-gradient-to-r from-[#f5a623] to-transparent rounded-full opacity-80" />
-            </div>
+            {showTitle && (
+                <div className="mb-8 md:mb-10">
+                    <h1 className="text-2xl md:text-3xl lg:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-blue-100 to-white mb-2 leading-tight">
+                        {title}
+                    </h1>
+                    <div className="h-1 w-20 bg-gradient-to-r from-[#f5a623] to-transparent rounded-full opacity-80" />
+                </div>
+            )}
         </div>
     );
 }

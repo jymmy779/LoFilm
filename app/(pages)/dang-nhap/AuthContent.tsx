@@ -8,6 +8,8 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
 import { usePageTransition } from "@/app/components/Transition/PageTransitionContext";
+import CatalogHeader from "../../components/CatalogHeader";
+import Container from "../../components/Container";
 
 export default function AuthContent() {
   const [isLogin, setIsLogin] = useState(true);
@@ -47,6 +49,28 @@ export default function AuthContent() {
 
     return () => subscription.unsubscribe();
   }, [supabase, router]);
+
+  // Xử lý dọn dẹp form khi chuyển tab
+  React.useEffect(() => {
+    if (!isLogin) {
+      // Khi sang tab Đăng ký: xóa sạch mọi thông tin
+      setEmail("");
+      setPassword("");
+      setConfirmPassword("");
+      setFullName("");
+    } else {
+      // Khi sang tab Đăng nhập: khôi phục email nếu có "Ghi nhớ", dọn password
+      const savedEmail = localStorage.getItem("rememberedEmail");
+      const savedRememberMe = localStorage.getItem("rememberMe") === "true";
+      
+      if (savedRememberMe && savedEmail) {
+        setEmail(savedEmail);
+      } else {
+        setEmail("");
+      }
+      setPassword("");
+    }
+  }, [isLogin]);
 
   const translateError = (error: string) => {
     if (error.includes("Invalid login credentials")) return "Email hoặc mật khẩu không chính xác!";
@@ -115,7 +139,7 @@ export default function AuthContent() {
             emailRedirectTo: `${window.location.origin}/auth/callback`,
           },
         });
-        
+
         if (error) {
           // Xử lý trường hợp User đã đăng ký nhưng chưa xác thực (đăng ký lại)
           if (error.message.includes("User already registered") || error.message.includes("is not confirmed")) {
@@ -126,9 +150,9 @@ export default function AuthContent() {
                 emailRedirectTo: `${window.location.origin}/auth/callback`,
               }
             });
-            
+
             if (resendError) throw resendError;
-            
+
             toast.success("Tài khoản này đã tồn tại nhưng chưa xác thực. Một email xác nhận mới đã được gửi đi!", { duration: 5000 });
             setIsLogin(true);
             setIsLoading(false);
@@ -167,18 +191,20 @@ export default function AuthContent() {
   };
 
   return (
-    <div className="min-h-[90vh] flex items-start justify-center pt-32 md:pt-40 pb-20 px-4">
+    <div className="min-h-[90vh] flex flex-col items-center pt-30 md:pt-40 pb-30 px-4 relative">
+      <Container className="mb-10 md:mb-20 w-full">
+        <CatalogHeader
+          title={"Thành viên"}
+          showTitle={false}
+        />
+      </Container>
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
         {/* Bỏ animate-pulse và tinh giản blur để mobile/tablet không bị lag */}
         <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-amber-500/10 rounded-full blur-[100px]" />
         <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-blue-500/10 rounded-full blur-[80px]" />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-[#14233e]/60 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl relative overflow-hidden"
-      >
+      <div className="w-full max-w-md bg-[#14233e]/60 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl relative overflow-hidden">
         {/* Header Tabs */}
         <div className="flex justify-center mb-8 relative">
           <div className="flex bg-white/5 p-1 rounded-2xl w-full border border-white/5">
@@ -199,153 +225,146 @@ export default function AuthContent() {
           </div>
         </div>
 
-        <div className="text-center mb-8">
-          <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
-            {isLogin ? "Chào mừng trở lại!" : "Tạo tài khoản mới"}
-          </h2>
-          <p className="text-white/40 text-sm">
-            {isLogin ? "Cùng LoFilm tiếp tục cuộc hành trình điện ảnh của bạn." : "Trở thành thành viên và khám phá kho phim khổng lồ."}
-          </p>
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={isLogin ? 'login' : 'register'}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.2 }}
+          >
+            <div className="text-center mb-8">
+              <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                {isLogin ? "Chào mừng trở lại!" : "Tạo tài khoản mới"}
+              </h2>
+              <p className="text-white/40 text-sm">
+                {isLogin ? "Cùng LoFilm tiếp tục cuộc hành trình điện ảnh của bạn." : "Trở thành thành viên và khám phá kho phim khổng lồ."}
+              </p>
+            </div>
 
-        <form
-          onSubmit={handleAuth}
-          className="space-y-4"
-        >
-          {/* Full Name Input - Only for Sign up */}
-          <AnimatePresence initial={false}>
-            {!isLogin && (
-              <motion.div
-                key="fullname-field"
-                initial={{ height: 0, opacity: 0, scale: 0.95 }}
-                animate={{ height: "auto", opacity: 1, scale: 1 }}
-                exit={{ height: 0, opacity: 0, scale: 0.95 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="relative overflow-hidden origin-top mb-4"
-              >
+            <form
+              onSubmit={handleAuth}
+              className="space-y-4"
+            >
+              {/* Full Name Input - Only for Sign up */}
+              {!isLogin && (
+                <div className="relative mb-4">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
+                    <User size={18} />
+                  </div>
+                  <input
+                    type="text"
+                    name="name"
+                    autoComplete="name"
+                    required={!isLogin}
+                    value={fullName}
+                    onChange={(e) => setFullName(e.target.value)}
+                    placeholder="Họ và tên của bạn"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
+                  />
+                </div>
+              )}
+
+              <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
-                  <User size={18} />
+                  <Mail size={18} />
                 </div>
                 <input
-                  type="text"
-                  name="name"
-                  autoComplete="name"
-                  required={!isLogin}
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  placeholder="Họ và tên của bạn"
+                  type="email"
+                  name="email"
+                  autoComplete="username email"
+                  required
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="Email của bạn"
                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
                 />
-              </motion.div>
-            )}
-          </AnimatePresence>
+              </div>
 
-          <div className="relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
-              <Mail size={18} />
-            </div>
-            <input
-              type="email"
-              name="email"
-              autoComplete="username email"
-              required
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="Email của bạn"
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
-            />
-          </div>
-
-          <div className="relative">
-            <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
-              <Lock size={18} />
-            </div>
-            <input
-              type="password"
-              name="password"
-              autoComplete={isLogin ? "current-password" : "new-password"}
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder={isLogin ? "Mật khẩu" : "Tạo mật khẩu"}
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
-            />
-          </div>
-
-          {/* Confirm Password - Only for Sign up */}
-          <AnimatePresence initial={false}>
-            {!isLogin && (
-              <motion.div
-                key="confirm-password-field"
-                initial={{ height: 0, opacity: 0, scale: 0.95, marginTop: 0 }}
-                animate={{ height: "auto", opacity: 1, scale: 1, marginTop: 16 }}
-                exit={{ height: 0, opacity: 0, scale: 0.95, marginTop: 0 }}
-                transition={{ duration: 0.2, ease: "easeOut" }}
-                className="relative overflow-hidden origin-top"
-              >
+              <div className="relative">
                 <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
                   <Lock size={18} />
                 </div>
                 <input
                   type="password"
-                  name="confirm-password"
-                  autoComplete="new-password"
-                  required={!isLogin}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  placeholder="Xác nhận mật khẩu"
+                  name="password"
+                  autoComplete={isLogin ? "current-password" : "new-password"}
+                  required
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  placeholder={isLogin ? "Mật khẩu" : "Tạo mật khẩu"}
                   className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
                 />
-              </motion.div>
-            )}
-          </AnimatePresence>
+              </div>
 
-          {isLogin && (
-            <div className="flex items-center justify-between px-2">
-              <label className="flex items-center gap-3 group cursor-pointer select-none">
-                <div className="relative">
-                  <input
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="sr-only peer"
-                  />
-                  <div className={`w-5 h-5 rounded-md border-2 transition-all duration-300 flex items-center justify-center ${rememberMe ? 'bg-amber-400 border-amber-400 rotate-0' : 'bg-transparent border-white/20 -rotate-12'}`}>
-                    <CheckCircle2 size={14} className={`text-black transition-opacity duration-300 ${rememberMe ? 'opacity-100' : 'opacity-0'}`} />
+              {/* Confirm Password - Only for Sign up */}
+              {!isLogin && (
+                <div className="relative mt-4">
+                  <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
+                    <Lock size={18} />
                   </div>
-                  {/* Subtle Glow Effect when checked */}
-                  {rememberMe && (
-                    <div className="absolute inset-0 bg-amber-400 blur-md opacity-20 -z-10 animate-pulse" />
-                  )}
+                  <input
+                    type="password"
+                    name="confirm-password"
+                    autoComplete="new-password"
+                    required={!isLogin}
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Xác nhận mật khẩu"
+                    className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
+                  />
                 </div>
-                <span className="text-xs text-white/50 group-hover:text-white/80 transition-colors">Ghi nhớ đăng nhập</span>
-              </label>
+              )}
+
+              {isLogin && (
+                <div className="flex items-center justify-between px-2">
+                  <label className="flex items-center gap-3 group cursor-pointer select-none">
+                    <div className="relative">
+                      <input
+                        type="checkbox"
+                        checked={rememberMe}
+                        onChange={(e) => setRememberMe(e.target.checked)}
+                        className="sr-only peer"
+                      />
+                      <div className={`w-5 h-5 rounded-md border-2 transition-all duration-300 flex items-center justify-center ${rememberMe ? 'bg-amber-400 border-amber-400 rotate-0' : 'bg-transparent border-white/20 -rotate-12'}`}>
+                        <CheckCircle2 size={14} className={`text-black transition-opacity duration-300 ${rememberMe ? 'opacity-100' : 'opacity-0'}`} />
+                      </div>
+                      {/* Subtle Glow Effect when checked */}
+                      {rememberMe && (
+                        <div className="absolute inset-0 bg-amber-400 blur-md opacity-20 -z-10 animate-pulse" />
+                      )}
+                    </div>
+                    <span className="text-xs text-white/50 group-hover:text-white/80 transition-colors">Ghi nhớ đăng nhập</span>
+                  </label>
+
+                  <button
+                    type="button"
+                    onClick={handleForgotPassword}
+                    className="text-amber-400/60 hover:text-amber-400 text-xs transition-colors cursor-pointer"
+                  >
+                    Quên mật khẩu?
+                  </button>
+                </div>
+              )}
 
               <button
-                type="button"
-                onClick={handleForgotPassword}
-                className="text-amber-400/60 hover:text-amber-400 text-xs transition-colors cursor-pointer"
+                type="submit"
+                disabled={isLoading}
+                className="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:translate-y-[-2px] hover:shadow-lg hover:shadow-amber-500/20 active:translate-y-0 transition-all cursor-pointer mt-4"
               >
-                Quên mật khẩu?
+                {isLoading ? (
+                  <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
+                ) : (
+                  <>
+                    {isLogin ? "Đăng nhập" : "Tạo tài khoản"}
+                    <ArrowRight size={18} />
+                  </>
+                )}
               </button>
-            </div>
-          )}
+            </form>
+          </motion.div>
+        </AnimatePresence>
 
-          <button
-            type="submit"
-            disabled={isLoading}
-            className="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:translate-y-[-2px] hover:shadow-lg hover:shadow-amber-500/20 active:translate-y-0 transition-all cursor-pointer mt-4"
-          >
-            {isLoading ? (
-              <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
-            ) : (
-              <>
-                {isLogin ? "Đăng nhập" : "Tạo tài khoản"}
-                <ArrowRight size={18} />
-              </>
-            )}
-          </button>
-        </form>
 
 
         {/* Membership Privileges Grid */}
@@ -382,7 +401,7 @@ export default function AuthContent() {
             <div className="text-[10px] text-white/30 leading-tight">Chấm điểm bộ phim yêu thích</div>
           </div>
         </div>
-      </motion.div>
+      </div>
     </div>
   );
 }

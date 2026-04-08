@@ -55,7 +55,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
         setShowMenu(false);
         setShowLogoutModal(false);
         setLoading(false);
-        
+
         // Làm mới trang hiện tại để cập nhật trạng thái auth mà không chuyển hướng
         window.location.reload();
     };
@@ -77,7 +77,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="14" height="14" fill="currentColor" className="relative z-10">
                     <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7c0-98.5-79.8-178.3-178.3-178.3H178.3z" />
                 </svg>
-                <span className="relative z-10">Đăng nhập</span>
+                <span className="relative z-10">Thành viên</span>
             </TransitionLink>
         );
     }
@@ -194,12 +194,12 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                     onClose={() => setShowLogoutModal(false)}
                     onConfirm={handleLogout}
                 />
-            <ComingSoonModal 
-                isOpen={showPremiumModal}
-                onClose={() => setShowPremiumModal(false)}
-                title="LOFILM Premium"
-                message="Dịch vụ nâng cấp Premium trên điện thoại đang được tối ưu. Bạn sẽ sớm được tận hưởng các đặc quyền 4K ngay trên lòng bàn tay!"
-            />
+                <ComingSoonModal
+                    isOpen={showPremiumModal}
+                    onClose={() => setShowPremiumModal(false)}
+                    title="LOFILM Premium"
+                    message="Dịch vụ nâng cấp Premium trên điện thoại đang được tối ưu. Bạn sẽ sớm được tận hưởng các đặc quyền 4K ngay trên lòng bàn tay!"
+                />
             </>
         );
     }
