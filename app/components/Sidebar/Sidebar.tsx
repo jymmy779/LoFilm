@@ -38,11 +38,11 @@ const SidebarSection = ({ title, apiUrl, type }: SidebarSectionProps) => {
                 // 1. Determine target limit and URL logic
                 const isWeekly = title.toLowerCase().includes("tuần");
                 const isSeries = title.toLowerCase().includes("bộ");
-                
+
                 // Fetch more items initially to allow for deduplication
                 // (especially for weekly updates where many items might be different episodes of the same series)
                 const fetchLimit = isWeekly ? 40 : (isSeries ? 30 : 20);
-                
+
                 let finalUrl = apiUrl;
                 // Ensure URL has the limit parameter correctly
                 if (finalUrl.includes("?")) {
@@ -50,10 +50,10 @@ const SidebarSection = ({ title, apiUrl, type }: SidebarSectionProps) => {
                 } else {
                     finalUrl = `${finalUrl}?limit=${fetchLimit}`;
                 }
-                
+
                 // 2. Fetch data via proxy
                 const res = await axios.get(`/api/proxy?url=${encodeURIComponent(finalUrl)}`);
-                
+
                 // API phim mới cập nhật trả về res.data.items
                 // API v1 (phim bộ/lẻ) trả về res.data.data.items
                 let items = res.data?.data?.items || res.data?.items || [];
@@ -87,7 +87,7 @@ const SidebarSection = ({ title, apiUrl, type }: SidebarSectionProps) => {
                             })
                             .slice(0, 10);
                     }
-                    
+
                     setMovies(items);
                 }
             } catch (err) {
@@ -122,17 +122,16 @@ const SidebarSection = ({ title, apiUrl, type }: SidebarSectionProps) => {
                     movies.map((movie, index) => {
                         const poster = getImageUrl(movie.poster_url || movie.thumb_url, { width: 100, quality: 60 });
                         return (
-                            <Link 
-                                key={movie._id} 
+                            <Link
+                                key={movie._id}
                                 href={`/phim/${movie.slug}`}
                                 className="group flex items-center gap-3 hover:bg-white/5 p-1 -m-1 rounded-xl transition-all duration-300"
                             >
                                 {type === 'rank' && (
-                                    <span className={`text-sm font-black w-5 shrink-0 ${
-                                        index === 0 ? "text-amber-400 scale-125" : 
-                                        index === 1 ? "text-slate-300" : 
-                                        index === 2 ? "text-orange-400" : "text-white/20"
-                                    }`}>
+                                    <span className={`text-sm font-black w-5 shrink-0 ${index === 0 ? "text-amber-400 scale-125" :
+                                        index === 1 ? "text-slate-300" :
+                                            index === 2 ? "text-orange-400" : "text-white/20"
+                                        }`}>
                                         {index + 1}.
                                     </span>
                                 )}
@@ -176,17 +175,17 @@ const SidebarSection = ({ title, apiUrl, type }: SidebarSectionProps) => {
 export default function Sidebar() {
     return (
         <aside className="w-full space-y-2">
-            <SidebarSection 
-                title="Top phim tuần" 
-                apiUrl="https://phimapi.com/v1/api/danh-sach/phim-moi-cap-nhat" 
+            <SidebarSection
+                title="Top phim tuần"
+                apiUrl="https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3"
                 type="rank"
             />
-            <SidebarSection 
-                title="Top phim bộ" 
-                apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo" 
+            <SidebarSection
+                title="Top phim bộ"
+                apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo"
                 type="simple"
             />
-            
+
             {/* Promo block */}
             <div className="bg-gradient-to-br from-amber-500/20 to-purple-600/20 border border-white/10 rounded-2xl p-5 relative overflow-hidden group">
                 <Zap className="absolute -right-2 -bottom-2 w-24 h-24 text-white/5 opacity-20 group-hover:scale-110 transition-transform duration-700" />
