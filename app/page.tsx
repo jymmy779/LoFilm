@@ -11,13 +11,19 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     if (query) {
         return {
             title: `Tìm kiếm: ${query} | LoFilm`,
-            description: `Kết quả tìm kiếm cho từ khóa "${query}" trên LoFilm. Khám phá kho phim đa dạng, chất lượng cao ngay tại đây.`
+            description: `Kết quả tìm kiếm cho từ khóa "${query}" trên LoFilm. Khám phá kho phim đa dạng, chất lượng cao ngay tại đây.`,
+            alternates: {
+                canonical: `https://www.munos.store/?search=${query}`,
+            },
         };
     }
 
     return {
         title: "LoFilm - Xem Phim Online Chất Lượng Cao, Phim 4K, Vietsub",
         description: "Trải nghiệm xem phim online chất lượng cao 4K, Vietsub tại LoFilm. Kho phim lẻ, phim bộ, anime mới nhất 2026 cập nhật mỗi ngày với tốc độ cực nhanh và không quảng cáo!",
+        alternates: {
+            canonical: 'https://www.munos.store',
+        },
     };
 }
 

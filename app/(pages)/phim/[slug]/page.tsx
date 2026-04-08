@@ -58,6 +58,9 @@ export async function generateMetadata({
             description,
             images: [movie.poster_url],
         },
+        alternates: {
+            canonical: `https://www.munos.store/phim/${slug}`,
+        },
     };
 }
 

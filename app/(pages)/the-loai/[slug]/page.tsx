@@ -24,6 +24,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     return {
         title: `Phim ${title} | LoFilm - Xem phim online chất lượng cao`,
         description: `Danh sách phim thuộc thể loại ${title} mới nhất, cập nhật liên tục mỗi ngày trên LoFilm.`,
+        alternates: {
+            canonical: `https://www.munos.store/the-loai/${slug}`,
+        },
     };
 }
 

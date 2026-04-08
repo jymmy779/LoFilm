@@ -1,7 +1,7 @@
 import { MetadataRoute } from 'next';
 
 const API_BASE = "https://phimapi.com";
-const BASE_URL = 'https://munos.store';
+const BASE_URL = 'https://www.munos.store';
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     // 1. Các trang tĩnh quan trọng

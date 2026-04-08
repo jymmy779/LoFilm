@@ -7,6 +7,6 @@ export default function robots(): MetadataRoute.Robots {
       allow: '/',
       disallow: ['/api/'],
     },
-    sitemap: 'https://munos.store/sitemap.xml',
+    sitemap: 'https://www.munos.store/sitemap.xml',
   };
 }

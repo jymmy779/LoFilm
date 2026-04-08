@@ -34,6 +34,7 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
+  metadataBase: new URL('https://www.munos.store'),
   title: "LoFilm - Kho Phim Giải Trí Đỉnh Cao , Xem Phim Online 4K , Vietsub",
   description: "Xem LoFilm chất lượng cao, phim 4K, Vietsub, thuyết minh. Kho phim lẻ, phim bộ, anime mới nhất 2026 cập nhật mỗi ngày với tốc độ cực nhanh và không quảng cáo! Trải nghiệm điện ảnh đỉnh cao ngay tại nhà.",
   manifest: '/manifest.json',
@@ -44,19 +45,16 @@ export const metadata: Metadata = {
     googleBot: {
       index: true,
       follow: true,
-      'max-image-preview': 'none',
+      'max-image-preview': 'large',
     },
   },
   openGraph: {
     title: "LoFilm - Kho Phim Giải Trí Đỉnh Cao , Xem Phim Online 4K , Vietsub",
     description: "Trải nghiệm xem phim chất lượng cao 4K, Vietsub, thuyết minh hoàn toàn miễn phí tại LoFilm. Kho phim mới cập nhật mỗi ngày, không quảng cáo khó chịu.",
-    url: "https://munos.store",
+    url: "https://www.munos.store",
     siteName: "LoFilm",
     locale: "vi_VN",
     type: "website",
-  },
-  alternates: {
-    canonical: 'https://munos.store',
   },
 };
 
@@ -124,19 +122,19 @@ export default function RootLayout({
                   "@type": "SiteNavigationElement",
                   "position": 1,
                   "name": "Phim Mới",
-                  "url": "https://munos.store/danh-sach/phim-moi"
+                  "url": "https://www.munos.store/danh-sach/phim-moi"
                 },
                 {
                   "@type": "SiteNavigationElement",
                   "position": 2,
                   "name": "Phim Bộ",
-                  "url": "https://munos.store/danh-sach/phim-bo"
+                  "url": "https://www.munos.store/danh-sach/phim-bo"
                 },
                 {
                   "@type": "SiteNavigationElement",
                   "position": 3,
                   "name": "Phim Lẻ",
-                  "url": "https://munos.store/danh-sach/phim-le"
+                  "url": "https://www.munos.store/danh-sach/phim-le"
                 },
                 {
                   "@type": "SiteNavigationElement",
