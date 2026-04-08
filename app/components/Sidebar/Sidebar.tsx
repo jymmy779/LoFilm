@@ -35,18 +35,23 @@ const SidebarSection = ({ title, apiUrl, type }: SidebarSectionProps) => {
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Sử dụng đường dẫn chuẩn cho phim mới cập nhật để ổn định hơn
-                const isWeekly = title.includes("tuần");
-                const limit = title.includes("bộ") ? 40 : 15;
+                // 1. Determine target limit and URL logic
+                const isWeekly = title.toLowerCase().includes("tuần");
+                const isSeries = title.toLowerCase().includes("bộ");
                 
-                // Chuẩn hóa URL
+                // Fetch more items initially to allow for deduplication
+                // (especially for weekly updates where many items might be different episodes of the same series)
+                const fetchLimit = isWeekly ? 40 : (isSeries ? 30 : 20);
+                
                 let finalUrl = apiUrl;
-                if (isWeekly) {
-                    finalUrl = "https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=1";
+                // Ensure URL has the limit parameter correctly
+                if (finalUrl.includes("?")) {
+                    finalUrl = finalUrl.includes("limit=") ? finalUrl : `${finalUrl}&limit=${fetchLimit}`;
                 } else {
-                    finalUrl = apiUrl.includes("?") ? `${apiUrl}&limit=${limit}` : `${apiUrl}?limit=${limit}`;
+                    finalUrl = `${finalUrl}?limit=${fetchLimit}`;
                 }
                 
+                // 2. Fetch data via proxy
                 const res = await axios.get(`/api/proxy?url=${encodeURIComponent(finalUrl)}`);
                 
                 // API phim mới cập nhật trả về res.data.items
@@ -173,12 +178,12 @@ export default function Sidebar() {
         <aside className="w-full space-y-2">
             <SidebarSection 
                 title="Top phim tuần" 
-                apiUrl="https://phimapi.com/v1/api/danh-sach/phim-moi-cap-nhat?limit=10" 
+                apiUrl="https://phimapi.com/v1/api/danh-sach/phim-moi-cap-nhat" 
                 type="rank"
             />
             <SidebarSection 
                 title="Top phim bộ" 
-                apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=10" 
+                apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo" 
                 type="simple"
             />
             
