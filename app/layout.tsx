@@ -19,10 +19,10 @@ export const viewport: Viewport = {
 };
 
 export const metadata: Metadata = {
-  title: "LoFilm - Xem Phim Online Chất Lượng Cao, Phim 4K, Vietsub",
-  description: "Trải nghiệm xem phim online chất lượng cao 4K, Vietsub tại LoFilm. Kho phim lẻ, phim bộ, anime mới nhất 2026 cập nhật mỗi ngày với tốc độ cực nhanh và không quảng cáo!",
+  title: "LoFilm - Kho Phim Giải Trí Đỉnh Cao , Xem Phim Online 4K , Vietsub",
+  description: "Xem LoFilm chất lượng cao, phim 4K, Vietsub, thuyết minh. Kho phim lẻ, phim bộ, anime mới nhất 2026 cập nhật mỗi ngày với tốc độ cực nhanh và không quảng cáo! Trải nghiệm điện ảnh đỉnh cao ngay tại nhà.",
   manifest: '/manifest.json',
-  keywords: ["LoFilm", "lofim", "lo film", "xem phim lofilm", "xem phim lo film", "lofilm tv", "lofilm net", "lofilm me", "lofilm chill", "lo phim"],
+  keywords: ["LoFilm", "lofim", "lo film", "xem phim lofilm", "xem phim lo film", "lofilm tv", "lofilm net", "lofilm me", "lofilm chill", "lo phim", "phim moi", "phim hay 2026"],
   robots: {
     index: true,
     follow: true,
@@ -33,12 +33,15 @@ export const metadata: Metadata = {
     },
   },
   openGraph: {
-    title: "LoFilm - Xem Phim Online Chất Lượng Cao, Phim 4K, Vietsub",
+    title: "LoFilm - Kho Phim Giải Trí Đỉnh Cao , Xem Phim Online 4K , Vietsub",
     description: "Trải nghiệm xem phim chất lượng cao 4K, Vietsub, thuyết minh hoàn toàn miễn phí tại LoFilm. Kho phim mới cập nhật mỗi ngày, không quảng cáo khó chịu.",
     url: "https://munos.store",
     siteName: "LoFilm",
     locale: "vi_VN",
     type: "website",
+  },
+  alternates: {
+    canonical: 'https://munos.store',
   },
 };
 
@@ -68,7 +71,7 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "WebSite",
               "name": "LoFilm",
-              "alternateName": ["Lo Film", "LoFilm TV", "Xem Phim LoFilm", "Phim LoFilm"],
+              "alternateName": ["Lo Film", "LoFilm TV", "Xem Phim LoFilm", "Phim LoFilm", "LoFilm Net"],
               "url": "https://munos.store",
               "potentialAction": {
                 "@type": "SearchAction",
@@ -83,37 +86,55 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{
             __html: JSON.stringify({
               "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "LoFilm",
+              "url": "https://munos.store",
+              "logo": "https://munos.store/lofilm_logo.webp",
+              "sameAs": [
+                "https://facebook.com/lofilm",
+                "https://twitter.com/lofilm",
+                "https://youtube.com/lofilm"
+              ]
+            })
+          }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
               "@type": "ItemList",
+              "name": "Menu Chính",
               "itemListElement": [
                 {
                   "@type": "SiteNavigationElement",
                   "position": 1,
-                  "name": "Trang Chủ",
-                  "url": "https://munos.store"
-                },
-                {
-                  "@type": "SiteNavigationElement",
-                  "position": 2,
                   "name": "Phim Mới",
                   "url": "https://munos.store/danh-sach/phim-moi"
                 },
                 {
                   "@type": "SiteNavigationElement",
-                  "position": 3,
+                  "position": 2,
                   "name": "Phim Bộ",
                   "url": "https://munos.store/danh-sach/phim-bo"
                 },
                 {
                   "@type": "SiteNavigationElement",
-                  "position": 4,
+                  "position": 3,
                   "name": "Phim Lẻ",
                   "url": "https://munos.store/danh-sach/phim-le"
                 },
                 {
                   "@type": "SiteNavigationElement",
-                  "position": 5,
+                  "position": 4,
                   "name": "Phim Chiếu Rạp",
                   "url": "https://munos.store/danh-sach/phim-chieu-rap"
+                },
+                {
+                  "@type": "SiteNavigationElement",
+                  "position": 5,
+                  "name": "Hoạt Hình",
+                  "url": "https://munos.store/danh-sach/hoat-hinh"
                 },
                 {
                   "@type": "SiteNavigationElement",
