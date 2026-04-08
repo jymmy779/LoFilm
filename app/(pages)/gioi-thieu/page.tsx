@@ -15,8 +15,8 @@ export default function AboutContact() {
             <h2 className="text-sm md:text-base font-bold text-white mb-3 md:mb-4 underline decoration-amber-400/20 underline-offset-8 uppercase tracking-widest">Giới thiệu về chúng tôi</h2>
             <div className="space-y-4 leading-relaxed text-xs md:text-sm opacity-60">
               <p>LoFilm ra đời với sứ mệnh mang lại trải nghiệm xem phim trực tuyến hiện đại, mượt mà và hoàn toàn miễn phí cho cộng đồng yêu phim Việt Nam.</p>
-              <p>Với kho dữ liệu phim đồ sộ, tích hợp trí tuệ nhân tạo để gợi ý phim thông minh, chúng tôi luôn nỗ lực để trở thành điểm dừng chân yêu thích của mọi "mọt phim".</p>
-              <p>Web được xây dựng trên nền tảng các công nghệ hiện đại nhất hiện nay như Next.js, Supabase, Tailwind CSS và Framer Motion để đảm bảo tốc độ và trải nghiệm người dùng tuyệt vời nhất.</p>
+              <p>Với kho nội dung phim đồ sộ, đa dạng thể loại và được cập nhật liên tục mỗi ngày, chúng tôi luôn nỗ lực để trở thành điểm dừng chân yêu thích của mọi tín đồ điện ảnh.</p>
+              <p>Nền tảng của chúng tôi được tối ưu hóa với hệ thống máy chủ tốc độ cao và giao diện tương thích đa nền tảng, giúp bạn tận hưởng những thước phim chất lượng mượt mà nhất trên mọi thiết bị.</p>
             </div>
           </section>
 
