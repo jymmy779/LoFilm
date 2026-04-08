@@ -65,7 +65,7 @@ export default function AuthContent() {
       // Khi sang tab Đăng nhập: khôi phục email nếu có "Ghi nhớ", dọn password
       const savedEmail = localStorage.getItem("rememberedEmail");
       const savedRememberMe = localStorage.getItem("rememberMe") === "true";
-      
+
       if (savedRememberMe && savedEmail) {
         setEmail(savedEmail);
       } else {
@@ -205,7 +205,7 @@ export default function AuthContent() {
       <Container>
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start">
           {/* Main Auth Form Area */}
-          <div className="flex-grow w-full flex justify-center lg:justify-start">
+          <div className="flex-grow w-full flex justify-center">
             <div className="w-full max-w-md bg-[#14233e]/60 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl relative overflow-hidden">
               {/* Header Tabs */}
               <div className="flex justify-center mb-8 relative">
