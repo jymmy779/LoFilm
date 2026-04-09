@@ -2,7 +2,8 @@
 
 import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Lock, User, ArrowRight, AlertCircle, CheckCircle2, ThumbsUp, Star, History as HistoryIcon } from "lucide-react";
+import { Mail, Lock, User, ArrowRight, ThumbsUp, Star, History as HistoryIcon, AlertCircle, CheckCircle2 } from "lucide-react";
+import AuthInput from "@/app/components/Auth/AuthInput";
 import { createClient } from "@/app/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
@@ -250,72 +251,50 @@ export default function AuthContent() {
                   >
                     {/* Full Name Input - Only for Sign up */}
                     {!isLogin && (
-                      <div className="relative mb-4">
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
-                          <User size={18} />
-                        </div>
-                        <input
-                          type="text"
-                          name="name"
-                          autoComplete="name"
-                          required={!isLogin}
-                          value={fullName}
-                          onChange={(e) => setFullName(e.target.value)}
-                          placeholder="Họ và tên của bạn"
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 md:py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-xs md:text-sm"
-                        />
-                      </div>
+                      <AuthInput
+                        type="text"
+                        name="name"
+                        autoComplete="name"
+                        required={!isLogin}
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                        placeholder="Họ và tên của bạn"
+                        icon={User}
+                      />
                     )}
 
-                    <div className="relative">
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
-                        <Mail size={18} />
-                      </div>
-                      <input
-                        type="email"
-                        name="email"
-                        autoComplete="username email"
-                        required
-                        value={email}
-                        onChange={(e) => setEmail(e.target.value)}
-                        placeholder="Email của bạn"
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 md:py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-xs md:text-sm"
-                      />
-                    </div>
+                    <AuthInput
+                      type="email"
+                      name="email"
+                      autoComplete="username email"
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                      placeholder="Email của bạn"
+                      icon={Mail}
+                    />
 
-                    <div className="relative">
-                      <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
-                        <Lock size={18} />
-                      </div>
-                      <input
-                        type="password"
-                        name="password"
-                        autoComplete={isLogin ? "current-password" : "new-password"}
-                        required
-                        value={password}
-                        onChange={(e) => setPassword(e.target.value)}
-                        placeholder={isLogin ? "Mật khẩu" : "Tạo mật khẩu"}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 md:py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-xs md:text-sm"
-                      />
-                    </div>
+                    <AuthInput
+                      type="password"
+                      name="password"
+                      autoComplete={isLogin ? "current-password" : "new-password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder={isLogin ? "Mật khẩu" : "Tạo mật khẩu"}
+                      icon={Lock}
+                    />
 
                     {/* Confirm Password - Only for Sign up */}
                     {!isLogin && (
-                      <div className="relative mt-4">
-                        <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
-                          <Lock size={18} />
-                        </div>
-                        <input
-                          type="password"
-                          name="confirm-password"
-                          autoComplete="new-password"
-                          required={!isLogin}
-                          value={confirmPassword}
-                          onChange={(e) => setConfirmPassword(e.target.value)}
-                          placeholder="Xác nhận mật khẩu"
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 md:py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-xs md:text-sm"
-                        />
-                      </div>
+                      <AuthInput
+                        type="password"
+                        name="confirm-password"
+                        autoComplete="new-password"
+                        required={!isLogin}
+                        value={confirmPassword}
+                        onChange={(e) => setConfirmPassword(e.target.value)}
+                        placeholder="Xác nhận mật khẩu"
+                        icon={Lock}
+                      />
                     )}
 
                     {isLogin && (

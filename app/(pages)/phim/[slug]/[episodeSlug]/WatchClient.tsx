@@ -178,7 +178,7 @@ export default function WatchClient({
                     user_id: user.id,
                     movie_slug: slug,
                     movie_name: movie.name,
-                    movie_poster: movie.poster_url
+                    movie_poster: movie.thumb_url || movie.poster_url
                 });
                 if (error) throw error;
                 toast.success("Đã thêm vào danh sách yêu thích");
@@ -199,7 +199,7 @@ export default function WatchClient({
             user_id: currentUser.id,
             movie_slug: slug,
             movie_name: movie.name,
-            movie_poster: movie.poster_url || movie.thumb_url,
+            movie_poster: movie.thumb_url || movie.poster_url,
             episode_name: episode.name,
             episode_slug: episodeSlug,
             watched_seconds: Math.floor(currentTime),

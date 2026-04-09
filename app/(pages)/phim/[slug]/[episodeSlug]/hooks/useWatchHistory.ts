@@ -16,7 +16,7 @@ export const useWatchHistory = (user: any, slug: string, movie: any, episode: an
             user_id: user.id,
             movie_slug: slug,
             movie_name: movie.name,
-            movie_poster: movie.poster_url || movie.thumb_url,
+            movie_poster: movie.thumb_url || movie.poster_url,
             episode_name: episode.name,
             episode_slug: episodeSlug,
             watched_seconds: Math.floor(currentTime),

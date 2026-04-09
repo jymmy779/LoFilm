@@ -29,7 +29,7 @@ export default function ContinueWatchingRow({ initialHistory }: ContinueWatching
             // Dùng getSession nhanh hơn getUser vì thường lấy từ local storage
             const { data: { session } } = await supabase.auth.getSession();
             const currentUser = session?.user;
-            
+
             if (!currentUser) {
                 setIsLoading(false);
                 return;
@@ -44,7 +44,13 @@ export default function ContinueWatchingRow({ initialHistory }: ContinueWatching
                 .limit(20);
 
             if (!error && data) {
-                setHistory(data);
+                // Chỉ hiện những phim chưa xem hết (dưới 90%)
+                const continueWatching = data.filter(item => {
+                    if (!item.duration) return true;
+                    const progress = (item.watched_seconds / item.duration) * 100;
+                    return progress < 90;
+                });
+                setHistory(continueWatching);
             }
             setIsLoading(false);
         };
@@ -57,8 +63,8 @@ export default function ContinueWatchingRow({ initialHistory }: ContinueWatching
                 <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/40 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 overflow-hidden animate-pulse">
                     <div className="w-full xl:w-[260px] xl:flex-shrink-0 flex xl:flex-col justify-between xl:justify-center gap-4">
                         <div className="space-y-2">
-                             <div className="h-8 w-32 bg-white/10 rounded-lg" />
-                             <div className="h-4 w-20 bg-white/5 rounded" />
+                            <div className="h-8 w-32 bg-white/10 rounded-lg" />
+                            <div className="h-4 w-20 bg-white/5 rounded" />
                         </div>
                         <div className="h-4 w-24 bg-white/5 rounded" />
                     </div>
@@ -82,7 +88,7 @@ export default function ContinueWatchingRow({ initialHistory }: ContinueWatching
 
     return (
         <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
-            <motion.div 
+            <motion.div
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.6 }}
@@ -97,12 +103,12 @@ export default function ContinueWatchingRow({ initialHistory }: ContinueWatching
                         <h2 className="text-[20px] lg:text-[28px] font-bold !leading-tight text-white">
                             Xem Tiếp
                         </h2>
-                        <p className="text-white/40 text-[10px] mt-1 tracking-[0.2em]">Lịch sử của bạn</p>
+                        <p className="text-white/40 text-[10px] font-medium mt-1 tracking-[0.2em]">Lịch sử của bạn</p>
                     </div>
 
                     <TransitionLink
                         href="/trang-ca-nhan?tab=history"
-                        className="text-amber-400/80 hover:text-amber-400 transition-colors flex items-center gap-2 text-sm tracking-wider w-max"
+                        className="text-amber-400/80 font-medium hover:text-amber-400 transition-colors flex items-center gap-2 text-sm tracking-wider w-max"
                     >
                         Tất cả lịch sử
                     </TransitionLink>
@@ -143,7 +149,7 @@ export default function ContinueWatchingRow({ initialHistory }: ContinueWatching
                                                 priority={false}
                                                 loading="lazy"
                                                 sizes="(max-width: 768px) 220px, (max-width: 1024px) 260px, 300px"
-                                                className="object-cover transition-transform duration-700 group-hover/item:scale-110"
+                                                className="object-cover  object-top transition-transform duration-700 group-hover/item:scale-110"
                                             />
 
                                             {/* Progress Bar Overlay */}
@@ -162,7 +168,7 @@ export default function ContinueWatchingRow({ initialHistory }: ContinueWatching
                                             </div>
 
                                             {item.episode_name && (
-                                                <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 rounded text-[10px] font-bold text-white border border-white/10 uppercase">
+                                                <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 rounded text-[10px] font-bold text-white border border-white/10">
                                                     {item.episode_name}
                                                 </div>
                                             )}
@@ -176,7 +182,7 @@ export default function ContinueWatchingRow({ initialHistory }: ContinueWatching
                                             <h3 className="text-white font-medium text-sm line-clamp-1 group-hover/item:text-amber-400 transition-colors">
                                                 {item.movie_name}
                                             </h3>
-                                            <p className="text-white/40 text-[10px] uppercase mt-0.5">
+                                            <p className="text-white/40 text-[10px] mt-0.5">
                                                 {isFinished ? 'Đã xem gần hết' : `Còn lại ${Math.floor((item.duration - item.watched_seconds) / 60)} phút`}
                                             </p>
                                         </div>

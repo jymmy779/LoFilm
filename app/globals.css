@@ -341,3 +341,23 @@ body.theater-mode footer:hover {
   /* Counter-scale the parent's hover scaleY(2.2) to keep it round (1 / 2.2 ≈ 0.45) */
   transform: scaleY(0.45) scaleX(1);
 }
+
+/* Custom Scrollbar */
+.custom-scrollbar::-webkit-scrollbar {
+  width: 5px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.02);
+  border-radius: 10px;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+  transition: all 0.3s;
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: rgba(251, 191, 36, 0.3); /* amber-400 with opacity */
+}

@@ -55,7 +55,11 @@ export default async function Home({
           .limit(20);
       
       if (history) {
-          homePrefetch.initialHistory = history;
+          // Chỉ hiện những phim chưa xem hết (dưới 90%)
+          homePrefetch.initialHistory = history.filter(item => {
+              if (!item.duration) return true;
+              return (item.watched_seconds / item.duration) < 0.9;
+          });
       }
   }
 

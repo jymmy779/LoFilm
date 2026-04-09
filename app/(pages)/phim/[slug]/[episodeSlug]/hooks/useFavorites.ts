@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/app/utils/supabase/client";
 import { toast } from "react-hot-toast";
 
-export const useFavorites = (user: any, movieSlug: string, movieName: string, moviePoster: string) => {
+export const useFavorites = (user: any, movieSlug: string, movieName: string, moviePoster: string, movieThumb?: string) => {
     const [isFavorited, setIsFavorited] = useState(false);
     const supabase = createClient();
 
@@ -40,7 +40,7 @@ export const useFavorites = (user: any, movieSlug: string, movieName: string, mo
                     user_id: user.id,
                     movie_slug: movieSlug,
                     movie_name: movieName,
-                    movie_poster: moviePoster
+                    movie_poster: movieThumb || moviePoster
                 });
                 if (error) throw error;
                 toast.success("Đã thêm vào danh sách yêu thích");
