@@ -14,6 +14,7 @@ import { filterDuplicateMovies, getImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
 import Image from "next/image";
 import Container from "@/app/components/Container";
+import MoviePreviewWrapper from "@/app/components/MovieCard/MoviePreviewWrapper";
 
 interface MovieRowProps {
     title: string;
@@ -148,7 +149,8 @@ export default function MovieRow({ title, apiUrl, viewAllLink, initialMovies }: 
 
                             return (
                                 <SwiperSlide key={movie._id} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
-                                    <div 
+                                    <MoviePreviewWrapper 
+                                        movie={movie}
                                         onClick={(e) => handleMovieRowClick(e, movie.slug)} 
                                         className="block group/item cursor-pointer"
                                     >
@@ -181,7 +183,7 @@ export default function MovieRow({ title, apiUrl, viewAllLink, initialMovies }: 
                                                 {decodeHtml(movie.origin_name)}
                                             </p>
                                         </div>
-                                    </div>
+                                    </MoviePreviewWrapper>
                                 </SwiperSlide>
                             );
                         })}

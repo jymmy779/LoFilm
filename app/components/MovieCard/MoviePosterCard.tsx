@@ -3,16 +3,20 @@
 import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 import Image from "next/image";
 import { Movie } from "@/app/types/movie";
-import { decodeHtml } from "@/app/utils/textUtils";
-import { getEpisodeStatus, getImageUrl } from "@/app/utils/movieUtils";
+import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
+import { getEpisodeStatus } from "@/app/utils/movieUtils";
+import MoviePreviewWrapper from "./MoviePreviewWrapper";
 
 interface MoviePosterCardProps {
     movie: Movie;
     /** Ưu tiên tải poster cho các ô đầu (trong viewport) */
     priority?: boolean;
+    isFirst?: boolean;
+    isLast?: boolean;
+    user?: any;
 }
 
-export default function MoviePosterCard({ movie, priority = false }: MoviePosterCardProps) {
+export default function MoviePosterCard({ movie, priority = false, isFirst, isLast, user }: MoviePosterCardProps) {
     const { triggerAd } = useAdTrigger();
     const moviePath = `/phim/${movie.slug}`;
 
@@ -24,8 +28,20 @@ export default function MoviePosterCard({ movie, priority = false }: MoviePoster
         triggerAd(moviePath, "movie_card");
     };
 
+    // Chuẩn bị dữ liệu hiển thị cho Popup
+    const description = movie.content ? cleanContent(decodeHtml(movie.content)) : "Đang cập nhật nội dung cho bộ phim này...";
+    const genres = movie.category?.slice(0, 3).map(c => c.name).join(", ");
+    const imdbRating = movie.tmdb?.vote_average ? movie.tmdb.vote_average.toFixed(1) : "N/A";
+
     return (
-        <div className="sw-item group/item cursor-pointer [contain:layout]" onClick={handleMovieClick}>
+        <MoviePreviewWrapper 
+            movie={movie}
+            user={user}
+            isFirst={isFirst}
+            isLast={isLast}
+            className="sw-item group/item cursor-pointer relative [contain:layout]" 
+            onClick={handleMovieClick}
+        >
             <div className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-white/5">
                 {/* Poster Image */}
                 <Image
@@ -63,6 +79,6 @@ export default function MoviePosterCard({ movie, priority = false }: MoviePoster
                     <span>{decodeHtml(movie.origin_name)}</span>
                 </h4>
             </div>
-        </div>
+        </MoviePreviewWrapper>
     );
 }

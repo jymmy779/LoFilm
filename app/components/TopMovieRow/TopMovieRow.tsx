@@ -15,6 +15,7 @@ import Image from "next/image";
 import Container from "@/app/components/Container";
 import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
 import { useAdTrigger } from "@/app/hooks/useAdTrigger";
+import MoviePreviewWrapper from "@/app/components/MovieCard/MoviePreviewWrapper";
 
 interface TopMovieRowProps {
     title: string;
@@ -156,7 +157,10 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
 
                         return (
                             <SwiperSlide key={movie._id} className="transform-gpu">
-                                <div className="sw-item group/item cursor-pointer mt-4 transform-gpu">
+                                <MoviePreviewWrapper 
+                                    movie={movie}
+                                    className="sw-item group/item cursor-pointer mt-4 transform-gpu"
+                                >
                                     <div
                                         onClick={(e) => handleTopMovieClick(e, movie.slug)}
                                         className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/5 transition-[transform,box-shadow] duration-500 ease-out group-hover/item:shadow-[0_15px_35px_rgba(0,0,0,0.6)] transform-gpu cursor-pointer"
@@ -216,7 +220,7 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                                             </p>
                                         </div>
                                     </div>
-                                </div>
+                                </MoviePreviewWrapper>
                             </SwiperSlide>
                         );
                     })}

@@ -201,8 +201,7 @@ export default function RandomMovieRow() {
                                 className="rounded-xl overflow-visible"
                             >
                                 {movies.map((movie, index) => {
-                                    // Sử dụng poster_url làm ưu tiên để đúng định dạng card dọc
-                                    const imgUrl = getImageUrl(movie.poster_url || movie.thumb_url, { width: 240, quality: 50 });
+                                    const imgUrl = getImageUrl(movie.poster_url || movie.thumb_url, { width: 300, quality: 70 });
                                     const isPriority = index < 10;
 
                                     return (
@@ -218,6 +217,7 @@ export default function RandomMovieRow() {
                                                         fill
                                                         priority={isPriority}
                                                         loading={isPriority ? "eager" : "lazy"}
+                                                        unoptimized={true}
                                                         sizes="(max-width: 640px) 120px, (max-width: 1024px) 200px, 240px"
                                                         className="object-cover transition-opacity duration-300 group-hover:opacity-60"
                                                         onError={(e: any) => {

@@ -73,6 +73,12 @@ export default function WatchClient({
     const [showReportModal, setShowReportModal] = useState(false);
     const [user, setUser] = useState<any>(null);
     const userRef = useRef<any>(null);
+    
+    // Đảm bảo cuộn lên đầu khi vào trang xem phim (để tránh lỗi vị trí scroll cũ)
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+    }, [slug, episodeSlug]);
+
     useEffect(() => { userRef.current = user; }, [user]);
     const autoNextRef = useRef(isAutoNext);
     useEffect(() => { autoNextRef.current = isAutoNext; }, [isAutoNext]);

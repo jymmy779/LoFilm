@@ -47,6 +47,11 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
     const [weeklyMovies, setWeeklyMovies] = useState<Movie[]>([]);
     const [isLoadingWeekly, setIsLoadingWeekly] = useState(true);
 
+    // Đảm bảo luôn cuộn lên đầu khi vào chi tiết phim
+    useEffect(() => {
+        window.scrollTo({ top: 0, behavior: 'instant' });
+    }, [movie.slug]);
+
     const CHUNK_SIZE = 100;
 
     // Effect to enrich suggested movies data (episode_total)

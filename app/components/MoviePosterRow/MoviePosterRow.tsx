@@ -15,6 +15,7 @@ import Skeleton from "react-loading-skeleton";
 import Container from "@/app/components/Container";
 import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
 import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
+import { createClient } from "@/app/utils/supabase/client";
 
 interface MoviePosterRowProps {
     title: string;
@@ -27,7 +28,9 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovi
     const seeded = !!(initialMovies && initialMovies.length > 0);
     const [movies, setMovies] = useState<Movie[]>(() => initialMovies ?? []);
     const [isLoading, setIsLoading] = useState(!seeded);
+    const [user, setUser] = useState<any>(null);
     const navId = title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
+    const supabase = createClient();
 
     const enrichEpisodeTotals = async (sortedItems: Movie[], isMounted: () => boolean) => {
         await enrichMoviesMetadata({
@@ -38,6 +41,14 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovi
             delay: 60
         });
     };
+
+    useEffect(() => {
+        const fetchUser = async () => {
+            const { data: { session } } = await supabase.auth.getSession();
+            if (session?.user) setUser(session.user);
+        };
+        fetchUser();
+    }, [supabase]);
 
     useEffect(() => {
         let isMounted = true;
@@ -60,23 +71,15 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovi
                     setMovies(sortedItems);
                     setIsLoading(false);
 
-                    await enrichEpisodeTotals(sortedItems, mounted);
-                    return;
-                } else if (isMounted) {
-                    console.warn("MoviePosterRow: API returned invalid status or structure", response.data);
+                    void enrichEpisodeTotals(sortedItems, mounted);
                 }
-            } catch (error: any) {
+            } catch (error) {
                 if (isMounted) {
-                    if (retryCount < 3 && (error.code === "ERR_NETWORK" || !error.response)) {
-                        console.warn(`Thử lại MoviePosterRow lần ${retryCount + 1}...`);
-                        setTimeout(() => fetchMovies(retryCount + 1), 1000 * (retryCount + 1));
-                        return;
+                    if (retryCount < 2) {
+                        setTimeout(() => fetchMovies(retryCount + 1), 2000);
+                    } else {
+                        setIsLoading(false);
                     }
-                    console.error("Lỗi khi tải phim:", error);
-                }
-            } finally {
-                if (isMounted) {
-                    setIsLoading(false);
                 }
             }
         };
@@ -128,36 +131,38 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovi
                         </svg>
                     </TransitionLink>
                 </h2>
-
             </div>
 
-            <div className="row-content relative group/slider">
-                <div className="cards-slide-wrapper">
+            <div className="row-content">
+                <div className="relative group/slider swiper-carousel-container">
                     <Swiper
-
+                        modules={[Navigation]}
+                        slidesPerView={2}
+                        spaceBetween={10}
                         navigation={{
                             nextEl: `.sw-next-${navId}`,
                             prevEl: `.sw-prev-${navId}`,
                         }}
-                        modules={[Navigation]}
-                        spaceBetween={10}
-                        slidesPerView={2}
-                        // slidesPerGroup={2} // Vuốt một lần 2 cái cũng được, hoặc để 1 cho mượt
                         breakpoints={{
-                            576: { slidesPerView: 3, spaceBetween: 13 },
-                            767: { slidesPerView: 4, spaceBetween: 13 },
-                            // Laptop: Hiện 6 cái...
+                            // Cấu hình responsive cho số lượng slide...
+                            640: { slidesPerView: 3, spaceBetween: 13 },
+                            768: { slidesPerView: 4, spaceBetween: 13 },
+                            1024: { slidesPerView: 5, spaceBetween: 13 },
                             1200: { slidesPerView: 6, spaceBetween: 13 },
-                            // Desktop: Hiện 7 cái...
                             1400: { slidesPerView: 7, spaceBetween: 15 },
-                            // Màn hình lớn nhất: Hiện 8 cái... 
                             1536: { slidesPerView: 8, spaceBetween: 15 }
                         }}
                         className="swiper-carousel"
                     >
                         {movies.map((movie, index) => (
                             <SwiperSlide key={movie._id}>
-                                <MoviePosterCard movie={movie} priority={false} />
+                                <MoviePosterCard 
+                                    movie={movie} 
+                                    priority={index < 8} 
+                                    isFirst={index === 0} 
+                                    isLast={index === movies.length - 1}
+                                    user={user}
+                                />
                             </SwiperSlide>
                         ))}
                     </Swiper>
@@ -180,6 +185,10 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovi
                 .swiper-carousel .swiper-wrapper {
                     padding-bottom: 20px;
                     padding-top: 5px;
+                }
+                @keyframes top-movie-shake {
+                    0%, 100% { transform: rotate(0.2deg); }
+                    50% { transform: rotate(-0.2deg); }
                 }
             `}</style>
         </Container>
