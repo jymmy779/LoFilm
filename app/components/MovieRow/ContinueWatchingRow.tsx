@@ -28,11 +28,12 @@ export default function ContinueWatchingRow({ initialHistory }: ContinueWatching
 
     useEffect(() => {
         const fetchHistory = async () => {
+            // Wait until auth state is determined
+            if (isAuthLoading) return;
+
             if (!user) {
-                if (!isAuthLoading) {
-                    setHistory([]);
-                    setIsLoading(false);
-                }
+                setHistory([]);
+                setIsLoading(false);
                 return;
             }
 
@@ -55,7 +56,7 @@ export default function ContinueWatchingRow({ initialHistory }: ContinueWatching
             setIsLoading(false);
         };
         fetchHistory();
-    }, [supabase]);
+    }, [user, isAuthLoading, supabase]);
 
     if (isLoading) {
         return (
