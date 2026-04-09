@@ -16,6 +16,7 @@ import Container from "@/app/components/Container";
 import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
 import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 import MoviePreviewWrapper from "@/app/components/MovieCard/MoviePreviewWrapper";
+import SwiperNavButtons from "@/app/components/Common/SwiperNavButtons";
 
 interface TopMovieRowProps {
     title: string;
@@ -157,7 +158,7 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
 
                         return (
                             <SwiperSlide key={movie._id} className="transform-gpu">
-                                <MoviePreviewWrapper 
+                                <MoviePreviewWrapper
                                     movie={movie}
                                     className="sw-item group/item cursor-pointer mt-4 transform-gpu"
                                 >
@@ -209,7 +210,7 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                                             {index + 1}
                                         </div>
                                         <div className="flex flex-col gap-1 min-w-0 pt-2 lg:pt-3">
-                                            <h3 
+                                            <h3
                                                 className="text-white text-sm md:text-base leading-tight hover:text-[#FED877] transition-colors line-clamp-1 lg:font-bold cursor-pointer"
                                                 onClick={(e) => handleTopMovieClick(e, movie.slug)}
                                             >
@@ -226,17 +227,11 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                     })}
                 </Swiper>
 
-                {/* Navigation Buttons */}
-                <button className={`xl:block hidden sw-button sw-prev sw-prev-${navId} absolute -left-6 lg:-left-12 top-[35%] -translate-y-1/2 z-40 text-white/30 hover:text-white transition-colors disabled:opacity-0 cursor-pointer`}>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="47" height="47" fill="currentColor">
-                        <path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s-12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"></path>
-                    </svg>
-                </button>
-                <button className={`xl:block hidden sw-button sw-next sw-next-${navId} absolute -right-6 lg:-right-12 top-[35%] -translate-y-1/2 z-40 text-white/30 hover:text-white transition-colors disabled:opacity-0 cursor-pointer`}>
-                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="47" height="47" fill="currentColor">
-                        <path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path>
-                    </svg>
-                </button>
+                <SwiperNavButtons 
+                    prevClassName={`sw-prev-${navId}`} 
+                    nextClassName={`sw-next-${navId}`} 
+                    variant="ghost"
+                />
             </div>
 
             <style jsx global>{`

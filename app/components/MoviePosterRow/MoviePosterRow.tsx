@@ -115,7 +115,7 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovi
                     <SwiperNavButtons 
                         prevClassName={`sw-prev-${navId}`} 
                         nextClassName={`sw-next-${navId}`} 
-                        variant="large"
+                        variant="ghost"
                     />
                 </div>
             </div>
