@@ -67,7 +67,7 @@ export function getImageUrl(url: string | undefined, options?: { width?: number;
     // 2. Sử dụng wsrv.nl làm proxy mặc định (nhanh, miễn phí, hỗ trợ xử lý ảnh tốt hơn)
     const { width, quality = 80, format = "webp" } = options || {};
     
-    let proxyUrl = `https://wsrv.nl/?url=${encodeURIComponent(fullUrl)}&output=${format}&q=${quality}&af`;
+    let proxyUrl = `https://wsrv.nl/?url=${encodeURIComponent(fullUrl)}&output=${format}&q=${quality}&af&il`;
     
     if (width) {
         proxyUrl += `&w=${width}&we`;

@@ -94,7 +94,7 @@ export default function MoviePreviewPopup({
                 {/* Thumb Image */}
                 <div className="relative aspect-video w-full">
                     <Image
-                        src={getImageUrl(movie.thumb_url, { width: 400, quality: 75 })}
+                        src={getImageUrl(movie.thumb_url, { width: 380, quality: 70 })}
                         alt={movie.name}
                         fill
                         priority
