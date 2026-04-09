@@ -41,13 +41,23 @@ export default function CommentSection({ movieSlug }: CommentSectionProps) {
                     reactions:comment_reactions (id, user_id, type)
                 `)
                 .eq('movie_slug', movieSlug)
-                .is('parent_id', null)
                 .order('created_at', { ascending: false });
 
             if (error) {
                 console.error("Error fetching comments:", error);
-            } else {
-                setComments(data || []);
+            } else if (data) {
+                // Phân loại comment: cha và con
+                const parentComments = data.filter(c => !c.parent_id);
+                const replies = data.filter(c => c.parent_id);
+
+                // Gắn reply vào comment cha
+                const structuredComments = parentComments.map(parent => ({
+                    ...parent,
+                    replies: replies.filter(reply => reply.parent_id === parent.id).reverse(), // reverse để reply cũ ở trên, mới ở dưới (do query đang desc)
+                    reply_count: replies.filter(reply => reply.parent_id === parent.id).length
+                }));
+
+                setComments(structuredComments);
             }
             setLoading(false);
         };

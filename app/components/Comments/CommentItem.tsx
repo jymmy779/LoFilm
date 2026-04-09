@@ -23,9 +23,10 @@ interface CommentItemProps {
 export default function CommentItem({ comment, user, onReplyAdded, onDelete, isReply = false, movieSlug }: CommentItemProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false);
     const [showReplyForm, setShowReplyForm] = useState(false);
-    const [replies, setReplies] = useState<any[]>([]);
-    const [isRepliesExpanded, setIsRepliesExpanded] = useState(false);
+    const [replies, setReplies] = useState<any[]>(comment.replies || []);
+    const [isRepliesExpanded, setIsRepliesExpanded] = useState(true);
     const [loadingReplies, setLoadingReplies] = useState(false);
+    const [visibleReplies, setVisibleReplies] = useState(5);
     const [reactions, setReactions] = useState({ up: 0, down: 0, userType: null as string | null });
     const [showSpoiler, setShowSpoiler] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
@@ -107,6 +108,12 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
     const handleFetchReplies = async () => {
         if (isRepliesExpanded) {
             setIsRepliesExpanded(false);
+            setVisibleReplies(5); // Reset limit khi đóng
+            return;
+        }
+
+        if (replies.length > 0) {
+            setIsRepliesExpanded(true);
             return;
         }
 
@@ -152,6 +159,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
         } else {
             setReplies([...replies, data]);
             setIsRepliesExpanded(true);
+            setVisibleReplies(prev => Math.max(prev, replies.length + 1));
             setShowReplyForm(false);
             toast.success("Đã gửi trả lời");
         }
@@ -278,7 +286,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                                     exit={{ height: 0, opacity: 0 }}
                                     transition={{ duration: 0.3, ease: 'easeInOut' }}
                                 >
-                                    <CommentInput 
+                                    <CommentInput
                                         isEdit={true}
                                         initialContent={commentContent}
                                         onSubmit={handleUpdate}
@@ -338,7 +346,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
 
                             <AnimatePresence>
                                 {isMenuOpen && (
-                                    <motion.div 
+                                    <motion.div
                                         initial={{ opacity: 0, scale: 0.95, y: 5 }}
                                         animate={{ opacity: 1, scale: 1, y: 0 }}
                                         exit={{ opacity: 0, scale: 0.95, y: 5 }}
@@ -368,14 +376,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                             </AnimatePresence>
                         </div>
 
-                        {!isReply && comment.reply_count > 0 && (
-                            <button
-                                className="text-xs text-amber-400/60 hover:text-amber-400 ml-auto font-medium"
-                                onClick={handleFetchReplies}
-                            >
-                                {isRepliesExpanded ? "Ẩn câu trả lời" : `Xem thêm ${comment.reply_count} câu trả lời`}
-                            </button>
-                        )}
+
                     </div>
 
                     <div className="reply-form-wrap">
@@ -402,14 +403,14 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
 
             <AnimatePresence>
                 {isRepliesExpanded && replies.length > 0 && (
-                    <motion.div 
+                    <motion.div
                         className="reply-list"
                         initial={{ height: 0, opacity: 0, overflow: 'hidden' }}
                         animate={{ height: 'auto', opacity: 1 }}
                         exit={{ height: 0, opacity: 0 }}
                         transition={{ duration: 0.4, ease: 'easeInOut' }}
                     >
-                        {replies.map(reply => (
+                        {replies.slice(0, visibleReplies).map(reply => (
                             <CommentItem
                                 key={reply.id}
                                 comment={reply}
@@ -420,6 +421,26 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                                 onDelete={(id) => setReplies(replies.filter(r => r.id !== id))}
                             />
                         ))}
+                        <div className="reply-actions mt-2 ml-10 flex items-center gap-4">
+                            {replies.length > visibleReplies && (
+                                <button
+                                    className="show-more-replies lg:text-sm text-xs cursor-pointer btn btn-xs btn-link text-amber-500/70 hover:text-amber-400 flex items-center gap-2"
+                                    onClick={() => setVisibleReplies(prev => prev + 5)}
+                                >
+                                    <span className="w-8 h-px bg-amber-500/20"></span>
+                                    Xem thêm trả lời khác
+                                </button>
+                            )}
+                            {visibleReplies > 5 && (
+                                <button
+                                    className="hide-replies lg:text-sm text-xs cursor-pointer btn btn-xs btn-link text-white/30 hover:text-white/60 flex items-center gap-2"
+                                    onClick={() => setVisibleReplies(5)}
+                                >
+                                    <span className="w-4 h-px bg-white/10"></span>
+                                    Ẩn bớt
+                                </button>
+                            )}
+                        </div>
                     </motion.div>
                 )}
             </AnimatePresence>
