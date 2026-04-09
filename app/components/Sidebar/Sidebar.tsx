@@ -120,7 +120,6 @@ const SidebarSection = ({ title, apiUrl, type }: SidebarSectionProps) => {
                     ))
                 ) : (
                     movies.map((movie, index) => {
-                        const poster = getImageUrl(movie.poster_url || movie.thumb_url, { width: 100, quality: 60 });
                         return (
                             <Link
                                 key={movie._id}
@@ -137,7 +136,7 @@ const SidebarSection = ({ title, apiUrl, type }: SidebarSectionProps) => {
                                 )}
                                 <div className={`relative shrink-0 overflow-hidden rounded-lg shadow-lg border border-white/10 ${type === 'rank' ? 'w-11 h-15' : 'w-12 h-16'}`}>
                                     <Image
-                                        src={poster}
+                                        src={movie.poster_url || movie.thumb_url || ""}
                                         alt={movie.name}
                                         fill
                                         sizes="50px"

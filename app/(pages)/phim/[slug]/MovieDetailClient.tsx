@@ -167,7 +167,7 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
             <div className="relative w-full h-[30vh] md:h-[50vh] xl:h-[80vh] overflow-hidden transform-gpu">
                 <div className="absolute inset-0 scale-105 will-change-transform">
                     <Image
-                        src={getImageUrl(movie.thumb_url, { width: 1280, quality: 60 })}
+                        src={movie.thumb_url || ""}
                         alt={movie.name}
                         fill
                         priority
@@ -195,7 +195,7 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                 <div className="v-thumbnail relative w-[120px] h-[180px] lg:w-[160px] lg:h-[240px] rounded-2xl overflow-hidden shadow-lg ring-1 ring-white/20 transform-gpu">
                                     <Image
                                         className="absolute inset-0 w-full h-full object-cover object-top"
-                                        src={getImageUrl(movie.poster_url, { width: 300, quality: 75 })}
+                                        src={movie.poster_url || ""}
                                         alt={movie.name}
                                         fill
                                         priority

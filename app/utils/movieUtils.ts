@@ -60,8 +60,9 @@ export function getEpisodeStatus(movie: Movie): string {
 export function getImageUrl(url: string | undefined, options?: { width?: number; quality?: number; format?: string }): string {
     if (!url) return "";
     
-    // 1. Chuẩn hóa URL gốc
-    const fullUrl = url.startsWith("http") ? url : `https://phimimg.com/${url}`;
+    // 1. Chuẩn hóa URL gốc (Trim trắng tránh lỗi proxy)
+    const trimmedUrl = url.trim();
+    const fullUrl = trimmedUrl.startsWith("http") ? trimmedUrl : `https://phimimg.com/${trimmedUrl.startsWith('/') ? trimmedUrl.slice(1) : trimmedUrl}`;
     
     // 2. Sử dụng wsrv.nl làm proxy mặc định (nhanh, miễn phí, hỗ trợ xử lý ảnh tốt hơn)
     const { width, quality = 80, format = "webp" } = options || {};

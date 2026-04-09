@@ -175,7 +175,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                         >
                             <div className="w-16 h-24 shrink-0 rounded-lg overflow-hidden relative shadow-lg">
                                 <Image 
-                                    src={getImageUrl(movie.poster_url)} 
+                                    src={movie.poster_url || ""} 
                                     alt={movie.title} 
                                     fill 
                                     sizes="64px"

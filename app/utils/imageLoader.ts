@@ -4,23 +4,29 @@ export default function imageLoader({ src, width, quality }: { src: string, widt
     return src;
   }
 
-  // 2. Nếu URL đã chứa tham số của phimapi (ví dụ https://phimapi.com/image.php?url=...)
-  // Chúng ta gỡ nó ra để lấy URL gốc của ảnh (giúp wsrv.nl fetch trực tiếp cho nhanh)
+  // 2. Xử lý URL gốc (originUrl)
   let originUrl = src;
+
+  // Nếu là URL của wsrv.nl cũ hoặc phimapi proxy (có ?url=...), gỡ ra lấy URL gốc thực sự
   try {
-    const urlObj = new URL(src);
-    if (urlObj.searchParams.has('url')) {
+    if (src.includes('?url=')) {
+      const urlObj = new URL(src);
       const internalUrl = urlObj.searchParams.get('url');
       if (internalUrl) originUrl = internalUrl;
     }
   } catch (e) {
-    // Không phải URL hợp lệ hoặc không parse được thì dùng src gốc
+    // Để an toàn, nếu parse lỗi thì giữ nguyên src
   }
 
-  // 3. Sử dụng wsrv.nl (WordPress Image Service) để tối ưu ảnh cho toàn bộ site
-  // - &w= : Chiều rộng yêu cầu (từ thuộc tính sizes hoặc width của component)
-  // - &q= : Chất lượng ảnh (mặc định 75)
-  // - &output=webp : Ép trả về định dạng WebP siêu nhẹ cho trình duyệt
-  // - &n=-1 : Không lọc màu (keeps original color profile)
-  return `https://wsrv.nl/?url=${encodeURIComponent(originUrl)}&w=${width}&q=${quality || 75}&output=webp&n=-1`;
+  // 3. Nếu là đường dẫn tương đối (không bắt đầu bằng http), bổ sung domain mặc định của phimimg
+  if (!originUrl.startsWith('http')) {
+    originUrl = `https://phimimg.com/${originUrl.startsWith('/') ? originUrl.slice(1) : originUrl}`;
+  }
+
+  // 4. Sử dụng wsrv.nl làm proxy tập trung
+  // - &w= : Chiều rộng yêu cầu
+  // - &q= : Chất lượng
+  // - &output=webp : Ép WebP
+  // - &af : Adaptive filter (tối ưu nén)
+  return `https://wsrv.nl/?url=${encodeURIComponent(originUrl)}&w=${width}&q=${quality || 75}&output=webp&af`;
 }

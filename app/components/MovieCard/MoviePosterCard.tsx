@@ -14,7 +14,6 @@ interface MoviePosterCardProps {
 
 export default function MoviePosterCard({ movie, priority = false }: MoviePosterCardProps) {
     const { triggerAd } = useAdTrigger();
-    const posterImg = getImageUrl(movie.poster_url, { width: 250, quality: 70 });
     const moviePath = `/phim/${movie.slug}`;
 
     const handleMovieClick = (e: React.MouseEvent) => {
@@ -30,7 +29,7 @@ export default function MoviePosterCard({ movie, priority = false }: MoviePoster
             <div className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-white/5">
                 {/* Poster Image */}
                 <Image
-                    src={posterImg}
+                    src={movie.poster_url || ""}
                     alt={movie.name}
                     fill
                     priority={priority}
