@@ -52,7 +52,7 @@ export default function OverviewTab({ user, displayName, setShowPremiumModal }: 
               year: 'numeric'
             }) : "Đang cập nhật"}
           </p>
-          <p className="text-white/20 text-[10px] mt-4 uppercase tracking-widest font-bold">Thành viên chính thức</p>
+          <p className="text-white/20 text-[10px] mt-4 tracking-widest font-medium">Thành viên chính thức</p>
         </div>
 
         <div className="bg-white/5 border border-white/5 p-6 rounded-3xl hover:border-purple-400/30 transition-all group lg:col-span-1">
@@ -61,7 +61,7 @@ export default function OverviewTab({ user, displayName, setShowPremiumModal }: 
           </div>
           <h3 className="text-white/40 text-xs font-bold uppercase tracking-widest mb-1">Bảo mật</h3>
           <p className="text-xl font-bold text-white">Độ an toàn: Cao</p>
-          <p className="text-white/20 text-[10px] mt-4 uppercase tracking-widest font-bold">
+          <p className="text-white/20 text-[10px] mt-4 tracking-widest font-medium">
             Cập nhật: {user?.last_sign_in_at ? (() => {
               const diff = Math.floor((new Date().getTime() - new Date(user.last_sign_in_at).getTime()) / 1000);
               if (diff < 60) return "vừa xong";

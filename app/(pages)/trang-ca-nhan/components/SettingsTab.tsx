@@ -41,7 +41,7 @@ export default function SettingsTab({
   return (
     <div className="space-y-10">
       <div className="border-b border-white/5 pb-6">
-        <h1 className="text-3xl text-white tracking-tighter uppercase italic">Cài đặt LoFilm+</h1>
+        <h1 className="text-2xl text-white tracking-tighter uppercase font-bold italic">Cài đặt LoFilm+</h1>
         <p className="text-white/40 text-sm mt-1">Quản trị các tùy chọn cá nhân và bảo mật tài khoản.</p>
       </div>
 
