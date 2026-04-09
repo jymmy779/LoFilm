@@ -27,6 +27,10 @@ interface CatalogLayoutProps {
     emptyMessage?: React.ReactNode;
     isPageLoading?: boolean;
     hideSidebar?: boolean;
+    sidebarProps?: {
+        weeklyLimit?: number;
+        seriesLimit?: number;
+    };
 }
 
 export default function CatalogLayout({
@@ -44,7 +48,8 @@ export default function CatalogLayout({
     onPageChange,
     emptyMessage = "Chưa có phim nào trong danh sách này.",
     isPageLoading = false,
-    hideSidebar = false
+    hideSidebar = false,
+    sidebarProps
 }: CatalogLayoutProps) {
     return (
         <main className="pt-24 md:pt-28 lg:pt-32 pb-12 min-h-screen">
@@ -123,7 +128,7 @@ export default function CatalogLayout({
                         {/* Sidebar */}
                         {!hideSidebar && (
                             <div className="w-full lg:w-[320px] shrink-0">
-                                <Sidebar />
+                                <Sidebar {...sidebarProps} />
                             </div>
                         )}
                     </div>

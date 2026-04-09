@@ -26,9 +26,10 @@ interface SidebarSectionProps {
     title: string;
     apiUrl: string;
     type: 'rank' | 'simple';
+    limit?: number;
 }
 
-const SidebarSection = ({ title, apiUrl, type }: SidebarSectionProps) => {
+const SidebarSection = ({ title, apiUrl, type, limit = 10 }: SidebarSectionProps) => {
     const [movies, setMovies] = useState<Movie[]>([]);
     const [isLoading, setIsLoading] = useState(true);
 
@@ -74,7 +75,7 @@ const SidebarSection = ({ title, apiUrl, type }: SidebarSectionProps) => {
                                 return true;
                             })
                             .sort((a: any, b: any) => b.rating - a.rating)
-                            .slice(0, 10);
+                            .slice(0, limit);
                     } else {
                         // Top tuần: Lọc trùng và lấy phim mới nhất
                         const seenNames = new Set();
@@ -85,7 +86,7 @@ const SidebarSection = ({ title, apiUrl, type }: SidebarSectionProps) => {
                                 seenNames.add(norm);
                                 return true;
                             })
-                            .slice(0, 10);
+                            .slice(0, limit);
                     }
 
                     setMovies(items);
@@ -171,18 +172,25 @@ const SidebarSection = ({ title, apiUrl, type }: SidebarSectionProps) => {
     );
 };
 
-export default function Sidebar() {
+interface SidebarProps {
+    weeklyLimit?: number;
+    seriesLimit?: number;
+}
+
+export default function Sidebar({ weeklyLimit = 10, seriesLimit = 5 }: SidebarProps) {
     return (
         <aside className="w-full space-y-2">
             <SidebarSection
                 title="Top phim tuần"
                 apiUrl="https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3"
                 type="rank"
+                limit={weeklyLimit}
             />
             <SidebarSection
                 title="Top phim bộ"
                 apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo"
                 type="simple"
+                limit={seriesLimit}
             />
 
             {/* Promo block */}
