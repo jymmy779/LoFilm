@@ -83,6 +83,12 @@ export default function WatchClient({
     const [showEndOverlay, setShowEndOverlay] = useState(false);
     const showEndOverlayRef = useRef(false);
     useEffect(() => { showEndOverlayRef.current = showEndOverlay; }, [showEndOverlay]);
+    
+    // View Tracking Refs
+    const watchTimeAccumulator = useRef(0);
+    const hasRecordedView = useRef(false);
+    const lastUpdateTimestamp = useRef(0);
+    
     const supabase = createClient();
 
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -210,6 +216,30 @@ export default function WatchClient({
         }, { onConflict: 'user_id,movie_slug,episode_slug' });
     };
 
+    // Function to call Supabase RPC and record a valid view
+    const recordViewToSupabase = async () => {
+        try {
+            // Get user IP for unique view tracking (especially for guests)
+            let ip = null;
+            try {
+                const ipRes = await fetch('https://api.ipify.org?format=json');
+                const ipData = await ipRes.json();
+                ip = ipData.ip;
+            } catch (e) {
+                console.warn("Could not fetch IP, using identification from DB only");
+            }
+
+            // Call the secure RPC function
+            await supabase.rpc('record_movie_view', {
+                p_movie_slug: slug,
+                p_ip: ip,
+                p_user_id: userRef.current?.id || null
+            });
+        } catch (err) {
+            console.error("Error recording view:", err);
+        }
+    };
+
     useEffect(() => {
         let isMounted = true;
         const video = videoRef.current;
@@ -297,6 +327,28 @@ export default function WatchClient({
                 const currentTime = player.currentTime;
                 const duration = player.duration;
                 const remaining = duration - currentTime;
+                
+                // --- View Tracking Logic ---
+                if (!hasRecordedView.current && !player.paused && player.playing) {
+                    const now = Date.now();
+                    if (lastUpdateTimestamp.current > 0) {
+                        const delta = (now - lastUpdateTimestamp.current) / 1000;
+                        // Chỉ cộng dồn nếu delta hợp lý (tránh trường hợp tab bị treo rồi chạy bù)
+                        if (delta > 0 && delta < 2) {
+                            watchTimeAccumulator.current += delta;
+                        }
+                    }
+                    lastUpdateTimestamp.current = now;
+
+                    // Ngưỡng 30 giây xem thực tế
+                    if (watchTimeAccumulator.current >= 30) {
+                        hasRecordedView.current = true;
+                        recordViewToSupabase();
+                    }
+                } else if (player.paused) {
+                    lastUpdateTimestamp.current = 0; // Reset timestamp when paused
+                }
+
                 saveProgress(currentTime, duration);
                 if (isSeries && nextEpisode && remaining <= 120 && player.duration > 0) {
                     setShowNextButton(true);
