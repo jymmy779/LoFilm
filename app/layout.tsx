@@ -56,6 +56,9 @@ export const metadata: Metadata = {
     locale: "vi_VN",
     type: "website",
   },
+  alternates: {
+    canonical: '/',
+  },
 };
 
 import TopProgressBar from "./components/Transition/TopProgressBar";

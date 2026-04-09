@@ -81,11 +81,34 @@ export default async function MoviePage({
     // Suggested movies - Chạy song song sau khi có data category
     const suggestedMovies = await getSuggestedMovies(detail.movie);
 
+    // Schema dữ liệu cấu trúc (JSON-LD) cho SEO
+    const jsonLd = {
+        "@context": "https://schema.org",
+        "@type": "Movie",
+        "name": detail.movie.name,
+        "alternateName": detail.movie.origin_name,
+        "description": (detail.movie.content || "").replace(/<[^>]*>/g, ''),
+        "image": detail.movie.poster_url,
+        "datePublished": detail.movie.year,
+        "director": {
+            "@type": "Person",
+            "name": detail.movie.director?.[0] || "Đang cập nhật"
+        },
+        "genre": detail.movie.category?.map(c => c.name),
+        "url": `https://www.munos.store/phim/${slug}`
+    };
+
     return (
-        <MovieDetailClient
-            movie={detail.movie}
-            episodes={detail.episodes}
-            suggestedMovies={suggestedMovies}
-        />
+        <>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <MovieDetailClient
+                movie={detail.movie}
+                episodes={detail.episodes}
+                suggestedMovies={suggestedMovies}
+            />
+        </>
     );
 }

@@ -2,9 +2,16 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
 export async function middleware(request: NextRequest) {
+  const { pathname } = request.nextUrl;
+
+  // 0. Redirect non-www to www (SEO & Indexing Fix)
+  const host = request.headers.get('host');
+  if (host === 'munos.store') {
+    return NextResponse.redirect(`https://www.munos.store${pathname}${request.nextUrl.search}`, 301);
+  }
+
   // 1. Kiểm tra Maintenance Mode trước (Không cần Auth)
   const isMaintenanceMode = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true';
-  const { pathname } = request.nextUrl;
 
   if (isMaintenanceMode) {
     const isStaticAsset = pathname.startsWith('/_next') || 
