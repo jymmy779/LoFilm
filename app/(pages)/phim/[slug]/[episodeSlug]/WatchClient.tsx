@@ -20,6 +20,8 @@ import ReportModal from "@/app/components/Common/ReportModal";
 import { getImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
 import { createClient } from "@/app/utils/supabase/client";
 import { toast } from "react-hot-toast";
+import { MdReplay10, MdForward10 } from "react-icons/md";
+import { renderToStaticMarkup } from "react-dom/server";
 
 interface WatchClientProps {
     slug: string;
@@ -265,6 +267,16 @@ export default function WatchClient({
                         }
                     }, { capture: true }); // Chạy trước cả listener mặc định của Plyr
                 }
+
+                // Đổi Icon Tua 10s
+                const rewindBtn = container?.querySelector('button[data-plyr="rewind"]');
+                const forwardBtn = container?.querySelector('button[data-plyr="fast-forward"]');
+                if (rewindBtn) {
+                    rewindBtn.innerHTML = renderToStaticMarkup(<MdReplay10 size={24} style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.3))' }} />);
+                }
+                if (forwardBtn) {
+                    forwardBtn.innerHTML = renderToStaticMarkup(<MdForward10 size={24} style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.3))' }} />);
+                }
             });
 
             player.on('play', () => {
@@ -427,6 +439,35 @@ export default function WatchClient({
                                 opacity: 1 !important;
                                 pointer-events: auto !important;
                                 bottom: calc(100% + 10px) !important;
+                            }
+                        }
+
+                        /* Tùy chỉnh Icon tua 10s - Gọn gàng & Khoảng cách */
+                        .plyr__control[data-plyr="rewind"],
+                        .plyr__control[data-plyr="fast-forward"] {
+                            display: flex !important;
+                            align-items: center !important;
+                            justify-content: center !important;
+                            padding: 0 !important;
+                            margin: 0 6px !important; /* Tạo thêm khoảng cách */
+                        }
+
+                        .plyr__control[data-plyr="rewind"] svg,
+                        .plyr__control[data-plyr="fast-forward"] svg {
+                            width: 24px !important;
+                            height: 24px !important;
+                        }
+
+                        /* Responsive cho mobile */
+                        @media (max-width: 767px) {
+                            .plyr__control[data-plyr="rewind"],
+                            .plyr__control[data-plyr="fast-forward"] {
+                                margin: 0 2px !important;
+                            }
+                            .plyr__control[data-plyr="rewind"] svg,
+                            .plyr__control[data-plyr="fast-forward"] svg {
+                                width: 18px !important;
+                                height: 18px !important;
                             }
                         }
                     `}</style>
