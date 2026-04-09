@@ -194,32 +194,32 @@ export default function AuthContent() {
   };
 
   return (
-    <div className="min-h-[90vh] pt-30 md:pt-40 pb-30 px-4 relative">
-      <Container className="mb-10 md:mb-12 w-full">
+    <Container className="min-h-[90vh] pt-30 md:pt-40 pb-30 px-4 relative">
+      <div className="mb-10 md:mb-12 w-full">
         <CatalogHeader
           title={"Thành viên"}
-          showTitle={true}
+          showTitle={false}
         />
-      </Container>
+      </div>
 
-      <Container>
+      <div>
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start">
           {/* Main Auth Form Area */}
           <div className="flex-grow w-full flex justify-center">
-            <div className="w-full max-w-md bg-[#14233e]/60 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl relative overflow-hidden">
+            <div className="w-full max-w-md bg-[#14233e]/60 border border-white/10 rounded-[32px] p-6 md:p-10 shadow-2xl relative overflow-hidden">
               {/* Header Tabs */}
               <div className="flex justify-center mb-8 relative">
                 <div className="flex bg-white/5 p-1 rounded-2xl w-full border border-white/5">
                   <button
                     onClick={() => setIsLogin(true)}
-                    className={`flex-1 py-3 text-sm font-semibold rounded-xl transition-all cursor-pointer ${isLogin ? "bg-amber-400 text-black" : "text-white/60 hover:text-white"
+                    className={`flex-1 py-2.5 text-xs md:text-sm font-semibold rounded-xl transition-all cursor-pointer ${isLogin ? "bg-amber-400 text-black" : "text-white/60 hover:text-white"
                       }`}
                   >
                     Đăng nhập
                   </button>
                   <button
                     onClick={() => setIsLogin(false)}
-                    className={`flex-1 py-3 text-sm font-semibold rounded-xl transition-all cursor-pointer ${!isLogin ? "bg-amber-400 text-black" : "text-white/60 hover:text-white"
+                    className={`flex-1 py-2.5 text-xs md:text-sm font-semibold rounded-xl transition-all cursor-pointer ${!isLogin ? "bg-amber-400 text-black" : "text-white/60 hover:text-white"
                       }`}
                   >
                     Đăng ký
@@ -236,10 +236,10 @@ export default function AuthContent() {
                   transition={{ duration: 0.2 }}
                 >
                   <div className="text-center mb-8">
-                    <h2 className="text-2xl md:text-3xl font-bold text-white mb-2">
+                    <h2 className="text-xl md:text-3xl font-bold text-white mb-2">
                       {isLogin ? "Chào mừng trở lại!" : "Tạo tài khoản mới"}
                     </h2>
-                    <p className="text-white/40 text-sm">
+                    <p className="text-white/40 text-xs md:text-sm">
                       {isLogin ? "Cùng LoFilm tiếp tục cuộc hành trình điện ảnh của bạn." : "Trở thành thành viên và khám phá kho phim khổng lồ."}
                     </p>
                   </div>
@@ -262,7 +262,7 @@ export default function AuthContent() {
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
                           placeholder="Họ và tên của bạn"
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 md:py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-xs md:text-sm"
                         />
                       </div>
                     )}
@@ -279,7 +279,7 @@ export default function AuthContent() {
                         value={email}
                         onChange={(e) => setEmail(e.target.value)}
                         placeholder="Email của bạn"
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 md:py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-xs md:text-sm"
                       />
                     </div>
 
@@ -295,7 +295,7 @@ export default function AuthContent() {
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
                         placeholder={isLogin ? "Mật khẩu" : "Tạo mật khẩu"}
-                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
+                        className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 md:py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-xs md:text-sm"
                       />
                     </div>
 
@@ -313,7 +313,7 @@ export default function AuthContent() {
                           value={confirmPassword}
                           onChange={(e) => setConfirmPassword(e.target.value)}
                           placeholder="Xác nhận mật khẩu"
-                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
+                          className="w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 md:py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-xs md:text-sm"
                         />
                       </div>
                     )}
@@ -328,21 +328,22 @@ export default function AuthContent() {
                               onChange={(e) => setRememberMe(e.target.checked)}
                               className="sr-only peer"
                             />
-                            <div className={`w-5 h-5 rounded-md border-2 transition-all duration-300 flex items-center justify-center ${rememberMe ? 'bg-amber-400 border-amber-400 rotate-0' : 'bg-transparent border-white/20 -rotate-12'}`}>
-                              <CheckCircle2 size={14} className={`text-black transition-opacity duration-300 ${rememberMe ? 'opacity-100' : 'opacity-0'}`} />
+                            <div className={`w-4 h-4 md:w-5 md:h-5 rounded-md border-2 transition-all duration-300 flex items-center justify-center ${rememberMe ? 'bg-amber-400 border-amber-400 rotate-0' : 'bg-transparent border-white/20 -rotate-12'}`}>
+                              <CheckCircle2 size={12} className={`text-black transition-opacity duration-300 md:hidden ${rememberMe ? 'opacity-100' : 'opacity-0'}`} />
+                              <CheckCircle2 size={14} className={`text-black transition-opacity duration-300 hidden md:block ${rememberMe ? 'opacity-100' : 'opacity-0'}`} />
                             </div>
                             {/* Subtle Glow Effect when checked */}
                             {rememberMe && (
-                              <div className="absolute inset-0 bg-amber-400 blur-md opacity-20 -z-10 animate-pulse" />
+                              <div className="absolute inset-0 bg-amber-400 opacity-20 -z-10 animate-pulse" />
                             )}
                           </div>
-                          <span className="text-xs text-white/50 group-hover:text-white/80 transition-colors">Ghi nhớ đăng nhập</span>
+                          <span className="text-[10px] md:text-xs text-white/50 group-hover:text-white/80 transition-colors">Ghi nhớ đăng nhập</span>
                         </label>
 
                         <button
                           type="button"
                           onClick={handleForgotPassword}
-                          className="text-amber-400/60 hover:text-amber-400 text-xs transition-colors cursor-pointer"
+                          className="text-amber-400/60 hover:text-amber-400 text-[10px] md:text-xs transition-colors cursor-pointer"
                         >
                           Quên mật khẩu?
                         </button>
@@ -352,14 +353,14 @@ export default function AuthContent() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:translate-y-[-2px] hover:shadow-lg hover:shadow-amber-500/20 active:translate-y-0 transition-all cursor-pointer mt-4"
+                      className="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-black py-3 md:py-4 rounded-2xl font-bold text-sm md:text-base flex items-center justify-center gap-2 hover:translate-y-[-2px] hover:shadow-lg hover:shadow-amber-500/20 active:translate-y-0 transition-all cursor-pointer mt-4"
                     >
                       {isLoading ? (
                         <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
                       ) : (
                         <>
                           {isLogin ? "Đăng nhập" : "Tạo tài khoản"}
-                          <ArrowRight size={18} />
+                          <ArrowRight className="w-4 h-4 md:w-[18px] md:h-[18px]" />
                         </>
                       )}
                     </button>
@@ -368,8 +369,8 @@ export default function AuthContent() {
               </AnimatePresence>
 
               {/* Membership Privileges Grid */}
-              <div className="mt-10 pt-8 border-t border-white/5 grid grid-cols-2 gap-3">
-                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-center group hover:bg-white/5 transition-all">
+              <div className="mt-8 pt-6 border-t border-white/5 grid grid-cols-2 gap-3">
+                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-3 md:p-4 text-center group hover:bg-white/5 transition-all">
                   <div className="w-10 h-10 bg-amber-500/10 rounded-xl flex items-center justify-center text-amber-500 mx-auto mb-3 group-hover:scale-110 transition-transform">
                     <CheckCircle2 size={20} />
                   </div>
@@ -377,7 +378,7 @@ export default function AuthContent() {
                   <div className="text-[10px] text-white/30 leading-tight">Chia sẻ nhận xét với cộng đồng</div>
                 </div>
 
-                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-center group hover:bg-white/5 transition-all">
+                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-3 md:p-4 text-center group hover:bg-white/5 transition-all">
                   <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 mx-auto mb-3 group-hover:scale-110 transition-transform">
                     <ThumbsUp size={20} />
                   </div>
@@ -385,7 +386,7 @@ export default function AuthContent() {
                   <div className="text-[10px] text-white/30 leading-tight">Bày tỏ cảm xúc với từng tập phim</div>
                 </div>
 
-                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-center group hover:bg-white/5 transition-all">
+                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-3 md:p-4 text-center group hover:bg-white/5 transition-all">
                   <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 mx-auto mb-3 group-hover:scale-110 transition-transform">
                     <HistoryIcon size={20} />
                   </div>
@@ -393,7 +394,7 @@ export default function AuthContent() {
                   <div className="text-[10px] text-white/30 leading-tight">Đồng bộ mọi khoảnh khắc xem phim</div>
                 </div>
 
-                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-4 text-center group hover:bg-white/5 transition-all">
+                <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-3 md:p-4 text-center group hover:bg-white/5 transition-all">
                   <div className="w-10 h-10 bg-rose-500/10 rounded-xl flex items-center justify-center text-rose-500 mx-auto mb-3 group-hover:scale-110 transition-transform">
                     <Star size={20} />
                   </div>
@@ -409,12 +410,12 @@ export default function AuthContent() {
             <SidebarComp />
           </div>
         </div>
-      </Container>
+      </div>
 
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
         <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-amber-500/10 rounded-full blur-[100px]" />
         <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-blue-500/10 rounded-full blur-[80px]" />
       </div>
-    </div>
+    </Container>
   );
 }

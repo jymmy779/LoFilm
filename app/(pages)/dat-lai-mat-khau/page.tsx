@@ -21,20 +21,20 @@ export default function ResetPasswordPage() {
     const checkSession = async () => {
       try {
         const { data: { user }, error } = await supabase.auth.getUser();
-        
+
         if (error || !user) {
           toast.error("Phiên làm việc trái phép hoặc đã hết hạn!");
           router.push("/dang-nhap");
           return;
         }
-        
+
         // Nếu ok thì mới cho hiện form
         setIsChecking(false);
       } catch (err) {
         router.push("/dang-nhap");
       }
     };
-    
+
     checkSession();
   }, [supabase, router]);
 

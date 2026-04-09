@@ -61,6 +61,7 @@ export const metadata: Metadata = {
 import TopProgressBar from "./components/Transition/TopProgressBar";
 import AuthListener from "./components/Auth/AuthListener";
 import NetworkMonitor from "./components/Network/NetworkMonitor";
+import ScrollToTop from "./components/Common/ScrollToTop";
 
 export default function RootLayout({
   children,
@@ -188,6 +189,7 @@ export default function RootLayout({
             },
           }}
         />
+        <ScrollToTop />
       </body>
     </html>
   );
