@@ -12,7 +12,6 @@ import DropdownMenu from "./DropdownMenu";
 import SearchBox from "./SearchBox";
 import MemberButton from "./MemberButton";
 
-// --- Main Header ---
 export default function Header() {
     const pathname = usePathname();
     const [categories, setCategories] = useState<MenuItem[]>([]);
@@ -180,7 +179,6 @@ export default function Header() {
                     </div>
                 </div>
 
-                {/* XL Desktop Header Content */}
                 <div className="hidden xl:flex items-center justify-between w-full h-full">
                     <div className="flex items-center gap-8 flex-1">
                         <TransitionLink href="/" className="shrink-0">
@@ -242,7 +240,6 @@ export default function Header() {
             <AnimatePresence>
                 {isMenuOpen && (
                     <>
-                        {/* Backdrop Overlay */}
                         <motion.div
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
@@ -272,7 +269,6 @@ export default function Header() {
                                         </TransitionLink>
                                     </div>
 
-                                    {/* Accordion: Thể loại */}
                                     <div className="border-b border-white/5">
                                         <button
                                             onClick={() => setExpandedSections(prev => prev.includes('categories') ? prev.filter(s => s !== 'categories') : [...prev, 'categories'])}
@@ -314,7 +310,6 @@ export default function Header() {
                                         </motion.div>
                                     </div>
 
-                                    {/* Accordion: Quốc gia */}
                                     <div className="border-b border-white/5">
                                         <button
                                             onClick={() => setExpandedSections(prev => prev.includes('countries') ? prev.filter(s => s !== 'countries') : [...prev, 'countries'])}
@@ -356,7 +351,6 @@ export default function Header() {
                                         </motion.div>
                                     </div>
 
-                                    {/* Common Nav Links */}
                                     {navLinks.map((item) => (
                                         <div key={item.href}>
                                             <TransitionLink
@@ -369,7 +363,6 @@ export default function Header() {
                                         </div>
                                     ))}
 
-                                    {/* Centered Premium Member Button */}
                                     <div className="pt-4 pb-2 flex justify-center border-t border-white/5 mt-4">
                                         <MemberButton flatten={true} onClick={() => setIsMenuOpen(false)} />
                                     </div>

@@ -18,10 +18,11 @@ import MovieInfo from "./MovieInfo";
 import CommentSection from "@/app/components/Comments/CommentSection";
 import ReportModal from "@/app/components/Common/ReportModal";
 import { getImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
-import { createClient } from "@/app/utils/supabase/client";
+import { useAuth } from "@/app/components/Auth/AuthContext";
 import { toast } from "react-hot-toast";
 import { MdReplay10, MdForward10 } from "react-icons/md";
 import { renderToStaticMarkup } from "react-dom/server";
+import { createClient } from "@/app/utils/supabase/client";
 
 interface WatchClientProps {
     slug: string;
@@ -64,6 +65,7 @@ export default function WatchClient({
     episodes,
     suggestedMovies
 }: WatchClientProps) {
+    const { user } = useAuth();
     const [isExpanded, setIsExpanded] = useState(false);
     const [isTheaterMode, setIsTheaterMode] = useState(false);
     const [isAutoNext, setIsAutoNext] = useState(true);
@@ -71,10 +73,8 @@ export default function WatchClient({
     const [activeServerIndex, setActiveServerIndex] = useState(0);
     const [hasError, setHasError] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
-    const [user, setUser] = useState<any>(null);
     const userRef = useRef<any>(null);
     
-    // Đảm bảo cuộn lên đầu khi vào trang xem phim (để tránh lỗi vị trí scroll cũ)
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
     }, [slug, episodeSlug]);
@@ -90,7 +90,6 @@ export default function WatchClient({
     const showEndOverlayRef = useRef(false);
     useEffect(() => { showEndOverlayRef.current = showEndOverlay; }, [showEndOverlay]);
     
-    // View Tracking Refs
     const watchTimeAccumulator = useRef(0);
     const hasRecordedView = useRef(false);
     const lastUpdateTimestamp = useRef(0);
@@ -134,13 +133,6 @@ export default function WatchClient({
         return episode.link_m3u8;
     }, [activeServerIndex, episodeSlug, episodes, episode.link_m3u8]);
 
-    useEffect(() => {
-        const fetchUser = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
-            setUser(user);
-        };
-        fetchUser();
-    }, [supabase]);
 
     useEffect(() => {
         setShowEndOverlay(false);
@@ -161,7 +153,6 @@ export default function WatchClient({
 
     useEffect(() => {
         const checkFavorite = async () => {
-            const { data: { user } } = await supabase.auth.getUser();
             if (user) {
                 const { data } = await supabase
                     .from('favorites')
@@ -173,7 +164,7 @@ export default function WatchClient({
             }
         };
         checkFavorite();
-    }, [slug, supabase]);
+    }, [slug, supabase, user]);
 
     const toggleFavorite = async () => {
         if (!user) {
@@ -271,7 +262,6 @@ export default function WatchClient({
             if (!isMounted || !videoRef.current) return;
             let startFrom = 0;
             const { data: { user: currentUser } } = await supabase.auth.getUser();
-            if (isMounted) setUser(currentUser);
 
             if (currentUser && !hasResumed) {
                 const { data: history } = await supabase
@@ -289,22 +279,18 @@ export default function WatchClient({
             const player = new Plyr(videoRef.current, defaultOptions);
             plyrRef.current = player;
 
-            // Xử lý nút Mute trên Mobile: Chỉ hiện Popup, không được Mute
             player.on('ready', () => {
                 const container = player.elements.container;
                 const muteButton = container?.querySelector('button[data-plyr="mute"]');
                 if (muteButton) {
                     muteButton.addEventListener('click', (e: Event) => {
                         if (window.innerWidth < 768) {
-                            // Chặn Plyr thực hiện lệnh Mute mặc định
                             e.stopImmediatePropagation();
                             e.preventDefault();
-                            // Popup âm lượng sẽ hiện ra nhờ CSS :focus-within
                         }
-                    }, { capture: true }); // Chạy trước cả listener mặc định của Plyr
+                    }, { capture: true }); 
                 }
 
-                // Đổi Icon Tua 10s
                 const rewindBtn = container?.querySelector('button[data-plyr="rewind"]');
                 const forwardBtn = container?.querySelector('button[data-plyr="fast-forward"]');
                 if (rewindBtn) {
@@ -334,25 +320,21 @@ export default function WatchClient({
                 const duration = player.duration;
                 const remaining = duration - currentTime;
                 
-                // --- View Tracking Logic ---
                 if (!hasRecordedView.current && !player.paused && player.playing) {
                     const now = Date.now();
                     if (lastUpdateTimestamp.current > 0) {
                         const delta = (now - lastUpdateTimestamp.current) / 1000;
-                        // Chỉ cộng dồn nếu delta hợp lý (tránh trường hợp tab bị treo rồi chạy bù)
                         if (delta > 0 && delta < 2) {
                             watchTimeAccumulator.current += delta;
                         }
                     }
                     lastUpdateTimestamp.current = now;
 
-                    // Ngưỡng 30 giây xem thực tế
                     if (watchTimeAccumulator.current >= 30) {
                         hasRecordedView.current = true;
                         recordViewToSupabase();
                     }
                 } else if (player.paused) {
-                    lastUpdateTimestamp.current = 0; // Reset timestamp when paused
                 }
 
                 saveProgress(currentTime, duration);
@@ -448,18 +430,15 @@ export default function WatchClient({
                         .plyr__controls { z-index: 100 !important; background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5)) !important; }
                         .hide-large-play .plyr__controls { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
                         
-                        /* Hiện thời gian trên mọi thiết bị */
                         .plyr__time--current,
                         .plyr__time--duration {
                             display: block !important;
                         }
                         
-                        /* Thu hẹp khoảng cách dấu gạch chéo thời gian */
                         .plyr__time + .plyr__time::before {
                             margin-right: 4px !important;
                         }
 
-                        /* Thu nhỏ cụn nút điều khiển trên Mobile-Tablet */
                         @media (max-width: 767px) {
                             .plyr__control {
                                 padding: 5px !important;
@@ -469,7 +448,6 @@ export default function WatchClient({
                                 height: 14px !important;
                             }
 
-                            /* Popup âm lượng trên mobile */
                             .plyr__volume {
                                 position: relative !important;
                                 min-width: 32px !important;
@@ -491,7 +469,6 @@ export default function WatchClient({
                                 box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
                                 backdrop-filter: blur(8px) !important;
                             }
-                            /* Hiện popup khi click/focus vào cụm volume */
                             .plyr__volume:focus-within input,
                             .plyr__volume:active input {
                                 opacity: 1 !important;
@@ -500,7 +477,6 @@ export default function WatchClient({
                             }
                         }
 
-                        /* Tùy chỉnh Icon tua 10s - Gọn gàng & Khoảng cách */
                         .plyr__control[data-plyr="rewind"],
                         .plyr__control[data-plyr="fast-forward"] {
                             display: flex !important;
@@ -516,7 +492,6 @@ export default function WatchClient({
                             height: 24px !important;
                         }
 
-                        /* Responsive cho mobile */
                         @media (max-width: 767px) {
                             .plyr__control[data-plyr="rewind"],
                             .plyr__control[data-plyr="fast-forward"] {

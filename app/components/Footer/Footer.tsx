@@ -4,16 +4,13 @@ import TransitionLink from '@/app/components/Transition/TransitionLink';
 export default function Footer() {
     return (
         <footer className="relative w-full border-t border-white/5 bg-[#0F111A] overflow-hidden mt-10 pb-6">
-            {/* Background Ornaments */}
             <div className="absolute top-0 right-0 w-[600px] h-[600px] pointer-events-none opacity-[0.08] bg-gradient-to-bl from-orange-500/40 via-yellow-500/20 to-transparent rounded-full translate-x-1/2 -translate-y-1/2"></div>
             <div className="absolute bottom-0 left-0 w-[400px] h-[400px] pointer-events-none opacity-[0.05] bg-gradient-to-tr from-blue-500/30 to-transparent rounded-full -translate-x-1/2 translate-y-1/2"></div>
 
             <div className="relative z-10 w-full max-w-[1900px] mx-auto px-5 lg:px-12 pt-10">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
-                    {/* Left Column - Content */}
                     <div className="col-span-1 lg:col-span-8 flex flex-col gap-6">
 
-                        {/* Slogan */}
                         <div className="group flex items-center gap-2.5 text-[13px] text-white font-bold bg-gradient-to-r from-red-500 to-red-600 w-fit px-4 py-1.5 rounded-full border border-red-400/40 shadow-[0_0_20px_rgba(220,38,38,0.6)] cursor-default transition-all duration-300 hover:shadow-[0_0_25px_rgba(220,38,38,0.8)] hover:scale-105">
                             <div className="w-5 h-3.5 rounded-sm overflow-hidden flex-shrink-0 relative border border-white/20">
                                 <svg viewBox="0 0 30 20" xmlns="http://www.w3.org/2000/svg" className="w-full h-full object-cover">
@@ -24,7 +21,6 @@ export default function Footer() {
                             <span className="tracking-wide drop-shadow-md">Việt Nam muôn năm !</span>
                         </div>
 
-                        {/* Branding & Socials */}
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-8">
                             <TransitionLink href="/" className="shrink-0 transition-transform hover:scale-105">
                                 <Image
@@ -60,7 +56,6 @@ export default function Footer() {
                             </div>
                         </div>
 
-                        {/* Menu Links */}
                         <div className="flex flex-wrap items-center gap-x-8 gap-y-3 mt-2">
                             {[
                                 { label: 'Hỏi-Đáp', href: '/faq' },
@@ -79,7 +74,6 @@ export default function Footer() {
                             ))}
                         </div>
 
-                        {/* Description Notice */}
                         <div className="text-[12px] text-white/40 leading-relaxed max-w-4xl space-y-4">
                             <p>
                                 <strong className="text-white/60 font-semibold">LoFilm (Lo Film)</strong> ra đời với sứ mệnh mang không gian điện ảnh chân thực nhất đến ngay màn hình của bạn. Khi tìm kiếm <strong className="text-white/50">xem phim LoFilm</strong>, bạn sẽ được trải nghiệm một trạm dừng chân giải trí cao cấp, nơi hội tụ những siêu phẩm chiếu rạp, phim bộ độc quyền và các TV Show thịnh hành nhất. Với giao diện tối giản chuẩn cinematic, hệ thống điều hướng thông minh cùng tốc độ truyền tải mượt mà, **Lo Film** định hình lại cách bạn tận hưởng nghệ thuật thứ bảy.
@@ -97,7 +91,6 @@ export default function Footer() {
                             </p>
                         </div>
 
-                        {/* Footer Bottom (DMCA & Copyright) */}
                         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-5 border-t border-white/5">
                             <div className="text-[13px] text-white/30 font-medium">
                                 © {new Date().getFullYear()} <span className="text-white/50">LoFilm</span>. All rights reserved.
@@ -113,20 +106,12 @@ export default function Footer() {
                                         className="h-6 w-auto"
                                     />
                                 </a>
-                                {/* Hidden SEO Links */}
-                                <div className="hidden">
-                                    <a href="https://tumblr.us.com/">https://tumblr.us.com/</a>
-                                    <a href="https://nsh.us.com/">Luck8</a>
-                                    <a href="https://motchill.jp.net/">Motchill</a>
-                                </div>
                             </div>
                         </div>
 
                     </div>
 
-                    {/* Right Column - Decorative Visual */}
                     <div className="col-span-1 lg:col-span-4 hidden lg:flex items-center justify-end select-none pointer-events-none relative">
-                        {/* A decorative large blurred logo or graphic for the right side */}
                         <div className="w-[350px] aspect-square opacity-[0.03] hover:opacity-[0.05] transition-opacity duration-1000 relative">
                             <Image
                                 src="/lofilm_logo.webp"

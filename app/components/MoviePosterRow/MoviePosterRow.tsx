@@ -1,22 +1,19 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
-import axios from "axios";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
 import { Movie } from "@/app/types/movie";
-import { decodeHtml } from "@/app/utils/textUtils";
-import { getImageUrl, sortAndSlicePosterRowMovies } from "@/app/utils/movieUtils";
+import { getImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
 import Container from "@/app/components/Container";
 import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
-import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
-import { createClient } from "@/app/utils/supabase/client";
-
+import { useMovies } from "@/app/hooks/useMovies";
+import SwiperNavButtons from "@/app/components/Common/SwiperNavButtons";
+import { useAuth } from "@/app/components/Auth/AuthContext";
 interface MoviePosterRowProps {
     title: string;
     apiUrl: string;
@@ -25,67 +22,15 @@ interface MoviePosterRowProps {
 }
 
 export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies }: MoviePosterRowProps) {
-    const seeded = !!(initialMovies && initialMovies.length > 0);
-    const [movies, setMovies] = useState<Movie[]>(() => initialMovies ?? []);
-    const [isLoading, setIsLoading] = useState(!seeded);
-    const [user, setUser] = useState<any>(null);
     const navId = title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
-    const supabase = createClient();
+    const { user } = useAuth();
 
-    const enrichEpisodeTotals = async (sortedItems: Movie[], isMounted: () => boolean) => {
-        await enrichMoviesMetadata({
-            items: sortedItems,
-            setItems: setMovies,
-            isMounted,
-            chunkSize: 3,
-            delay: 60
-        });
-    };
-
-    useEffect(() => {
-        const fetchUser = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            if (session?.user) setUser(session.user);
-        };
-        fetchUser();
-    }, [supabase]);
-
-    useEffect(() => {
-        let isMounted = true;
-        const mounted = () => isMounted;
-
-        if (seeded && initialMovies!.length > 0) {
-            setIsLoading(false);
-            void enrichEpisodeTotals(initialMovies!, mounted);
-            return () => { isMounted = false; };
-        }
-
-        const fetchMovies = async (retryCount = 0) => {
-            if (!isMounted) return;
-            try {
-                const response = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`);
-                if (isMounted && (response.data?.status === "success" || response.data?.status === true) && response.data?.data?.items) {
-                    const items: Movie[] = response.data.data.items;
-                    const sortedItems = sortAndSlicePosterRowMovies(items);
-
-                    setMovies(sortedItems);
-                    setIsLoading(false);
-
-                    void enrichEpisodeTotals(sortedItems, mounted);
-                }
-            } catch (error) {
-                if (isMounted) {
-                    if (retryCount < 2) {
-                        setTimeout(() => fetchMovies(retryCount + 1), 2000);
-                    } else {
-                        setIsLoading(false);
-                    }
-                }
-            }
-        };
-        fetchMovies();
-        return () => { isMounted = false; };
-    }, [apiUrl, navId, seeded]);
+    const { movies, isLoading } = useMovies({ 
+        apiUrl, 
+        initialMovies, 
+        shouldEnrich: true,
+        limit: 20
+    });
 
     if (isLoading) {
         return (
@@ -167,17 +112,11 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovi
                         ))}
                     </Swiper>
 
-                    {/* Navigation Buttons */}
-                    <button className={`hidden xl:block sw-button sw-prev sw-prev-${navId} absolute -left-6 lg:-left-12 top-[40%] -translate-y-1/2 z-40 text-white/50 hover:text-white transition-colors disabled:opacity-0 cursor-pointer`}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="47" height="47" fill="currentColor">
-                            <path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s-12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"></path>
-                        </svg>
-                    </button>
-                    <button className={`hidden xl:block sw-button sw-next sw-next-${navId} absolute -right-6 lg:-right-12 top-[40%] -translate-y-1/2 z-40 text-white/50 hover:text-white transition-colors disabled:opacity-0 cursor-pointer`}>
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="47" height="47" fill="currentColor">
-                            <path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path>
-                        </svg>
-                    </button>
+                    <SwiperNavButtons 
+                        prevClassName={`sw-prev-${navId}`} 
+                        nextClassName={`sw-next-${navId}`} 
+                        variant="large"
+                    />
                 </div>
             </div>
 

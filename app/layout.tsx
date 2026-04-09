@@ -65,6 +65,7 @@ import TopProgressBar from "./components/Transition/TopProgressBar";
 import AuthListener from "./components/Auth/AuthListener";
 import NetworkMonitor from "./components/Network/NetworkMonitor";
 import ScrollToTop from "./components/Common/ScrollToTop";
+import { AuthProvider } from "./components/Auth/AuthContext";
 
 export default function RootLayout({
   children,
@@ -170,16 +171,18 @@ export default function RootLayout({
         <NetworkMonitor />
         <AuthListener />
         <InitialLoader />
-        <PageTransitionProvider>
-          <PageTransitionOverlay />
-          <SkeletonTheme baseColor="#1e293b" highlightColor="#334155">
-            <Header />
-            <main className="min-h-screen">
-              {children}
-            </main>
-            <Footer />
-          </SkeletonTheme>
-        </PageTransitionProvider>
+        <AuthProvider>
+          <PageTransitionProvider>
+            <PageTransitionOverlay />
+            <SkeletonTheme baseColor="#1e293b" highlightColor="#334155">
+              <Header />
+              <main className="min-h-screen">
+                {children}
+              </main>
+              <Footer />
+            </SkeletonTheme>
+          </PageTransitionProvider>
+        </AuthProvider>
         <Toaster
           position="top-center"
           reverseOrder={false}

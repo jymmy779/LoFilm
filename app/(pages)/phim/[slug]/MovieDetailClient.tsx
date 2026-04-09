@@ -235,7 +235,6 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                     <div className="dc-side w-full xl:w-[440px] shrink-0">
                         <div className="ds-info p-[20px] lg:p-[40px] lg:backdrop-blur-md rounded-3xl shadow-2xl relative transform-gpu will-change-[filter]">
 
-                            {/* Thumbnail */}
                             <div className="v-thumb-l xl:block flex justify-center mb-6">
                                 <div className="v-thumbnail relative w-[120px] h-[180px] lg:w-[160px] lg:h-[240px] rounded-2xl overflow-hidden shadow-lg ring-1 ring-white/20 transform-gpu">
                                     <Image
@@ -249,7 +248,6 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                 </div>
                             </div>
 
-                            {/* Title & Alias */}
                             <h2 className="text-xl line-clamp-1 md:text-2xl text-center xl:text-left font-bold text-white mb-1 leading-tight">
                                 {decodeHtml(movie.name)}
                             </h2>
@@ -258,7 +256,6 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                             </div>
 
                             <div className="detail-more xl:block hidden space-y-5">
-                                {/* Rating & Badges */}
                                 <div className="hl-tags flex flex-wrap gap-2">
                                     {rating && (
                                         <div className="flex items-center gap-1.5 px-2 py-1 bg-[#f5c518] rounded-md text-black font-bold text-[10px]">
@@ -270,7 +267,6 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                     <div className="px-2 py-1 bg-white/10 rounded-md text-white/80 text-[11px] font-medium">{getEpisodeStatus(movie)}</div>
                                 </div>
 
-                                {/* Genre Tags */}
                                 {movie.category && movie.category.length > 0 && (
                                     <div className="hl-tags flex flex-wrap gap-2">
                                         {movie.category.map((cat) => (
@@ -281,7 +277,6 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                     </div>
                                 )}
 
-                                {/* Status Box */}
                                 <div className={`status-box p-3 ${isCompleted ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'} border rounded-xl flex items-center gap-3`}>
                                     {isCompleted && (
                                         <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" height="18" width="18"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"></path></svg>
@@ -291,7 +286,6 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                     </span>
                                 </div>
 
-                                {/* Introduction */}
                                 {movie.content && (
                                     <div className="detail-line">
                                         <div className="text-white/40 text-xs font-bold uppercase tracking-wider mb-2">Giới thiệu:</div>
@@ -301,7 +295,6 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                     </div>
                                 )}
 
-                                {/* Key Info */}
                                 <div className="space-y-3 pt-2">
                                     {movie.time && (
                                         <div className="flex items-center justify-between text-xs">
@@ -321,7 +314,6 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                     )}
                                 </div>
 
-                                {/* Director */}
                                 {movie.director && movie.director.length > 0 && movie.director[0] !== '' && (
                                     <div className="detail-line pt-2">
                                         <div className="text-white/40 text-xs font-bold uppercase tracking-wider mb-3">Đạo diễn:</div>
@@ -430,7 +422,6 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                 </div>
                             </div>
 
-                            {/* Tab Navigation */}
                             <div className="flex overflow-none items-center flex-wrap gap-4 lg:gap-8 xl:gap-12 border-b border-white/5 mb-8 pb-2 md:pb-1">
                                 {tabs.map((tab) => (
                                     <button
@@ -447,7 +438,6 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                 ))}
                             </div>
 
-                            {/* Tab Content */}
                             <div className="tab-content">
                                 {/* Episodes Tab */}
                                 {activeTab === 'Tập phim' && (

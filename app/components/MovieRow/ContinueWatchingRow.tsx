@@ -7,39 +7,39 @@ import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
-import { createClient } from "@/app/utils/supabase/client";
 import { getImageUrl } from "@/app/utils/movieUtils";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import Container from "@/app/components/Container";
 import { Play } from "lucide-react";
+import SwiperNavButtons from "@/app/components/Common/SwiperNavButtons";
+import { useAuth } from "@/app/components/Auth/AuthContext";
+import { createClient } from "@/app/utils/supabase/client";
 
 interface ContinueWatchingRowProps {
     initialHistory?: any[];
 }
 
 export default function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
+    const { user, isLoading: isAuthLoading } = useAuth();
     const [history, setHistory] = useState<any[]>(initialHistory || []);
     const [isLoading, setIsLoading] = useState(!initialHistory);
-    const [user, setUser] = useState<any>(null);
     const supabase = createClient();
 
     useEffect(() => {
         const fetchHistory = async () => {
-            // Dùng getSession nhanh hơn getUser vì thường lấy từ local storage
-            const { data: { session } } = await supabase.auth.getSession();
-            const currentUser = session?.user;
-
-            if (!currentUser) {
-                setIsLoading(false);
+            if (!user) {
+                if (!isAuthLoading) {
+                    setHistory([]);
+                    setIsLoading(false);
+                }
                 return;
             }
-            setUser(currentUser);
 
             const { data, error } = await supabase
                 .from('watch_history')
                 .select('*')
-                .eq('user_id', currentUser.id)
+                .eq('user_id', user.id)
                 .order('updated_at', { ascending: false })
                 .limit(20);
 
@@ -192,17 +192,11 @@ export default function ContinueWatchingRow({ initialHistory }: ContinueWatching
                         })}
                     </Swiper>
 
-                    {/* Controls */}
-                    <button className="btn-prev-continue absolute -left-2 lg:-left-5 top-1/2 -translate-y-[calc(50%+24px)] z-10 w-10 h-10 rounded-full bg-white text-black shadow-xl hidden lg:flex items-center justify-center hover:bg-amber-400 transition-colors disabled:opacity-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="16" height="16" fill="currentColor">
-                            <path d="M41.4 233.4c-12.5 12.5-12.5 32.8 0 45.3l160 160c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L109.3 256 246.6 118.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0l-160 160z"></path>
-                        </svg>
-                    </button>
-                    <button className="btn-next-continue absolute -right-2 lg:-right-5 top-1/2 -translate-y-[calc(50%+24px)] z-10 w-10 h-10 rounded-full bg-white text-black shadow-xl hidden lg:flex items-center justify-center hover:bg-amber-400 transition-colors disabled:opacity-0">
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512" width="16" height="16" fill="currentColor">
-                            <path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path>
-                        </svg>
-                    </button>
+                    <SwiperNavButtons 
+                        prevClassName="btn-prev-continue" 
+                        nextClassName="btn-next-continue" 
+                        variant="amber" 
+                    />
                 </div>
             </motion.div>
         </Container>
