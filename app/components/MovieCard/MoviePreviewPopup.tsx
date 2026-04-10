@@ -67,13 +67,18 @@ export default function MoviePreviewPopup({
 
     const imdbRating = movie.tmdb?.vote_average ? movie.tmdb.vote_average.toFixed(1) : "N/A";
 
-    let clampedLeft = 0;
-    if (typeof window !== 'undefined') {
-        const idealLeft = cardRect.left + window.scrollX + (cardRect.width / 2) - 190; // 190 = 380/2
-        const minLeft = window.scrollX + 24; // 24px padding từ cạnh trái màn hình an toàn
-        const maxLeft = window.scrollX + document.documentElement.clientWidth - 380 - 24;
-        clampedLeft = Math.max(minLeft, Math.min(idealLeft, maxLeft));
-    }
+    const [position] = useState(() => {
+        let top = 0;
+        let left = 0;
+        if (typeof window !== 'undefined') {
+            top = cardRect.top + window.scrollY;
+            const idealLeft = cardRect.left + window.scrollX + (cardRect.width / 2) - 190; // 190 = 380/2
+            const minLeft = window.scrollX + 24; // 24px padding từ cạnh trái an toàn
+            const maxLeft = window.scrollX + document.documentElement.clientWidth - 380 - 24;
+            left = Math.max(minLeft, Math.min(idealLeft, maxLeft));
+        }
+        return { top, left };
+    });
 
     const [isThumbLoaded, setIsThumbLoaded] = useState(false);
     const thumbUrl = movie.thumb_url ? getImageUrl(movie.thumb_url, { width: 380, quality: 75 }) : null;
@@ -90,8 +95,8 @@ export default function MoviePreviewPopup({
             onMouseLeave={onMouseLeave}
             onClick={(e) => e.stopPropagation()}
             style={{ 
-                top: cardRect.top + window.scrollY,
-                left: clampedLeft
+                top: position.top,
+                left: position.left
             }}
         >
             <div className="bg-[#111319]/95 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_30px_70px_-15px_rgba(0,0,0,1)] ring-1 ring-white/5">

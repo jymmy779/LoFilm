@@ -194,15 +194,6 @@ export default function Sidebar({ weeklyLimit = 10, seriesLimit = 5 }: SidebarPr
                 limit={seriesLimit}
             />
 
-            {/* Promo block */}
-            <div className="bg-gradient-to-br from-amber-500/20 to-purple-600/20 border border-white/10 rounded-2xl p-5 relative overflow-hidden group">
-                <Zap className="absolute -right-2 -bottom-2 w-24 h-24 text-white/5 opacity-20 group-hover:scale-110 transition-transform duration-700" />
-                <h4 className="text-sm font-bold text-white mb-2 relative z-10">Trải nghiệm VIP</h4>
-                <p className="text-[11px] text-white/60 mb-3 relative z-10 leading-relaxed">Xem phim không quảng cáo, chất lượng 4K cực đỉnh chỉ có tại LoFilm.</p>
-                <button className="text-[10px] font-bold uppercase tracking-widest bg-amber-400 text-black px-4 py-2 rounded-lg hover:bg-white transition-colors relative z-10">
-                    Khám phá ngay
-                </button>
-            </div>
         </aside>
     );
 }
