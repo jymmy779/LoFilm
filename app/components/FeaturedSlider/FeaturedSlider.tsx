@@ -16,6 +16,7 @@ import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import { filterDuplicateMovies, getImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
 import Image from "next/image";
+import FavoriteButton from "@/app/components/Common/FavoriteButton";
 import Container from "@/app/components/Container";
 
 interface FeaturedSliderProps {
@@ -213,11 +214,20 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                                 </svg>
                                             </div>
 
-                                            <div
-                                                onClick={(e) => handleFeaturedClick(e, movie.slug)}
-                                                className="lg:block hidden px-8 py-3 bg-white/10 hover:bg-white/20 text-white text-sm rounded-full transition-colors duration-300 border border-white/10 shadow-xl cursor-pointer"
-                                            >
-                                                Chi tiết phim
+                                            <div className="flex items-center bg-white/10 hover:bg-white/20 rounded-full border border-white/10 overflow-hidden transition-all duration-300">
+                                                <FavoriteButton 
+                                                    movie={movie} 
+                                                    iconSize={18}
+                                                    className="p-3 px-5 h-full border-r border-white/10 hover:bg-white/5 transition-colors"
+                                                />
+                                                <div
+                                                    onClick={(e) => handleFeaturedClick(e, movie.slug)}
+                                                    className="p-3 px-7 h-full flex items-center justify-center text-white cursor-pointer hover:text-[#f5a623] transition-colors"
+                                                >
+                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="18" height="18" fill="currentColor">
+                                                        <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336h24V272H216c-13.3 0-24-10.7-24-24s10.7-24 24-24h48c13.3 0 24 10.7 24 24v88h8c13.3 0 24 10.7 24 24s-10.7 24-24 24H216c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z"/>
+                                                    </svg>
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

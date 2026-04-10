@@ -107,7 +107,7 @@ function SearchContent() {
                 const params = new URLSearchParams();
                 params.set("keyword", keyword);
                 params.set("page", currentPage.toString());
-                params.set("limit", "32");
+                params.set("limit", "48");
 
                 if (activeFilters.category) params.set("category", activeFilters.category);
                 if (activeFilters.country) params.set("country", activeFilters.country);
@@ -131,7 +131,7 @@ function SearchContent() {
                     
                     if (isMounted) {
                         setMovies(items);
-                        setTotalPages(Math.ceil(totalItems / 32) || 1);
+                        setTotalPages(Math.ceil(totalItems / 48) || 1);
                         setIsLoading(false);
                         setIsPageLoading(false);
                     }
@@ -196,6 +196,7 @@ function SearchContent() {
             onFilterChange={handleFilterChange}
             onToggleFilter={handleToggleFilter}
             onPageChange={handlePageChange}
+            hideSidebar={true}
             emptyMessage={
                 <div className="flex flex-col items-center justify-center py-20 text-white/30">
                     <Film size={80} strokeWidth={1} className="mb-6 opacity-40" />

@@ -35,20 +35,22 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
     return (
         <>
             <HeroSlider initialMovies={prefetched.hero} />
+
             <CategoriesSection initialCategories={prefetched.categories} />
+
             <ContinueWatchingRow initialHistory={prefetched.initialHistory} />
 
-            <LazyRow estimatedHeight="500px">
-                <RandomMovieRow />
-            </LazyRow>
+            <RandomMovieRow />
 
-            {/* Phim Hàn Quốc load ngay vì có thể nằm trong fold đầu */}
-            <MovieRow
-                title="Phim Hàn Quốc mới"
-                apiUrl="https://phimapi.com/v1/api/quoc-gia/han-quoc?limit=20"
-                viewAllLink="/quoc-gia/han-quoc"
-                initialMovies={prefetched.movieRowHan}
-            />
+            <LazyRow estimatedHeight="500px">
+                {/* Phim Hàn Quốc bây giờ được load lazy */}
+                <MovieRow
+                    title="Phim Hàn Quốc mới"
+                    apiUrl="https://phimapi.com/v1/api/quoc-gia/han-quoc?limit=20"
+                    viewAllLink="/quoc-gia/han-quoc"
+                    initialMovies={prefetched.movieRowHan}
+                />
+            </LazyRow>
 
             {/* Các dãy bên dưới dùng LazyRow để giảm TBT (Total Blocking Time) */}
             <LazyRow estimatedHeight="300px">
