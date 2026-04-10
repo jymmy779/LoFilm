@@ -15,6 +15,7 @@ interface MoviePreviewWrapperProps extends HTMLAttributes<HTMLDivElement> {
     user?: any;
     isFirst?: boolean;
     isLast?: boolean;
+    adZone?: string;
     children: React.ReactNode;
 }
 
@@ -23,6 +24,7 @@ export default function MoviePreviewWrapper({
     user,
     isFirst = false,
     isLast = false,
+    adZone,
     children,
     className,
     ...props
@@ -130,6 +132,7 @@ export default function MoviePreviewWrapper({
                             cardRect={cardRect}
                             isFirst={isFirst}
                             isLast={isLast}
+                            adZone={adZone}
                             onMouseEnter={handlePopupMouseEnter}
                             onMouseLeave={handlePopupMouseLeave}
                         />

@@ -11,8 +11,10 @@ import { MenuItem } from "./types";
 import DropdownMenu from "./DropdownMenu";
 import SearchBox from "./SearchBox";
 import MemberButton from "./MemberButton";
+import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 
 export default function Header() {
+    const { openAdOnly } = useAdTrigger();
     const pathname = usePathname();
     const [categories, setCategories] = useState<MenuItem[]>([]);
     const [countries, setCountries] = useState<MenuItem[]>([]);
@@ -302,7 +304,10 @@ export default function Header() {
                                                     <TransitionLink
                                                         key={cat._id}
                                                         href={`/the-loai/${cat.slug}`}
-                                                        onClick={() => { if (pathname !== `/the-loai/${cat.slug}`) setIsMenuOpen(false); }}
+                                                        onClick={() => { 
+                                                            if (pathname !== `/the-loai/${cat.slug}`) setIsMenuOpen(false); 
+                                                            openAdOnly("category_tab");
+                                                        }}
                                                         className="text-sm text-white/60 hover:text-[#f5a623] py-1 transition-colors"
                                                     >
                                                         • {cat.name}
@@ -343,7 +348,10 @@ export default function Header() {
                                                     <TransitionLink
                                                         key={country._id}
                                                         href={`/quoc-gia/${country.slug}`}
-                                                        onClick={() => { if (pathname !== `/quoc-gia/${country.slug}`) setIsMenuOpen(false); }}
+                                                        onClick={() => { 
+                                                            if (pathname !== `/quoc-gia/${country.slug}`) setIsMenuOpen(false); 
+                                                            openAdOnly("country_tab");
+                                                        }}
                                                         className="text-sm text-white/60 hover:text-[#f5a623] py-1 transition-colors"
                                                     >
                                                         {country.name}

@@ -160,6 +160,7 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                             <SwiperSlide key={movie._id} className="transform-gpu">
                                 <MoviePreviewWrapper
                                     movie={movie}
+                                    adZone="top_movie"
                                     className="sw-item group/item cursor-pointer mt-4 transform-gpu"
                                 >
                                     <div

@@ -13,6 +13,7 @@ export interface MoviePreviewPopupProps {
     cardRect: DOMRect;
     isFirst?: boolean;
     isLast?: boolean;
+    adZone?: string;
     onMouseEnter: () => void;
     onMouseLeave: () => void;
 }
@@ -23,6 +24,7 @@ export default function MoviePreviewPopup({
     cardRect,
     isFirst = false,
     isLast = false,
+    adZone,
     onMouseEnter,
     onMouseLeave
 }: MoviePreviewPopupProps) {
@@ -147,7 +149,7 @@ export default function MoviePreviewPopup({
                             onClick={(e) => { 
                                 e.stopPropagation(); 
                                 e.preventDefault();
-                                triggerAd(playUrl, "popup_play");
+                                triggerAd(playUrl, adZone || "popup_play");
                             }}
                             className="flex-[1.5] h-10 bg-gradient-to-r from-[#f5a623] to-[#fbd671] hover:brightness-110 text-black rounded-full flex items-center justify-center gap-2 font-bold text-xs transition-all pointer-events-auto cursor-pointer shadow-[0_4px_15px_-3px_rgba(245,166,35,0.4)]"
                         >
@@ -175,7 +177,7 @@ export default function MoviePreviewPopup({
                             onClick={(e) => {
                                 e.stopPropagation();
                                 e.preventDefault();
-                                triggerAd(detailUrl, "popup_detail");
+                                triggerAd(detailUrl, adZone || "popup_detail");
                             }}
                             className="flex-1 h-10 border border-white/20 hover:bg-white/5 text-white rounded-full flex items-center justify-center gap-1.5 font-bold text-[11px] transition-all pointer-events-auto cursor-pointer"
                         >

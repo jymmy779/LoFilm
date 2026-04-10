@@ -14,9 +14,10 @@ interface MoviePosterCardProps {
     isFirst?: boolean;
     isLast?: boolean;
     user?: any;
+    adZone?: string;
 }
 
-export default function MoviePosterCard({ movie, priority = false, isFirst, isLast, user }: MoviePosterCardProps) {
+export default function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZone }: MoviePosterCardProps) {
     const { triggerAd } = useAdTrigger();
     const moviePath = `/phim/${movie.slug}`;
 
@@ -25,7 +26,7 @@ export default function MoviePosterCard({ movie, priority = false, isFirst, isLa
         if (e.metaKey || e.ctrlKey || (e.button && e.button === 1)) return;
 
         e.preventDefault();
-        triggerAd(moviePath, "movie_card");
+        triggerAd(moviePath, adZone || "movie_card");
     };
 
     // Chuẩn bị dữ liệu hiển thị cho Popup
@@ -39,6 +40,7 @@ export default function MoviePosterCard({ movie, priority = false, isFirst, isLa
             user={user}
             isFirst={isFirst}
             isLast={isLast}
+            adZone={adZone}
             className="sw-item group/item cursor-pointer relative [contain:layout]" 
             onClick={handleMovieClick}
         >

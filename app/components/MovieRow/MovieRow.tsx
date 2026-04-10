@@ -109,6 +109,7 @@ export default function MovieRow({ title, apiUrl, viewAllLink, initialMovies }: 
                                 <SwiperSlide key={movie._id} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
                                     <MoviePreviewWrapper 
                                         movie={movie}
+                                        adZone="movie_row"
                                         onClick={(e) => handleMovieRowClick(e, movie.slug)} 
                                         className="block group/item cursor-pointer"
                                     >

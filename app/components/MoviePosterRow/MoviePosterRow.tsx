@@ -107,6 +107,7 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovi
                                     isFirst={index === 0} 
                                     isLast={index === movies.length - 1}
                                     user={user}
+                                    adZone="movie_poster_row"
                                 />
                             </SwiperSlide>
                         ))}
