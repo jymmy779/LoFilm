@@ -51,7 +51,7 @@ export default function MoviePreviewWrapper({
         }
 
         // *** PRELOAD ảnh cực mạnh ngay tại t=0ms (mouseenter) ***
-        // Browser sẽ tận dụng 600ms chờ popup để fetch & cache sẵn các ảnh cần thiết
+        // Browser sẽ tận dụng 350ms chờ popup để fetch & cache sẵn các ảnh cần thiết
         if (typeof window !== 'undefined') {
             // 1. Preload thumb_url cho Popup (380px)
             if (movie.thumb_url) {
@@ -84,7 +84,7 @@ export default function MoviePreviewWrapper({
                     setShowPopup(false);
                 };
             }
-        }, 600);
+        }, 300);
     };
 
     const handleMouseLeave = (e?: React.MouseEvent<HTMLDivElement>) => {

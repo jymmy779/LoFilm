@@ -84,7 +84,7 @@ export default function MoviePreviewPopup({
             initial={{ opacity: 0, scale: 0.98 }}
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.3, ease: "easeOut" }}
+            transition={{ duration: 0.15, ease: "easeOut" }}
             className="absolute z-[9999] w-[380px] pointer-events-auto hidden xl:block select-none transform-gpu"
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
@@ -119,7 +119,7 @@ export default function MoviePreviewPopup({
                             priority
                             sizes="380px"
                             onLoad={() => setIsThumbLoaded(true)}
-                            className={`object-cover transition-opacity duration-500 ease-in-out ${isThumbLoaded ? 'opacity-100' : 'opacity-0'}`}
+                            className={`object-cover transition-opacity duration-300 ease-in-out ${isThumbLoaded ? 'opacity-100' : 'opacity-0'}`}
                         />
                     )}
                     
