@@ -43,6 +43,12 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
 
     // Handle debounced search with caching and request cancellation
     useEffect(() => {
+        if (autoFocus) {
+            setIsFocused(true);
+        }
+    }, [autoFocus]);
+
+    useEffect(() => {
         const controller = new AbortController();
         const query = searchQuery.trim();
 
@@ -118,6 +124,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                     value={searchQuery}
                     onChange={(e) => {
                         setSearchQuery(e.target.value);
+                        setIsFocused(true);
                         if (e.target.value.trim().length >= 2) setShowResults(true);
                     }}
                     onFocus={() => {
@@ -165,23 +172,23 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                         animate={{ opacity: 1, y: 0, scale: 1 }}
                         exit={{ opacity: 0, y: 5, scale: 0.95 }}
                         transition={{ duration: 0.15 }}
-                        className="absolute top-full left-0 right-0 mt-3 bg-[#0d1b2e] border border-white/10 rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden z-[100] md:min-w-[400px]"
+                        className="absolute top-full left-0 right-0 mt-2 md:mt-3 bg-[#0d1b2e] border border-white/10 rounded-xl md:rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden z-[100] md:min-w-[400px]"
                     >
-                        <div className="p-4">
-                            <div className="text-[10px] font-bold uppercase tracking-widest text-[#f5a623] mb-4 flex items-center gap-2">
-                                <span className="w-1 h-3 bg-[#f5a623] rounded-full" />
+                        <div className="p-3 md:p-4">
+                            <div className="text-[9.5px] md:text-[10px] font-bold uppercase tracking-widest text-[#f5a623] mb-3 md:mb-4 flex items-center gap-1.5 md:gap-2">
+                                <span className="w-1 h-2.5 md:h-3 bg-[#f5a623] rounded-full" />
                                 Kết quả tìm kiếm
                             </div>
 
-                            <div className="space-y-1 overflow-y-auto max-h-[70vh] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pr-1">
+                            <div className="space-y-1 overflow-y-auto max-h-[60vh] md:max-h-[70vh] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pr-1">
                                 {results.length > 0 ? (
                                     results.map((movie: Movie) => (
                                         <TransitionLink
                                             key={movie._id}
                                             href={`/phim/${movie.slug}`}
-                                            className="group flex gap-3 p-2 rounded-xl hover:bg-white/5 transition-all duration-300"
+                                            className="group flex gap-2.5 md:gap-3 p-1.5 md:p-2 rounded-xl hover:bg-white/5 transition-all duration-300"
                                         >
-                                            <div className="w-12 h-16 shrink-0 rounded-lg overflow-hidden relative border border-white/5">
+                                            <div className="w-10 h-14 md:w-12 md:h-16 shrink-0 rounded-lg overflow-hidden relative border border-white/5">
                                                 <Image
                                                     src={getImageUrl(movie.poster_url || movie.thumb_url || "", { width: 100, quality: 60 })}
                                                     alt={movie.name}
@@ -192,20 +199,20 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                                                 />
                                             </div>
                                             <div className="flex flex-col justify-center min-w-0">
-                                                <h4 className="text-[13px] font-bold text-white/90 group-hover:text-[#f5a623] transition-colors truncate leading-tight">
+                                                <h4 className="text-[12px] md:text-[13px] font-bold text-white/90 group-hover:text-[#f5a623] transition-colors truncate leading-tight">
                                                     {decodeHtml(movie.name)}
                                                 </h4>
-                                                <p className="text-[11px] text-white/40 truncate mt-0.5">
+                                                <p className="text-[10px] md:text-[11px] text-white/40 truncate mt-0.5">
                                                     {movie.origin_name}
                                                 </p>
-                                                <div className="flex gap-2 mt-1.5 item-center">
-                                                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-white/60 font-medium tracking-wide">
+                                                <div className="flex gap-1.5 md:gap-2 mt-1 md:mt-1.5 items-center">
+                                                    <span className="text-[8px] md:text-[9px] px-1 md:px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-white/60 font-medium tracking-wide">
                                                         {movie.year || '2025'}
                                                     </span>
-                                                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-500/80 font-bold uppercase">
+                                                    <span className="text-[8px] md:text-[9px] px-1 md:px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-500/80 font-bold uppercase">
                                                         {movie.quality || 'FHD'}
                                                     </span>
-                                                    <span className="text-[9px] px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-white/60 font-medium">
+                                                    <span className="text-[8px] md:text-[9px] px-1 md:px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-white/60 font-medium">
                                                         {movie.episode_current || 'Full'}
                                                     </span>
                                                 </div>
@@ -223,7 +230,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                                     setIsFocused(false);
                                     setShowResults(false);
                                 }}
-                                className="w-full py-3 bg-white/5 hover:bg-amber-500 hover:text-black transition-all duration-300 cursor-pointer text-[14px] font-medium text-[#f5a623] border-t border-white/5 block text-center"
+                                className="w-full py-2.5 md:py-3 bg-white/5 hover:bg-amber-500 hover:text-black transition-all duration-300 cursor-pointer text-[13px] md:text-[14px] font-medium text-[#f5a623] border-t border-white/5 block text-center"
                             >
                                 Xem tất cả kết quả
                             </TransitionLink>

@@ -137,7 +137,7 @@ export default function Header() {
                                 animate={{ opacity: 1, scale: 1 }}
                                 exit={{ opacity: 0, scale: 0.95 }}
                                 transition={{ duration: 0.2 }}
-                                className="flex-1 overflow-hidden"
+                                className="flex-1"
                             >
                                 <SearchBox autoFocus={true} />
                             </motion.div>
