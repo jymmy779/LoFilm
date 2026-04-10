@@ -27,6 +27,7 @@ export default function TransitionLink({
   href,
   onClick,
   children,
+  transition, // Bóc tách ra để không truyền xuống DOM
   ...rest
 }: TransitionLinkProps) {
   return (

@@ -152,7 +152,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                 *,
                 reactions:comment_reactions (*)
             `)
-            .single();
+            .maybeSingle(); // maybeSingle() trả về null thay vì error 406
 
         if (error) {
             toast.error("Không thể trả lời bình luận");

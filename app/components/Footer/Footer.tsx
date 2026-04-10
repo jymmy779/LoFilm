@@ -103,7 +103,7 @@ export default function Footer() {
                                         alt="DMCA.com Protection Status"
                                         width={121}
                                         height={24}
-                                        className="h-6 w-auto"
+                                        className="h-6 w-auto object-contain"
                                     />
                                 </a>
                             </div>
@@ -118,6 +118,7 @@ export default function Footer() {
                                 fill
                                 alt=''
                                 loading='eager'
+                                unoptimized
                                 sizes="350px"
                                 className="object-contain filter grayscale"
                             />

@@ -7,19 +7,26 @@ export const useFavorites = (user: any, movieSlug: string, movieName: string, mo
     const supabase = createClient();
 
     useEffect(() => {
+        // Guard clause: Không query nếu không có user -> tránh 406/401
+        if (!user?.id) return;
+
         const checkFavorite = async () => {
-            if (user) {
-                const { data } = await supabase
+            try {
+                const { data, error } = await supabase
                     .from('favorites')
                     .select('id')
                     .eq('user_id', user.id)
                     .eq('movie_slug', movieSlug)
-                    .single();
+                    .maybeSingle(); // maybeSingle() trả về null thay vì error 406 nếub không tìm thấy row
+                
                 if (data) setIsFavorited(true);
+                else setIsFavorited(false);
+            } catch (err) {
+                console.error("Lỗi kiểm tra yêu thích:", err);
             }
         };
         checkFavorite();
-    }, [movieSlug, user, supabase]);
+    }, [movieSlug, user?.id]); 
 
     const toggleFavorite = async () => {
         if (!user) {

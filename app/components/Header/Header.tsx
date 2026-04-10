@@ -125,6 +125,7 @@ export default function Header() {
                                         src="/lofilm_logo.webp"
                                         alt="LoFilm"
                                         priority
+                                        unoptimized
                                         sizes="(max-width: 768px) 140px, 140px"
                                     />
                                 </TransitionLink>
@@ -189,6 +190,7 @@ export default function Header() {
                                 src="/lofilm_logo.webp"
                                 alt="LoFilm"
                                 priority
+                                unoptimized
                             />
                         </TransitionLink>
 

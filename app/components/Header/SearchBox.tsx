@@ -1,4 +1,4 @@
-import { useState, useEffect, Suspense } from "react";
+import { useState, useEffect, Suspense, useRef } from "react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
@@ -33,6 +33,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
     const [isSearching, setIsSearching] = useState(false);
     const [showResults, setShowResults] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
+    const searchCache = useRef<Record<string, Movie[]>>({});
 
     // Close dropdown on navigation
     useEffect(() => {
@@ -40,19 +41,37 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
         setShowResults(false);
     }, [pathname, searchParams]);
 
-    // Handle debounced search
+    // Handle debounced search with caching and request cancellation
     useEffect(() => {
+        const controller = new AbortController();
+        const query = searchQuery.trim();
+
         const timer = setTimeout(async () => {
-            if (searchQuery.trim().length >= 2) {
+            if (query.length >= 2) {
+                // 1. Kiểm tra cache trước (phản hồi tức thì)
+                if (searchCache.current[query]) {
+                    setResults(searchCache.current[query]);
+                    setIsSearching(false);
+                    if (isFocused) setShowResults(true);
+                    return;
+                }
+
                 setIsSearching(true);
                 if (isFocused) setShowResults(true);
                 try {
-                    const apiUrl = `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(searchQuery.trim())}&limit=8`;
-                    const res = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`);
+                    const apiUrl = `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(query)}&limit=8`;
+                    const res = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`, {
+                        signal: controller.signal
+                    });
+
                     if (res.data?.status === "success" || res.data?.status === true) {
-                        setResults(res.data.data?.items || []);
+                        const items = res.data.data?.items || [];
+                        setResults(items);
+                        // 2. Lưu vào cache cho lần gõ sau
+                        searchCache.current[query] = items;
                     }
                 } catch (error) {
+                    if (axios.isCancel(error)) return;
                     console.error("Link search error:", error);
                 } finally {
                     setIsSearching(false);
@@ -61,10 +80,13 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                 setResults([]);
                 setShowResults(false);
             }
-        }, 300);
+        }, 200); // Giảm debounce xuống 200ms để nhạy hơn
 
-        return () => clearTimeout(timer);
-    }, [searchQuery]);
+        return () => {
+            clearTimeout(timer);
+            controller.abort();
+        };
+    }, [searchQuery, isFocused]);
 
     const handleSearch = () => {
         if (searchQuery.trim()) {
@@ -161,10 +183,11 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                                         >
                                             <div className="w-12 h-16 shrink-0 rounded-lg overflow-hidden relative border border-white/5">
                                                 <Image
-                                                    src={getImageUrl(movie.poster_url || movie.thumb_url || "", { width: 100 })}
+                                                    src={getImageUrl(movie.poster_url || movie.thumb_url || "", { width: 100, quality: 60 })}
                                                     alt={movie.name}
                                                     fill
                                                     sizes="48px"
+                                                    priority={results.indexOf(movie) < 3}
                                                     className="object-cover group-hover:scale-110 transition-transform duration-500"
                                                 />
                                             </div>

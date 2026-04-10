@@ -30,7 +30,7 @@ export default function MoviePreviewPopup({
     
     // Default fallback logic before fetching exact slug
     const isMultiEp = ["series", "hoathinh", "tvshows"].includes(movie.type || "");
-    const [playUrl, setPlayUrl] = useState(`/phim/${movie.slug}/${isMultiEp ? 'tap-1' : 'tap-full'}`);
+    const [playUrl, setPlayUrl] = useState(`/phim/${movie.slug}/${isMultiEp ? 'tap-01' : 'tap-full'}`);
     const [isLoadingPlayUrl, setIsLoadingPlayUrl] = useState(true);
 
     const detailUrl = `/phim/${movie.slug}`;
@@ -75,6 +75,10 @@ export default function MoviePreviewPopup({
         clampedLeft = Math.max(minLeft, Math.min(idealLeft, maxLeft));
     }
 
+    const [isThumbLoaded, setIsThumbLoaded] = useState(false);
+    const thumbUrl = movie.thumb_url ? getImageUrl(movie.thumb_url, { width: 380, quality: 75 }) : null;
+    const posterUrl = movie.poster_url ? getImageUrl(movie.poster_url, { width: 100, quality: 40 }) : null;
+
     return (
         <motion.div
             initial={{ opacity: 0, scale: 0.98 }}
@@ -91,15 +95,34 @@ export default function MoviePreviewPopup({
             }}
         >
             <div className="bg-[#111319]/95 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_30px_70px_-15px_rgba(0,0,0,1)] ring-1 ring-white/5">
-                {/* Thumb Image */}
-                <div className="relative aspect-video w-full">
-                    <Image
-                        src={getImageUrl(movie.thumb_url, { width: 380, quality: 70 })}
-                        alt={movie.name}
-                        fill
-                        priority
-                        className="object-cover"
-                    />
+                {/* Image Container with 2 Layers */}
+                <div className="relative aspect-video w-full bg-[#1c1f26] overflow-hidden">
+                    {/* Layer 1: Blurred Poster Placeholder (Instant) */}
+                    {posterUrl && (
+                        <Image
+                            src={posterUrl}
+                            alt=""
+                            fill
+                            className="object-cover blur-md opacity-50 scale-110"
+                            sizes="100px"
+                            priority
+                            unoptimized={posterUrl.startsWith('data:')}
+                        />
+                    )}
+
+                    {/* Layer 2: Main Thumbnail (Fade-in) */}
+                    {thumbUrl && (
+                        <Image
+                            src={thumbUrl}
+                            alt={movie.name}
+                            fill
+                            priority
+                            sizes="380px"
+                            onLoad={() => setIsThumbLoaded(true)}
+                            className={`object-cover transition-opacity duration-500 ease-in-out ${isThumbLoaded ? 'opacity-100' : 'opacity-0'}`}
+                        />
+                    )}
+                    
                     <div className="absolute inset-0 bg-gradient-to-t from-[#111319] via-transparent to-transparent" />
                 </div>
 

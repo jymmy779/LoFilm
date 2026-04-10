@@ -137,10 +137,11 @@ const SidebarSection = ({ title, apiUrl, type, limit = 10 }: SidebarSectionProps
                                 )}
                                 <div className={`relative shrink-0 overflow-hidden rounded-lg shadow-lg border border-white/10 ${type === 'rank' ? 'w-11 h-15' : 'w-12 h-16'}`}>
                                     <Image
-                                        src={movie.poster_url || movie.thumb_url || ""}
+                                        src={getImageUrl(movie.poster_url || movie.thumb_url || "", { width: 100, quality: 60 })}
                                         alt={movie.name}
                                         fill
                                         sizes="50px"
+                                        priority={index < 5}
                                         className="object-cover transition-transform duration-500 group-hover:scale-110"
                                     />
                                     <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />

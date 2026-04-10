@@ -211,15 +211,24 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
             {/* Background Cover */}
             <div className="relative w-full h-[30vh] md:h-[50vh] xl:h-[80vh] overflow-hidden transform-gpu">
                 <div className="absolute inset-0 scale-105 will-change-transform">
+                    {/* Instant blur placeholder from poster */}
+                    <Image
+                        src={getImageUrl(movie.poster_url, { width: 400, quality: 30 })}
+                        alt=""
+                        fill
+                        priority
+                        className="object-cover object-top blur-2xl opacity-40 scale-110"
+                    />
+                    {/* Main Background */}
                     <Image
                         src={getImageUrl(movie.thumb_url, { width: 1200, quality: 75 })}
                         alt={movie.name}
                         fill
                         priority
                         sizes="(max-width: 1280px) 100vw, 1920px"
-                        className="object-cover object-top"
+                        className="object-cover object-top transition-opacity duration-700"
                     />
-                    <div className="absolute inset-0 bg-black/30" />
+                    <div className="absolute inset-0 bg-black/40" />
                 </div>
                 <div className="absolute inset-x-0 top-0 h-[20%] bg-gradient-to-b from-[#0a1628]/80 to-transparent z-10" />
                 <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-[#0a1628] to-transparent z-10" />
@@ -402,7 +411,7 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                             {/* DM Bar: Watch Now & Rating */}
                             <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
                                 <TransitionLink
-                                    href={`/phim/${movie.slug}/${getFriendlyEpisodeSlug(firstServerEpisodes[0]?.slug || 'tap-1')}`}
+                                    href={`/phim/${movie.slug}/${getFriendlyEpisodeSlug(firstServerEpisodes[0]?.slug || 'tap-01')}`}
                                     className="group flex items-center gap-3 bg-gradient-to-r from-[#f5a623] to-[#ffcc33] hover:from-[#ffcc33] hover:to-[#f5a623] text-[#0a1628] py-2 px-6 md:py-4 md:px-8 rounded-full font-bold transition-all transform cursor-pointer shadow-[0_0_20px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.6)]"
                                 >
                                     <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">

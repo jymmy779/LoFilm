@@ -66,7 +66,20 @@ export default function RandomMovieRow() {
                 [uniqueMovies[i], uniqueMovies[j]] = [uniqueMovies[j], uniqueMovies[i]];
             }
 
-            setMovies(uniqueMovies.slice(0, 24));
+            const finalMovies = uniqueMovies.slice(0, 24);
+            setMovies(finalMovies);
+
+            // *** PRELOAD ảnh cho Random Movies ***
+            // Ngay khi có data, bắt browser tải ảnh ngay lập tức
+            if (typeof window !== 'undefined') {
+                finalMovies.slice(0, 10).forEach(movie => {
+                    const preloadUrl = getImageUrl(movie.poster_url || movie.thumb_url, { width: 200, quality: 70 });
+                    if (preloadUrl) {
+                        const img = new window.Image();
+                        img.src = preloadUrl;
+                    }
+                });
+            }
         } catch (error) {
             console.error("Lỗi fetch movies theo mood:", error);
             setMovies([]);

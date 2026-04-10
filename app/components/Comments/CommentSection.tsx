@@ -84,7 +84,7 @@ export default function CommentSection({ movieSlug }: CommentSectionProps) {
                 id, user_id, user_name, user_avatar, movie_slug, content, parent_id, is_spoiler, is_reported, created_at,
                 reactions:comment_reactions (id, user_id, type)
             `)
-            .single();
+            .maybeSingle(); // maybeSingle() trả về null thay vì error 406
 
         if (error) {
             toast.error("Không thể gửi bình luận");

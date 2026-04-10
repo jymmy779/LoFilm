@@ -159,7 +159,7 @@ export default function WatchClient({
                     .select('id')
                     .eq('user_id', user.id)
                     .eq('movie_slug', slug)
-                    .single();
+                    .maybeSingle(); // maybeSingle() trả về null thay vì error 406
                 if (data) setIsFavorited(true);
             }
         };
@@ -270,7 +270,7 @@ export default function WatchClient({
                     .eq('user_id', currentUser.id)
                     .eq('movie_slug', slug)
                     .eq('episode_slug', episodeSlug)
-                    .single();
+                    .maybeSingle(); // maybeSingle() trả về null thay vì error 406
                 if (history && history.watched_seconds > 10) {
                     startFrom = history.watched_seconds;
                 }

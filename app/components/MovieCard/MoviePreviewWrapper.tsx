@@ -5,6 +5,7 @@ import { createPortal } from "react-dom";
 import { AnimatePresence } from "framer-motion";
 import { Movie } from "@/app/types/movie";
 import MoviePreviewPopup from "./MoviePreviewPopup";
+import { getImageUrl } from "@/app/utils/movieUtils";
 
 // Biến global để quản lý việc chỉ hiện duy nhất 1 popup trên toàn trang
 let activePopupCloser: (() => void) | null = null;
@@ -47,6 +48,27 @@ export default function MoviePreviewWrapper({
 
         if (leaveTimer.current) {
             clearTimeout(leaveTimer.current);
+        }
+
+        // *** PRELOAD ảnh cực mạnh ngay tại t=0ms (mouseenter) ***
+        // Browser sẽ tận dụng 600ms chờ popup để fetch & cache sẵn các ảnh cần thiết
+        if (typeof window !== 'undefined') {
+            // 1. Preload thumb_url cho Popup (380px)
+            if (movie.thumb_url) {
+                const thumbPreloadUrl = getImageUrl(movie.thumb_url, { width: 380, quality: 75 });
+                new window.Image().src = thumbPreloadUrl;
+
+                // 2. Preload THÊM ảnh thumb bản lớn (1200px) cho trang MovieDetail
+                // Giúp khi user click vào Card, ảnh nền trang phim hiện ra NGAY LẬP TỨC
+                const detailBgPreloadUrl = getImageUrl(movie.thumb_url, { width: 1200, quality: 75 });
+                new window.Image().src = detailBgPreloadUrl;
+            }
+            
+            // 3. Preload poster_url làm placeholder mượt (200px)
+            if (movie.poster_url) {
+                const posterPreloadUrl = getImageUrl(movie.poster_url, { width: 200, quality: 50 });
+                new window.Image().src = posterPreloadUrl;
+            }
         }
         
         hoverTimer.current = setTimeout(() => {

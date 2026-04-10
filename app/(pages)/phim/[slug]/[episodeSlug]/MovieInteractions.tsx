@@ -39,7 +39,7 @@ export default function MovieInteractions({ movieSlug }: MovieInteractionsProps)
                         .select('type')
                         .eq('movie_slug', movieSlug)
                         .eq('user_id', user.id)
-                        .single();
+                        .maybeSingle(); // maybeSingle() trả về null thay vì error 406
 
                     if (interactionRes) {
                         setUserInteraction(interactionRes.type as 'like' | 'dislike');
