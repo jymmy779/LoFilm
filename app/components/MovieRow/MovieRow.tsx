@@ -21,13 +21,22 @@ interface MovieRowProps {
     apiUrl: string;
     viewAllLink: string;
     initialMovies?: Movie[];
+    sortByYear?: boolean;
+    shouldEnrich?: boolean;
 }
 
 import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 
-export default function MovieRow({ title, apiUrl, viewAllLink, initialMovies }: MovieRowProps) {
+export default function MovieRow({ 
+    title, 
+    apiUrl, 
+    viewAllLink, 
+    initialMovies, 
+    sortByYear = false,
+    shouldEnrich = false
+}: MovieRowProps) {
     const { triggerAd } = useAdTrigger();
-    const { movies, isLoading } = useMovies({ apiUrl, initialMovies });
+    const { movies, isLoading } = useMovies({ apiUrl, initialMovies, sortByYear, shouldEnrich });
 
     const navId = title.replace(/\s+/g, '-').toLowerCase();
 

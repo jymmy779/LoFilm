@@ -33,13 +33,11 @@ export async function enrichMoviesMetadata({
             // Chưa có tổng số tập (hoặc đang là ??)
             const hasTotal = m.episode_total && m.episode_total !== "??";
             
-            // Quan trọng: Nếu episode_current đã có thông tin tổng (VD: 10/12) thì bỏ qua
-            const hasSlash = m.episode_current?.includes("/");
-            
-            // Nếu là phim đang chiếu (ongoing) thì vẫn nên cập nhật để lấy tập mới nhất (tùy chọn)
-            const isOngoing = m.status === "ongoing";
+            // Chưa có đánh giá TMDB
+            const hasRating = !!(m.tmdb?.vote_average && m.tmdb.vote_average > 0);
 
-            return isMulti && (!hasTotal || isOngoing) && !hasSlash;
+            // Làm giàu nếu là phim bộ thiếu thông tin hoặc bất kỳ phim nào thiếu rating
+            return (isMulti && !hasTotal) || !hasRating;
         });
 
     if (targets.length === 0) return;
@@ -57,10 +55,18 @@ export async function enrichMoviesMetadata({
                     const apiUrl = `https://phimapi.com/phim/${m.slug}`;
                     const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`);
                     
-                    if (detailRes.data?.movie?.episode_total) {
+                    if (detailRes.data?.movie) {
+                        const movieDetail = detailRes.data.movie;
                         enriched[idx] = { 
                             ...enriched[idx], 
-                            episode_total: detailRes.data.movie.episode_total 
+                            episode_total: movieDetail.episode_total || enriched[idx].episode_total,
+                            tmdb: movieDetail.tmdb || enriched[idx].tmdb,
+                            status: movieDetail.status || enriched[idx].status,
+                            actor: movieDetail.actor || enriched[idx].actor,
+                            director: movieDetail.director || enriched[idx].director,
+                            category: movieDetail.category || enriched[idx].category,
+                            country: movieDetail.country || enriched[idx].country,
+                            content: movieDetail.content || enriched[idx].content,
                         };
                     }
                 } catch (e) {

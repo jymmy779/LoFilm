@@ -42,7 +42,7 @@ function mapTop(items: Movie[]): Movie[] {
 }
 
 function mapMovieRow(items: Movie[]): Movie[] {
-    return filterDuplicateMovies(items);
+    return sortAndSlicePosterRowMovies(items);
 }
 
 async function mapHero(payload: unknown): Promise<Movie[]> {

@@ -12,6 +12,7 @@ interface UseMoviesOptions {
     shouldEnrich?: boolean;
     filterDuplicates?: boolean;
     limit?: number;
+    sortByYear?: boolean;
 }
 
 export function useMovies({
@@ -19,7 +20,8 @@ export function useMovies({
     initialMovies = [],
     shouldEnrich = false,
     filterDuplicates = true,
-    limit
+    limit,
+    sortByYear = false
 }: UseMoviesOptions) {
     const seeded = initialMovies.length > 0;
     const [movies, setMovies] = useState<Movie[]>(initialMovies);
@@ -28,10 +30,24 @@ export function useMovies({
     const isMounted = useRef(true);
 
     const updateMovies = useCallback((newMovies: Movie[]) => {
-        if (isMounted.current) {
-            setMovies(newMovies);
+        if (!isMounted.current) return;
+
+        let processed = [...newMovies];
+        
+        if (sortByYear) {
+            processed.sort((a, b) => {
+                const yearA = a.year || 0;
+                const yearB = b.year || 0;
+                if (yearB !== yearA) return yearB - yearA;
+                
+                const timeA = a.modified?.time ? new Date(a.modified.time).getTime() : 0;
+                const timeB = b.modified?.time ? new Date(b.modified.time).getTime() : 0;
+                return timeB - timeA;
+            });
         }
-    }, []);
+
+        setMovies(processed);
+    }, [sortByYear]);
 
     const fetchMovies = useCallback(async (retryCount = 0) => {
         if (!isMounted.current) return;
@@ -83,6 +99,9 @@ export function useMovies({
         isMounted.current = true;
         
         if (seeded) {
+            // Re-sort initial movies if needed
+            updateMovies(initialMovies);
+            
             if (shouldEnrich) {
                 void enrichMoviesMetadata({
                     items: initialMovies,
@@ -99,7 +118,7 @@ export function useMovies({
         return () => {
             isMounted.current = false;
         };
-    }, [apiUrl, seeded, shouldEnrich]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [apiUrl, seeded, shouldEnrich, sortByYear]); // eslint-disable-line react-hooks/exhaustive-deps
 
     return { movies, isLoading, error, refetch: fetchMovies };
 }

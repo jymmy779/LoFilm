@@ -49,6 +49,8 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     apiUrl="https://phimapi.com/v1/api/quoc-gia/han-quoc?limit=20"
                     viewAllLink="/quoc-gia/han-quoc"
                     initialMovies={prefetched.movieRowHan}
+                    sortByYear={true}
+                    shouldEnrich={true}
                 />
             </LazyRow>
 
@@ -59,6 +61,8 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     apiUrl="https://phimapi.com/v1/api/quoc-gia/trung-quoc?limit=20"
                     viewAllLink="/quoc-gia/trung-quoc"
                     initialMovies={prefetched.movieRowTrung}
+                    sortByYear={true}
+                    shouldEnrich={true}
                 />
             </LazyRow>
 
@@ -68,6 +72,8 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     apiUrl="https://phimapi.com/v1/api/quoc-gia/au-my?limit=20"
                     viewAllLink="/quoc-gia/au-my"
                     initialMovies={prefetched.movieRowAuMy}
+                    sortByYear={true}
+                    shouldEnrich={true}
                 />
             </LazyRow>
 
@@ -87,6 +93,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     apiUrl="https://phimapi.com/v1/api/danh-sach/phim-chieu-rap?limit=20"
                     viewAllLink="/danh-sach/phim-chieu-rap"
                     initialMovies={prefetched.posterChieuRap}
+                    sortByYear={true}
                 />
             </LazyRow>
 
@@ -96,6 +103,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=30"
                     viewAllLink="/danh-sach/phim-bo"
                     initialMovies={prefetched.posterPhimBo}
+                    sortByYear={true}
                 />
             </LazyRow>
 

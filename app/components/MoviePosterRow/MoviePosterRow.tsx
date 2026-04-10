@@ -19,9 +19,10 @@ interface MoviePosterRowProps {
     apiUrl: string;
     viewAllLink: string;
     initialMovies?: Movie[];
+    sortByYear?: boolean;
 }
 
-export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies }: MoviePosterRowProps) {
+export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear = false }: MoviePosterRowProps) {
     const navId = title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
     const { user } = useAuth();
 
@@ -29,7 +30,8 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovi
         apiUrl, 
         initialMovies, 
         shouldEnrich: true,
-        limit: 20
+        limit: 20,
+        sortByYear
     });
 
     if (isLoading) {
