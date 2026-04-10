@@ -161,7 +161,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
 
                                 {/* Content Area */}
                                 <div className="relative z-20 w-full xl:w-[60%] h-full flex items-end xl:items-center pt-30 xl:pt-0 px-5 md:px-10 lg:pb-30 xl:pb-0 text-left">
-                                    <div className="lg:max-w-lg xl:max-w-2xl lg:mb-auto mb-[20px] w-full space-y-4 lg:space-y-5">
+                                    <div className="lg:max-w-lg xl:max-w-2xl xl:mb-0 mb-[20px] w-full space-y-4 lg:space-y-5">
                                         <div className="space-y-1">
                                             <h3
                                                 className="text-xl md:text-2xl lg:text-3xl font-bold text-white group-hover:text-[#f5a623] transition-colors line-clamp-1 [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)] cursor-pointer"
@@ -185,12 +185,12 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                                 {movie.episode_current || "Full HD"}
                                             </div>
 
-                                            <div className="flex gap-2 ml-2 pl-4 border-l border-white/10">
+                                            <div className="flex gap-2 w-full">
                                                 {movie.category?.slice(0, 3).map((cat: any) => (
                                                     <TransitionLink
                                                         key={cat.id}
                                                         href={`/the-loai/${cat.slug}`}
-                                                        className="px-2 flex items-center justify-center py-0.5 text-[11px] text-white/40 border border-white/10 rounded hover:border-[#f5a623]/60 hover:text-[#f5a623] transition-colors"
+                                                        className="px-2 py-1  text-[10px] lg:text-xs flex items-center justify-center bg-white/15 hover:text-[#f5a623] rounded"
                                                     >
                                                         {cat.name}
                                                     </TransitionLink>
