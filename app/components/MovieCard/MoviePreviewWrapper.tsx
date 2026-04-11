@@ -86,7 +86,7 @@ export default function MoviePreviewWrapper({
                     setShowPopup(false);
                 };
             }
-        }, 300);
+        }, 500);
     };
 
     const handleMouseLeave = (e?: React.MouseEvent<HTMLDivElement>) => {
