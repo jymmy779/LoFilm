@@ -3,7 +3,7 @@ import { notFound } from "next/navigation";
 import MovieDetailClient from "./MovieDetailClient";
 import { MovieDetailResponse, Movie } from "@/app/types/movie";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
-export const revalidate = 3600; // Cache 1 tiếng
+export const revalidate = 30; // Cập nhật phim mới mỗi 30 giây
 
 // API base URL
 const API_BASE = "https://phimapi.com";

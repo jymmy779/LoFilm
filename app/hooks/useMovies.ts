@@ -13,6 +13,7 @@ interface UseMoviesOptions {
     filterDuplicates?: boolean;
     limit?: number;
     sortByYear?: boolean;
+    revalidate?: number;
 }
 
 export function useMovies({
@@ -21,7 +22,8 @@ export function useMovies({
     shouldEnrich = false,
     filterDuplicates = true,
     limit,
-    sortByYear = false
+    sortByYear = false,
+    revalidate
 }: UseMoviesOptions) {
     const seeded = initialMovies.length > 0;
     const [movies, setMovies] = useState<Movie[]>(initialMovies);
@@ -54,7 +56,8 @@ export function useMovies({
         
         try {
             setIsLoading(true);
-            const response = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`);
+            const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}${revalidate ? `&revalidate=${revalidate}` : ""}`;
+            const response = await axios.get(proxyUrl);
             
             if (isMounted.current && (response.data?.status === "success" || response.data?.status === true) && response.data?.data?.items) {
                 let items: Movie[] = response.data.data.items;

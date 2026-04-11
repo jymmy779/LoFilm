@@ -4,7 +4,7 @@ import { AlertTriangle } from "lucide-react";
 import { Metadata } from "next";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 
-export const revalidate = 3600; // Cache 1 tiếng trên toàn hệ thống
+export const revalidate = 30; // Cập nhật tập mới mỗi 30 giây
 
 const API_BASE = "https://phimapi.com";
 
@@ -14,7 +14,7 @@ async function getSuggestedMovies(movie: any): Promise<any[]> {
         if (!firstCategory) return [];
 
         const data = await fetchWithRedis(`${API_BASE}/v1/api/the-loai/${firstCategory}?page=1&limit=10`, {
-            next: { revalidate: 3600 },
+            next: { revalidate: 30 },
         });
         
         const items = data?.data?.items || [];
@@ -34,7 +34,7 @@ interface Props {
 // Reuse fetch logic for metadata
 async function getMovieDetail(slug: string) {
     return await fetchWithRedis(`${API_BASE}/phim/${slug}`, {
-        next: { revalidate: 3600 }
+        next: { revalidate: 30 }
     });
 }
 
@@ -82,7 +82,7 @@ export default async function WatchPage({ params }: Props) {
     let data: any = null;
     try {
         data = await fetchWithRedis(`${API_BASE}/phim/${slug}`, {
-            next: { revalidate: 3600 } // Cache 1 tiếng
+            next: { revalidate: 30 } // Cache 30 giây
         });
     } catch (error) {
         console.error("Fetch movie error:", error);

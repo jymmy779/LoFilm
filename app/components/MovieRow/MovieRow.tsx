@@ -23,6 +23,7 @@ interface MovieRowProps {
     initialMovies?: Movie[];
     sortByYear?: boolean;
     shouldEnrich?: boolean;
+    revalidate?: number;
 }
 
 import { useAdTrigger } from "@/app/hooks/useAdTrigger";
@@ -33,10 +34,11 @@ export default function MovieRow({
     viewAllLink, 
     initialMovies, 
     sortByYear = false,
-    shouldEnrich = false
+    shouldEnrich = false,
+    revalidate
 }: MovieRowProps) {
     const { triggerAd } = useAdTrigger();
-    const { movies, isLoading } = useMovies({ apiUrl, initialMovies, sortByYear, shouldEnrich });
+    const { movies, isLoading } = useMovies({ apiUrl, initialMovies, sortByYear, shouldEnrich, revalidate });
 
     const navId = title.replace(/\s+/g, '-').toLowerCase();
 

@@ -7,10 +7,11 @@ import {
 
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 
-const REVALIDATE_SEC = 3600;
+const REVALIDATE_SEC = 3600; // 1 hour for standard sections
+const QUICK_REVALIDATE_SEC = 30; // 30 seconds for near real-time updates
 
-async function fetchPhimJson(url: string): Promise<unknown> {
-    return await fetchWithRedis(url);
+async function fetchPhimJson(url: string, quick: boolean = false): Promise<unknown> {
+    return await fetchWithRedis(url, { revalidate: quick ? QUICK_REVALIDATE_SEC : REVALIDATE_SEC });
 }
 
 function parseV1Items(payload: unknown): Movie[] {
@@ -88,9 +89,9 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
         catRaw,
         hanRaw,
     ] = await Promise.all([
-        fetchPhimJson(URLS.hero),
+        fetchPhimJson(URLS.hero, true),
         fetchPhimJson(URLS.categories),
-        fetchPhimJson(URLS.movieRowHan),
+        fetchPhimJson(URLS.movieRowHan, true),
     ]);
 
     const heroMovies = await mapHero(heroRaw);

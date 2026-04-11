@@ -10,7 +10,10 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    const data = await fetchWithRedis(targetUrl);
+    const revalidateParam = searchParams.get('revalidate');
+    const revalidate = revalidateParam ? parseInt(revalidateParam) : 30;
+
+    const data = await fetchWithRedis(targetUrl, { revalidate });
     
     if (!data) {
         throw new Error('Data source and Redis fallback both unavailable');
@@ -18,9 +21,8 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(data, {
       headers: {
-        // s-maxage=3600: Lưu tại CDN Vercel trong 1 tiếng
         // stale-while-revalidate: Trả về bản cũ ngay lập tức nếu bản mới đang được fetch
-        'Cache-Control': 'public, s-maxage=3600, stale-while-revalidate=59, max-age=60',
+        'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=${Math.floor(revalidate / 10)}, max-age=${revalidate}`,
       }
     });
   } catch (error: any) {

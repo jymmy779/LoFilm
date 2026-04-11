@@ -1,26 +1,29 @@
 import redis from './redis';
 import { cache } from 'react';
 
-const REVALIDATE_SEC = 3600; // Mặc định Vercel Cache 1 tiếng
+const REVALIDATE_SEC = 30; // Mặc định Vercel Cache 30 giây cho toàn hệ thống
 
 /**
  * Hàm fetch an toàn kết hợp Vercel Cache (ISR) và Upstash Redis
  * Đã được wrap bởi React.cache() để tránh double transfer giữa Metadata và Page Component
  */
-export const fetchWithRedis = cache(async (url: string, options?: RequestInit): Promise<any> => {
+export const fetchWithRedis = cache(async (url: string, options?: RequestInit & { revalidate?: number }): Promise<any> => {
+    const revalidate = options?.revalidate ?? options?.next?.revalidate ?? REVALIDATE_SEC;
+    
     // 1. KIỂM TRA REDIS TRƯỚC (Cache-First) - Phản hồi cực nhanh <50ms
     if (process.env.UPSTASH_REDIS_REST_URL) {
         try {
             const cachedData = await redis.get(url);
             if (cachedData) {
                 // Trình duyệt nhận được data ngay lập tức ở đây
-                // Kích hoạt cập nhật ngầm mà không đợi phản hồi (Fire and forget)
+                // Kích hoàn cập nhật ngầm nếu cần
                 void fetch(url, {
                     ...options,
-                    next: { revalidate: options?.next?.revalidate ?? REVALIDATE_SEC },
+                    next: { revalidate: revalidate },
                 }).then(async (res) => {
                     if (res.ok) {
                         const newData = await res.json();
+                        // Lưu lại trong Redis (7 ngày là tối đa để fallback, nhưng revalidate sẽ kiểm soát độ mới)
                         redis.set(url, newData, { ex: 604800 }).catch(() => {});
                     }
                 }).catch(() => {});
@@ -40,7 +43,7 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit): 
         const response = await fetch(url, {
             ...options,
             signal: controller.signal,
-            next: { revalidate: options?.next?.revalidate ?? REVALIDATE_SEC },
+            next: { revalidate: revalidate },
         });
         
         clearTimeout(timeoutId);

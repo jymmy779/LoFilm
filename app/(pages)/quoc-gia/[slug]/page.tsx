@@ -2,6 +2,8 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 import CountryClient from "./CountryClient";
 
+export const revalidate = 30; // Cập nhật danh sách phim mỗi 30 giây
+
 type Props = {
     params: Promise<{ slug: string }>;
 };

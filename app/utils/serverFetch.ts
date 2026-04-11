@@ -45,9 +45,9 @@ export async function fetchCatalogData(
 
         // Fetch movies + filter lists in parallel (direct server-to-server, no proxy needed)
         const [moviesRes, catRes, countRes] = await Promise.all([
-            fetch(fullUrl, { next: { revalidate: 300 } }), // Cache 5 min
-            fetch("https://phimapi.com/the-loai", { next: { revalidate: 3600 } }), // Cache 1 hour
-            fetch("https://phimapi.com/quoc-gia", { next: { revalidate: 3600 } }),  // Cache 1 hour
+            fetch(fullUrl, { next: { revalidate: 30 } }), // Cache 30 sec for catalog
+            fetch("https://phimapi.com/the-loai", { next: { revalidate: 30 } }), // Cache 30 sec
+            fetch("https://phimapi.com/quoc-gia", { next: { revalidate: 30 } }),  // Cache 30 sec
         ]);
 
         const moviesData = await moviesRes.json();
@@ -115,9 +115,9 @@ export async function fetchSearchData(
         const fullUrl = `https://phimapi.com/v1/api/tim-kiem?${params.toString()}`;
 
         const [searchRes, catRes, countRes] = await Promise.all([
-            fetch(fullUrl, { next: { revalidate: 60 } }), // Cache 1 min for search
-            fetch("https://phimapi.com/the-loai", { next: { revalidate: 3600 } }),
-            fetch("https://phimapi.com/quoc-gia", { next: { revalidate: 3600 } }),
+            fetch(fullUrl, { next: { revalidate: 30 } }), // Cache 30 sec for search
+            fetch("https://phimapi.com/the-loai", { next: { revalidate: 30 } }),
+            fetch("https://phimapi.com/quoc-gia", { next: { revalidate: 30 } }),
         ]);
 
         const searchData = await searchRes.json();

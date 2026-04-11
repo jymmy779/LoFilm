@@ -51,6 +51,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     initialMovies={prefetched.movieRowHan}
                     sortByYear={true}
                     shouldEnrich={true}
+                    revalidate={30}
                 />
             </LazyRow>
 
@@ -63,6 +64,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     initialMovies={prefetched.movieRowTrung}
                     sortByYear={true}
                     shouldEnrich={true}
+                    revalidate={30}
                 />
             </LazyRow>
 
@@ -74,6 +76,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     initialMovies={prefetched.movieRowAuMy}
                     sortByYear={true}
                     shouldEnrich={true}
+                    revalidate={30}
                 />
             </LazyRow>
 
@@ -94,6 +97,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     viewAllLink="/danh-sach/phim-chieu-rap"
                     initialMovies={prefetched.posterChieuRap}
                     sortByYear={true}
+                    revalidate={30}
                 />
             </LazyRow>
 
@@ -104,6 +108,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     viewAllLink="/danh-sach/phim-bo"
                     initialMovies={prefetched.posterPhimBo}
                     sortByYear={true}
+                    revalidate={600}
                 />
             </LazyRow>
 
