@@ -42,10 +42,10 @@ export default function RandomMovieRow() {
             const p4 = Math.floor(Math.random() * 20) + 1;
 
             const urls = [
-                `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p1}`)}`,
-                `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p2}`)}`,
-                `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p3}`)}`,
-                `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p4}`)}`
+                `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p1}`)}&revalidate=30`,
+                `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p2}`)}&revalidate=30`,
+                `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p3}`)}&revalidate=30`,
+                `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p4}`)}&revalidate=30`
             ];
 
             const pageResponses = await Promise.all(urls.map(url => axios.get(url)));
