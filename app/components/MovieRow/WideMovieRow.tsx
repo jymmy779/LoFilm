@@ -110,7 +110,7 @@ export default function WideMovieRow({
                     >
                         {movies.map((movie, index) => (
                             <SwiperSlide key={movie._id}>
-                                <div className="sw-cover relative group cursor-pointer overflow-hidden rounded-xl md:rounded-2xl bg-[#0f172a] border border-white/5 shadow-2xl transition-all duration-300 transform-gpu hover:border-yellow-500/30">
+                                <div className="sw-cover relative group cursor-pointer overflow-hidden rounded-xl md:rounded-2xl bg-[#0f172a] border border-white/5 shadow-2xl transition-all duration-300 transform-gpu">
                                     <MoviePreviewWrapper movie={movie} adZone="wide_movie">
                                         {/* Background Thumbnail (Horizontal) */}
                                         <div onClick={(e) => handleMovieClick(e, movie.slug)} className="v-thumbnail v-thumbnail-hoz relative aspect-[21/9] overflow-hidden transform-gpu">
