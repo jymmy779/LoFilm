@@ -21,6 +21,7 @@ export interface HomePrefetch {
     featuredAnime: Movie[];
     posterKinhDi: Movie[];
     posterHoatHinh: Movie[];
+    phimNgan: Movie[];
     nominated: Movie[];
     initialHistory?: any[];
 }

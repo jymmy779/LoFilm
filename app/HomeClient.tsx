@@ -12,6 +12,7 @@ import ContinueWatchingRow from "./components/MovieRow/ContinueWatchingRow";
 import RandomMovieRow from "./components/MovieRow/RandomMovieRow";
 import LazyRow from "./components/Common/LazyRow";
 import { toast } from "react-hot-toast";
+import WideMovieRow from "./components/MovieRow/WideMovieRow";
 
 export default function HomeClient({ prefetched }: { prefetched: HomePrefetch }) {
     useEffect(() => {
@@ -164,6 +165,16 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=30"
                     viewAllLink="/danh-sach/hoat-hinh"
                     initialMovies={prefetched.posterHoatHinh}
+                />
+            </LazyRow>
+
+            <LazyRow estimatedHeight="350px">
+                <WideMovieRow
+                    title="Phim Ngắn Đặc Sắc"
+                    apiUrl="https://phimapi.com/v1/api/the-loai/phim-ngan?limit=20"
+                    viewAllLink="/the-loai/phim-ngan"
+                    initialMovies={prefetched.phimNgan}
+                    revalidate={30}
                 />
             </LazyRow>
         </>

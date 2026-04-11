@@ -81,6 +81,7 @@ const URLS = {
     featuredAnime: "https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=20",
     posterKinhDi: "https://phimapi.com/v1/api/the-loai/kinh-di?limit=20",
     posterHoatHinh: "https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=20",
+    phimNgan: "https://phimapi.com/v1/api/the-loai/phim-ngan?limit=20",
 } as const;
 
 const NOMINATED_SLUGS = [
@@ -165,5 +166,6 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
         featuredAnime: [],
         posterKinhDi: [],
         posterHoatHinh: [],
+        phimNgan: [],
     };
 }
