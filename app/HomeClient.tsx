@@ -130,6 +130,15 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                 />
             </LazyRow>
 
+            <LazyRow estimatedHeight="220px">
+                <TopMovieRow
+                    title="LoFilm Đề Cử"
+                    apiUrl="" // Không cần fetch thêm vì đã có initialMovies
+                    viewAllLink="/danh-sach/phim-moi"
+                    initialMovies={prefetched.nominated}
+                />
+            </LazyRow>
+
             <LazyRow estimatedHeight="420px">
                 <FeaturedSlider
                     title="Hoạt Hình Anime Hay"

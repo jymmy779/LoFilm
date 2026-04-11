@@ -83,15 +83,68 @@ const URLS = {
     posterHoatHinh: "https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=20",
 } as const;
 
+const NOMINATED_SLUGS = [
+    "phu-nhan-dai-quan-the-ky-21",
+    "ban-trai-theo-yeu-cau",
+    "anh-sang-cua-doi-ta",
+    "avatar-lua-va-tro-tan",
+    "khi-anh-chay-ve-phia-em",
+    "nhap-thanh-van",
+    "hoa-mau",
+    "hanh-trinh-cua-baki-samurai-bat-bai",
+    "tay-du-ky-phan-2",
+    "lien-hoa-lau",
+    "thanh-guom-diet-quy-vo-han-thanh",
+    "nhat-ky-tu-do-cua-toi",
+    "gimbap-va-onigiri",
+    "doi-gio-hu-2026",
+    "nhiem-vu-bat-kha-thi-nghiep-bao-phan-2",
+    "na-tra-2-ma-dong-nao-hai",
+    "dai-ca-di-hoc",
+    "dia-nguc-doc-than-phan-5",
+    "dau-vet-2016",
+    "yaiba-huyen-thoai-samurai"
+];
+
+async function mapNominated(): Promise<Movie[]> {
+    const movies = await Promise.all(
+        NOMINATED_SLUGS.map(async (slug) => {
+            try {
+                const res = await fetchPhimJson(`https://phimapi.com/phim/${slug}`, true);
+                const movie = (res as any)?.movie;
+                if (!movie) return null;
+                // Chuyển đổi format từ detail sang item format nếu cần
+                return {
+                    _id: movie._id,
+                    name: movie.name,
+                    slug: movie.slug,
+                    origin_name: movie.origin_name,
+                    poster_url: movie.poster_url,
+                    thumb_url: movie.thumb_url,
+                    year: movie.year,
+                    quality: movie.quality,
+                    lang: movie.lang,
+                    episode_current: movie.episode_current
+                } as Movie;
+            } catch {
+                return null;
+            }
+        })
+    );
+    return movies.filter(Boolean) as Movie[];
+}
+
 export async function prefetchHomePageData(): Promise<HomePrefetch> {
     const [
         heroRaw,
         catRaw,
         hanRaw,
+        nominatedMovies,
     ] = await Promise.all([
         fetchPhimJson(URLS.hero, true),
         fetchPhimJson(URLS.categories),
         fetchPhimJson(URLS.movieRowHan, true),
+        mapNominated(),
     ]);
 
     const heroMovies = await mapHero(heroRaw);
@@ -100,6 +153,7 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
         hero: heroMovies,
         categories: parseCategories(catRaw),
         movieRowHan: mapMovieRow(parseV1Items(hanRaw)),
+        nominated: nominatedMovies,
         // Các dãy còn lại để rỗng để client tự fetch qua LazyRow, giảm tải TTFB cho server
         movieRowTrung: [],
         movieRowAuMy: [],
