@@ -70,7 +70,6 @@ export default function WatchClient({
     const [isExpanded, setIsExpanded] = useState(false);
     const [isTheaterMode, setIsTheaterMode] = useState(false);
     const [isAutoNext, setIsAutoNext] = useState(true);
-    const [showNextButton, setShowNextButton] = useState(false);
     const [activeServerIndex, setActiveServerIndex] = useState(0);
     const [hasError, setHasError] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
@@ -123,7 +122,6 @@ export default function WatchClient({
 
     useEffect(() => {
         setHasError(false);
-        setShowNextButton(false);
     }, [activeServerIndex, episodeSlug]);
 
     const videoSrc = useMemo(() => {
@@ -348,9 +346,7 @@ export default function WatchClient({
 
                 saveProgress(currentTime, duration);
                 if (isSeries && nextEpisode && remaining <= 120 && player.duration > 0) {
-                    setShowNextButton(true);
-                } else if (remaining > 120) {
-                    setShowNextButton(false);
+                    // Pre-calculation logic if needed
                 }
             });
 
@@ -554,13 +550,13 @@ export default function WatchClient({
                             />
 
                             {/* Panel sliding from right */}
-                            <div className={`absolute top-0 right-0 h-full w-[180px] sm:w-[260px] lg:w-[320px] bg-[#0F111A] border-l border-white/5 shadow-2xl transition-transform duration-500 ease-out flex flex-col ${showEpisodeOverlay ? 'translate-x-0' : 'translate-x-full'}`}>
+                            <div className={`absolute top-0 right-0 h-full w-[200px] sm:w-[260px] md:w-[360px] bg-[#0F111A] border-l border-white/5 shadow-2xl transition-transform duration-500 ease-out flex flex-col ${showEpisodeOverlay ? 'translate-x-0' : 'translate-x-full'}`}>
                                 {/* Header */}
-                                <div className="p-2 sm:p-3 lg:p-5 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                                <div className="p-2 sm:p-3 lg:p-5 border-b gap-10 border-white/5 flex items-center justify-between bg-white/[0.02]">
                                     <div className="flex flex-col gap-0.5">
-                                        <h3 className="text-white text-[9px] sm:text-[11px] lg:text-[13px] font-bold line-clamp-1">{movie.name}</h3>
-                                        <span className="text-white/40 text-[8px] sm:text-[10px] lg:text-xs font-medium tracking-[0.1em]">
-                                            D.Sách • {episodes[activeServerIndex]?.server_data?.length || 0} tập
+                                        <h3 className="text-white text-[13px] md:text-[20px] font-bold line-clamp-1">{movie.name}</h3>
+                                        <span className="text-white/40 text-[10px] md:text-xs lg:text-sm">
+                                            Danh sách tập • {episodes[activeServerIndex]?.server_data?.length || 0} tập
                                         </span>
                                     </div>
                                     <button
@@ -572,7 +568,7 @@ export default function WatchClient({
                                 </div>
 
                                 {/* List Body */}
-                                <div className="flex-1 overflow-y-auto custom-scrollbar p-1.5 sm:p-3 lg:p-5 flex flex-col gap-1.5 md:gap-2 lg:gap-3">
+                                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-1.5 sm:p-3 lg:p-5 flex flex-col gap-1.5 md:gap-2 lg:gap-3">
                                     {episodes[activeServerIndex]?.server_data?.map((ep, idx) => {
                                         const epSlug = getFriendlyEpisodeSlug(ep.slug);
                                         const isActive = epSlug === episodeSlug;
@@ -582,7 +578,7 @@ export default function WatchClient({
                                                 key={idx}
                                                 href={`/phim/${slug}/${epSlug}`}
                                                 transition={false}
-                                                className={`group flex items-center gap-1.5 lg:gap-3 p-1 sm:p-2 lg:p-3 rounded-md lg:rounded-xl transition-all duration-300 relative overflow-hidden ${isActive ? 'bg-amber-500/10 border border-amber-500/20' : 'hover:bg-white/5 border border-transparent'}`}
+                                                className={`group flex items-center w-full flex-shrink-0 gap-1.5 lg:gap-3 p-1 sm:p-2 lg:p-3 rounded-md lg:rounded-xl transition-all duration-300 relative overflow-hidden ${isActive ? 'bg-amber-500/10 border border-amber-500/20' : 'hover:bg-white/5 border border-transparent'}`}
                                             >
                                                 <div className="relative w-12 sm:w-20 lg:w-28 aspect-video rounded sm:rounded-lg overflow-hidden flex-shrink-0 bg-white/5">
                                                     <Image
@@ -612,16 +608,6 @@ export default function WatchClient({
                         plyrContainer
                     )}
 
-                    <AnimatePresence>
-                        {showNextButton && nextEpisode && !showEndOverlay && (
-                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="absolute bottom-24 md:bottom-26 right-4 md:right-8 z-40">
-                                <TransitionLink href={`/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`} transition={false} className="group flex items-center gap-1.5 md:gap-2 bg-black/90 border border-white/40 py-1.5 px-3 md:py-2 md:px-5 rounded-lg hover:bg-white hover:text-[#0a1628] transition-all duration-300 text-white font-bold text-[9px] md:text-[11px] tracking-widest shadow-2xl">
-                                    Tập tiếp theo
-                                    <ChevronRight size={14} className="group-hover:translate-x-1 transition-transform" />
-                                </TransitionLink>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
 
                     <AnimatePresence>
                         {showEndOverlay && (
@@ -633,16 +619,7 @@ export default function WatchClient({
                                         </div>
                                         <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Xem lại</span>
                                     </motion.button>
-                                    {isSeries && nextEpisode && (
-                                        <motion.div initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} transition={{ delay: 0.1 }}>
-                                            <TransitionLink href={`/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`} className="group flex flex-col items-center gap-3 hover:scale-105 transition-transform">
-                                                <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-amber-500 flex items-center justify-center text-[#0a1628] shadow-lg shadow-amber-500/20 group-hover:bg-amber-400">
-                                                    <ChevronRight size={28} className="md:w-8 md:h-8" />
-                                                </div>
-                                                <span className="text-amber-500 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Tập tiếp theo</span>
-                                            </TransitionLink>
-                                        </motion.div>
-                                    )}
+
                                 </div>
                             </motion.div>
                         )}
