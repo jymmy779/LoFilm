@@ -34,6 +34,43 @@ const nextConfig: NextConfig = {
                     { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains; preload' },
                 ],
             },
+            {
+                // Movie detail, watch, and catalog pages: force CDN to revalidate frequently
+                source: '/phim/:path*',
+                headers: [
+                    { key: 'CDN-Cache-Control', value: 'public, s-maxage=30, stale-while-revalidate=10' },
+                    { key: 'Cloudflare-CDN-Cache-Control', value: 'public, s-maxage=30, stale-while-revalidate=10' },
+                ],
+            },
+            {
+                // Homepage and list pages: also keep fresh
+                source: '/',
+                headers: [
+                    { key: 'CDN-Cache-Control', value: 'public, s-maxage=30, stale-while-revalidate=10' },
+                    { key: 'Cloudflare-CDN-Cache-Control', value: 'public, s-maxage=30, stale-while-revalidate=10' },
+                ],
+            },
+            {
+                source: '/danh-sach/:path*',
+                headers: [
+                    { key: 'CDN-Cache-Control', value: 'public, s-maxage=30, stale-while-revalidate=10' },
+                    { key: 'Cloudflare-CDN-Cache-Control', value: 'public, s-maxage=30, stale-while-revalidate=10' },
+                ],
+            },
+            {
+                source: '/the-loai/:path*',
+                headers: [
+                    { key: 'CDN-Cache-Control', value: 'public, s-maxage=30, stale-while-revalidate=10' },
+                    { key: 'Cloudflare-CDN-Cache-Control', value: 'public, s-maxage=30, stale-while-revalidate=10' },
+                ],
+            },
+            {
+                source: '/quoc-gia/:path*',
+                headers: [
+                    { key: 'CDN-Cache-Control', value: 'public, s-maxage=30, stale-while-revalidate=10' },
+                    { key: 'Cloudflare-CDN-Cache-Control', value: 'public, s-maxage=30, stale-while-revalidate=10' },
+                ],
+            },
         ];
     },
 };
