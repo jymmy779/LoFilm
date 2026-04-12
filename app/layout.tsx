@@ -21,7 +21,7 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
-import FontAwesomeLoader from "@/app/components/Common/FontAwesomeLoader";
+
 import { Toaster } from "react-hot-toast";
 import { Suspense } from "react";
 
@@ -80,7 +80,7 @@ export default function RootLayout({
         <link rel="preconnect" href="https://img.phimapi.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://phimapi.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
-        <FontAwesomeLoader />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="all" />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

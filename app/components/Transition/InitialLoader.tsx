@@ -99,11 +99,11 @@ export default function InitialLoader() {
           will-change: transform;
         }
       `}</style>
-      
+
       <div className={`lofilm-loader-overlay ${fadingOut ? 'fade-out' : ''}`}>
-        <h1 className="lofilm-loader-text font-heading text-white">
+        <div className="lofilm-loader-text font-heading text-white">
           LOFILM
-        </h1>
+        </div>
         <div className="lofilm-loader-bar-container">
           <div className="lofilm-loader-bar-fill"></div>
         </div>
