@@ -8,36 +8,35 @@ const REVALIDATE_SEC = 30; // Mặc định Vercel Cache 30 giây cho toàn hệ
  * Đã được wrap bởi React.cache() để tránh double transfer giữa Metadata và Page Component
  */
 export const fetchWithRedis = cache(async (url: string, options?: RequestInit & { revalidate?: number }): Promise<any> => {
-    const revalidate = options?.revalidate ?? options?.next?.revalidate ?? REVALIDATE_SEC;
+    const revalidateValue = options?.revalidate ?? options?.next?.revalidate;
+    const revalidate = typeof revalidateValue === 'number' ? revalidateValue : (revalidateValue === false ? 2592000 : REVALIDATE_SEC);
     
-    // 1. KIỂM TRA REDIS TRƯỚC (Cache-First) - Phản hồi cực nhanh <50ms
+    // 1. KIỂM TRA REDIS
     if (process.env.UPSTASH_REDIS_REST_URL) {
         try {
-            const cachedData = await redis.get(url);
-            if (cachedData) {
-                // Trình duyệt nhận được data ngay lập tức ở đây
-                // Kích hoàn cập nhật ngầm nếu cần
-                void fetch(url, {
-                    ...options,
-                    next: { revalidate: revalidate },
-                }).then(async (res) => {
-                    if (res.ok) {
-                        const newData = await res.json();
-                        // Lưu lại trong Redis (7 ngày là tối đa để fallback, nhưng revalidate sẽ kiểm soát độ mới)
-                        redis.set(url, newData, { ex: 604800 }).catch(() => {});
-                    }
-                }).catch(() => {});
+            const cached: any = await redis.get(url);
+            if (cached) {
+                // Kiểm tra xem dữ liệu có đi kèm timestamp không (format mới)
+                const now = Date.now();
+                const isStale = (cached._ts && typeof cached._ts === 'number' && (now - (cached._ts as number)) > (revalidate * 1000));
+                
+                // Nếu dữ liệu còn mới, trả về ngay
+                if (!isStale) {
+                    return cached._data || cached; // Fallback cho data cũ chưa có format mới
+                }
 
-                return cachedData;
+                // Nếu dữ liệu đã stale (cũ), chúng ta sẽ cố gắng fetch mới
+                // nhưng vẫn có fallback nếu fetch thất bại
+                console.log(`[Cache Stale] Re-fetching: ${url}`);
             }
         } catch (e) {
             console.error("Redis get error:", e);
         }
     }
 
-    // 2. NẾU CACHE MISS -> GỌI API GỐC VỚI TIMEOUT 10S
+    // 2. GỌI API GỐC
     const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 giây là tối đa
+    const timeoutId = setTimeout(() => controller.abort(), 10000);
 
     try {
         const response = await fetch(url, {
@@ -51,22 +50,32 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
         if (response.ok) {
             const data = await response.json();
             
-            // Lưu lại trong Redis cho lần sau (7 ngày)
+            // Lưu vào Redis kèm timestamp
             if (process.env.UPSTASH_REDIS_REST_URL) {
-                redis.set(url, data, { ex: 604800 }).catch((e) => console.error("Redis set error:", e));
+                const cachePayload = {
+                    _data: data,
+                    _ts: Date.now()
+                };
+                // Lưu 7 ngày để fallback, nhưng timestamp (isStale) sẽ kiểm soát độ tươi
+                redis.set(url, cachePayload, { ex: 604800 }).catch(() => {});
             }
             
             return data;
         } else {
-            throw new Error(`API Endpoint returned status: ${response.status}`);
+            throw new Error(`API status: ${response.status}`);
         }
     } catch (error: any) {
         clearTimeout(timeoutId);
-        if (error.name === 'AbortError') {
-            console.error(`[Timeout] API phản hồi quá lâu (>10s): ${url}`);
-        } else {
-            console.error(`[Fetch Error] Gọi API thất bại: ${url}`);
+        
+        // NẾU FETCH LỖI -> THỬ TRẢ VỀ DATA CŨ TRONG REDIS (FALLBACK)
+        if (process.env.UPSTASH_REDIS_REST_URL) {
+            const oldCached: any = await redis.get(url);
+            if (oldCached) {
+                console.log(`[Fallback] Sử dụng dữ liệu cũ do API lỗi: ${url}`);
+                return oldCached._data || oldCached;
+            }
         }
         return null;
     }
 });
+
