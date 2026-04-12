@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
 import CategoryClient from "./CategoryClient";
+import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 
 export const revalidate = 30; // Cập nhật danh sách phim mỗi 30 giây
 
@@ -15,9 +16,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title = title.charAt(0).toUpperCase() + title.slice(1);
 
     try {
-        const res = await fetch("https://phimapi.com/the-loai");
-        const categories = await res.json();
-        const category = categories.find((cat: any) => cat.slug === slug);
+        const categories = await fetchWithRedis("https://phimapi.com/the-loai", { revalidate: 60 });
+        const category = Array.isArray(categories) ? categories.find((cat: any) => cat.slug === slug) : null;
         if (category) title = category.name;
     } catch (err) {
         console.error("Lỗi fetch metadata thể loại:", err);

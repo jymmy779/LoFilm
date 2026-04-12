@@ -2,10 +2,13 @@
  * Server-side utility to fetch catalog data directly from PhimAPI.
  * Used in Server Components (page.tsx) to pre-fetch initial page data,
  * dramatically reducing loading time for first paint.
+ * 
+ * Now uses fetchWithRedis for unified caching strategy across the app.
  */
 
 import { Movie } from "@/app/types/movie";
 import { MenuItem } from "@/app/components/Header/types";
+import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 
 export interface CatalogInitialData {
     movies: Movie[];
@@ -43,16 +46,12 @@ export async function fetchCatalogData(
 
         const fullUrl = `${apiUrl}?${params.toString()}`;
 
-        // Fetch movies + filter lists in parallel (direct server-to-server, no proxy needed)
-        const [moviesRes, catRes, countRes] = await Promise.all([
-            fetch(fullUrl, { next: { revalidate: 30 } }), // Cache 30 sec for catalog
-            fetch("https://phimapi.com/the-loai", { next: { revalidate: 30 } }), // Cache 30 sec
-            fetch("https://phimapi.com/quoc-gia", { next: { revalidate: 30 } }),  // Cache 30 sec
+        // Fetch movies + filter lists in parallel using unified cache strategy
+        const [moviesData, categoriesData, countriesData] = await Promise.all([
+            fetchWithRedis(fullUrl, { revalidate: 30 }),
+            fetchWithRedis("https://phimapi.com/the-loai", { revalidate: 60 }),
+            fetchWithRedis("https://phimapi.com/quoc-gia", { revalidate: 60 }),
         ]);
-
-        const moviesData = await moviesRes.json();
-        const categoriesData = await catRes.json();
-        const countriesData = await countRes.json();
 
         let items: Movie[] = [];
         let totalItems = 0;
@@ -114,15 +113,12 @@ export async function fetchSearchData(
 
         const fullUrl = `https://phimapi.com/v1/api/tim-kiem?${params.toString()}`;
 
-        const [searchRes, catRes, countRes] = await Promise.all([
-            fetch(fullUrl, { next: { revalidate: 30 } }), // Cache 30 sec for search
-            fetch("https://phimapi.com/the-loai", { next: { revalidate: 30 } }),
-            fetch("https://phimapi.com/quoc-gia", { next: { revalidate: 30 } }),
+        // Use fetchWithRedis for unified caching
+        const [searchData, categoriesData, countriesData] = await Promise.all([
+            fetchWithRedis(fullUrl, { revalidate: 30 }),
+            fetchWithRedis("https://phimapi.com/the-loai", { revalidate: 60 }),
+            fetchWithRedis("https://phimapi.com/quoc-gia", { revalidate: 60 }),
         ]);
-
-        const searchData = await searchRes.json();
-        const categoriesData = await catRes.json();
-        const countriesData = await countRes.json();
 
         let items: Movie[] = [];
         let totalItems = 0;

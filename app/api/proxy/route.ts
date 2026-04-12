@@ -21,8 +21,8 @@ export async function GET(request: NextRequest) {
     
     return NextResponse.json(data, {
       headers: {
-        // stale-while-revalidate: Trả về bản cũ ngay lập tức nếu bản mới đang được fetch
-        'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=${Math.floor(revalidate / 10)}, max-age=${revalidate}`,
+        // s-maxage for CDN/Vercel Edge, max-age=0 forces browser to always revalidate
+        'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=5, max-age=0`,
       }
     });
   } catch (error: any) {

@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
 import CountryClient from "./CountryClient";
+import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 
 export const revalidate = 30; // Cập nhật danh sách phim mỗi 30 giây
 
@@ -15,9 +16,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title = title.charAt(0).toUpperCase() + title.slice(1);
 
     try {
-        const res = await fetch("https://phimapi.com/quoc-gia");
-        const countries = await res.json();
-        const country = countries.find((item: any) => item.slug === slug);
+        const countries = await fetchWithRedis("https://phimapi.com/quoc-gia", { revalidate: 60 });
+        const country = Array.isArray(countries) ? countries.find((item: any) => item.slug === slug) : null;
         if (country) title = country.name;
     } catch (err) {
         console.error("Lỗi fetch metadata quốc gia:", err);
