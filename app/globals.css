@@ -93,14 +93,20 @@ body.theater-mode footer:hover {
 }
 
 /* Custom Cursor for Plyr Ranges & Player */
-.plyr--video,
-.plyr__video-wrapper,
-.plyr input[type='range'],
-.plyr__progress,
-.plyr__progress__container,
-.plyr__volume,
-.plyr__control {
+.plyr--video:not(.plyr--hide-controls),
+.plyr__video-wrapper:not(.plyr--hide-controls),
+.plyr:not(.plyr--hide-controls) input[type='range'],
+.plyr:not(.plyr--hide-controls) .plyr__progress,
+.plyr:not(.plyr--hide-controls) .plyr__progress__container,
+.plyr:not(.plyr--hide-controls) .plyr__volume,
+.plyr:not(.plyr--hide-controls) .plyr__control {
   cursor: pointer !important;
+}
+
+/* Hide cursor when controls are hidden or during playback inactivity */
+.plyr--hide-controls, 
+.plyr--hide-controls * {
+  cursor: none !important;
 }
 
 /* Custom Plyr Hover Effect - ONLY highlight on actual hover */
