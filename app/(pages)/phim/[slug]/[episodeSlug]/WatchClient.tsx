@@ -3,7 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
-import { ChevronRight, AlertTriangle, RefreshCcw } from "lucide-react";
+import { ChevronRight, AlertTriangle, RefreshCcw, List, X } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import Hls from "hls.js";
 // @ts-ignore
@@ -22,6 +22,7 @@ import { useAuth } from "@/app/components/Auth/AuthContext";
 import { toast } from "react-hot-toast";
 import { MdReplay10, MdForward10 } from "react-icons/md";
 import { renderToStaticMarkup } from "react-dom/server";
+import { createPortal } from "react-dom";
 import { createClient } from "@/app/utils/supabase/client";
 
 interface WatchClientProps {
@@ -74,7 +75,7 @@ export default function WatchClient({
     const [hasError, setHasError] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
     const userRef = useRef<any>(null);
-    
+
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
     }, [slug, episodeSlug]);
@@ -88,12 +89,16 @@ export default function WatchClient({
 
     const [showEndOverlay, setShowEndOverlay] = useState(false);
     const showEndOverlayRef = useRef(false);
+    const [controlsVisible, setControlsVisible] = useState(true);
+    const [plyrContainer, setPlyrContainer] = useState<HTMLElement | null>(null);
+    const [showEpisodeOverlay, setShowEpisodeOverlay] = useState(false);
+
     useEffect(() => { showEndOverlayRef.current = showEndOverlay; }, [showEndOverlay]);
-    
+
     const watchTimeAccumulator = useRef(0);
     const hasRecordedView = useRef(false);
     const lastUpdateTimestamp = useRef(0);
-    
+
     const supabase = createClient();
 
     const videoRef = useRef<HTMLVideoElement>(null);
@@ -281,6 +286,7 @@ export default function WatchClient({
 
             player.on('ready', () => {
                 const container = player.elements.container;
+                setPlyrContainer(container);
                 const muteButton = container?.querySelector('button[data-plyr="mute"]');
                 if (muteButton) {
                     muteButton.addEventListener('click', (e: Event) => {
@@ -288,7 +294,7 @@ export default function WatchClient({
                             e.stopImmediatePropagation();
                             e.preventDefault();
                         }
-                    }, { capture: true }); 
+                    }, { capture: true });
                 }
 
                 const rewindBtn = container?.querySelector('button[data-plyr="rewind"]');
@@ -305,6 +311,9 @@ export default function WatchClient({
                 if (showEndOverlayRef.current) player.pause();
             });
 
+            player.on('controlsshown', () => setControlsVisible(true));
+            player.on('controlshidden', () => setControlsVisible(false));
+
             if (startFrom > 0 && !hasResumed) {
                 player.once('ready', () => {
                     if (player.currentTime < startFrom - 5) {
@@ -319,7 +328,7 @@ export default function WatchClient({
                 const currentTime = player.currentTime;
                 const duration = player.duration;
                 const remaining = duration - currentTime;
-                
+
                 if (!hasRecordedView.current && !player.paused && player.playing) {
                     const now = Date.now();
                     if (lastUpdateTimestamp.current > 0) {
@@ -505,6 +514,103 @@ export default function WatchClient({
                         }
                     `}</style>
                     <video ref={videoRef} className="w-full h-full object-contain" playsInline loop={false} poster={getImageUrl(movie.thumb_url)} />
+
+                    {/* Movie Info Overlay (Top Left) - Rendered into Plyr Container for Fullscreen Support */}
+                    {plyrContainer && createPortal(
+                        <div className={`absolute top-4 left-5 md:top-8 md:left-8 z-[60] pointer-events-none transition-all duration-500 transform ${controlsVisible && !showEndOverlay && !hasError ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+                            <div className="flex flex-col gap-1">
+                                <h1 className="text-white text-[13px] md:text-[20px] font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-tight">
+                                    {movie.name}
+                                </h1>
+                                <div className="flex items-center gap-2 text-white/70 text-[10px] md:text-[14px] font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                                    {movie.origin_name && <span className="hidden sm:inline opacity-60 font-normal truncate max-w-[150px] md:max-w-xs">{movie.origin_name}</span>}
+                                    {movie.origin_name && <span className="hidden sm:inline opacity-40">•</span>}
+                                    <span className="text-amber-400/90">{episode.name}</span>
+                                </div>
+                            </div>
+                        </div>,
+                        plyrContainer
+                    )}
+
+                    {/* Episode List Trigger Button (Top Right) */}
+                    {plyrContainer && createPortal(
+                        <button
+                            onClick={() => setShowEpisodeOverlay(true)}
+                            className={`absolute top-3 right-4 md:top-6 md:right-6 z-[60] flex items-center gap-1.5 md:gap-2 bg-black/60 hover:bg-black/80 border border-white/10 py-1 md:py-2 px-2.5 md:px-4 rounded-full transition-all duration-500 cursor-pointer group ${controlsVisible && !showEndOverlay && !hasError && !showEpisodeOverlay ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}
+                        >
+                            <List size={12} className="md:w-5 md:h-5 text-white" />
+                            <span className="text-white text-[9px] md:text-[13px] font-bold tracking-wider">Danh sách tập</span>
+                        </button>,
+                        plyrContainer
+                    )}
+
+                    {/* Episode List Overlay Panel */}
+                    {plyrContainer && createPortal(
+                        <div className={`absolute inset-0 z-[120] transition-all duration-500 ${showEpisodeOverlay ? 'visible' : 'invisible'}`}>
+                            {/* Backdrop shadow */}
+                            <div
+                                className={`absolute inset-0 bg-black/60 transition-opacity duration-500 ${showEpisodeOverlay ? 'opacity-100' : 'opacity-0'}`}
+                                onClick={() => setShowEpisodeOverlay(false)}
+                            />
+
+                            {/* Panel sliding from right */}
+                            <div className={`absolute top-0 right-0 h-full w-[180px] sm:w-[260px] lg:w-[320px] bg-[#0F111A] border-l border-white/5 shadow-2xl transition-transform duration-500 ease-out flex flex-col ${showEpisodeOverlay ? 'translate-x-0' : 'translate-x-full'}`}>
+                                {/* Header */}
+                                <div className="p-2 sm:p-3 lg:p-5 border-b border-white/5 flex items-center justify-between bg-white/[0.02]">
+                                    <div className="flex flex-col gap-0.5">
+                                        <h3 className="text-white text-[9px] sm:text-[11px] lg:text-[13px] font-bold line-clamp-1">{movie.name}</h3>
+                                        <span className="text-white/40 text-[8px] sm:text-[10px] lg:text-xs font-medium tracking-[0.1em]">
+                                            D.Sách • {episodes[activeServerIndex]?.server_data?.length || 0} tập
+                                        </span>
+                                    </div>
+                                    <button
+                                        onClick={() => setShowEpisodeOverlay(false)}
+                                        className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 flex items-center justify-center text-white/50 hover:text-white transition-colors cursor-pointer"
+                                    >
+                                        <X size={16} className="lg:w-6 lg:h-6" />
+                                    </button>
+                                </div>
+
+                                {/* List Body */}
+                                <div className="flex-1 overflow-y-auto custom-scrollbar p-1.5 sm:p-3 lg:p-5 flex flex-col gap-1.5 md:gap-2 lg:gap-3">
+                                    {episodes[activeServerIndex]?.server_data?.map((ep, idx) => {
+                                        const epSlug = getFriendlyEpisodeSlug(ep.slug);
+                                        const isActive = epSlug === episodeSlug;
+
+                                        return (
+                                            <TransitionLink
+                                                key={idx}
+                                                href={`/phim/${slug}/${epSlug}`}
+                                                transition={false}
+                                                className={`group flex items-center gap-1.5 lg:gap-3 p-1 sm:p-2 lg:p-3 rounded-md lg:rounded-xl transition-all duration-300 relative overflow-hidden ${isActive ? 'bg-amber-500/10 border border-amber-500/20' : 'hover:bg-white/5 border border-transparent'}`}
+                                            >
+                                                <div className="relative w-12 sm:w-20 lg:w-28 aspect-video rounded sm:rounded-lg overflow-hidden flex-shrink-0 bg-white/5">
+                                                    <Image
+                                                        src={getImageUrl(movie.thumb_url || movie.poster_url)}
+                                                        alt={ep.name}
+                                                        fill
+                                                        className={`object-cover transition-transform duration-500 ${isActive ? 'scale-105' : 'group-hover:scale-110'}`}
+                                                        sizes="(max-width: 640px) 48px, (max-width: 1024px) 80px, 112px"
+                                                    />
+                                                    {isActive && (
+                                                        <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
+                                                            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 lg:w-2 lg:h-2 rounded-full bg-amber-500 animate-ping" />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <div className="flex flex-col gap-0 min-w-0">
+                                                    <h4 className={`text-[9px] sm:text-[11px] lg:text-[13px] font-bold truncate ${isActive ? 'text-amber-500' : 'text-white/80 group-hover:text-white'}`}>
+                                                        {ep.name}
+                                                    </h4>
+                                                </div>
+                                            </TransitionLink>
+                                        );
+                                    })}
+                                </div>
+                            </div>
+                        </div>,
+                        plyrContainer
+                    )}
 
                     <AnimatePresence>
                         {showNextButton && nextEpisode && !showEndOverlay && (

@@ -106,7 +106,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                     ))}
 
                     {/* Expandable part - Optimized with CSS for zero-lag */}
-                    <div 
+                    <div
                         className={`overflow-hidden transition-all duration-300 ease-in-out transform-gpu ${isEmotionExpanded ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}
                         style={{ willChange: "max-height, opacity" }}
                     >
@@ -139,9 +139,9 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                     className="w-full mt-2 flex items-center justify-center gap-2 py-2.5 bg-white/5 hover:bg-white/10 rounded-xl text-[11px] text-white/60 hover:text-white transition-all group cursor-pointer"
                 >
                     {isEmotionExpanded ? "Thu gọn" : "Xem đầy đủ"}
-                    <ChevronDown 
-                      size={14} 
-                      className={`transition-transform duration-300 ${isEmotionExpanded ? 'rotate-180' : 'rotate-0'}`} 
+                    <ChevronDown
+                        size={14}
+                        className={`transition-transform duration-300 ${isEmotionExpanded ? 'rotate-180' : 'rotate-0'}`}
                     />
                 </button>
             </div>
@@ -174,12 +174,12 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                             className="flex gap-4 py-3 border-b border-white/5 hover:bg-white/[0.02] -mx-4 px-4 transition-all group first:pt-0 last:border-0"
                         >
                             <div className="w-16 h-24 shrink-0 rounded-lg overflow-hidden relative shadow-lg">
-                                <Image 
-                                    src={movie.poster_url || ""} 
-                                    alt={movie.title} 
-                                    fill 
+                                <Image
+                                    src={movie.poster_url || ""}
+                                    alt={movie.title}
+                                    fill
                                     sizes="64px"
-                                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500" 
+                                    className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                 />
                                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
                             </div>
@@ -187,8 +187,8 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                                 <h4 className="text-[13px] font-bold text-white line-clamp-1 group-hover:text-amber-400 transition-colors mb-0.5">{movie.title}</h4>
                                 <div className="text-[11px] text-white/40 font-medium italic line-clamp-1 mb-2">{movie.alias}</div>
                                 <div className="flex gap-2">
-                                    <span className="px-1.5 py-0.5 bg-white/5 rounded text-[9px] text-white/50">{movie.year}</span>
-                                    <span className="px-1.5 py-0.5 bg-amber-500 rounded text-[#0a1628] text-[9px]  tracking-tighter shadow-lg">
+                                    <span className="px-1.5 py-0.5 bg-white/5 rounded font-bold text-[9px] text-white/50">{movie.year}</span>
+                                    <span className="px-1.5 py-0.5 bg-amber-500 font-bold rounded text-[#0a1628] text-[9px]  tracking-tighter shadow-lg">
                                         {movie.ep}
                                     </span>
                                 </div>
