@@ -90,9 +90,9 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
         return (
             <Container as="section" className="relative md:my-12 my-8 lg:my-16">
                 <Skeleton width={300} height={35} className="mb-6 rounded" />
-                <div className="relative aspect-[21/9] rounded-3xl overflow-hidden">
+                <div className="relative aspect-[21/9] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5] min-h-[500px] rounded-[30px] overflow-hidden">
                     <Skeleton className="w-full h-full" />
-                    <div className="absolute bottom-0 left-0 p-8 lg:p-12 w-full max-w-2xl">
+                    <div className="absolute bottom-0 left-0 p-8 lg:p-12 w-full max-w-2xl z-10">
                         <Skeleton height={40} width="80%" className="mb-4" />
                         <Skeleton count={3} className="mb-2" />
                     </div>
@@ -146,7 +146,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                 {/* Background Image Area */}
                                 <div className="absolute top-0 right-0 w-full xl:w-[75%] h-full z-0 select-none pointer-events-none">
                                     <Image
-                                        src={getImageUrl(movie.thumb_url, { quality: index === 0 ? 90 : 80 })}
+                                        src={getImageUrl(movie.thumb_url, { width: 1920, quality: index === 0 ? 90 : 80 })}
                                         alt={movie.name}
                                         fill
                                         priority={index === 0}

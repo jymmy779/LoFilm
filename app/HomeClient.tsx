@@ -43,7 +43,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
 
             <RandomMovieRow />
 
-            <LazyRow estimatedHeight="500px">
+            <LazyRow estimatedHeight="380px">
                 {/* Phim Hàn Quốc bây giờ được load lazy */}
                 <MovieRow
                     title="Phim Hàn Quốc mới"
@@ -57,7 +57,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             </LazyRow>
 
             {/* Các dãy bên dưới dùng LazyRow để giảm TBT (Total Blocking Time) */}
-            <LazyRow estimatedHeight="300px">
+            <LazyRow estimatedHeight="380px">
                 <MovieRow
                     title="Phim Trung Quốc mới"
                     apiUrl="https://phimapi.com/v1/api/quoc-gia/trung-quoc?limit=20"
@@ -69,7 +69,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                 />
             </LazyRow>
 
-            <LazyRow estimatedHeight="300px">
+            <LazyRow estimatedHeight="380px">
                 <MovieRow
                     title="Phim Âu Mỹ mới"
                     apiUrl="https://phimapi.com/v1/api/quoc-gia/au-my?limit=20"
@@ -81,7 +81,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                 />
             </LazyRow>
 
-            <LazyRow estimatedHeight="420px">
+            <LazyRow estimatedHeight="580px">
                 <FeaturedSlider
                     title="TV Shows Truyền Hình"
                     apiUrl="https://phimapi.com/v1/api/danh-sach/tv-shows?limit=20"
@@ -91,7 +91,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                 />
             </LazyRow>
 
-            <LazyRow estimatedHeight="480px">
+            <LazyRow estimatedHeight="540px">
                 <MoviePosterRow
                     title="Phim Chiếu Rạp Mới"
                     apiUrl="https://phimapi.com/v1/api/danh-sach/phim-chieu-rap?limit=20"
@@ -102,7 +102,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                 />
             </LazyRow>
 
-            <LazyRow estimatedHeight="480px">
+            <LazyRow estimatedHeight="540px">
                 <MoviePosterRow
                     title="Phim Bộ Mới Nhất"
                     apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=30"
@@ -113,7 +113,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                 />
             </LazyRow>
 
-            <LazyRow estimatedHeight="220px">
+            <LazyRow estimatedHeight="260px">
                 <TopMovieRow
                     title="Top 30 Phim Lẻ Hôm Nay"
                     apiUrl="https://phimapi.com/v1/api/danh-sach/phim-le?limit=30"
@@ -122,7 +122,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                 />
             </LazyRow>
 
-            <LazyRow estimatedHeight="220px">
+            <LazyRow estimatedHeight="260px">
                 <TopMovieRow
                     title="Top 30 Phim Bộ Hôm Nay"
                     apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=30"
@@ -131,7 +131,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                 />
             </LazyRow>
 
-            <LazyRow estimatedHeight="220px">
+            <LazyRow estimatedHeight="260px">
                 <TopMovieRow
                     title="LoFilm Đề Cử"
                     apiUrl="" // Không cần fetch thêm vì đã có initialMovies
@@ -150,7 +150,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                 />
             </LazyRow>
 
-            <LazyRow estimatedHeight="480px">
+            <LazyRow estimatedHeight="540px">
                 <MoviePosterRow
                     title="Phim Kinh Dị"
                     apiUrl="https://phimapi.com/v1/api/the-loai/kinh-di?limit=20"
@@ -159,7 +159,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                 />
             </LazyRow>
 
-            <LazyRow estimatedHeight="480px">
+            <LazyRow estimatedHeight="540px">
                 <MoviePosterRow
                     title="Phim Hoạt Hình"
                     apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=30"
@@ -168,7 +168,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                 />
             </LazyRow>
 
-            <LazyRow estimatedHeight="350px">
+            <LazyRow estimatedHeight="400px">
                 <WideMovieRow
                     title="Phim Ngắn Đặc Sắc"
                     apiUrl="https://phimapi.com/v1/api/the-loai/phim-ngan?limit=20"

@@ -26,30 +26,31 @@ export function useMovies({
     revalidate
 }: UseMoviesOptions) {
     const seeded = initialMovies.length > 0;
-    const [movies, setMovies] = useState<Movie[]>(initialMovies);
     const [isLoading, setIsLoading] = useState(!seeded);
     const [error, setError] = useState<string | null>(null);
     const isMounted = useRef(true);
 
-    const updateMovies = useCallback((newMovies: Movie[]) => {
-        if (!isMounted.current) return;
-
-        let processed = [...newMovies];
-        
+    const processMovies = useCallback((items: Movie[]) => {
+        let processed = [...items];
         if (sortByYear) {
             processed.sort((a, b) => {
                 const yearA = a.year || 0;
                 const yearB = b.year || 0;
                 if (yearB !== yearA) return yearB - yearA;
-                
                 const timeA = a.modified?.time ? new Date(a.modified.time).getTime() : 0;
                 const timeB = b.modified?.time ? new Date(b.modified.time).getTime() : 0;
                 return timeB - timeA;
             });
         }
-
-        setMovies(processed);
+        return processed;
     }, [sortByYear]);
+
+    const [movies, setMovies] = useState<Movie[]>(() => processMovies(initialMovies));
+
+    const updateMovies = useCallback((newMovies: Movie[]) => {
+        if (!isMounted.current) return;
+        setMovies(processMovies(newMovies));
+    }, [processMovies]);
 
     const fetchMovies = useCallback(async (retryCount = 0) => {
         if (!isMounted.current) return;
@@ -96,14 +97,14 @@ export function useMovies({
                 }
             }
         }
-    }, [apiUrl, filterDuplicates, limit, shouldEnrich, updateMovies]);
+    }, [apiUrl, filterDuplicates, limit, shouldEnrich, updateMovies, revalidate]);
 
     useEffect(() => {
         isMounted.current = true;
         
         if (seeded) {
-            // Re-sort initial movies if needed
-            updateMovies(initialMovies);
+            // No need to re-sort unless it's explicitly required
+            // if (sortByYear) updateMovies(initialMovies);
             
             if (shouldEnrich) {
                 void enrichMoviesMetadata({

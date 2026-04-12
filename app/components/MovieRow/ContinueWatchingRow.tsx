@@ -58,7 +58,9 @@ export default function ContinueWatchingRow({ initialHistory }: ContinueWatching
         fetchHistory();
     }, [user, isAuthLoading, supabase]);
 
-    if (isLoading) {
+    // Fix CLS: Chỉ hiện Loading nếu chúng ta thực sự có dữ liệu để load hoặc là thành viên 
+    // Đối với Guest (Crawler), không hiện gì cả cho đến khi xác định có history
+    if (isLoading && (initialHistory || user)) {
         return (
             <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
                 <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/40 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 overflow-hidden animate-pulse">
@@ -85,7 +87,7 @@ export default function ContinueWatchingRow({ initialHistory }: ContinueWatching
         );
     }
 
-    if (history.length === 0 && !isLoading) return null;
+    if (history.length === 0) return null;
 
     return (
         <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
