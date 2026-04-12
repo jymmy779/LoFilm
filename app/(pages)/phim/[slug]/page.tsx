@@ -10,7 +10,8 @@ const API_BASE = "https://phimapi.com";
 
 // Fetch movie detail by slug
 async function getMovieDetail(slug: string): Promise<MovieDetailResponse | null> {
-    const data = await fetchWithRedis(`${API_BASE}/phim/${slug}`);
+    // revalidate: 30 để Redis TTL tự động được tính = 60s (ngắn hơn 7 ngày cũ)
+    const data = await fetchWithRedis(`${API_BASE}/phim/${slug}`, { revalidate: 30 });
     if (!data || !data.status || !data.movie) return null;
     return data;
 }
@@ -21,7 +22,7 @@ async function getSuggestedMovies(movie: Movie): Promise<Movie[]> {
         const firstCategory = movie.category?.[0]?.slug;
         if (!firstCategory) return [];
 
-        const data = await fetchWithRedis(`${API_BASE}/v1/api/the-loai/${firstCategory}?page=1&limit=20`);
+        const data = await fetchWithRedis(`${API_BASE}/v1/api/the-loai/${firstCategory}?page=1&limit=20`, { revalidate: 30 });
 
 
         // Filter out current movie from suggestions
