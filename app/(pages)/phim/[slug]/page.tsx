@@ -10,7 +10,9 @@ const API_BASE = "https://phimapi.com";
 
 // Fetch movie detail by slug
 async function getMovieDetail(slug: string): Promise<MovieDetailResponse | null> {
-    const data = await fetchWithRedis(`${API_BASE}/phim/${slug}`);
+    const data = await fetchWithRedis(`${API_BASE}/phim/${slug}`, {
+        next: { revalidate: 30 }
+    });
     if (!data || !data.status || !data.movie) return null;
     return data;
 }
@@ -109,6 +111,10 @@ export default async function MoviePage({
                 episodes={detail.episodes}
                 suggestedMovies={suggestedMovies}
             />
+            {/* Tag đánh dấu phiên bản để kiểm tra cache */}
+            <div className="fixed bottom-4 right-4 text-[10px] text-white/5 pointer-events-none select-none z-[9999]">
+                LoFilm {new Date().getTime()}
+            </div>
         </>
     );
 }

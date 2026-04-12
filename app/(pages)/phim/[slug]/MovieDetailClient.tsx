@@ -39,7 +39,9 @@ const stripHtml = (html?: string) => {
     return html.replace(/<[^>]*>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 };
 
-export default function MovieDetailClient({ movie, episodes, suggestedMovies }: MovieDetailClientProps) {
+export default function MovieDetailClient({ movie: initialMovie, episodes: initialEpisodes, suggestedMovies }: MovieDetailClientProps) {
+    const [movie, setMovie] = useState<Movie>(initialMovie);
+    const [episodes, setEpisodes] = useState<EpisodeServer[]>(initialEpisodes);
     const [activeTab, setActiveTab] = useState('Tập phim');
     const [isEpisodesCollapsed, setIsEpisodesCollapsed] = useState(false);
     const [activeRangeIndex, setActiveRangeIndex] = useState(0);
@@ -47,6 +49,36 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
     const [enrichedSuggestions, setEnrichedSuggestions] = useState<Movie[]>(filteredSuggestions);
     const [weeklyMovies, setWeeklyMovies] = useState<Movie[]>([]);
     const [isLoadingWeekly, setIsLoadingWeekly] = useState(true);
+
+    // [NETFLIX STYLE] - Auto Sync Data from API to bypass Cache
+    useEffect(() => {
+        const syncLatestData = async () => {
+            try {
+                // Fetch trực tiếp từ API (Bypass mọi loại Cache HTML)
+                const res = await axios.get(`https://phimapi.com/phim/${initialMovie.slug}`);
+                if (res.data?.status && res.data?.movie) {
+                    const latestMovie = res.data.movie;
+                    const latestEpisodes = res.data.episodes;
+
+                    // Kiểm tra xem số tập có thay đổi không
+                    const currentEpCount = initialEpisodes?.[0]?.server_data?.length || 0;
+                    const latestEpCount = latestEpisodes?.[0]?.server_data?.length || 0;
+
+                    if (latestEpCount > currentEpCount) {
+                        console.log(`[LoFilm Sync] Phát hiện tập mới: ${currentEpCount} -> ${latestEpCount}`);
+                        setMovie(latestMovie);
+                        setEpisodes(latestEpisodes);
+                    }
+                }
+            } catch (err) {
+                console.error("[LoFilm Sync] Không thể đồng bộ dữ liệu mới nhất:", err);
+            }
+        };
+
+        // Đợi 1 giây sau khi trang hiện ra rồi mới Sync để đảm bảo ưu tiên hiển thị UI đầu tiên
+        const timer = setTimeout(syncLatestData, 1000);
+        return () => clearTimeout(timer);
+    }, [initialMovie.slug, initialEpisodes]);
 
     // Đảm bảo luôn cuộn lên đầu khi vào chi tiết phim
     useEffect(() => {

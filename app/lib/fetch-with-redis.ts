@@ -18,11 +18,12 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
             if (cached) {
                 // Kiểm tra xem dữ liệu có đi kèm timestamp không (format mới)
                 const now = Date.now();
-                const isStale = (cached._ts && typeof cached._ts === 'number' && (now - (cached._ts as number)) > (revalidate * 1000));
+                // Nếu không có timestamp (dữ liệu cũ) hoặc timestamp đã quá hạn -> Coi là Stale (cũ)
+                const isStale = !cached._ts || typeof cached._ts !== 'number' || (now - (cached._ts as number)) > (revalidate * 1000);
                 
-                // Nếu dữ liệu còn mới, trả về ngay
-                if (!isStale) {
-                    return cached._data || cached; // Fallback cho data cũ chưa có format mới
+                // Nếu dữ liệu còn mới (đã có timestamp và chưa quá hạn), trả về ngay
+                if (!isStale && cached._data) {
+                    return cached._data;
                 }
 
                 // Nếu dữ liệu đã stale (cũ), chúng ta sẽ cố gắng fetch mới
