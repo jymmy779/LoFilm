@@ -4,6 +4,12 @@ const nextConfig: NextConfig = {
     experimental: {
         scrollRestoration: true,
         optimizePackageImports: ["swiper", "lucide-react", "framer-motion"],
+        // Disable Next.js Router Cache: ensures every navigation fetches fresh server data
+        // Without this, clicking a link shows stale cached data until hard refresh
+        staleTimes: {
+            dynamic: 0,  // Dynamic pages: always refetch
+            static: 30,  // Static pages: cache for 30s max
+        },
     },
     images: {
         loader: 'custom',
