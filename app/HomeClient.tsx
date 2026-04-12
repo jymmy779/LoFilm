@@ -143,7 +143,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <LazyRow estimatedHeight="420px">
                 <FeaturedSlider
                     title="Hoạt Hình Anime Hay"
-                    apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=20"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?country=nhat-ban&limit=20"
                     viewAllLink="/danh-sach/hoat-hinh"
                     navId="featured-anime"
                     initialMovies={prefetched.featuredAnime}

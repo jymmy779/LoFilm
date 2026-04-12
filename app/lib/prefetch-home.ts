@@ -78,7 +78,7 @@ const URLS = {
     posterPhimBo: "https://phimapi.com/v1/api/danh-sach/phim-bo?limit=20",
     topPhimLe: "https://phimapi.com/v1/api/danh-sach/phim-le?limit=30",
     topPhimBo: "https://phimapi.com/v1/api/danh-sach/phim-bo?limit=30",
-    featuredAnime: "https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=20",
+    featuredAnime: "https://phimapi.com/v1/api/danh-sach/hoat-hinh?country=nhat-ban&limit=20",
     posterKinhDi: "https://phimapi.com/v1/api/the-loai/kinh-di?limit=20",
     posterHoatHinh: "https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=20",
     phimNgan: "https://phimapi.com/v1/api/the-loai/phim-ngan?limit=20",
