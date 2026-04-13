@@ -312,6 +312,22 @@ export default function WatchClient({
             player.on('controlsshown', () => setControlsVisible(true));
             player.on('controlshidden', () => setControlsVisible(false));
 
+            player.on('enterfullscreen', () => {
+                if (window.innerWidth < 1024 && screen.orientation && (screen.orientation as any).lock) {
+                    (screen.orientation as any).lock('landscape').catch(() => {
+                        // Bỏ qua lỗi nếu trình duyệt không hỗ trợ hoặc bị chặn
+                    });
+                }
+            });
+
+            player.on('exitfullscreen', () => {
+                if (screen.orientation && screen.orientation.unlock) {
+                    try {
+                        screen.orientation.unlock();
+                    } catch (e) { }
+                }
+            });
+
             if (startFrom > 0 && !hasResumed) {
                 player.once('ready', () => {
                     if (player.currentTime < startFrom - 5) {
