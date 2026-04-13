@@ -4,6 +4,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import Image from "next/image";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { ChevronRight, AlertTriangle, RefreshCcw, List, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Hls from "hls.js";
 // @ts-ignore
@@ -68,6 +69,7 @@ export default function WatchClient({
     episodes,
     suggestedMovies
 }: WatchClientProps) {
+    const router = useRouter();
     const { user } = useAuth();
     const [isExpanded, setIsExpanded] = useState(false);
     const [isTheaterMode, setIsTheaterMode] = useState(false);
@@ -106,15 +108,36 @@ export default function WatchClient({
     const hlsRef = useRef<Hls | null>(null);
     const plyrRef = useRef<Plyr | null>(null);
 
-    const nextEpisode = useMemo(() => {
-        if (!episodes || episodes.length === 0) return null;
+    const currentIndex = useMemo(() => {
+        if (!episodes || episodes.length === 0) return -1;
         const server = episodes[activeServerIndex] || episodes[0];
-        const currentIndex = server.server_data.findIndex(ep => getFriendlyEpisodeSlug(ep.slug) === episodeSlug);
-        if (currentIndex !== -1 && currentIndex < server.server_data.length - 1) {
+        const cleanTargetSlug = episodeSlug.replace(/^tap-/, "").toLowerCase();
+
+        return server.server_data.findIndex((ep: any) => {
+            const epSlug = ep.slug.toLowerCase();
+            const epCleanSlug = epSlug.replace(/^tap-/, "");
+
+            return (
+                epSlug === episodeSlug ||
+                epSlug === cleanTargetSlug ||
+                epCleanSlug === cleanTargetSlug ||
+                (episodeSlug === "tap-full" && epSlug === "full") ||
+                ep.name.toLowerCase() === `tập ${cleanTargetSlug}` ||
+                ep.name.toLowerCase() === `tập ${cleanTargetSlug.replace(/^0+/, "")}` ||
+                ep.name.toLowerCase() === cleanTargetSlug ||
+                epCleanSlug.replace(/^0+/, "") === cleanTargetSlug.replace(/^0+/, "")
+            );
+        });
+    }, [episodes, activeServerIndex, episodeSlug]);
+
+    const nextEpisode = useMemo(() => {
+        if (!episodes || episodes.length === 0 || currentIndex === -1) return null;
+        const server = episodes[activeServerIndex] || episodes[0];
+        if (currentIndex < server.server_data.length - 1) {
             return server.server_data[currentIndex + 1];
         }
         return null;
-    }, [episodes, activeServerIndex, episodeSlug]);
+    }, [episodes, activeServerIndex, currentIndex]);
 
     const isSeries = useMemo(() => {
         if (!episodes || episodes.length === 0) return false;
@@ -382,7 +405,10 @@ export default function WatchClient({
 
             player.on('seeked', () => {
                 if (player.duration > 0 && player.currentTime >= player.duration - 0.5) {
-                    if (!(isSeries && nextEpisode && autoNextRef.current)) {
+                    if (isSeries && nextEpisode && autoNextRef.current) {
+                        player.pause();
+                        router.push(`/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`);
+                    } else if (!showEndOverlayRef.current) {
                         player.pause();
                         player.currentTime = player.duration - 0.1;
                         setShowEndOverlay(true);
@@ -392,8 +418,8 @@ export default function WatchClient({
 
             player.on('ended', () => {
                 if (isSeries && nextEpisode && autoNextRef.current) {
-                    window.location.href = `/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`;
-                } else {
+                    router.push(`/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`);
+                } else if (!showEndOverlayRef.current) {
                     player.pause();
                     player.currentTime = player.duration - 0.1;
                     setShowEndOverlay(true);
@@ -562,7 +588,7 @@ export default function WatchClient({
                     {plyrContainer && createPortal(
                         <button
                             onClick={() => setShowEpisodeOverlay(true)}
-                            className={`absolute top-2 right-2 md:top-6 md:right-6 z-[60] flex items-center gap-1.5 md:gap-2 bg-black/60 hover:bg-black/80 border border-white/10 py-1 md:py-2 px-2.5 md:px-4 rounded-full transition-all duration-500 cursor-pointer group ${controlsVisible && !showEndOverlay && !hasError && !showEpisodeOverlay ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}
+                            className={`absolute top-2 right-2 md:top-6 md:right-6 z-[60] flex items-center gap-1.5 md:gap-2 bg-black/60 hover:bg-black/80 border border-white/10 py-1 md:py-2 px-2.5 md:px-4 rounded-full transition-all duration-500 cursor-pointer group ${controlsVisible && !hasError && !showEpisodeOverlay ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}
                         >
                             <List size={12} className="md:w-5 md:h-5 text-white" />
                             <span className="text-white text-[9px] md:text-[13px] font-bold tracking-wider">Danh sách tập</span>
@@ -648,6 +674,19 @@ export default function WatchClient({
                                             <RefreshCcw size={20} className="md:w-6 md:h-6" />
                                         </div>
                                         <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Xem lại</span>
+                                    </motion.button>
+                                    
+                                    <motion.button 
+                                        initial={{ y: 20, opacity: 0 }} 
+                                        animate={{ y: 0, opacity: 1 }} 
+                                        transition={{ delay: 0.1 }}
+                                        onClick={() => setShowEpisodeOverlay(true)} 
+                                        className="group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-transform"
+                                    >
+                                        <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shadow-lg group-hover:bg-white/20">
+                                            <List size={20} className="md:w-6 md:h-6" />
+                                        </div>
+                                        <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Danh sách tập</span>
                                     </motion.button>
 
                                 </div>

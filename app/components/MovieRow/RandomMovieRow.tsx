@@ -36,10 +36,11 @@ export default function RandomMovieRow() {
         setIsLoading(true);
         try {
             // Lấy 4 trang ngẫu nhiên (khoảng 80 phim) để đảm bảo pool phim phong phú và đủ 20 items sau lọc
-            const p1 = Math.floor(Math.random() * 20) + 1;
-            const p2 = Math.floor(Math.random() * 20) + 1;
-            const p3 = Math.floor(Math.random() * 20) + 1;
-            const p4 = Math.floor(Math.random() * 20) + 1;
+            // Lấy các trang ngẫu nhiên, giới hạn thấp hơn để tránh 404 nếu danh mục ít phim
+            const p1 = Math.floor(Math.random() * 10) + 1;
+            const p2 = Math.floor(Math.random() * 10) + 1;
+            const p3 = Math.floor(Math.random() * 10) + 1;
+            const p4 = Math.floor(Math.random() * 10) + 1;
 
             const urls = [
                 `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p1}`)}&revalidate=30`,
@@ -48,10 +49,10 @@ export default function RandomMovieRow() {
                 `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p4}`)}&revalidate=30`
             ];
 
-            const pageResponses = await Promise.all(urls.map(url => axios.get(url)));
-
+            const pageResponses = await Promise.allSettled(urls.map(url => axios.get(url)));
             const allMovies = pageResponses
-                .flatMap(res => res.data?.data?.items || []);
+                .filter((res): res is PromiseFulfilledResult<any> => res.status === 'fulfilled')
+                .flatMap(res => res.value.data?.data?.items || []);
 
             if (allMovies.length === 0) {
                 setMovies([]);

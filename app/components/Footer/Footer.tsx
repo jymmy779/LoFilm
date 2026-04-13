@@ -28,6 +28,7 @@ export default function Footer() {
                                     alt="LoFilm Logo"
                                     width={140}
                                     height={70}
+                                    unoptimized
                                     className=" object-contain drop-shadow-lg"
                                 />
                             </TransitionLink>
