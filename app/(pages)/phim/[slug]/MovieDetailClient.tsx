@@ -611,10 +611,10 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
 
                                 {/* Actors Tab */}
                                 {activeTab === 'Diễn viên' && (
-                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-5">
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 lg:gap-5">
                                         {tmdbActors.length > 0 ? (
                                             tmdbActors.map((actor) => (
-                                                <div key={actor.id} className="group w-[160px] cursor-pointer">
+                                                <div key={actor.id} className="group w-full cursor-pointer">
                                                     <div className="aspect-[3/4] bg-white/5 rounded-2xl mb-3 flex items-center justify-center  border border-white/5 group-hover:border-[#f5a623]/30 transition-all overflow-hidden relative shadow-lg">
                                                         {actor.profile_path ? (
                                                             <Image

@@ -15,7 +15,9 @@ interface MovieInfoProps {
     content: string;
     quality: string;
     tmdb?: {
-      vote_average: number;
+      id?: string;
+      type?: string;
+      vote_average?: number;
     };
   };
   episode: {
