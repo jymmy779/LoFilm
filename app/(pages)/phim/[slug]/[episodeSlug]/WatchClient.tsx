@@ -38,7 +38,9 @@ interface WatchClientProps {
         episode_current: string;
         actors: string[];
         tmdb?: {
-            vote_average: number;
+            id?: string;
+            type?: string;
+            vote_average?: number;
         };
     };
     episode: {

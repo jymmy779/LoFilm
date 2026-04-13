@@ -222,6 +222,7 @@ export default async function WatchPage({ params }: Props) {
                 quality: movie.quality,
                 episode_current: movie.episode_current,
                 actors: movie.actor || [],
+                tmdb: movie.tmdb,
             }}
             episode={{
                 name: currentEpisode.name,

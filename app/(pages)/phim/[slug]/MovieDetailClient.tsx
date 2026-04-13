@@ -11,6 +11,7 @@ import { Movie, EpisodeServer } from "@/app/types/movie";
 import { getImageUrl, getEpisodeStatus, getFriendlyEpisodeSlug, filterDuplicateMovies } from "@/app/utils/movieUtils";
 import { decodeHtml } from "@/app/utils/textUtils";
 import dynamic from "next/dynamic";
+import { TMDBActor, fetchActorsFromTMDB } from "@/app/utils/tmdbUtils";
 const CommentSection = dynamic(() => import("@/app/components/Comments/CommentSection"), {
     loading: () => <div className="h-40 animate-pulse bg-white/5 rounded-2xl" />,
     ssr: false
@@ -47,6 +48,8 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
     const [enrichedSuggestions, setEnrichedSuggestions] = useState<Movie[]>(filteredSuggestions);
     const [weeklyMovies, setWeeklyMovies] = useState<Movie[]>([]);
     const [isLoadingWeekly, setIsLoadingWeekly] = useState(true);
+    const [tmdbActors, setTmdbActors] = useState<TMDBActor[]>([]);
+    const [isLoadingActors, setIsLoadingActors] = useState(false);
 
     // Đảm bảo luôn cuộn lên đầu khi vào chi tiết phim
     useEffect(() => {
@@ -135,6 +138,31 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
         };
         fetchTopWeekly();
     }, []);
+
+    // Effect to fetch TMDB Actors images
+    useEffect(() => {
+        const getActors = async () => {
+            if (!movie.tmdb?.id) return;
+
+            setIsLoadingActors(true);
+            try {
+                // Determine type: tv or movie
+                const type = movie.type === "series" || movie.type === "hoathinh" || movie.type === "tvshows" || movie.tmdb.type === "tv"
+                    ? "tv" : "movie";
+
+                const actors = await fetchActorsFromTMDB(movie.tmdb.id, type);
+                if (actors.length > 0) {
+                    setTmdbActors(actors);
+                }
+            } catch (error) {
+                console.error("Failed to fetch actors images:", error);
+            } finally {
+                setIsLoadingActors(false);
+            }
+        };
+
+        getActors();
+    }, [movie.tmdb?.id, movie.type]);
 
     // Build tabs dynamically based on available data
     const tabs = useMemo(() => {
@@ -582,20 +610,53 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                 )}
 
                                 {/* Actors Tab */}
-                                {activeTab === 'Diễn viên' && movie.actor && (
-                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-6">
-                                        {movie.actor.map((actor, idx) => (
-                                            <div key={idx} className="group cursor-pointer">
-                                                <div className="aspect-[3/4] bg-white/5 rounded-2xl mb-3 flex items-center justify-center border border-white/5 group-hover:border-[#f5a623]/30 transition-all overflow-hidden relative">
-                                                    <i className="fa-solid fa-user text-3xl text-white/10 group-hover:text-[#f5a623]/30 transition-colors"></i>
-                                                </div>
-                                                <div className="text-center">
-                                                    <div className="text-xs font-bold text-gray-400 group-hover:text-white transition-colors truncate px-1">
-                                                        {actor}
+                                {activeTab === 'Diễn viên' && (
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-5">
+                                        {tmdbActors.length > 0 ? (
+                                            tmdbActors.map((actor) => (
+                                                <div key={actor.id} className="group w-[160px] cursor-pointer">
+                                                    <div className="aspect-[3/4] bg-white/5 rounded-2xl mb-3 flex items-center justify-center  border border-white/5 group-hover:border-[#f5a623]/30 transition-all overflow-hidden relative shadow-lg">
+                                                        {actor.profile_path ? (
+                                                            <Image
+                                                                src={getImageUrl(`https://image.tmdb.org/t/p/w200${actor.profile_path}`, { width: 160, quality: 75 })}
+                                                                alt={actor.name}
+                                                                fill
+                                                                className="object-cover transition-transform duration-500"
+                                                                sizes="(max-width: 160px) 100px, 150px"
+                                                            />
+                                                        ) : (
+                                                            <i className="fa-solid fa-user text-3xl text-white/10 group-hover:text-[#f5a623]/30 transition-colors"></i>
+                                                        )}
+                                                    </div>
+                                                    <div className="text-center">
+                                                        <div className="text-xs font-bold text-gray-200 group-hover:text-[#f5a623] transition-colors truncate px-1">
+                                                            {actor.name}
+                                                        </div>
                                                     </div>
                                                 </div>
+                                            ))
+                                        ) : movie.actor && movie.actor.length > 0 ? (
+                                            // Fallback to name-only if TMDB fails or loading
+                                            movie.actor.map((actor, idx) => (
+                                                <div key={idx} className="group cursor-pointer">
+                                                    <div className="aspect-[3/4] bg-white/5 rounded-2xl mb-3 flex items-center justify-center border border-white/5 group-hover:border-[#f5a623]/30 transition-all overflow-hidden relative">
+                                                        <i className="fa-solid fa-user text-3xl text-white/10 group-hover:text-[#f5a623]/30 transition-colors"></i>
+                                                        {isLoadingActors && (
+                                                            <div className="absolute inset-0 bg-white/5 animate-pulse" />
+                                                        )}
+                                                    </div>
+                                                    <div className="text-center">
+                                                        <div className="text-xs font-bold text-gray-400 group-hover:text-white transition-colors truncate px-1">
+                                                            {actor}
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            ))
+                                        ) : (
+                                            <div className="col-span-full py-10 text-center text-gray-500">
+                                                Chưa cập nhật thông tin diễn viên.
                                             </div>
-                                        ))}
+                                        )}
                                     </div>
                                 )}
 
@@ -620,6 +681,6 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
 
                 </div>
             </Container>
-        </main>
+        </main >
     );
 }

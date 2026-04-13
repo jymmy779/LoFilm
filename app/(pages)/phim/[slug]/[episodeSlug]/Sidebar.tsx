@@ -6,12 +6,16 @@ import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { Star, ChevronDown, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getImageUrl } from "@/app/utils/movieUtils";
+import { fetchActorsFromTMDB, TMDBActor } from "@/app/utils/tmdbUtils";
+import { useEffect } from "react";
 
 interface SidebarProps {
     movie: {
         actors: string[];
         tmdb?: {
-            vote_average: number;
+            id?: string;
+            type?: string;
+            vote_average?: number;
         };
     };
     suggestedMovies?: any[];
@@ -19,6 +23,29 @@ interface SidebarProps {
 
 const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
     const [isEmotionExpanded, setIsEmotionExpanded] = useState(false);
+    const [tmdbActors, setTmdbActors] = useState<TMDBActor[]>([]);
+    const [isLoadingActors, setIsLoadingActors] = useState(false);
+
+    // Fetch actors from TMDB
+    useEffect(() => {
+        const getActors = async () => {
+            if (movie.tmdb?.id) {
+                setIsLoadingActors(true);
+                try {
+                    const actors = await fetchActorsFromTMDB(
+                        movie.tmdb.id,
+                        (movie.tmdb.type as 'movie' | 'tv') || 'movie'
+                    );
+                    setTmdbActors(actors);
+                } catch (error) {
+                    console.error("Failed to fetch actors for Sidebar:", error);
+                } finally {
+                    setIsLoadingActors(false);
+                }
+            }
+        };
+        getActors();
+    }, [movie.tmdb?.id, movie.tmdb?.type]);
 
     // Điểm đánh giá từ TMDB
     const rating = movie.tmdb?.vote_average && movie.tmdb.vote_average > 0
@@ -146,20 +173,46 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                 </button>
             </div>
 
-            {/* Actors Section */}
             <div className="pt-8 border-t border-white/5">
                 <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-6">Diễn viên</h3>
                 <div className="grid grid-cols-3 gap-6">
-                    {actorsList.map((actor: { name: string; slug: string }, idx: number) => (
-                        <div key={idx} className="flex flex-col items-center gap-2 group cursor-pointer">
-                            <div className="w-14 h-14 rounded-full bg-white/5 border-2 border-white/10 group-hover:border-white flex items-center justify-center overflow-hidden transition-all relative">
-                                <User size={20} className="text-white/20 group-hover:text-white/40 transition-colors" />
+                    {tmdbActors.length > 0 ? (
+                        tmdbActors.map((actor, idx) => (
+                            <div key={idx} className="flex flex-col items-center gap-2 group cursor-pointer relative">
+                                <div className="w-16 h-16 rounded-full bg-white/5 border-2 border-white/10 group-hover:border-amber-400 flex items-center justify-center overflow-hidden transition-all relative shadow-xl">
+                                    {actor.profile_path ? (
+                                        <Image
+                                            src={getImageUrl(`https://image.tmdb.org/t/p/w200${actor.profile_path}`, { width: 100, quality: 75 })}
+                                            alt={actor.name}
+                                            fill
+                                            className="object-cover transition-transform duration-500"
+                                            sizes="64px"
+                                        />
+                                    ) : (
+                                        <User size={20} className="text-white/20 group-hover:text-white/40 transition-colors" />
+                                    )}
+                                </div>
+                                <span className="text-[10px] text-white/60 group-hover:text-amber-400 text-center leading-tight truncate w-full transition-colors font-medium">
+                                    {actor.name}
+                                </span>
                             </div>
-                            <span className="text-[11px] text-white/60 group-hover:text-white text-center leading-tight truncate w-full transition-colors">
-                                {actor.name}
-                            </span>
-                        </div>
-                    ))}
+                        ))
+                    ) : (
+                        // Fallback UI or Loading state
+                        actorsList.slice(0, 9).map((actor: { name: string; slug: string }, idx: number) => (
+                            <div key={idx} className="flex flex-col items-center gap-2 group cursor-pointer relative">
+                                <div className="w-16 h-16 rounded-full bg-white/5 border-2 border-white/10 group-hover:border-white flex items-center justify-center overflow-hidden transition-all relative">
+                                    <User size={20} className="text-white/20 group-hover:text-white/40 transition-colors" />
+                                    {isLoadingActors && (
+                                        <div className="absolute inset-0 bg-white/5 animate-pulse" />
+                                    )}
+                                </div>
+                                <span className="text-[10px] text-white/60 group-hover:text-white text-center leading-tight truncate w-full transition-colors">
+                                    {actor.name}
+                                </span>
+                            </div>
+                        ))
+                    )}
                 </div>
             </div>
 
