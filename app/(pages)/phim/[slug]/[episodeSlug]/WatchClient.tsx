@@ -219,22 +219,29 @@ export default function WatchClient({
     // Function to call Supabase RPC and record a valid view
     const recordViewToSupabase = async () => {
         try {
-            // Get user IP for unique view tracking (especially for guests)
-            let ip = null;
+            // 1. Lấy hoặc tạo Device ID ngẫu nhiên để phân biệt các máy (dùng chung Wifi vẫn tính riêng)
+            let deviceId = localStorage.getItem("lofilm_device_id");
+            if (!deviceId) {
+                deviceId = "dev-" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
+                localStorage.setItem("lofilm_device_id", deviceId);
+            }
+
+            // 2. Lấy IP (để lưu vết nhưng không dùng làm khóa chính để chặn view nhiều máy)
+            let ip = "unknown";
             try {
                 const ipRes = await fetch('https://api.ipify.org?format=json');
                 const ipData = await ipRes.json();
                 ip = ipData.ip;
-            } catch (e) {
-                console.warn("Could not fetch IP, using identification from DB only");
-            }
+            } catch (e) {}
 
-            // Call the secure RPC function
+            // 3. Gọi RPC với Device ID mới
             await supabase.rpc('record_movie_view', {
                 p_movie_slug: slug,
                 p_ip: ip,
-                p_user_id: userRef.current?.id || null
+                p_user_id: userRef.current?.id || null,
+                p_device_id: deviceId
             });
+            console.log("View recorded for device:", deviceId);
         } catch (err) {
             console.error("Error recording view:", err);
         }
@@ -343,8 +350,11 @@ export default function WatchClient({
                 const duration = player.duration;
                 const remaining = duration - currentTime;
 
+                // LOGIC TÍNH VIEW MỚI (LINH HOẠT HƠN)
                 if (!hasRecordedView.current && !player.paused && player.playing) {
                     const now = Date.now();
+                    
+                    // Tính thời gian xem tích lũy (duration based)
                     if (lastUpdateTimestamp.current > 0) {
                         const delta = (now - lastUpdateTimestamp.current) / 1000;
                         if (delta > 0 && delta < 2) {
@@ -353,11 +363,13 @@ export default function WatchClient({
                     }
                     lastUpdateTimestamp.current = now;
 
-                    if (watchTimeAccumulator.current >= 30) {
+                    // ĐIỀU KIỆN CỘNG VIEW:
+                    // 1. Xem tích lũy đủ 10 giây (chứng tỏ có ý định xem)
+                    // 2. HOẶC tua qua mốc 30 giây và đang bấm Play
+                    if (watchTimeAccumulator.current >= 10 || currentTime >= 30) {
                         hasRecordedView.current = true;
                         recordViewToSupabase();
                     }
-                } else if (player.paused) {
                 }
 
                 saveProgress(currentTime, duration);
