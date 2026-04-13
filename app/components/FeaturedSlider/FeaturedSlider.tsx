@@ -88,14 +88,12 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
 
     if (isLoading) {
         return (
-            <Container as="section" className="relative md:my-12 my-8 lg:my-16">
-                <Skeleton width={300} height={35} className="mb-6 rounded" />
-                <div className="relative aspect-[21/9] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5] min-h-[500px] rounded-[30px] overflow-hidden">
-                    <Skeleton className="w-full h-full" />
-                    <div className="absolute bottom-0 left-0 p-8 lg:p-12 w-full max-w-2xl z-10">
-                        <Skeleton height={40} width="80%" className="mb-4" />
-                        <Skeleton count={3} className="mb-2" />
-                    </div>
+            <Container as="section" className="relative my-16">
+                <div className="flex items-center justify-between mb-6">
+                    <Skeleton width={300} height={35} className="rounded-lg max-w-full" />
+                </div>
+                <div className="relative w-full aspect-[21/9] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5] md:min-h-[500px] min-h-[300px] pt-[5px] pb-[20px]">
+                    <Skeleton className="w-full h-full block rounded-[30px]" />
                 </div>
             </Container>
         );
@@ -141,7 +139,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                 >
                     {movies.map((movie, index) => (
                         <SwiperSlide key={movie._id}>
-                            <div className="relative w-full aspect-[21/9] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5] min-h-[500px] bg-[#14233E]">
+                            <div className="relative w-full aspect-[21/9] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5] md:min-h-[500px] min-h-[300px] bg-[#14233E]">
 
                                 {/* Background Image Area */}
                                 <div className="absolute top-0 right-0 w-full xl:w-[75%] h-full z-0 select-none pointer-events-none">

@@ -45,15 +45,15 @@ export default function WideMovieRow({
 
     if (isLoading) {
         return (
-            <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
-                <div className="flex items-center justify-between mb-6">
-                    <Skeleton width={200} height={32} />
-                    <Skeleton width={80} height={20} />
+            <Container as="section" className="relative z-30 mb-6 md:mb-12 lg:mb-16 mt-6 md:mt-8">
+                <div className="flex items-center justify-between mb-4 md:mb-6">
+                    <Skeleton width={200} height={32} className="rounded-lg" />
+                    <Skeleton width={80} height={20} className="rounded" />
                 </div>
-                <div className="flex gap-4 overflow-hidden">
-                    {[...Array(4)].map((_, i) => (
-                        <div key={i} className="flex-none w-[300px] md:w-[400px]">
-                            <Skeleton className="aspect-[21/9] rounded-2xl" />
+                <div className="flex gap-[10px] md:gap-4 lg:gap-5 overflow-hidden pt-[5px] pb-[20px]">
+                    {[...Array(5)].map((_, i) => (
+                        <div key={i} className="flex-none w-[80%] sm:w-[45%] lg:w-[35%] xl:w-[28%]">
+                            <Skeleton className="aspect-[21/9] rounded-xl md:rounded-2xl block" />
                         </div>
                     ))}
                 </div>

@@ -38,15 +38,18 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovi
 
     if (isLoading) {
         return (
-            <Container as="section" className="relative z-30 mb-16 mt-8">
-                <Skeleton width={200} height={32} className="mb-6 rounded" />
-                <div className="flex gap-2.5 md:gap-4 lg:gap-[15px] overflow-hidden">
+            <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
+                <div className="flex items-center justify-between mb-6">
+                    <Skeleton width={200} height={32} className="rounded-lg" />
+                    <Skeleton width={80} height={20} className="rounded" />
+                </div>
+                <div className="flex gap-2.5 md:gap-[13px] lg:gap-[15px] overflow-hidden pt-[5px] pb-[20px]">
                     {[...Array(10)].map((_, i) => (
                         <div
                             key={i}
                             className="flex-none w-[calc((100%-10px)/2)] sm:w-[calc((100%-13px*2)/3)] md:w-[calc((100%-13px*3)/4)] xl:w-[calc((100%-13px*5)/6)] 2xl:w-[calc((100%-15px*7)/8)]"
                         >
-                            <Skeleton className="aspect-[2/3] rounded-2xl" />
+                            <Skeleton className="aspect-[2/3] rounded-2xl block" />
                         </div>
                     ))}
                 </div>

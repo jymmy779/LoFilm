@@ -94,26 +94,17 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
 
     if (isLoading) {
         return (
-            <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
-                <Skeleton width={300} height={40} className="mb-8 rounded-lg" />
-                <div className="flex gap-[10px] sm:gap-[13px] xl:gap-[15px] overflow-hidden">
+            <Container as="section" className="relative z-30 mb-16 mt-8">
+                <div className="flex items-center justify-between mb-8">
+                    <Skeleton width={300} height={40} className="rounded-lg" />
+                </div>
+                <div className="flex gap-[10px] sm:gap-[13px] xl:gap-[15px] overflow-hidden pt-[5px] pb-[20px]">
                     {[...Array(10)].map((_, i) => (
                         <div
                             key={i}
                             className="flex-none mt-4 w-[calc((100%-10px)/2)] sm:w-[calc((100%-13px*2)/3)] md:w-[calc((100%-13px*3)/4)] xl:w-[calc((100%-13px*5)/6)] 2xl:w-[calc((100%-15px*7)/8)]"
                         >
-                            <div className="bg-white/5 rounded-2xl overflow-hidden aspect-[2/3] mb-4">
-                                <Skeleton className="w-full h-full" />
-                            </div>
-                            <div className="flex gap-2 items-start h-16">
-                                <div className="flex-shrink-0 w-10 md:w-13">
-                                    <Skeleton height={42} width="100%" />
-                                </div>
-                                <div className="flex-1 flex flex-col gap-1.5 pt-2">
-                                    <Skeleton height={16} width="100%" />
-                                    <Skeleton height={12} width="60%" />
-                                </div>
-                            </div>
+                            <Skeleton className="aspect-[2/3] rounded-2xl block" />
                         </div>
                     ))}
                 </div>

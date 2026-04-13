@@ -51,11 +51,23 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     // Tìm tập phim hiện tại
     let currentEpisodeName = "";
     if (episodes && episodes.length > 0) {
-        // Lấy slug thực tế (tap-full -> full)
-        const realEpisodeSlug = episodeSlug === "tap-full" ? "full" : episodeSlug;
-        
+        const cleanTargetSlug = episodeSlug.replace(/^tap-/, "").toLowerCase();
         const allEpisodes = episodes.flatMap((server: any) => server.server_data);
-        const episode = allEpisodes.find((ep: any) => ep.slug === realEpisodeSlug);
+        
+        const episode = allEpisodes.find((ep: any) => {
+            const epSlug = ep.slug.toLowerCase();
+            const epCleanSlug = epSlug.replace(/^tap-/, "");
+            return (
+                epSlug === episodeSlug || 
+                epSlug === cleanTargetSlug ||
+                epCleanSlug === cleanTargetSlug ||
+                (episodeSlug === "tap-full" && epSlug === "full") ||
+                ep.name.toLowerCase() === `tập ${cleanTargetSlug}` ||
+                ep.name.toLowerCase() === `tập ${cleanTargetSlug.replace(/^0+/, "")}` ||
+                ep.name.toLowerCase() === cleanTargetSlug ||
+                epCleanSlug.replace(/^0+/, "") === cleanTargetSlug.replace(/^0+/, "")
+            );
+        });
         
         if (episode) {
             currentEpisodeName = ` - Tập ${episode.name}`;
@@ -153,15 +165,26 @@ export default async function WatchPage({ params }: Props) {
             serverIndex = 0;
         } else {
             // Tìm chính xác tập phim
+            const cleanTargetSlug = episodeSlug.replace(/^tap-/, "").toLowerCase();
+
             for (let i = 0; i < episodes.length; i++) {
                 const server = episodes[i];
-                const found = server.server_data.find((ep: any) => 
-                    ep.slug === episodeSlug || 
-                    ep.slug === `tap-${episodeSlug}` ||
-                    (episodeSlug === "tap-full" && ep.slug === "full") ||
-                    ep.name.toLowerCase() === `tập ${episodeSlug}` ||
-                    ep.name.toLowerCase() === `tập ${episodeSlug.padStart(2, '0')}`
-                );
+                const found = server.server_data.find((ep: any) => {
+                    const epSlug = ep.slug.toLowerCase();
+                    const epCleanSlug = epSlug.replace(/^tap-/, "");
+                    
+                    return (
+                        epSlug === episodeSlug || 
+                        epSlug === cleanTargetSlug ||
+                        epCleanSlug === cleanTargetSlug ||
+                        (episodeSlug === "tap-full" && epSlug === "full") ||
+                        ep.name.toLowerCase() === `tập ${cleanTargetSlug}` ||
+                        ep.name.toLowerCase() === `tập ${cleanTargetSlug.replace(/^0+/, "")}` ||
+                        ep.name.toLowerCase() === cleanTargetSlug ||
+                        // So sánh số nguyên (ví dụ 01 khớp với 1)
+                        epCleanSlug.replace(/^0+/, "") === cleanTargetSlug.replace(/^0+/, "")
+                    );
+                });
                 if (found) {
                     currentEpisode = found;
                     serverIndex = i;
