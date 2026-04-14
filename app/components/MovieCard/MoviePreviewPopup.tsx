@@ -29,7 +29,7 @@ export default function MoviePreviewPopup({
     onMouseLeave
 }: MoviePreviewPopupProps) {
     const { triggerAd } = useAdTrigger();
-    
+
     // Default fallback logic before fetching exact slug
     const isMultiEp = ["series", "hoathinh", "tvshows"].includes(movie.type || "");
     const [playUrl, setPlayUrl] = useState(`/phim/${movie.slug}/${isMultiEp ? 'tap-01' : 'tap-full'}`);
@@ -44,7 +44,7 @@ export default function MoviePreviewPopup({
             try {
                 const res = await fetch(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}&revalidate=30`);
                 const data = await res.json();
-                
+
                 if (isMounted && data?.movie) {
                     // Cập nhật lại metadata mới nhất (số tập hiện tại/tổng số tập)
                     setUpdatedMetadata({
@@ -107,7 +107,7 @@ export default function MoviePreviewPopup({
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
             onClick={(e) => e.stopPropagation()}
-            style={{ 
+            style={{
                 top: position.top,
                 left: position.left
             }}
@@ -140,7 +140,7 @@ export default function MoviePreviewPopup({
                             className={`object-cover transition-opacity duration-300 ease-in-out ${isThumbLoaded ? 'opacity-100' : 'opacity-0'}`}
                         />
                     )}
-                    
+
                     <div className="absolute inset-0 bg-gradient-to-t from-[#111319] via-transparent to-transparent" />
                 </div>
 
@@ -156,9 +156,9 @@ export default function MoviePreviewPopup({
                     </div>
 
                     <div className="flex items-center gap-2 pt-1">
-                        <button 
-                            onClick={(e) => { 
-                                e.stopPropagation(); 
+                        <button
+                            onClick={(e) => {
+                                e.stopPropagation();
                                 e.preventDefault();
                                 triggerAd(playUrl, adZone || "popup_play");
                             }}
@@ -169,8 +169,8 @@ export default function MoviePreviewPopup({
                             </svg>
                             Xem ngay
                         </button>
-                        
-                        <button 
+
+                        <button
                             onClick={(e) => {
                                 e.stopPropagation();
                                 e.preventDefault();
@@ -184,7 +184,7 @@ export default function MoviePreviewPopup({
                             {isFavorited ? 'Đã thích' : 'Thích'}
                         </button>
 
-                        <button 
+                        <button
                             onClick={(e) => {
                                 e.stopPropagation();
                                 e.preventDefault();
@@ -208,8 +208,8 @@ export default function MoviePreviewPopup({
                             {movie.year}
                         </div>
                         <div className="px-2.5 py-1 border border-white/20 rounded-lg text-white/60 text-[10px] font-bold">
-                            {updatedMetadata 
-                                ? getEpisodeStatus({ ...movie, ...updatedMetadata }) 
+                            {updatedMetadata
+                                ? getEpisodeStatus({ ...movie, ...updatedMetadata })
                                 : getEpisodeStatus(movie)}
                         </div>
                     </div>

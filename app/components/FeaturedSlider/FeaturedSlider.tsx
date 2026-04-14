@@ -165,10 +165,10 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                                 className="text-xl md:text-2xl lg:text-3xl font-bold text-white group-hover:text-[#f5a623] transition-colors line-clamp-1 [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)] cursor-pointer"
                                                 onClick={(e) => handleFeaturedClick(e, movie.slug)}
                                             >
-                                                {decodeHtml(movie.name)}
+                                                {movie.name}
                                             </h3>
                                             <p className="text-sm md:text-base font-medium text-white/70 italic line-clamp-1 mt-1 [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)]">
-                                                {decodeHtml(movie.origin_name)}
+                                                {movie.origin_name}
                                             </p>
                                         </div>
 

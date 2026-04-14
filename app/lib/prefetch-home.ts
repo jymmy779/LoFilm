@@ -54,7 +54,7 @@ async function mapHero(payload: unknown): Promise<Movie[]> {
     // Chỉ lấy cho 4 phim đầu để tối ưu TTFB
     const enriched = await Promise.all(
         movies.map(async (m, i) => {
-            if (i > 3) return m; 
+            if (i > 7) return m; 
             try {
                 const detail = await fetchPhimJson(`https://phimapi.com/phim/${m.slug}`);
                 return { ...m, content: (detail as any)?.movie?.content || "" };

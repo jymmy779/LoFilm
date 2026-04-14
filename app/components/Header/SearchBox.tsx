@@ -4,7 +4,6 @@ import Image from "next/image";
 import axios from "axios";
 import nProgress from "nprogress";
 import { Movie } from "@/app/types/movie";
-import { decodeHtml } from "@/app/utils/textUtils";
 import { getImageUrl } from "@/app/utils/movieUtils";
 import { motion, AnimatePresence } from "framer-motion";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
@@ -200,7 +199,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                                             </div>
                                             <div className="flex flex-col justify-center min-w-0">
                                                 <h4 className="text-[12px] md:text-[13px] font-bold text-white/90 group-hover:text-[#f5a623] transition-colors truncate leading-tight">
-                                                    {decodeHtml(movie.name)}
+                                                    {movie.name}
                                                 </h4>
                                                 <p className="text-[10px] md:text-[11px] text-white/40 truncate mt-0.5">
                                                     {movie.origin_name}

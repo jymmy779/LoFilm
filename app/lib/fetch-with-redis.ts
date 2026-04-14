@@ -33,7 +33,9 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
         const response = await fetch(url, {
             ...options,
             signal: controller.signal,
-            next: { revalidate: revalidate },
+            // Disable Next.js internal fetch cache to use Redis as the single source of truth.
+            // This prevents the "2-3 refreshes" issue caused by stale-while-revalidate.
+            cache: 'no-store',
         });
 
         clearTimeout(timeoutId);

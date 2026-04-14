@@ -54,7 +54,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                     const content = r.data.movie?.content ?? "";
                     if (content) {
                         setMovies((prev) =>
-                            prev.map((item) => item.slug === m.slug ? { ...item, content } : item)
+                            prev.map((item) => item.slug === m.slug ? { ...item, content: content } : item)
                         );
                     }
                 } catch (error) {
@@ -62,23 +62,11 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                 }
             };
 
-            // Ưu tiên phim đầu tiên
-            if (first8.length > 0) {
-                await fetchSingle(first8[0]);
-            }
-
-            // Các phim còn lại
-            if (first8.length > 1) {
-                const rest = first8.slice(1);
-                rest.forEach(m => fetchSingle(m));
-            }
+            // Thực hiện fetch đồng thời thay vì tuần tự
+            await Promise.all(first8.map(m => fetchSingle(m)));
         };
 
-        if (typeof requestIdleCallback !== "undefined") {
-            requestIdleCallback(() => runEnrich(), { timeout: 800 });
-        } else {
-            setTimeout(runEnrich, 1);
-        }
+        runEnrich();
     };
 
     useEffect(() => {
@@ -95,8 +83,16 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                 const filtered = filterDuplicateMovies(items);
                 const first8 = filtered.slice(0, 8);
 
-                // Cập nhật lại state movies với bản mới nhất từ client fetch
-                setMovies(first8);
+                // Đồng bộ list mới nhưng giữ lại content đã có
+                setMovies((prev) => {
+                    return first8.map(newMovie => {
+                        const existingMovie = prev.find(p => p.slug === newMovie.slug);
+                        return {
+                            ...newMovie,
+                            content: existingMovie?.content || newMovie.content
+                        };
+                    });
+                });
                 scheduleContentEnrich(first8);
             })
             .catch((err) => {
