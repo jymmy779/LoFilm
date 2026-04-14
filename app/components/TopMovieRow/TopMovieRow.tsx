@@ -102,7 +102,7 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                     {[...Array(10)].map((_, i) => (
                         <div
                             key={i}
-                            className="flex-none mt-4 w-[calc((100%-10px)/2)] sm:w-[calc((100%-13px*2)/3)] md:w-[calc((100%-13px*3)/4)] xl:w-[calc((100%-13px*5)/6)] 2xl:w-[calc((100%-15px*7)/8)]"
+                            className="flex-none mt-4 w-[calc((100%-10px)/2)] sm:w-[calc((100%-13px*2)/3)] md:w-[calc((100%-13px*3)/4)] lg:w-[calc((100%-13px*4)/5)] xl:w-[calc((100%-13px*5)/6)] 2xl:w-[calc((100%-15px*7)/8)]"
                         >
                             <Skeleton className="aspect-[2/3] rounded-2xl block" />
                         </div>
@@ -136,8 +136,9 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                         prevEl: `.sw-prev-${navId}`,
                     }}
                     breakpoints={{
-                        576: { slidesPerView: 3, spaceBetween: 13 },
-                        767: { slidesPerView: 4, spaceBetween: 13 },
+                        640: { slidesPerView: 3, spaceBetween: 13 },
+                        768: { slidesPerView: 4, spaceBetween: 13 },
+                        1024: { slidesPerView: 5, spaceBetween: 13 },
                         1200: { slidesPerView: 6, spaceBetween: 13 },
                         1400: { slidesPerView: 7, spaceBetween: 15 },
                         1536: { slidesPerView: 8, spaceBetween: 15 }
@@ -219,9 +220,9 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                     })}
                 </Swiper>
 
-                <SwiperNavButtons 
-                    prevClassName={`sw-prev-${navId}`} 
-                    nextClassName={`sw-next-${navId}`} 
+                <SwiperNavButtons
+                    prevClassName={`sw-prev-${navId}`}
+                    nextClassName={`sw-next-${navId}`}
                     variant="ghost"
                 />
             </div>

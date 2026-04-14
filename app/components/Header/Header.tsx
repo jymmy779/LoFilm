@@ -304,8 +304,8 @@ export default function Header() {
                                                     <TransitionLink
                                                         key={cat._id}
                                                         href={`/the-loai/${cat.slug}`}
-                                                        onClick={() => { 
-                                                            if (pathname !== `/the-loai/${cat.slug}`) setIsMenuOpen(false); 
+                                                        onClick={() => {
+                                                            if (pathname !== `/the-loai/${cat.slug}`) setIsMenuOpen(false);
                                                             openAdOnly("category_tab");
                                                         }}
                                                         className="text-sm text-white/60 hover:text-[#f5a623] py-1 transition-colors"
@@ -348,8 +348,8 @@ export default function Header() {
                                                     <TransitionLink
                                                         key={country._id}
                                                         href={`/quoc-gia/${country.slug}`}
-                                                        onClick={() => { 
-                                                            if (pathname !== `/quoc-gia/${country.slug}`) setIsMenuOpen(false); 
+                                                        onClick={() => {
+                                                            if (pathname !== `/quoc-gia/${country.slug}`) setIsMenuOpen(false);
                                                             openAdOnly("country_tab");
                                                         }}
                                                         className="text-sm text-white/60 hover:text-[#f5a623] py-1 transition-colors"
