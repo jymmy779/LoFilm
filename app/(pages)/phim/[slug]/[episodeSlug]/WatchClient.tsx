@@ -675,12 +675,12 @@ export default function WatchClient({
                                         </div>
                                         <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Xem lại</span>
                                     </motion.button>
-                                    
-                                    <motion.button 
-                                        initial={{ y: 20, opacity: 0 }} 
-                                        animate={{ y: 0, opacity: 1 }} 
+
+                                    <motion.button
+                                        initial={{ y: 20, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
                                         transition={{ delay: 0.1 }}
-                                        onClick={() => setShowEpisodeOverlay(true)} 
+                                        onClick={() => setShowEpisodeOverlay(true)}
                                         className="group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-transform"
                                     >
                                         <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shadow-lg group-hover:bg-white/20">

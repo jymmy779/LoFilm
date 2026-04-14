@@ -1,0 +1,117 @@
+.not-found-container {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: calc(100vh - 150px);
+    padding: 18rem 2rem 10rem;
+    /* Tăng padding-top lên 15rem để đẩy nội dung xuống giữa màn hình hơn */
+    text-align: center;
+}
+
+.not-found-image-container {
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: center;
+}
+
+.not-found-image {
+    max-width: 200px;
+    /* Làm ảnh bé lại thêm một chút nữa */
+    height: auto;
+    object-fit: contain;
+}
+
+.not-found-content {
+    max-width: 500px;
+    width: 100%;
+}
+
+.not-found-heading {
+    font-size: 1.5rem;
+    font-weight: 700;
+    font-family: var(--font-montserrat);
+    color: #fbbf24;
+    margin-bottom: 0.75rem;
+}
+
+.not-found-text {
+    font-size: 1rem;
+    color: rgba(255, 255, 255, 0.7);
+    margin-bottom: 2.5rem;
+    line-height: 1.6;
+}
+
+.back-home-button {
+    display: inline-block;
+    padding: 0.8rem 2rem;
+    background-color: #fbbf24;
+    color: #000;
+    font-weight: 600;
+    border-radius: 9999px; /* Pill shape */
+    text-decoration: none;
+    transition: all 0.2s ease;
+    font-family: var(--font-montserrat);
+    font-size: 1rem;
+    border: none;
+    cursor: pointer;
+}
+
+.back-home-button:hover {
+    background-color: #f59e0b;
+    /* Slightly darker amber */
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(251, 191, 36, 0.3);
+}
+
+.back-home-button:active {
+    transform: translateY(0);
+}
+
+@media (max-width: 1024px) {
+    .not-found-container {
+        padding: 12rem 2rem 8rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .not-found-container {
+        padding: 10rem 1.5rem 6rem;
+    }
+
+    .not-found-heading {
+        font-size: 1.25rem;
+    }
+
+    .not-found-image {
+        max-width: 160px;
+    }
+}
+
+@media (max-width: 480px) {
+    .not-found-container {
+        padding: 8rem 1rem 4rem;
+    }
+
+    .not-found-image-container {
+        margin-bottom: 1.5rem;
+    }
+
+    .not-found-heading {
+        font-size: 1.1rem;
+        margin-bottom: 0.5rem;
+    }
+
+    .not-found-text {
+        font-size: 0.875rem;
+        margin-bottom: 2rem;
+    }
+
+    .not-found-image {
+        max-width: 120px;
+    }
+    
+    .back-home-button {
+        padding: 0.7rem 1.25rem;
+        font-size: 0.875rem;
+    }
+}
