@@ -82,23 +82,26 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
     };
 
     useEffect(() => {
+        // Nếu có initialMovies, chúng ta dùng ngay để không phải hiện Skeleton
         if (initialMovies && initialMovies.length > 0) {
             scheduleContentEnrich(initialMovies);
-            return;
         }
 
-        axios.get(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?page=1")}`)
+        // Luôn fetch lại trên client (giống Sidebar) để đảm bảo data luôn mới nhất từ API/Redis
+        // Sử dụng cùng URL limit=40 để dùng chung cache với Sidebar
+        axios.get(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?limit=40")}`)
             .then((res) => {
                 const items: Movie[] = res.data.items || [];
                 const filtered = filterDuplicateMovies(items);
                 const first8 = filtered.slice(0, 8);
+
+                // Cập nhật lại state movies với bản mới nhất từ client fetch
                 setMovies(first8);
                 scheduleContentEnrich(first8);
             })
             .catch((err) => {
                 console.error("Lỗi fetch phim:", err);
             });
-        // Chỉ chạy một lần khi mount; initialMovies đến từ server snapshot
         // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 

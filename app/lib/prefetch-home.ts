@@ -68,7 +68,7 @@ async function mapHero(payload: unknown): Promise<Movie[]> {
 }
 
 const URLS = {
-    hero: "https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?page=1",
+    hero: "https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?limit=40",
     categories: "https://phimapi.com/the-loai",
     movieRowHan: "https://phimapi.com/v1/api/quoc-gia/han-quoc?limit=20",
     movieRowTrung: "https://phimapi.com/v1/api/quoc-gia/trung-quoc?limit=20",
