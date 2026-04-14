@@ -9,18 +9,23 @@ html {
   scroll-behavior: smooth;
 }
 
-h1, h2, h3, h4, h5, h6, 
-button, 
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+button,
 .font-heading,
 .nav-link {
   font-family: var(--font-heading);
   letter-spacing: -0.01em;
 }
 
-body, 
-input, 
-select, 
-textarea, 
+body,
+input,
+select,
+textarea,
 .font-body {
   font-family: var(--font-body);
 }
@@ -50,10 +55,46 @@ body {
   --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
 }
 
+/* TRẬN CHIẾN CUỐI CÙNG VỚI VIỀN NÉT ĐỨT */
+.plyr--full-ui input[type='range'],
+.plyr--full-ui input[type='range']:focus,
+.plyr--full-ui input[type='range']:focus-visible,
+.plyr--full-ui input[type='range']:active,
+.plyr__progress,
+.plyr__progress:focus,
+.plyr__progress:focus-within,
+.plyr__progress input[type='range'],
+.plyr__progress input[type='range']:focus,
+.plyr__progress input[type='range']:focus-visible,
+.plyr__volume,
+.plyr__volume:focus,
+.plyr__volume:focus-within,
+.plyr *:focus,
+.plyr *:focus-visible,
+.plyr *:active {
+  outline: none !important;
+  outline: 0 !important;
+  box-shadow: none !important;
+  border: none !important;
+  -webkit-tap-highlight-color: transparent !important;
+}
+
+/* Chặn đứng Shadow DOM của Chrome/Edge và Firefox */
+.plyr--full-ui input[type='range']::-webkit-slider-runnable-track,
+.plyr--full-ui input[type='range']::-webkit-slider-thumb,
+.plyr--full-ui input[type='range']::-moz-range-track,
+.plyr--full-ui input[type='range']::-moz-range-thumb,
+.plyr--full-ui input[type='range']::-moz-focus-outer {
+  outline: none !important;
+  box-shadow: none !important;
+  border: 0 !important;
+}
+
+
 /* Autofill Reset */
 input:-webkit-autofill,
-input:-webkit-autofill:hover, 
-input:-webkit-autofill:focus, 
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus,
 input:-webkit-autofill:active {
   -webkit-text-fill-color: white !important;
   -webkit-box-shadow: 0 0 0px 1000px transparent inset !important;
@@ -119,7 +160,7 @@ body.theater-mode footer:hover {
 }
 
 /* Hide cursor when controls are hidden or during playback inactivity */
-.plyr--hide-controls, 
+.plyr--hide-controls,
 .plyr--hide-controls * {
   cursor: none !important;
 }
@@ -235,14 +276,7 @@ body.theater-mode footer:hover {
   pointer-events: none !important;
 }
 
-/* Remove Range Focus Ring */
-.plyr input[type='range']:focus,
-.plyr input[type='range']:focus-visible,
-.plyr input[type='range']:active,
-.plyr input[type='range']::-moz-focus-outer {
-  outline: none !important;
-  box-shadow: none !important;
-}
+/* Focus management handled in top section */
 
 /* Scale Seek Bar on hover */
 /* Slim Progress Bar for All Screens */
@@ -380,5 +414,6 @@ body.theater-mode footer:hover {
 }
 
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-  background: rgba(251, 191, 36, 0.3); /* amber-400 with opacity */
-}
+  background: rgba(251, 191, 36, 0.3);
+  /* amber-400 with opacity */
+}
