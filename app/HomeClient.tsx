@@ -44,7 +44,6 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <RandomMovieRow />
 
             <LazyRow estimatedHeight="380px">
-                {/* Phim Hàn Quốc bây giờ được load lazy */}
                 <MovieRow
                     title="Phim Hàn Quốc mới"
                     apiUrl="https://phimapi.com/v1/api/quoc-gia/han-quoc?limit=20"
@@ -109,7 +108,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     viewAllLink="/danh-sach/phim-bo"
                     initialMovies={prefetched.posterPhimBo}
                     sortByYear={true}
-                    revalidate={600}
+                    revalidate={30}
                 />
             </LazyRow>
 

@@ -31,13 +31,18 @@ export async function enrichMoviesMetadata({
             const isMulti = ["series", "hoathinh", "tvshows"].includes(m.type || "") || m.tmdb?.type === "tv";
             
             // Chưa có tổng số tập (hoặc đang là ??)
-            const hasTotal = m.episode_total && m.episode_total !== "??";
+            const hasTotal = m.episode_total && m.episode_total !== "??" && m.episode_total !== "0";
             
+            // Trạng thái tập phim (nếu đang là "Tập 1" hoặc chứa "/" thì nên kiểm tra lại)
+            const isPossiblyOutdated = m.episode_current?.includes("/") || m.episode_current === "Tập 1" || m.episode_current === "1";
+
             // Chưa có đánh giá TMDB
             const hasRating = !!(m.tmdb?.vote_average && m.tmdb.vote_average > 0);
 
-            // Làm giàu nếu là phim bộ thiếu thông tin hoặc bất kỳ phim nào thiếu rating
-            return (isMulti && !hasTotal) || !hasRating;
+            // Làm giàu nếu:
+            // 1. Là phim bộ mà thiếu thông tin HOẶC có khả năng dữ liệu tập bị cũ
+            // 2. Phim lẻ thiếu rating/metadata
+            return (isMulti && (!hasTotal || isPossiblyOutdated)) || !hasRating;
         });
 
     if (targets.length === 0) return;
@@ -53,12 +58,13 @@ export async function enrichMoviesMetadata({
                 try {
                     // Sử dụng proxy để tránh CORS và tận dụng cache Vercel Edge
                     const apiUrl = `https://phimapi.com/phim/${m.slug}`;
-                    const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`);
+                    const detailRes = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}&revalidate=60`);
                     
                     if (detailRes.data?.movie) {
                         const movieDetail = detailRes.data.movie;
                         enriched[idx] = { 
                             ...enriched[idx], 
+                            episode_current: movieDetail.episode_current || enriched[idx].episode_current,
                             episode_total: movieDetail.episode_total || enriched[idx].episode_total,
                             tmdb: movieDetail.tmdb || enriched[idx].tmdb,
                             status: movieDetail.status || enriched[idx].status,

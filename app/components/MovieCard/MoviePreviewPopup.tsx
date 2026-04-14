@@ -34,6 +34,7 @@ export default function MoviePreviewPopup({
     const isMultiEp = ["series", "hoathinh", "tvshows"].includes(movie.type || "");
     const [playUrl, setPlayUrl] = useState(`/phim/${movie.slug}/${isMultiEp ? 'tap-01' : 'tap-full'}`);
     const [isLoadingPlayUrl, setIsLoadingPlayUrl] = useState(true);
+    const [updatedMetadata, setUpdatedMetadata] = useState<{ episode_current?: string; episode_total?: string } | null>(null);
 
     const detailUrl = `/phim/${movie.slug}`;
 
@@ -41,11 +42,21 @@ export default function MoviePreviewPopup({
         let isMounted = true;
         const fetchExactPlayUrl = async () => {
             try {
-                const res = await fetch(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}`);
+                const res = await fetch(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}&revalidate=30`);
                 const data = await res.json();
-                if (isMounted && data?.episodes?.[0]?.server_data?.[0]?.slug) {
-                    const firstEpSlug = data.episodes[0].server_data[0].slug;
-                    setPlayUrl(`/phim/${movie.slug}/${getFriendlyEpisodeSlug(firstEpSlug)}`);
+                
+                if (isMounted && data?.movie) {
+                    // Cập nhật lại metadata mới nhất (số tập hiện tại/tổng số tập)
+                    setUpdatedMetadata({
+                        episode_current: data.movie.episode_current,
+                        episode_total: data.movie.episode_total
+                    });
+
+                    // Cập nhật URL xem phim chính xác (ưu tiên server đầu tiên, tập đầu tiên)
+                    if (data?.episodes?.[0]?.server_data?.[0]?.slug) {
+                        const firstEpSlug = data.episodes[0].server_data[0].slug;
+                        setPlayUrl(`/phim/${movie.slug}/${getFriendlyEpisodeSlug(firstEpSlug)}`);
+                    }
                 }
             } catch (error) {
                 console.error("Failed to fetch exact play url", error);
@@ -197,7 +208,9 @@ export default function MoviePreviewPopup({
                             {movie.year}
                         </div>
                         <div className="px-2.5 py-1 border border-white/20 rounded-lg text-white/60 text-[10px] font-bold">
-                            {getEpisodeStatus(movie)}
+                            {updatedMetadata 
+                                ? getEpisodeStatus({ ...movie, ...updatedMetadata }) 
+                                : getEpisodeStatus(movie)}
                         </div>
                     </div>
 
