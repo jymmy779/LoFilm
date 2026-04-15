@@ -475,6 +475,22 @@ export default function WatchClient({
         return () => document.body.classList.remove('theater-mode');
     }, [isTheaterMode]);
 
+    useEffect(() => {
+        if (showEpisodeOverlay) {
+            const activeEl = document.getElementById('active-episode');
+            const container = document.getElementById('episode-list-container');
+            if (activeEl && container) {
+                setTimeout(() => {
+                    const targetScroll = activeEl.offsetTop - container.offsetHeight / 2 + activeEl.offsetHeight / 2;
+                    container.scrollTo({
+                        top: targetScroll,
+                        behavior: 'smooth'
+                    });
+                }, 100); // Đợi xíu để animation của panel kịp chạy ra
+            }
+        }
+    }, [showEpisodeOverlay, episodeSlug, activeServerIndex]);
+
     return (
         <div className={`pt-35 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} bg-[#0a1628] transition-all duration-500`}>
             <AnimatePresence>
@@ -624,7 +640,7 @@ export default function WatchClient({
                                 </div>
 
                                 {/* List Body */}
-                                <div className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-1.5 sm:p-3 lg:p-5 flex flex-col gap-1.5 md:gap-2 lg:gap-3">
+                                <div id="episode-list-container" className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-1.5 sm:p-3 lg:p-5 flex flex-col gap-1.5 md:gap-2 lg:gap-3">
                                     {episodes[activeServerIndex]?.server_data?.map((ep, idx) => {
                                         const epSlug = getFriendlyEpisodeSlug(ep.slug);
                                         const isActive = epSlug === episodeSlug;
@@ -632,6 +648,7 @@ export default function WatchClient({
                                         return (
                                             <TransitionLink
                                                 key={idx}
+                                                id={isActive ? 'active-episode' : undefined}
                                                 href={`/phim/${slug}/${epSlug}`}
                                                 transition={false}
                                                 className={`group flex items-center w-full flex-shrink-0 gap-1.5 lg:gap-3 p-1 sm:p-2 lg:p-3 rounded-md lg:rounded-xl transition-all duration-300 relative overflow-hidden ${isActive ? 'bg-amber-500/10 border border-amber-500/20' : 'hover:bg-white/5 border border-transparent'}`}
