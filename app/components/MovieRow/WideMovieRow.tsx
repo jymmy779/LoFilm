@@ -115,7 +115,7 @@ export default function WideMovieRow({
                                         {/* Background Thumbnail (Horizontal) */}
                                         <div onClick={(e) => handleMovieClick(e, movie.slug)} className="v-thumbnail v-thumbnail-hoz relative aspect-[21/9] overflow-hidden transform-gpu">
                                             <Image
-                                                src={movie.thumb_url || ''}
+                                                src={movie.thumb_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}
                                                 alt={movie.name}
                                                 fill
                                                 priority={index < 2}

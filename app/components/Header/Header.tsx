@@ -6,6 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import axios from "axios";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
+import { X } from "lucide-react";
 
 import { MenuItem } from "./types";
 import DropdownMenu from "./DropdownMenu";
@@ -93,6 +94,7 @@ export default function Header() {
                                     <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
                                         <motion.line
                                             x1="3" y1="6" x2="21" y2="6"
+                                            initial={{ rotate: 0, y: 0, x1: 3, x2: 21 }}
                                             animate={{
                                                 rotate: isMenuOpen ? 45 : 0,
                                                 y: isMenuOpen ? 6 : 0,
@@ -103,11 +105,13 @@ export default function Header() {
                                         />
                                         <motion.line
                                             x1="3" y1="12" x2="21" y2="12"
+                                            initial={{ opacity: 1 }}
                                             animate={{ opacity: isMenuOpen ? 0 : 1 }}
                                             transition={{ duration: 0.1 }}
                                         />
                                         <motion.line
                                             x1="3" y1="18" x2="21" y2="18"
+                                            initial={{ rotate: 0, y: 0, x1: 3, x2: 21 }}
                                             animate={{
                                                 rotate: isMenuOpen ? -45 : 0,
                                                 y: isMenuOpen ? -6 : 0,
@@ -157,15 +161,14 @@ export default function Header() {
                         >
                             <AnimatePresence mode="wait">
                                 {isSearchActive ? (
-                                    <motion.svg
+                                    <motion.div
                                         key="close-svg"
                                         initial={{ rotate: -90, opacity: 0 }}
                                         animate={{ rotate: 0, opacity: 1 }}
                                         exit={{ rotate: 90, opacity: 0 }}
-                                        xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
                                     >
-                                        <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
-                                    </motion.svg>
+                                        <X size={22} strokeWidth={2.5} />
+                                    </motion.div>
                                 ) : (
                                     <motion.svg
                                         key="search-svg"

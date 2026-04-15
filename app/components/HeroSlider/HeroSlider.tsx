@@ -137,7 +137,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                             <>
                                 <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] lg:overflow-hidden [transform:translateZ(0)]">
                                     <MotionImage
-                                        src={movie.thumb_url || ''}
+                                        src={movie.thumb_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}
                                         alt={movie.name}
                                         initial={false}
                                         priority={index === 0}
@@ -307,7 +307,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                 <SwiperSlide key={movie._id}>
                                     <div className="relative cursor-pointer rounded-full min-[700px]:rounded overflow-hidden aspect-square min-[700px]:aspect-video border-2 border-transparent hover:border-white/40 [.swiper-slide-thumb-active_&]:border-[#f5a623] transition-all duration-300 opacity-60 hover:opacity-90 [.swiper-slide-thumb-active_&]:opacity-100">
                                         <Image
-                                            src={movie.thumb_url || ''}
+                                            src={movie.thumb_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}
                                             alt={movie.name}
                                             fill
                                             priority={index < 3}

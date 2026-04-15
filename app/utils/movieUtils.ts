@@ -53,12 +53,14 @@ export function getEpisodeStatus(movie: Movie): string {
     return "Full";
 }
 
+export const TRANSPARENT_GIF = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+
 /**
  * Build full image URL from potentially relative path and wrap with high-performance WebP proxy (wsrv.nl)
  * Supports resizing and optimization.
  */
 export function getImageUrl(url: string | undefined, options?: { width?: number; quality?: number; format?: string }): string {
-    if (!url) return "";
+    if (!url) return TRANSPARENT_GIF;
 
     // 1. Chuẩn hóa URL gốc (Trim trắng tránh lỗi proxy)
     const trimmedUrl = url.trim();
