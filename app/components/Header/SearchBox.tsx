@@ -1,10 +1,10 @@
-import { useState, useEffect, Suspense, useRef } from "react";
+import { useState, useEffect, Suspense, useRef, memo } from "react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
 import nProgress from "nprogress";
 import { Movie } from "@/app/types/movie";
-import { getImageUrl } from "@/app/utils/movieUtils";
+import { getImageUrl, sortMoviesByRelevance } from "@/app/utils/movieUtils";
 import { motion, AnimatePresence } from "framer-motion";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 
@@ -12,7 +12,7 @@ interface SearchBoxProps {
     autoFocus?: boolean;
 }
 
-export default function SearchBox(props: SearchBoxProps) {
+function SearchBox(props: SearchBoxProps) {
     return (
         <Suspense fallback={
             <div className="flex items-center gap-3 px-5 py-2.5 rounded-full border border-white/10 bg-white/5 w-full md:w-[270px] h-[46px]" />
@@ -32,6 +32,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
     const [isSearching, setIsSearching] = useState(false);
     const [showResults, setShowResults] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
+    const [activeIndex, setActiveIndex] = useState(-1);
     const searchCache = useRef<Record<string, Movie[]>>({});
 
     const inputRef = useRef<HTMLInputElement>(null);
@@ -41,6 +42,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
         setIsFocused(false);
         setShowResults(false);
         inputRef.current?.blur();
+        setActiveIndex(-1);
     }, [pathname, searchParams]);
 
     // Handle debounced search with caching and request cancellation
@@ -54,30 +56,38 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
     useEffect(() => {
         const controller = new AbortController();
         const query = searchQuery.trim();
+        const normalizedCacheKey = query.toLowerCase(); // Chống phân biệt hoa/thường cho cache
 
         const timer = setTimeout(async () => {
             if (query.length >= 2) {
                 // 1. Kiểm tra cache trước (phản hồi tức thì)
-                if (searchCache.current[query]) {
-                    setResults(searchCache.current[query]);
+                if (searchCache.current[normalizedCacheKey]) {
+                    setResults(searchCache.current[normalizedCacheKey]);
                     setIsSearching(false);
                     if (isFocused) setShowResults(true);
+                    setActiveIndex(-1);
                     return;
                 }
 
                 setIsSearching(true);
                 if (isFocused) setShowResults(true);
                 try {
-                    const apiUrl = `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(query)}&limit=8`;
+                    const apiUrl = `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(query)}&limit=20`; // Lấy nhiều hơn (20) để ta tự sort lại chính xác hơn
                     const res = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`, {
                         signal: controller.signal
                     });
 
                     if (res.data?.status === "success" || res.data?.status === true) {
                         const items = res.data.data?.items || [];
-                        setResults(items);
-                        // 2. Lưu vào cache cho lần gõ sau
-                        searchCache.current[query] = items;
+                        
+                        // Sắp xếp lại theo độ liên quan trước khi hiện và lưu cache
+                        const sortedItems = sortMoviesByRelevance(items, query);
+                        const finalItems = sortedItems.slice(0, 8); // Chỉ hiện 8 phim tốt nhất ở dropdown
+
+                        setResults(finalItems);
+                        // 2. Lưu vào cache
+                        searchCache.current[normalizedCacheKey] = finalItems;
+                        setActiveIndex(-1);
                     }
                 } catch (error) {
                     if (axios.isCancel(error)) return;
@@ -88,8 +98,9 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
             } else {
                 setResults([]);
                 setShowResults(false);
+                setActiveIndex(-1);
             }
-        }, 200); // Giảm debounce xuống 200ms để nhạy hơn
+        }, 200);
 
         return () => {
             clearTimeout(timer);
@@ -99,11 +110,48 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
 
     const handleSearch = () => {
         if (searchQuery.trim()) {
+            const query = searchQuery.trim();
             setIsFocused(false);
             setShowResults(false);
             inputRef.current?.blur();
             nProgress.start();
-            router.push(`/?search=${encodeURIComponent(searchQuery.trim())}`);
+            router.push(`/?search=${encodeURIComponent(query)}`);
+        }
+    };
+
+    // Keyboard Navigation Logic
+    const handleKeyDown = (e: React.KeyboardEvent) => {
+        if (!showResults || results.length === 0) {
+            if (e.key === "Enter") handleSearch();
+            return;
+        }
+
+        switch (e.key) {
+            case "ArrowDown":
+                e.preventDefault();
+                setActiveIndex(prev => (prev < results.length - 1 ? prev + 1 : prev));
+                break;
+            case "ArrowUp":
+                e.preventDefault();
+                setActiveIndex(prev => (prev > -1 ? prev - 1 : -1));
+                break;
+            case "Enter":
+                e.preventDefault();
+                if (activeIndex >= 0) {
+                    // Navigate to the selected movie
+                    const selectedMovie = results[activeIndex];
+                    router.push(`/phim/${selectedMovie.slug}`);
+                    setShowResults(false);
+                    setIsFocused(false);
+                } else {
+                    handleSearch();
+                }
+                break;
+            case "Escape":
+                setShowResults(false);
+                setIsFocused(false);
+                inputRef.current?.blur();
+                break;
         }
     };
 
@@ -113,6 +161,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
             if (!e.currentTarget.contains(e.relatedTarget)) {
                 setShowResults(false);
                 setIsFocused(false);
+                setActiveIndex(-1);
             }
         }}>
             <div className={`flex items-center gap-3 px-5 py-2.5 rounded-full border border-white/10 bg-white/5 w-full md:w-[270px] focus-within:md:w-[320px] focus-within:border-[#f5a623]/50 focus-within:bg-white/10 transition-all duration-500 ease-out ${showResults ? 'md:w-[320px] border-[#f5a623]/50 bg-white/10' : ''}`}>
@@ -136,11 +185,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                         setIsFocused(true);
                         if (searchQuery.trim().length >= 2) setShowResults(true);
                     }}
-                    onKeyDown={(e) => {
-                        if (e.key === "Enter") {
-                            handleSearch();
-                        }
-                    }}
+                    onKeyDown={handleKeyDown}
                 />
                 {(searchQuery || isSearching) && (
                     <div className="flex items-center gap-2">
@@ -187,11 +232,12 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
 
                             <div className="space-y-1 overflow-y-auto max-h-[60vh] md:max-h-[70vh] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pr-1">
                                 {results.length > 0 ? (
-                                    results.map((movie: Movie) => (
+                                    results.map((movie: Movie, index: number) => (
                                         <TransitionLink
                                             key={movie._id}
                                             href={`/phim/${movie.slug}`}
-                                            className="group flex gap-2.5 md:gap-3 p-1.5 md:p-2 rounded-xl hover:bg-white/5 transition-all duration-300"
+                                            className={`group flex gap-2.5 md:gap-3 p-1.5 md:p-2 rounded-xl transition-all duration-300 ${activeIndex === index ? 'bg-white/10 ring-1 ring-[#f5a623]/30' : 'hover:bg-white/5'}`}
+                                            onMouseEnter={() => setActiveIndex(index)}
                                         >
                                             <div className="w-10 h-14 md:w-12 md:h-16 shrink-0 rounded-lg overflow-hidden relative border border-white/5">
                                                 <Image
@@ -204,7 +250,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                                                 />
                                             </div>
                                             <div className="flex flex-col justify-center min-w-0">
-                                                <h4 className="text-[12px] md:text-[13px] font-bold text-white/90 group-hover:text-[#f5a623] transition-colors truncate leading-tight">
+                                                <h4 className={`text-[12px] md:text-[13px] font-bold transition-colors truncate leading-tight ${activeIndex === index ? 'text-[#f5a623]' : 'text-white/90 group-hover:text-[#f5a623]'}`}>
                                                     {movie.name}
                                                 </h4>
                                                 <p className="text-[10px] md:text-[11px] text-white/40 truncate mt-0.5">
@@ -246,3 +292,5 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
         </div>
     );
 }
+
+export default memo(SearchBox);

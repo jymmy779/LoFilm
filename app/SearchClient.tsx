@@ -12,6 +12,7 @@ import CatalogHeader from "@/app/components/CatalogHeader";
 import MovieFilter, { FilterState } from "@/app/components/MovieFilter";
 import { MenuItem } from "@/app/components/Header/types";
 import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
+import { sortMoviesByRelevance } from "@/app/utils/movieUtils";
 
 import CatalogLayout from "@/app/components/MovieCatalog/CatalogLayout";
 import { Film } from "lucide-react";
@@ -30,7 +31,7 @@ function SearchContent() {
     const searchParams = useSearchParams();
 
     // Parse filters from URL
-    const keyword = searchParams.get("search") || "";
+    const keyword = (searchParams.get("search") || "").trim();
     const initialFilters: FilterState = {
         category: searchParams.get("cat") || "",
         country: searchParams.get("country") || "",
@@ -130,7 +131,10 @@ function SearchContent() {
                     const totalItems = res.data.data?.params?.pagination?.totalItems || 0;
                     
                     if (isMounted) {
-                        setMovies(items);
+                        // Áp dụng logic sắp xếp thông minh trước khi hiện kết quả
+                        const sortedItems = sortMoviesByRelevance(items, keyword);
+
+                        setMovies(sortedItems);
                         setTotalPages(Math.ceil(totalItems / 48) || 1);
                         setIsLoading(false);
                         setIsPageLoading(false);

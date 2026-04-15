@@ -1,7 +1,7 @@
 "use client";
 
 import TransitionLink from "@/app/components/Transition/TransitionLink";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, memo } from "react";
 import { Dices, Play } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -23,7 +23,7 @@ const MOODS = [
     { id: 'phieu-luu', title: 'Chạy trốn thực tại', sub: 'Đi vào dĩ vãng', bgColor: 'bg-[#22d3ee]' },
 ];
 
-export default function RandomMovieRow() {
+function RandomMovieRow() {
     const [selectedMood, setSelectedMood] = useState(MOODS[0]);
     const [movies, setMovies] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
@@ -271,3 +271,5 @@ export default function RandomMovieRow() {
         </Container>
     );
 }
+
+export default memo(RandomMovieRow);

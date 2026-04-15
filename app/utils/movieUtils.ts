@@ -96,3 +96,66 @@ export function getFriendlyEpisodeSlug(slug: string): string {
 
     return slug;
 }
+
+/**
+ * Loại bỏ dấu tiếng Việt để so sánh chuỗi
+ */
+export function removeAccents(str: string): string {
+    return str
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/đ/g, 'd')
+        .replace(/Đ/g, 'D');
+}
+
+/**
+ * Sắp xếp phim theo độ liên quan với từ khóa tìm kiếm (Relevance Ranking)
+ * Hỗ trợ tìm kiếm không dấu (accent-insensitive)
+ */
+export function sortMoviesByRelevance(movies: Movie[], query: string): Movie[] {
+    if (!query.trim()) return movies;
+
+    const normalizedQuery = query.trim().toLowerCase();
+    const queryNoAccent = removeAccents(normalizedQuery);
+
+    return [...movies].sort((a, b) => {
+        const nameA = a.name.toLowerCase();
+        const nameB = b.name.toLowerCase();
+        const nameNoAccentA = removeAccents(nameA);
+        const nameNoAccentB = removeAccents(nameB);
+
+        const originA = (a.origin_name || "").toLowerCase();
+        const originB = (b.origin_name || "").toLowerCase();
+        const originNoAccentA = removeAccents(originA);
+        const originNoAccentB = removeAccents(originB);
+
+        // 1. Khớp hoàn toàn (Có dấu hoặc Không dấu)
+        if (nameA === normalizedQuery || nameNoAccentA === queryNoAccent) {
+            if (nameB !== normalizedQuery && nameNoAccentB !== queryNoAccent) return -1;
+            // Nếu cả 2 đều khớp, ưu tiên cái có dấu giống hệt query
+            if (nameA === normalizedQuery && nameB !== normalizedQuery) return -1;
+            if (nameB === normalizedQuery && nameA !== normalizedQuery) return 1;
+        } else if (nameB === normalizedQuery || nameNoAccentB === queryNoAccent) {
+            return 1;
+        }
+
+        // 2. Bắt đầu bằng từ khóa (Không dấu)
+        const startsA = nameNoAccentA.startsWith(queryNoAccent) ? 1 : 0;
+        const startsB = nameNoAccentB.startsWith(queryNoAccent) ? 1 : 0;
+        if (startsA !== startsB) return startsB - startsA;
+
+        // 3. Khớp hoàn toàn tên gốc
+        if (originA === normalizedQuery || originNoAccentA === queryNoAccent) {
+            if (originB !== normalizedQuery && originNoAccentB !== queryNoAccent) return -1;
+        } else if (originB === normalizedQuery || originNoAccentB === queryNoAccent) {
+            return 1;
+        }
+
+        // 4. Chứa từ khóa (Không dấu)
+        const containsA = nameNoAccentA.includes(queryNoAccent) ? 1 : 0;
+        const containsB = nameNoAccentB.includes(queryNoAccent) ? 1 : 0;
+        if (containsA !== containsB) return containsB - containsA;
+
+        return 0;
+    });
+}
