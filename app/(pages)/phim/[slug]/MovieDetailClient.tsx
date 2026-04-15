@@ -8,6 +8,7 @@ import TransitionLink from "@/app/components/Transition/TransitionLink";
 import Container from "@/app/components/Container";
 import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
 import FavoriteButton from "@/app/components/Common/FavoriteButton";
+import WatchlistButton from "@/app/components/Common/WatchlistButton";
 import { MessageSquare } from "lucide-react";
 import { Movie, EpisodeServer } from "@/app/types/movie";
 import { getImageUrl, getEpisodeStatus, getFriendlyEpisodeSlug, filterDuplicateMovies } from "@/app/utils/movieUtils";
@@ -459,6 +460,12 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
 
                                     <div className="flex items-center gap-3">
                                         <FavoriteButton
+                                            movie={movie}
+                                            className="w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-white/10 text-white border border-white/10 shadow-lg"
+                                            iconSize={18}
+                                        />
+
+                                        <WatchlistButton
                                             movie={movie}
                                             className="w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-white/10 text-white border border-white/10 shadow-lg"
                                             iconSize={18}

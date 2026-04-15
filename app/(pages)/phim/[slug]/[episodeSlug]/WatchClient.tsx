@@ -89,6 +89,7 @@ export default function WatchClient({
 
     const [hasResumed, setHasResumed] = useState(false);
     const [isFavorited, setIsFavorited] = useState(false);
+    const [isInWatchlist, setIsInWatchlist] = useState(false);
 
     const [showEndOverlay, setShowEndOverlay] = useState(false);
     const showEndOverlayRef = useRef(false);
@@ -180,18 +181,28 @@ export default function WatchClient({
     };
 
     useEffect(() => {
-        const checkFavorite = async () => {
+        const checkStatus = async () => {
             if (user) {
-                const { data } = await supabase
+                // Check Fav
+                const { data: favData } = await supabase
                     .from('favorites')
                     .select('id')
                     .eq('user_id', user.id)
                     .eq('movie_slug', slug)
-                    .maybeSingle(); // maybeSingle() trả về null thay vì error 406
-                if (data) setIsFavorited(true);
+                    .maybeSingle();
+                if (favData) setIsFavorited(true);
+
+                // Check Watchlist
+                const { data: watchData } = await supabase
+                    .from('watchlist')
+                    .select('id')
+                    .eq('user_id', user.id)
+                    .eq('movie_slug', slug)
+                    .maybeSingle();
+                if (watchData) setIsInWatchlist(true);
             }
         };
-        checkFavorite();
+        checkStatus();
     }, [slug, supabase, user]);
 
     const toggleFavorite = async () => {
@@ -218,6 +229,34 @@ export default function WatchClient({
             }
         } catch (err: any) {
             setIsFavorited(prevStatus);
+            toast.error("Lỗi: " + err.message);
+        }
+    };
+
+    const toggleWatchlist = async () => {
+        if (!user) {
+            toast.error("Vui lòng đăng nhập để thêm vào danh sách xem sau!");
+            return;
+        }
+        const prevStatus = isInWatchlist;
+        setIsInWatchlist(!isInWatchlist);
+        try {
+            if (prevStatus) {
+                const { error } = await supabase.from('watchlist').delete().eq('movie_slug', slug).eq('user_id', user.id);
+                if (error) throw error;
+                toast.success("Đã xóa khỏi danh sách xem sau");
+            } else {
+                const { error } = await supabase.from('watchlist').insert({
+                    user_id: user.id,
+                    movie_slug: slug,
+                    movie_name: movie.name,
+                    movie_poster: movie.thumb_url || movie.poster_url
+                });
+                if (error) throw error;
+                toast.success("Đã thêm vào danh sách xem sau");
+            }
+        } catch (err: any) {
+            setIsInWatchlist(prevStatus);
             toast.error("Lỗi: " + err.message);
         }
     };
@@ -747,7 +786,22 @@ export default function WatchClient({
                 </div>
 
                 <div className="relative z-20">
-                    <PlayerControls isExpanded={isExpanded} onToggleExpanded={() => setIsExpanded(!isExpanded)} isTheaterMode={isTheaterMode} onToggleTheater={() => setIsTheaterMode(!isTheaterMode)} isAutoNext={isAutoNext} onToggleAutoNext={toggleAutoNext} isFavorited={isFavorited} onToggleFavorite={toggleFavorite} episodes={episodes} activeServer={activeServerIndex} onServerChange={setActiveServerIndex} onReport={() => setShowReportModal(true)} />
+                    <PlayerControls 
+                        isExpanded={isExpanded} 
+                        onToggleExpanded={() => setIsExpanded(!isExpanded)} 
+                        isTheaterMode={isTheaterMode} 
+                        onToggleTheater={() => setIsTheaterMode(!isTheaterMode)} 
+                        isAutoNext={isAutoNext} 
+                        onToggleAutoNext={toggleAutoNext} 
+                        isFavorited={isFavorited} 
+                        onToggleFavorite={toggleFavorite} 
+                        isInWatchlist={isInWatchlist}
+                        onToggleWatchlist={toggleWatchlist}
+                        episodes={episodes} 
+                        activeServer={activeServerIndex} 
+                        onServerChange={setActiveServerIndex} 
+                        onReport={() => setShowReportModal(true)} 
+                    />
                 </div>
             </div>
 

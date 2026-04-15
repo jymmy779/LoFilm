@@ -11,6 +11,7 @@ import {
   History as HistoryIcon,
   LayoutDashboard,
   Heart,
+  Bookmark,
   Plus,
   ArrowRight,
   AlertCircle
@@ -25,13 +26,14 @@ import TransitionLink from "@/app/components/Transition/TransitionLink";
 import LogoutModal from "@/app/components/Modals/LogoutModal";
 import ComingSoonModal from "@/app/components/Modals/ComingSoonModal";
 
-type TabType = 'overview' | 'history' | 'favorites' | 'settings';
+type TabType = 'overview' | 'history' | 'favorites' | 'watchlist' | 'settings';
 
 import Sidebar from "@/app/components/Sidebar/Sidebar";
 import CatalogHeader from "@/app/components/CatalogHeader";
 import OverviewTab from "./components/OverviewTab";
 import HistoryTab from "./components/HistoryTab";
 import FavoritesTab from "./components/FavoritesTab";
+import WatchlistTab from "./components/WatchlistTab";
 import SettingsTab from "./components/SettingsTab";
 
 export default function ProfileContent() {
@@ -45,13 +47,15 @@ export default function ProfileContent() {
   const [isHistoryLoading, setIsHistoryLoading] = useState(false);
   const [favorites, setFavorites] = useState<any[]>([]);
   const [isFavoritesLoading, setIsFavoritesLoading] = useState(false);
+  const [watchlist, setWatchlist] = useState<any[]>([]);
+  const [isWatchlistLoading, setIsWatchlistLoading] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
 
   useEffect(() => {
     const tabParam = searchParams.get('tab');
-    if (tabParam && ['overview', 'history', 'favorites', 'settings'].includes(tabParam)) {
+    if (tabParam && ['overview', 'history', 'favorites', 'watchlist', 'settings'].includes(tabParam)) {
       setActiveTab(tabParam as TabType);
     }
   }, [searchParams]);
@@ -106,6 +110,24 @@ export default function ProfileContent() {
         setIsFavoritesLoading(false);
       };
       fetchFavorites();
+    }
+
+    if (activeTab === 'watchlist' && user) {
+      const fetchWatchlist = async () => {
+        setIsWatchlistLoading(true);
+        const { data, error } = await supabase
+          .from('watchlist')
+          .select('*')
+          .eq('user_id', user.id)
+          .order('created_at', { ascending: false })
+          .limit(40);
+
+        if (!error && data) {
+          setWatchlist(data);
+        }
+        setIsWatchlistLoading(false);
+      };
+      fetchWatchlist();
     }
   }, [activeTab, user, supabase]);
 
@@ -175,6 +197,7 @@ export default function ProfileContent() {
 
   const clearAllFavorites = () => {
     setConfirmModal({
+      ...confirmModal, // Preserve other fields
       isOpen: true,
       title: "Xóa toàn bộ yêu thích?",
       message: "Tất cả những bộ phim bạn đã 'thả tim' sẽ bị xóa khỏi danh sách. Bạn có chắc chắn không?",
@@ -184,6 +207,40 @@ export default function ProfileContent() {
         if (!error) {
           setFavorites([]);
           toast.success("Đã xóa toàn bộ yêu thích");
+        }
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      }
+    });
+  };
+
+  const deleteWatchlistItem = (id: string) => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Xóa xem sau?",
+      message: "Bạn muốn xóa bộ phim này khỏi danh sách xem sau?",
+      confirmText: "Xóa khỏi danh sách",
+      onConfirm: async () => {
+        const { error } = await supabase.from('watchlist').delete().eq('id', id);
+        if (!error) {
+          setWatchlist(prev => prev.filter(item => item.id !== id));
+          toast.success("Đã xóa khỏi danh sách xem sau");
+        }
+        setConfirmModal(prev => ({ ...prev, isOpen: false }));
+      }
+    });
+  };
+
+  const clearAllWatchlist = () => {
+    setConfirmModal({
+      isOpen: true,
+      title: "Xóa toàn bộ danh sách xem sau?",
+      message: "Tất cả những bộ phim bạn đã lưu để xem sau sẽ bị xóa. Bạn có chắc chắn không?",
+      confirmText: "Xóa toàn bộ",
+      onConfirm: async () => {
+        const { error } = await supabase.from('watchlist').delete().eq('user_id', user.id);
+        if (!error) {
+          setWatchlist([]);
+          toast.success("Đã xóa toàn bộ danh sách xem sau");
         }
         setConfirmModal(prev => ({ ...prev, isOpen: false }));
       }
@@ -331,6 +388,7 @@ export default function ProfileContent() {
     { id: 'overview', label: 'Tổng quan', icon: User },
     { id: 'history', label: 'Lịch sử xem', icon: HistoryIcon },
     { id: 'favorites', label: 'Yêu thích', icon: Heart },
+    { id: 'watchlist', label: 'Xem sau', icon: Bookmark },
     { id: 'settings', label: 'Cài đặt', icon: Settings },
   ];
 
@@ -461,6 +519,15 @@ export default function ProfileContent() {
                         isFavoritesLoading={isFavoritesLoading}
                         onDeleteItem={deleteFavoriteItem}
                         onClearAll={clearAllFavorites}
+                      />
+                    )}
+
+                    {activeTab === 'watchlist' && (
+                      <WatchlistTab
+                        watchlist={watchlist}
+                        isWatchlistLoading={isWatchlistLoading}
+                        onDeleteItem={deleteWatchlistItem}
+                        onClearAll={clearAllWatchlist}
                       />
                     )}
 

@@ -8,7 +8,8 @@ import {
   Flag,
   Play,
   Monitor,
-  Heart
+  Heart,
+  Bookmark
 } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
@@ -21,6 +22,8 @@ interface PlayerControlsProps {
   onToggleAutoNext: () => void;
   isFavorited: boolean;
   onToggleFavorite: () => void;
+  isInWatchlist: boolean;
+  onToggleWatchlist: () => void;
   episodes: Array<{
     server_name: string;
   }>;
@@ -38,6 +41,8 @@ const PlayerControls = ({
   onToggleAutoNext,
   isFavorited,
   onToggleFavorite,
+  isInWatchlist,
+  onToggleWatchlist,
   episodes,
   activeServer,
   onServerChange,
@@ -127,7 +132,6 @@ const PlayerControls = ({
           <span className={`md:text-sm text-xs font-medium ${isExpanded ? 'text-amber-400' : ''}`}>Mở rộng</span>
         </button>
 
-        {/* Thêm vào yêu thích (New Style) */}
         <button
           onClick={onToggleFavorite}
           className={`
@@ -140,6 +144,21 @@ const PlayerControls = ({
           title={isFavorited ? "Xóa khỏi yêu thích" : "Thêm vào yêu thích"}
         >
           <Heart size={20} className={isFavorited ? "fill-white" : ""} />
+        </button>
+
+        {/* Thêm vào danh sách xem sau (Watchlist) */}
+        <button
+          onClick={onToggleWatchlist}
+          className={`
+            lg:w-10 lg:h-10 w-8 h-8 flex items-center justify-center rounded-full border transition-all cursor-pointer shadow-lg 
+            ${isInWatchlist
+              ? "bg-amber-500 border-amber-500 text-black shadow-amber-500/20"
+              : "bg-white/5 border-white/10 text-white/60 hover:text-amber-400 hover:border-amber-400/30"
+            }
+          `}
+          title={isInWatchlist ? "Xóa khỏi danh sách xem sau" : "Thêm vào danh sách xem sau"}
+        >
+          <Bookmark size={20} className={isInWatchlist ? "fill-black" : ""} />
         </button>
 
         {/* Reaction (Emoji Picker) */}
