@@ -58,8 +58,8 @@ const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
               <span className="text-[8px]">★</span>
               <span>{rating}</span>
             </div>
-            <div className="px-1.5 py-0.5 bg-white/10 rounded flex items-center justify-center text-white/70 text-[9px] font-medium uppercase tracking-wider">{movie.quality}</div>
-            <div className="px-1.5 py-0.5 bg-amber-500/10 border flex items-center justify-center border-amber-500/20 rounded text-amber-400 text-[9px] tracking-tight font-medium uppercase">{episode.name}</div>
+            <div className="px-1.5 py-0.5 bg-white/10 rounded flex items-center justify-center text-white/70 text-[9px] font-medium  tracking-wider">{movie.quality}</div>
+            <div className="px-1.5 py-0.5 bg-amber-500/10 border flex items-center justify-center border-amber-500/20 rounded text-amber-400 text-[9px] tracking-tight font-medium ">{episode.name}</div>
           </div>
         </div>
       </div>
@@ -73,7 +73,7 @@ const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
           className="inline-flex items-center gap-1 mt-8 text-amber-400 hover:text-amber-300 text-[13px] transition-colors group"
         >
           Thông tin phim
-          <ChevronRight size={10} className="group-hover:translate-x-0.5 transition-transform" />
+          <ChevronRight size={10} className="mt-[3px] group-hover:translate-x-0.5 transition-transform" />
         </TransitionLink>
       </div>
     </div>
