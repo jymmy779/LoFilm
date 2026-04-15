@@ -7,6 +7,8 @@ import Image from "next/image";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import Container from "@/app/components/Container";
 import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
+import FavoriteButton from "@/app/components/Common/FavoriteButton";
+import { MessageSquare } from "lucide-react";
 import { Movie, EpisodeServer } from "@/app/types/movie";
 import { getImageUrl, getEpisodeStatus, getFriendlyEpisodeSlug, filterDuplicateMovies } from "@/app/utils/movieUtils";
 import { decodeHtml } from "@/app/utils/textUtils";
@@ -444,15 +446,35 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                         <div className="ds-info p-[20px] lg:p-[40px] lg:backdrop-blur-md rounded-3xl shadow-2xl relative transform-gpu will-change-[filter]">
                             {/* DM Bar: Watch Now & Rating */}
                             <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
-                                <TransitionLink
-                                    href={`/phim/${movie.slug}/${getFriendlyEpisodeSlug(firstServerEpisodes[0]?.slug || 'tap-01')}`}
-                                    className="group flex items-center gap-3 bg-gradient-to-r from-[#f5a623] to-[#ffcc33] hover:from-[#ffcc33] hover:to-[#f5a623] text-[#0a1628] py-2 px-6 md:py-4 md:px-8 rounded-full font-bold transition-all transform cursor-pointer shadow-[0_0_20px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.6)]"
-                                >
-                                    <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
-                                        <i className="fa-solid fa-play text-sm ml-0.5"></i>
+                                <div className="flex flex-wrap items-center gap-3">
+                                    <TransitionLink
+                                        href={`/phim/${movie.slug}/${getFriendlyEpisodeSlug(firstServerEpisodes[0]?.slug || 'tap-01')}`}
+                                        className="group flex items-center gap-3 bg-gradient-to-r from-[#f5a623] to-[#ffcc33] hover:from-[#ffcc33] hover:to-[#f5a623] text-[#0a1628] py-2 px-6 md:py-4 md:px-8 rounded-full font-bold transition-all transform cursor-pointer shadow-[0_0_20px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.6)]"
+                                    >
+                                        <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                            <i className="fa-solid fa-play text-sm ml-0.5"></i>
+                                        </div>
+                                        <span className="tracking-wider text-lg">Xem Ngay</span>
+                                    </TransitionLink>
+
+                                    <div className="flex items-center gap-3">
+                                        <FavoriteButton
+                                            movie={movie}
+                                            className="w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-white/10 text-white border border-white/10 shadow-lg"
+                                            iconSize={18}
+                                        />
+
+                                        <button
+                                            onClick={() => {
+                                                document.getElementById('comment-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                            }}
+                                            className="w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white border border-white/10 shadow-lg transition-colors cursor-pointer group"
+                                            title="Bình luận"
+                                        >
+                                            <MessageSquare size={18} className="group-hover:scale-110 transition-transform" />
+                                        </button>
                                     </div>
-                                    <span className="tracking-wider text-lg">Xem Ngay</span>
-                                </TransitionLink>
+                                </div>
                                 <div className="flex items-center gap-2 md:gap-4 bg-white/5 md:px-4 md:py-2 px-2 py-1 rounded-2xl border border-white/10">
                                     <div className="flex items-center gap-1 md:gap-2">
                                         <i className="text-yellow-500 text-xl">★</i>
@@ -674,7 +696,7 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                         </div>
 
                         {/* Phần bình luận */}
-                        <div className="mt-8 pt-8 border-t border-white/5">
+                        <div id="comment-section" className="mt-8 pt-8 border-t border-white/5">
                             <CommentSection movieSlug={movie.slug} />
                         </div>
                     </div>
