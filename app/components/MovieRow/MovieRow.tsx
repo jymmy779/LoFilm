@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -28,7 +29,7 @@ interface MovieRowProps {
 
 import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 
-export default function MovieRow({
+function MovieRow({
     title,
     apiUrl,
     viewAllLink,
@@ -171,3 +172,5 @@ export default function MovieRow({
         </Container>
     );
 }
+
+export default memo(MovieRow);

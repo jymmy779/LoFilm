@@ -1,7 +1,7 @@
 "use client";
 
+import { memo, useEffect, useState } from "react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
-import { useEffect, useState } from "react";
 import axios from "axios";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -26,7 +26,11 @@ interface TopMovieRowProps {
     initialMovies?: Movie[];
 }
 
-export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowProps) {
+// Sawtooth clip-path constants (hoisted outside)
+const CLIP_PATH_EVEN = 'polygon(0% calc(5% + 16px), 1.2px calc(5% + 9.9px), 4.7px calc(5% + 4.7px), 9.9px calc(5% + 1.2px), 16px 5%, 100% 0, 100% 100%, 0% 100%)';
+const CLIP_PATH_ODD = 'polygon(0 0, calc(100% - 16px) 5%, calc(100% - 9.9px) calc(5% + 1.2px), calc(100% - 4.7px) calc(5% + 4.7px), calc(100% - 1.2px) calc(5% + 9.9px), 100% calc(5% + 16px), 100% 100%, 0% 100%)';
+
+function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowProps) {
     const { openAdOnly } = useAdTrigger();
     const seeded = !!(initialMovies && initialMovies.length > 0);
     const [movies, setMovies] = useState<Movie[]>(() => initialMovies ?? []);
@@ -113,10 +117,6 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
 
     if (movies.length === 0) return null;
 
-    // Sawtooth clip-path constants (hoisted outside render loop)
-    const clipPathEven = 'polygon(0% calc(5% + 16px), 1.2px calc(5% + 9.9px), 4.7px calc(5% + 4.7px), 9.9px calc(5% + 1.2px), 16px 5%, 100% 0, 100% 100%, 0% 100%)';
-    const clipPathOdd = 'polygon(0 0, calc(100% - 16px) 5%, calc(100% - 9.9px) calc(5% + 1.2px), calc(100% - 4.7px) calc(5% + 4.7px), calc(100% - 1.2px) calc(5% + 9.9px), 100% calc(5% + 16px), 100% 100%, 0% 100%)';
-
     return (
         <Container as="section" className="top-movie-row-section relative z-30 mb-16 mt-8 animate-fade-in">
             <div className="row-header flex items-center justify-between mb-8">
@@ -159,8 +159,8 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                                         onClick={handleAdClick}
                                         className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/5 transition-[transform,box-shadow] duration-500 ease-out group-hover/item:shadow-[0_15px_35px_rgba(0,0,0,0.6)] transform-gpu cursor-pointer"
                                         style={{
-                                            WebkitClipPath: isEven ? clipPathEven : clipPathOdd,
-                                            clipPath: isEven ? clipPathEven : clipPathOdd
+                                            WebkitClipPath: isEven ? CLIP_PATH_EVEN : CLIP_PATH_ODD,
+                                            clipPath: isEven ? CLIP_PATH_EVEN : CLIP_PATH_ODD
                                         }}
                                     >
                                         <div className="w-full h-full transition-transform duration-500 ease-out group-hover/item:scale-[1.07]">
@@ -241,3 +241,5 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
         </Container>
     );
 }
+
+export default memo(TopMovieRow);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -20,7 +20,7 @@ interface ContinueWatchingRowProps {
     initialHistory?: any[];
 }
 
-export default function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
+function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
     const { user, isLoading: isAuthLoading } = useAuth();
     const [history, setHistory] = useState<any[]>(initialHistory || []);
     const [isLoading, setIsLoading] = useState(!initialHistory);
@@ -205,3 +205,5 @@ export default function ContinueWatchingRow({ initialHistory }: ContinueWatching
         </Container>
     );
 }
+
+export default memo(ContinueWatchingRow);

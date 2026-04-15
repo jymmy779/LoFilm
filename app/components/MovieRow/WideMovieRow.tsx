@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -25,7 +26,7 @@ interface WideMovieRowProps {
     revalidate?: number;
 }
 
-export default function WideMovieRow({
+function WideMovieRow({
     title,
     apiUrl,
     viewAllLink,
@@ -165,3 +166,5 @@ export default function WideMovieRow({
         </Container>
     );
 }
+
+export default memo(WideMovieRow);

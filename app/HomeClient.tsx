@@ -41,7 +41,9 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
 
             <ContinueWatchingRow initialHistory={prefetched.initialHistory} />
 
-            <RandomMovieRow />
+            <LazyRow estimatedHeight="200px">
+                <RandomMovieRow />
+            </LazyRow>
 
             <LazyRow estimatedHeight="380px">
                 <MovieRow

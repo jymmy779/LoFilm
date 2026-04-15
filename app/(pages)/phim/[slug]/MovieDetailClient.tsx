@@ -283,7 +283,6 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                         src={getImageUrl(movie.poster_url || movie.thumb_url, { width: 180, quality: 70 })}
                                         alt={movie.name}
                                         fill
-                                        priority
                                         sizes="(max-width: 768px) 120px, 160px"
                                     />
                                 </div>

@@ -1,5 +1,6 @@
 "use client";
 
+import { memo } from "react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation } from "swiper/modules";
@@ -14,6 +15,7 @@ import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
 import { useMovies } from "@/app/hooks/useMovies";
 import SwiperNavButtons from "@/app/components/Common/SwiperNavButtons";
 import { useAuth } from "@/app/components/Auth/AuthContext";
+
 interface MoviePosterRowProps {
     title: string;
     apiUrl: string;
@@ -23,7 +25,7 @@ interface MoviePosterRowProps {
     revalidate?: number;
 }
 
-export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear = false, revalidate }: MoviePosterRowProps) {
+function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear = false, revalidate }: MoviePosterRowProps) {
     const navId = title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
     const { user } = useAuth();
 
@@ -141,3 +143,5 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovi
         </Container>
     );
 }
+
+export default memo(MoviePosterRow);

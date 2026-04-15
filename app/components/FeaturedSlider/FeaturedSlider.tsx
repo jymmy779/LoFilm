@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, memo } from "react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import axios from "axios";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -29,7 +29,7 @@ interface FeaturedSliderProps {
 
 
 
-export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider", initialMovies }: FeaturedSliderProps) {
+function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider", initialMovies }: FeaturedSliderProps) {
 
     const seeded = !!(initialMovies && initialMovies.length > 0);
     const [movies, setMovies] = useState<Movie[]>(() => initialMovies ?? []);
@@ -331,3 +331,5 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
         </Container>
     );
 }
+
+export default memo(FeaturedSlider);
