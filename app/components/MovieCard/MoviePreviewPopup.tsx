@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { useFavorites } from "@/app/(pages)/phim/[slug]/[episodeSlug]/hooks/useFavorites";
-import { useAdTrigger } from "@/app/hooks/useAdTrigger";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
 import { getEpisodeStatus, getImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
@@ -28,7 +28,7 @@ export default function MoviePreviewPopup({
     onMouseEnter,
     onMouseLeave
 }: MoviePreviewPopupProps) {
-    const { triggerAd } = useAdTrigger();
+
 
     // Default fallback logic before fetching exact slug
     const isMultiEp = ["series", "hoathinh", "tvshows"].includes(movie.type || "");
@@ -156,19 +156,15 @@ export default function MoviePreviewPopup({
                     </div>
 
                     <div className="flex items-center gap-2 pt-1">
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                triggerAd(playUrl, adZone || "popup_play");
-                            }}
+                        <TransitionLink
+                            href={playUrl}
                             className="flex-[1.5] h-10 bg-gradient-to-r from-[#f5a623] to-[#fbd671] hover:brightness-110 text-black rounded-full flex items-center justify-center gap-2 font-bold text-xs transition-all pointer-events-auto cursor-pointer shadow-[0_4px_15px_-3px_rgba(245,166,35,0.4)]"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="10" height="10" fill="currentColor">
                                 <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z" />
                             </svg>
                             Xem ngay
-                        </button>
+                        </TransitionLink>
 
                         <button
                             onClick={(e) => {
@@ -184,19 +180,15 @@ export default function MoviePreviewPopup({
                             {isFavorited ? 'Đã thích' : 'Thích'}
                         </button>
 
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                e.preventDefault();
-                                triggerAd(detailUrl, adZone || "popup_detail");
-                            }}
+                        <TransitionLink
+                            href={detailUrl}
                             className="flex-1 h-10 border border-white/20 hover:bg-white/5 text-white rounded-full flex items-center justify-center gap-1.5 font-bold text-[11px] transition-all pointer-events-auto cursor-pointer"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="12" height="12" fill="currentColor">
                                 <path d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z"></path>
                             </svg>
                             Chi tiết
-                        </button>
+                        </TransitionLink>
                     </div>
 
                     {/* Metadata Tags */}

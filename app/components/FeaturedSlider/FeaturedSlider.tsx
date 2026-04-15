@@ -27,20 +27,16 @@ interface FeaturedSliderProps {
     initialMovies?: Movie[];
 }
 
-import { useAdTrigger } from "@/app/hooks/useAdTrigger";
+
 
 export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider", initialMovies }: FeaturedSliderProps) {
-    const { triggerAd } = useAdTrigger();
+
     const seeded = !!(initialMovies && initialMovies.length > 0);
     const [movies, setMovies] = useState<Movie[]>(() => initialMovies ?? []);
     const [isLoading, setIsLoading] = useState(!seeded);
     const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
 
-    const handleFeaturedClick = (e: React.MouseEvent, movieSlug: string) => {
-        if (e.metaKey || e.ctrlKey || (e.button && e.button === 1)) return;
-        e.preventDefault();
-        triggerAd(`/phim/${movieSlug}`, "featured_slider");
-    };
+
 
     const enrichDetails = (slice: Movie[]) => {
         void Promise.all(
@@ -161,12 +157,12 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                 <div className="relative z-20 w-full xl:w-[60%] h-full flex items-end xl:items-center pt-30 xl:pt-0 px-5 md:px-10 lg:pb-30 xl:pb-0 text-left">
                                     <div className="lg:max-w-lg xl:max-w-2xl xl:mb-0 mb-[20px] w-full space-y-4 lg:space-y-5">
                                         <div className="space-y-1">
-                                            <h3
+                                            <TransitionLink
+                                                href={`/phim/${movie.slug}`}
                                                 className="text-xl md:text-2xl lg:text-3xl font-bold text-white group-hover:text-[#f5a623] transition-colors line-clamp-1 [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)] cursor-pointer"
-                                                onClick={(e) => handleFeaturedClick(e, movie.slug)}
                                             >
                                                 {movie.name}
-                                            </h3>
+                                            </TransitionLink>
                                             <p className="text-sm md:text-base font-medium text-white/70 italic line-clamp-1 mt-1 [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)]">
                                                 {movie.origin_name}
                                             </p>
@@ -203,14 +199,14 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                         </div>
 
                                         <div className="hidden lg:flex items-center gap-6 pt-4">
-                                            <div
-                                                onClick={(e) => handleFeaturedClick(e, movie.slug)}
-                                                className="relative hidden lg:flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-[#f5a623] to-[#ffcc33] text-[#0a1628] shadow-[0_4px_15px_rgba(245,166,35,0.4)] ring-4 ring-[#f5a623]/20 hover:shadow-[0_0_30px_rgba(245,166,35,0.8)] hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer"
+                                            <TransitionLink
+                                                href={`/phim/${movie.slug}`}
+                                                className="relative hidden lg:flex items-center justify-center w-14 h-14 rounded-full bg-gradient-to-tr from-[#f5a623] to-[#ffcc33] text-[#0a1628] shadow-[0_4px_15_px_-3px_rgba(245,166,35,0.4)] ring-4 ring-[#f5a623]/20 hover:shadow-[0_0_30px_rgba(245,166,35,0.8)] hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer"
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="20" height="20" fill="currentColor" className="ml-1 relative z-10">
                                                     <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z" />
                                                 </svg>
-                                            </div>
+                                            </TransitionLink>
 
                                             <div className="flex items-center bg-white/10 hover:bg-white/20 rounded-full border border-white/10 overflow-hidden transition-all duration-300">
                                                 <FavoriteButton
@@ -218,14 +214,14 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                                                     iconSize={18}
                                                     className="p-3 px-5 h-full border-r border-white/10 hover:bg-white/5 transition-colors"
                                                 />
-                                                <div
-                                                    onClick={(e) => handleFeaturedClick(e, movie.slug)}
+                                                <TransitionLink
+                                                    href={`/phim/${movie.slug}`}
                                                     className="p-3 px-7 h-full flex items-center justify-center text-white cursor-pointer hover:text-[#f5a623] transition-colors"
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="18" height="18" fill="currentColor">
                                                         <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336h24V272H216c-13.3 0-24-10.7-24-24s10.7-24 24-24h48c13.3 0 24 10.7 24 24v88h8c13.3 0 24 10.7 24 24s-10.7 24-24 24H216c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z" />
                                                     </svg>
-                                                </div>
+                                                </TransitionLink>
                                             </div>
                                         </div>
                                     </div>

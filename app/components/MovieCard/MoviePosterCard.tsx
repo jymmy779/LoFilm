@@ -1,5 +1,6 @@
 "use client";
 
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 import Image from "next/image";
 import { Movie } from "@/app/types/movie";
@@ -18,15 +19,11 @@ interface MoviePosterCardProps {
 }
 
 export default function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZone }: MoviePosterCardProps) {
-    const { triggerAd } = useAdTrigger();
+    const { openAdOnly } = useAdTrigger();
     const moviePath = `/phim/${movie.slug}`;
 
-    const handleMovieClick = (e: React.MouseEvent) => {
-        // Nếu click bằng chuột giữa hoặc giữ Ctrl/Cmd, để trình duyệt mở tab mới tự nhiên
-        if (e.metaKey || e.ctrlKey || (e.button && e.button === 1)) return;
-
-        e.preventDefault();
-        triggerAd(moviePath, adZone || "movie_card");
+    const handleAdClick = () => {
+        openAdOnly(adZone || "movie_poster_row");
     };
 
     // Chuẩn bị dữ liệu hiển thị cho Popup
@@ -35,15 +32,19 @@ export default function MoviePosterCard({ movie, priority = false, isFirst, isLa
     const imdbRating = movie.tmdb?.vote_average ? movie.tmdb.vote_average.toFixed(1) : "N/A";
 
     return (
-        <MoviePreviewWrapper 
-            movie={movie}
-            user={user}
-            isFirst={isFirst}
-            isLast={isLast}
-            adZone={adZone}
-            className="sw-item group/item cursor-pointer relative [contain:layout]" 
-            onClick={handleMovieClick}
+        <TransitionLink
+            href={moviePath}
+            onClick={handleAdClick}
+            className="block"
         >
+            <MoviePreviewWrapper 
+                movie={movie}
+                user={user}
+                isFirst={isFirst}
+                isLast={isLast}
+                adZone={adZone}
+                className="sw-item group/item cursor-pointer relative [contain:layout]" 
+            >
             <div className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-white/5">
                 {/* Poster Image */}
                 <Image
@@ -81,6 +82,7 @@ export default function MoviePosterCard({ movie, priority = false, isFirst, isLa
                     <span>{decodeHtml(movie.origin_name)}</span>
                 </h4>
             </div>
-        </MoviePreviewWrapper>
+            </MoviePreviewWrapper>
+        </TransitionLink>
     );
 }

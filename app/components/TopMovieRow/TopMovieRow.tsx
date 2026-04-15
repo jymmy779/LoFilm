@@ -1,5 +1,6 @@
 "use client";
 
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { useEffect, useState } from "react";
 import axios from "axios";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -26,16 +27,14 @@ interface TopMovieRowProps {
 }
 
 export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowProps) {
-    const { triggerAd } = useAdTrigger();
+    const { openAdOnly } = useAdTrigger();
     const seeded = !!(initialMovies && initialMovies.length > 0);
     const [movies, setMovies] = useState<Movie[]>(() => initialMovies ?? []);
     const [isLoading, setIsLoading] = useState(!seeded);
     const navId = title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
 
-    const handleTopMovieClick = (e: React.MouseEvent, movieSlug: string) => {
-        if (e.metaKey || e.ctrlKey || (e.button && e.button === 1)) return;
-        e.preventDefault();
-        triggerAd(`/phim/${movieSlug}`, "top_movie");
+    const handleAdClick = () => {
+        openAdOnly("top_movie");
     };
 
     const enrichEpisodeTotals = async (topItems: Movie[], isMounted: () => boolean) => {
@@ -155,8 +154,9 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                                     adZone="top_movie"
                                     className="sw-item group/item cursor-pointer mt-4 transform-gpu"
                                 >
-                                    <div
-                                        onClick={(e) => handleTopMovieClick(e, movie.slug)}
+                                    <TransitionLink
+                                        href={`/phim/${movie.slug}`}
+                                        onClick={handleAdClick}
                                         className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/5 transition-[transform,box-shadow] duration-500 ease-out group-hover/item:shadow-[0_15px_35px_rgba(0,0,0,0.6)] transform-gpu cursor-pointer"
                                         style={{
                                             WebkitClipPath: isEven ? clipPathEven : clipPathOdd,
@@ -189,7 +189,7 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                                                 {getEpisodeStatus(movie)}
                                             </div>
                                         </div>
-                                    </div>
+                                    </TransitionLink>
 
                                     {/* Movie Info */}
                                     <div className="flex gap-2 items-start pr-2">
@@ -203,12 +203,13 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                                             {index + 1}
                                         </div>
                                         <div className="flex flex-col gap-1 min-w-0 pt-2 lg:pt-3">
-                                            <h3
+                                            <TransitionLink
+                                                href={`/phim/${movie.slug}`}
+                                                onClick={handleAdClick}
                                                 className="text-white text-sm md:text-base leading-tight hover:text-[#FED877] transition-colors line-clamp-1 lg:font-bold cursor-pointer"
-                                                onClick={(e) => handleTopMovieClick(e, movie.slug)}
                                             >
                                                 {decodeHtml(movie.name)}
-                                            </h3>
+                                            </TransitionLink>
                                             <p className="text-white/40 text-[10px] md:text-xs truncate font-medium">
                                                 {decodeHtml(movie.origin_name)}
                                             </p>

@@ -32,15 +32,13 @@ export default function WideMovieRow({
     initialMovies,
     revalidate
 }: WideMovieRowProps) {
-    const { triggerAd } = useAdTrigger();
+    const { openAdOnly } = useAdTrigger();
     const { movies, isLoading } = useMovies({ apiUrl, initialMovies, sortByYear: true, revalidate });
 
     const navId = title.replace(/\s+/g, '-').toLowerCase();
 
-    const handleMovieClick = (e: React.MouseEvent, movieSlug: string) => {
-        if (e.metaKey || e.ctrlKey || (e.button && e.button === 1)) return;
-        e.preventDefault();
-        triggerAd(`/phim/${movieSlug}`, "wide_movie_row");
+    const handleAdClick = () => {
+        openAdOnly("wide_movie_row");
     };
 
     if (isLoading) {
@@ -110,10 +108,14 @@ export default function WideMovieRow({
                     >
                         {movies.map((movie, index) => (
                             <SwiperSlide key={movie._id}>
-                                <div className="sw-cover relative group cursor-pointer overflow-hidden rounded-xl md:rounded-2xl bg-slate-900/40 border border-white/5 transition-all duration-300 transform-gpu hover:border-white/10">
+                                <TransitionLink
+                                    href={`/phim/${movie.slug}`}
+                                    onClick={handleAdClick}
+                                    className="sw-cover block relative group cursor-pointer overflow-hidden rounded-xl md:rounded-2xl bg-slate-900/40 border border-white/5 transition-all duration-300 transform-gpu hover:border-white/10"
+                                >
                                     <MoviePreviewWrapper movie={movie} adZone="wide_movie">
                                         {/* Background Thumbnail (Horizontal) */}
-                                        <div onClick={(e) => handleMovieClick(e, movie.slug)} className="v-thumbnail v-thumbnail-hoz relative aspect-[21/9] overflow-hidden transform-gpu">
+                                        <div className="v-thumbnail v-thumbnail-hoz relative aspect-[21/9] overflow-hidden transform-gpu">
                                             <Image
                                                 src={movie.thumb_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}
                                                 alt={movie.name}
@@ -148,7 +150,7 @@ export default function WideMovieRow({
                                             </div>
                                         </div>
                                     </MoviePreviewWrapper>
-                                </div>
+                                </TransitionLink>
                             </SwiperSlide>
                         ))}
                     </Swiper>

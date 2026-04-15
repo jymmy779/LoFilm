@@ -28,24 +28,22 @@ interface MovieRowProps {
 
 import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 
-export default function MovieRow({ 
-    title, 
-    apiUrl, 
-    viewAllLink, 
-    initialMovies, 
+export default function MovieRow({
+    title,
+    apiUrl,
+    viewAllLink,
+    initialMovies,
     sortByYear = false,
     shouldEnrich = false,
     revalidate
 }: MovieRowProps) {
-    const { triggerAd } = useAdTrigger();
+    const { openAdOnly } = useAdTrigger();
     const { movies, isLoading } = useMovies({ apiUrl, initialMovies, sortByYear, shouldEnrich, revalidate });
 
     const navId = title.replace(/\s+/g, '-').toLowerCase();
 
-    const handleMovieRowClick = (e: React.MouseEvent, movieSlug: string) => {
-        if (e.metaKey || e.ctrlKey || (e.button && e.button === 1)) return;
-        e.preventDefault();
-        triggerAd(`/phim/${movieSlug}`, "movie_row");
+    const handleAdClick = () => {
+        openAdOnly("movie_row");
     };
 
     if (isLoading) {
@@ -118,50 +116,54 @@ export default function MovieRow({
 
                             return (
                                 <SwiperSlide key={movie._id} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
-                                    <MoviePreviewWrapper 
-                                        movie={movie}
-                                        adZone="movie_row"
-                                        onClick={(e) => handleMovieRowClick(e, movie.slug)} 
+                                    <TransitionLink
+                                        href={`/phim/${movie.slug}`}
+                                        onClick={handleAdClick}
                                         className="block group/item cursor-pointer"
                                     >
-                                        <div className="relative aspect-video rounded-lg overflow-hidden bg-white/5 mb-3">
-                                            <Image
-                                                src={imgUrl}
-                                                alt={movie.name}
-                                                fill
-                                                priority={eager}
-                                                loading={eager ? "eager" : "lazy"}
-                                                sizes="(max-width: 768px) 160px, (max-width: 1024px) 240px, 280px"
-                                                className="object-cover transition-transform duration-500 group-hover/item:scale-110"
-                                            />
-                                            <div className="absolute inset-x-0 bottom-[-1] h-1/2 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
+                                        <MoviePreviewWrapper
+                                            movie={movie}
+                                            adZone="movie_row"
+                                        >
+                                            <div className="relative aspect-video rounded-lg overflow-hidden bg-white/5 mb-3">
+                                                <Image
+                                                    src={imgUrl}
+                                                    alt={movie.name}
+                                                    fill
+                                                    priority={eager}
+                                                    loading={eager ? "eager" : "lazy"}
+                                                    sizes="(max-width: 768px) 160px, (max-width: 1024px) 240px, 280px"
+                                                    className="object-cover transition-transform duration-500 group-hover/item:scale-110"
+                                                />
+                                                <div className="absolute inset-x-0 bottom-[-1] h-1/2 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
 
-                                            {movie.episode_current && (
-                                                <div className="absolute bottom-2 left-2 px-1.5 py-0.5 bg-white/30 rounded border border-white/20">
-                                                    <span className="text-[8px] md:text-xs md:font-semibold text-white truncate max-w-[120px] block">
-                                                        {movie.episode_current}
-                                                    </span>
-                                                </div>
-                                            )}
-                                        </div>
+                                                {movie.episode_current && (
+                                                    <div className="absolute bottom-2 left-2 px-1.5 py-0.5 bg-white/30 rounded border border-white/20">
+                                                        <span className="text-[8px] md:text-xs md:font-semibold text-white truncate max-w-[120px] block">
+                                                            {movie.episode_current}
+                                                        </span>
+                                                    </div>
+                                                )}
+                                            </div>
 
-                                        <div className="space-y-1">
-                                            <h3 className="text-white md:text-left text-center font-medium text-xs md:text-sm line-clamp-1 group-hover/item:text-pink-300 transition-colors">
-                                                {decodeHtml(movie.name)}
-                                            </h3>
-                                            <p className="text-white/50 text-[10px] md:text-left text-center md:text-xs line-clamp-1">
-                                                {decodeHtml(movie.origin_name)}
-                                            </p>
-                                        </div>
-                                    </MoviePreviewWrapper>
+                                            <div className="space-y-1">
+                                                <h3 className="text-white md:text-left text-center font-medium text-xs md:text-sm line-clamp-1 group-hover/item:text-pink-300 transition-colors">
+                                                    {decodeHtml(movie.name)}
+                                                </h3>
+                                                <p className="text-white/50 text-[10px] md:text-left text-center md:text-xs line-clamp-1">
+                                                    {decodeHtml(movie.origin_name)}
+                                                </p>
+                                            </div>
+                                        </MoviePreviewWrapper>
+                                    </TransitionLink>
                                 </SwiperSlide>
                             );
                         })}
                     </Swiper>
 
-                    <SwiperNavButtons 
-                        prevClassName={`btn-prev-${navId}`} 
-                        nextClassName={`btn-next-${navId}`} 
+                    <SwiperNavButtons
+                        prevClassName={`btn-prev-${navId}`}
+                        nextClassName={`btn-next-${navId}`}
                     />
 
                 </div>

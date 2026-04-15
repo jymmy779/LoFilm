@@ -1,7 +1,7 @@
 "use client";
 
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
 import { Dices, Play } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -10,7 +10,6 @@ import "swiper/css/navigation";
 import Image from "next/image";
 import Container from "../Container";
 import axios from "axios";
-import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 import { filterDuplicateMovies, getImageUrl } from "@/app/utils/movieUtils";
 
 const MOODS = [
@@ -25,12 +24,11 @@ const MOODS = [
 ];
 
 export default function RandomMovieRow() {
-    const { triggerAd } = useAdTrigger();
     const [selectedMood, setSelectedMood] = useState(MOODS[0]);
     const [movies, setMovies] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [moodSwiper, setMoodSwiper] = useState<any>(null);
-    const router = useRouter();
+
 
     const fetchMoviesByMood = async (moodId: string, excludeMoodId?: string) => {
         setIsLoading(true);
@@ -98,6 +96,8 @@ export default function RandomMovieRow() {
             moodSwiper.slideTo(index);
         }
     }, [selectedMood, moodSwiper]);
+
+
 
     const handleRandomMood = () => {
         const otherMoods = MOODS.filter(m => m.id !== selectedMood.id);
@@ -219,9 +219,9 @@ export default function RandomMovieRow() {
 
                                     return (
                                         <SwiperSlide key={movie._id}>
-                                            <div
-                                                onClick={() => triggerAd(`/phim/${movie.slug}`, "random_movie_row")}
-                                                className="group relative cursor-pointer rounded-lg overflow-hidden border border-white/5 bg-white/5 active:scale-95 transition-all"
+                                            <TransitionLink
+                                                href={`/phim/${movie.slug}`}
+                                                className="group relative block cursor-pointer rounded-lg overflow-hidden border border-white/5 bg-white/5 active:scale-95 transition-all"
                                             >
                                                 <div className="relative aspect-[2/3]">
                                                     <Image
@@ -250,7 +250,7 @@ export default function RandomMovieRow() {
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </div>
+                                            </TransitionLink>
                                         </SwiperSlide>
                                     );
                                 })}
