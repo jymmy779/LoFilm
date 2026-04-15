@@ -25,8 +25,10 @@ export default function imageLoader({ src, width, quality }: { src: string, widt
 
   // 4. Sử dụng wsrv.nl làm proxy tập trung
   // - &w= : Chiều rộng yêu cầu
-  // - &q= : Chất lượng
+  // - &q= : Chất lượng (Mặc định nâng lên 85 để giữ độ nét cao)
   // - &output=webp : Ép WebP
   // - &af : Adaptive filter (tối ưu nén)
-  return `https://wsrv.nl/?url=${encodeURIComponent(originUrl)}&w=${width}&q=${quality || 75}&output=webp&af`;
+  // - &il : Interlaced/Progressive (Tải lũy tiến, ảnh hiện ra ngay lập tức)
+  // - &n=5 : Cache 5 ngày trên CDN (Giảm TTFB LCP cực mạnh)
+  return `https://wsrv.nl/?url=${encodeURIComponent(originUrl)}&w=${width}&q=${quality || 85}&output=webp&af&il&n=5`;
 }

@@ -98,11 +98,11 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
                 <div className="flex items-center justify-between mb-8">
                     <Skeleton width={300} height={40} className="rounded-lg" />
                 </div>
-                <div className="flex gap-[10px] sm:gap-[13px] xl:gap-[15px] overflow-hidden pt-[5px] pb-[20px]">
+                <div className="flex gap-[10px] sm:gap-[13px] min-[1400px]:gap-[15px] overflow-hidden pt-[5px] pb-[20px]">
                     {[...Array(10)].map((_, i) => (
                         <div
                             key={i}
-                            className="flex-none mt-4 w-[calc((100%-10px)/2)] sm:w-[calc((100%-13px*2)/3)] md:w-[calc((100%-13px*3)/4)] lg:w-[calc((100%-13px*4)/5)] xl:w-[calc((100%-13px*5)/6)] 2xl:w-[calc((100%-15px*7)/8)]"
+                            className="flex-none mt-4 w-[calc((100%-10px)/2)] sm:w-[calc((100%-13px*2)/3)] md:w-[calc((100%-13px*3)/4)] lg:w-[calc((100%-13px*4)/5)] min-[1200px]:w-[calc((100%-13px*5)/6)] min-[1400px]:w-[calc((100%-15px*6)/7)] 2xl:w-[calc((100%-15px*7)/8)]"
                         >
                             <Skeleton className="aspect-[2/3] rounded-2xl block" />
                         </div>
@@ -119,7 +119,7 @@ export default function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies 
     const clipPathOdd = 'polygon(0 0, calc(100% - 16px) 5%, calc(100% - 9.9px) calc(5% + 1.2px), calc(100% - 4.7px) calc(5% + 4.7px), calc(100% - 1.2px) calc(5% + 9.9px), 100% calc(5% + 16px), 100% 100%, 0% 100%)';
 
     return (
-        <Container as="section" className="top-movie-row-section relative z-30 mb-16 mt-8">
+        <Container as="section" className="top-movie-row-section relative z-30 mb-16 mt-8 animate-fade-in">
             <div className="row-header flex items-center justify-between mb-8">
                 <h2 className="text-[22px] lg:text-[32px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-orange-100 to-white drop-shadow-sm flex items-center gap-4">
                     {title}

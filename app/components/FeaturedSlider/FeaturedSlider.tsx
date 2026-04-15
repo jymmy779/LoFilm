@@ -92,7 +92,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
                 <div className="flex items-center justify-between mb-6">
                     <Skeleton width={300} height={35} className="rounded-lg max-w-full" />
                 </div>
-                <div className="relative w-full aspect-[21/9] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5] md:min-h-[500px] min-h-[300px] pt-[5px] pb-[20px]">
+                <div className="relative mb-42 w-full aspect-[21/9] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5] md:min-h-[500px] min-h-[300px]">
                     <Skeleton className="w-full h-full block rounded-[30px]" />
                 </div>
             </Container>
@@ -102,7 +102,7 @@ export default function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "fe
     if (movies.length === 0) return null;
 
     return (
-        <Container as="section" className="relative my-16">
+        <Container as="section" className="relative my-16 animate-fade-in">
             <div className="row-header flex items-center justify-between mb-6">
                 <h2 className="text-[20px] lg:text-[28px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-green-200 via-green-100 to-white drop-shadow-sm flex items-center gap-4">
                     {title}

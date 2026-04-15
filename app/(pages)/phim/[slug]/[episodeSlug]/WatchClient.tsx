@@ -487,7 +487,7 @@ export default function WatchClient({
                 <div key={videoSrc} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden shadow-2xl transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b]`}>
                     <style jsx global>{`
                         .hide-large-play .plyr__control--overlaid { display: none !important; }
-                        .plyr { z-index: auto !important; }
+                        .plyr { z-index: auto !important; aspect-ratio: 16/9; width: 100%; border-radius: inherit; }
                         .plyr__controls { z-index: 100 !important; background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5)) !important; }
                         .hide-large-play .plyr__controls { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
                         
@@ -565,7 +565,7 @@ export default function WatchClient({
                             }
                         }
                     `}</style>
-                    <video ref={videoRef} className="w-full h-full object-contain" playsInline loop={false} poster={getImageUrl(movie.thumb_url)} />
+                    <video ref={videoRef} className="w-full h-full object-contain" playsInline loop={false} poster={getImageUrl(movie.thumb_url, { width: 1280, quality: 85 })} />
 
                     {/* Movie Info Overlay (Top Left) - Rendered into Plyr Container for Fullscreen Support */}
                     {plyrContainer && createPortal(

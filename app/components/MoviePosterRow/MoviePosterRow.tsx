@@ -43,11 +43,11 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovi
                     <Skeleton width={200} height={32} className="rounded-lg" />
                     <Skeleton width={80} height={20} className="rounded" />
                 </div>
-                <div className="flex gap-2.5 md:gap-[13px] lg:gap-[15px] overflow-hidden pt-[5px] pb-[20px]">
+                <div className="flex gap-[10px] sm:gap-[13px] min-[1400px]:gap-[15px] overflow-hidden pt-[5px] pb-[20px]">
                     {[...Array(10)].map((_, i) => (
                         <div
                             key={i}
-                            className="flex-none w-[calc((100%-10px)/2)] sm:w-[calc((100%-13px*2)/3)] md:w-[calc((100%-13px*3)/4)] xl:w-[calc((100%-13px*5)/6)] 2xl:w-[calc((100%-15px*7)/8)]"
+                            className="flex-none w-[calc((100%-10px)/2)] sm:w-[calc((100%-13px*2)/3)] md:w-[calc((100%-13px*3)/4)] lg:w-[calc((100%-13px*4)/5)] min-[1200px]:w-[calc((100%-13px*5)/6)] min-[1400px]:w-[calc((100%-15px*6)/7)] 2xl:w-[calc((100%-15px*7)/8)]"
                         >
                             <Skeleton className="aspect-[2/3] rounded-2xl block" />
                         </div>
@@ -60,7 +60,7 @@ export default function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovi
     if (movies.length === 0) return null;
 
     return (
-        <Container as="section" className="movie-row-section relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
+        <Container as="section" className="movie-row-section relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8 animate-fade-in">
             <div className="row-header flex items-center justify-between mb-6">
                 <h2 className="text-[20px] lg:text-[28px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-blue-100 to-white drop-shadow-sm flex items-center gap-4">
                     {title}

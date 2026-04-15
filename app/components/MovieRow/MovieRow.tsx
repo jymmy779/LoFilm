@@ -73,7 +73,7 @@ export default function MovieRow({
     if (movies.length === 0) return null;
 
     return (
-        <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
+        <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8 animate-fade-in">
             <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/30 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5">
 
                 {/* === LEFT SIDE: TITLE & LINK === */}

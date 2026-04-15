@@ -64,7 +64,7 @@ export default function WideMovieRow({
     if (movies.length === 0) return null;
 
     return (
-        <Container as="section" className="cards-row cards-slide wide relative z-30 mb-6 md:mb-12 lg:mb-16 mt-6 md:mt-8">
+        <Container as="section" className="cards-row cards-slide wide relative z-30 mb-6 md:mb-12 lg:mb-16 mt-6 md:mt-8 animate-fade-in">
             {/* Header */}
             <div className="row-header flex items-center justify-between mb-4 md:mb-6">
                 <h2 className="category-name text-xl md:text-2xl lg:text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-200 to-white drop-shadow-sm">
@@ -115,10 +115,12 @@ export default function WideMovieRow({
                                         {/* Background Thumbnail (Horizontal) */}
                                         <div onClick={(e) => handleMovieClick(e, movie.slug)} className="v-thumbnail v-thumbnail-hoz relative aspect-[21/9] overflow-hidden transform-gpu">
                                             <Image
-                                                src={getImageUrl(movie.thumb_url, { width: 450, quality: 70 })}
+                                                src={movie.thumb_url || ''}
                                                 alt={movie.name}
                                                 fill
                                                 priority={index < 2}
+                                                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, 30vw"
+                                                quality={85}
                                                 className="object-cover transition-transform duration-700 group-hover:scale-105 transform-gpu"
                                             />
                                             <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/20 to-transparent z-10" />

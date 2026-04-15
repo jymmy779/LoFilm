@@ -119,7 +119,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
     const currentMovie = movies[activeIndex];
 
     return (
-        <section id="top_slider" className=" w-full relative h-[500px] md:h-[700px] lg:h-[850px] overflow-hidden">
+        <section id="top_slider" className="animate-fade-in w-full relative h-[500px] md:h-[700px] lg:h-[850px] overflow-hidden">
             {/* === MAIN SWIPER (Background only) === */}
             <Swiper
                 modules={[Autoplay, EffectFade, Thumbs]}
@@ -137,13 +137,14 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                             <>
                                 <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] lg:overflow-hidden [transform:translateZ(0)]">
                                     <MotionImage
-                                        src={getImageUrl(movie.thumb_url, { width: 1920, quality: index === 0 ? 75 : 65 })}
+                                        src={movie.thumb_url || ''}
                                         alt={movie.name}
                                         initial={false}
                                         priority={index === 0}
                                         loading={index === 0 ? "eager" : "lazy"}
                                         fill
                                         sizes="100vw"
+                                        quality={index === 0 ? 90 : 85}
                                         animate={{
                                             x: isActive ? 0 : 40,
                                             scale: isActive ? 1 : 1.05
@@ -287,7 +288,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                     </div>
 
                     {/* Thumbnail Swiper (Right side on Desktop, Bottom on Mobile) */}
-                    <div className="w-[340px] min-[700px]:w-[400px] lg:w-[480px] pointer-events-auto">
+                    <div className="w-[340px] min-[700px]:w-[400px] lg:w-[480px] min-h-[44px] min-[700px]:min-h-[32px] lg:min-h-[52px] pointer-events-auto">
                         <Swiper
                             modules={[FreeMode, Thumbs]}
                             onSwiper={setThumbsSwiper}
@@ -306,12 +307,13 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                 <SwiperSlide key={movie._id}>
                                     <div className="relative cursor-pointer rounded-full min-[700px]:rounded overflow-hidden aspect-square min-[700px]:aspect-video border-2 border-transparent hover:border-white/40 [.swiper-slide-thumb-active_&]:border-[#f5a623] transition-all duration-300 opacity-60 hover:opacity-90 [.swiper-slide-thumb-active_&]:opacity-100">
                                         <Image
-                                            src={getImageUrl(movie.thumb_url, { width: 120, quality: 70 })}
+                                            src={movie.thumb_url || ''}
                                             alt={movie.name}
                                             fill
                                             priority={index < 3}
                                             loading={index < 3 ? "eager" : "lazy"}
                                             sizes="100px"
+                                            quality={80}
                                             className="object-cover"
                                         />
                                     </div>
