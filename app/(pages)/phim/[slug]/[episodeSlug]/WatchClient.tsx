@@ -243,32 +243,40 @@ export default function WatchClient({
 
     // Function to call Supabase RPC and record a valid view
     const recordViewToSupabase = async () => {
+        const sessionKey = `viewed_${slug}`;
+        if (typeof window !== 'undefined' && sessionStorage.getItem(sessionKey)) return;
+
         try {
-            // 1. Lấy hoặc tạo Device ID ngẫu nhiên để phân biệt các máy (dùng chung Wifi vẫn tính riêng)
             let deviceId = localStorage.getItem("lofilm_device_id");
             if (!deviceId) {
                 deviceId = "dev-" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
                 localStorage.setItem("lofilm_device_id", deviceId);
             }
 
-            // 2. Lấy IP (để lưu vết nhưng không dùng làm khóa chính để chặn view nhiều máy)
             let ip = "unknown";
             try {
                 const ipRes = await fetch('https://api.ipify.org?format=json');
-                const ipData = await ipRes.json();
-                ip = ipData.ip;
+                if (ipRes.ok) {
+                    const ipData = await ipRes.json();
+                    ip = ipData.ip;
+                }
             } catch (e) { }
 
-            // 3. Gọi RPC với Device ID mới
-            await supabase.rpc('record_movie_view', {
+            const { error } = await supabase.rpc('record_movie_view', {
                 p_movie_slug: slug,
                 p_ip: ip,
                 p_user_id: userRef.current?.id || null,
                 p_device_id: deviceId
             });
-            console.log("View recorded for device:", deviceId);
+
+            if (!error) {
+                sessionStorage.setItem(sessionKey, 'true');
+                console.log("Recorded view successfully");
+            } else {
+                console.error("RPC View Error:", error.message);
+            }
         } catch (err) {
-            console.error("Error recording view:", err);
+            console.error("System error recording view:", err);
         }
     };
 
