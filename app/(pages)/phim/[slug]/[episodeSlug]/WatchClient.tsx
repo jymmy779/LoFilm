@@ -622,7 +622,7 @@ export default function WatchClient({
 
                     {/* Episode List Overlay Panel */}
                     {plyrContainer && createPortal(
-                        <div className={`absolute inset-0 z-[120] transition-all duration-500 ${showEpisodeOverlay ? 'visible' : 'invisible'}`}>
+                        <div className={`absolute inset-0 z-[120] ${showEpisodeOverlay ? 'visible' : 'invisible'} [transition-property:visibility] duration-500`}>
                             {/* Backdrop shadow */}
                             <div
                                 className={`absolute inset-0 bg-black/60 transition-opacity duration-500 ${showEpisodeOverlay ? 'opacity-100' : 'opacity-0'}`}
@@ -630,7 +630,12 @@ export default function WatchClient({
                             />
 
                             {/* Panel sliding from right */}
-                            <div className={`absolute top-0 right-0 h-full w-[200px] sm:w-[260px] md:w-[360px] bg-[#0F111A] border-l border-white/5 shadow-2xl transition-transform duration-500 ease-out flex flex-col ${showEpisodeOverlay ? 'translate-x-0' : 'translate-x-full'}`}>
+                            <div 
+                                onClick={(e) => e.stopPropagation()}
+                                onDoubleClick={(e) => e.stopPropagation()}
+                                onMouseDown={(e) => e.stopPropagation()}
+                                onMouseUp={(e) => e.stopPropagation()}
+                                className={`absolute top-0 right-0 h-full w-[200px] sm:w-[260px] md:w-[360px] bg-[#0F111A] border-l border-white/5 shadow-2xl transition-transform duration-500 ease-out flex flex-col select-none outline-none [backface-visibility:hidden] [will-change:transform] [-webkit-tap-highlight-color:transparent] ${showEpisodeOverlay ? 'translate-x-0' : 'translate-x-full'}`}>
                                 {/* Header */}
                                 <div className="p-2 sm:p-3 lg:p-5 border-b gap-10 border-white/5 flex items-center justify-between bg-white/[0.02]">
                                     <div className="flex flex-col gap-0.5">
