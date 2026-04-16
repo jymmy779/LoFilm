@@ -10,9 +10,9 @@ import "swiper/css/navigation";
 
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
-import { filterDuplicateMovies, getEpisodeStatus, getImageUrl } from "@/app/utils/movieUtils";
+import { filterDuplicateMovies, getEpisodeStatus, getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
-import Image from "next/image";
+import SmartImage from "@/app/components/Common/SmartImage";
 import Container from "@/app/components/Container";
 import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
 import { useAdTrigger } from "@/app/hooks/useAdTrigger";
@@ -165,8 +165,9 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                                     >
                                         <div className="w-full h-full transition-transform duration-500 ease-out group-hover/item:scale-[1.07]">
                                             <div className="w-full h-full relative group-hover/item:animate-[top-movie-shake_0.15s_ease-in-out_3]">
-                                                <Image
+                                                <SmartImage
                                                     src={getImageUrl(movie.poster_url, { width: 250, quality: 75 })}
+                                                    rawSrc={getRawImageUrl(movie.poster_url)}
                                                     alt={movie.name}
                                                     fill
                                                     priority={false}

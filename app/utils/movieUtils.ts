@@ -6,8 +6,11 @@ import { Movie } from "@/app/types/movie";
 export function filterDuplicateMovies(movies: Movie[]): Movie[] {
     const seen = new Set<string>();
     return movies.filter((movie) => {
+        // Normalize name: remove all common sequel/part/season indicators
         const rootName = movie.name
-            .replace(/\s*\(?(Phần|P\.|Season|SS|Tập|ss)\s*(\d+|Cuối|Đặc Biệt)\)?.*$/i, "")
+            .replace(/\s*[:\-–—]\s*/g, " ") // Replace separators with space
+            .replace(/\s*\(?(Phần|P\.|Part|Section|Vol|Volume|Season|SS|Tập|ss|S|Ep|Episode|Chapter|Ch|Book)\s*(\d+|Cuối|Đặc Biệt|I+|IV|V|VI|VII|VIII|IX|X)\)?.*$/i, "")
+            .replace(/\s+\d+\s*$/i, "") // Remove trailing numbers (e.g., Movie Name 2)
             .trim()
             .toLowerCase();
 
@@ -77,6 +80,15 @@ export function getImageUrl(url: string | undefined, options?: { width?: number;
     }
 
     return proxyUrl;
+}
+
+/**
+ * Get the raw image URL from the source without any proxy
+ */
+export function getRawImageUrl(url: string | undefined): string {
+    if (!url) return TRANSPARENT_GIF;
+    const trimmedUrl = url.trim();
+    return trimmedUrl.startsWith("http") ? trimmedUrl : `https://phimimg.com/${trimmedUrl.startsWith('/') ? trimmedUrl.slice(1) : trimmedUrl}`;
 }
 
 /**

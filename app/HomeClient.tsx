@@ -48,7 +48,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <LazyRow estimatedHeight="380px">
                 <MovieRow
                     title="Phim Hàn Quốc mới"
-                    apiUrl="https://phimapi.com/v1/api/quoc-gia/han-quoc?limit=40"
+                    apiUrl="https://phimapi.com/v1/api/quoc-gia/han-quoc?limit=60"
                     viewAllLink="/quoc-gia/han-quoc"
                     initialMovies={prefetched.movieRowHan}
                     sortByYear={true}
@@ -61,7 +61,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <LazyRow estimatedHeight="380px">
                 <MovieRow
                     title="Phim Trung Quốc mới"
-                    apiUrl="https://phimapi.com/v1/api/quoc-gia/trung-quoc?limit=40"
+                    apiUrl="https://phimapi.com/v1/api/quoc-gia/trung-quoc?limit=60"
                     viewAllLink="/quoc-gia/trung-quoc"
                     initialMovies={prefetched.movieRowTrung}
                     sortByYear={true}
@@ -73,7 +73,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <LazyRow estimatedHeight="380px">
                 <MovieRow
                     title="Phim Âu Mỹ mới"
-                    apiUrl="https://phimapi.com/v1/api/quoc-gia/au-my?limit=40"
+                    apiUrl="https://phimapi.com/v1/api/quoc-gia/au-my?limit=60"
                     viewAllLink="/quoc-gia/au-my"
                     initialMovies={prefetched.movieRowAuMy}
                     sortByYear={true}
@@ -85,7 +85,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <LazyRow estimatedHeight="580px">
                 <FeaturedSlider
                     title="TV Shows Truyền Hình"
-                    apiUrl="https://phimapi.com/v1/api/danh-sach/tv-shows?limit=40"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/tv-shows?limit=60"
                     viewAllLink="/danh-sach/tv-shows"
                     navId="featured-tv"
                     initialMovies={prefetched.featuredTv}
@@ -95,7 +95,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <LazyRow estimatedHeight="540px">
                 <MoviePosterRow
                     title="Phim Chiếu Rạp Mới"
-                    apiUrl="https://phimapi.com/v1/api/danh-sach/phim-chieu-rap?limit=40"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/phim-chieu-rap?limit=60"
                     viewAllLink="/danh-sach/phim-chieu-rap"
                     initialMovies={prefetched.posterChieuRap}
                     sortByYear={true}
@@ -106,7 +106,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <LazyRow estimatedHeight="540px">
                 <MoviePosterRow
                     title="Phim Bộ Mới Nhất"
-                    apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=30"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=60"
                     viewAllLink="/danh-sach/phim-bo"
                     initialMovies={prefetched.posterPhimBo}
                     sortByYear={true}
@@ -117,7 +117,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <LazyRow estimatedHeight="260px">
                 <TopMovieRow
                     title="Top 30 Phim Lẻ Hôm Nay"
-                    apiUrl="https://phimapi.com/v1/api/danh-sach/phim-le?limit=30"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/phim-le?limit=60"
                     viewAllLink="/danh-sach/phim-le"
                     initialMovies={prefetched.topPhimLe}
                 />
@@ -126,7 +126,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <LazyRow estimatedHeight="260px">
                 <TopMovieRow
                     title="Top 30 Phim Bộ Hôm Nay"
-                    apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=30"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=60"
                     viewAllLink="/danh-sach/phim-bo"
                     initialMovies={prefetched.topPhimBo}
                 />
@@ -144,7 +144,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <LazyRow estimatedHeight="440px">
                 <FeaturedSlider
                     title="Hoạt Hình Anime Hay"
-                    apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?country=nhat-ban&limit=40"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?country=nhat-ban&limit=60"
                     viewAllLink="/danh-sach/hoat-hinh"
                     navId="featured-anime"
                     initialMovies={prefetched.featuredAnime}
@@ -154,7 +154,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <LazyRow estimatedHeight="540px">
                 <MoviePosterRow
                     title="Phim Kinh Dị"
-                    apiUrl="https://phimapi.com/v1/api/the-loai/kinh-di?limit=40"
+                    apiUrl="https://phimapi.com/v1/api/the-loai/kinh-di?limit=60"
                     viewAllLink="/the-loai/kinh-di"
                     initialMovies={prefetched.posterKinhDi}
                 />
@@ -163,7 +163,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <LazyRow estimatedHeight="540px">
                 <MoviePosterRow
                     title="Phim Hoạt Hình"
-                    apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=30"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=60"
                     viewAllLink="/danh-sach/hoat-hinh"
                     initialMovies={prefetched.posterHoatHinh}
                 />
@@ -172,7 +172,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <LazyRow estimatedHeight="400px">
                 <WideMovieRow
                     title="Phim Ngắn Đặc Sắc"
-                    apiUrl="https://phimapi.com/v1/api/the-loai/phim-ngan?limit=40"
+                    apiUrl="https://phimapi.com/v1/api/the-loai/phim-ngan?limit=60"
                     viewAllLink="/the-loai/phim-ngan"
                     initialMovies={prefetched.phimNgan}
                     revalidate={30}

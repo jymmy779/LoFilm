@@ -68,20 +68,20 @@ async function mapHero(payload: unknown): Promise<Movie[]> {
 }
 
 const URLS = {
-    hero: "https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?limit=40",
+    hero: "https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?limit=60",
     categories: "https://phimapi.com/the-loai",
-    movieRowHan: "https://phimapi.com/v1/api/quoc-gia/han-quoc?limit=20",
-    movieRowTrung: "https://phimapi.com/v1/api/quoc-gia/trung-quoc?limit=20",
-    movieRowAuMy: "https://phimapi.com/v1/api/quoc-gia/au-my?limit=20",
-    featuredTv: "https://phimapi.com/v1/api/danh-sach/tv-shows?limit=20",
-    posterChieuRap: "https://phimapi.com/v1/api/danh-sach/phim-chieu-rap?limit=20",
-    posterPhimBo: "https://phimapi.com/v1/api/danh-sach/phim-bo?limit=20",
-    topPhimLe: "https://phimapi.com/v1/api/danh-sach/phim-le?limit=30",
-    topPhimBo: "https://phimapi.com/v1/api/danh-sach/phim-bo?limit=30",
-    featuredAnime: "https://phimapi.com/v1/api/danh-sach/hoat-hinh?country=nhat-ban&limit=20",
-    posterKinhDi: "https://phimapi.com/v1/api/the-loai/kinh-di?limit=20",
-    posterHoatHinh: "https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=20",
-    phimNgan: "https://phimapi.com/v1/api/the-loai/phim-ngan?limit=20",
+    movieRowHan: "https://phimapi.com/v1/api/quoc-gia/han-quoc?limit=60",
+    movieRowTrung: "https://phimapi.com/v1/api/quoc-gia/trung-quoc?limit=60",
+    movieRowAuMy: "https://phimapi.com/v1/api/quoc-gia/au-my?limit=60",
+    featuredTv: "https://phimapi.com/v1/api/danh-sach/tv-shows?limit=60",
+    posterChieuRap: "https://phimapi.com/v1/api/danh-sach/phim-chieu-rap?limit=60",
+    posterPhimBo: "https://phimapi.com/v1/api/danh-sach/phim-bo?limit=60",
+    topPhimLe: "https://phimapi.com/v1/api/danh-sach/phim-le?limit=60",
+    topPhimBo: "https://phimapi.com/v1/api/danh-sach/phim-bo?limit=60",
+    featuredAnime: "https://phimapi.com/v1/api/danh-sach/hoat-hinh?country=nhat-ban&limit=60",
+    posterKinhDi: "https://phimapi.com/v1/api/the-loai/kinh-di?limit=60",
+    posterHoatHinh: "https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=60",
+    phimNgan: "https://phimapi.com/v1/api/the-loai/phim-ngan?limit=60",
 } as const;
 
 const NOMINATED_SLUGS = [

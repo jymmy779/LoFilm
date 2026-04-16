@@ -2,10 +2,10 @@
 
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { useAdTrigger } from "@/app/hooks/useAdTrigger";
-import Image from "next/image";
+import SmartImage from "@/app/components/Common/SmartImage";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
-import { getEpisodeStatus, getImageUrl } from "@/app/utils/movieUtils";
+import { getEpisodeStatus, getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import MoviePreviewWrapper from "./MoviePreviewWrapper";
 
 interface MoviePosterCardProps {
@@ -47,8 +47,9 @@ export default function MoviePosterCard({ movie, priority = false, isFirst, isLa
             >
             <div className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-white/5">
                 {/* Poster Image */}
-                <Image
+                <SmartImage
                     src={getImageUrl(movie.poster_url, { width: 400, quality: 80 })}
+                    rawSrc={getRawImageUrl(movie.poster_url)}
                     alt={movie.name}
                     fill
                     priority={priority}

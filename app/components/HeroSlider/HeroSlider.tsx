@@ -13,14 +13,14 @@ import "swiper/css/thumbs";
 import "swiper/css/free-mode";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
-import { filterDuplicateMovies, getImageUrl } from "@/app/utils/movieUtils";
+import SmartImage from "@/app/components/Common/SmartImage";
+import { getImageUrl, getRawImageUrl, filterDuplicateMovies } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
 import Container from "@/app/components/Container";
 import { motion, AnimatePresence } from "framer-motion";
-import Image from "next/image";
 import FavoriteButton from "@/app/components/Common/FavoriteButton";
 
-const MotionImage = motion.create(Image);
+const MotionSmartImage = motion.create(SmartImage);
 
 interface HeroSliderProps {
     initialMovies?: Movie[];
@@ -129,8 +129,9 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                         {({ isActive }) => (
                             <>
                                 <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] lg:overflow-hidden [transform:translateZ(0)]">
-                                    <MotionImage
+                                    <MotionSmartImage
                                         src={movie.thumb_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}
+                                        rawSrc={getRawImageUrl(movie.thumb_url)}
                                         alt={movie.name}
                                         initial={false}
                                         priority={index === 0}
@@ -302,14 +303,12 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                             {movies.map((movie, index) => (
                                 <SwiperSlide key={movie._id}>
                                     <div className="relative cursor-pointer rounded-full min-[700px]:rounded overflow-hidden aspect-square min-[700px]:aspect-video border-2 border-white/20 hover:border-white/40 [.swiper-slide-thumb-active_&]:border-[#f5a623] transition-all duration-300 opacity-60 hover:opacity-90 [.swiper-slide-thumb-active_&]:opacity-100 bg-[#14233e]/40">
-                                        <Image
-                                            src={movie.thumb_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}
+                                        <SmartImage
+                                            src={getImageUrl(movie.thumb_url, { width: 100, quality: 60 })}
+                                            rawSrc={getRawImageUrl(movie.thumb_url)}
                                             alt={movie.name}
                                             fill
-                                            priority={index < 3}
-                                            loading={index < 3 ? "eager" : "lazy"}
                                             sizes="100px"
-                                            quality={80}
                                             className="object-cover"
                                         />
                                     </div>
