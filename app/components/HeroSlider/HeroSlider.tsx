@@ -135,9 +135,10 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                         initial={false}
                                         priority={index === 0}
                                         loading={index === 0 ? "eager" : "lazy"}
+                                        fetchPriority={index === 0 ? "high" : "auto"}
                                         fill
-                                        sizes="100vw"
-                                        quality={index === 0 ? 90 : 85}
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
+                                        quality={index === 0 ? 80 : 75}
                                         animate={{
                                             x: isActive ? 0 : 40,
                                             scale: isActive ? 1 : 1.05

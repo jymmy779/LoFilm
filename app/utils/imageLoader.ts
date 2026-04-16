@@ -23,12 +23,17 @@ export default function imageLoader({ src, width, quality }: { src: string, widt
     originUrl = `https://phimimg.com/${originUrl.startsWith('/') ? originUrl.slice(1) : originUrl}`;
   }
 
-  // 4. Sử dụng wsrv.nl làm proxy tập trung
+  // 4. Tối ưu hóa chất lượng dựa trên độ rộng (Mobile vs Desktop)
+  // Nếu màn hình nhỏ (width < 640), hạ chất lượng xuống 75 để tiết kiệm băng thông
+  // Nếu màn hình lớn, giữ 85 để đảm bảo độ nét
+  const finalQuality = quality || (width < 640 ? 75 : 85);
+
+  // 5. Sử dụng wsrv.nl làm proxy tập trung
   // - &w= : Chiều rộng yêu cầu
-  // - &q= : Chất lượng (Mặc định nâng lên 85 để giữ độ nét cao)
+  // - &q= : Chất lượng
   // - &output=webp : Ép WebP
   // - &af : Adaptive filter (tối ưu nén)
-  // - &il : Interlaced/Progressive (Tải lũy tiến, ảnh hiện ra ngay lập tức)
-  // - &n=5 : Cache 5 ngày trên CDN (Giảm TTFB LCP cực mạnh)
-  return `https://wsrv.nl/?url=${encodeURIComponent(originUrl)}&w=${width}&q=${quality || 85}&output=webp&af&il&n=5`;
+  // - &il : Interlaced/Progressive (Tải lũy tiến)
+  // - &n=5 : Cache 5 ngày trên CDN
+  return `https://wsrv.nl/?url=${encodeURIComponent(originUrl)}&w=${width}&q=${finalQuality}&output=webp&af&il&n=5`;
 }

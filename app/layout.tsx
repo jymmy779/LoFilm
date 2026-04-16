@@ -75,12 +75,20 @@ export default function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
-        <link rel="dns-prefetch" href="https://wsrv.nl" />
+        <link rel="preconnect" href="https://wsrv.nl" />
         <link rel="preconnect" href="https://phimimg.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://img.phimapi.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://phimapi.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" media="all" />
+        <link 
+          rel="preload" 
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
+          as="style" 
+        />
+        <link 
+          rel="stylesheet" 
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
+        />
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{

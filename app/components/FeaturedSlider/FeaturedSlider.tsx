@@ -140,12 +140,13 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
                                 {/* Background Image Area */}
                                 <div className="absolute top-0 right-0 w-full xl:w-[75%] h-full z-0 select-none pointer-events-none">
                                     <Image
-                                        src={getImageUrl(movie.thumb_url, { width: 1920, quality: index === 0 ? 90 : 80 })}
+                                        src={getImageUrl(movie.thumb_url, { width: 1920, quality: index === 0 ? 80 : 75 })}
                                         alt={movie.name}
                                         fill
                                         priority={index === 0}
                                         loading={index === 0 ? "eager" : "lazy"}
-                                        sizes="100vw"
+                                        fetchPriority={index === 0 ? "high" : "auto"}
+                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
                                         className="object-cover object-top"
                                     />
                                 </div>
