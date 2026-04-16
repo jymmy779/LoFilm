@@ -96,6 +96,7 @@ export default function WatchClient({
     const [controlsVisible, setControlsVisible] = useState(true);
     const [plyrContainer, setPlyrContainer] = useState<HTMLElement | null>(null);
     const [showEpisodeOverlay, setShowEpisodeOverlay] = useState(false);
+    const [isChangingEpisode, setIsChangingEpisode] = useState(false);
 
     useEffect(() => { showEndOverlayRef.current = showEndOverlay; }, [showEndOverlay]);
 
@@ -165,6 +166,7 @@ export default function WatchClient({
 
     useEffect(() => {
         setShowEndOverlay(false);
+        setIsChangingEpisode(false);
     }, [episodeSlug]);
 
     useEffect(() => {
@@ -454,6 +456,7 @@ export default function WatchClient({
                 if (player.duration > 0 && player.currentTime >= player.duration - 0.5) {
                     if (isSeries && nextEpisode && autoNextRef.current) {
                         player.pause();
+                        setIsChangingEpisode(true);
                         router.push(`/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`);
                     } else if (!showEndOverlayRef.current) {
                         player.pause();
@@ -465,6 +468,7 @@ export default function WatchClient({
 
             player.on('ended', () => {
                 if (isSeries && nextEpisode && autoNextRef.current) {
+                    setIsChangingEpisode(true);
                     router.push(`/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`);
                 } else if (!showEndOverlayRef.current) {
                     player.pause();
@@ -659,6 +663,36 @@ export default function WatchClient({
                         plyrContainer
                     )}
 
+                    {/* Loading Overlay when switching episodes */}
+                    {plyrContainer && createPortal(
+                        <AnimatePresence>
+                            {isChangingEpisode && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="absolute inset-0 z-[200] bg-black/60 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center"
+                                >
+                                    <div className="relative mb-6">
+                                        <div className="w-16 h-16 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <div className="w-8 h-8 border-4 border-white/10 border-b-white/40 rounded-full animate-spin [animation-duration:1.5s] [animation-direction:reverse]" />
+                                        </div>
+                                    </div>
+                                    <motion.div
+                                        initial={{ y: 10, opacity: 0 }}
+                                        animate={{ y: 0, opacity: 1 }}
+                                        transition={{ delay: 0.1 }}
+                                    >
+                                        <h3 className="text-white text-lg md:text-xl font-bold tracking-tight mb-2">Đang chuyển tập...</h3>
+                                        <p className="text-white/40 text-xs md:text-sm">Vui lòng đợi trong giây lát</p>
+                                    </motion.div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>,
+                        plyrContainer
+                    )}
+
                     {/* Episode List Overlay Panel */}
                     {plyrContainer && createPortal(
                         <div className={`absolute inset-0 z-[120] ${showEpisodeOverlay ? 'visible' : 'invisible'} [transition-property:visibility] duration-500`}>
@@ -703,6 +737,13 @@ export default function WatchClient({
                                                 id={isActive ? 'active-episode' : undefined}
                                                 href={`/phim/${slug}/${epSlug}`}
                                                 transition={false}
+                                                onClick={() => {
+                                                    if (!isActive) {
+                                                        setIsChangingEpisode(true);
+                                                        // Close the overlay after a small delay to let the loading show
+                                                        setTimeout(() => setShowEpisodeOverlay(false), 300);
+                                                    }
+                                                }}
                                                 className={`group flex items-center w-full flex-shrink-0 gap-1.5 lg:gap-3 p-1 sm:p-2 lg:p-3 rounded-md lg:rounded-xl transition-all duration-300 relative overflow-hidden ${isActive ? 'bg-amber-500/10 border border-amber-500/20' : 'hover:bg-white/5 border border-transparent'}`}
                                             >
                                                 <div className="relative w-12 sm:w-20 lg:w-28 aspect-video rounded sm:rounded-lg overflow-hidden flex-shrink-0 bg-white/5">
@@ -813,7 +854,14 @@ export default function WatchClient({
                                 <div className="flex-1">
                                     <div className="flex flex-col gap-6 p-5 md:p-10 bg-white/[0.03] border border-white/10 rounded-3xl shadow-2xl">
                                         <MovieInfo slug={slug} movie={movie} episode={episode} />
-                                        <EpisodeList slug={slug} currentEpisode={episodeSlug} episodes={episodes} activeServer={activeServerIndex} onServerChange={setActiveServerIndex} />
+                                        <EpisodeList 
+                                            slug={slug} 
+                                            currentEpisode={episodeSlug} 
+                                            episodes={episodes} 
+                                            activeServer={activeServerIndex} 
+                                            onServerChange={setActiveServerIndex} 
+                                            onEpisodeClick={() => setIsChangingEpisode(true)}
+                                        />
                                         <div className="mt-6 pt-6 border-t border-white/5">
                                             <CommentSection movieSlug={slug} />
                                         </div>

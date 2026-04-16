@@ -21,6 +21,7 @@ interface EpisodeListProps {
   }>;
   activeServer?: number;
   onServerChange?: (index: number) => void;
+  onEpisodeClick?: () => void;
 }
 
 const parseEpNumber = (name: string) => {
@@ -28,7 +29,7 @@ const parseEpNumber = (name: string) => {
   return match ? parseInt(match[0]) : name;
 };
 
-const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServerChange }: EpisodeListProps) => {
+const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServerChange, onEpisodeClick }: EpisodeListProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeRangeIndex, setActiveRangeIndex] = useState(0);
   const CHUNK_SIZE = 100;
@@ -166,6 +167,9 @@ const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServe
                       key={i}
                       href={`/phim/${slug}/${getFriendlyEpisodeSlug(ep.slug)}`}
                       transition={false}
+                      onClick={() => {
+                        if (!isActive) onEpisodeClick?.();
+                      }}
                       className={`
                         py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border
                         ${isActive
