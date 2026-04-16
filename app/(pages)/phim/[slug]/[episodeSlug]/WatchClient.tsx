@@ -18,7 +18,10 @@ import MovieHeader from "./MovieHeader";
 import MovieInfo from "./MovieInfo";
 import CommentSection from "@/app/components/Comments/CommentSection";
 import ReportModal from "@/app/components/Common/ReportModal";
-import { getImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
+import { getImageUrl, getRawImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
+import SmartImage from "@/app/components/Common/SmartImage";
+import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
+import { fetchTotalEpisodesFromTMDB } from "@/app/utils/tmdbUtils";
 import { useAuth } from "@/app/components/Auth/AuthContext";
 import { toast } from "react-hot-toast";
 import { MdReplay10, MdForward10 } from "react-icons/md";
@@ -64,11 +67,13 @@ interface WatchClientProps {
 export default function WatchClient({
     slug,
     episodeSlug,
-    movie,
+    movie: initialMovie,
     episode,
     episodes,
-    suggestedMovies
+    suggestedMovies: initialSuggestions
 }: WatchClientProps) {
+    const [movie, setMovie] = useState<any>(initialMovie);
+    const [enrichedSuggestions, setEnrichedSuggestions] = useState<any[]>(initialSuggestions);
     const router = useRouter();
     const { user } = useAuth();
     const [isExpanded, setIsExpanded] = useState(false);
@@ -175,6 +180,44 @@ export default function WatchClient({
             setIsAutoNext(savedAutoNext === 'true');
         }
     }, []);
+
+    // Effect to enrich suggested movies data
+    useEffect(() => {
+        let isMounted = true;
+        setEnrichedSuggestions(initialSuggestions);
+
+        if (initialSuggestions.length === 0) return;
+
+        enrichMoviesMetadata({
+            items: initialSuggestions,
+            setItems: (updated) => { if (isMounted) setEnrichedSuggestions(updated); },
+            isMounted: () => isMounted,
+            chunkSize: 4,
+            delay: 100
+        });
+
+        return () => { isMounted = false; };
+    }, [initialSuggestions]);
+
+    // Effect to correct the MAIN movie metadata if inaccurate
+    useEffect(() => {
+        const correctMainMovie = async () => {
+            const curNum = parseInt(movie.episode_current?.match(/\d+/)?.[0] || "0");
+            const totNum = parseInt(movie.episode_total?.match(/\d+/)?.[0] || "1000"); // Default big if not found
+            
+            // Check if inaccurate: current > total (e.g., 169 > 150)
+            if (curNum > totNum && movie.tmdb?.id && movie.tmdb.type === "tv") {
+                const tmdbTotal = await fetchTotalEpisodesFromTMDB(movie.tmdb.id);
+                if (tmdbTotal && tmdbTotal >= curNum) {
+                    setMovie((prev: any) => ({
+                        ...prev,
+                        episode_total: tmdbTotal.toString()
+                    }));
+                }
+            }
+        };
+        correctMainMovie();
+    }, [slug]);
 
     const toggleAutoNext = () => {
         const newValue = !isAutoNext;
@@ -747,8 +790,9 @@ export default function WatchClient({
                                                 className={`group flex items-center w-full flex-shrink-0 gap-1.5 lg:gap-3 p-1 sm:p-2 lg:p-3 rounded-md lg:rounded-xl transition-all duration-300 relative overflow-hidden ${isActive ? 'bg-amber-500/10 border border-amber-500/20' : 'hover:bg-white/5 border border-transparent'}`}
                                             >
                                                 <div className="relative w-12 sm:w-20 lg:w-28 aspect-video rounded sm:rounded-lg overflow-hidden flex-shrink-0 bg-white/5">
-                                                    <Image
-                                                        src={getImageUrl(movie.thumb_url || movie.poster_url)}
+                                                    <SmartImage
+                                                        src={getImageUrl(movie.thumb_url || movie.poster_url, { width: 300, quality: 75 })}
+                                                        rawSrc={getRawImageUrl(movie.thumb_url || movie.poster_url)}
                                                         alt={ep.name}
                                                         fill
                                                         className={`object-cover transition-transform duration-500 ${isActive ? 'scale-105' : 'group-hover:scale-110'}`}
@@ -868,7 +912,7 @@ export default function WatchClient({
                                     </div>
                                 </div>
                                 <div className="w-full xl:w-100">
-                                    <Sidebar movie={movie} suggestedMovies={suggestedMovies} />
+                                    <Sidebar movie={movie} suggestedMovies={enrichedSuggestions} />
                                 </div>
                             </div>
                         </Container>

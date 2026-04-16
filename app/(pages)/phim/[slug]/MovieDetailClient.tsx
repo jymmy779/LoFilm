@@ -11,7 +11,10 @@ import FavoriteButton from "@/app/components/Common/FavoriteButton";
 import WatchlistButton from "@/app/components/Common/WatchlistButton";
 import { MessageSquare } from "lucide-react";
 import { Movie, EpisodeServer } from "@/app/types/movie";
-import { getImageUrl, getEpisodeStatus, getFriendlyEpisodeSlug, filterDuplicateMovies } from "@/app/utils/movieUtils";
+import { getImageUrl, getRawImageUrl, getEpisodeStatus, getFriendlyEpisodeSlug, filterDuplicateMovies } from "@/app/utils/movieUtils";
+import SmartImage from "@/app/components/Common/SmartImage";
+import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
+import { fetchTotalEpisodesFromTMDB } from "@/app/utils/tmdbUtils";
 import { decodeHtml } from "@/app/utils/textUtils";
 import dynamic from "next/dynamic";
 import { TMDBActor, fetchActorsFromTMDB } from "@/app/utils/tmdbUtils";
@@ -43,7 +46,8 @@ const stripHtml = (html?: string) => {
     return html.replace(/<[^>]*>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
 };
 
-export default function MovieDetailClient({ movie, episodes, suggestedMovies }: MovieDetailClientProps) {
+export default function MovieDetailClient({ movie: initialMovie, episodes, suggestedMovies }: MovieDetailClientProps) {
+    const [movie, setMovie] = useState<Movie>(initialMovie);
     const [activeTab, setActiveTab] = useState('Tập phim');
     const [isEpisodesCollapsed, setIsEpisodesCollapsed] = useState(false);
     const [activeRangeIndex, setActiveRangeIndex] = useState(0);
@@ -57,52 +61,48 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
     // Đảm bảo luôn cuộn lên đầu khi vào chi tiết phim
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
-    }, [movie.slug]);
+        setMovie(initialMovie); // Reset when prop changes
+    }, [initialMovie.slug]);
 
     const CHUNK_SIZE = 100;
 
     // Effect to enrich suggested movies data (episode_total)
     useEffect(() => {
+        let isMounted = true;
         setEnrichedSuggestions(filteredSuggestions);
 
         if (filteredSuggestions.length === 0) return;
 
-        const enrichData = async () => {
-            const enriched = [...filteredSuggestions];
-            const fetchChunkSize = 4;
+        enrichMoviesMetadata({
+            items: filteredSuggestions,
+            setItems: (updated) => { if (isMounted) setEnrichedSuggestions(updated); },
+            isMounted: () => isMounted,
+            chunkSize: 4,
+            delay: 100
+        });
 
-            for (let i = 0; i < filteredSuggestions.length; i += fetchChunkSize) {
-                const chunk = filteredSuggestions.slice(i, i + fetchChunkSize);
-                await Promise.all(
-                    chunk.map(async (m, chunkIdx) => {
-                        const isMultiEp = ["series", "hoathinh", "tvshows"].includes(m.type || "");
-                        // Fetch detail if it's a series and missing exact episode ratio
-                        if (isMultiEp && !m.episode_current?.includes("/")) {
-                            try {
-                                const res = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${m.slug}`)}`);
-                                if (res.data?.movie?.episode_total) {
-                                    enriched[i + chunkIdx] = {
-                                        ...enriched[i + chunkIdx],
-                                        episode_total: res.data.movie.episode_total
-                                    };
-                                }
-                            } catch (error) {
-                                console.error(`Error enriching movie ${m.slug}:`, error);
-                            }
-                        }
-                    })
-                );
-                // Update state after each chunk
-                setEnrichedSuggestions([...enriched]);
-                // Brief pause between chunks to keep UI responsive
-                if (i + fetchChunkSize < filteredSuggestions.length) {
-                    await new Promise(r => setTimeout(r, 100));
+        return () => { isMounted = false; };
+    }, [suggestedMovies, filteredSuggestions]);
+
+    // Effect to correct the MAIN movie metadata if inaccurate
+    useEffect(() => {
+        const correctMainMovie = async () => {
+            const curNum = parseInt(movie.episode_current?.match(/\d+/)?.[0] || "0");
+            const totNum = parseInt(movie.episode_total?.match(/\d+/)?.[0] || "1000"); // Default big if not found
+            
+            // Check if inaccurate: current > total (e.g., 169 > 150)
+            if (curNum > totNum && movie.tmdb?.id && movie.tmdb.type === "tv") {
+                const tmdbTotal = await fetchTotalEpisodesFromTMDB(movie.tmdb.id);
+                if (tmdbTotal && tmdbTotal >= curNum) {
+                    setMovie(prev => ({
+                        ...prev,
+                        episode_total: tmdbTotal.toString()
+                    }));
                 }
             }
         };
-
-        enrichData();
-    }, [suggestedMovies]);
+        correctMainMovie();
+    }, [movie.slug, movie.episode_current, movie.episode_total]);
 
     // Effect to fetch Weekly Top movies
     useEffect(() => {
@@ -252,8 +252,9 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                         className="object-cover object-top blur-2xl opacity-40 scale-110"
                     />
                     {/* Main Background */}
-                    <Image
+                    <SmartImage
                         src={getImageUrl(movie.thumb_url, { width: 1200, quality: 75 })}
+                        rawSrc={getRawImageUrl(movie.thumb_url)}
                         alt={movie.name}
                         fill
                         priority
@@ -278,9 +279,10 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
 
                             <div className="v-thumb-l xl:block flex justify-center mb-6">
                                 <div className="v-thumbnail relative w-[120px] h-[180px] lg:w-[160px] lg:h-[240px] rounded-2xl overflow-hidden shadow-lg ring-1 ring-white/20 transform-gpu">
-                                    <Image
+                                    <SmartImage
                                         className="absolute inset-0 w-full h-full object-cover object-top"
-                                        src={getImageUrl(movie.poster_url || movie.thumb_url, { width: 180, quality: 70 })}
+                                        src={getImageUrl(movie.poster_url || movie.thumb_url, { width: 300, quality: 80 })}
+                                        rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url)}
                                         alt={movie.name}
                                         fill
                                         sizes="(max-width: 768px) 120px, 160px"
@@ -401,9 +403,10 @@ export default function MovieDetailClient({ movie, episodes, suggestedMovies }: 
                                                     {index + 1}
                                                 </div>
                                                 <div className="h-item flex flex-1 gap-4 overflow-hidden">
-                                                    <TransitionLink href={`/phim/${m.slug}`} className="v-thumb-m relative w-[52px] h-[72px] shrink-0 rounded-xl overflow-hidden border border-white/10 shadow-lg">
-                                                        <Image
-                                                            src={m.poster_url || m.thumb_url || ""}
+                                                    <TransitionLink href={`/phim/${m.slug}`} className="v-thumb-m relative w-[52px] h-[72px] shrink-0 rounded-xl overflow-hidden border border-white/10 shadow-lg bg-white/5">
+                                                        <SmartImage
+                                                            src={getImageUrl(m.poster_url || m.thumb_url || "", { width: 120, quality: 70 })}
+                                                            rawSrc={getRawImageUrl(m.poster_url || m.thumb_url || "")}
                                                             alt={m.name}
                                                             fill
                                                             sizes="52px"

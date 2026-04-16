@@ -13,11 +13,12 @@ import "swiper/css/thumbs";
 
 import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
-import { filterDuplicateMovies, getImageUrl } from "@/app/utils/movieUtils";
+import { filterDuplicateMovies, getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
-import Image from "next/image";
+import SmartImage from "@/app/components/Common/SmartImage";
 import FavoriteButton from "@/app/components/Common/FavoriteButton";
 import Container from "@/app/components/Container";
+import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
 
 interface FeaturedSliderProps {
     title: string;
@@ -39,16 +40,13 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
 
 
     const enrichDetails = (slice: Movie[]) => {
-        void Promise.all(
-            slice.map(async (movie: Movie) => {
-                try {
-                    const detail = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}`);
-                    return { ...movie, ...detail.data.movie } as Movie;
-                } catch {
-                    return movie;
-                }
-            })
-        ).then((detailed) => setMovies(detailed));
+        void enrichMoviesMetadata({
+            items: slice,
+            setItems: setMovies,
+            isMounted: () => true, // FeaturedSlider wraps with memo, safe enough
+            chunkSize: 5,
+            delay: 50
+        });
     };
 
     useEffect(() => {
@@ -139,8 +137,9 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
 
                                 {/* Background Image Area */}
                                 <div className="absolute top-0 right-0 w-full xl:w-[75%] h-full z-0 select-none pointer-events-none">
-                                    <Image
+                                    <SmartImage
                                         src={getImageUrl(movie.thumb_url, { width: 1920, quality: index === 0 ? 80 : 75 })}
+                                        rawSrc={getRawImageUrl(movie.thumb_url)}
                                         alt={movie.name}
                                         fill
                                         priority={index === 0}
@@ -250,8 +249,9 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
                         {movies.map((movie) => (
                             <SwiperSlide key={`thumb-${movie._id}`} className="cursor-pointer flex items-center justify-center lg:block">
                                 <div className="thumb-item flex-shrink-0 transition-[width,height,background-color,border-color] duration-300 relative w-2.5 h-2.5 lg:w-full lg:h-auto aspect-square xl:aspect-[2/3] rounded-full xl:rounded-lg overflow-hidden lg:border-2 border-transparent lg:shadow-md bg-white/70 lg:bg-transparent">
-                                    <Image
+                                    <SmartImage
                                         src={getImageUrl(movie.poster_url || movie.thumb_url, { width: 120, quality: 70 })}
+                                        rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url)}
                                         alt={movie.name}
                                         fill
                                         sizes="100px"

@@ -5,7 +5,8 @@ import Image from "next/image";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { Star, ChevronDown, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getImageUrl } from "@/app/utils/movieUtils";
+import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
+import SmartImage from "@/app/components/Common/SmartImage";
 import { fetchActorsFromTMDB, TMDBActor } from "@/app/utils/tmdbUtils";
 import { useEffect } from "react";
 
@@ -181,8 +182,9 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                             <div key={idx} className="flex flex-col items-center gap-2 group cursor-pointer relative">
                                 <div className="w-16 h-16 rounded-full bg-white/5 border-2 border-white/10 group-hover:border-amber-400 flex items-center justify-center overflow-hidden transition-all relative shadow-xl">
                                     {actor.profile_path ? (
-                                        <Image
+                                        <SmartImage
                                             src={getImageUrl(`https://image.tmdb.org/t/p/w200${actor.profile_path}`, { width: 100, quality: 75 })}
+                                            rawSrc={`https://image.tmdb.org/t/p/w200${actor.profile_path}`}
                                             alt={actor.name}
                                             fill
                                             className="object-cover transition-transform duration-500"
@@ -226,9 +228,10 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                             href={`/phim/${movie.slug}`}
                             className="flex gap-4 py-3 border-b border-white/5 hover:bg-white/[0.02] -mx-4 px-4 transition-all group first:pt-0 last:border-0"
                         >
-                            <div className="w-16 h-24 shrink-0 rounded-lg overflow-hidden relative shadow-lg">
-                                <Image
-                                    src={movie.poster_url || ""}
+                            <div className="w-16 h-24 shrink-0 rounded-lg overflow-hidden relative shadow-lg bg-white/5">
+                                <SmartImage
+                                    src={getImageUrl(movie.poster_url || "", { width: 200, quality: 75 })}
+                                    rawSrc={getRawImageUrl(movie.poster_url || "")}
                                     alt={movie.title}
                                     fill
                                     sizes="64px"

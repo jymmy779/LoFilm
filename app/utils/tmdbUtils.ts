@@ -63,3 +63,24 @@ export async function fetchActorsFromTMDB(tmdbId: string, type: "movie" | "tv" =
         return [];
     }
 }
+
+/**
+ * Fetch total episodes count from TMDB for a TV show
+ */
+export async function fetchTotalEpisodesFromTMDB(tmdbId: string): Promise<number | null> {
+    if (!tmdbId) return null;
+
+    try {
+        const endpoint = `${TMDB_BASE_URL}/tv/${tmdbId}?api_key=${getRandomKey()}&language=vi-VN`;
+        const proxyUrl = `/api/proxy?url=${encodeURIComponent(endpoint)}&revalidate=86400`;
+        const response = await axios.get(proxyUrl);
+        
+        if (response.data && response.data.number_of_episodes) {
+            return response.data.number_of_episodes;
+        }
+        return null;
+    } catch (error) {
+        console.error("Error fetching total episodes from TMDB:", error);
+        return null;
+    }
+}

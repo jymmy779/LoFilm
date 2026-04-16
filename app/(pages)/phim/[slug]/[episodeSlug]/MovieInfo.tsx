@@ -4,7 +4,8 @@ import React from "react";
 import Image from "next/image";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { ChevronRight } from "lucide-react";
-import { getImageUrl } from "@/app/utils/movieUtils";
+import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
+import SmartImage from "@/app/components/Common/SmartImage";
 
 interface MovieInfoProps {
   slug: string;
@@ -34,8 +35,9 @@ const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
     <div className="flex md:flex-row gap-6 pb-10 border-b border-b-white/10">
       <div className="v-thumb-l flex justify-center flex-shrink-0">
         <div className="v-thumbnail relative w-[100px] h-[150px] rounded-xl overflow-hidden shadow-lg ring-1 ring-white/20 transform-gpu">
-          <Image
-            src={getImageUrl(movie.poster_url)}
+          <SmartImage
+            src={getImageUrl(movie.poster_url, { width: 200, quality: 75 })}
+            rawSrc={getRawImageUrl(movie.poster_url)}
             alt={movie.name}
             fill
             sizes="100px"

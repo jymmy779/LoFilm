@@ -9,9 +9,9 @@ import "swiper/css/navigation";
 
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
-import { getImageUrl } from "@/app/utils/movieUtils";
+import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
-import Image from "next/image";
+import SmartImage from "@/app/components/Common/SmartImage";
 import Container from "@/app/components/Container";
 import MoviePreviewWrapper from "@/app/components/MovieCard/MoviePreviewWrapper";
 import { useMovies } from "@/app/hooks/useMovies";
@@ -127,8 +127,9 @@ function MovieRow({
                                             adZone="movie_row"
                                         >
                                             <div className="relative aspect-video rounded-lg overflow-hidden bg-white/5 mb-3">
-                                                <Image
+                                                <SmartImage
                                                     src={imgUrl}
+                                                    rawSrc={getRawImageUrl(movie.thumb_url)}
                                                     alt={movie.name}
                                                     fill
                                                     priority={eager}

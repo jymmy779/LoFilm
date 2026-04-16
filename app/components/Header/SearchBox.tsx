@@ -4,7 +4,9 @@ import Image from "next/image";
 import axios from "axios";
 import nProgress from "nprogress";
 import { Movie } from "@/app/types/movie";
-import { getImageUrl, sortMoviesByRelevance } from "@/app/utils/movieUtils";
+import { getImageUrl, getRawImageUrl, sortMoviesByRelevance } from "@/app/utils/movieUtils";
+import SmartImage from "@/app/components/Common/SmartImage";
+import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
 import { motion, AnimatePresence } from "framer-motion";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 
@@ -88,6 +90,15 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                         // 2. Lưu vào cache
                         searchCache.current[normalizedCacheKey] = finalItems;
                         setActiveIndex(-1);
+
+                        // 3. Làm giàu dữ liệu (Số tập, TMDB...) cho kết quả tìm kiếm
+                        enrichMoviesMetadata({
+                            items: finalItems,
+                            setItems: setResults,
+                            isMounted: () => !controller.signal.aborted,
+                            chunkSize: 4,
+                            delay: 50
+                        });
                     }
                 } catch (error) {
                     if (axios.isCancel(error)) return;
@@ -239,9 +250,10 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                                             className={`group flex gap-2.5 md:gap-3 p-1.5 md:p-2 rounded-xl transition-all duration-300 ${activeIndex === index ? 'bg-white/10 ring-1 ring-[#f5a623]/30' : 'hover:bg-white/5'}`}
                                             onMouseEnter={() => setActiveIndex(index)}
                                         >
-                                            <div className="w-10 h-14 md:w-12 md:h-16 shrink-0 rounded-lg overflow-hidden relative border border-white/5">
-                                                <Image
-                                                    src={getImageUrl(movie.poster_url || movie.thumb_url || "", { width: 100, quality: 60 })}
+                                            <div className="w-10 h-14 md:w-12 md:h-16 shrink-0 rounded-lg overflow-hidden relative border border-white/5 bg-white/5">
+                                                <SmartImage
+                                                    src={getImageUrl(movie.poster_url || movie.thumb_url || "", { width: 100, quality: 75 })}
+                                                    rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url || "")}
                                                     alt={movie.name}
                                                     fill
                                                     sizes="48px"
