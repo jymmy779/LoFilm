@@ -294,7 +294,6 @@
 .auth-prompt p {
   color: rgba(255, 255, 255, 0.4);
   margin-bottom: 1.5rem;
-  font-size: 0.95rem;
   line-height: 1.6;
 }
 
@@ -302,9 +301,7 @@
   background: rgba(245, 166, 35, 1);
   color: #000;
   font-weight: 700;
-  padding: 10px 30px;
   border-radius: 30px;
-  font-size: 0.85rem;
   display: inline-block;
   transition: all 0.3s ease;
   text-decoration: none;

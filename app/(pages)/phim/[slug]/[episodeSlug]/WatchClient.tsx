@@ -204,7 +204,7 @@ export default function WatchClient({
         const correctMainMovie = async () => {
             const curNum = parseInt(movie.episode_current?.match(/\d+/)?.[0] || "0");
             const totNum = parseInt(movie.episode_total?.match(/\d+/)?.[0] || "1000"); // Default big if not found
-            
+
             // Check if inaccurate: current > total (e.g., 169 > 150)
             if (curNum > totNum && movie.tmdb?.id && movie.tmdb.type === "tv") {
                 const tmdbTotal = await fetchTotalEpisodesFromTMDB(movie.tmdb.id);
@@ -521,7 +521,19 @@ export default function WatchClient({
             });
 
             if (Hls.isSupported() && videoSrc.endsWith('.m3u8')) {
-                const hls = new Hls({ capLevelToPlayerSize: true, autoStartLoad: true, startLevel: -1, startPosition: startFrom > 0 ? startFrom : -1 });
+                const hls = new Hls({
+                    capLevelToPlayerSize: true,
+                    autoStartLoad: true,
+                    startLevel: -1,
+                    startPosition: startFrom > 0 ? startFrom : -1,
+                    // Bắt lỗi nhanh hơn
+                    manifestLoadingTimeOut: 3500,
+                    manifestLoadingMaxRetry: 1,
+                    levelLoadingTimeOut: 3500,
+                    levelLoadingMaxRetry: 1,
+                    fragLoadingTimeOut: 3500,
+                    fragLoadingMaxRetry: 1
+                });
                 hls.loadSource(videoSrc);
                 hls.attachMedia(videoRef.current);
                 hlsRef.current = hls;
@@ -529,14 +541,27 @@ export default function WatchClient({
                     if (data.fatal) {
                         setHasError(true);
                         switch (data.type) {
-                            case Hls.ErrorTypes.NETWORK_ERROR: hls.startLoad(); break;
-                            case Hls.ErrorTypes.MEDIA_ERROR: hls.recoverMediaError(); break;
-                            default: hls.destroy(); break;
+                            case Hls.ErrorTypes.NETWORK_ERROR:
+                                // Chỉ thử lại 1 lần, nếu vẫn lỗi thì dừng
+                                if (data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR ||
+                                    data.details === Hls.ErrorDetails.MANIFEST_LOAD_TIMEOUT) {
+                                    hls.destroy();
+                                } else {
+                                    hls.startLoad();
+                                }
+                                break;
+                            case Hls.ErrorTypes.MEDIA_ERROR:
+                                hls.recoverMediaError();
+                                break;
+                            default:
+                                hls.destroy();
+                                break;
                         }
                     }
                 });
-            } else {
+            } else if (videoRef.current) {
                 videoRef.current.src = videoSrc;
+                videoRef.current.onerror = () => setHasError(true);
             }
         }, 100);
 
@@ -738,7 +763,7 @@ export default function WatchClient({
 
                     {/* Episode List Overlay Panel */}
                     {plyrContainer && createPortal(
-                        <div className={`absolute inset-0 z-[120] ${showEpisodeOverlay ? 'visible' : 'invisible'} [transition-property:visibility] duration-500`}>
+                        <div className={`absolute inset-0 z-[210] ${showEpisodeOverlay ? 'visible' : 'invisible'} [transition-property:visibility] duration-500`}>
                             {/* Backdrop shadow */}
                             <div
                                 className={`absolute inset-0 bg-black/60 transition-opacity duration-500 ${showEpisodeOverlay ? 'opacity-100' : 'opacity-0'}`}
@@ -746,7 +771,7 @@ export default function WatchClient({
                             />
 
                             {/* Panel sliding from right */}
-                            <div 
+                            <div
                                 onClick={(e) => e.stopPropagation()}
                                 onDoubleClick={(e) => e.stopPropagation()}
                                 onMouseDown={(e) => e.stopPropagation()}
@@ -819,73 +844,100 @@ export default function WatchClient({
                     )}
 
 
-                    <AnimatePresence>
-                        {showEndOverlay && (
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-[110] bg-black/90 flex flex-col items-center justify-center p-3 md:p-6 text-center pointer-events-auto">
-                                <div className="flex items-center justify-center gap-4 md:gap-8 pointer-events-auto scale-90 md:scale-100">
-                                    <motion.button initial={{ y: 20, opacity: 0 }} animate={{ y: 0, opacity: 1 }} onClick={() => { setShowEndOverlay(false); if (plyrRef.current) { plyrRef.current.currentTime = 0; plyrRef.current.play(); } }} className="group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-transform">
-                                        <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shadow-lg group-hover:bg-white/20">
-                                            <RefreshCcw size={20} className="md:w-6 md:h-6" />
-                                        </div>
-                                        <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Xem lại</span>
-                                    </motion.button>
+                    {/* Replay/End Overlay - Rendered into Plyr Container for Fullscreen Support */}
+                    {plyrContainer && createPortal(
+                        <AnimatePresence>
+                            {showEndOverlay && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="absolute inset-0 z-[150] bg-black/90 flex flex-col items-center justify-center p-3 md:p-6 text-center pointer-events-auto"
+                                >
+                                    <div className="flex items-center justify-center gap-4 md:gap-8 pointer-events-auto scale-90 md:scale-100">
+                                        <motion.button
+                                            initial={{ y: 20, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            onClick={() => {
+                                                setShowEndOverlay(false);
+                                                if (plyrRef.current) {
+                                                    plyrRef.current.currentTime = 0;
+                                                    plyrRef.current.play();
+                                                }
+                                            }}
+                                            className="group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-transform"
+                                        >
+                                            <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shadow-lg group-hover:bg-white/20">
+                                                <RefreshCcw size={20} className="md:w-6 md:h-6" />
+                                            </div>
+                                            <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Xem lại</span>
+                                        </motion.button>
 
-                                    <motion.button
-                                        initial={{ y: 20, opacity: 0 }}
-                                        animate={{ y: 0, opacity: 1 }}
-                                        transition={{ delay: 0.1 }}
-                                        onClick={() => setShowEpisodeOverlay(true)}
-                                        className="group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-transform"
+                                        <motion.button
+                                            initial={{ y: 20, opacity: 0 }}
+                                            animate={{ y: 0, opacity: 1 }}
+                                            transition={{ delay: 0.1 }}
+                                            onClick={() => setShowEpisodeOverlay(true)}
+                                            className="group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-transform"
+                                        >
+                                            <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shadow-lg group-hover:bg-white/20">
+                                                <List size={20} className="md:w-6 md:h-6" />
+                                            </div>
+                                            <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Danh sách tập</span>
+                                        </motion.button>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>,
+                        plyrContainer
+                    )}
+
+                    {/* Error/404 Overlay - Rendered in DOM or Player Portal for robustness */}
+                    {(() => {
+                        const errorContent = (
+                            <AnimatePresence>
+                                {hasError && (
+                                    <motion.div
+                                        initial={{ opacity: 0 }}
+                                        animate={{ opacity: 1 }}
+                                        exit={{ opacity: 0 }}
+                                        className="absolute inset-0 z-[160] flex items-center justify-center bg-black/95 p-3 md:p-6 text-center pointer-events-auto"
                                     >
-                                        <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shadow-lg group-hover:bg-white/20">
-                                            <List size={20} className="md:w-6 md:h-6" />
+                                        <div className="flex flex-col items-center max-w-[220px] sm:max-w-xs md:max-w-sm">
+                                            <div className="w-8 h-8 sm:w-12 sm:h-12 md:w-16 md:h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-3 sm:mb-4 md:mb-6">
+                                                <AlertTriangle size={18} className="text-red-500 sm:w-6 sm:h-6 md:w-8 md:h-8" />
+                                            </div>
+                                            <p className="text-white/60 text-[10px] sm:text-[11px] md:text-sm mb-4 sm:mb-6 md:mb-8 leading-relaxed px-2">
+                                                Máy chủ hiện không phản hồi luồng phát này. Vui lòng thử đổi sang Server khác bên dưới hoặc tắt VPN nếu có.
+                                            </p>
                                         </div>
-                                        <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Danh sách tập</span>
-                                    </motion.button>
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                        );
 
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
+                        if (plyrContainer) return createPortal(errorContent, plyrContainer);
+                        return errorContent;
+                    })()}
 
-                    <AnimatePresence>
-                        {hasError && (
-                            <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="absolute inset-0 z-50 flex items-center justify-center bg-black/95 p-4 md:p-6 text-center">
-                                <div className="flex flex-col items-center max-w-[280px] sm:max-w-sm">
-                                    <div className="w-12 h-12 md:w-16 md:h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-4 md:mb-6">
-                                        <AlertTriangle size={24} className="text-red-500 md:w-8 md:h-8" />
-                                    </div>
-                                    <p className="text-white/60 text-[11px] md:text-sm mb-6 md:mb-8 leading-relaxed">Máy chủ hiện không phản hồi luồng phát này. Vui lòng thử đổi sang Server khác bên dưới hoặc tắt VPN nếu có.</p>
-                                    <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full sm:w-auto">
-                                        <button onClick={() => window.location.reload()} className="flex items-center justify-center gap-2 px-6 py-2.5 bg-white/10 hover:bg-white/20 rounded-xl text-[10px] md:text-xs font-bold text-white transition-all cursor-pointer">
-                                            <RefreshCcw size={14} /> Tải lại trang
-                                        </button>
-                                        <button onClick={() => { const el = document.querySelector('.wc-main'); el?.scrollIntoView({ behavior: 'smooth' }); }} className="flex items-center justify-center px-6 py-2.5 bg-amber-500 hover:bg-amber-400 rounded-xl text-[10px] md:text-xs font-bold text-[#0a1628] transition-all cursor-pointer">
-                                            Đổi Server khác
-                                        </button>
-                                    </div>
-                                </div>
-                            </motion.div>
-                        )}
-                    </AnimatePresence>
                 </div>
 
                 <div className="relative z-20">
-                    <PlayerControls 
-                        isExpanded={isExpanded} 
-                        onToggleExpanded={() => setIsExpanded(!isExpanded)} 
-                        isTheaterMode={isTheaterMode} 
-                        onToggleTheater={() => setIsTheaterMode(!isTheaterMode)} 
-                        isAutoNext={isAutoNext} 
-                        onToggleAutoNext={toggleAutoNext} 
-                        isFavorited={isFavorited} 
-                        onToggleFavorite={toggleFavorite} 
+                    <PlayerControls
+                        isExpanded={isExpanded}
+                        onToggleExpanded={() => setIsExpanded(!isExpanded)}
+                        isTheaterMode={isTheaterMode}
+                        onToggleTheater={() => setIsTheaterMode(!isTheaterMode)}
+                        isAutoNext={isAutoNext}
+                        onToggleAutoNext={toggleAutoNext}
+                        isFavorited={isFavorited}
+                        onToggleFavorite={toggleFavorite}
                         isInWatchlist={isInWatchlist}
                         onToggleWatchlist={toggleWatchlist}
-                        episodes={episodes} 
-                        activeServer={activeServerIndex} 
-                        onServerChange={setActiveServerIndex} 
-                        onReport={() => setShowReportModal(true)} 
+                        episodes={episodes}
+                        activeServer={activeServerIndex}
+                        onServerChange={setActiveServerIndex}
+                        onReport={() => setShowReportModal(true)}
                     />
                 </div>
             </div>
@@ -898,12 +950,12 @@ export default function WatchClient({
                                 <div className="flex-1">
                                     <div className="flex flex-col gap-6 p-5 md:p-10 bg-white/[0.03] border border-white/10 rounded-3xl shadow-2xl">
                                         <MovieInfo slug={slug} movie={movie} episode={episode} />
-                                        <EpisodeList 
-                                            slug={slug} 
-                                            currentEpisode={episodeSlug} 
-                                            episodes={episodes} 
-                                            activeServer={activeServerIndex} 
-                                            onServerChange={setActiveServerIndex} 
+                                        <EpisodeList
+                                            slug={slug}
+                                            currentEpisode={episodeSlug}
+                                            episodes={episodes}
+                                            activeServer={activeServerIndex}
+                                            onServerChange={setActiveServerIndex}
                                             onEpisodeClick={() => setIsChangingEpisode(true)}
                                         />
                                         <div className="mt-6 pt-6 border-t border-white/5">
