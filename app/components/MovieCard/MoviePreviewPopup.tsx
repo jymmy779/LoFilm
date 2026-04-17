@@ -112,7 +112,7 @@ export default function MoviePreviewPopup({
                 left: position.left
             }}
         >
-            <div className="bg-[#111319]/95 backdrop-blur-xl border border-white/10 rounded-2xl overflow-hidden shadow-[0_30px_70px_-15px_rgba(0,0,0,1)] ring-1 ring-white/5">
+            <div className="bg-[#111319]/95 backdrop-blur-xl rounded-2xl overflow-hidden shadow-[0_30px_70px_-15px_rgba(0,0,0,1)] ">
                 {/* Image Container with 2 Layers */}
                 <div className="relative aspect-video w-full bg-[#1c1f26] overflow-hidden">
                     {/* Layer 1: Blurred Poster Placeholder (Instant) */}
