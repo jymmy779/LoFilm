@@ -89,7 +89,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
         const correctMainMovie = async () => {
             const curNum = parseInt(movie.episode_current?.match(/\d+/)?.[0] || "0");
             const totNum = parseInt(movie.episode_total?.match(/\d+/)?.[0] || "1000"); // Default big if not found
-            
+
             // Check if inaccurate: current > total (e.g., 169 > 150)
             if (curNum > totNum && movie.tmdb?.id && movie.tmdb.type === "tv") {
                 const tmdbTotal = await fetchTotalEpisodesFromTMDB(movie.tmdb.id);
@@ -693,7 +693,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
 
                                 {/* Suggestions Tab */}
                                 {activeTab === 'Đề xuất' && enrichedSuggestions.length > 0 && (
-                                    <div className="grid grid-cols-2 min-w[500px]-grid-cols-3 lg:grid-cols-4 xl:grid-cols-6 gap-4 lg:gap-6">
+                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-4 lg:gap-6">
                                         {enrichedSuggestions.map((m) => (
                                             <div key={m._id} className="transform hover:scale-[1.02] transition-transform">
                                                 <MoviePosterCard movie={m} />

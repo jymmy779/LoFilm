@@ -9,14 +9,17 @@ export async function middleware(request: NextRequest) {
   //   http://munos.store  → https://www.munos.store  (1 hop)
   //   https://munos.store → https://www.munos.store  (1 hop)
   //   http://www.munos.store → https://www.munos.store (1 hop)
-  const host = request.headers.get('host');
+  const host = request.headers.get('host') || '';
   const proto = request.headers.get('x-forwarded-proto') || 'https';
   
-  if (host === 'munos.store' || proto === 'http') {
-    return NextResponse.redirect(
-      `https://www.munos.store${pathname}${request.nextUrl.search}`,
-      301
-    );
+  // Chỉ thực hiện redirect khi đang chạy trên production server thật (tránh lỗi khi mở bằng localhost hay IP Lan như 192.168.x.x)
+  if (process.env.NODE_ENV === 'production' && !host.includes('localhost') && !host.includes('192.168')) {
+    if (host === 'munos.store' || proto === 'http') {
+      return NextResponse.redirect(
+        `https://www.munos.store${pathname}${request.nextUrl.search}`,
+        301
+      );
+    }
   }
 
   // 1. Kiểm tra Maintenance Mode trước (Không cần Auth)
