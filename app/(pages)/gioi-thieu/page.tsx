@@ -1,5 +1,14 @@
 import React from 'react';
 import { Mail, Send } from 'lucide-react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Giới Thiệu | LoFilm - Xem Phim Online Chất Lượng Cao',
+  description: 'Tìm hiểu về LoFilm - Nền tảng xem phim trực tuyến miễn phí, chất lượng cao cực nét. Khám phá sứ mệnh và tầm nhìn của chúng tôi.',
+  alternates: {
+    canonical: 'https://www.munos.store/gioi-thieu',
+  },
+};
 
 export default function AboutContact() {
   return (

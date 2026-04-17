@@ -35,10 +35,10 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.munos.store'),
-  title: "LoFilm - Kho Phim Giải Trí Đỉnh Cao , Xem Phim Online 4K , Vietsub",
-  description: "Xem LoFilm chất lượng cao, phim 4K, Vietsub, thuyết minh. Kho phim lẻ, phim bộ, anime mới nhất 2026 cập nhật mỗi ngày với tốc độ cực nhanh và không quảng cáo! Trải nghiệm điện ảnh đỉnh cao ngay tại nhà.",
+  title: "LoFilm - Xem Phim Online Chất Lượng Cao | Phim 4K Vietsub Miễn Phí",
+  description: "LoFilm - Trang xem phim online chất lượng cao 4K, Vietsub, thuyết minh miễn phí. Kho phim lẻ, phim bộ, anime, phim chiếu rạp mới nhất 2026. Xem phim LoFilm không quảng cáo, tốc độ nhanh.",
   manifest: '/manifest.json',
-  keywords: ["LoFilm", "lofim", "lo film", "xem phim lofilm", "xem phim lo film", "lofilm tv", "lofilm net", "lofilm me", "lofilm chill", "lo phim", "phim moi", "phim hay 2026"],
+  keywords: ["LoFilm", "lofilm", "lo film", "xem phim lofilm", "xem phim lo film", "lofilm tv", "lofilm net", "lofilm me", "lofilm chill", "lofilm phim", "lo phim", "trang phim lofilm", "web phim lofilm", "lofilm xem phim", "lofilm phim hay", "lofilm vietsub", "lofilm 4k", "phim moi", "phim hay 2026", "xem phim online", "phim vietsub", "phim bo moi", "phim le hay"],
   robots: {
     index: true,
     follow: true,
@@ -46,6 +46,8 @@ export const metadata: Metadata = {
       index: true,
       follow: true,
       'max-image-preview': 'large',
+      'max-snippet': -1,
+      'max-video-preview': -1,
     },
   },
   openGraph: {
@@ -61,6 +63,12 @@ export const metadata: Metadata = {
       height: 630,
       alt: "LoFilm - Xem Phim Online Chất Lượng Cao",
     }],
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: 'LoFilm - Xem Phim Online Chất Lượng Cao',
+    description: 'Xem phim LoFilm miễn phí, chất lượng 4K, Vietsub. Kho phim mới cập nhật mỗi ngày.',
+    images: ['https://www.munos.store/lofilm_logo.webp'],
   },
   alternates: {
     canonical: '/',
@@ -122,10 +130,9 @@ export default function RootLayout({
               "url": "https://www.munos.store",
               "logo": "https://www.munos.store/lofilm_logo.webp",
               "sameAs": [
-                "https://facebook.com/lofilm",
-                "https://twitter.com/lofilm",
-                "https://youtube.com/lofilm"
-              ]
+                "https://t.me/janencl",
+                "https://t.me/+5S1xkPn1SCAxZWZl"
+              ],
             })
           }}
         />

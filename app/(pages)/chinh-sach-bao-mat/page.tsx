@@ -1,4 +1,13 @@
 import React from 'react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Chính Sách Bảo Mật | LoFilm',
+  description: 'Đọc chi tiết chính sách bảo mật thông tin người dùng của LoFilm. Chúng tôi cam kết an toàn cho mọi thông tin cá nhân của bạn.',
+  alternates: {
+    canonical: 'https://www.munos.store/chinh-sach-bao-mat',
+  },
+};
 
 export default function PrivacyPolicy() {
   return (

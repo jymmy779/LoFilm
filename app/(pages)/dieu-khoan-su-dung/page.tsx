@@ -1,4 +1,13 @@
 import React from 'react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Điều Khoản Sử Dụng | LoFilm',
+  description: 'Xem các điều khoản và quy định chung khi sử dụng dịch vụ xem phim miễn phí do LoFilm cung cấp.',
+  alternates: {
+    canonical: 'https://www.munos.store/dieu-khoan-su-dung',
+  },
+};
 
 export default function TermsOfService() {
   return (

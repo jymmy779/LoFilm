@@ -1,5 +1,14 @@
 import React from 'react';
 import { Mail, Send, MessageSquare, Phone, Globe } from 'lucide-react';
+import { Metadata } from 'next';
+
+export const metadata: Metadata = {
+  title: 'Liên Hệ | LoFilm - Hỗ Trợ 24/7',
+  description: 'Liên hệ với tập thể phát triển LoFilm. Giải đáp thắc mắc, gửi ý kiến đóng góp và yêu cầu phim mới nhất.',
+  alternates: {
+    canonical: 'https://www.munos.store/lien-he',
+  },
+};
 
 export default function ContactPage() {
   return (
