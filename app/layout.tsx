@@ -55,6 +55,12 @@ export const metadata: Metadata = {
     siteName: "LoFilm",
     locale: "vi_VN",
     type: "website",
+    images: [{
+      url: "https://www.munos.store/lofilm_logo.webp",
+      width: 1200,
+      height: 630,
+      alt: "LoFilm - Xem Phim Online Chất Lượng Cao",
+    }],
   },
   alternates: {
     canonical: '/',
@@ -97,10 +103,10 @@ export default function RootLayout({
               "@type": "WebSite",
               "name": "LoFilm",
               "alternateName": ["Lo Film", "LoFilm TV", "Xem Phim LoFilm", "Phim LoFilm", "LoFilm Net"],
-              "url": "https://munos.store",
+              "url": "https://www.munos.store",
               "potentialAction": {
                 "@type": "SearchAction",
-                "target": "https://munos.store/?search={search_term_string}",
+                "target": "https://www.munos.store/?search={search_term_string}",
                 "query-input": "required name=search_term_string"
               }
             })
@@ -113,8 +119,8 @@ export default function RootLayout({
               "@context": "https://schema.org",
               "@type": "Organization",
               "name": "LoFilm",
-              "url": "https://munos.store",
-              "logo": "https://munos.store/lofilm_logo.webp",
+              "url": "https://www.munos.store",
+              "logo": "https://www.munos.store/lofilm_logo.webp",
               "sameAs": [
                 "https://facebook.com/lofilm",
                 "https://twitter.com/lofilm",
@@ -153,19 +159,19 @@ export default function RootLayout({
                   "@type": "SiteNavigationElement",
                   "position": 4,
                   "name": "Phim Chiếu Rạp",
-                  "url": "https://munos.store/danh-sach/phim-chieu-rap"
+                  "url": "https://www.munos.store/danh-sach/phim-chieu-rap"
                 },
                 {
                   "@type": "SiteNavigationElement",
                   "position": 5,
                   "name": "Hoạt Hình",
-                  "url": "https://munos.store/danh-sach/hoat-hinh"
+                  "url": "https://www.munos.store/danh-sach/hoat-hinh"
                 },
                 {
                   "@type": "SiteNavigationElement",
                   "position": 6,
                   "name": "Đăng nhập",
-                  "url": "https://munos.store/auth"
+                  "url": "https://www.munos.store/auth"
                 }
               ]
             })

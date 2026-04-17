@@ -4,10 +4,19 @@ import { NextResponse, type NextRequest } from 'next/server'
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 0. Redirect non-www to www (SEO & Indexing Fix)
+  // 0. Redirect non-www and/or HTTP to canonical https://www.munos.store (SEO & Indexing Fix)
+  // Handles all cases in a SINGLE redirect to avoid redirect chains:
+  //   http://munos.store  → https://www.munos.store  (1 hop)
+  //   https://munos.store → https://www.munos.store  (1 hop)
+  //   http://www.munos.store → https://www.munos.store (1 hop)
   const host = request.headers.get('host');
-  if (host === 'munos.store') {
-    return NextResponse.redirect(`https://www.munos.store${pathname}${request.nextUrl.search}`, 301);
+  const proto = request.headers.get('x-forwarded-proto') || 'https';
+  
+  if (host === 'munos.store' || proto === 'http') {
+    return NextResponse.redirect(
+      `https://www.munos.store${pathname}${request.nextUrl.search}`,
+      301
+    );
   }
 
   // 1. Kiểm tra Maintenance Mode trước (Không cần Auth)
