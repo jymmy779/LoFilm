@@ -10,6 +10,8 @@ export const metadata: Metadata = {
   },
 };
 
+import ContactForm from './ContactForm';
+
 export default function ContactPage() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#111b33] to-[#0d162b] text-white/80 pt-32 pb-20 md:pt-40 md:pb-32 px-4 relative overflow-hidden">
@@ -63,60 +65,7 @@ export default function ContactPage() {
           </div>
 
           {/* Contact Form Box */}
-          <div className="lg:col-span-2 bg-[#16213e] border border-white/5 p-6 md:p-12 rounded-3xl md:rounded-[40px] shadow-2xl relative overflow-hidden">
-            <div className="mb-6 md:mb-10">
-              <h2 className="text-lg md:text-xl font-bold text-white mb-2 uppercase tracking-widest">Gửi lời nhắn</h2>
-              <p className="text-white/20 text-[10px] md:text-xs italic">Điền đầy đủ thông tin bên dưới để chúng tôi có thể liên hệ lại sớm nhất.</p>
-            </div>
-
-            <form className="space-y-4 md:space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-                <div className="space-y-1.5 md:space-y-2">
-                  <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Họ và tên</label>
-                  <input
-                    type="text"
-                    placeholder="Nguyễn Văn A"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-xs md:text-sm text-white placeholder:text-white/10 focus:outline-none focus:border-amber-400/30 transition-all font-medium"
-                  />
-                </div>
-                <div className="space-y-1.5 md:space-y-2">
-                  <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Địa chỉ Email</label>
-                  <input
-                    type="email"
-                    placeholder="example@gmail.com"
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-xs md:text-sm text-white placeholder:text-white/10 focus:outline-none focus:border-amber-400/30 transition-all font-medium"
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-1.5 md:space-y-2">
-                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Chủ đề</label>
-                <select className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-xs md:text-sm text-white/50 focus:outline-none focus:border-amber-400/30 transition-all appearance-none cursor-pointer">
-                  <option className="bg-[#111b33]">Báo lỗi phim</option>
-                  <option className="bg-[#111b33]">Yêu cầu phim mới</option>
-                  <option className="bg-[#111b33]">Ý kiến đóng góp</option>
-                  <option className="bg-[#111b33]">Hợp tác/Quảng cáo</option>
-                </select>
-              </div>
-
-              <div className="space-y-1.5 md:space-y-2">
-                <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Nội dung tin nhắn</label>
-                <textarea
-                  rows={4}
-                  placeholder="Hãy cho chúng tôi biết bạn đang nghĩ gì..."
-                  className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-xs md:text-sm text-white placeholder:text-white/10 focus:outline-none focus:border-amber-400/30 transition-all resize-none font-medium"
-                ></textarea>
-              </div>
-
-              <button
-                type="button"
-                className="w-full bg-amber-400 cursor-pointer hover:bg-amber-500 text-black font-bold py-3 md:py-4 rounded-xl text-xs md:text-sm flex items-center justify-center gap-2 md:gap-3 transition-all active:scale-[0.98] shadow-lg shadow-amber-400/5 uppercase tracking-widest"
-              >
-                Gửi tin nhắn ngay
-                <Send size={16} />
-              </button>
-            </form>
-          </div>
+          <ContactForm />
         </div>
       </div>
     </div>

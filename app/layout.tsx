@@ -196,11 +196,13 @@ export default function RootLayout({
           <PageTransitionProvider>
             <PageTransitionOverlay />
             <SkeletonTheme baseColor="#1e293b" highlightColor="#334155">
-              <Header />
-              <main className="min-h-screen">
-                {children}
-              </main>
-              <Footer />
+              <div className="min-h-screen flex flex-col">
+                <Header />
+                <main className="flex-1">
+                  {children}
+                </main>
+                <Footer />
+              </div>
             </SkeletonTheme>
           </PageTransitionProvider>
         </AuthProvider>

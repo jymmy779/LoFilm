@@ -3,7 +3,7 @@ import TransitionLink from '@/app/components/Transition/TransitionLink';
 
 export default function Footer() {
     return (
-        <footer className="relative w-full border-t border-white/5 bg-[#0F111A] overflow-hidden mt-10 pb-6">
+        <footer className="relative w-full border-t border-white/5 bg-[#0F111A] overflow-hidden mt-10 pb-6 animate-fade-in">
             <div className="absolute top-0 right-0 w-[600px] h-[600px] pointer-events-none opacity-[0.08] bg-gradient-to-bl from-orange-500/40 via-yellow-500/20 to-transparent rounded-full translate-x-1/2 -translate-y-1/2"></div>
             <div className="absolute bottom-0 left-0 w-[400px] h-[400px] pointer-events-none opacity-[0.05] bg-gradient-to-tr from-blue-500/30 to-transparent rounded-full -translate-x-1/2 translate-y-1/2"></div>
 
