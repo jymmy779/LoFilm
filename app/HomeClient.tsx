@@ -145,7 +145,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                 <FeaturedSlider
                     title="Hoạt Hình Anime Hay"
                     apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?country=nhat-ban&limit=60"
-                    viewAllLink="/danh-sach/hoat-hinh"
+                    viewAllLink="/danh-sach/hoat-hinh?country=nhat-ban"
                     navId="featured-anime"
                     initialMovies={prefetched.featuredAnime}
                 />
