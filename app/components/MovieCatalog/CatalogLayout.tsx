@@ -52,7 +52,7 @@ export default function CatalogLayout({
     sidebarProps
 }: CatalogLayoutProps) {
     return (
-        <main className="pt-24 md:pt-28 lg:pt-32 pb-12 min-h-screen">
+        <main className="pt-24 pt-30 md:pt-40 pb-12 min-h-screen">
             <Container>
                 <div className="catalog-page">
                     <CatalogHeader title={title} />
@@ -79,11 +79,10 @@ export default function CatalogLayout({
 
                                 <div className={`transition-opacity duration-300 ${(isLoading === false && isPageLoading) ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
                                     {isLoading ? (
-                                        <div className={`grid gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 ${
-                                            hideSidebar 
-                                            ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8" 
-                                            : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
-                                        }`}>
+                                        <div className={`grid gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 ${hideSidebar
+                                                ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8"
+                                                : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+                                            }`}>
                                             {[...Array(24)].map((_, i) => (
                                                 <MovieCardSkeleton key={i} />
                                             ))}
@@ -91,11 +90,10 @@ export default function CatalogLayout({
                                     ) : (
                                         <>
                                             {movies.length > 0 ? (
-                                                <div className={`grid gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 ${
-                                                    hideSidebar 
-                                                    ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8" 
-                                                    : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
-                                                }`}>
+                                                <div className={`grid gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 ${hideSidebar
+                                                        ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8"
+                                                        : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+                                                    }`}>
                                                     {movies.map((movie, index) => (
                                                         <MoviePosterCard key={movie._id} movie={movie} priority={index < 6} />
                                                     ))}

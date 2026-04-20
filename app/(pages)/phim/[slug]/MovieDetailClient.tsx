@@ -241,7 +241,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
     return (
         <main className="min-h-screen pb-20">
             {/* Background Cover */}
-            <div className="relative w-full h-[30vh] md:h-[50vh] xl:h-[80vh] overflow-hidden transform-gpu">
+            <div className="relative w-full h-[40vh] md:h-[50vh] xl:h-[80vh] overflow-hidden transform-gpu">
                 <div className="absolute inset-0 scale-105 will-change-transform">
                     {/* Instant blur placeholder from poster */}
                     <Image
