@@ -1,0 +1,54 @@
+"use client";
+
+import Image from "next/image";
+import MoviePreviewWrapper from "./MoviePreviewWrapper";
+import { Movie } from "@/app/types/movie";
+import { decodeHtml } from "@/app/utils/textUtils";
+
+interface WideMovieCardProps {
+    movie: Movie;
+    priority?: boolean;
+    adZone?: string;
+}
+
+export default function WideMovieCard({ movie, priority = false, adZone = "wide_movie" }: WideMovieCardProps) {
+    return (
+        <MoviePreviewWrapper movie={movie} adZone={adZone}>
+            {/* Background Thumbnail (Horizontal) - aspect 21/9 */}
+            <div className="v-thumbnail v-thumbnail-hoz relative aspect-[21/9] overflow-hidden transform-gpu bg-white/5">
+                <Image
+                    src={movie.thumb_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}
+                    alt={movie.name}
+                    fill
+                    priority={priority}
+                    sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, 30vw"
+                    quality={85}
+                    className="object-cover transition-transform duration-700 group-hover:scale-105 transform-gpu"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/20 to-transparent z-10" />
+            </div>
+
+            {/* Overlaid Content Info */}
+            <div className="h-item absolute bottom-0 left-0 right-0 p-3 md:p-4 flex flex-col justify-end z-20 transition-transform duration-300 group-hover:translate-y-[-2px] transform-gpu">
+                <div className="info min-w-0">
+                    <h4 className="item-title text-[12px] md:text-[15px] font-bold text-white truncate group-hover:text-yellow-400 transition-colors drop-shadow-md mb-0.5">
+                        {decodeHtml(movie.name)}
+                    </h4>
+                    <div className="info-line flex items-center gap-2">
+                        <span className="text-[10px] md:text-xs text-white/40 truncate font-medium max-w-[150px]">
+                            {decodeHtml(movie.origin_name)}
+                        </span>
+                        <div className="flex gap-1.5 ml-auto">
+                            <div className="tag-small px-1.5 py-0.5 bg-white/5 rounded text-[8px] md:text-[9px] text-white/40 border border-white/5">
+                                {movie.year}
+                            </div>
+                            <div className="tag-small px-1.5 py-0.5 bg-yellow-500/10 rounded text-[8px] md:text-[9px] text-yellow-500/80 font-bold border border-yellow-500/10">
+                                {movie.episode_current?.replace(/Tập/, 'T.')}
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </MoviePreviewWrapper>
+    );
+}

@@ -12,6 +12,7 @@ import { getImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
 import Container from "@/app/components/Container";
 import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
+import MovieCardSkeleton from "@/app/components/MovieCard/MovieCardSkeleton";
 import { useMovies } from "@/app/hooks/useMovies";
 import SwiperNavButtons from "@/app/components/Common/SwiperNavButtons";
 import { useAuth } from "@/app/components/Auth/AuthContext";
@@ -51,7 +52,7 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
                             key={i}
                             className="flex-none w-[calc((100%-10px)/2)] sm:w-[calc((100%-13px*2)/3)] md:w-[calc((100%-13px*3)/4)] lg:w-[calc((100%-13px*4)/5)] min-[1200px]:w-[calc((100%-13px*5)/6)] min-[1400px]:w-[calc((100%-15px*6)/7)] 2xl:w-[calc((100%-15px*7)/8)]"
                         >
-                            <Skeleton className="aspect-[2/3] rounded-2xl block" />
+                            <MovieCardSkeleton />
                         </div>
                     ))}
                 </div>

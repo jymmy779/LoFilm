@@ -13,7 +13,8 @@ import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
 import SmartImage from "@/app/components/Common/SmartImage";
 import Container from "@/app/components/Container";
-import MoviePreviewWrapper from "@/app/components/MovieCard/MoviePreviewWrapper";
+import MovieRowCard from "@/app/components/MovieCard/MovieRowCard";
+import MovieRowCardSkeleton from "@/app/components/MovieCard/MovieRowCardSkeleton";
 import { useMovies } from "@/app/hooks/useMovies";
 import SwiperNavButtons from "@/app/components/Common/SwiperNavButtons";
 
@@ -58,9 +59,7 @@ function MovieRow({
                     <div className="flex gap-2 sm:gap-3 md:gap-3.5 lg:gap-4 overflow-hidden">
                         {[...Array(6)].map((_, i) => (
                             <div key={i} className="flex-none w-[160px] sm:w-[200px] md:w-[240px] lg:w-[280px]">
-                                <Skeleton className="aspect-video rounded-lg mb-3" />
-                                <Skeleton height={18} className="mb-2" />
-                                <Skeleton height={12} width="60%" />
+                                <MovieRowCardSkeleton />
                             </div>
                         ))}
                     </div>
@@ -112,52 +111,15 @@ function MovieRow({
                         className="swiper-carousel"
                     >
                         {movies.map((movie, index) => {
-                            const imgUrl = getImageUrl(movie.thumb_url, { width: 300, quality: 75 });
                             const eager = index < 3;
 
                             return (
                                 <SwiperSlide key={movie._id} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
-                                    <TransitionLink
-                                        href={`/phim/${movie.slug}`}
-                                        onClick={handleAdClick}
-                                        className="block group/item cursor-pointer"
-                                    >
-                                        <MoviePreviewWrapper
-                                            movie={movie}
-                                            adZone="movie_row"
-                                        >
-                                            <div className="relative aspect-video rounded-lg overflow-hidden bg-white/5 mb-3">
-                                                <SmartImage
-                                                    src={imgUrl}
-                                                    rawSrc={getRawImageUrl(movie.thumb_url)}
-                                                    alt={movie.name}
-                                                    fill
-                                                    priority={eager}
-                                                    loading={eager ? "eager" : "lazy"}
-                                                    sizes="(max-width: 768px) 160px, (max-width: 1024px) 240px, 280px"
-                                                    className="object-cover transition-transform duration-500 group-hover/item:scale-110"
-                                                />
-                                                <div className="absolute inset-x-0 bottom-[-1] h-1/2 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
-
-                                                {movie.episode_current && (
-                                                    <div className="absolute bottom-2 left-2 px-1.5 py-0.5 bg-white/30 rounded border border-white/20">
-                                                        <span className="text-[8px] md:text-xs md:font-semibold text-white truncate max-w-[120px] block">
-                                                            {movie.episode_current}
-                                                        </span>
-                                                    </div>
-                                                )}
-                                            </div>
-
-                                            <div className="space-y-1">
-                                                <h3 className="text-white md:text-left text-center font-medium text-xs md:text-sm line-clamp-1 group-hover/item:text-pink-300 transition-colors">
-                                                    {decodeHtml(movie.name)}
-                                                </h3>
-                                                <p className="text-white/50 text-[10px] md:text-left text-center md:text-xs line-clamp-1">
-                                                    {decodeHtml(movie.origin_name)}
-                                                </p>
-                                            </div>
-                                        </MoviePreviewWrapper>
-                                    </TransitionLink>
+                                    <MovieRowCard 
+                                        movie={movie} 
+                                        priority={eager} 
+                                        onClick={handleAdClick} 
+                                    />
                                 </SwiperSlide>
                             );
                         })}

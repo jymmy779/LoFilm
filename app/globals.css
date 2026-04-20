@@ -3,6 +3,8 @@
 :root {
   --font-body: var(--font-inter), sans-serif;
   --font-heading: var(--font-montserrat), sans-serif;
+  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+  --animate-shimmer: shimmer 2.5s linear infinite;
 }
 
 html {
@@ -50,9 +52,24 @@ body {
     box-shadow: 0 0 20px rgba(245, 166, 35, 0.4);
   }
 }
+  @keyframes shimmer {
+    0% {
+      background-position: -1000px 0;
+    }
+    100% {
+      background-position: 1000px 0;
+    }
+  }
 
-@theme {
-  --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg, 
+    rgba(255, 255, 255, 0.03) 25%, 
+    rgba(255, 255, 255, 0.08) 50%, 
+    rgba(255, 255, 255, 0.03) 75%
+  );
+  background-size: 1000px 100%;
+  animation: shimmer 2.5s linear infinite;
 }
 
 @keyframes fade-in-smooth {

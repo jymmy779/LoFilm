@@ -2,8 +2,8 @@
 
 import Container from "@/app/components/Container";
 import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
+import MovieCardSkeleton from "@/app/components/MovieCard/MovieCardSkeleton";
 import { Movie } from "@/app/types/movie";
-import Skeleton from "react-loading-skeleton";
 import Pagination from "@/app/components/Pagination";
 import CatalogHeader from "@/app/components/CatalogHeader";
 import MovieFilter, { FilterState } from "@/app/components/MovieFilter";
@@ -85,13 +85,7 @@ export default function CatalogLayout({
                                             : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
                                         }`}>
                                             {[...Array(24)].map((_, i) => (
-                                                <div key={i} className="space-y-3">
-                                                    <Skeleton className="aspect-[2/3] rounded-2xl" />
-                                                    <div className="space-y-1.5 px-1">
-                                                        <Skeleton height={16} width="90%" />
-                                                        <Skeleton height={12} width="60%" />
-                                                    </div>
-                                                </div>
+                                                <MovieCardSkeleton key={i} />
                                             ))}
                                         </div>
                                     ) : (

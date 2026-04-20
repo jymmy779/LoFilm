@@ -11,9 +11,9 @@ import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
 import { getImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "react-loading-skeleton";
-import Image from "next/image";
 import Container from "@/app/components/Container";
-import MoviePreviewWrapper from "@/app/components/MovieCard/MoviePreviewWrapper";
+import WideMovieCard from "@/app/components/MovieCard/WideMovieCard";
+import WideMovieCardSkeleton from "@/app/components/MovieCard/WideMovieCardSkeleton";
 import { useMovies } from "@/app/hooks/useMovies";
 import SwiperNavButtons from "@/app/components/Common/SwiperNavButtons";
 import { useAdTrigger } from "@/app/hooks/useAdTrigger";
@@ -52,7 +52,7 @@ function WideMovieRow({
                 <div className="flex gap-[10px] md:gap-4 lg:gap-5 overflow-hidden pt-[5px] pb-[20px]">
                     {[...Array(5)].map((_, i) => (
                         <div key={i} className="flex-none w-[80%] sm:w-[45%] lg:w-[35%] xl:w-[28%]">
-                            <Skeleton className="aspect-[21/9] rounded-xl md:rounded-2xl block" />
+                            <WideMovieCardSkeleton />
                         </div>
                     ))}
                 </div>
@@ -109,49 +109,9 @@ function WideMovieRow({
                     >
                         {movies.map((movie, index) => (
                             <SwiperSlide key={movie._id}>
-                                <TransitionLink
-                                    href={`/phim/${movie.slug}`}
-                                    onClick={handleAdClick}
-                                    className="sw-cover block relative group cursor-pointer overflow-hidden rounded-xl md:rounded-2xl bg-slate-900/40 border border-white/5 transition-all duration-300 transform-gpu hover:border-white/10"
-                                >
-                                    <MoviePreviewWrapper movie={movie} adZone="wide_movie">
-                                        {/* Background Thumbnail (Horizontal) */}
-                                        <div className="v-thumbnail v-thumbnail-hoz relative aspect-[21/9] overflow-hidden transform-gpu">
-                                            <Image
-                                                src={movie.thumb_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}
-                                                alt={movie.name}
-                                                fill
-                                                priority={index < 2}
-                                                sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, 30vw"
-                                                quality={85}
-                                                className="object-cover transition-transform duration-700 group-hover:scale-105 transform-gpu"
-                                            />
-                                            <div className="absolute inset-0 bg-gradient-to-t from-[#0f172a] via-[#0f172a]/20 to-transparent z-10" />
-                                        </div>
-
-                                        {/* Overlaid Content Info */}
-                                        <div className="h-item absolute bottom-0 left-0 right-0 p-3 md:p-4 flex flex-col justify-end z-20 transition-transform duration-300 group-hover:translate-y-[-2px] transform-gpu">
-                                            <div className="info min-w-0">
-                                                <h4 className="item-title text-[12px] md:text-[15px] font-bold text-white truncate group-hover:text-yellow-400 transition-colors drop-shadow-md mb-0.5">
-                                                    {decodeHtml(movie.name)}
-                                                </h4>
-                                                <div className="info-line flex items-center gap-2">
-                                                    <span className="text-[10px] md:text-xs text-white/40 truncate font-medium max-w-[150px]">
-                                                        {decodeHtml(movie.origin_name)}
-                                                    </span>
-                                                    <div className="flex gap-1.5 ml-auto">
-                                                        <div className="tag-small px-1.5 py-0.5 bg-white/5 rounded text-[8px] md:text-[9px] text-white/40 border border-white/5">
-                                                            {movie.year}
-                                                        </div>
-                                                        <div className="tag-small px-1.5 py-0.5 bg-yellow-500/10 rounded text-[8px] md:text-[9px] text-yellow-500/80 font-bold border border-yellow-500/10">
-                                                            {movie.episode_current?.replace(/Tập/, 'T.')}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </MoviePreviewWrapper>
-                                </TransitionLink>
+                                <div onClick={handleAdClick} className="block relative group cursor-pointer overflow-hidden rounded-xl md:rounded-2xl bg-slate-900/40 border border-white/5 transition-all duration-300 transform-gpu hover:border-white/10">
+                                    <WideMovieCard movie={movie} priority={index < 2} />
+                                </div>
                             </SwiperSlide>
                         ))}
                     </Swiper>
