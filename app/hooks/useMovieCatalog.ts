@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { Movie } from "@/app/types/movie";
@@ -83,9 +83,28 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
         updateUrl(1, filters, isFilterOpen);
     };
 
+    const toggleUrlTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
     const handleToggleFilter = (isOpen: boolean) => {
         setIsFilterOpen(isOpen);
-        updateUrl(currentPage, activeFilters, isOpen);
+        
+        // Debounce URL 'filter' param update to avoid lag when spamming the toggle button.
+        if (toggleUrlTimeoutRef.current) clearTimeout(toggleUrlTimeoutRef.current);
+        
+        toggleUrlTimeoutRef.current = setTimeout(() => {
+            try {
+                const params = new URLSearchParams(window.location.search);
+                if (isOpen) {
+                    params.set("filter", "open");
+                } else {
+                    params.delete("filter");
+                }
+                const newUrl = `${window.location.pathname}${params.toString() ? '?' + params.toString() : ''}`;
+                window.history.replaceState(null, '', newUrl);
+            } catch (e) {
+                updateUrl(currentPage, activeFilters, isOpen);
+            }
+        }, 500);
     };
 
     // 4. Fetch Master Filters (Categories/Countries) — only if we don't have them from server
@@ -279,8 +298,30 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
         return () => { isMounted = false; };
     }, [currentPage, activeFilters, baseApiUrl, itemsPerPage, slug, router]); // eslint-disable-line react-hooks/exhaustive-deps
 
+    // 6. Client-side sorting for rating (since API doesn't support it well)
+    const sortedMovies = useMemo(() => {
+        if (activeFilters.sort === "imdb") {
+            return [...movies].sort((a, b) => {
+                const rateA = a.tmdb?.vote_average || 0;
+                const rateB = b.tmdb?.vote_average || 0;
+                
+                // Primary: Sort by Rating (Descending)
+                if (rateB !== rateA) {
+                    return rateB - rateA;
+                }
+                
+                // Secondary: Sort by Modified Time (Descending) for stability, 
+                // especially for movies with 0/N/A ratings.
+                const timeA = new Date(a.modified?.time || 0).getTime();
+                const timeB = new Date(b.modified?.time || 0).getTime();
+                return timeB - timeA;
+            });
+        }
+        return movies;
+    }, [movies, activeFilters.sort]);
+
     return {
-        movies,
+        movies: sortedMovies,
         isLoading,
         isPageLoading,
         currentPage,

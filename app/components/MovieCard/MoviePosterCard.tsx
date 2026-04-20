@@ -29,7 +29,9 @@ export default function MoviePosterCard({ movie, priority = false, isFirst, isLa
     // Chuẩn bị dữ liệu hiển thị cho Popup
     const description = movie.content ? cleanContent(decodeHtml(movie.content)) : "Đang cập nhật nội dung cho bộ phim này...";
     const genres = movie.category?.slice(0, 3).map(c => c.name).join(", ");
-    const imdbRating = movie.tmdb?.vote_average ? movie.tmdb.vote_average.toFixed(1) : "N/A";
+    const imdbRating = (movie.tmdb?.vote_count && movie.tmdb.vote_count > 0) 
+        ? movie.tmdb.vote_average.toFixed(1) 
+        : "N/A";
 
     return (
         <TransitionLink

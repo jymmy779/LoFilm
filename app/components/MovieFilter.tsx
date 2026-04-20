@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MenuItem } from "@/app/components/Header/types";
 
@@ -40,16 +40,18 @@ export default function MovieFilter({
         rating: ""
     });
 
-    // Đồng bộ state nội bộ khi initialFilters từ URL thay đổi (ví dụ khi load trang)
+    const lastToggleTime = useRef(0);
     useEffect(() => {
         if (initialFilters) setFilters(initialFilters);
     }, [initialFilters]);
 
     useEffect(() => {
-        setIsOpen(initialIsOpen);
-    }, [initialIsOpen]);
+        if (initialIsOpen !== isOpen) {
+            setIsOpen(initialIsOpen);
+        }
+    }, [initialIsOpen, isOpen]);
 
-    const years = Array.from({ length: 17 }, (_, i) => (2026 - i).toString());
+    const years = useMemo(() => Array.from({ length: 17 }, (_, i) => (2026 - i).toString()), []);
 
 
     const handleSelect = (key: keyof FilterState, value: string) => {
@@ -61,6 +63,10 @@ export default function MovieFilter({
     };
 
     const handleToggle = () => {
+        const now = Date.now();
+        if (now - lastToggleTime.current < 300) return; // Throttle to prevent animation glitches
+        lastToggleTime.current = now;
+
         const nextState = !isOpen;
         setIsOpen(nextState);
         onToggle(nextState);
@@ -80,7 +86,7 @@ export default function MovieFilter({
     };
 
     return (
-        <div className="v-filter mb-8">
+        <motion.div layout className="v-filter mb-8">
             {/* Toggle Button */}
             <button
                 onClick={handleToggle}
@@ -99,11 +105,18 @@ export default function MovieFilter({
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ height: 0, opacity: 0 }}
-                        animate={{ height: "auto", opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.25, ease: "easeOut" }}
-                        className="overflow-hidden bg-white/5 border border-white/10 rounded-2xl mt-4"
+                        layout
+                        initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                        animate={{ height: "auto", opacity: 1, marginTop: 16 }}
+                        exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                        transition={{
+                            type: "spring",
+                            stiffness: 300,
+                            damping: 30,
+                            opacity: { duration: 0.2 }
+                        }}
+                        style={{ willChange: "height, opacity, margin-top", transform: "translateZ(0)" }}
+                        className="overflow-hidden bg-white/5 border border-white/10 rounded-2xl"
                     >
                         <div className="p-4 md:p-6 space-y-6">
                             {/* Row: Quốc gia */}
@@ -184,11 +197,11 @@ export default function MovieFilter({
                     </motion.div>
                 )}
             </AnimatePresence>
-        </div>
+        </motion.div>
     );
 }
 
-function FilterRow({ label, items, activeValue, onSelect, useValueField = false }: any) {
+const FilterRow = React.memo(({ label, items, activeValue, onSelect, useValueField = false }: any) => {
     return (
         <div className="flex flex-col md:flex-row gap-3">
             <div className="w-28 text-white/40 text-sm font-medium pt-1 shrink-0">{label}:</div>
@@ -200,7 +213,7 @@ function FilterRow({ label, items, activeValue, onSelect, useValueField = false 
                         <div
                             key={val || item.label || item.name}
                             onClick={() => onSelect(val)}
-                            className={`item px-3 py-1.5 rounded-lg text-xs transition-all cursor-pointer select-none border ${isActive
+                            className={`item px-3 py-1.5 rounded-lg text-xs transition-all duration-200 cursor-pointer select-none border ${isActive
                                 ? "bg-[#f5a623] border-[#f5a623] text-[#0a1628] font-bold shadow-lg shadow-[#f5a623]/20"
                                 : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-[#f5a623]/50"
                                 }`}
@@ -212,4 +225,6 @@ function FilterRow({ label, items, activeValue, onSelect, useValueField = false 
             </div>
         </div>
     );
-}
+});
+
+FilterRow.displayName = "FilterRow";
