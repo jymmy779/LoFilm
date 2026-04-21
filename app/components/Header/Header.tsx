@@ -12,6 +12,7 @@ import { MenuItem } from "./types";
 import DropdownMenu from "./DropdownMenu";
 import SearchBox from "./SearchBox";
 import MemberButton from "./MemberButton";
+import NotificationBell from "./NotificationBell";
 import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 
 export default function Header() {
@@ -151,6 +152,7 @@ export default function Header() {
                     </AnimatePresence>
 
                     <div className="flex items-center gap-1">
+                        <NotificationBell />
                         <button
                             onClick={() => {
                                 setIsSearchActive(!isSearchActive);
@@ -238,7 +240,8 @@ export default function Header() {
                         </nav>
                     </div>
 
-                    <div className="flex items-center gap-4 shrink-0">
+                    <div className="flex items-center gap-2 xl:gap-4 shrink-0">
+                        <NotificationBell />
                         <MemberButton />
                     </div>
                 </div>
