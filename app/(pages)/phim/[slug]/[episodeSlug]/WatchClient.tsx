@@ -102,6 +102,9 @@ export default function WatchClient({
     const [plyrContainer, setPlyrContainer] = useState<HTMLElement | null>(null);
     const [showEpisodeOverlay, setShowEpisodeOverlay] = useState(false);
     const [isChangingEpisode, setIsChangingEpisode] = useState(false);
+    const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
+    const [isBlockedByIP, setIsBlockedByIP] = useState(false);
+    const [isBuffering, setIsBuffering] = useState(false);
 
     useEffect(() => { showEndOverlayRef.current = showEndOverlay; }, [showEndOverlay]);
 
@@ -227,6 +230,20 @@ export default function WatchClient({
 
     useEffect(() => {
         const checkStatus = async () => {
+            // Check IP Location (Geofencing)
+            try {
+                const geoRes = await fetch('http://ip-api.com/json/');
+                if (geoRes.ok) {
+                    const geoData = await geoRes.json();
+                    if (geoData.status === 'success' && geoData.countryCode !== 'VN') {
+                        console.warn("LoFilm: Detected IP outside Vietnam:", geoData.countryCode);
+                        setIsBlockedByIP(true);
+                    }
+                }
+            } catch (err) {
+                console.error("Geo-check failed:", err);
+            }
+
             if (user) {
                 // Check Fav
                 const { data: favData } = await supabase
@@ -432,6 +449,32 @@ export default function WatchClient({
             player.on('play', () => {
                 if (showEndOverlayRef.current) player.pause();
             });
+
+            player.on('playing', () => {
+                setHasStartedPlaying(true);
+                setHasError(false);
+                setIsBuffering(false);
+            });
+
+            player.on('waiting', () => {
+                if (hasStartedPlaying) setIsBuffering(true);
+            });
+            
+            player.on('seeking', () => setIsBuffering(true));
+            
+            player.on('stalled', () => {
+                if (hasStartedPlaying) setIsBuffering(true);
+            });
+
+            player.on('seeked', () => {
+                // Nếu phim đang phát thì chờ sự kiện 'playing' tắt loading sẽ chuẩn hơn
+                // Nếu phim đang pause thì mới tắt ở đây nhưng phải đợi readyState >= 4 (HAVE_ENOUGH_DATA)
+                if (videoRef.current && videoRef.current.paused && videoRef.current.readyState >= 4) {
+                    setIsBuffering(false);
+                }
+            });
+
+            player.on('pause', () => setIsBuffering(false));
 
             player.on('controlsshown', () => setControlsVisible(true));
             player.on('controlshidden', () => setControlsVisible(false));
@@ -731,6 +774,39 @@ export default function WatchClient({
                         plyrContainer
                     )}
 
+                    {/* Buffering Overlay */}
+                    {plyrContainer && createPortal(
+                        <AnimatePresence>
+                            {isBuffering && !hasError && !isChangingEpisode && !showEndOverlay && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="absolute inset-0 z-[50] flex items-center justify-center pointer-events-none"
+                                >
+                                    <div className="relative flex flex-col items-center gap-2 md:gap-4">
+                                        <div className="relative w-12 h-12 md:w-20 md:h-20">
+                                            {/* Spinning outer ring */}
+                                            <div className="absolute inset-0 border-[3px] md:border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
+                                            {/* Logo in the middle with pulse effect */}
+                                            <div className="absolute inset-0 flex items-center justify-center p-2.5 md:p-4">
+                                                <Image
+                                                    src="/lofilm_logo.png"
+                                                    alt="LoFilm Loading"
+                                                    width={80}
+                                                    height={80}
+                                                    className="w-full h-full object-contain animate-pulse opacity-80"
+                                                />
+                                            </div>
+                                        </div>
+                                        <span className="text-white/40 text-[8px] md:text-[10px] font-bold tracking-[0.3em] uppercase animate-pulse">Đang tải...</span>
+                                    </div>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>,
+                        plyrContainer
+                    )}
+
                     {/* Loading Overlay when switching episodes */}
                     {plyrContainer && createPortal(
                         <AnimatePresence>
@@ -894,9 +970,11 @@ export default function WatchClient({
 
                     {/* Error/404 Overlay - Rendered in DOM or Player Portal for robustness */}
                     {(() => {
+                        const showOverlay = isBlockedByIP || (hasError && !hasStartedPlaying);
+
                         const errorContent = (
                             <AnimatePresence>
-                                {hasError && (
+                                {showOverlay && (
                                     <motion.div
                                         initial={{ opacity: 0 }}
                                         animate={{ opacity: 1 }}
@@ -907,8 +985,13 @@ export default function WatchClient({
                                             <div className="w-8 h-8 sm:w-12 sm:h-12 md:w-16 md:h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-3 sm:mb-4 md:mb-6">
                                                 <AlertTriangle size={18} className="text-red-500 sm:w-6 sm:h-6 md:w-8 md:h-8" />
                                             </div>
+                                            <h2 className="text-white text-base md:text-xl font-bold mb-2">
+                                                {isBlockedByIP ? "Bạn ở xa quá hic :((" : "Lỗi phát luồng"}
+                                            </h2>
                                             <p className="text-white/60 text-[10px] sm:text-[11px] md:text-sm mb-4 sm:mb-6 md:mb-8 leading-relaxed px-2">
-                                                Máy chủ hiện không phản hồi luồng phát này. Vui lòng thử đổi sang Server khác bên dưới hoặc tắt VPN nếu có.
+                                                {isBlockedByIP
+                                                    ? "LoFilm hiện chỉ hỗ trợ phát phim tại khu vực Việt Nam. Vui lòng tắt VPN hoặc Proxy để tiếp tục xem phim nhé!"
+                                                    : "Máy chủ hiện không phản hồi luồng phát này. Vui lòng thử đổi sang Server khác bên dưới hoặc tắt VPN nếu có."}
                                             </p>
                                         </div>
                                     </motion.div>
