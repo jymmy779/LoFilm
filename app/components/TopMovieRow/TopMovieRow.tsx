@@ -102,22 +102,30 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                     <Skeleton width={300} height={40} className="rounded-lg" />
                 </div>
                 <div className="flex gap-[10px] sm:gap-[13px] min-[1400px]:gap-[15px] overflow-hidden pt-[5px] pb-[20px]">
-                    {[...Array(10)].map((_, i) => {
+                    {[...Array(8)].map((_, i) => {
                         const isEven = i % 2 !== 0;
+                        const visibilityClass = i < 2 ? "" : 
+                            i === 2 ? "hidden sm:block" :
+                            i === 3 ? "hidden md:block" :
+                            i === 4 ? "hidden lg:block" :
+                            i === 5 ? "hidden min-[1200px]:block" :
+                            i === 6 ? "hidden min-[1400px]:block" :
+                            "hidden 2xl:block";
+
                         return (
                             <div
                                 key={i}
-                                className="flex-none mt-4 w-[calc((100%-10px)/2)] sm:w-[calc((100%-13px*2)/3)] md:w-[calc((100%-13px*3)/4)] lg:w-[calc((100%-13px*4)/5)] min-[1200px]:w-[calc((100%-13px*5)/6)] min-[1400px]:w-[calc((100%-15px*6)/7)] 2xl:w-[calc((100%-15px*7)/8)]"
+                                className={`flex-none mt-4 w-[calc((100% - 10px) / 2)] sm:w-[calc((100% - 13px * 2) / 3)] md:w-[calc((100% - 13px * 3) / 4)] lg:w-[calc((100% - 13px * 4) / 5)] min-[1200px]:w-[calc((100% - 13px * 5) / 6)] min-[1400px]:w-[calc((100% - 15px * 6) / 7)] 2xl:w-[calc((100% - 15px * 7) / 8)] ${visibilityClass}`}
                             >
                                 {/* Poster Skeleton */}
-                                <div 
-                                    className="v-thumbnail relative aspect-[2/3] rounded-2xl overflow-hidden mb-4 skeleton-shimmer border border-white/5" 
+                                <div
+                                    className="v-thumbnail relative aspect-[2/3] rounded-2xl overflow-hidden mb-4 skeleton-shimmer border border-white/5"
                                     style={{
                                         WebkitClipPath: isEven ? CLIP_PATH_EVEN : CLIP_PATH_ODD,
                                         clipPath: isEven ? CLIP_PATH_EVEN : CLIP_PATH_ODD
                                     }}
                                 />
-                                
+
                                 {/* Ranking & Info Skeleton */}
                                 <div className="flex gap-2 items-start pr-2">
                                     <div className="h-10 w-8 md:w-10 lg:w-13 rounded-md skeleton-shimmer opacity-20" />

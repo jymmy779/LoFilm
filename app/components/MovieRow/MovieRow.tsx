@@ -115,10 +115,10 @@ function MovieRow({
 
                             return (
                                 <SwiperSlide key={movie._id} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
-                                    <MovieRowCard 
-                                        movie={movie} 
-                                        priority={eager} 
-                                        onClick={handleAdClick} 
+                                    <MovieRowCard
+                                        movie={movie}
+                                        priority={eager}
+                                        onClick={handleAdClick}
                                     />
                                 </SwiperSlide>
                             );

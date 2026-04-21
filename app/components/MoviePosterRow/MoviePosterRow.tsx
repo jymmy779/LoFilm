@@ -30,9 +30,9 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
     const navId = title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
     const { user } = useAuth();
 
-    const { movies, isLoading } = useMovies({ 
-        apiUrl, 
-        initialMovies, 
+    const { movies, isLoading } = useMovies({
+        apiUrl,
+        initialMovies,
         shouldEnrich: true,
         limit: 20,
         sortByYear,
@@ -47,14 +47,24 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
                     <Skeleton width={80} height={20} className="rounded" />
                 </div>
                 <div className="flex gap-[10px] sm:gap-[13px] min-[1400px]:gap-[15px] overflow-hidden pt-[5px] pb-[20px]">
-                    {[...Array(10)].map((_, i) => (
-                        <div
-                            key={i}
-                            className="flex-none w-[calc((100%-10px)/2)] sm:w-[calc((100%-13px*2)/3)] md:w-[calc((100%-13px*3)/4)] lg:w-[calc((100%-13px*4)/5)] min-[1200px]:w-[calc((100%-13px*5)/6)] min-[1400px]:w-[calc((100%-15px*6)/7)] 2xl:w-[calc((100%-15px*7)/8)]"
-                        >
-                            <MovieCardSkeleton />
-                        </div>
-                    ))}
+                    {[...Array(8)].map((_, i) => {
+                        const visibilityClass = i < 2 ? "" :
+                            i === 2 ? "hidden sm:block" :
+                            i === 3 ? "hidden md:block" :
+                            i === 4 ? "hidden lg:block" :
+                            i === 5 ? "hidden min-[1200px]:block" :
+                            i === 6 ? "hidden min-[1400px]:block" :
+                            "hidden 2xl:block";
+
+                        return (
+                            <div
+                                key={i}
+                                className={`flex-none w-[calc((100%-10px)/2)] sm:w-[calc((100%-13px*2)/3)] md:w-[calc((100%-13px*3)/4)] lg:w-[calc((100%-13px*4)/5)] min-[1200px]:w-[calc((100%-13px*5)/6)] min-[1400px]:w-[calc((100%-15px*6)/7)] 2xl:w-[calc((100%-15px*7)/8)] ${visibilityClass}`}
+                            >
+                                <MovieCardSkeleton />
+                            </div>
+                        );
+                    })}
                 </div>
             </Container>
         );
@@ -111,10 +121,10 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
                     >
                         {movies.map((movie, index) => (
                             <SwiperSlide key={movie._id}>
-                                <MoviePosterCard 
-                                    movie={movie} 
-                                    priority={index < 8} 
-                                    isFirst={index === 0} 
+                                <MoviePosterCard
+                                    movie={movie}
+                                    priority={index < 8}
+                                    isFirst={index === 0}
                                     isLast={index === movies.length - 1}
                                     user={user}
                                     adZone="movie_poster_row"
@@ -123,9 +133,9 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
                         ))}
                     </Swiper>
 
-                    <SwiperNavButtons 
-                        prevClassName={`sw-prev-${navId}`} 
-                        nextClassName={`sw-next-${navId}`} 
+                    <SwiperNavButtons
+                        prevClassName={`sw-prev-${navId}`}
+                        nextClassName={`sw-next-${navId}`}
                         variant="ghost"
                     />
                 </div>

@@ -155,7 +155,7 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
 
                                 {/* Content Area */}
                                 <div className="relative z-20 w-full xl:w-[60%] h-full flex items-end xl:items-center pt-30 xl:pt-0 px-5 md:px-10 lg:pb-30 xl:pb-0 text-left">
-                                    <div className="lg:max-w-lg xl:max-w-2xl xl:mb-0 mb-[20px] w-full space-y-4 lg:space-y-5">
+                                    <div className=" lg:max-w-lg xl:max-w-2xl xl:mb-0 mb-[20px] w-full space-y-4 lg:space-y-5">
                                         <div className="space-y-1">
                                             <TransitionLink
                                                 href={`/phim/${movie.slug}`}
