@@ -46,7 +46,7 @@ function WideMovieRow({
         return (
             <Container as="section" className="relative z-30 mb-6 md:mb-12 lg:mb-16 mt-6 md:mt-8">
                 <div className="flex items-center justify-between mb-4 md:mb-6">
-                    <Skeleton width={200} height={32} className="rounded-lg" />
+                    <Skeleton width={200} height={28} className="rounded-lg md:h-8 lg:h-10" />
                     <Skeleton width={80} height={20} className="rounded" />
                 </div>
                 <div className="flex gap-[10px] md:gap-4 lg:gap-5 overflow-hidden pt-[5px] pb-[20px]">

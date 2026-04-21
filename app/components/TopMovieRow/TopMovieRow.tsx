@@ -99,7 +99,7 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
         return (
             <Container as="section" className="relative z-30 mb-16 mt-8">
                 <div className="flex items-center justify-between mb-8">
-                    <Skeleton width={300} height={40} className="rounded-lg" />
+                    <Skeleton width={300} height={32} className="rounded-lg md:h-10" />
                 </div>
                 <div className="flex gap-[10px] sm:gap-[13px] min-[1400px]:gap-[15px] overflow-hidden pt-[5px] pb-[20px]">
                     {[...Array(8)].map((_, i) => {

@@ -13,7 +13,7 @@ export default function MovieRowCardSkeleton() {
         {/* Title */}
         <div className="h-[16px] md:h-[20px] w-full rounded-md skeleton-shimmer" />
         {/* Alias */}
-        <div className="h-[12px] md:h-[16px] w-3/4 rounded-md skeleton-shimmer" />
+        <div className="h-[14px] md:h-[16px] w-3/4 rounded-md skeleton-shimmer" />
       </div>
     </div>
   );
