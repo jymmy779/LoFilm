@@ -43,10 +43,10 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
         return (
             <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
                 <div className="flex items-center justify-between mb-6">
-                    <Skeleton width={200} height={32} className="rounded-lg" />
+                    <Skeleton width={200} height={28} className="rounded-lg lg:h-9" />
                     <Skeleton width={80} height={20} className="rounded" />
                 </div>
-                <div className="flex gap-[10px] sm:gap-[13px] min-[1400px]:gap-[15px] overflow-hidden pt-[5px] pb-[20px]">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 min-[1200px]:grid-cols-6 min-[1400px]:grid-cols-7 2xl:grid-cols-8 gap-[10px] sm:gap-[13px] min-[1400px]:gap-[15px] overflow-hidden pt-[5px] pb-[20px]">
                     {[...Array(8)].map((_, i) => {
                         const visibilityClass = i < 2 ? "" :
                             i === 2 ? "hidden sm:block" :
@@ -59,7 +59,7 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
                         return (
                             <div
                                 key={i}
-                                className={`flex-none w-[calc((100%-10px)/2)] sm:w-[calc((100%-13px*2)/3)] md:w-[calc((100%-13px*3)/4)] lg:w-[calc((100%-13px*4)/5)] min-[1200px]:w-[calc((100%-13px*5)/6)] min-[1400px]:w-[calc((100%-15px*6)/7)] 2xl:w-[calc((100%-15px*7)/8)] ${visibilityClass}`}
+                                className={`flex flex-col w-full ${visibilityClass}`}
                             >
                                 <MovieCardSkeleton />
                             </div>

@@ -101,7 +101,7 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                 <div className="flex items-center justify-between mb-8">
                     <Skeleton width={300} height={32} className="rounded-lg md:h-10" />
                 </div>
-                <div className="flex gap-[10px] sm:gap-[13px] min-[1400px]:gap-[15px] overflow-hidden pt-[5px] pb-[20px]">
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 min-[1200px]:grid-cols-6 min-[1400px]:grid-cols-7 2xl:grid-cols-8 gap-[10px] sm:gap-[13px] min-[1400px]:gap-[15px] overflow-hidden pt-[5px] pb-[20px]">
                     {[...Array(8)].map((_, i) => {
                         const isEven = i % 2 !== 0;
                         const visibilityClass = i < 2 ? "" : 
@@ -115,11 +115,11 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                         return (
                             <div
                                 key={i}
-                                className={`flex-none mt-4 w-[calc((100% - 10px) / 2)] sm:w-[calc((100% - 13px * 2) / 3)] md:w-[calc((100% - 13px * 3) / 4)] lg:w-[calc((100% - 13px * 4) / 5)] min-[1200px]:w-[calc((100% - 13px * 5) / 6)] min-[1400px]:w-[calc((100% - 15px * 6) / 7)] 2xl:w-[calc((100% - 15px * 7) / 8)] ${visibilityClass}`}
+                                className={`flex flex-col mt-4 w-full ${visibilityClass}`}
                             >
                                 {/* Poster Skeleton */}
                                 <div
-                                    className="v-thumbnail relative aspect-[2/3] rounded-2xl overflow-hidden mb-4 skeleton-shimmer border border-white/5"
+                                    className="v-thumbnail relative aspect-[2/3] rounded-2xl overflow-hidden mb-4 skeleton-shimmer border border-white/5 w-full"
                                     style={{
                                         WebkitClipPath: isEven ? CLIP_PATH_EVEN : CLIP_PATH_ODD,
                                         clipPath: isEven ? CLIP_PATH_EVEN : CLIP_PATH_ODD
@@ -128,7 +128,7 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
 
                                 {/* Ranking & Info Skeleton */}
                                 <div className="flex gap-2 items-start pr-2">
-                                    <div className="h-10 w-8 md:w-10 lg:w-13 rounded-md skeleton-shimmer opacity-20" />
+                                    <div className="h-10 w-8 md:w-10 lg:w-13 rounded-md skeleton-shimmer opacity-20 flex-shrink-0" />
                                     <div className="flex flex-col gap-2 min-w-0 pt-2 lg:pt-3 w-full">
                                         <div className="h-4 w-full rounded-md skeleton-shimmer opacity-40" />
                                         <div className="h-3 w-2/3 rounded-md skeleton-shimmer opacity-20" />
