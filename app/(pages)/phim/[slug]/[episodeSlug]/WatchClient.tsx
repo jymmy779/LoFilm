@@ -104,7 +104,6 @@ export default function WatchClient({
     const [isChangingEpisode, setIsChangingEpisode] = useState(false);
     const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
     const [isBlockedByIP, setIsBlockedByIP] = useState(false);
-    const [isBuffering, setIsBuffering] = useState(false);
 
     useEffect(() => { showEndOverlayRef.current = showEndOverlay; }, [showEndOverlay]);
 
@@ -453,28 +452,9 @@ export default function WatchClient({
             player.on('playing', () => {
                 setHasStartedPlaying(true);
                 setHasError(false);
-                setIsBuffering(false);
             });
 
-            player.on('waiting', () => {
-                if (hasStartedPlaying) setIsBuffering(true);
-            });
-            
-            player.on('seeking', () => setIsBuffering(true));
-            
-            player.on('stalled', () => {
-                if (hasStartedPlaying) setIsBuffering(true);
-            });
-
-            player.on('seeked', () => {
-                // Nếu phim đang phát thì chờ sự kiện 'playing' tắt loading sẽ chuẩn hơn
-                // Nếu phim đang pause thì mới tắt ở đây nhưng phải đợi readyState >= 4 (HAVE_ENOUGH_DATA)
-                if (videoRef.current && videoRef.current.paused && videoRef.current.readyState >= 4) {
-                    setIsBuffering(false);
-                }
-            });
-
-            player.on('pause', () => setIsBuffering(false));
+            player.on('pause', () => { });
 
             player.on('controlsshown', () => setControlsVisible(true));
             player.on('controlshidden', () => setControlsVisible(false));
@@ -774,38 +754,7 @@ export default function WatchClient({
                         plyrContainer
                     )}
 
-                    {/* Buffering Overlay */}
-                    {plyrContainer && createPortal(
-                        <AnimatePresence>
-                            {isBuffering && !hasError && !isChangingEpisode && !showEndOverlay && (
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className="absolute inset-0 z-[50] flex items-center justify-center pointer-events-none"
-                                >
-                                    <div className="relative flex flex-col items-center gap-2 md:gap-4">
-                                        <div className="relative w-12 h-12 md:w-20 md:h-20">
-                                            {/* Spinning outer ring */}
-                                            <div className="absolute inset-0 border-[3px] md:border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
-                                            {/* Logo in the middle with pulse effect */}
-                                            <div className="absolute inset-0 flex items-center justify-center p-2.5 md:p-4">
-                                                <Image
-                                                    src="/lofilm_logo.png"
-                                                    alt="LoFilm Loading"
-                                                    width={80}
-                                                    height={80}
-                                                    className="w-full h-full object-contain animate-pulse opacity-80"
-                                                />
-                                            </div>
-                                        </div>
-                                        <span className="text-white/40 text-[8px] md:text-[10px] font-bold tracking-[0.3em] uppercase animate-pulse">Đang tải...</span>
-                                    </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>,
-                        plyrContainer
-                    )}
+
 
                     {/* Loading Overlay when switching episodes */}
                     {plyrContainer && createPortal(
@@ -970,7 +919,7 @@ export default function WatchClient({
 
                     {/* Error/404 Overlay - Rendered in DOM or Player Portal for robustness */}
                     {(() => {
-                        const showOverlay = isBlockedByIP || (hasError && !hasStartedPlaying);
+                        const showOverlay = isBlockedByIP || (hasError && !hasStartedPlaying && typeof navigator !== 'undefined' && navigator.onLine);
 
                         const errorContent = (
                             <AnimatePresence>
