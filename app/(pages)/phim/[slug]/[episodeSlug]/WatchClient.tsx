@@ -229,18 +229,22 @@ export default function WatchClient({
 
     useEffect(() => {
         const checkStatus = async () => {
-            // Check IP Location (Geofencing)
-            try {
-                const geoRes = await fetch('http://ip-api.com/json/');
-                if (geoRes.ok) {
-                    const geoData = await geoRes.json();
-                    if (geoData.status === 'success' && geoData.countryCode !== 'VN') {
-                        console.warn("LoFilm: Detected IP outside Vietnam:", geoData.countryCode);
-                        setIsBlockedByIP(true);
+            // Check IP Location (Geofencing) - Only if enabled in .env
+            const isIPCheckEnabled = process.env.NEXT_PUBLIC_ENABLE_IP_CHECK === 'true';
+            
+            if (isIPCheckEnabled) {
+                try {
+                    const geoRes = await fetch('http://ip-api.com/json/');
+                    if (geoRes.ok) {
+                        const geoData = await geoRes.json();
+                        if (geoData.status === 'success' && geoData.countryCode !== 'VN') {
+                            console.warn("LoFilm: Detected IP outside Vietnam:", geoData.countryCode);
+                            setIsBlockedByIP(true);
+                        }
                     }
+                } catch (err) {
+                    console.error("Geo-check failed:", err);
                 }
-            } catch (err) {
-                console.error("Geo-check failed:", err);
             }
 
             if (user) {
