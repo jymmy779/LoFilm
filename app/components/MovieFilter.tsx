@@ -86,7 +86,7 @@ export default function MovieFilter({
     };
 
     return (
-        <motion.div layout className="v-filter mb-8">
+        <div className="v-filter mb-8">
             {/* Toggle Button */}
             <button
                 onClick={handleToggle}
@@ -105,18 +105,15 @@ export default function MovieFilter({
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        layout
                         initial={{ height: 0, opacity: 0, marginTop: 0 }}
                         animate={{ height: "auto", opacity: 1, marginTop: 16 }}
                         exit={{ height: 0, opacity: 0, marginTop: 0 }}
                         transition={{
-                            type: "spring",
-                            stiffness: 300,
-                            damping: 30,
-                            opacity: { duration: 0.2 }
+                            duration: 0.3,
+                            ease: "easeInOut"
                         }}
-                        style={{ willChange: "height, opacity, margin-top", transform: "translateZ(0)" }}
-                        className="overflow-hidden bg-white/5 border border-white/10 rounded-2xl"
+                        style={{ overflow: "hidden", willChange: "height, opacity, margin-top", transform: "translateZ(0)" }}
+                        className="bg-white/5 border border-white/10 rounded-2xl"
                     >
                         <div className="p-4 md:p-6 space-y-6">
                             {/* Row: Quốc gia */}
@@ -197,7 +194,7 @@ export default function MovieFilter({
                     </motion.div>
                 )}
             </AnimatePresence>
-        </motion.div>
+        </div>
     );
 }
 
