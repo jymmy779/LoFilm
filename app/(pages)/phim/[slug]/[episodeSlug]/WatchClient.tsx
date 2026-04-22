@@ -106,6 +106,8 @@ export default function WatchClient({
     const [isBlockedByIP, setIsBlockedByIP] = useState(false);
 
     useEffect(() => { showEndOverlayRef.current = showEndOverlay; }, [showEndOverlay]);
+    const showEpisodeOverlayRef = useRef(showEpisodeOverlay);
+    useEffect(() => { showEpisodeOverlayRef.current = showEpisodeOverlay; }, [showEpisodeOverlay]);
 
     const watchTimeAccumulator = useRef(0);
     const hasRecordedView = useRef(false);
@@ -231,7 +233,7 @@ export default function WatchClient({
         const checkStatus = async () => {
             // Check IP Location (Geofencing) - Only if enabled in .env
             const isIPCheckEnabled = process.env.NEXT_PUBLIC_ENABLE_IP_CHECK === 'true';
-            
+
             if (isIPCheckEnabled) {
                 try {
                     const geoRes = await fetch('http://ip-api.com/json/');
@@ -433,15 +435,22 @@ export default function WatchClient({
             player.on('ready', () => {
                 const container = player.elements.container;
                 setPlyrContainer(container);
-                
+
                 if (container) {
                     // Xử lý chạm trên mobile: Chạm 1 lần hiện controls, chạm lần 2 (khi controls đang hiện) mới pause/play
                     container.addEventListener('touchstart', (e: TouchEvent) => {
                         if (window.innerWidth < 1024) {
+                            const target = e.target as HTMLElement;
+
+                            // Nếu đang hiện danh sách tập, không can thiệp để cho phép cuộn và click tập phim
+                            if (showEpisodeOverlayRef.current || target.closest('[id="episode-list-container"]') || target.closest('.z-\\[210\\]')) {
+                                return;
+                            }
+
                             const touch = e.touches[0];
                             const rect = container.getBoundingClientRect();
                             const relativeY = touch.clientY - rect.top;
-                            
+
                             // 1. Chặn vuốt hệ thống ở 50px trên cùng
                             if (relativeY < 50) {
                                 e.stopPropagation();
@@ -449,9 +458,8 @@ export default function WatchClient({
                             }
 
                             // 2. Kiểm tra nếu chạm vào vùng video (không phải các nút điều khiển hoặc nút Play to ở giữa)
-                            const target = e.target as HTMLElement;
                             const isControl = target.closest('.plyr__controls') || target.closest('.plyr__control--overlaid') || target.closest('.plyr__control');
-                            
+
                             if (!isControl) {
                                 // Nếu controls đang hiện, thì toggle play
                                 // Nếu controls đang ẩn, let Plyr handle (nó sẽ hiện controls lên)
@@ -502,6 +510,7 @@ export default function WatchClient({
             player.on('controlshidden', () => setControlsVisible(false));
 
             player.on('enterfullscreen', () => {
+                setIsFullscreen(true);
                 if (window.innerWidth < 1024 && screen.orientation && (screen.orientation as any).lock) {
                     (screen.orientation as any).lock('landscape').catch(() => {
                         // Bỏ qua lỗi nếu trình duyệt không hỗ trợ hoặc bị chặn
@@ -510,6 +519,7 @@ export default function WatchClient({
             });
 
             player.on('exitfullscreen', () => {
+                setIsFullscreen(false);
                 if (screen.orientation && screen.orientation.unlock) {
                     try {
                         screen.orientation.unlock();
@@ -633,8 +643,14 @@ export default function WatchClient({
         return () => {
             isMounted = false;
             clearTimeout(initTimeout);
-            if (plyrRef.current) try { plyrRef.current.destroy(); } catch (e) { }
-            if (hlsRef.current) try { hlsRef.current.destroy(); } catch (e) { }
+            if (plyrRef.current) {
+                try { plyrRef.current.destroy(); } catch (e) { }
+                plyrRef.current = null;
+            }
+            if (hlsRef.current) {
+                try { hlsRef.current.destroy(); } catch (e) { }
+                hlsRef.current = null;
+            }
         };
     }, [videoSrc, nextEpisode, slug]);
 
@@ -677,33 +693,7 @@ export default function WatchClient({
         }
     }, [showEpisodeOverlay, episodeSlug, activeServerIndex]);
 
-    // Handle Plyr events for Fullscreen state to optimize layout
-    useEffect(() => {
-        if (!plyrRef.current) return;
-        const player = plyrRef.current;
-        
-        const handleEnterFS = () => {
-            setIsFullscreen(true);
-            // Kích hoạt xoay ngang nhanh nhất có thể
-            if (window.innerWidth < 1024 && screen.orientation && (screen.orientation as any).lock) {
-                (screen.orientation as any).lock('landscape').catch(() => {});
-            }
-        };
-        const handleExitFS = () => {
-            setIsFullscreen(false);
-            if (screen.orientation && screen.orientation.unlock) {
-                try { screen.orientation.unlock(); } catch (e) {}
-            }
-        };
 
-        player.on('enterfullscreen', handleEnterFS);
-        player.on('exitfullscreen', handleExitFS);
-
-        return () => {
-            player.off('enterfullscreen', handleEnterFS);
-            player.off('exitfullscreen', handleExitFS);
-        };
-    }, [plyrRef.current]);
 
     return (
         <div className={`pt-35 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} bg-[#0a1628] transition-all duration-500 ${isFullscreen ? 'video-fullscreen-active' : ''}`}>
@@ -847,10 +837,10 @@ export default function WatchClient({
                                     exit={{ opacity: 0 }}
                                     className="absolute inset-0 z-[200] bg-black/60 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center"
                                 >
-                                    <div className="relative mb-6">
-                                        <div className="w-16 h-16 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
+                                    <div className="relative mb-4 md:mb-6">
+                                        <div className="md:w-16 md:h-16 w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
                                         <div className="absolute inset-0 flex items-center justify-center">
-                                            <div className="w-8 h-8 border-4 border-white/10 border-b-white/40 rounded-full animate-spin [animation-duration:1.5s] [animation-direction:reverse]" />
+                                            <div className="md:w-8 md:h-8 w-6 h-6 border-4 border-white/10 border-b-white/40 rounded-full animate-spin [animation-duration:1.5s] [animation-direction:reverse]" />
                                         </div>
                                     </div>
                                     <motion.div
@@ -858,7 +848,7 @@ export default function WatchClient({
                                         animate={{ y: 0, opacity: 1 }}
                                         transition={{ delay: 0.1 }}
                                     >
-                                        <h3 className="text-white text-lg md:text-xl font-bold tracking-tight mb-2">Đang chuyển tập...</h3>
+                                        <h3 className="text-white text-md md:text-lg lg:text-xl font-bold tracking-tight mb-2">Đang chuyển tập...</h3>
                                         <p className="text-white/40 text-xs md:text-sm">Vui lòng đợi trong giây lát</p>
                                     </motion.div>
                                 </motion.div>
