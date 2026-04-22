@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 import CountryClient from "./CountryClient";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
+import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
 
 export const revalidate = 30; // Cập nhật danh sách phim mỗi 30 giây
 
@@ -35,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CountryPage({ params }: Props) {
     const { slug } = await params;
     return (
-        <Suspense>
+        <Suspense fallback={<CatalogSkeleton />}>
             <CountryClient slug={slug} />
         </Suspense>
     );

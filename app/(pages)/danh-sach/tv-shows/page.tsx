@@ -1,6 +1,7 @@
 import { Metadata } from "next";
 import { Suspense } from "react";
 import TVShowsClient from "./TVShowsClient";
+import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
 
 export const revalidate = 30;
 
@@ -11,7 +12,7 @@ export const metadata: Metadata = {
 
 export default function TVShowsPage() {
     return (
-        <Suspense>
+        <Suspense fallback={<CatalogSkeleton />}>
             <TVShowsClient />
         </Suspense>
     );

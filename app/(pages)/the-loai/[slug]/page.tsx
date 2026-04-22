@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 import CategoryClient from "./CategoryClient";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
+import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
 
 export const revalidate = 30; // Cập nhật danh sách phim mỗi 30 giây
 
@@ -35,7 +36,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CategoryPage({ params }: Props) {
     const { slug } = await params;
     return (
-        <Suspense>
+        <Suspense fallback={<CatalogSkeleton />}>
             <CategoryClient slug={slug} />
         </Suspense>
     );
