@@ -435,17 +435,31 @@ export default function WatchClient({
                 setPlyrContainer(container);
                 
                 if (container) {
-                    // NEW: Chặn sự kiện touch ở vùng 40px trên cùng trên mobile 
-                    // để không hiện controls khi vuốt thanh status bar (pin, giờ)
+                    // Xử lý chạm trên mobile: Chạm 1 lần hiện controls, chạm lần 2 (khi controls đang hiện) mới pause/play
                     container.addEventListener('touchstart', (e: TouchEvent) => {
-                        if (window.innerWidth < 768) {
+                        if (window.innerWidth < 1024) {
                             const touch = e.touches[0];
                             const rect = container.getBoundingClientRect();
                             const relativeY = touch.clientY - rect.top;
                             
-                            // Nếu chạm ở 50px trên cùng, chặn không cho Plyr xử lý
+                            // 1. Chặn vuốt hệ thống ở 50px trên cùng
                             if (relativeY < 50) {
                                 e.stopPropagation();
+                                return;
+                            }
+
+                            // 2. Kiểm tra nếu chạm vào vùng video (không phải các nút điều khiển hoặc nút Play to ở giữa)
+                            const target = e.target as HTMLElement;
+                            const isControl = target.closest('.plyr__controls') || target.closest('.plyr__control--overlaid') || target.closest('.plyr__control');
+                            
+                            if (!isControl) {
+                                // Nếu controls đang hiện, thì toggle play
+                                // Nếu controls đang ẩn, let Plyr handle (nó sẽ hiện controls lên)
+                                if (player.elements.container?.classList.contains('plyr--hide-controls') === false) {
+                                    // Chạm vào vùng trống khi đang hiện controls -> Pause/Play
+                                    e.preventDefault(); // Ngắn chặn hành vi mặc định nếu cần
+                                    player.togglePlay();
+                                }
                             }
                         }
                     }, { capture: true, passive: false });
