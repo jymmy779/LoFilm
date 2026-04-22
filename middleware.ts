@@ -39,7 +39,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // 2. OPTIMIZATION: Nếu là trang PHIM hoặc trang công cộng, cho đi thẳng luôn
-  // Việc này cực kỳ quan trọng để Next.js không gắn header 'private'
+  // Việc này cực kỳ quan trọng để tiết kiệm CPU và tránh Next.js gắn header 'private'
   const isPublicRoute = pathname.startsWith('/phim/') || 
                          pathname === '/' || 
                          pathname.startsWith('/danh-sach/') ||
@@ -50,11 +50,12 @@ export async function middleware(request: NextRequest) {
      return NextResponse.next();
   }
 
-  // 3. Chỉ xử lý Supabase Auth cho các trang cần thiết (Cá nhân, API, v.v.)
+  // 3. Chỉ xử lý Supabase Auth cho các trang không phải công cộng (Cá nhân, API, v.v.)
   let supabaseResponse = NextResponse.next({
     request,
   })
 
+  // Chỉ khởi tạo Supabase khi thực sự cần để tiết kiệm resource
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
@@ -79,6 +80,8 @@ export async function middleware(request: NextRequest) {
   const hasAuthCookie = request.cookies.getAll().some(c => c.name.startsWith('sb-'));
   const isProtectedRoute = pathname.startsWith('/trang-ca-nhan') || pathname.startsWith('/history');
 
+  // Chỉ gọi getUser() khi thực sự cần (route bảo vệ hoặc có cookie tiềm năng)
+  // Lưu ý: isPublicRoute đã được handle ở trên nên ở đây chỉ còn các route khác
   if (hasAuthCookie || isProtectedRoute) {
     await supabase.auth.getUser()
   }

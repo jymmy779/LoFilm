@@ -7,8 +7,8 @@ const nextConfig: NextConfig = {
         // Disable Next.js Router Cache: ensures every navigation fetches fresh server data
         // Without this, clicking a link shows stale cached data until hard refresh
         staleTimes: {
-            dynamic: 0,  // Dynamic pages: always refetch
-            static: 30,  // Static pages: cache for 30s max
+            dynamic: 30, // Hạn chế gọi server khi điều hướng qua lại giữa các trang trong 30s
+            static: 180, // Tăng thời gian cache cho trang tĩnh
         },
     },
     images: {
