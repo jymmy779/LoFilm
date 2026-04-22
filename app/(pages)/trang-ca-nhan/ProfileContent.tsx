@@ -37,6 +37,8 @@ import FavoritesTab from "./components/FavoritesTab";
 import WatchlistTab from "./components/WatchlistTab";
 import SettingsTab from "./components/SettingsTab";
 
+import ProfileSkeleton from "./components/ProfileSkeleton";
+
 export default function ProfileContent() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [user, setUser] = useState<any>(null);
@@ -372,14 +374,7 @@ export default function ProfileContent() {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-to-b from-[#111b33] to-[#0d162b] pt-32 px-4">
-        <div className="max-w-6xl mx-auto flex flex-col md:flex-row gap-8">
-          <div className="w-full md:w-72 h-[400px] bg-white/5 animate-pulse rounded-[32px]" />
-          <div className="flex-1 h-[600px] bg-white/5 animate-pulse rounded-[32px]" />
-        </div>
-      </div>
-    );
+    return <ProfileSkeleton />;
   }
 
   const displayName = user?.user_metadata?.full_name || user?.email?.split('@')[0];
@@ -494,7 +489,7 @@ export default function ProfileContent() {
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -10 }}
                   transition={{ duration: 0.2 }}
-                  className="bg-[#16213e] border border-white/5 rounded-3xl md:rounded-[40px] p-6 lg:p-10 shadow-2xl relative overflow-hidden"
+                  className="bg-[#16213e] border border-white/5 rounded-3xl md:rounded-[40px] p-6 shadow-2xl relative overflow-hidden"
                 >
                   <div className="max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
                     {activeTab === 'overview' && (

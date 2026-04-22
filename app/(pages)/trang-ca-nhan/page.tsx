@@ -6,9 +6,11 @@ export const metadata = {
   description: 'Quản lý tài khoản, lịch sử xem phim và danh sách yêu thích của bạn tại LoFilm.',
 };
 
+import ProfileSkeleton from './components/ProfileSkeleton';
+
 export default function ProfilePage() {
   return (
-    <Suspense fallback={<div className="min-h-screen bg-[#0f1115]" />}>
+    <Suspense fallback={<ProfileSkeleton />}>
         <ProfileContent />
     </Suspense>
   );
