@@ -1,7 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Eye, EyeOff } from "lucide-react";
 
 interface SettingsTabProps {
   user: any;
@@ -38,6 +39,9 @@ export default function SettingsTab({
   handleDirectUpdatePassword,
   handleDeleteAccount,
 }: SettingsTabProps) {
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+
   return (
     <div className="space-y-10">
       <div className="border-b border-white/5 pb-6">
@@ -129,20 +133,38 @@ export default function SettingsTab({
                 className="overflow-hidden"
               >
                 <div className="mt-4 space-y-3 bg-white/5 p-4 rounded-2xl border border-white/5">
-                  <input
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Mật khẩu mới (ít nhất 6 ký tự)"
-                    className="w-full bg-[#111b33] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-amber-400/50"
-                  />
-                  <input
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Xác nhận mật khẩu mới"
-                    className="w-full bg-[#111b33] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-amber-400/50"
-                  />
+                  <div className="relative">
+                    <input
+                      type={showPassword ? "text" : "password"}
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      placeholder="Mật khẩu mới (ít nhất 6 ký tự)"
+                      className="w-full bg-[#111b33] border border-white/10 rounded-xl px-4 py-2 pr-10 text-sm text-white focus:outline-none focus:border-amber-400/50"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors cursor-pointer"
+                    >
+                      {showPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Xác nhận mật khẩu mới"
+                      className="w-full bg-[#111b33] border border-white/10 rounded-xl px-4 py-2 pr-10 text-sm text-white focus:outline-none focus:border-amber-400/50"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-white/20 hover:text-white transition-colors cursor-pointer"
+                    >
+                      {showConfirmPassword ? <EyeOff size={16} /> : <Eye size={16} />}
+                    </button>
+                  </div>
                   <div className="flex gap-2 justify-end">
                     <button
                       onClick={() => setIsChangingPassword(false)}

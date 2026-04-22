@@ -46,8 +46,10 @@ export default function AuthContent() {
 
     // 3. Lắng nghe thay đổi trạng thái đăng nhập (để đồng bộ giữa các Tab)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === "SIGNED_IN" || event === "USER_UPDATED") && session) {
-        router.push("/");
+      // Chúng ta sẽ để logic kiểm tra session ở mount và handleAuth xử lý chuyển hướng
+      // Tránh việc gọi push ở đây gây xung đột với transition
+      if (event === "SIGNED_OUT") {
+        router.refresh();
       }
     });
 
@@ -114,11 +116,10 @@ export default function AuthContent() {
         const isInternal = referrer && referrer.includes(window.location.origin) && !referrer.includes("/dang-nhap");
 
         if (isInternal) {
-          navigateWithTransition(referrer);
+          navigateWithTransition(referrer, true);
         } else {
-          navigateWithTransition("/");
+          navigateWithTransition("/", true);
         }
-        setTimeout(() => router.refresh(), 500);
       } else {
         // Validation
         if (password.length < 6) {

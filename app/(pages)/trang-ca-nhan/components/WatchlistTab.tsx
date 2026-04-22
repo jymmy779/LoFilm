@@ -16,11 +16,11 @@ export default function WatchlistTab({ watchlist, isWatchlistLoading, onDeleteIt
     <div className="space-y-8 min-h-[400px]">
       <div className="flex flex-col lg:flex-row items-center justify-between border-b border-white/5 pb-6">
         <div className="flex items-center gap-4">
-          <h2 className="text-xl lg:text-2xl font-bold text-white uppercase italic tracking-tighter text-amber-400">Xem sau</h2>
+          <h2 className="text-lg lg:text-xl font-bold text-white uppercase italic tracking-tighter text-amber-400">Xem sau</h2>
           {watchlist.length > 0 && (
             <button
               onClick={onClearAll}
-              className="text-[10px] font-bold text-white/20 hover:text-amber-400 tracking-widest transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/5 hover:border-amber-400/20 active:scale-95 cursor-pointer"
+              className="text-[10px] font-medium text-white/20 hover:text-amber-400 tracking-widest transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/5 hover:border-amber-400/20 text-nowrap active:scale-95 cursor-pointer"
             >
               <Trash2 size={12} />
               Xóa tất cả
@@ -79,7 +79,7 @@ export default function WatchlistTab({ watchlist, isWatchlistLoading, onDeleteIt
                   e.stopPropagation();
                   onDeleteItem?.(item.id);
                 }}
-                className="absolute top-3 right-3 p-1.5 bg-black/40 hover:bg-amber-500 rounded-lg transition-all opacity-0 group-hover:opacity-100 z-30 cursor-pointer border border-white/10"
+                className="absolute top-3 right-3 p-1.5 bg-black/60 hover:bg-amber-500 rounded-lg transition-all opacity-100 z-30 cursor-pointer border border-white/10"
                 title="Xóa khỏi danh sách xem sau"
               >
                 <X size={14} />
@@ -93,8 +93,8 @@ export default function WatchlistTab({ watchlist, isWatchlistLoading, onDeleteIt
             <Bookmark className="w-8 h-8 lg:w-12 lg:h-12" />
           </div>
           <div className="text-center px-4">
-            <h3 className="text-lg lg:text-2xl font-bold text-white mb-2 italic uppercase tracking-tight">Danh sách xem sau rỗng...</h3>
-            <p className="text-white/30 text-xs lg:text-sm max-w-[280px] lg:max-w-lg mx-auto leading-relaxed">
+            <h3 className="text-md md:text-lg lg:text-xl font-bold text-white mb-2 italic uppercase tracking-tight">Danh sách xem sau rỗng...</h3>
+            <p className="text-white/30 text-[10px] md:text-xs lg:text-sm max-w-[280px] lg:max-w-lg mx-auto leading-relaxed">
               Lưu lại những bộ phim thú vị để thưởng thức khi bạn có thời gian rảnh nhé!
             </p>
             <TransitionLink

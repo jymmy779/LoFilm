@@ -25,6 +25,7 @@ import Image from "next/image";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import LogoutModal from "@/app/components/Modals/LogoutModal";
 import ComingSoonModal from "@/app/components/Modals/ComingSoonModal";
+import CommonModal from "@/app/components/Modals/CommonModal";
 
 type TabType = 'overview' | 'history' | 'favorites' | 'watchlist' | 'settings';
 
@@ -567,45 +568,29 @@ export default function ProfileContent() {
 
       {/* Các Modal xác nhận */}
 
-      {/* Delete Account Modal */}
-      <AnimatePresence>
-        {showDeleteModal && (
-          <div className="fixed inset-0 z-[100] flex items-center justify-center px-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setShowDeleteModal(false)}
-              className="absolute inset-0 bg-black/60"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.95 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.95 }}
-              className="relative w-full max-w-sm bg-[#1a1c1e] border border-white/5 rounded-3xl p-8 shadow-2xl text-center"
-            >
-              <h3 className="text-xl font-bold text-white mb-3">Xác nhận xóa tài khoản?</h3>
-              <p className="text-white/40 text-sm mb-8">
-                Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn và không thể khôi phục.
-              </p>
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={confirmDeleteAccount}
-                  className="w-full py-3 bg-red-500 text-white rounded-xl font-bold text-sm hover:bg-red-600 transition-all cursor-pointer"
-                >
-                  XÁC NHẬN XÓA
-                </button>
-                <button
-                  onClick={() => setShowDeleteModal(false)}
-                  className="w-full py-3 bg-white/5 text-white/60 rounded-xl font-bold text-sm hover:bg-white/10 transition-all cursor-pointer"
-                >
-                  Hủy bỏ
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
+      {/* Common Modal for everything */}
+      <CommonModal
+        isOpen={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={confirmDeleteAccount}
+        title="Xác nhận xóa tài khoản?"
+        message="Tất cả dữ liệu của bạn sẽ bị xóa vĩnh viễn và không thể khôi phục."
+        confirmText="XÁC NHẬN XÓA"
+        icon={AlertCircle}
+        variant="danger"
+      />
+
+      <CommonModal
+        isOpen={confirmModal.isOpen}
+        onClose={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
+        onConfirm={confirmModal.onConfirm}
+        title={confirmModal.title}
+        message={confirmModal.message}
+        confirmText={confirmModal.confirmText || "XÁC NHẬN"}
+        icon={AlertCircle}
+        variant="danger"
+      />
+
       <LogoutModal
         isOpen={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}
@@ -617,51 +602,6 @@ export default function ProfileContent() {
         title="LOFILM Premium"
         message="Dịch vụ nâng cấp Premium đang được triển khai. Bạn sẽ sớm được tận hưởng đặc quyền xem phim không quảng cáo, chất lượng 4K và nhiều tính năng độc quyền khác!"
       />
-
-      {/* Custom Confirmation Modal */}
-      <AnimatePresence>
-        {confirmModal.isOpen && (
-          <div className="fixed inset-0 z-[110] flex items-center justify-center px-4">
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
-              className="absolute inset-0 bg-black/80 backdrop-blur-sm"
-            />
-            <motion.div
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: 20 }}
-              className="relative w-full max-w-sm bg-gradient-to-b from-[#1a2c4d] to-[#121d33] border border-white/10 rounded-[32px] p-8 shadow-2xl text-center"
-            >
-              <div className="w-16 h-16 bg-red-500/10 rounded-full flex items-center justify-center text-red-500 mx-auto mb-6">
-                <AlertCircle size={32} />
-              </div>
-
-              <h3 className="text-xl font-bold text-white mb-3 italic tracking-tight">{confirmModal.title}</h3>
-              <p className="text-white/50 text-sm mb-8 leading-relaxed">
-                {confirmModal.message}
-              </p>
-
-              <div className="flex flex-col gap-3">
-                <button
-                  onClick={confirmModal.onConfirm}
-                  className="w-full py-4 bg-red-500 text-white rounded-2xl font-black text-xs  tracking-widest hover:bg-red-600 transition-all cursor-pointer shadow-lg shadow-red-500/20 active:scale-95"
-                >
-                  {confirmModal.confirmText || "XÁC NHẬN"}
-                </button>
-                <button
-                  onClick={() => setConfirmModal(prev => ({ ...prev, isOpen: false }))}
-                  className="w-full py-4 bg-white/5 text-white/40 rounded-2xl font-bold text-xs  tracking-widest hover:text-white hover:bg-white/10 transition-all cursor-pointer active:scale-95"
-                >
-                  Hủy bỏ
-                </button>
-              </div>
-            </motion.div>
-          </div>
-        )}
-      </AnimatePresence>
     </div>
   );
-}
+};

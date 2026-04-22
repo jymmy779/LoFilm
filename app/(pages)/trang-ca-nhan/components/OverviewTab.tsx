@@ -20,7 +20,7 @@ export default function OverviewTab({ user, displayName, setShowPremiumModal }: 
         </div>
         <div className="hidden sm:flex items-center gap-2 bg-green-500/10 border border-green-500/20 px-4 py-2 rounded-full">
           <CheckCircle2 size={16} className="text-green-500" />
-          <span className="text-green-500 text-xs font-bold uppercase tracking-wider">Đã xác minh</span>
+          <span className="text-green-500 text-xs font-bold tracking-wider">Đã xác minh</span>
         </div>
       </div>
 

@@ -14,7 +14,7 @@ import { toast } from "react-hot-toast";
 
 interface PageTransitionContextType {
   /** Trigger a transition then navigate to the given href */
-  navigateWithTransition: (href: string) => void;
+  navigateWithTransition: (href: string, isHard?: boolean) => void;
   /** Current transition phase: idle → exiting → entering → idle */
   phase: "idle" | "exiting" | "entering";
 }
@@ -99,10 +99,7 @@ export function PageTransitionProvider({
   }, [pathname]);
 
   const navigateWithTransition = useCallback(
-    (href: string) => {
-      // Don't trigger if already transitioning
-      if (phase !== "idle") return;
-
+    (href: string, isHard: boolean = false) => {
       // NEW: Check for internet connection
       if (typeof window !== "undefined" && !navigator.onLine) {
         toast.error("Không có kết nối mạng. Vui lòng kiểm tra lại đường truyền!", {
@@ -112,8 +109,8 @@ export function PageTransitionProvider({
         return;
       }
 
-      // Same pathname + query = same document
-      if (typeof window !== "undefined") {
+      // Same pathname + query = same document (unless isHard)
+      if (typeof window !== "undefined" && !isHard) {
         try {
           const target = new URL(href, window.location.origin);
           const current = new URL(window.location.href);
@@ -126,38 +123,19 @@ export function PageTransitionProvider({
         } catch {
           /* invalid href */
         }
-      } else if (href === pathname) {
+      } else if (href === pathname && !isHard) {
         return;
       }
 
-      pendingHref.current = href;
-      setPhase("exiting");
+      // Chuyển hướng ngay lập tức theo yêu cầu (bỏ hiệu ứng rèm cửa)
+      if (isHard && typeof window !== "undefined") {
+        window.location.href = href;
+        return;
+      }
 
-      // 1. Scroll lên đầu ngay khi curtain đang đóng để che đi sự thay đổi (jump)
-      setTimeout(() => {
-        window.scrollTo({ top: 0, behavior: "instant" });
-      }, 300);
-
-      // 2. Chờ curtain đóng hẳn rồi mới gọi router.push
-      setTimeout(() => {
-        // Sử dụng router.push bình thường, phase change sẽ được detect bởi useEffect(pathname)
-        router.push(href);
-        
-        // Dự phòng cho trường hợp URL không đổi hoặc lag cực nặng
-        const safetyTimeout = setTimeout(() => {
-          setPhase((prev) => {
-            if (prev === "exiting") {
-              setTimeout(() => setPhase("idle"), ENTER_DURATION);
-              return "entering";
-            }
-            return prev;
-          });
-        }, 4000); // Giảm từ 8s xuống 4s để người dùng không phải chờ quá lâu nếu có lỗi tải trang
-
-        return () => clearTimeout(safetyTimeout);
-      }, EXIT_DURATION);
+      router.push(href);
     },
-    [pathname, phase, router]
+    [pathname, router]
   );
 
   return (

@@ -3,7 +3,6 @@ import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
 import InitialLoader from "./components/Transition/InitialLoader";
 import { PageTransitionProvider } from "./components/Transition/PageTransitionContext";
-import PageTransitionOverlay from "./components/Transition/PageTransitionOverlay";
 import "./globals.css";
 import "react-loading-skeleton/dist/skeleton.css";
 import { SkeletonTheme } from "react-loading-skeleton";
@@ -94,14 +93,14 @@ export default function RootLayout({
         <link rel="preconnect" href="https://img.phimapi.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://phimapi.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://cdnjs.cloudflare.com" crossOrigin="anonymous" />
-        <link 
-          rel="preload" 
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
-          as="style" 
+        <link
+          rel="preload"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
+          as="style"
         />
-        <link 
-          rel="stylesheet" 
-          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" 
+        <link
+          rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css"
         />
         <script
           type="application/ld+json"
@@ -194,7 +193,6 @@ export default function RootLayout({
         <InitialLoader />
         <AuthProvider>
           <PageTransitionProvider>
-            <PageTransitionOverlay />
             <SkeletonTheme baseColor="#1e293b" highlightColor="#334155">
               <div className="min-h-screen flex flex-col">
                 <Header />
