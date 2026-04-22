@@ -20,6 +20,8 @@ interface ContinueWatchingRowProps {
     initialHistory?: any[];
 }
 
+import ContinueWatchingRowSkeleton from "./ContinueWatchingRowSkeleton";
+
 function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
     const { user, isLoading: isAuthLoading } = useAuth();
     const [history, setHistory] = useState<any[]>(initialHistory || []);
@@ -65,30 +67,7 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
         if (!isAuthLoading && !user && !initialHistory && !isLoading) return null;
         
         // Ngược lại hiện skeleton để giữ chỗ
-        return (
-            <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
-                <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/40 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 overflow-hidden animate-pulse">
-                    <div className="w-full xl:w-[260px] xl:flex-shrink-0 flex xl:flex-col justify-between xl:justify-center gap-4">
-                        <div className="space-y-2">
-                            <div className="h-8 w-32 bg-white/10 rounded-lg" />
-                            <div className="h-4 w-20 bg-white/5 rounded" />
-                        </div>
-                        <div className="h-4 w-24 bg-white/5 rounded" />
-                    </div>
-                    <div className="flex gap-4 overflow-hidden">
-                        {[...Array(4)].map((_, i) => (
-                            <div key={i} className="flex-none w-[220px] sm:w-[260px] md:w-[300px]">
-                                <div className="aspect-video rounded-xl bg-white/5 mb-3 border border-white/5" />
-                                <div className="space-y-2 px-1">
-                                    <div className="h-4 w-3/4 bg-white/10 rounded" />
-                                    <div className="h-3 w-1/2 bg-white/5 rounded" />
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </Container>
-        );
+        return <ContinueWatchingRowSkeleton />;
     }
 
     if (!isLoading && !isAuthLoading && history.length === 0) return null;

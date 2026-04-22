@@ -30,6 +30,8 @@ interface MovieRowProps {
 
 import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 
+import MovieRowSkeleton from "./MovieRowSkeleton";
+
 function MovieRow({
     title,
     apiUrl,
@@ -49,23 +51,7 @@ function MovieRow({
     };
 
     if (isLoading) {
-        return (
-            <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
-                <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/30 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 overflow-hidden">
-                    <div className="w-full xl:w-[260px] xl:flex-shrink-0 flex xl:flex-col justify-between xl:justify-center gap-4">
-                        <Skeleton height={32} width={200} className="md:h-10" />
-                        <Skeleton height={20} width={100} className="hidden md:block" />
-                    </div>
-                    <div className="flex gap-2 sm:gap-3 md:gap-3.5 lg:gap-4 overflow-hidden">
-                        {[...Array(6)].map((_, i) => (
-                            <div key={i} className="flex-none w-[160px] sm:w-[200px] md:w-[240px] lg:w-[280px]">
-                                <MovieRowCardSkeleton />
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            </Container>
-        );
+        return <MovieRowSkeleton />;
     }
 
     if (movies.length === 0) return null;

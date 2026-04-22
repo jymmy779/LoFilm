@@ -8,22 +8,25 @@ interface LazyRowProps {
     // Default threshold for considering "visible"
     threshold?: number;
     // Estimated height to prevent layout shift (CLS)
-    estimatedHeight?: string; 
+    estimatedHeight?: string;
     className?: string;
     // Optional: Hide skeleton and just use blank space
     noSkeleton?: boolean;
+    // Optional: Custom skeleton component
+    skeleton?: ReactNode;
 }
 
 /**
  * A wrapper to lazy-render heavy row components (like Swiper rows)
  * only when they are close to the viewport.
  */
-export default function LazyRow({ 
-    children, 
-    threshold = 0.01, 
+export default function LazyRow({
+    children,
+    threshold = 0.01,
     estimatedHeight = "400px",
     className = "",
-    noSkeleton = false
+    noSkeleton = false,
+    skeleton
 }: LazyRowProps) {
     const [isIntersecting, setIsIntersecting] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -38,7 +41,7 @@ export default function LazyRow({
             },
             {
                 // Tăng rootMargin lên 600px để load trước mượt mà hơn
-                rootMargin: "600px 0px", 
+                rootMargin: "600px 0px",
                 threshold
             }
         );
@@ -51,30 +54,36 @@ export default function LazyRow({
     }, [threshold]);
 
     return (
-        <div 
-            ref={containerRef} 
-            className={className} 
+        <div
+            ref={containerRef}
+            className={className}
             style={{ minHeight: isIntersecting ? "auto" : estimatedHeight }}
         >
             {isIntersecting ? (
-                children 
+                children
             ) : (
                 !noSkeleton && (
-                    <div className="w-full px-4 lg:px-8 mb-16 mt-8">
-                        <div className="flex flex-col xl:flex-row gap-8">
-                             <div className="w-full xl:w-[260px] flex-shrink-0">
-                                <Skeleton height={35} width="60%" className="mb-4" />
-                                <Skeleton height={15} width="40%" />
-                             </div>
-                             <div className="flex-1 flex gap-4 overflow-hidden">
-                                 {[...Array(4)].map((_, i) => (
-                                     <div key={i} className="flex-none w-[280px]">
-                                         <Skeleton height={160} className="rounded-xl" />
-                                     </div>
-                                 ))}
-                             </div>
+                    skeleton ? skeleton : (
+                        <div className="w-full px-5 lg:px-12 mb-8 md:mb-12 lg:mb-16 mt-8">
+                            <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/30 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 overflow-hidden">
+                                <div className="w-full xl:w-[260px] flex-shrink-0 flex xl:flex-col justify-between xl:justify-center gap-4">
+                                    <Skeleton width={200} className="h-[28px] lg:h-[35px] rounded-lg" />
+                                    <Skeleton height={20} width={100} className="hidden md:block rounded-md" />
+                                </div>
+                                <div className="flex-1 flex gap-2 sm:gap-3 md:gap-3.5 lg:gap-4 overflow-hidden">
+                                    {[...Array(6)].map((_, i) => (
+                                        <div key={i} className="flex-none w-[160px] sm:w-[200px] md:w-[240px] lg:w-[280px]">
+                                            <div className="aspect-video rounded-lg skeleton-shimmer mb-3" />
+                                            <div className="space-y-1">
+                                                <div className="h-[16px] md:h-[20px] w-full rounded-md skeleton-shimmer" />
+                                                <div className="h-[14px] md:h-[16px] w-3/4 rounded-md skeleton-shimmer" />
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    )
                 )
             )}
         </div>

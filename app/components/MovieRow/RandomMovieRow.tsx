@@ -23,18 +23,17 @@ const MOODS = [
     { id: 'phieu-luu', title: 'Chạy trốn thực tại', sub: 'Đi vào dĩ vãng', bgColor: 'bg-[#22d3ee]' },
 ];
 
+import RandomMovieRowSkeleton from "./RandomMovieRowSkeleton";
+
 function RandomMovieRow() {
     const [selectedMood, setSelectedMood] = useState(MOODS[0]);
     const [movies, setMovies] = useState<any[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [moodSwiper, setMoodSwiper] = useState<any>(null);
 
-
-    const fetchMoviesByMood = async (moodId: string, excludeMoodId?: string) => {
+    const fetchMoviesByMood = async (moodId: string) => {
         setIsLoading(true);
         try {
-            // Lấy 4 trang ngẫu nhiên (khoảng 80 phim) để đảm bảo pool phim phong phú và đủ 20 items sau lọc
-            // Lấy các trang ngẫu nhiên, giới hạn thấp hơn để tránh 404 nếu danh mục ít phim
             const p1 = Math.floor(Math.random() * 10) + 1;
             const p2 = Math.floor(Math.random() * 10) + 1;
             const p3 = Math.floor(Math.random() * 10) + 1;
@@ -58,8 +57,6 @@ function RandomMovieRow() {
             }
 
             const uniqueMovies = filterDuplicateMovies(allMovies);
-
-            // Shuffle nhanh
             for (let i = uniqueMovies.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [uniqueMovies[i], uniqueMovies[j]] = [uniqueMovies[j], uniqueMovies[i]];
@@ -68,8 +65,6 @@ function RandomMovieRow() {
             const finalMovies = uniqueMovies.slice(0, 24);
             setMovies(finalMovies);
 
-            // *** PRELOAD ảnh cho Random Movies ***
-            // Ngay khi có data, bắt browser tải ảnh ngay lập tức
             if (typeof window !== 'undefined') {
                 finalMovies.slice(0, 10).forEach(movie => {
                     const preloadUrl = getImageUrl(movie.poster_url || movie.thumb_url, { width: 200, quality: 70 });
@@ -89,15 +84,11 @@ function RandomMovieRow() {
 
     useEffect(() => {
         fetchMoviesByMood(selectedMood.id);
-
-        // Tự động lướt Swiper đến tab được chọn
         if (moodSwiper) {
             const index = MOODS.findIndex(m => m.id === selectedMood.id);
             moodSwiper.slideTo(index);
         }
     }, [selectedMood, moodSwiper]);
-
-
 
     const handleRandomMood = () => {
         const otherMoods = MOODS.filter(m => m.id !== selectedMood.id);
@@ -105,8 +96,12 @@ function RandomMovieRow() {
         setSelectedMood(random);
     };
 
+    if (isLoading && movies.length === 0) {
+        return <RandomMovieRowSkeleton />;
+    }
+
     return (
-        <Container as="section" className="relative z-30 md:mb-20 mb-15 mt-12">
+        <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8 animate-fade-in">
             {/* Header */}
             <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-5">
                 <div className="flex items-center gap-3">

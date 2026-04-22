@@ -26,6 +26,8 @@ interface WideMovieRowProps {
     revalidate?: number;
 }
 
+import WideMovieRowSkeleton from "./WideMovieRowSkeleton";
+
 function WideMovieRow({
     title,
     apiUrl,
@@ -43,27 +45,13 @@ function WideMovieRow({
     };
 
     if (isLoading) {
-        return (
-            <Container as="section" className="relative z-30 mb-6 md:mb-12 lg:mb-16 mt-6 md:mt-8">
-                <div className="flex items-center justify-between mb-4 md:mb-6">
-                    <Skeleton width={200} height={28} className="rounded-lg md:h-8 lg:h-10" />
-                    <Skeleton width={80} height={20} className="rounded" />
-                </div>
-                <div className="flex gap-[10px] md:gap-4 lg:gap-5 overflow-hidden pt-[5px] pb-[20px]">
-                    {[...Array(5)].map((_, i) => (
-                        <div key={i} className="flex-none w-[80%] sm:w-[45%] lg:w-[35%] xl:w-[28%]">
-                            <WideMovieCardSkeleton />
-                        </div>
-                    ))}
-                </div>
-            </Container>
-        );
+        return <WideMovieRowSkeleton />;
     }
 
     if (movies.length === 0) return null;
 
     return (
-        <Container as="section" className="cards-row cards-slide wide relative z-30 mb-6 md:mb-12 lg:mb-16 mt-6 md:mt-8 animate-fade-in">
+        <Container as="section" className="cards-row cards-slide wide relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8 animate-fade-in">
             {/* Header */}
             <div className="row-header flex items-center justify-between mb-4 md:mb-6">
                 <h2 className="category-name text-xl md:text-2xl lg:text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-200 to-white drop-shadow-sm">

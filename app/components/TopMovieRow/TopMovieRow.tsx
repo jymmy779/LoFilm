@@ -30,6 +30,8 @@ interface TopMovieRowProps {
 const CLIP_PATH_EVEN = 'polygon(0% calc(5% + 16px), 1.2px calc(5% + 9.9px), 4.7px calc(5% + 4.7px), 9.9px calc(5% + 1.2px), 16px 5%, 100% 0, 100% 100%, 0% 100%)';
 const CLIP_PATH_ODD = 'polygon(0 0, calc(100% - 16px) 5%, calc(100% - 9.9px) calc(5% + 1.2px), calc(100% - 4.7px) calc(5% + 4.7px), calc(100% - 1.2px) calc(5% + 9.9px), 100% calc(5% + 16px), 100% 100%, 0% 100%)';
 
+import TopMovieRowSkeleton from "./TopMovieRowSkeleton";
+
 function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowProps) {
     const { openAdOnly } = useAdTrigger();
     const seeded = !!(initialMovies && initialMovies.length > 0);
@@ -96,56 +98,13 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
     }, [apiUrl, navId, seeded]);
 
     if (isLoading) {
-        return (
-            <Container as="section" className="relative z-30 mb-16 mt-8">
-                <div className="flex items-center justify-between mb-8">
-                    <Skeleton width={300} height={32} className="rounded-lg md:h-10" />
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 min-[1200px]:grid-cols-6 min-[1400px]:grid-cols-7 2xl:grid-cols-8 gap-[10px] sm:gap-[13px] min-[1400px]:gap-[15px] overflow-hidden pt-[5px] pb-[20px]">
-                    {[...Array(8)].map((_, i) => {
-                        const isEven = i % 2 !== 0;
-                        const visibilityClass = i < 2 ? "" : 
-                            i === 2 ? "hidden sm:block" :
-                            i === 3 ? "hidden md:block" :
-                            i === 4 ? "hidden lg:block" :
-                            i === 5 ? "hidden min-[1200px]:block" :
-                            i === 6 ? "hidden min-[1400px]:block" :
-                            "hidden 2xl:block";
-
-                        return (
-                            <div
-                                key={i}
-                                className={`flex flex-col mt-4 w-full ${visibilityClass}`}
-                            >
-                                {/* Poster Skeleton */}
-                                <div
-                                    className="v-thumbnail relative aspect-[2/3] rounded-2xl overflow-hidden mb-4 skeleton-shimmer border border-white/5 w-full"
-                                    style={{
-                                        WebkitClipPath: isEven ? CLIP_PATH_EVEN : CLIP_PATH_ODD,
-                                        clipPath: isEven ? CLIP_PATH_EVEN : CLIP_PATH_ODD
-                                    }}
-                                />
-
-                                {/* Ranking & Info Skeleton */}
-                                <div className="flex gap-2 items-start pr-2">
-                                    <div className="h-10 w-8 md:w-10 lg:w-13 rounded-md skeleton-shimmer opacity-20 flex-shrink-0" />
-                                    <div className="flex flex-col gap-2 min-w-0 pt-2 lg:pt-3 w-full">
-                                        <div className="h-4 w-full rounded-md skeleton-shimmer opacity-40" />
-                                        <div className="h-3 w-2/3 rounded-md skeleton-shimmer opacity-20" />
-                                    </div>
-                                </div>
-                            </div>
-                        );
-                    })}
-                </div>
-            </Container>
-        );
+        return <TopMovieRowSkeleton />;
     }
 
     if (movies.length === 0) return null;
 
     return (
-        <Container as="section" className="top-movie-row-section relative z-30 mb-16 mt-8 animate-fade-in">
+        <Container as="section" className="top-movie-row-section relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8 animate-fade-in">
             <div className="row-header flex items-center justify-between mb-8">
                 <h2 className="text-[22px] lg:text-[32px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-orange-100 to-white drop-shadow-sm flex items-center gap-4">
                     {title}

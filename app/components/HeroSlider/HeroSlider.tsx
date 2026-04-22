@@ -27,21 +27,19 @@ interface HeroSliderProps {
 }
 
 
-export default function HeroSlider({ initialMovies }: HeroSliderProps) {
+import HeroSliderSkeleton from "./HeroSliderSkeleton";
 
+export default function HeroSlider({ initialMovies }: HeroSliderProps) {
     const [movies, setMovies] = useState<Movie[]>(() =>
         initialMovies && initialMovies.length > 0 ? initialMovies : []
     );
     const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
-
     const [activeIndex, setActiveIndex] = useState(0);
 
     const scheduleContentEnrich = (first8: Movie[]) => {
         const runEnrich = async () => {
             const fetchSingle = async (m: Movie) => {
-                // Nếu đã có content từ server prefetch thì không gọi lại nữa
                 if (m.content) return;
-
                 try {
                     const r = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${m.slug}`)}`);
                     const content = r.data.movie?.content ?? "";
@@ -54,29 +52,20 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                     console.error(`Lỗi fetch content cho ${m.slug}:`, error);
                 }
             };
-
-            // Thực hiện fetch đồng thời thay vì tuần tự
             await Promise.all(first8.map(m => fetchSingle(m)));
         };
-
         runEnrich();
     };
 
     useEffect(() => {
-        // Nếu có initialMovies, chúng ta dùng ngay để không phải hiện Skeleton
         if (initialMovies && initialMovies.length > 0) {
             scheduleContentEnrich(initialMovies);
         }
-
-        // Luôn fetch lại trên client (giống Sidebar) để đảm bảo data luôn mới nhất từ API/Redis
-        // Sử dụng cùng URL limit=40 để dùng chung cache với Sidebar
         axios.get(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?limit=40")}`)
             .then((res) => {
                 const items: Movie[] = res.data.items || [];
                 const filtered = filterDuplicateMovies(items);
                 const first8 = filtered.slice(0, 8);
-
-                // Đồng bộ list mới nhưng giữ lại content đã có
                 setMovies((prev) => {
                     return first8.map(newMovie => {
                         const existingMovie = prev.find(p => p.slug === newMovie.slug);
@@ -91,22 +80,10 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
             .catch((err) => {
                 console.error("Lỗi fetch phim:", err);
             });
-        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     if (movies.length === 0) {
-        return (
-            <div className="relative w-full h-[500px] md:h-[700px] lg:h-[850px] bg-[#0f1115]">
-                <Skeleton className="w-full h-full" containerClassName="h-full" />
-                <Container className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full">
-                    <div className="max-w-xl">
-                        <Skeleton height={60} width="90%" className="mb-4" />
-                        <Skeleton height={20} width="60%" className="mb-8" />
-                        <Skeleton count={3} />
-                    </div>
-                </Container>
-            </div>
-        );
+        return <HeroSliderSkeleton />;
     }
 
     const currentMovie = movies[activeIndex];
