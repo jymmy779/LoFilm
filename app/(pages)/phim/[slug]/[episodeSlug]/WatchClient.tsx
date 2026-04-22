@@ -402,7 +402,11 @@ export default function WatchClient({
             storage: { enabled: false },
             tooltips: { controls: false, seek: true },
             seekTime: 10,
-            loop: { active: false }
+            loop: { active: false },
+            // NEW: Giảm độ nhạy trên mobile bằng cách tắt clickToPlay mặc định của Plyr
+            // để người dùng phải tap chủ động hơn thay vì vẹt tay trúng bất cứ đâu
+            clickToPlay: typeof window !== 'undefined' ? window.innerWidth > 768 : true,
+            hideControls: true,
         };
 
         const initTimeout = setTimeout(async () => {
@@ -429,23 +433,43 @@ export default function WatchClient({
             player.on('ready', () => {
                 const container = player.elements.container;
                 setPlyrContainer(container);
-                const muteButton = container?.querySelector('button[data-plyr="mute"]');
-                if (muteButton) {
-                    muteButton.addEventListener('click', (e: Event) => {
+                
+                if (container) {
+                    // NEW: Chặn sự kiện touch ở vùng 40px trên cùng trên mobile 
+                    // để không hiện controls khi vuốt thanh status bar (pin, giờ)
+                    container.addEventListener('touchstart', (e: TouchEvent) => {
                         if (window.innerWidth < 768) {
-                            e.stopImmediatePropagation();
-                            e.preventDefault();
+                            const touch = e.touches[0];
+                            const rect = container.getBoundingClientRect();
+                            const relativeY = touch.clientY - rect.top;
+                            
+                            // Nếu chạm ở 50px trên cùng, chặn không cho Plyr xử lý
+                            if (relativeY < 50) {
+                                e.stopPropagation();
+                            }
                         }
-                    }, { capture: true });
-                }
+                    }, { capture: true, passive: false });
 
-                const rewindBtn = container?.querySelector('button[data-plyr="rewind"]');
-                const forwardBtn = container?.querySelector('button[data-plyr="fast-forward"]');
-                if (rewindBtn) {
-                    rewindBtn.innerHTML = renderToStaticMarkup(<MdReplay10 size={24} style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.3))' }} />);
-                }
-                if (forwardBtn) {
-                    forwardBtn.innerHTML = renderToStaticMarkup(<MdForward10 size={24} style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.3))' }} />);
+                    // Tùy chỉnh nút Mute cho mobile
+                    const muteButton = container.querySelector('button[data-plyr="mute"]');
+                    if (muteButton) {
+                        muteButton.addEventListener('click', (e: Event) => {
+                            if (window.innerWidth < 768) {
+                                e.stopImmediatePropagation();
+                                e.preventDefault();
+                            }
+                        }, { capture: true });
+                    }
+
+                    // Tùy chỉnh icon Rewind/Forward
+                    const rewindBtn = container.querySelector('button[data-plyr="rewind"]');
+                    const forwardBtn = container.querySelector('button[data-plyr="fast-forward"]');
+                    if (rewindBtn) {
+                        rewindBtn.innerHTML = renderToStaticMarkup(<MdReplay10 size={24} style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.3))' }} />);
+                    }
+                    if (forwardBtn) {
+                        forwardBtn.innerHTML = renderToStaticMarkup(<MdForward10 size={24} style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.3))' }} />);
+                    }
                 }
             });
 
@@ -615,6 +639,8 @@ export default function WatchClient({
         return () => window.removeEventListener('keydown', handleKeyDown);
     }, []);
 
+    const [isFullscreen, setIsFullscreen] = useState(false);
+
     useEffect(() => {
         if (isTheaterMode) document.body.classList.add('theater-mode');
         else document.body.classList.remove('theater-mode');
@@ -637,22 +663,59 @@ export default function WatchClient({
         }
     }, [showEpisodeOverlay, episodeSlug, activeServerIndex]);
 
+    // Handle Plyr events for Fullscreen state to optimize layout
+    useEffect(() => {
+        if (!plyrRef.current) return;
+        const player = plyrRef.current;
+        
+        const handleEnterFS = () => {
+            setIsFullscreen(true);
+            // Kích hoạt xoay ngang nhanh nhất có thể
+            if (window.innerWidth < 1024 && screen.orientation && (screen.orientation as any).lock) {
+                (screen.orientation as any).lock('landscape').catch(() => {});
+            }
+        };
+        const handleExitFS = () => {
+            setIsFullscreen(false);
+            if (screen.orientation && screen.orientation.unlock) {
+                try { screen.orientation.unlock(); } catch (e) {}
+            }
+        };
+
+        player.on('enterfullscreen', handleEnterFS);
+        player.on('exitfullscreen', handleExitFS);
+
+        return () => {
+            player.off('enterfullscreen', handleEnterFS);
+            player.off('exitfullscreen', handleExitFS);
+        };
+    }, [plyrRef.current]);
+
     return (
-        <div className={`pt-35 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} bg-[#0a1628] transition-all duration-500`}>
+        <div className={`pt-35 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} bg-[#0a1628] transition-all duration-500 ${isFullscreen ? 'video-fullscreen-active' : ''}`}>
             <AnimatePresence>
-                {!isTheaterMode && (
+                {!isTheaterMode && !isFullscreen && (
                     <MovieHeader slug={slug} movieName={movie.name} episodeName={episode.name} />
                 )}
             </AnimatePresence>
 
-            <div className={`transition-all duration-500 ease-in-out relative ${isExpanded ? 'w-full' : 'max-w-[1900px] mx-auto px-5 lg:px-12'}`}>
-                <div key={videoSrc} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden shadow-2xl transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b]`}>
+            <div className={`transition-all duration-500 ease-in-out relative ${isExpanded ? 'w-full' : 'max-w-[1900px] mx-auto px-5 lg:px-12'} ${isFullscreen ? '!max-w-none !p-0 !m-0 !fixed !inset-0 !z-[9999]' : ''}`}>
+                <div key={videoSrc} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden shadow-2xl transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreen ? '!rounded-none !border-0 !h-screen' : ''}`}>
                     <style jsx global>{`
                         .hide-large-play .plyr__control--overlaid { display: none !important; }
-                        .plyr { z-index: auto !important; aspect-ratio: 16/9; width: 100%; border-radius: inherit; }
+                        .plyr { z-index: auto !important; aspect-ratio: 16/9; width: 100%; border-radius: inherit; touch-action: pan-y; will-change: transform, opacity; }
                         .plyr__controls { z-index: 100 !important; background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5)) !important; }
                         .hide-large-play .plyr__controls { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
                         
+                        /* Optimize Layout when in Fullscreen: Hide everything else to free up GPU for orientation change */
+                        .video-fullscreen-active > *:not(.relative) {
+                            display: none !important;
+                        }
+                        
+                        .plyr--fullscreen-active {
+                            background: #000 !important;
+                        }
+
                         .plyr__time--current,
                         .plyr__time--duration {
                             display: block !important;
