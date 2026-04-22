@@ -133,7 +133,7 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
                 >
                     {movies.map((movie, index) => (
                         <SwiperSlide key={movie._id}>
-                            <div className="relative w-full aspect-[21/9] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5] md:min-h-[500px] min-h-[300px] bg-[#14233E]">
+                            <div className="relative w-full aspect-[21/9] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5] min-h-[500px] bg-[#14233E]">
 
                                 {/* Background Image Area */}
                                 <div className="absolute top-0 right-0 w-full xl:w-[75%] h-full z-0 select-none pointer-events-none">
