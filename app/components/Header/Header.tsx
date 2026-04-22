@@ -1,6 +1,6 @@
 "use client"
 
-import { usePathname } from "next/navigation";
+import { usePathname, useSearchParams } from "next/navigation";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
@@ -18,6 +18,8 @@ import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 export default function Header() {
     const { openAdOnly } = useAdTrigger();
     const pathname = usePathname();
+    const searchParams = useSearchParams();
+    const hasSearchQuery = !!searchParams.get("search");
     const [categories, setCategories] = useState<MenuItem[]>([]);
     const [countries, setCountries] = useState<MenuItem[]>([]);
     const [activeMenu, setActiveMenu] = useState<string | null>(null);
@@ -66,7 +68,7 @@ export default function Header() {
 
     const segments = pathname.split('/').filter(Boolean);
     const isMovieDetail = segments.length === 2 && segments[0] === "phim";
-    const isTransparentPage = pathname === "/" || isMovieDetail;
+    const isTransparentPage = (pathname === "/" && !hasSearchQuery) || isMovieDetail;
     const isSolid = !isTransparentPage;
     const showBackground = isSolid || isScrolled || isMenuOpen;
 

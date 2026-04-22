@@ -107,7 +107,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                             <>
                                 <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] lg:overflow-hidden [transform:translateZ(0)]">
                                     <MotionSmartImage
-                                        src={movie.thumb_url || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs='}
+                                        src={getImageUrl(movie.thumb_url, { width: 1920, quality: 85 })}
                                         rawSrc={getRawImageUrl(movie.thumb_url)}
                                         alt={movie.name}
                                         initial={false}
@@ -126,10 +126,13 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                     />
 
                                     {/* Overlays for readability */}
-                                    <div className="absolute inset-x-0 top-0 h-20 md:h-30 bg-gradient-to-b from-[#0A1628] to-transparent pointer-events-none" />
-                                    <div className="absolute inset-y-0 right-0 md:w-1/6 bg-gradient-to-l from-[#0A1628] to-transparent pointer-events-none" />
-                                    <div className="absolute inset-y-0 left-0 md:w-1/4 bg-gradient-to-r from-[#0A1628] md:from-[#0A1628] md:via-[#0A1628]/60 to-transparent" />
-                                    <div className="absolute inset-x-0 bottom-0 h-1/2 md:h-1/3 bg-gradient-to-t from-[#0A1628] via-[#0A1628]/60 md:via-[#0A1628]/60 to-transparent pointer-events-none" />
+                                    {/* Cinematic Vignette Overlay */}
+                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_25%,rgba(10,22,40,0.5)_60%,#0A1628_100%)] pointer-events-none" />
+                                    
+                                    {/* Additional subtle fades for text readability and top/bottom blending */}
+                                    <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#0A1628]/80 via-[#0A1628]/40 to-transparent pointer-events-none" />
+                                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#0A1628] via-[#0A1628]/40 to-transparent pointer-events-none" />
+                                    <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#0A1628]/60 to-transparent pointer-events-none" />
                                 </div>
                             </>
                         )}

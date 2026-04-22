@@ -4,7 +4,7 @@ import Image from "next/image";
 import axios from "axios";
 import nProgress from "nprogress";
 import { Movie } from "@/app/types/movie";
-import { getImageUrl, getRawImageUrl, sortMoviesByRelevance } from "@/app/utils/movieUtils";
+import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
 import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
 import { motion, AnimatePresence } from "framer-motion";
@@ -74,7 +74,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                 setIsSearching(true);
                 if (isFocused) setShowResults(true);
                 try {
-                    const apiUrl = `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(query)}&limit=20`; // Lấy nhiều hơn (20) để ta tự sort lại chính xác hơn
+                    const apiUrl = `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(query)}&limit=10`; // Lấy 10 phim (đã tối ưu băng thông)
                     const res = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`, {
                         signal: controller.signal
                     });
@@ -82,9 +82,8 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                     if (res.data?.status === "success" || res.data?.status === true) {
                         const items = res.data.data?.items || [];
                         
-                        // Sắp xếp lại theo độ liên quan trước khi hiện và lưu cache
-                        const sortedItems = sortMoviesByRelevance(items, query);
-                        const finalItems = sortedItems.slice(0, 8); // Chỉ hiện 8 phim tốt nhất ở dropdown
+                        // Lấy trực tiếp từ API và hiện 8 phim tốt nhất ở dropdown
+                        const finalItems = items.slice(0, 8);
 
                         setResults(finalItems);
                         // 2. Lưu vào cache
@@ -111,7 +110,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                 setShowResults(false);
                 setActiveIndex(-1);
             }
-        }, 200);
+        }, 150);
 
         return () => {
             clearTimeout(timer);

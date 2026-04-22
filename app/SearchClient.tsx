@@ -12,10 +12,10 @@ import CatalogHeader from "@/app/components/CatalogHeader";
 import MovieFilter, { FilterState } from "@/app/components/MovieFilter";
 import { MenuItem } from "@/app/components/Header/types";
 import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
-import { sortMoviesByRelevance } from "@/app/utils/movieUtils";
+
 
 import CatalogLayout from "@/app/components/MovieCatalog/CatalogLayout";
-import { Film } from "lucide-react";
+import { Film, AlertCircle, RotateCcw, Trash2 } from "lucide-react";
 
 export default function SearchClient() {
 // ... existing search client wrapper ...
@@ -46,6 +46,7 @@ function SearchContent() {
     const [movies, setMovies] = useState<Movie[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isPageLoading, setIsPageLoading] = useState(false);
+    const [isError, setIsError] = useState(false);
     const [currentPage, setCurrentPage] = useState(initialPage);
     const [totalPages, setTotalPages] = useState(1);
 
@@ -131,11 +132,9 @@ function SearchContent() {
                     const totalItems = res.data.data?.params?.pagination?.totalItems || 0;
                     
                     if (isMounted) {
-                        // Áp dụng logic sắp xếp thông minh trước khi hiện kết quả
-                        const sortedItems = sortMoviesByRelevance(items, keyword);
-
-                        setMovies(sortedItems);
+                        setMovies(items);
                         setTotalPages(Math.ceil(totalItems / 48) || 1);
+                        setIsError(false); // Reset error on success
                         setIsLoading(false);
                         setIsPageLoading(false);
                     }
@@ -160,7 +159,10 @@ function SearchContent() {
                 }
             } catch (error) {
                 console.error("Lỗi fetch search:", error);
-                if (isMounted) setMovies([]);
+                if (isMounted) {
+                    setIsError(true);
+                    setMovies([]);
+                }
             } finally {
                 if (isMounted) {
                     setIsLoading(false);
@@ -202,11 +204,42 @@ function SearchContent() {
             onPageChange={handlePageChange}
             hideSidebar={true}
             emptyMessage={
-                <div className="flex flex-col items-center justify-center py-20 text-white/30">
-                    <Film size={80} strokeWidth={1} className="mb-6 opacity-40" />
-                    <p className="text-xl font-light">Không có nội dung cho phim: <span className="text-amber-500 font-medium italic">"{keyword}"</span></p>
-                    <p className="text-sm mt-2 opacity-50 italic">Thử với từ khóa khác hoặc điều chỉnh bộ lọc xem?</p>
-                </div>
+                isError ? (
+                    <div className="flex flex-col items-center justify-center py-20 text-white/30">
+                        <AlertCircle size={80} strokeWidth={1} className="mb-6 text-red-500/50" />
+                        <p className="text-xl font-light">Đã có lỗi xảy ra khi tìm kiếm</p>
+                        <p className="text-sm mt-2 opacity-50 italic">Hệ thống đang quá tải hoặc lỗi mạng. Vui lòng thử lại sau giây lát.</p>
+                        <button 
+                            onClick={() => window.location.reload()}
+                            className="mt-6 flex items-center gap-2 px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/80 transition-all"
+                        >
+                            <RotateCcw size={16} />
+                            Thử lại ngay
+                        </button>
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center justify-center py-20 text-white/30">
+                        <Film size={80} strokeWidth={1} className="mb-6 opacity-40" />
+                        <p className="text-xl font-light">Không có nội dung cho phim: <span className="text-amber-500 font-medium italic">"{keyword}"</span></p>
+                        <p className="text-sm mt-2 opacity-50 italic">Thử với từ khóa khác hoặc điều chỉnh bộ lọc xem?</p>
+                        {(activeFilters.category || activeFilters.country || activeFilters.year || activeFilters.type) && (
+                            <button 
+                                onClick={() => handleFilterChange({
+                                    category: "",
+                                    country: "",
+                                    type: "",
+                                    year: "",
+                                    sort: "modified.time",
+                                    rating: ""
+                                })}
+                                className="mt-8 flex items-center gap-2 px-6 py-3 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-500 rounded-full transition-all group"
+                            >
+                                <Trash2 size={18} className="group-hover:rotate-12 transition-transform" />
+                                Xóa tất cả bộ lọc & Tìm lại
+                            </button>
+                        )}
+                    </div>
+                )
             }
         />
     );
