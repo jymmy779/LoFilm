@@ -16,23 +16,14 @@ export default function MovieRowSkeleton() {
                     <Skeleton height={20} width={100} className="hidden md:block rounded-md" />
                 </div>
                 
-                <div className="w-full xl:w-[calc(100%-292px)]">
-                    <Swiper
-                        slidesPerView={"auto"}
-                        spaceBetween={8}
-                        breakpoints={{
-                            1280: { spaceBetween: 16 },
-                            767: { spaceBetween: 14 },
-                            576: { spaceBetween: 12 },
-                        }}
-                        className="swiper-carousel"
-                    >
+                <div className="w-full xl:w-[calc(100%-292px)] overflow-hidden">
+                    <div className="flex gap-[8px] md:gap-[12px] lg:gap-[14px] xl:gap-[16px]">
                         {[...Array(6)].map((_, i) => (
-                            <SwiperSlide key={i} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
+                            <div key={i} className="flex-shrink-0 w-[160px] sm:w-[200px] md:w-[240px] lg:w-[280px]">
                                 <MovieRowCardSkeleton />
-                            </SwiperSlide>
+                            </div>
                         ))}
-                    </Swiper>
+                    </div>
                 </div>
             </div>
         </Container>

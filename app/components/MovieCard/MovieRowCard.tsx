@@ -21,7 +21,7 @@ export default function MovieRowCard({ movie, priority = false, adZone = "movie_
         <TransitionLink
             href={`/phim/${movie.slug}`}
             onClick={onClick}
-            className="block group/item cursor-pointer optimize-render"
+            className="block group/item cursor-pointer optimize-render transform-gpu"
         >
             <MoviePreviewWrapper
                 movie={movie}

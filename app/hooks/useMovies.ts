@@ -75,12 +75,13 @@ export function useMovies({
                 setIsLoading(false);
 
                 if (shouldEnrich) {
+                    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
                     void enrichMoviesMetadata({
                         items,
                         setItems: updateMovies,
                         isMounted: () => isMounted.current,
-                        chunkSize: 4,
-                        delay: 100
+                        chunkSize: isMobile ? 2 : 4,
+                        delay: isMobile ? 300 : 100
                     });
                 }
             } else {
@@ -107,12 +108,13 @@ export function useMovies({
             // if (sortByYear) updateMovies(initialMovies);
             
             if (shouldEnrich) {
+                const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
                 void enrichMoviesMetadata({
                     items: initialMovies,
                     setItems: updateMovies,
                     isMounted: () => isMounted.current,
-                    chunkSize: 4,
-                    delay: 100
+                    chunkSize: isMobile ? 2 : 4,
+                    delay: isMobile ? 300 : 100
                 });
             }
         } else {

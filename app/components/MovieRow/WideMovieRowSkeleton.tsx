@@ -16,27 +16,16 @@ export default function WideMovieRowSkeleton() {
             </div>
 
             <div className="row-content">
-                <div className="relative group/slider">
-                    <Swiper
-                        slidesPerView={1.2}
-                        spaceBetween={10}
-                        breakpoints={{
-                            480: { slidesPerView: 1.5, spaceBetween: 12 },
-                            640: { slidesPerView: 2.1, spaceBetween: 14 },
-                            1024: { slidesPerView: 2.6, spaceBetween: 16 },
-                            1440: { slidesPerView: 3.2, spaceBetween: 20 },
-                            1600: { slidesPerView: 3.6, spaceBetween: 20 }
-                        }}
-                        className="swiper-carousel"
-                    >
+                <div className="relative overflow-hidden">
+                    <div className="flex gap-[10px] md:gap-[16px] xl:gap-[20px]">
                         {[...Array(6)].map((_, i) => (
-                            <SwiperSlide key={i}>
+                            <div key={i} className="flex-shrink-0 w-[calc(83.33%-8.3px)] sm:w-[calc(66.666%-8px)] md:w-[calc(47.6%-7.6px)] lg:w-[calc(38.4%-11.2px)] xl:w-[calc(31.25%-13.7px)] 2xl:w-[calc(27.7%-14.4px)]">
                                 <div className="block relative overflow-hidden rounded-xl md:rounded-2xl bg-white/5 border border-white/5">
                                     <WideMovieCardSkeleton />
                                 </div>
-                            </SwiperSlide>
+                            </div>
                         ))}
-                    </Swiper>
+                    </div>
                 </div>
             </div>
 

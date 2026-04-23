@@ -29,6 +29,7 @@ export default function LazyRow({
     skeleton
 }: LazyRowProps) {
     const [isIntersecting, setIsIntersecting] = useState(false);
+    const [shouldRender, setShouldRender] = useState(false);
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -40,8 +41,8 @@ export default function LazyRow({
                 }
             },
             {
-                // Tăng rootMargin lên 600px để load trước mượt mà hơn
-                rootMargin: "600px 0px",
+                // Giảm rootMargin trên mobile để tránh load quá nhiều thứ cùng lúc
+                rootMargin: typeof window !== 'undefined' && window.innerWidth < 768 ? "300px 0px" : "600px 0px",
                 threshold
             }
         );
@@ -53,6 +54,20 @@ export default function LazyRow({
         return () => observer.disconnect();
     }, [threshold]);
 
+    useEffect(() => {
+        if (isIntersecting) {
+            // Trên mobile, trì hoãn việc mount nội dung thật cho đến khi main thread rảnh rỗi 
+            // hoặc sau một khoảng thời gian ngắn để tránh chặn animation cuộn.
+            if ('requestIdleCallback' in window) {
+                const idleId = window.requestIdleCallback(() => setShouldRender(true), { timeout: 500 });
+                return () => window.cancelIdleCallback(idleId);
+            } else {
+                const timeoutId = setTimeout(() => setShouldRender(true), 150);
+                return () => clearTimeout(timeoutId);
+            }
+        }
+    }, [isIntersecting]);
+
     return (
         <div
             ref={containerRef}
@@ -62,7 +77,7 @@ export default function LazyRow({
                 containIntrinsicSize: `1px ${estimatedHeight}`
             }}
         >
-            {isIntersecting ? (
+            {shouldRender ? (
                 children
             ) : (
                 !noSkeleton && (

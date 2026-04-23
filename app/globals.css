@@ -92,8 +92,16 @@ body {
 }
 
 .animate-fade-in {
-  animation: fade-in-smooth 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fade-in-smooth 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
   will-change: opacity, transform;
+}
+
+/* Giảm độ phức tạp animation trên mobile để tránh drop frame */
+@media (max-width: 768px) {
+  .animate-fade-in {
+    animation-duration: 0.4s;
+    will-change: auto; /* Tắt Layer Promotion nếu không thực sự cần để tránh tràn memory */
+  }
 }
 
 /* TRẬN CHIẾN CUỐI CÙNG VỚI VIỀN NÉT ĐỨT */
@@ -182,10 +190,18 @@ body.theater-mode footer:hover {
 /* PERFORMANCE CORE - TRẬN CHIẾN SIÊU MƯỢT 60FPS */
 .optimize-render {
   /* Ép browser sử dụng GPU để xử lý các tầng này */
-  transform: var(--gpu-accelerate);
+  transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
-  will-change: transform, opacity;
+  will-change: transform; /* Chỉ giữ transform để tiết kiệm VRAM trên mobile */
+}
+
+/* Force hardware acceleration on mobile for heavy sections */
+@media (max-width: 1024px) {
+  .lazy-section {
+    transform: translateZ(0); 
+    backface-visibility: hidden;
+  }
 }
 
 .lazy-section {

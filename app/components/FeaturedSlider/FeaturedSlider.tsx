@@ -40,12 +40,13 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
     const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
 
     const enrichDetails = (slice: Movie[]) => {
+        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
         void enrichMoviesMetadata({
             items: slice,
             setItems: setMovies,
             isMounted: () => true, // FeaturedSlider wraps with memo, safe enough
-            chunkSize: 5,
-            delay: 50
+            chunkSize: isMobile ? 2 : 5,
+            delay: isMobile ? 300 : 50
         });
     };
 
