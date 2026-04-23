@@ -7,6 +7,9 @@ export default function TheatersClient() {
         <MovieCatalogClient
             title="Danh sách Phim chiếu rạp"
             baseApiUrl="https://phimapi.com/v1/api/danh-sach/phim-chieu-rap"
+            defaultType="cinema"
+            hideSidebar={true}
+            itemsPerPage={32}
         />
     );
 }

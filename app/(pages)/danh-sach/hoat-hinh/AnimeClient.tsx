@@ -7,6 +7,7 @@ export default function AnimeClient() {
         <MovieCatalogClient
             title="Phim Hoạt Hình - Anime"
             baseApiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh"
+            defaultType="hoathinh"
         />
     );
 }

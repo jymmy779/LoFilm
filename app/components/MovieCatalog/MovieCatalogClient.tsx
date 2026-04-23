@@ -12,6 +12,7 @@ interface MovieCatalogClientProps {
     initialData?: CatalogInitialData;
     hideSidebar?: boolean;
     emptyMessage?: string;
+    defaultType?: string;
 }
 
 /**
@@ -25,7 +26,8 @@ export default function MovieCatalogClient({
     slug,
     initialData,
     hideSidebar,
-    emptyMessage
+    emptyMessage,
+    defaultType
 }: MovieCatalogClientProps) {
     const {
         movies, isLoading, isPageLoading, currentPage, totalPages, isFilterOpen,
@@ -35,11 +37,26 @@ export default function MovieCatalogClient({
         baseApiUrl,
         itemsPerPage,
         slug,
-        initialData
+        initialData,
+        defaultType
     });
 
-    // Determine the title to display: explicit prop > page title from API > default
-    const displayTitle = title || pageTitle || "Danh sách phim";
+    // Determine the title to display: explicit prop > page title from API > parsed slug > default
+    const fallbackTitle = slug 
+        ? slug.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ') 
+        : "Danh sách phim";
+        
+    // 1. Better Fallback: Search in categories/countries list for the real name if slug is present
+    const foundItem = categories.find(c => c.slug === slug) || countries.find(c => c.slug === slug);
+    const realName = foundItem?.name || fallbackTitle;
+    
+    // 2. Determine the raw title
+    const rawTitle = title || pageTitle || (slug ? realName : "phim");
+    
+    // 3. Ensure "Danh sách" prefix exists for consistency
+    const displayTitle = rawTitle.toLowerCase().startsWith("danh sách")
+        ? rawTitle
+        : `Danh sách ${rawTitle.toLowerCase().startsWith("phim") ? rawTitle : 'phim ' + rawTitle}`;
 
     return (
         <CatalogLayout

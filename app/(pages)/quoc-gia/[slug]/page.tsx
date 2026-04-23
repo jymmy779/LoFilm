@@ -35,9 +35,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CountryPage({ params }: Props) {
     const { slug } = await params;
+    
+    let countryName = slug.split("-").join(" ");
+    countryName = countryName.charAt(0).toUpperCase() + countryName.slice(1);
+
+    try {
+        const countries = await fetchWithRedis("https://phimapi.com/quoc-gia", { revalidate: 60 });
+        const country = Array.isArray(countries) ? countries.find((item: any) => item.slug === slug) : null;
+        if (country) countryName = country.name;
+    } catch (err) {
+        console.error("Lỗi fetch tên quốc gia:", err);
+    }
+
     return (
         <Suspense fallback={<CatalogSkeleton />}>
-            <CountryClient slug={slug} />
+            <CountryClient slug={slug} title={`Danh sách phim ${countryName}`} />
         </Suspense>
     );
 }

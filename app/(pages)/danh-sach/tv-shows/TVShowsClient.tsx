@@ -7,6 +7,7 @@ export default function TVShowsClient() {
         <MovieCatalogClient
             title="TV Shows Truyền Hình"
             baseApiUrl="https://phimapi.com/v1/api/danh-sach/tv-shows"
+            defaultType="tvshows"
         />
     );
 }

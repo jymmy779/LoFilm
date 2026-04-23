@@ -35,9 +35,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
 export default async function CategoryPage({ params }: Props) {
     const { slug } = await params;
+    
+    let categoryName = slug.split("-").join(" ");
+    categoryName = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
+
+    try {
+        const categories = await fetchWithRedis("https://phimapi.com/the-loai", { revalidate: 60 });
+        const category = Array.isArray(categories) ? categories.find((cat: any) => cat.slug === slug) : null;
+        if (category) categoryName = category.name;
+    } catch (err) {
+        console.error("Lỗi fetch tên thể loại:", err);
+    }
+
     return (
         <Suspense fallback={<CatalogSkeleton />}>
-            <CategoryClient slug={slug} />
+            <CategoryClient slug={slug} title={`Danh sách phim ${categoryName}`} />
         </Suspense>
     );
 }

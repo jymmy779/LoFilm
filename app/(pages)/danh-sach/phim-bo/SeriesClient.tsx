@@ -9,6 +9,7 @@ export default function SeriesClient() {
             baseApiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo"
             itemsPerPage={32}
             hideSidebar={true}
+            defaultType="series"
         />
     );
 }

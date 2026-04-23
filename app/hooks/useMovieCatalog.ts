@@ -14,9 +14,10 @@ interface UseMovieCatalogProps {
     itemsPerPage?: number;
     slug?: string; // For category/country pages
     initialData?: CatalogInitialData; // Server-side pre-fetched data
+    defaultType?: string; // Force a specific category type (e.g. 'hoathinh')
 }
 
-export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialData }: UseMovieCatalogProps) {
+export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialData, defaultType }: UseMovieCatalogProps) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -24,7 +25,7 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
     const initialFilters: FilterState = {
         category: searchParams.get("cat") || (baseApiUrl.includes("the-loai") && slug ? slug : "") || "",
         country: searchParams.get("country") || (baseApiUrl.includes("quoc-gia") && slug ? slug : "") || "",
-        type: searchParams.get("type") || "",
+        type: searchParams.get("type") || defaultType || "",
         year: searchParams.get("year") || "",
         sort: searchParams.get("sort") || "update",
         rating: searchParams.get("rating") || ""
@@ -39,7 +40,8 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
         initialPage === 1 &&
         !initialFilters.category &&
         !initialFilters.country &&
-        !initialFilters.year
+        !initialFilters.year &&
+        (!defaultType || initialFilters.type === defaultType)
     );
 
     // 2. State
@@ -63,14 +65,17 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
         if (page > 1) params.set("page", page.toString());
         if (filters.category) params.set("cat", filters.category);
         if (filters.country) params.set("country", filters.country);
-        if (filters.type) params.set("type", filters.type);
+        
+        // Only set type in URL if it's DIFFERENT from defaultType
+        if (filters.type && filters.type !== defaultType) params.set("type", filters.type);
+        
         if (filters.year) params.set("year", filters.year);
         if (filters.sort !== "update") params.set("sort", filters.sort);
         if (filters.rating) params.set("rating", filters.rating);
         if (isOpen) params.set("filter", "open");
 
         router.push(`?${params.toString()}`, { scroll: false });
-    }, [router]);
+    }, [router, defaultType]);
 
     const handlePageChange = (newPage: number) => {
         setCurrentPage(newPage);
@@ -168,10 +173,13 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                     "single": "phim-le",
                     "series": "phim-bo",
                     "hoathinh": "hoat-hinh",
-                    "tvshows": "tv-shows"
+                    "tvshows": "tv-shows",
+                    "cinema": "phim-chieu-rap"
                 };
 
                 // Priority Logic: Type > Category > Country > Year
+                // FIX: If we have a type (like Japanese Anime), we must stick to the Type endpoint
+                // and pass country as a parameter, NOT jump to the country endpoint.
                 if (type) {
                     const typeSlug = typeMap[type] || "phim-moi";
                     apiUrl = `https://phimapi.com/v1/api/danh-sach/${typeSlug}`;
@@ -189,8 +197,6 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                     apiUrl = `https://phimapi.com/v1/api/nam/${year}`;
                 } else {
                     // Default Page: Use baseApiUrl (usually phim-moi-cap-nhat)
-                    // If baseApiUrl is a specialized page (like Category/Country) but NO filter is active,
-                    // we still use it to get the correct title/metadata from API.
                     apiUrl = baseApiUrl;
                 }
 
@@ -257,7 +263,13 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                     // Support both v1 and v3 structures
                     items = res.data.data?.items || res.data.items || [];
                     totalItems = res.data.data?.params?.pagination?.totalItems || res.data.pagination?.totalItems || 0;
-                    title = res.data.data?.titlePage || "";
+                    
+                    // Robust title extraction
+                    title = res.data.data?.titlePage || 
+                            res.data.data?.seoOnpage?.title_page || 
+                            res.data.data?.seoOnpage?.title || 
+                            res.data.titlePage || 
+                            "";
                 }
 
                 // 4. Secondary Client-side Filter (Extra stability)

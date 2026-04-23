@@ -9,6 +9,7 @@ export default function MovieListClient() {
             baseApiUrl="https://phimapi.com/v1/api/danh-sach/phim-le"
             itemsPerPage={32}
             hideSidebar={true}
+            defaultType="single"
         />
     );
 }

@@ -242,22 +242,30 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                         priority
                         className="object-cover object-top blur-2xl opacity-40 scale-110"
                     />
-                    {/* Main Background */}
+                    {/* Low Quality Placeholder for immediate feedback */}
                     <SmartImage
-                        src={getImageUrl(movie.thumb_url, { width: 1200, quality: 75 })}
+                        src={getImageUrl(movie.poster_url, { width: 100, quality: 30 })}
+                        rawSrc={getRawImageUrl(movie.poster_url)}
+                        alt=""
+                        fill
+                        className="object-cover object-top blur-xl opacity-50 transition-opacity duration-300"
+                    />
+                    {/* Main Background - Optimized for speed */}
+                    <SmartImage
+                        src={getImageUrl(movie.thumb_url, { width: 1200, quality: 70 })}
                         rawSrc={getRawImageUrl(movie.thumb_url)}
                         alt=""
                         fill
                         priority
-                        sizes="(max-width: 1280px) 100vw, 1920px"
-                        className="object-cover object-top transition-opacity duration-700"
+                        sizes="100vw"
+                        className="object-cover object-top transition-opacity duration-200"
                     />
                     <div className="absolute inset-0 bg-black/40" />
                 </div>
-                <div className="absolute inset-x-0 top-0 h-[20%] bg-gradient-to-b from-[#0a1628]/80 to-transparent z-10" />
-                <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-[#0a1628] to-transparent z-10" />
-                <div className="absolute inset-y-0 left-0 w-[15%] bg-gradient-to-r from-[#0a1628] to-transparent z-10 hidden md:block" />
-                <div className="absolute inset-y-0 right-0 w-[15%] bg-gradient-to-l from-[#0a1628] to-transparent z-10 hidden md:block" />
+                {/* Balanced Spotlight: Soft natural darkness on sides, bright center */}
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,#0a1628_100%)] z-10 opacity-85" />
+                <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-[#0a1628] via-[#0a1628]/20 to-transparent z-10" />
+                <div className="absolute inset-x-0 top-0 h-[15%] bg-gradient-to-b from-[#0a1628]/40 to-transparent z-10" />
             </div>
 
             {/* Main Content Container */}
