@@ -26,7 +26,7 @@ const MovieHeader = ({ slug, movieName, episodeName }: MovieHeaderProps) => {
         <div className="flex items-center gap-3">
           <TransitionLink
             href={`/phim/${slug}`}
-            className="w-9 h-9 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 transition-all duration-300"
+            className="w-9 h-9 flex-shrink-0 rounded-full border border-white/20 flex items-center justify-center text-white hover:bg-white/10 transition-all duration-300"
           >
             <ChevronLeft size={16} />
           </TransitionLink>

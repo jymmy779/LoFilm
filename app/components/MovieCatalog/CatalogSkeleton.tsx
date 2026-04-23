@@ -6,12 +6,16 @@ import Skeleton from "react-loading-skeleton";
 
 export default function CatalogSkeleton({ hideSidebar = false }: { hideSidebar?: boolean }) {
     return (
-        <main className="pt-24 pt-30 md:pt-40 pb-12 min-h-screen">
+        <main className="pt-30 md:pt-40 pb-12 min-h-screen">
             <Container>
                 <div className="catalog-page">
-                    {/* Skeleton cho Catalog Header */}
-                    <div className="mb-8">
+                    {/* Skeleton cho Catalog Header (Breadcrumb + Title) */}
+                    <div className="mb-6">
+                        <Skeleton width={120} height={16} borderRadius={4} baseColor="#1e293b" highlightColor="#334155" />
+                    </div>
+                    <div className="mb-8 md:mb-10">
                         <Skeleton height={40} width={300} borderRadius={12} baseColor="#1e293b" highlightColor="#334155" />
+                        <div className="h-1 w-20 bg-white/5 rounded-full mt-2" />
                     </div>
 
                     {/* Skeleton cho Movie Filter */}

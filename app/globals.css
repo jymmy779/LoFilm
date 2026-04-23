@@ -5,6 +5,7 @@
   --font-heading: var(--font-montserrat), sans-serif;
   --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
   --animate-shimmer: shimmer 2.5s linear infinite;
+  --gpu-accelerate: translateZ(0); /* Ép sử dụng GPU */
 }
 
 html {
@@ -169,6 +170,32 @@ body.theater-mode footer:hover {
 /* Optimize scroll performance */
 * {
   -webkit-overflow-scrolling: touch;
+}
+
+/* PERFORMANCE CORE - TRẬN CHIẾN SIÊU MƯỢT 60FPS */
+.optimize-render {
+  /* Ép browser sử dụng GPU để xử lý các tầng này */
+  transform: var(--gpu-accelerate);
+  backface-visibility: hidden;
+  perspective: 1000px;
+  will-change: transform, opacity;
+}
+
+.lazy-section {
+  /* CỰC KỲ QUAN TRỌNG: Browser sẽ bỏ qua vẽ các phần ngoài màn hình */
+  content-visibility: auto;
+  /* Kích thước ước tính để tránh nhảy trang khi cuộn (CLS) */
+  contain-intrinsic-size: 1px 400px; 
+  /* Cách ly hoàn toàn việc render, không ảnh hướng tới các phần khác */
+  contain: layout paint;
+}
+
+/* Tắt hardware acceleration khi thiết bị đang ở chế độ tiết kiệm pin hoặc cấu hình thấp */
+@media (prefers-reduced-motion: reduce) {
+  .optimize-render {
+    transform: none;
+    will-change: auto;
+  }
 }
 
 /* Plyr Custom Styles */

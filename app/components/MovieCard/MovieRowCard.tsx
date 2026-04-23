@@ -21,7 +21,7 @@ export default function MovieRowCard({ movie, priority = false, adZone = "movie_
         <TransitionLink
             href={`/phim/${movie.slug}`}
             onClick={onClick}
-            className="block group/item cursor-pointer"
+            className="block group/item cursor-pointer optimize-render"
         >
             <MoviePreviewWrapper
                 movie={movie}
@@ -36,7 +36,7 @@ export default function MovieRowCard({ movie, priority = false, adZone = "movie_
                         priority={priority}
                         loading={priority ? "eager" : "lazy"}
                         sizes="(max-width: 768px) 160px, (max-width: 1024px) 240px, 280px"
-                        className="object-cover transition-transform duration-500 group-hover/item:scale-110"
+                        className="object-cover transition-transform duration-500 group-hover/item:scale-110 transform-gpu"
                     />
                     <div className="absolute inset-x-0 bottom-[-1] h-1/2 bg-gradient-to-t from-black/80 to-transparent pointer-events-none" />
 

@@ -8,9 +8,13 @@ export default function ProfileSkeleton() {
     return (
         <div className="min-h-screen bg-gradient-to-b from-[#111b33] to-[#0d162b] pt-30 md:pt-40 pb-16 md:pb-20 px-4">
             <div className="max-w-[1440px] mx-auto">
-                {/* Header Skeleton */}
+                {/* Header Skeleton (Breadcrumb + Title) */}
+                <div className="mb-6">
+                    <Skeleton width={120} height={16} borderRadius={4} baseColor="#1e293b" highlightColor="#334155" />
+                </div>
                 <div className="mb-10 md:mb-12 w-full">
-                    <div className="h-10 w-48 bg-white/5 rounded-lg animate-pulse" />
+                    <Skeleton height={40} width={240} borderRadius={12} baseColor="#1e293b" highlightColor="#334155" />
+                    <div className="h-1 w-20 bg-white/5 rounded-full mt-2" />
                 </div>
 
                 <div className="flex flex-col xl:flex-row items-start gap-8">

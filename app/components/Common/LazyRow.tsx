@@ -56,8 +56,11 @@ export default function LazyRow({
     return (
         <div
             ref={containerRef}
-            className={className}
-            style={{ minHeight: isIntersecting ? "auto" : estimatedHeight }}
+            className={`${className} lazy-section optimize-render`}
+            style={{ 
+                minHeight: isIntersecting ? "auto" : estimatedHeight,
+                containIntrinsicSize: `1px ${estimatedHeight}`
+            }}
         >
             {isIntersecting ? (
                 children
