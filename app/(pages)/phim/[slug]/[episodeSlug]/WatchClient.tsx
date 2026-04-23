@@ -297,20 +297,65 @@ export default function WatchClient({
     const lastSavedTime = useRef(0);
     const saveProgress = async (currentTime: number, duration: number) => {
         const currentUser = userRef.current;
-        if (!currentUser || !currentTime || duration <= 0) return;
+        if (!currentTime || duration <= 0) return;
+        
+        // Chỉ lưu sau mỗi 10s để giảm tải
         if (Math.abs(currentTime - lastSavedTime.current) < 10) return;
         lastSavedTime.current = currentTime;
-        await supabase.from('watch_history').upsert({
-            user_id: currentUser.id,
-            movie_slug: slug,
-            movie_name: movie.name,
-            movie_poster: movie.thumb_url || movie.poster_url,
-            episode_name: episode.name,
-            episode_slug: episodeSlug,
-            watched_seconds: Math.floor(currentTime),
-            duration: Math.floor(duration),
-            updated_at: new Date().toISOString()
-        }, { onConflict: 'user_id,movie_slug,episode_slug' });
+
+        // 1. Lưu vào LocalStorage cho tất cả (Dự phòng cho khách và cả user khi reload nhanh)
+        try {
+            const GUEST_HISTORY_KEY = 'lofilm-guest-watch-history';
+            const historyStr = localStorage.getItem(GUEST_HISTORY_KEY);
+            let history = historyStr ? JSON.parse(historyStr) : {};
+            
+            // Dọn dẹp các mục cũ hơn 7 ngày
+            const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+            const now = Date.now();
+            Object.keys(history).forEach(key => {
+                if (now - history[key].updated_at > SEVEN_DAYS_MS) {
+                    delete history[key];
+                }
+            });
+
+            // Lưu mục hiện tại
+            history[`${slug}/${episodeSlug}`] = {
+                movie_slug: slug,
+                episode_slug: episodeSlug,
+                movie_name: movie.name,
+                movie_poster: movie.thumb_url || movie.poster_url,
+                episode_name: episode.name,
+                watched_seconds: Math.floor(currentTime),
+                duration: Math.floor(duration),
+                updated_at: now
+            };
+            
+            // Giới hạn tối đa 40 phim để tránh phình to localStorage
+            const keys = Object.keys(history);
+            if (keys.length > 40) {
+                const oldestKey = keys.sort((a, b) => history[a].updated_at - history[b].updated_at)[0];
+                delete history[oldestKey];
+            }
+
+            localStorage.setItem(GUEST_HISTORY_KEY, JSON.stringify(history));
+        } catch (e) {
+            console.error("Error saving progress to localStorage:", e);
+        }
+
+        // 2. Lưu vào Supabase nếu đã đăng nhập
+        if (currentUser) {
+            await supabase.from('watch_history').upsert({
+                user_id: currentUser.id,
+                movie_slug: slug,
+                movie_name: movie.name,
+                movie_poster: movie.thumb_url || movie.poster_url,
+                episode_name: episode.name,
+                episode_slug: episodeSlug,
+                watched_seconds: Math.floor(currentTime),
+                duration: Math.floor(duration),
+                updated_at: new Date().toISOString()
+            }, { onConflict: 'user_id,movie_slug,episode_slug' });
+        }
     };
 
     // Function to call Supabase RPC and record a valid view
@@ -380,18 +425,34 @@ export default function WatchClient({
         const initTimeout = setTimeout(async () => {
             if (!isMounted || !videoRef.current) return;
             let startFrom = 0;
-            const { data: { user: currentUser } } = await supabase.auth.getUser();
-
-            if (currentUser && !hasResumed) {
-                const { data: history } = await supabase
-                    .from('watch_history')
-                    .select('watched_seconds')
-                    .eq('user_id', currentUser.id)
-                    .eq('movie_slug', slug)
-                    .eq('episode_slug', episodeSlug)
-                    .maybeSingle(); // maybeSingle() trả về null thay vì error 406
-                if (history && history.watched_seconds > 10) {
-                    startFrom = history.watched_seconds;
+            if (!hasResumed) {
+                // 1. Thử lấy từ Supabase nếu đã login
+                const { data: { user: currentUser } } = await supabase.auth.getUser();
+                if (currentUser) {
+                    const { data: history } = await supabase
+                        .from('watch_history')
+                        .select('watched_seconds')
+                        .eq('user_id', currentUser.id)
+                        .eq('movie_slug', slug)
+                        .eq('episode_slug', episodeSlug)
+                        .maybeSingle();
+                    if (history && history.watched_seconds > 10) {
+                        startFrom = history.watched_seconds;
+                    }
+                }
+                
+                // 2. Nếu chưa login HOẶC Supabase không có dữ liệu (>10s), thử lấy từ LocalStorage
+                if (startFrom <= 10) {
+                    try {
+                        const historyStr = localStorage.getItem('lofilm-guest-watch-history');
+                        if (historyStr) {
+                            const history = JSON.parse(historyStr);
+                            const item = history[`${slug}/${episodeSlug}`];
+                            if (item && item.watched_seconds > 10) {
+                                startFrom = item.watched_seconds;
+                            }
+                        }
+                    } catch (e) {}
                 }
             }
 

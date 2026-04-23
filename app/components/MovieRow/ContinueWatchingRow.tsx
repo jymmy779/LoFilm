@@ -33,28 +33,67 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
             // Wait until auth state is determined
             if (isAuthLoading) return;
 
-            if (!user) {
-                setHistory([]);
-                setIsLoading(false);
-                return;
+            let combinedHistory: any[] = [];
+
+            // 1. Lấy từ Supabase nếu đã đăng nhập
+            if (user) {
+                const { data, error } = await supabase
+                    .from('watch_history')
+                    .select('*')
+                    .eq('user_id', user.id)
+                    .order('updated_at', { ascending: false })
+                    .limit(20);
+                if (!error && data) {
+                    combinedHistory = data;
+                }
             }
 
-            const { data, error } = await supabase
-                .from('watch_history')
-                .select('*')
-                .eq('user_id', user.id)
-                .order('updated_at', { ascending: false })
-                .limit(20);
+            // 2. Lấy dữ liệu từ LocalStorage (cho khách hoặc dự phòng reload)
+            try {
+                const localDataStr = localStorage.getItem('lofilm-guest-watch-history');
+                if (localDataStr) {
+                    const localHistory = JSON.parse(localDataStr);
+                    const now = Date.now();
+                    const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+                    
+                    const localItems = Object.values(localHistory)
+                        .filter((item: any) => {
+                            // Lọc mục quá 7 ngày
+                            const isExpired = (now - item.updated_at) > SEVEN_DAYS_MS;
+                            if (isExpired) return false;
 
-            if (!error && data) {
-                // Chỉ hiện những phim chưa xem hết (dưới 90%)
-                const continueWatching = data.filter(item => {
-                    if (!item.duration) return true;
-                    const progress = (item.watched_seconds / item.duration) * 100;
-                    return progress < 90;
-                });
-                setHistory(continueWatching);
+                            // Tránh trùng lặp: nếu đã có trong Supabase (đã login) thì không hiện bản local nữa
+                            const isDuplicate = combinedHistory.some(sh => 
+                                sh.movie_slug === item.movie_slug && sh.episode_slug === item.episode_slug
+                            );
+                            return !isDuplicate;
+                        })
+                        .map((item: any) => ({
+                            ...item,
+                            id: `local-${item.movie_slug}-${item.episode_slug}`,
+                            // Convert sang string ISO để đồng bộ kiểu dữ liệu với Supabase
+                            updated_at: new Date(item.updated_at).toISOString()
+                        }));
+                    
+                    combinedHistory = [...combinedHistory, ...localItems];
+                }
+            } catch (e) {
+                console.error("Error loading guest history:", e);
             }
+
+            // 3. Sắp xếp lại toàn bộ theo thời gian mới nhất
+            combinedHistory.sort((a, b) => 
+                new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+            );
+
+            // 4. Lọc phim chưa xem hết (<90%) và giới hạn 20 phim
+            const finalHistory = combinedHistory.filter(item => {
+                if (!item.duration) return true;
+                const progress = (item.watched_seconds / item.duration) * 100;
+                return progress < 90;
+            }).slice(0, 20);
+
+            setHistory(finalHistory);
             setIsLoading(false);
         };
         fetchHistory();
