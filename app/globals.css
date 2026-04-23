@@ -8,8 +8,15 @@
   --gpu-accelerate: translateZ(0); /* Ép sử dụng GPU */
 }
 
+/* Fix layout shift when scrollbar appears */
 html {
   scroll-behavior: smooth;
+  scrollbar-gutter: stable; /* Reserves space for scrollbar to prevent layout jump */
+  overflow-x: hidden; /* Prevents unwanted horizontal scrolling */
+}
+
+body {
+  overflow-x: hidden;
 }
 
 h1,
