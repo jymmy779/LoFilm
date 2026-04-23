@@ -103,7 +103,6 @@ export default function WatchClient({
     const [showEpisodeOverlay, setShowEpisodeOverlay] = useState(false);
     const [isChangingEpisode, setIsChangingEpisode] = useState(false);
     const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
-    const [isBlockedByIP, setIsBlockedByIP] = useState(false);
 
     useEffect(() => { showEndOverlayRef.current = showEndOverlay; }, [showEndOverlay]);
     const showEpisodeOverlayRef = useRef(showEpisodeOverlay);
@@ -216,23 +215,6 @@ export default function WatchClient({
 
     useEffect(() => {
         const checkStatus = async () => {
-            // Check IP Location (Geofencing) - Only if enabled in .env
-            const isIPCheckEnabled = process.env.NEXT_PUBLIC_ENABLE_IP_CHECK === 'true';
-
-            if (isIPCheckEnabled) {
-                try {
-                    const geoRes = await fetch('http://ip-api.com/json/');
-                    if (geoRes.ok) {
-                        const geoData = await geoRes.json();
-                        if (geoData.status === 'success' && geoData.countryCode !== 'VN') {
-                            console.warn("LoFilm: Detected IP outside Vietnam:", geoData.countryCode);
-                            setIsBlockedByIP(true);
-                        }
-                    }
-                } catch (err) {
-                    console.error("Geo-check failed:", err);
-                }
-            }
 
             if (user) {
                 // Check Fav
@@ -973,40 +955,6 @@ export default function WatchClient({
                         plyrContainer
                     )}
 
-                    {/* Error/404 Overlay - Rendered in DOM or Player Portal for robustness */}
-                    {(() => {
-                        const showOverlay = isBlockedByIP || (hasError && !hasStartedPlaying && typeof navigator !== 'undefined' && navigator.onLine);
-
-                        const errorContent = (
-                            <AnimatePresence>
-                                {showOverlay && (
-                                    <motion.div
-                                        initial={{ opacity: 0 }}
-                                        animate={{ opacity: 1 }}
-                                        exit={{ opacity: 0 }}
-                                        className="absolute inset-0 z-[160] flex items-center justify-center bg-black/95 p-3 md:p-6 text-center pointer-events-auto"
-                                    >
-                                        <div className="flex flex-col items-center max-w-[220px] sm:max-w-xs md:max-w-sm">
-                                            <div className="w-8 h-8 sm:w-12 sm:h-12 md:w-16 md:h-16 rounded-full bg-red-500/10 border border-red-500/20 flex items-center justify-center mb-3 sm:mb-4 md:mb-6">
-                                                <AlertTriangle size={18} className="text-red-500 sm:w-6 sm:h-6 md:w-8 md:h-8" />
-                                            </div>
-                                            <h2 className="text-white text-base md:text-xl font-bold mb-2">
-                                                {isBlockedByIP ? "Bạn ở xa quá hic :((" : "Lỗi phát luồng"}
-                                            </h2>
-                                            <p className="text-white/60 text-[10px] sm:text-[11px] md:text-sm mb-4 sm:mb-6 md:mb-8 leading-relaxed px-2">
-                                                {isBlockedByIP
-                                                    ? "LoFilm hiện chỉ hỗ trợ phát phim tại khu vực Việt Nam. Vui lòng tắt VPN hoặc Proxy để tiếp tục xem phim nhé!"
-                                                    : "Máy chủ hiện không phản hồi luồng phát này. Vui lòng thử đổi sang Server khác bên dưới hoặc tắt VPN nếu có."}
-                                            </p>
-                                        </div>
-                                    </motion.div>
-                                )}
-                            </AnimatePresence>
-                        );
-
-                        if (plyrContainer) return createPortal(errorContent, plyrContainer);
-                        return errorContent;
-                    })()}
 
                 </div>
 
