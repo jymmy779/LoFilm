@@ -519,10 +519,8 @@ export default function WatchClient({
                     }
                     lastUpdateTimestamp.current = now;
 
-                    // ĐIỀU KIỆN CỘNG VIEW:
-                    // 1. Xem tích lũy đủ 10 giây (chứng tỏ có ý định xem)
-                    // 2. HOẶC tua qua mốc 30 giây và đang bấm Play
-                    if (watchTimeAccumulator.current >= 10 || currentTime >= 30) {
+                    // ĐIỀU KIỆN CỘNG VIEW: Chuẩn Netflix (Xem ít nhất 2 phút)
+                    if (watchTimeAccumulator.current >= 120 || currentTime >= 120) {
                         hasRecordedView.current = true;
                         recordViewToSupabase();
                     }
@@ -620,17 +618,56 @@ export default function WatchClient({
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
-            if (e.code === 'Space' || e.keyCode === 32) {
-                const target = e.target as HTMLElement;
-                if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) return;
-                if (plyrRef.current) {
+            const target = e.target as HTMLElement;
+            // Không bắt phím khi đang gõ vào input hoặc comment
+            if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) return;
+            
+            const player = plyrRef.current;
+            if (!player) return;
+
+            const key = e.key;
+            const code = e.code;
+
+            switch (code) {
+                case 'Space':
+                case 'KeyK':
                     e.preventDefault();
-                    plyrRef.current.togglePlay();
-                }
+                    player.togglePlay();
+                    break;
+                case 'ArrowRight':
+                case 'KeyL': // YouTube style forward
+                    e.preventDefault();
+                    player.forward(10);
+                    if (player.elements.container) player.elements.container.classList.remove('plyr--hide-controls');
+                    break;
+                case 'ArrowLeft':
+                case 'KeyJ': // YouTube style rewind
+                    e.preventDefault();
+                    player.rewind(10);
+                    if (player.elements.container) player.elements.container.classList.remove('plyr--hide-controls');
+                    break;
+                case 'KeyF':
+                    e.preventDefault();
+                    player.fullscreen.toggle();
+                    break;
+                case 'KeyM':
+                    e.preventDefault();
+                    player.muted = !player.muted;
+                    break;
+                case 'ArrowUp':
+                    e.preventDefault();
+                    player.volume = Math.min(1, player.volume + 0.1);
+                    break;
+                case 'ArrowDown':
+                    e.preventDefault();
+                    player.volume = Math.max(0, player.volume - 0.1);
+                    break;
             }
         };
-        window.addEventListener('keydown', handleKeyDown);
-        return () => window.removeEventListener('keydown', handleKeyDown);
+
+        // Sử dụng { capture: true } để chiếm quyền ưu tiên phím tắt, tránh bị các thành phần khác chặn mất
+        window.addEventListener('keydown', handleKeyDown, { capture: true });
+        return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
     }, []);
 
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -677,21 +714,24 @@ export default function WatchClient({
                         
                         /* Đồng bộ Movie Info và Episode List với Plyr Controls */
                         .watch-top-overlay {
-                            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                            /* Khi ẩn đi: mượt và chậm hơn để tạo cảm giác cao cấp */
+                            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
                         }
 
                         .plyr--hide-controls .watch-top-overlay {
                             opacity: 0 !important;
-                            transform: translateY(-20px) !important;
                             pointer-events: none !important;
+                            /* Loại bỏ dịch chuyển, chỉ giữ lại fade */
+                            transform: translateY(0) !important;
                         }
 
-                        /* Đảm bảo luôn hiện khi controls hiện, bất kể state React */
-                        .plyr--controlshidden-none .watch-top-overlay, 
-                        .plyr:not(.plyr--hide-controls) .watch-top-overlay {
+                        /* Đảm bảo luôn hiện và phản hồi nhanh khi controls hiện */
+                        .watch-top-overlay {
                             opacity: 1 !important;
                             transform: translateY(0) !important;
                             pointer-events: auto !important;
+                            /* Khi hiện lên: phản hồi nhanh và hỗ trợ hover mượt */
+                            transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease !important;
                         }
                         
                         /* Optimize Layout when in Fullscreen: Hide everything else to free up GPU for orientation change */
@@ -781,7 +821,7 @@ export default function WatchClient({
 
                     {/* Movie Info Overlay (Top Left) - Rendered into Plyr Container for Fullscreen Support */}
                     {plyrContainer && createPortal(
-                        <div className={`watch-top-overlay absolute top-2 left-2 md:top-6 md:left-6 z-[60] pointer-events-none max-w-[55%]  lg:max-w-[70%] transition-all duration-500 transform ${!showEndOverlay ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+                        <div className={`watch-top-overlay absolute top-2 left-2 md:top-6 md:left-6 z-[60] pointer-events-none max-w-[55%]  lg:max-w-[70%] transition-all duration-500 ${!showEndOverlay ? 'opacity-100' : 'opacity-0'}`}>
                             <div className="flex flex-col gap-1">
                                 <h1 className="text-white text-[13px] md:text-[20px] font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-tight line-clamp-1">
                                     {movie.name}
@@ -800,10 +840,10 @@ export default function WatchClient({
                     {plyrContainer && createPortal(
                         <button
                             onClick={() => setShowEpisodeOverlay(true)}
-                            className={`watch-top-overlay absolute top-2 right-2 md:top-6 md:right-6 z-[60] flex items-center gap-1.5 md:gap-2 bg-black/60 hover:bg-black/80 border border-white/10 py-1 md:py-2 px-2.5 md:px-4 rounded-full transition-all duration-500 cursor-pointer group ${!showEpisodeOverlay ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}
+                            className={`watch-top-overlay absolute top-3 right-3 md:top-8 md:right-8 z-[60] flex items-center gap-2 md:gap-2.5 bg-black/60 hover:bg-amber-500/20 border border-white/10 hover:border-amber-500/50 py-1.5 md:py-2.5 px-3 md:px-5 rounded-full transition-all duration-300 cursor-pointer group shadow-lg ${!showEpisodeOverlay ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                         >
-                            <List size={12} className="md:w-5 md:h-5 text-white" />
-                            <span className="text-white text-[9px] md:text-[13px] font-bold tracking-wider">Danh sách tập</span>
+                            <List size={14} className="md:w-5 md:h-5 text-white group-hover:text-amber-400 transition-colors" />
+                            <span className="text-white text-[10px] md:text-[14px] font-bold tracking-wide group-hover:text-amber-500 transition-colors">Danh sách tập</span>
                         </button>,
                         plyrContainer
                     )}
