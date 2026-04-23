@@ -14,7 +14,7 @@ import "swiper/css/thumbs";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import { filterDuplicateMovies, getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
-import Skeleton from "react-loading-skeleton";
+
 import SmartImage from "@/app/components/Common/SmartImage";
 import FavoriteButton from "@/app/components/Common/FavoriteButton";
 import Container from "@/app/components/Container";

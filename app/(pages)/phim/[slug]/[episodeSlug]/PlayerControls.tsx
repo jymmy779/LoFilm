@@ -7,7 +7,6 @@ import {
   Maximize2,
   Flag,
   Play,
-  Monitor,
   Heart,
   Bookmark
 } from "lucide-react";

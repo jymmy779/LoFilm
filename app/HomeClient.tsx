@@ -110,7 +110,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <LazyRow estimatedHeight="540px" skeleton={<MoviePosterRowSkeleton />}>
                 <MoviePosterRow
                     title="Phim Bộ Mới Nhất"
-                    apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=60"
+                    apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?year=2024&limit=60"
                     viewAllLink="/danh-sach/phim-bo"
                     initialMovies={prefetched.posterPhimBo}
                     sortByYear={true}

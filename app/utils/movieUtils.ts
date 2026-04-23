@@ -171,3 +171,20 @@ export function sortMoviesByRelevance(movies: Movie[], query: string): Movie[] {
         return 0;
     });
 }
+
+/**
+ * Parse episode number from string (e.g. "Tập 01" -> 1)
+ */
+export function parseEpNumber(name: string): number | string {
+    const match = name.match(/\d+/);
+    return match ? parseInt(match[0]) : name;
+}
+
+/**
+ * Convert YouTube URL to embed URL
+ */
+export function getYoutubeEmbedUrl(url?: string): string {
+    if (!url) return '';
+    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
+    return match ? `https://www.youtube.com/embed/${match[1]}` : '';
+}

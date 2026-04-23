@@ -4,7 +4,7 @@ import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import axios from "axios";
-import { Star, Eye, Zap } from "lucide-react";
+import { Star, Eye } from "lucide-react";
 import { Movie } from "@/app/types/movie";
 import { getImageUrl } from "@/app/utils/movieUtils";
 import { decodeHtml } from "@/app/utils/textUtils";

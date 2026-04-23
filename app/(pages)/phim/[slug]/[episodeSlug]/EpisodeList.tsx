@@ -4,7 +4,7 @@ import React, { useState, useMemo } from "react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { ChevronUp, ChevronDown, Server } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
+import { getFriendlyEpisodeSlug, parseEpNumber } from "@/app/utils/movieUtils";
 
 interface EpisodeListProps {
   slug: string;
@@ -23,11 +23,6 @@ interface EpisodeListProps {
   onServerChange?: (index: number) => void;
   onEpisodeClick?: () => void;
 }
-
-const parseEpNumber = (name: string) => {
-  const match = name.match(/\d+/);
-  return match ? parseInt(match[0]) : name;
-};
 
 const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServerChange, onEpisodeClick }: EpisodeListProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);

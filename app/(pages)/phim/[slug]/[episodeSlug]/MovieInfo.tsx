@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Image from "next/image";
+
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { ChevronRight } from "lucide-react";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";

@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useMemo } from "react";
-import Image from "next/image";
+
 import TransitionLink from "@/app/components/Transition/TransitionLink";
-import { ChevronRight, AlertTriangle, RefreshCcw, List, X } from "lucide-react";
+import { AlertTriangle, RefreshCcw, List, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import Hls from "hls.js";
@@ -122,23 +122,8 @@ export default function WatchClient({
     const currentIndex = useMemo(() => {
         if (!episodes || episodes.length === 0) return -1;
         const server = episodes[activeServerIndex] || episodes[0];
-        const cleanTargetSlug = episodeSlug.replace(/^tap-/, "").toLowerCase();
-
-        return server.server_data.findIndex((ep: any) => {
-            const epSlug = ep.slug.toLowerCase();
-            const epCleanSlug = epSlug.replace(/^tap-/, "");
-
-            return (
-                epSlug === episodeSlug ||
-                epSlug === cleanTargetSlug ||
-                epCleanSlug === cleanTargetSlug ||
-                (episodeSlug === "tap-full" && epSlug === "full") ||
-                ep.name.toLowerCase() === `tập ${cleanTargetSlug}` ||
-                ep.name.toLowerCase() === `tập ${cleanTargetSlug.replace(/^0+/, "")}` ||
-                ep.name.toLowerCase() === cleanTargetSlug ||
-                epCleanSlug.replace(/^0+/, "") === cleanTargetSlug.replace(/^0+/, "")
-            );
-        });
+        
+        return server.server_data.findIndex((ep: any) => getFriendlyEpisodeSlug(ep.slug) === episodeSlug);
     }, [episodes, activeServerIndex, episodeSlug]);
 
     const nextEpisode = useMemo(() => {

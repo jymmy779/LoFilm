@@ -22,7 +22,7 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
 
     // 1. Initial State from URL
     const initialFilters: FilterState = {
-        category: searchParams.get("category") || (baseApiUrl.includes("the-loai") && slug ? slug : "") || "",
+        category: searchParams.get("cat") || (baseApiUrl.includes("the-loai") && slug ? slug : "") || "",
         country: searchParams.get("country") || (baseApiUrl.includes("quoc-gia") && slug ? slug : "") || "",
         type: searchParams.get("type") || "",
         year: searchParams.get("year") || "",

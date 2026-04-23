@@ -54,7 +54,7 @@ export default function CatalogLayout({
     sidebarProps
 }: CatalogLayoutProps) {
     return (
-        <main className="pt-24 pt-30 md:pt-40 pb-12 min-h-screen">
+        <main className="pt-30 md:pt-40 pb-12 min-h-screen">
             <Container>
                 <LayoutGroup>
                     <div className="catalog-page">

@@ -11,11 +11,19 @@ import FavoriteButton from "@/app/components/Common/FavoriteButton";
 import WatchlistButton from "@/app/components/Common/WatchlistButton";
 import { MessageSquare } from "lucide-react";
 import { Movie, EpisodeServer } from "@/app/types/movie";
-import { getImageUrl, getRawImageUrl, getEpisodeStatus, getFriendlyEpisodeSlug, filterDuplicateMovies } from "@/app/utils/movieUtils";
+import {
+    getImageUrl,
+    getRawImageUrl,
+    getEpisodeStatus,
+    getFriendlyEpisodeSlug,
+    filterDuplicateMovies,
+    parseEpNumber,
+    getYoutubeEmbedUrl
+} from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
 import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
 import { fetchTotalEpisodesFromTMDB } from "@/app/utils/tmdbUtils";
-import { decodeHtml } from "@/app/utils/textUtils";
+import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import dynamic from "next/dynamic";
 import { TMDBActor, fetchActorsFromTMDB } from "@/app/utils/tmdbUtils";
 const CommentSection = dynamic(() => import("@/app/components/Comments/CommentSection"), {
@@ -28,23 +36,6 @@ interface MovieDetailClientProps {
     episodes: EpisodeServer[];
     suggestedMovies: Movie[];
 }
-
-// Helper functions moved outside component to avoid initialization issues and improve performance
-const parseEpNumber = (name: string) => {
-    const match = name.match(/\d+/);
-    return match ? parseInt(match[0]) : name;
-};
-
-const getYoutubeEmbedUrl = (url?: string) => {
-    if (!url) return '';
-    const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
-    return match ? `https://www.youtube.com/embed/${match[1]}` : '';
-};
-
-const stripHtml = (html?: string) => {
-    if (!html) return '';
-    return html.replace(/<[^>]*>/g, '').replace(/&quot;/g, '"').replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>');
-};
 
 export default function MovieDetailClient({ movie: initialMovie, episodes, suggestedMovies }: MovieDetailClientProps) {
     const [movie, setMovie] = useState<Movie>(initialMovie);
@@ -255,7 +246,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                     <SmartImage
                         src={getImageUrl(movie.thumb_url, { width: 1200, quality: 75 })}
                         rawSrc={getRawImageUrl(movie.thumb_url)}
-                        alt={movie.name}
+                        alt=""
                         fill
                         priority
                         sizes="(max-width: 1280px) 100vw, 1920px"
@@ -332,7 +323,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                     <div className="detail-line">
                                         <div className="text-white/40 text-xs font-bold uppercase tracking-wider mb-2">Giới thiệu:</div>
                                         <p className="text-[13px] text-white/70 leading-relaxed line-clamp-4">
-                                            {stripHtml(movie.content)}
+                                            {cleanContent(movie.content)}
                                         </p>
                                     </div>
                                 )}
@@ -621,7 +612,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                                     <h3 className="text-sm font-bold text-white uppercase tracking-widest">Nội dung phim</h3>
                                                 </div>
                                                 <p className="text-gray-400 leading-8 text-[15px] font-light">
-                                                    {stripHtml(movie.content)}
+                                                    {cleanContent(movie.content)}
                                                 </p>
                                             </div>
                                         )}

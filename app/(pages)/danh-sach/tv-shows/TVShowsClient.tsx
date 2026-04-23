@@ -1,32 +1,12 @@
 "use client";
 
-import { useMovieCatalog } from "@/app/hooks/useMovieCatalog";
-import CatalogLayout from "@/app/components/MovieCatalog/CatalogLayout";
+import MovieCatalogClient from "@/app/components/MovieCatalog/MovieCatalogClient";
 
 export default function TVShowsClient() {
-    const {
-        movies, isLoading, isPageLoading, currentPage, totalPages, isFilterOpen,
-        activeFilters, categories, countries, handlePageChange,
-        handleFilterChange, handleToggleFilter
-    } = useMovieCatalog({
-        baseApiUrl: "https://phimapi.com/v1/api/danh-sach/tv-shows"
-    });
-
     return (
-        <CatalogLayout
+        <MovieCatalogClient
             title="TV Shows Truyền Hình"
-            isLoading={isLoading}
-            isPageLoading={isPageLoading}
-            movies={movies}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            isFilterOpen={isFilterOpen}
-            activeFilters={activeFilters}
-            categories={categories}
-            countries={countries}
-            onFilterChange={handleFilterChange}
-            onToggleFilter={handleToggleFilter}
-            onPageChange={handlePageChange}
+            baseApiUrl="https://phimapi.com/v1/api/danh-sach/tv-shows"
         />
     );
 }

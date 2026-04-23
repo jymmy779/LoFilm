@@ -3,13 +3,8 @@
 import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
-import Container from "@/app/components/Container";
-import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
 import { Movie } from "@/app/types/movie";
-import Skeleton from "react-loading-skeleton";
-import Pagination from "@/app/components/Pagination";
-import CatalogHeader from "@/app/components/CatalogHeader";
-import MovieFilter, { FilterState } from "@/app/components/MovieFilter";
+import { FilterState } from "@/app/components/MovieFilter";
 import { MenuItem } from "@/app/components/Header/types";
 import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
 

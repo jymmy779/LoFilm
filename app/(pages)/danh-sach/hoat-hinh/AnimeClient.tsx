@@ -1,32 +1,12 @@
 "use client";
 
-import { useMovieCatalog } from "@/app/hooks/useMovieCatalog";
-import CatalogLayout from "@/app/components/MovieCatalog/CatalogLayout";
+import MovieCatalogClient from "@/app/components/MovieCatalog/MovieCatalogClient";
 
 export default function AnimeClient() {
-    const {
-        movies, isLoading, isPageLoading, currentPage, totalPages, isFilterOpen,
-        activeFilters, categories, countries, handlePageChange,
-        handleFilterChange, handleToggleFilter
-    } = useMovieCatalog({
-        baseApiUrl: "https://phimapi.com/v1/api/danh-sach/hoat-hinh"
-    });
-
     return (
-        <CatalogLayout
+        <MovieCatalogClient
             title="Phim Hoạt Hình - Anime"
-            isLoading={isLoading}
-            isPageLoading={isPageLoading}
-            movies={movies}
-            currentPage={currentPage}
-            totalPages={totalPages}
-            isFilterOpen={isFilterOpen}
-            activeFilters={activeFilters}
-            categories={categories}
-            countries={countries}
-            onFilterChange={handleFilterChange}
-            onToggleFilter={handleToggleFilter}
-            onPageChange={handlePageChange}
+            baseApiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh"
         />
     );
 }
