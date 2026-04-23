@@ -677,6 +677,16 @@ export default function WatchClient({
                         .plyr { z-index: auto !important; aspect-ratio: 16/9; width: 100%; border-radius: inherit; touch-action: pan-y; will-change: transform, opacity; }
                         .plyr__controls { z-index: 100 !important; background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5)) !important; }
                         .hide-large-play .plyr__controls { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+
+                        /* Sync Custom Overlays with Plyr Controls */
+                        .watch-top-overlay {
+                            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                        }
+                        .plyr--hide-controls .watch-top-overlay {
+                            opacity: 0 !important;
+                            transform: translateY(-20px) !important;
+                            pointer-events: none !important;
+                        }
                         
                         /* Optimize Layout when in Fullscreen: Hide everything else to free up GPU for orientation change */
                         .video-fullscreen-active > *:not(.relative) {
@@ -765,7 +775,7 @@ export default function WatchClient({
 
                     {/* Movie Info Overlay (Top Left) - Rendered into Plyr Container for Fullscreen Support */}
                     {plyrContainer && createPortal(
-                        <div className={`absolute top-2 left-2 md:top-6 md:left-6 z-[60] pointer-events-none max-w-[55%]  lg:max-w-[70%] transition-all duration-500 transform ${controlsVisible && !showEndOverlay && !hasError ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
+                        <div className={`watch-top-overlay absolute top-2 left-2 md:top-6 md:left-6 z-[60] pointer-events-none max-w-[55%]  lg:max-w-[70%] transform ${!showEndOverlay && !hasError ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4'}`}>
                             <div className="flex flex-col gap-1">
                                 <h1 className="text-white text-[13px] md:text-[20px] font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-tight line-clamp-1">
                                     {movie.name}
@@ -784,7 +794,7 @@ export default function WatchClient({
                     {plyrContainer && createPortal(
                         <button
                             onClick={() => setShowEpisodeOverlay(true)}
-                            className={`absolute top-2 right-2 md:top-6 md:right-6 z-[60] flex items-center gap-1.5 md:gap-2 bg-black/60 hover:bg-black/80 border border-white/10 py-1 md:py-2 px-2.5 md:px-4 rounded-full transition-all duration-500 cursor-pointer group ${controlsVisible && !hasError && !showEpisodeOverlay ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}
+                            className={`watch-top-overlay absolute top-2 right-2 md:top-6 md:right-6 z-[60] flex items-center gap-1.5 md:gap-2 bg-black/60 hover:bg-black/80 border border-white/10 py-1 md:py-2 px-2.5 md:px-4 rounded-full cursor-pointer group ${!hasError && !showEpisodeOverlay ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}
                         >
                             <List size={12} className="md:w-5 md:h-5 text-white" />
                             <span className="text-white text-[9px] md:text-[13px] font-bold tracking-wider">Danh sách tập</span>
