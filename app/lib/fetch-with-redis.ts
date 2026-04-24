@@ -61,8 +61,8 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
                 expiry: now + (revalidate * 1000)
             });
 
-            // Boundary management: prevent memory leaks by limiting cache size (max 1000 items)
-            if (memoryCache.size > 1000) {
+            // Boundary management: prevent memory leaks by limiting cache size (max 30000 items)
+            if (memoryCache.size > 30000) {
                 const firstKey = memoryCache.keys().next().value;
                 if (firstKey) memoryCache.delete(firstKey);
             }
