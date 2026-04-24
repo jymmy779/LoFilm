@@ -1,28 +1,41 @@
-import redis from './redis';
 import { cache } from 'react';
 
 const DEFAULT_REVALIDATE_SEC = 30; // Default revalidation interval
 
+// Simple in-memory cache structure
+interface CacheEntry {
+    data: any;
+    expiry: number;
+}
+
 /**
- * Smart fetch with short-lived Redis cache.
- * Redis TTL = revalidate seconds → data always fresh within that window.
- * React.cache() deduplicates within a single server render (Metadata + Page).
+ * Global memory cache to persist across hot-reloads in development
+ * and maintain state in serverless environments as long as the instance is warm.
+ */
+const globalWithCache = global as typeof globalThis & {
+    memoryCache?: Map<string, CacheEntry>;
+};
+
+if (!globalWithCache.memoryCache) {
+    globalWithCache.memoryCache = new Map();
+}
+
+const memoryCache = globalWithCache.memoryCache;
+
+/**
+ * Smart fetch with local Memory Cache.
+ * Memory TTL = revalidate seconds → data always fresh within that window.
+ * No external Redis requests used, zero cost, zero latency.
  */
 export const fetchWithRedis = cache(async (url: string, options?: RequestInit & { revalidate?: number }): Promise<any> => {
     const rawRevalidate = options?.revalidate ?? options?.next?.revalidate ?? DEFAULT_REVALIDATE_SEC;
     const revalidate = typeof rawRevalidate === 'number' ? rawRevalidate : DEFAULT_REVALIDATE_SEC;
+    const now = Date.now();
 
-    // 1. CHECK REDIS (short-lived cache, TTL = revalidate seconds)
-    if (process.env.UPSTASH_REDIS_REST_URL) {
-        try {
-            const cachedData = await redis.get(url);
-            if (cachedData) {
-                // Data exists and is within TTL → guaranteed fresh
-                return cachedData;
-            }
-        } catch (e) {
-            console.error("Redis get error:", e);
-        }
+    // 1. CHECK LOCAL MEMORY CACHE
+    const cached = memoryCache.get(url);
+    if (cached && cached.expiry > now) {
+        return cached.data;
     }
 
     // 2. CACHE MISS → Fetch from origin API with 10s timeout
@@ -33,9 +46,8 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
         const response = await fetch(url, {
             ...options,
             signal: controller.signal,
-            // Disable Next.js internal fetch cache to use Redis as the single source of truth.
-            // This prevents the "2-3 refreshes" issue caused by stale-while-revalidate.
-            cache: 'no-store',
+            // We use Next.js native cache as Tier 2 (File system)
+            next: { revalidate: revalidate }
         });
 
         clearTimeout(timeoutId);
@@ -43,10 +55,16 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
         if (response.ok) {
             const data = await response.json();
 
-            // Store in Redis with SHORT TTL matching revalidate interval
-            // This ensures data is never stale beyond the revalidate window
-            if (process.env.UPSTASH_REDIS_REST_URL) {
-                redis.set(url, data, { ex: revalidate }).catch((e) => console.error("Redis set error:", e));
+            // Store in Memory Cache with TTL
+            memoryCache.set(url, {
+                data,
+                expiry: now + (revalidate * 1000)
+            });
+
+            // Boundary management: prevent memory leaks by limiting cache size (max 1000 items)
+            if (memoryCache.size > 1000) {
+                const firstKey = memoryCache.keys().next().value;
+                if (firstKey) memoryCache.delete(firstKey);
             }
 
             return data;
@@ -56,15 +74,10 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
     } catch (error: any) {
         clearTimeout(timeoutId);
 
-        // On fetch failure, try Redis as fallback (even expired conceptually, but still within old TTL)
-        if (process.env.UPSTASH_REDIS_REST_URL) {
-            try {
-                const fallbackData = await redis.get(url);
-                if (fallbackData) {
-                    console.warn(`[Fallback] Using cached data for: ${url}`);
-                    return fallbackData;
-                }
-            } catch { }
+        // On fetch failure, try memory cache even if expired as last resort
+        if (cached) {
+            console.warn(`[Fallback] Using expired local cache for: ${url}`);
+            return cached.data;
         }
 
         if (error.name === 'AbortError') {
@@ -75,3 +88,11 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
         return null;
     }
 });
+
+/**
+ * Utility to clear the local memory cache
+ */
+export const flushMemoryCache = () => {
+    memoryCache.clear();
+    console.log('[Cache] Memory cache cleared.');
+};

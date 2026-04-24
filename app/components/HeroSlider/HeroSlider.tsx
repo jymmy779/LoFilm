@@ -128,7 +128,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                     {/* Overlays for readability */}
                                     {/* Cinematic Vignette Overlay */}
                                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_25%,rgba(10,22,40,0.5)_60%,#0A1628_100%)] pointer-events-none" />
-                                    
+
                                     {/* Additional subtle fades for text readability and top/bottom blending */}
                                     <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#0A1628]/80 via-[#0A1628]/40 to-transparent pointer-events-none" />
                                     <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#0A1628] via-[#0A1628]/40 to-transparent pointer-events-none" />
