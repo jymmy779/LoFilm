@@ -48,11 +48,13 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
     const [isLoadingWeekly, setIsLoadingWeekly] = useState(true);
     const [tmdbActors, setTmdbActors] = useState<TMDBActor[]>([]);
     const [isLoadingActors, setIsLoadingActors] = useState(false);
+    const [isThumbLoaded, setIsThumbLoaded] = useState(false);
 
     // Đảm bảo luôn cuộn lên đầu khi vào chi tiết phim
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
         setMovie(initialMovie); // Reset when prop changes
+        setIsThumbLoaded(false); // Reset loading state when movie changes
     }, [initialMovie.slug]);
 
     const CHUNK_SIZE = 100;
@@ -140,9 +142,17 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
 
             setIsLoadingActors(true);
             try {
-                // Determine type: tv or movie
-                const type = movie.type === "series" || movie.type === "hoathinh" || movie.type === "tvshows" || movie.tmdb.type === "tv"
-                    ? "tv" : "movie";
+                // Determine type: Prioritize TMDB's own classification if available
+                let type: "movie" | "tv" = movie.tmdb?.type === "tv" ? "tv" : "movie";
+
+                // Fallback to PhimAPI classification ONLY if TMDB type is missing
+                if (!movie.tmdb?.type) {
+                    const isSeries = movie.type === "series" || movie.type === "tvshows";
+                    const isMultiEpisode = (episodes?.[0]?.server_data?.length || 0) > 1 ||
+                        (parseInt(movie.episode_total || "0") > 1);
+
+                    type = (isSeries || (movie.type === "hoathinh" && isMultiEpisode)) ? "tv" : "movie";
+                }
 
                 const actors = await fetchActorsFromTMDB(movie.tmdb.id, type);
                 if (actors.length > 0) {
@@ -234,31 +244,26 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
             {/* Background Cover */}
             <div className="relative w-full h-[40vh] md:h-[50vh] xl:h-[80vh] overflow-hidden transform-gpu">
                 <div className="absolute inset-0 scale-105 will-change-transform">
-                    {/* Instant blur placeholder from poster */}
-                    <Image
-                        src={getImageUrl(movie.poster_url, { width: 400, quality: 30 })}
-                        alt=""
-                        fill
-                        priority
-                        className="object-cover object-top blur-2xl opacity-40 scale-110"
-                    />
-                    {/* Low Quality Placeholder for immediate feedback */}
+                    {/* Instant blurred placeholder - priority must be TRUE for 0s loading */}
                     <SmartImage
-                        src={getImageUrl(movie.poster_url, { width: 100, quality: 30 })}
+                        className="absolute blur-2xl inset-0 w-full h-full object-cover object-top"
+                        src={getImageUrl(movie.poster_url, { width: 300, quality: 80 })}
                         rawSrc={getRawImageUrl(movie.poster_url)}
-                        alt=""
+                        alt={movie.name}
                         fill
-                        className="object-cover object-top blur-xl opacity-50 transition-opacity duration-300"
+                        sizes="(max-width: 768px) 120px, 160px"
                     />
-                    {/* Main Background - Optimized for speed */}
+
+                    {/* Main Background Thumb - Sharp image that fades in on top */}
                     <SmartImage
-                        src={getImageUrl(movie.thumb_url, { width: 1200, quality: 70 })}
+                        src={getImageUrl(movie.thumb_url, { width: 1200, quality: 75 })}
                         rawSrc={getRawImageUrl(movie.thumb_url)}
                         alt=""
                         fill
                         priority
                         sizes="100vw"
-                        className="object-cover object-top transition-opacity duration-200"
+                        onLoad={() => setIsThumbLoaded(true)}
+                        className={`object-cover object-top transition-opacity duration-800 transform-gpu ${isThumbLoaded ? 'opacity-100' : 'opacity-0'}`}
                     />
                     <div className="absolute inset-0 bg-black/40" />
                 </div>
@@ -280,8 +285,8 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                 <div className="v-thumbnail relative w-[120px] h-[180px] lg:w-[160px] lg:h-[240px] rounded-2xl overflow-hidden shadow-lg ring-1 ring-white/20 transform-gpu">
                                     <SmartImage
                                         className="absolute inset-0 w-full h-full object-cover object-top"
-                                        src={getImageUrl(movie.poster_url || movie.thumb_url, { width: 300, quality: 80 })}
-                                        rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url)}
+                                        src={getImageUrl(movie.poster_url, { width: 300, quality: 80 })}
+                                        rawSrc={getRawImageUrl(movie.poster_url)}
                                         alt={movie.name}
                                         fill
                                         sizes="(max-width: 768px) 120px, 160px"

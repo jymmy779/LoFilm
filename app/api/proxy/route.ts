@@ -14,11 +14,11 @@ export async function GET(request: NextRequest) {
     const revalidate = revalidateParam ? parseInt(revalidateParam) : 30;
 
     const data = await fetchWithRedis(targetUrl, { revalidate });
-    
+
     if (!data) {
-        throw new Error('Data source and Redis fallback both unavailable');
+      throw new Error('Dữ liệu không tồn tại hoặc lỗi kết nối từ nguồn API (TMDB/PhimAPI)');
     }
-    
+
     return NextResponse.json(data, {
       headers: {
         // s-maxage for CDN/Vercel Edge, max-age=0 forces browser to always revalidate
