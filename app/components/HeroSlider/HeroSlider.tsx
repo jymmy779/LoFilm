@@ -127,13 +127,14 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
 
                                     {/* Dotted Texture Overlay */}
                                     <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,0,0,0.35)_0.8px,transparent_0.8px)] [background-size:3px_3px] opacity-30 z-10 pointer-events-none" />
-                                    {/* Cinematic Vignette Overlay */}
-                                    <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_25%,rgba(10,22,40,0.5)_60%,#0A1628_100%)] pointer-events-none" />
+                                    {/* Cinematic Vignette Overlay (Netflix Scrim style) */}
+                                    {/* Loại bỏ radial-gradient để ảnh tự nhiên hơn */}
 
-                                    {/* Additional subtle fades for text readability and top/bottom blending */}
-                                    <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#0A1628]/80 via-[#0A1628]/40 to-transparent pointer-events-none" />
-                                    <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0A1628] via-[#0A1628]/40 to-transparent pointer-events-none" />
-                                    <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[#0A1628]/45 to-transparent pointer-events-none" />
+                                    {/* Additional subtle fades for text readability (Netflix-inspired Scrims) */}
+                                    <div className="absolute inset-x-0 top-0 h-25 md:h-32 bg-gradient-to-b from-[#0A1628]/90 via-[#0A1628]/40 to-transparent z-20 pointer-events-none" />
+                                    <div className="absolute inset-x-0 bottom-0 md:h-1/3 h-2/3 bg-gradient-to-t from-[#0A1628] via-[#0A1628]/40 to-transparent z-20 pointer-events-none" />
+                                    <div className="absolute inset-y-0 left-0 w-1 md:w-1/2 bg-gradient-to-r from-[#0A1628]/95 via-[#0A1628]/40 to-transparent z-20 pointer-events-none" />
+                                    <div className="absolute inset-y-0 right-0 w-1 md:w-1/3 bg-gradient-to-l from-[#0A1628]/80 via-[#0A1628]/20 to-transparent z-20 pointer-events-none" />
                                 </div>
                             </>
                         )}
@@ -185,20 +186,20 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                         {/* Tags */}
                                         <div className="flex flex-wrap items-center justify-center min-[700px]:justify-start gap-2 h-7 overflow-hidden">
                                             {(currentMovie.tmdb?.vote_average || 0) > 0 && (
-                                                <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-amber-500/20 backdrop-blur-md text-amber-200 border border-amber-400/30 rounded transition-all duration-300">
+                                                <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-amber-500/20 backdrop-blur-md text-amber-200 border border-amber-400/30 rounded shadow-lg shadow-black/10 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-all duration-300">
                                                     ★ {(currentMovie.tmdb?.vote_average || 0).toFixed(1)}
                                                 </span>
                                             )}
-                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/10 backdrop-blur-md text-white border border-white/20 rounded transition-all duration-300">
+                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/20 backdrop-blur-md text-white border border-white/20 rounded shadow-lg shadow-black/10 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-all duration-300">
                                                 {currentMovie.year}
                                             </span>
                                             {currentMovie.episode_current && (
-                                                <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/10 backdrop-blur-md text-white border border-white/20 rounded transition-all duration-300">
+                                                <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/20 backdrop-blur-md text-white border border-white/20 rounded shadow-lg shadow-black/10 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-all duration-300">
                                                     {currentMovie.episode_current}
                                                 </span>
                                             )}
                                             {currentMovie.quality && (
-                                                <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/10 backdrop-blur-md text-white border border-white/20 rounded transition-all duration-300">
+                                                <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/20 backdrop-blur-md text-white border border-white/20 rounded shadow-lg shadow-black/10 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-all duration-300">
                                                     {currentMovie.quality}
                                                 </span>
                                             )}
