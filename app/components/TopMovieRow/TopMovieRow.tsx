@@ -138,19 +138,19 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                                 <MoviePreviewWrapper
                                     movie={movie}
                                     adZone="top_movie"
-                                    className="sw-item group/item cursor-pointer mt-4 transform-gpu"
+                                    className="sw-item group/item cursor-pointer mt-4 transform-gpu flex flex-col h-full"
                                 >
                                     <TransitionLink
                                         href={`/phim/${movie.slug}`}
                                         onClick={handleAdClick}
-                                        className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/5 transition-[transform,box-shadow] duration-500 ease-out group-hover/item:shadow-[0_15px_35px_rgba(0,0,0,0.6)] transform-gpu cursor-pointer"
+                                        className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/10 transition-all duration-500 ease-out group-hover/item:border-white/20 group-hover/item:shadow-[0_0_20px_rgba(255,255,255,0.05)] transform-gpu cursor-pointer"
                                         style={{
                                             WebkitClipPath: isEven ? CLIP_PATH_EVEN : CLIP_PATH_ODD,
                                             clipPath: isEven ? CLIP_PATH_EVEN : CLIP_PATH_ODD
                                         }}
                                     >
-                                        <div className="w-full h-full transition-transform duration-500 ease-out group-hover/item:scale-[1.07]">
-                                            <div className="w-full h-full relative group-hover/item:animate-[top-movie-shake_0.15s_ease-in-out_3]">
+                                        <div className="w-full h-full transition-transform duration-700 ease-out group-hover/item:scale-110">
+                                            <div className="w-full h-full relative">
                                                 <SmartImage
                                                     src={getImageUrl(movie.poster_url, { width: 250, quality: 75 })}
                                                     rawSrc={getRawImageUrl(movie.poster_url)}
@@ -163,24 +163,35 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                                                 />
                                             </div>
                                         </div>
-                                        <div className="absolute inset-x-0 bottom-[-1px] h-1/2 bg-gradient-to-t from-black/95 via-black/40 to-transparent pointer-events-none" />
 
-                                        <div className="pin-new absolute bottom-2 left-0 right-0 flex items-center justify-center flex-wrap gap-x-1 gap-y-1 px-2">
-                                            <div className="h-5 px-1 bg-gray-600 rounded-full text-white text-[10px] border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
+                                        {/* Play Icon Highlight */}
+                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 bg-black/20 backdrop-blur-[2px] z-10">
+                                            <div className="w-10 h-10 rounded-full bg-[#f5a623] text-[#0a1628] flex items-center justify-center shadow-lg transform scale-90 group-hover/item:scale-100 transition-transform duration-300">
+                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 ml-0.5">
+                                                    <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.54-2.33 2.77-1.613l11.74 6.813a1.614 1.614 0 010 2.825L7.27 20.493c-1.23.717-2.77-.187-2.77-1.613V5.653z" clipRule="evenodd" />
+                                                </svg>
+                                            </div>
+                                        </div>
+
+                                        <div className="absolute inset-x-0 bottom-[-1px] h-1/2 bg-gradient-to-t from-[#0A1628] via-[#0A1628]/40 to-transparent pointer-events-none z-[5]" />
+
+                                        {/* Glassmorphism Badges */}
+                                        <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center flex-wrap gap-1 px-2 z-10 translate-y-1 group-hover/item:translate-y-0 transition-transform duration-300">
+                                            <div className="h-5 px-1.5 bg-white/10 backdrop-blur-md rounded-md text-white text-[9px] font-bold border border-white/20 flex items-center justify-center whitespace-nowrap shadow-sm tracking-tighter leading-none">
                                                 {movie.quality || "HD"}
                                             </div>
-                                            <div className="h-5 px-1 bg-green-600 rounded-full text-white text-[10px] border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
+                                            <div className="h-5 px-1.5 bg-blue-500/20 backdrop-blur-md rounded-md text-blue-200 text-[9px] font-bold border border-blue-400/30 flex items-center justify-center whitespace-nowrap shadow-sm tracking-tighter leading-none">
                                                 {(movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
                                             </div>
-                                            <div className="h-5 px-1 bg-orange-600 rounded-full text-white text-[10px] border border-white/10 flex items-center justify-center whitespace-nowrap min-w-fit">
+                                            <div className="h-5 px-1.5 bg-amber-500/20 backdrop-blur-md rounded-md text-amber-200 text-[9px] font-bold border border-amber-400/30 flex items-center justify-center whitespace-nowrap shadow-sm tracking-tighter leading-none">
                                                 {getEpisodeStatus(movie)}
                                             </div>
                                         </div>
                                     </TransitionLink>
 
                                     {/* Movie Info */}
-                                    <div className="flex gap-2 items-start pr-2">
-                                        <div className="ranking-number md:text-4xl text-3xl lg:text-5xl font-black italic select-none drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] flex-shrink-0 w-8 md:w-10 lg:w-13 flex items-center justify-start"
+                                    <div className="flex gap-2 items-center pr-2">
+                                        <div className="ranking-number md:text-4xl text-3xl lg:text-5xl font-black italic select-none drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] flex-shrink-0 w-6 md:w-8 lg:w-10 flex items-center justify-start transition-all"
                                             style={{
                                                 color: '#FED877',
                                                 backgroundImage: 'linear-gradient(135deg, #FFEFBA 0%, #FED877 100%)',
@@ -189,7 +200,7 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                                             }}>
                                             {index + 1}
                                         </div>
-                                        <div className="flex flex-col gap-1 min-w-0 pt-2 lg:pt-3">
+                                        <div className="flex flex-col gap-1.5 min-w-0">
                                             <TransitionLink
                                                 href={`/phim/${movie.slug}`}
                                                 onClick={handleAdClick}
@@ -200,6 +211,23 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                                             <p className="text-white/40 text-[10px] md:text-xs truncate font-medium">
                                                 {decodeHtml(movie.origin_name)}
                                             </p>
+                                            <div className="info-line flex flex-wrap items-center gap-1.5 mt-1">
+                                                <div className="tag-small px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-bold leading-none">
+                                                    {(() => {
+                                                        const epMatch = movie.episode_current?.match(/\d+/);
+                                                        return epMatch ? `T${epMatch[0]}` : (movie.quality || "HD");
+                                                    })()}
+                                                </div>
+                                                <div className="tag-small px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none">
+                                                    {(() => {
+                                                        const phanMatch = movie.name?.match(/Phần\s+(\d+)/i) || movie.origin_name?.match(/Season\s+(\d+)/i);
+                                                        return phanMatch ? `Phần ${phanMatch[1]}` : (movie.year || "2024");
+                                                    })()}
+                                                </div>
+                                                <div className="tag-small px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none">
+                                                    {getEpisodeStatus(movie)}
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </MoviePreviewWrapper>

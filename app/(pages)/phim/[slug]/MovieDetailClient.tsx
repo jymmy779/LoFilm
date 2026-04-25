@@ -15,6 +15,7 @@ import {
     getImageUrl,
     getRawImageUrl,
     getEpisodeStatus,
+    isMovieCompleted,
     getFriendlyEpisodeSlug,
     filterDuplicateMovies,
     parseEpNumber,
@@ -233,8 +234,9 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
     }, [firstServerEpisodes, episodeRanges, activeRangeIndex]);
 
     // Status text
-    const statusText = movie.status === 'completed' ? 'Hoàn thành' : 'Đang cập nhật';
-    const isCompleted = movie.status === 'completed';
+    // Status logic: Check both API status and common sense (episode count)
+    const isCompleted = isMovieCompleted(movie);
+    const statusText = isCompleted ? 'Hoàn thành' : 'Đang cập nhật';
 
     // TMDB rating
     const rating = movie.tmdb?.vote_average ? movie.tmdb.vote_average.toFixed(1) : null;
@@ -266,6 +268,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                         className={`object-cover object-top transition-opacity duration-800 transform-gpu ${isThumbLoaded ? 'opacity-100' : 'opacity-0'}`}
                     />
                     <div className="absolute inset-0 bg-black/40" />
+                    <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,0,0,0.35)_0.8px,transparent_0.8px)] [background-size:3px_3px] opacity-30 z-10 pointer-events-none" />
                 </div>
                 {/* Balanced Spotlight: Soft natural darkness on sides, bright center */}
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,#0a1628_100%)] z-10 opacity-85" />
@@ -294,7 +297,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                 </div>
                             </div>
 
-                            <h2 className="text-xl line-clamp-1 md:text-2xl text-center xl:text-left font-bold text-white mb-1 leading-tight">
+                            <h2 className="text-xl line-clamp-1 md:text-2xl text-center xl:text-left font-bold text-white mb-1 leading-tight font-montserrat">
                                 {decodeHtml(movie.name)}
                             </h2>
                             <div className="text-sm text-white/40 line-clamp-1 text-center xl:text-left mb-5 font-medium">
@@ -304,19 +307,19 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                             <div className="detail-more xl:block hidden space-y-5">
                                 <div className="hl-tags flex flex-wrap gap-2">
                                     {rating && (
-                                        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#f5c518] rounded-md text-black font-bold text-[10px]">
+                                        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#f5c518]/20 backdrop-blur-md rounded-md text-[#f5c518] font-bold text-[10px] border border-[#f5c518]/30">
                                             <span className="text-[9px]">★</span>
                                             <span>{rating}</span>
                                         </div>
                                     )}
-                                    <div className="px-2 py-1 bg-white/10 rounded-md text-white/80 text-[11px] font-medium">{movie.year}</div>
-                                    <div className="px-2 py-1 bg-white/10 rounded-md text-white/80 text-[11px] font-medium">{getEpisodeStatus(movie)}</div>
+                                    <div className="px-2 py-1 bg-white/10 backdrop-blur-md rounded-md text-white/80 text-[11px] font-medium border border-white/20">{movie.year}</div>
+                                    <div className="px-2 py-1 bg-white/10 backdrop-blur-md rounded-md text-white/80 text-[11px] font-medium border border-white/20">{getEpisodeStatus(movie)}</div>
                                 </div>
 
                                 {movie.category && movie.category.length > 0 && (
                                     <div className="hl-tags flex flex-wrap gap-2">
                                         {movie.category.map((cat) => (
-                                            <a key={cat.slug} href={`/the-loai/${cat.slug}`} className="px-3 py-1 bg-blue-500/20 text-blue-400 border border-blue-500/30 rounded-full text-xs font-medium hover:bg-blue-500/30 transition-colors">
+                                            <a key={cat.slug} href={`/the-loai/${cat.slug}`} className="px-3 py-1 bg-white/5 backdrop-blur-sm text-white/70 border border-white/10 rounded-full text-xs font-medium hover:bg-white/10 hover:text-white transition-all">
                                                 {cat.name}
                                             </a>
                                         ))}
@@ -424,8 +427,8 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                                         </h4>
                                                         <div className="alias-title text-[11px] text-white/40 font-medium italic truncate mb-2">{decodeHtml(m.origin_name)}</div>
                                                         <div className="info-line flex gap-2">
-                                                            <div className="tag-small px-1.5 py-0.5 bg-white/5 rounded text-[9px] font-bold text-white/50">{m.year}</div>
-                                                            <div className="tag-small px-1.5 py-0.5 bg-amber-500 rounded text-[#0a1628] text-[9px] font-bold tracking-tighter">
+                                                            <div className="tag-small px-1.5 py-0.5 bg-white/10 backdrop-blur-md border border-white/20 rounded text-[9.5px] font-bold text-white/50">{m.year}</div>
+                                                            <div className="tag-small px-1.5 py-0.5 bg-amber-500/20 backdrop-blur-md border border-amber-400/30 rounded text-amber-400 text-[9.5px] font-bold tracking-tighter">
                                                                 {(() => {
                                                                     const cur = m.episode_current || "";
                                                                     const slashMatch = cur.match(/(\d+\/\d+)/);
@@ -434,7 +437,8 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                                                         const numMatch = cur.match(/\d+/);
                                                                         return numMatch ? `HT (${numMatch[0]}/${numMatch[0]})` : "HT (Full)";
                                                                     }
-                                                                    return cur.replace(/Tập\s+/i, 'Tập ');
+                                                                    const numOnly = cur.match(/\d+/);
+                                                                    return numOnly ? `Tập ${numOnly[0]}` : (m.quality || "HD");
                                                                 })()}
                                                             </div>
                                                         </div>

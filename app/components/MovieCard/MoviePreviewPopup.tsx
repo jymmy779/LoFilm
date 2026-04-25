@@ -103,7 +103,7 @@ export default function MoviePreviewPopup({
             animate={{ opacity: 1, scale: 1 }}
             exit={{ opacity: 0, scale: 0.98 }}
             transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute z-[9999] w-[380px] pointer-events-auto hidden xl:block select-none transform-gpu"
+            className="absolute z-[9999] w-[420px] pointer-events-auto hidden xl:block select-none transform-gpu"
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
             onClick={(e) => e.stopPropagation()}
@@ -113,8 +113,8 @@ export default function MoviePreviewPopup({
             }}
         >
             <div className="bg-[#111319]/95 backdrop-blur-xl rounded-2xl overflow-hidden shadow-[0_30px_70px_-15px_rgba(0,0,0,1)] ">
-                {/* Image Container with 2 Layers */}
-                <div className="relative aspect-video w-full bg-[#1c1f26] overflow-hidden">
+                {/* Image Container with CSS Masking & Angled Gradient matching Rophim */}
+                <div className="relative aspect-video w-full bg-[#1c1f26] overflow-hidden [mask-image:linear-gradient(to_top,transparent_0,black_30px)] [-webkit-mask-image:linear-gradient(to_top,transparent_0,black_30px)]">
                     {/* Layer 1: Blurred Poster Placeholder (Instant) */}
                     {posterUrl && (
                         <Image
@@ -141,10 +141,11 @@ export default function MoviePreviewPopup({
                         />
                     )}
 
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#111319] via-transparent to-transparent" />
+                    {/* Overlay chéo (Angled Gradient) 20 độ theo màu của LoFilm (#111319) */}
+                    <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(20deg,rgba(17,19,25,0.6)_0%,rgba(17,19,25,0)_100%)]" />
                 </div>
 
-                <div className="p-5 space-y-4">
+                <div className="px-5 pb-5 pt-2 -mt-2 relative z-10 space-y-3">
                     {/* Title Group */}
                     <div className="space-y-1">
                         <h3 className="text-white font-bold text-base leading-tight line-clamp-2">

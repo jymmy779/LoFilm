@@ -3,6 +3,7 @@ import TransitionLink from "@/app/components/Transition/TransitionLink";
 import MoviePreviewWrapper from "./MoviePreviewWrapper";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
+import { getEpisodeStatus } from "@/app/utils/movieUtils";
 
 interface WideMovieCardProps {
     movie: Movie;
@@ -42,11 +43,11 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
                                 {decodeHtml(movie.origin_name)}
                             </span>
                             <div className="flex gap-1.5 ml-auto">
-                                <div className="tag-small px-1.5 py-0.5 bg-white/5 rounded text-[8px] md:text-[9px] text-white/40 border border-white/5">
+                                <div className="tag-small px-1.5 py-0.5 bg-white/10 backdrop-blur-md rounded text-[9px] md:text-[10px] text-white/70 border border-white/20 font-medium leading-none flex items-center justify-center">
                                     {movie.year}
                                 </div>
-                                <div className="tag-small px-1.5 py-0.5 bg-yellow-500/10 rounded text-[8px] md:text-[9px] text-yellow-500/80 font-bold border border-yellow-500/10">
-                                    {movie.episode_current?.replace(/Tập/, 'T.')}
+                                <div className="tag-small px-1.5 py-0.5 bg-[#f5a623]/10 backdrop-blur-md rounded text-[9px] md:text-[10px] text-[#f5a623] font-bold border border-[#f5a623]/20 leading-none flex items-center justify-center">
+                                    {getEpisodeStatus(movie)}
                                 </div>
                             </div>
                         </div>

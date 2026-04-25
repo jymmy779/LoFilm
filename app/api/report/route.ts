@@ -21,31 +21,49 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  let body: { movieName?: string; episodeName?: string; errorType?: string; description?: string };
+  let body: {
+    movieName?: string;
+    episodeName?: string;
+    errorType?: string;
+    description?: string;
+    context?: {
+      userAgent: string;
+      screenResolution: string;
+      windowSize: string;
+      language: string;
+      url: string;
+    }
+  };
   try {
     body = await req.json();
   } catch {
     return NextResponse.json({ error: "Invalid request body" }, { status: 400 });
   }
 
-  const { movieName, episodeName, errorType, description } = body;
+  const { movieName, episodeName, errorType, description, context } = body;
 
   if (!errorType || !movieName) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
   }
 
   const now = new Date().toLocaleString("vi-VN", { timeZone: "Asia/Ho_Chi_Minh" });
+  const clientIp = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "Unknown";
 
   // Escape special markdown characters to avoid Telegram parse errors
-  const escape = (s: string) => s.replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
+  const escape = (s: string) => s.toString().replace(/[_*[\]()~`>#+\-=|{}.!]/g, "\\$&");
 
   const lines = [
-    `🚨 *BÁO LỖI PHIM \\- LOFILM*`,
+    `🚨 *BÁO LỖI PHIM \\- LOFILM PRO*`,
     ``,
     `🎬 *Phim:* ${escape(movieName)}`,
     episodeName ? `📺 *Tập:* ${escape(episodeName)}` : null,
     `❌ *Loại lỗi:* ${escape(errorType)}`,
     description?.trim() ? `📝 *Mô tả:* ${escape(description.trim())}` : null,
+    ``,
+    `🌐 *Trình duyệt:* \`${escape(context?.userAgent || "Unknown")}\``,
+    `🖥 *Độ phân giải:* \`${escape(context?.screenResolution || "Unknown")}\` \\(\`${escape(context?.windowSize || "Unknown")}\`\\)`,
+    `🌍 *IP:* \`${escape(clientIp)}\``,
+    `🔗 *URL:* [Xem tại đây](${escape(context?.url || "")})`,
     ``,
     `🕐 *Thời gian:* ${escape(now)}`,
   ]

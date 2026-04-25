@@ -56,13 +56,20 @@ export default function LazyRow({
 
     useEffect(() => {
         if (isIntersecting) {
-            // Trên mobile, trì hoãn việc mount nội dung thật cho đến khi main thread rảnh rỗi 
-            // hoặc sau một khoảng thời gian ngắn để tránh chặn animation cuộn.
+            const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+
+            if (!isMobile) {
+                // Trên desktop, mount ngay để mượt mà nhất
+                setShouldRender(true);
+                return;
+            }
+
+            // Trên mobile, vẫn giữ một chút trì hoãn nhẹ để tránh giật lag scroll
             if ('requestIdleCallback' in window) {
-                const idleId = window.requestIdleCallback(() => setShouldRender(true), { timeout: 500 });
+                const idleId = window.requestIdleCallback(() => setShouldRender(true), { timeout: 200 });
                 return () => window.cancelIdleCallback(idleId);
             } else {
-                const timeoutId = setTimeout(() => setShouldRender(true), 150);
+                const timeoutId = setTimeout(() => setShouldRender(true), 50);
                 return () => clearTimeout(timeoutId);
             }
         }
@@ -72,7 +79,7 @@ export default function LazyRow({
         <div
             ref={containerRef}
             className={`${className} lazy-section optimize-render`}
-            style={{ 
+            style={{
                 minHeight: isIntersecting ? "auto" : estimatedHeight,
                 containIntrinsicSize: `1px ${estimatedHeight}`
             }}

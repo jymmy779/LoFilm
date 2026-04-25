@@ -51,6 +51,11 @@ export default function InitialLoader() {
           0% { transform: translateX(-100%); }
           100% { transform: translateX(100%); }
         }
+        @keyframes zoomInInfinite {
+          0% { transform: scale(1); opacity: 0.8; }
+          50% { transform: scale(1.05); opacity: 1; }
+          100% { transform: scale(1); opacity: 0.8; }
+        }
         .lofilm-loader-overlay {
           position: fixed;
           inset: 0;
@@ -59,53 +64,77 @@ export default function InitialLoader() {
           flex-direction: column;
           align-items: center;
           justify-content: center;
-          background: linear-gradient(to bottom right, #121d33, #0a1628, #050a14);
-          transition: opacity 0.6s ease-in-out, visibility 0.6s;
+          background: #050a14;
+          transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
           will-change: opacity;
+          overflow: hidden;
         }
         .lofilm-loader-overlay.fade-out {
           opacity: 0;
           visibility: hidden;
         }
+        .lofilm-loader-content {
+          position: relative;
+          z-index: 10;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 20px;
+        }
         .lofilm-loader-text {
-          font-size: 3rem;
-          font-weight: 800;
-          letter-spacing: 0.4em;
+          font-size: 3.5rem;
+          font-weight: 900;
+          letter-spacing: 0.3em;
           color: white;
-          margin-bottom: 24px;
-          animation: cssFadeInUp 0.8s ease-out forwards;
-          will-change: transform, opacity;
+          animation: cssFadeInUp 0.8s ease-out 0.2s forwards;
+          opacity: 0;
+          text-shadow: 0 0 30px rgba(255,255,255,0.2);
         }
         @media (min-width: 768px) {
-          .lofilm-loader-text { font-size: 5rem; }
+          .lofilm-loader-text { font-size: 6rem; }
         }
         .lofilm-loader-bar-container {
-          width: 100px;
-          height: 2px;
-          background: rgba(255, 255, 255, 0.1);
+          width: 120px;
+          height: 3px;
+          background: rgba(255, 255, 255, 0.05);
           border-radius: 999px;
           overflow: hidden;
           position: relative;
-        }
-        @media (min-width: 768px) {
-          .lofilm-loader-bar-container { width: 160px; }
+          box-shadow: inset 0 1px 2px rgba(0,0,0,0.5);
         }
         .lofilm-loader-bar-fill {
           position: absolute;
           inset: 0;
-          width: 100%;
-          background-color: #fbbf24;
-          animation: cssProgressLoop 1.2s linear infinite;
-          will-change: transform;
+          width: 40%;
+          background: linear-gradient(to right, transparent, #fbbf24, transparent);
+          animation: cssProgressLoop 1.5s cubic-bezier(0.65, 0, 0.35, 1) infinite;
+        }
+        .vn-copyright {
+          position: absolute;
+          bottom: 30px;
+          left: 0;
+          right: 0;
+          text-align: center;
+          font-size: 0.7rem;
+          color: rgba(255,255,255,0.3);
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
         }
       `}</style>
 
       <div className={`lofilm-loader-overlay ${fadingOut ? 'fade-out' : ''}`}>
-        <div className="lofilm-loader-text font-heading text-white">
-          LOFILM
+        <div className="lofilm-loader-content">
+          <div className="lofilm-loader-text font-heading">
+            LOFILM
+          </div>
+
+          <div className="lofilm-loader-bar-container">
+            <div className="lofilm-loader-bar-fill"></div>
+          </div>
         </div>
-        <div className="lofilm-loader-bar-container">
-          <div className="lofilm-loader-bar-fill"></div>
+
+        <div className="vn-copyright">
+          Hoàng Sa & Trường Sa là của Việt Nam
         </div>
       </div>
     </>

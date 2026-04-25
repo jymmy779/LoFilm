@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef } from "react";
+import React, { useState, useEffect, forwardRef, memo } from "react";
 import Image, { ImageProps } from "next/image";
 
 interface SmartImageProps extends Omit<ImageProps, "onError"> {
@@ -49,4 +49,4 @@ const SmartImage = forwardRef<HTMLImageElement, SmartImageProps>(
 
 SmartImage.displayName = "SmartImage";
 
-export default SmartImage;
+export default memo(SmartImage);

@@ -105,8 +105,8 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
             {/* Emotion Chart */}
             <div className="sidebar-card relative overflow-hidden border border-white/20 bg-white/[0.06] rounded-3xl p-6 shadow-2xl shadow-black/80 flex flex-col transform-gpu">
                 <div className="relative mb-6 text-center">
-                    <h3 className="text-[16px] font-bold text-white tracking-[0.2em] mb-1 drop-shadow-sm">Biểu đồ cảm xúc</h3>
-                    <p className="text-[10px] text-white/60 tracking-widest">Cảm xúc hiện tại của người xem</p>
+                    <h3 className="text-[16px] font-bold text-white tracking-[0.2em] mb-1 drop-shadow-sm font-montserrat uppercase">Biểu đồ cảm xúc</h3>
+                    <p className="text-[10px] text-white/60 tracking-widest uppercase">Cảm xúc hiện tại của người xem</p>
                 </div>
 
                 <div className="flex flex-col">
@@ -175,7 +175,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
             </div>
 
             <div className="pt-8 border-t border-white/5">
-                <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-6">Diễn viên</h3>
+                <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-6 font-montserrat">Diễn viên</h3>
                 <div className="grid grid-cols-3 gap-6">
                     {tmdbActors.length > 0 ? (
                         tmdbActors.map((actor, idx) => (
@@ -220,7 +220,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
 
             {/* Suggestions Section */}
             <div className="pt-8 border-t border-white/5">
-                <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-6">Đề xuất cho bạn</h3>
+                <h3 className="text-xs font-bold text-white uppercase tracking-widest mb-6 font-montserrat">Đề xuất cho bạn</h3>
                 <div className="flex flex-col">
                     {displaySuggestions.map((movie, idx) => (
                         <TransitionLink
@@ -243,8 +243,8 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                                 <h4 className="text-[13px] font-bold text-white line-clamp-1 group-hover:text-amber-400 transition-colors mb-0.5">{movie.title}</h4>
                                 <div className="text-[11px] text-white/40 font-medium italic line-clamp-1 mb-2">{movie.alias}</div>
                                 <div className="flex gap-2">
-                                    <span className="px-1.5 py-0.5 bg-white/5 rounded font-bold text-[9px] text-white/50">{movie.year}</span>
-                                    <span className="px-1.5 py-0.5 bg-amber-500 font-bold rounded text-[#0a1628] text-[9px]  tracking-tighter shadow-lg">
+                                    <span className="px-1.5 py-0.5 bg-white/10 backdrop-blur-md border border-white/20 rounded font-bold text-[9px] text-white/50">{movie.year}</span>
+                                    <span className="px-1.5 py-0.5 bg-amber-500/20 backdrop-blur-md border border-amber-400/30 rounded text-amber-400 font-bold text-[9px] tracking-tighter">
                                         {movie.ep}
                                     </span>
                                 </div>

@@ -50,10 +50,39 @@ export function getEpisodeStatus(movie: Movie): string {
     const matchNum = movie.episode_current?.match(/\d+/);
     if (matchNum) {
         const total = movie.episode_total || "??";
-        return `HT (${matchNum[0]}/${total})`;
+        // Nếu số tập hiện tại khớp với tổng số tập thì coi như Full
+        if (total !== "??" && matchNum[0] === total.match(/\d+/)?.[0]) {
+            return "Full";
+        }
+        return `Tập ${matchNum[0]}`;
     }
 
     return "Full";
+}
+
+/**
+ * Check if a movie is considered completed (Full/Hoàn tất)
+ */
+export function isMovieCompleted(movie: Movie): boolean {
+    if (movie.status === 'completed') return true;
+
+    const cur = (movie.episode_current || "").toLowerCase();
+    if (cur.includes("full") || cur.includes("hoàn tất")) return true;
+
+    const matchSlash = cur.match(/(\d+)\/(\d+)/);
+    if (matchSlash && matchSlash[1] === matchSlash[2]) return true;
+
+    // Check if numeric current >= total
+    const curNumMatch = cur.match(/\d+/);
+    const totNumMatch = (movie.episode_total || "").match(/\d+/);
+
+    if (curNumMatch && totNumMatch) {
+        const curNum = parseInt(curNumMatch[0]);
+        const totNum = parseInt(totNumMatch[0]);
+        if (curNum >= totNum && totNum > 0) return true;
+    }
+
+    return false;
 }
 
 export const TRANSPARENT_GIF = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";

@@ -125,14 +125,15 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                         className="object-cover object-top transform-gpu"
                                     />
 
-                                    {/* Overlays for readability */}
+                                    {/* Dotted Texture Overlay */}
+                                    <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,0,0,0.35)_0.8px,transparent_0.8px)] [background-size:3px_3px] opacity-30 z-10 pointer-events-none" />
                                     {/* Cinematic Vignette Overlay */}
                                     <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,transparent_25%,rgba(10,22,40,0.5)_60%,#0A1628_100%)] pointer-events-none" />
 
                                     {/* Additional subtle fades for text readability and top/bottom blending */}
                                     <div className="absolute inset-x-0 top-0 h-32 bg-gradient-to-b from-[#0A1628]/80 via-[#0A1628]/40 to-transparent pointer-events-none" />
-                                    <div className="absolute inset-x-0 bottom-0 h-1/2 bg-gradient-to-t from-[#0A1628] via-[#0A1628]/40 to-transparent pointer-events-none" />
-                                    <div className="absolute inset-y-0 left-0 w-1/2 bg-gradient-to-r from-[#0A1628]/60 to-transparent pointer-events-none" />
+                                    <div className="absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#0A1628] via-[#0A1628]/40 to-transparent pointer-events-none" />
+                                    <div className="absolute inset-y-0 left-0 w-1/3 bg-gradient-to-r from-[#0A1628]/45 to-transparent pointer-events-none" />
                                 </div>
                             </>
                         )}
@@ -184,20 +185,20 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                         {/* Tags */}
                                         <div className="flex flex-wrap items-center justify-center min-[700px]:justify-start gap-2 h-7 overflow-hidden">
                                             {(currentMovie.tmdb?.vote_average || 0) > 0 && (
-                                                <span className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs border rounded bg-white/20 lg:bg-white/10 border-[#f5a623] text-[#f5a623] transition-colors">
+                                                <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-amber-500/20 backdrop-blur-md text-amber-200 border border-amber-400/30 rounded transition-all duration-300">
                                                     ★ {(currentMovie.tmdb?.vote_average || 0).toFixed(1)}
                                                 </span>
                                             )}
-                                            <span className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs text-white border rounded bg-white/20 lg:bg-white/10 transition-colors">
+                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/10 backdrop-blur-md text-white border border-white/20 rounded transition-all duration-300">
                                                 {currentMovie.year}
                                             </span>
                                             {currentMovie.episode_current && (
-                                                <span className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs text-white border rounded bg-white/20 lg:bg-white/10 transition-colors">
+                                                <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/10 backdrop-blur-md text-white border border-white/20 rounded transition-all duration-300">
                                                     {currentMovie.episode_current}
                                                 </span>
                                             )}
                                             {currentMovie.quality && (
-                                                <span className="lg:px-2 lg:py-1 px-1 py-0.5 text-[10px] lg:text-xs text-white border rounded bg-white/20 lg:bg-white/10 transition-colors">
+                                                <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/10 backdrop-blur-md text-white border border-white/20 rounded transition-all duration-300">
                                                     {currentMovie.quality}
                                                 </span>
                                             )}
@@ -206,12 +207,12 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
 
                                     {/* Categories */}
                                     {currentMovie.category && currentMovie.category.length > 0 && (
-                                        <div className="min-[700px]:flex flex-wrap hidden justify-center min-[700px]:justify-start gap-1.5">
+                                        <div className="min-[700px]:flex flex-wrap hidden justify-center min-[700px]:justify-start gap-2">
                                             {currentMovie.category.slice(0, 3).map((cat) => (
                                                 <TransitionLink
                                                     key={cat.slug}
                                                     href={`/the-loai/${cat.slug}`}
-                                                    className="px-2 py-1  text-[10px] lg:text-xs flex items-center justify-center bg-white/15 hover:text-[#f5a623] rounded"
+                                                    className="px-2.5 py-1 text-[10px] lg:text-xs font-medium flex items-center justify-center bg-white/10 backdrop-blur-sm border border-white/10 hover:border-[#f5a623]/50 hover:text-[#f5a623] rounded transition-all duration-300 leading-none"
                                                 >
                                                     {cat.name}
                                                 </TransitionLink>
@@ -234,7 +235,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                     </div>
 
                                     {/* Buttons */}
-                                    <div className="flex min-[700px]:flex hidden items-center justify-center min-[700px]:justify-start gap-5 pt-4">
+                                    <div className="flex min-[700px]:flex hidden items-center justify-center min-[700px]:justify-start gap-8 pt-4">
                                         <TransitionLink
                                             href={`/phim/${currentMovie.slug}`}
                                             className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-15 lg:h-15 rounded-full bg-gradient-to-tr from-[#f5a623] to-[#ffcc33] text-[#0a1628] ring-4 ring-[#f5a623]/20 shadow-[0_4px_15px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.8)] hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer"

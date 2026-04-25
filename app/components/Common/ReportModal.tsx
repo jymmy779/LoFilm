@@ -33,6 +33,15 @@ export default function ReportModal({ isOpen, onClose, movieName, episodeName }:
 
     setIsSubmitting(true);
 
+    // Collect device context
+    const deviceContext = {
+      userAgent: window.navigator.userAgent,
+      screenResolution: `${window.screen.width}x${window.screen.height}`,
+      windowSize: `${window.innerWidth}x${window.innerHeight}`,
+      language: window.navigator.language,
+      url: window.location.href,
+    };
+
     try {
       const res = await fetch("/api/report", {
         method: "POST",
@@ -42,6 +51,7 @@ export default function ReportModal({ isOpen, onClose, movieName, episodeName }:
           episodeName,
           errorType: selectedType,
           description,
+          context: deviceContext,
         }),
       });
 

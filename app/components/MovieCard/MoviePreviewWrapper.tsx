@@ -42,7 +42,7 @@ export default function MoviePreviewWrapper({
 
     const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
         if (props.onMouseEnter) props.onMouseEnter(e);
-        
+
         if (activePopupCloser) {
             activePopupCloser();
             activePopupCloser = null;
@@ -65,14 +65,14 @@ export default function MoviePreviewWrapper({
                 const detailBgPreloadUrl = getImageUrl(movie.thumb_url, { width: 1200, quality: 75 });
                 new window.Image().src = detailBgPreloadUrl;
             }
-            
+
             // 3. Preload poster_url làm placeholder mượt (200px)
             if (movie.poster_url) {
                 const posterPreloadUrl = getImageUrl(movie.poster_url, { width: 200, quality: 50 });
                 new window.Image().src = posterPreloadUrl;
             }
         }
-        
+
         hoverTimer.current = setTimeout(() => {
             if (cardRef.current) {
                 if (activePopupCloser) {
@@ -86,7 +86,7 @@ export default function MoviePreviewWrapper({
                     setShowPopup(false);
                 };
             }
-        }, 500);
+        }, 600);
     };
 
     const handleMouseLeave = (e?: React.MouseEvent<HTMLDivElement>) => {
@@ -95,7 +95,7 @@ export default function MoviePreviewWrapper({
         if (hoverTimer.current) {
             clearTimeout(hoverTimer.current);
         }
-        
+
         leaveTimer.current = setTimeout(() => {
             setShowPopup(false);
             activePopupCloser = null;
@@ -113,19 +113,19 @@ export default function MoviePreviewWrapper({
     };
 
     return (
-        <div 
-            ref={cardRef} 
-            className={className} 
+        <div
+            ref={cardRef}
+            className={className}
             onMouseEnter={handleMouseEnter}
             onMouseLeave={handleMouseLeave}
             {...props}
         >
             {children}
-            
+
             {isMounted && createPortal(
                 <AnimatePresence>
                     {showPopup && cardRect && (
-                        <MoviePreviewPopup 
+                        <MoviePreviewPopup
                             key={`popup-${movie.slug}`}
                             movie={movie}
                             user={user}
