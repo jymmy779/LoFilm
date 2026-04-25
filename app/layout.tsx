@@ -23,6 +23,7 @@ const montserrat = Montserrat({
 
 import { Toaster } from "react-hot-toast";
 import { Suspense } from "react";
+import { LazyMotion, domAnimation } from "framer-motion";
 
 export const viewport: Viewport = {
   width: 'device-width',
@@ -192,19 +193,21 @@ export default function RootLayout({
         <AuthListener />
         <InitialLoader />
         <AuthProvider>
-          <PageTransitionProvider>
-            <SkeletonTheme baseColor="#1e293b" highlightColor="#334155">
-              <div className="min-h-screen flex flex-col">
-                <Suspense fallback={<div className="h-[64px] bg-[#0d1b2e] w-full fixed top-0 left-0 z-50 border-b border-white/10" />}>
-                  <Header />
-                </Suspense>
-                <main className="flex-1">
-                  {children}
-                </main>
-                <Footer />
-              </div>
-            </SkeletonTheme>
-          </PageTransitionProvider>
+          <LazyMotion features={domAnimation}>
+            <PageTransitionProvider>
+              <SkeletonTheme baseColor="#1e293b" highlightColor="#334155">
+                <div className="min-h-screen flex flex-col">
+                  <Suspense fallback={<div className="h-[64px] bg-[#0d1b2e] w-full fixed top-0 left-0 z-50 border-b border-white/10" />}>
+                    <Header />
+                  </Suspense>
+                  <main className="flex-1">
+                    {children}
+                  </main>
+                  <Footer />
+                </div>
+              </SkeletonTheme>
+            </PageTransitionProvider>
+          </LazyMotion>
         </AuthProvider>
         <Toaster
           position="top-center"
