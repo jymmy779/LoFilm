@@ -120,7 +120,7 @@ export default function WatchClient({
     const currentIndex = useMemo(() => {
         if (!episodes || episodes.length === 0) return -1;
         const server = episodes[activeServerIndex] || episodes[0];
-        
+
         return server.server_data.findIndex((ep: any) => getFriendlyEpisodeSlug(ep.slug) === episodeSlug);
     }, [episodes, activeServerIndex, episodeSlug]);
 
@@ -298,7 +298,7 @@ export default function WatchClient({
     const saveProgress = async (currentTime: number, duration: number) => {
         const currentUser = userRef.current;
         if (!currentTime || duration <= 0) return;
-        
+
         // Chỉ lưu sau mỗi 10s để giảm tải
         if (Math.abs(currentTime - lastSavedTime.current) < 10) return;
         lastSavedTime.current = currentTime;
@@ -308,7 +308,7 @@ export default function WatchClient({
             const GUEST_HISTORY_KEY = 'lofilm-guest-watch-history';
             const historyStr = localStorage.getItem(GUEST_HISTORY_KEY);
             let history = historyStr ? JSON.parse(historyStr) : {};
-            
+
             // Dọn dẹp các mục cũ hơn 7 ngày
             const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
             const now = Date.now();
@@ -329,7 +329,7 @@ export default function WatchClient({
                 duration: Math.floor(duration),
                 updated_at: now
             };
-            
+
             // Giới hạn tối đa 40 phim để tránh phình to localStorage
             const keys = Object.keys(history);
             if (keys.length > 40) {
@@ -440,7 +440,7 @@ export default function WatchClient({
                         startFrom = history.watched_seconds;
                     }
                 }
-                
+
                 // 2. Nếu chưa login HOẶC Supabase không có dữ liệu (>10s), thử lấy từ LocalStorage
                 if (startFrom <= 10) {
                     try {
@@ -452,7 +452,7 @@ export default function WatchClient({
                                 startFrom = item.watched_seconds;
                             }
                         }
-                    } catch (e) {}
+                    } catch (e) { }
                 }
             }
 
@@ -682,7 +682,7 @@ export default function WatchClient({
             const target = e.target as HTMLElement;
             // Không bắt phím khi đang gõ vào input hoặc comment
             if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) return;
-            
+
             const player = plyrRef.current;
             if (!player) return;
 
@@ -884,13 +884,13 @@ export default function WatchClient({
                     {plyrContainer && createPortal(
                         <div className={`watch-top-overlay absolute top-2 left-2 md:top-6 md:left-6 z-[60] pointer-events-none max-w-[55%]  lg:max-w-[70%] transition-all duration-500 ${!showEndOverlay ? 'opacity-100' : 'opacity-0'}`}>
                             <div className="flex flex-col gap-1">
-                                <h1 className="text-white text-[13px] md:text-[20px] font-bold drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] leading-tight line-clamp-1">
+                                <h1 className="text-white text-[13px] md:text-[20px] font-bold [text-shadow:2px_2px_4px_rgba(0,0,0,0.9)] leading-tight line-clamp-1">
                                     {movie.name}
                                 </h1>
-                                <div className="flex items-center gap-2 text-white/70 text-[10px] md:text-[14px] font-medium drop-shadow-[0_1px_2px_rgba(0,0,0,0.8)]">
+                                <div className="flex items-center gap-2 text-white/70 text-[10px] md:text-[14px] font-medium [text-shadow:1px_1px_2px_rgba(0,0,0,0.9)]">
                                     {movie.origin_name && <span className="hidden sm:inline opacity-60 font-normal truncate max-w-[150px] md:max-w-xs">{movie.origin_name}</span>}
                                     {movie.origin_name && <span className="hidden sm:inline opacity-40">•</span>}
-                                    <span className="text-amber-400/90">{episode.name}</span>
+                                    <span className="text-amber-400/90 [text-shadow:none] font-bold">{episode.name}</span>
                                 </div>
                             </div>
                         </div>,
