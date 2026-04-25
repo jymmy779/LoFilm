@@ -41,8 +41,8 @@ export default function LazyRow({
                 }
             },
             {
-                // Giảm rootMargin trên mobile để tránh load quá nhiều thứ cùng lúc
-                rootMargin: typeof window !== 'undefined' && window.innerWidth < 768 ? "300px 0px" : "600px 0px",
+                // Tăng rootMargin để load sớm hơn, tránh bị khoảng trống khi scroll nhanh
+                rootMargin: typeof window !== 'undefined' && window.innerWidth < 768 ? "800px 0px" : "1500px 0px",
                 threshold
             }
         );
