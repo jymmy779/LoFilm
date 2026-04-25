@@ -140,11 +140,13 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
                                         sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
                                         className="object-cover object-top"
                                     />
-                                    <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,0,0,0.35)_0.8px,transparent_0.8px)] [background-size:3px_3px] opacity-30 z-10 pointer-events-none" />
                                 </div>
 
-                                {/* Separate Overlay to stay fixed while image moves */}
-                                <div className="absolute inset-0 bg-gradient-to-t xl:bg-gradient-to-r from-[#14233E] via-[#14233E] via-[30%] to-transparent z-10 pointer-events-none" />
+                                {/* Hiệu ứng chấm bi bao phủ FULL SECTION (cả ảnh và mảng màu chữ) */}
+                                <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,0,0,0.35)_0.8px,transparent_0.8px)] [background-size:3px_3px] opacity-30 z-[15] pointer-events-none" />
+
+                                {/* Separate Overlay to stay fixed while image moves - Giới hạn độ phủ chỉ 30-50% để ảnh sáng đẹp */}
+                                <div className="absolute inset-0 bg-gradient-to-t xl:bg-gradient-to-r from-[#14233E] from-[30%] xl:from-[30%] to-transparent to-[75%] xl:to-[45%] z-10 pointer-events-none" />
 
                                 {/* Content Area */}
                                 <div className="relative z-20 w-full xl:w-[60%] h-full flex items-end xl:items-center pt-30 xl:pt-0 px-5 md:px-10 lg:pb-30 xl:pb-0 text-left">
