@@ -113,7 +113,7 @@ export default function Footer() {
                     </div>
 
                     <div className="col-span-1 lg:col-span-4 hidden lg:flex items-center justify-end select-none pointer-events-none relative">
-                        <div className="w-[350px] aspect-square opacity-[0.03] hover:opacity-[0.05] transition-opacity duration-1000 relative">
+                        <div className="w-[350px] aspect-square opacity-[0.009] hover:opacity-[0.05] transition-opacity duration-1000 relative">
                             <Image
                                 src="/lofilm_logo.webp"
                                 fill
