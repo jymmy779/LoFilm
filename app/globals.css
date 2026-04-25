@@ -5,14 +5,17 @@
   --font-heading: var(--font-montserrat), sans-serif;
   --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
   --animate-shimmer: shimmer 2.5s linear infinite;
-  --gpu-accelerate: translateZ(0); /* Ép sử dụng GPU */
+  --gpu-accelerate: translateZ(0);
+  /* Ép sử dụng GPU */
 }
 
 /* Fix layout shift when scrollbar appears */
 html {
   scroll-behavior: smooth;
-  scrollbar-gutter: stable; /* Reserves space for scrollbar to prevent layout jump */
-  overflow-x: hidden; /* Prevents unwanted horizontal scrolling */
+  scrollbar-gutter: stable;
+  /* Reserves space for scrollbar to prevent layout jump */
+  overflow-x: hidden;
+  /* Prevents unwanted horizontal scrolling */
 }
 
 body {
@@ -63,22 +66,22 @@ body {
     box-shadow: 0 0 20px rgba(245, 166, 35, 0.4);
   }
 }
-  @keyframes shimmer {
-    0% {
-      background-position: -1000px 0;
-    }
-    100% {
-      background-position: 1000px 0;
-    }
+
+@keyframes shimmer {
+  0% {
+    background-position: -1000px 0;
   }
 
+  100% {
+    background-position: 1000px 0;
+  }
+}
+
 .skeleton-shimmer {
-  background: linear-gradient(
-    90deg, 
-    rgba(255, 255, 255, 0.03) 25%, 
-    rgba(255, 255, 255, 0.08) 50%, 
-    rgba(255, 255, 255, 0.03) 75%
-  );
+  background: linear-gradient(90deg,
+      rgba(255, 255, 255, 0.03) 25%,
+      rgba(255, 255, 255, 0.08) 50%,
+      rgba(255, 255, 255, 0.03) 75%);
   background-size: 1000px 100%;
   animation: shimmer 2.5s linear infinite;
 }
@@ -88,6 +91,7 @@ body {
     opacity: 0;
     transform: translateY(20px);
   }
+
   100% {
     opacity: 1;
     transform: translateY(0);
@@ -103,7 +107,8 @@ body {
 @media (max-width: 768px) {
   .animate-fade-in {
     animation-duration: 0.4s;
-    will-change: auto; /* Tắt Layer Promotion nếu không thực sự cần để tránh tràn memory */
+    will-change: auto;
+    /* Tắt Layer Promotion nếu không thực sự cần để tránh tràn memory */
   }
 }
 
@@ -161,7 +166,7 @@ body.theater-mode footer {
   filter: blur(3px) !important;
   pointer-events: auto !important;
   transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
-  will-change: opacity, filter;
+  will-change: auto;
 }
 
 body.theater-mode header:hover,
@@ -173,16 +178,7 @@ body.theater-mode footer:hover {
   z-index: 100 !important;
 }
 
-/* Enable controlled backdrop-blur for premium glassmorphism effect */
-.backdrop-blur-md {
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-}
-
-.backdrop-blur-sm {
-  backdrop-filter: blur(4px);
-  -webkit-backdrop-filter: blur(4px);
-}
+/* Controlled backdrop-blur for premium glassmorphism effect is handled by framework defaults if needed */
 
 /* Optimize scroll performance */
 * {
@@ -195,24 +191,21 @@ body.theater-mode footer:hover {
   transform: translateZ(0);
   backface-visibility: hidden;
   perspective: 1000px;
-  will-change: transform; /* Chỉ giữ transform để tiết kiệm VRAM trên mobile */
+  will-change: transform;
+  /* Chỉ giữ transform để tiết kiệm VRAM trên mobile */
 }
 
 /* Force hardware acceleration on mobile for heavy sections */
 @media (max-width: 1024px) {
   .lazy-section {
-    transform: translateZ(0); 
+    transform: translateZ(0);
     backface-visibility: hidden;
   }
 }
 
 .lazy-section {
-  /* CỰC KỲ QUAN TRỌNG: Browser sẽ bỏ qua vẽ các phần ngoài màn hình */
-  content-visibility: auto;
-  /* Kích thước ước tính để tránh nhảy trang khi cuộn (CLS) */
-  contain-intrinsic-size: 1px 400px; 
-  /* Cách ly hoàn toàn việc render, không ảnh hướng tới các phần khác */
-  contain: layout paint;
+  /* Giữ contain layout để giới hạn scope paint, bỏ content-visibility vì nó gây lag khi scroll nhanh */
+  contain: layout style;
 }
 
 /* Tắt hardware acceleration khi thiết bị đang ở chế độ tiết kiệm pin hoặc cấu hình thấp */
