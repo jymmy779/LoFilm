@@ -20,7 +20,7 @@ const MovieHeader = ({ slug, movieName, episodeName }: MovieHeaderProps) => {
       animate={{ height: "auto", opacity: 1, marginBottom: 24 }}
       exit={{ height: 0, opacity: 0, marginBottom: 0 }}
       transition={{ duration: 0.4, ease: "easeInOut" }}
-      className="overflow-hidden bg-black/40 backdrop-blur-md border-b border-white/5"
+      className="overflow-hidden backdrop-blur-md"
     >
       <Container>
         <div className="flex items-center gap-3">
