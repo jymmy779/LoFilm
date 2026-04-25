@@ -9,30 +9,31 @@ export default function InitialLoader() {
   useEffect(() => {
     document.body.style.overflow = "hidden";
 
-    let done = false;
     const startFadeOut = () => {
-      if (done) return;
-      done = true;
       setFadingOut(true);
       window.setTimeout(() => {
         setShow(false);
         document.body.style.overflow = "unset";
-      }, 600);
+      }, 700);
     };
 
-    // Ẩn ngay sau frame vẽ đầu tiên (không chờ toàn bộ ảnh/font) — giảm tối đa thời gian chặn UI
-    let raf1 = 0;
-    let raf2 = 0;
-    raf1 = requestAnimationFrame(() => {
-      raf2 = requestAnimationFrame(startFadeOut);
-    });
+    const handleLoad = () => {
+      startFadeOut();
+    };
 
-    // Dự phòng: nếu có sự cố, gỡ overlay tối đa sau 2s
-    const safety = window.setTimeout(startFadeOut, 2000);
+    if (document.readyState === "complete") {
+      // Nếu đã load xong rồi thì ẩn ngay
+      startFadeOut();
+    } else {
+      // Chờ cho đến khi toàn bộ tài nguyên (ảnh, font...) tải xong thì mới ẩn
+      window.addEventListener("load", handleLoad);
+    }
+
+    // Dự phòng: tối đa 3s nếu có tài nguyên nào đó bị kẹt
+    const safety = window.setTimeout(startFadeOut, 3000);
 
     return () => {
-      cancelAnimationFrame(raf1);
-      cancelAnimationFrame(raf2);
+      window.removeEventListener("load", handleLoad);
       window.clearTimeout(safety);
       document.body.style.overflow = "unset";
     };
@@ -48,13 +49,8 @@ export default function InitialLoader() {
           to { opacity: 1; transform: translateY(0); }
         }
         @keyframes cssProgressLoop {
-          0% { transform: translateX(-100%); }
-          100% { transform: translateX(100%); }
-        }
-        @keyframes zoomInInfinite {
-          0% { transform: scale(1); opacity: 0.8; }
-          50% { transform: scale(1.05); opacity: 1; }
-          100% { transform: scale(1); opacity: 0.8; }
+          0% { transform: translateX(-110%); }
+          100% { transform: translateX(260%); }
         }
         .lofilm-loader-overlay {
           position: fixed;
@@ -94,7 +90,7 @@ export default function InitialLoader() {
           .lofilm-loader-text { font-size: 6rem; }
         }
         .lofilm-loader-bar-container {
-          width: 120px;
+          width: 140px;
           height: 3px;
           background: rgba(255, 255, 255, 0.05);
           border-radius: 999px;
