@@ -112,7 +112,7 @@ export default function MoviePreviewPopup({
                 left: position.left
             }}
         >
-            <div className="bg-[#111319]/95 backdrop-blur-xl rounded-2xl overflow-hidden shadow-[0_30px_70px_-15px_rgba(0,0,0,1)] ">
+            <div className="bg-[#111319]/98 rounded-2xl overflow-hidden shadow-[0_30px_70px_-15px_rgba(0,0,0,1)] ">
                 {/* Image Container with CSS Masking & Angled Gradient matching Rophim */}
                 <div className="relative aspect-video w-full bg-[#1c1f26] overflow-hidden [mask-image:linear-gradient(to_top,transparent_0,black_30px)] [-webkit-mask-image:linear-gradient(to_top,transparent_0,black_30px)]">
                     {/* Layer 1: Blurred Poster Placeholder (Instant) */}

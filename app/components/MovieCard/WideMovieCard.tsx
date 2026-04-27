@@ -43,10 +43,10 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
                                 {decodeHtml(movie.origin_name)}
                             </span>
                             <div className="flex gap-1.5 ml-auto">
-                                <div className="tag-small px-1.5 py-0.5 bg-white/10 backdrop-blur-md rounded text-[9px] md:text-[10px] text-white/70 border border-white/20 font-medium leading-none flex items-center justify-center">
+                                <div className="tag-small px-1.5 py-0.5 bg-[#1a2035]/80 rounded text-[9px] md:text-[10px] text-white/70 border border-white/20 font-medium leading-none flex items-center justify-center">
                                     {movie.year}
                                 </div>
-                                <div className="tag-small px-1.5 py-0.5 bg-[#f5a623]/10 backdrop-blur-md rounded text-[9px] md:text-[10px] text-[#f5a623] font-bold border border-[#f5a623]/20 leading-none flex items-center justify-center">
+                                <div className="tag-small px-1.5 py-0.5 bg-[#3a2a10]/80 rounded text-[9px] md:text-[10px] text-[#f5a623] font-bold border border-[#f5a623]/20 leading-none flex items-center justify-center">
                                     {getEpisodeStatus(movie)}
                                 </div>
                             </div>

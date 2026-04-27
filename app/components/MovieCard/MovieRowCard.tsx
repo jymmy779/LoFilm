@@ -41,7 +41,7 @@ function MovieRowCard({ movie, priority = false, adZone = "movie_row", onClick }
                     />
 
                     {/* Play Icon Highlight */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 bg-black/20 backdrop-blur-[2px]">
+                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 bg-black/30">
                         <div className="w-10 h-10 rounded-full bg-[#f5a623] text-[#0a1628] flex items-center justify-center shadow-lg transform scale-90 group-hover/item:scale-100 transition-transform duration-300">
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 ml-0.5">
                                 <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.54-2.33 2.77-1.613l11.74 6.813a1.614 1.614 0 010 2.825L7.27 20.493c-1.23.717-2.77-.187-2.77-1.613V5.653z" clipRule="evenodd" />
@@ -52,7 +52,7 @@ function MovieRowCard({ movie, priority = false, adZone = "movie_row", onClick }
                     <div className="absolute inset-x-0 bottom-[-1] h-1/2 bg-gradient-to-t from-[#0A1628] via-[#0A1628]/40 to-transparent pointer-events-none" />
 
                     {movie.episode_current && (
-                        <div className="absolute bottom-2 left-2 h-5 flex items-center justify-center px-1.5 bg-black/40 backdrop-blur-md rounded border border-white/10 shadow-sm z-10">
+                        <div className="absolute bottom-2 left-2 h-5 flex items-center justify-center px-1.5 bg-[#1a2035]/80 rounded border border-white/10 shadow-sm z-10">
                             <span className="text-[9px] md:text-xs font-bold text-white tracking-tighter leading-none">
                                 {movie.episode_current}
                             </span>

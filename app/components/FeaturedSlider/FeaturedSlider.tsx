@@ -167,10 +167,10 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
                                             <div className="md:px-2 px-1.5 py-0.5 flex items-center justify-center bg-[#f5a623] text-[#0a1628] text-[10px] md:text-xs font-bold rounded shadow-[0_2px_10px_rgba(245,166,35,0.3)]">
                                                 ★ {(movie.tmdb?.vote_average || 8.0).toFixed(1)}
                                             </div>
-                                            <div className="md:px-2 px-1.5 py-0.5 flex items-center justify-center bg-white/10 backdrop-blur-md text-white/90 text-[10px] md:text-xs font-bold rounded border border-white/20 leading-none">
+                                            <div className="md:px-2 px-1.5 py-0.5 flex items-center justify-center bg-white/20 text-white/90 text-[10px] md:text-xs font-bold rounded border border-white/20 leading-none">
                                                 {movie.year || 2024}
                                             </div>
-                                            <div className="md:px-2 px-1.5 py-0.5 flex items-center justify-center bg-blue-500/20 backdrop-blur-md text-blue-200 text-[10px] md:text-xs font-bold rounded border border-blue-400/30 leading-none">
+                                            <div className="md:px-2 px-1.5 py-0.5 flex items-center justify-center bg-blue-500/20 text-blue-200 text-[10px] md:text-xs font-bold rounded border border-blue-400/30 leading-none">
                                                 {getEpisodeStatus(movie)}
                                             </div>
 
@@ -179,7 +179,7 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
                                                     <TransitionLink
                                                         key={cat.id || cat.slug}
                                                         href={`/the-loai/${cat.slug}`}
-                                                        className="px-2.5 py-1 text-[10px] lg:text-xs font-medium flex items-center justify-center bg-white/10 backdrop-blur-sm border border-white/10 hover:border-[#f5a623]/50 hover:text-[#f5a623] rounded-md transition-all"
+                                                        className="px-2.5 py-1 text-[10px] lg:text-xs font-medium flex items-center justify-center bg-white/10 border border-white/10 hover:border-[#f5a623]/50 hover:text-[#f5a623] rounded-md transition-[border-color,color]"
                                                     >
                                                         {cat.name}
                                                     </TransitionLink>
@@ -203,7 +203,7 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
                                                 </svg>
                                             </TransitionLink>
 
-                                            <div className="flex items-center bg-white/10 hover:bg-white/20 rounded-full border border-white/10 overflow-hidden transition-all duration-300">
+                                            <div className="flex items-center bg-white/10 hover:bg-white/20 rounded-full border border-white/10 overflow-hidden transition-colors duration-300">
                                                 <FavoriteButton
                                                     movie={movie}
                                                     iconSize={18}
