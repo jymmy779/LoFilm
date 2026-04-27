@@ -110,15 +110,11 @@ export default function InitialLoader() {
           animation: cssProgressLoop 1.5s cubic-bezier(0.65, 0, 0.35, 1) infinite;
         }
         .vn-copyright {
-          position: absolute;
-          bottom: 30px;
-          left: 0;
-          right: 0;
-          text-align: center;
           font-size: 0.7rem;
           color: rgba(255,255,255,0.3);
           letter-spacing: 0.05em;
           text-transform: uppercase;
+          margin-top: 10px;
         }
       `}</style>
 
@@ -131,10 +127,9 @@ export default function InitialLoader() {
           <div className="lofilm-loader-bar-container">
             <div className="lofilm-loader-bar-fill"></div>
           </div>
-        </div>
-
-        <div className="vn-copyright">
-          Hoàng Sa & Trường Sa là của Việt Nam
+          <div className="vn-copyright">
+            Hoàng Sa & Trường Sa là của Việt Nam
+          </div>
         </div>
       </div>
     </>
