@@ -200,7 +200,7 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                                             }}>
                                             {index + 1}
                                         </div>
-                                        <div className="flex flex-col gap-1.5 min-w-0">
+                                        <div className="flex flex-col flex-nowrap gap-1.5 min-w-0">
                                             <TransitionLink
                                                 href={`/phim/${movie.slug}`}
                                                 onClick={handleAdClick}
@@ -211,20 +211,20 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                                             <p className="text-white/40 text-[10px] md:text-xs truncate font-medium">
                                                 {decodeHtml(movie.origin_name)}
                                             </p>
-                                            <div className="info-line flex flex-wrap items-center gap-1.5 mt-1">
-                                                <div className="tag-small px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-bold leading-none">
+                                            <div className="info-line flex flex-nowrap items-center gap-1.5 mt-1">
+                                                <div className="tag-small px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-bold leading-none whitespace-nowrap">
                                                     {(() => {
                                                         const epMatch = movie.episode_current?.match(/\d+/);
                                                         return epMatch ? `T${epMatch[0]}` : (movie.quality || "HD");
                                                     })()}
                                                 </div>
-                                                <div className="tag-small px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none">
+                                                <div className="tag-small px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none whitespace-nowrap">
                                                     {(() => {
                                                         const phanMatch = movie.name?.match(/Phần\s+(\d+)/i) || movie.origin_name?.match(/Season\s+(\d+)/i);
                                                         return phanMatch ? `Phần ${phanMatch[1]}` : (movie.year || "2024");
                                                     })()}
                                                 </div>
-                                                <div className="tag-small px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none">
+                                                <div className="tag-small px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none whitespace-nowrap">
                                                     {getEpisodeStatus(movie)}
                                                 </div>
                                             </div>
