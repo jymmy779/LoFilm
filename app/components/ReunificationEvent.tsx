@@ -7,6 +7,7 @@ import { Movie } from "@/app/types/movie";
 import { getImageUrl } from "@/app/utils/movieUtils";
 import { decodeHtml } from "@/app/utils/textUtils";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
+import { motion } from "framer-motion";
 
 export default function ReunificationEvent() {
     const [isMounted, setIsMounted] = useState(false);
@@ -48,8 +49,29 @@ export default function ReunificationEvent() {
 
     if (!isMounted || !showEvent) return null;
 
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1
+            }
+        }
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: {
+                duration: 0.5
+            }
+        }
+    };
+
     return (
-        <Container as="section" className="relative z-30 my-20 lg:my-30">
+        <Container as="section" className="relative z-30 my-20 lg:my-30 animate-fade-in">
             {/* BANNER DESIGN: Warm Beige Background with Red Accents */}
             <div className="relative w-full rounded-[2rem] md:rounded-[2.5rem] overflow-hidden bg-[#fdf8e6] border-2 md:border-4 border-[#e2dcc8] shadow-2xl p-5 md:p-10 lg:p-12">
 
@@ -75,18 +97,24 @@ export default function ReunificationEvent() {
                 </div>
 
                 {/* Movies Grid */}
-                <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6 lg:gap-8">
+                <motion.div
+                    variants={containerVariants}
+                    initial="hidden"
+                    animate={isLoading ? "hidden" : "visible"}
+                    className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6 lg:gap-8"
+                >
                     {isLoading ? (
                         // Skeleton Loading State
                         Array.from({ length: 6 }).map((_, idx) => (
-                            <div key={idx} className="animate-pulse">
-                                <div className="bg-gray-200 aspect-[2/3] w-full rounded-2xl mb-4"></div>
-                                <div className="h-4 bg-gray-200 rounded w-3/4 mx-auto"></div>
+                            <div key={idx} className="animate-pulse flex flex-col items-center">
+                                <div className="bg-gray-200/50 aspect-[2/3] w-full rounded-2xl mb-3"></div>
+                                <div className="h-3 bg-gray-200/50 rounded-full w-4/5 mb-1.5"></div>
+                                <div className="h-3 bg-gray-200/50 rounded-full w-2/3"></div>
                             </div>
                         ))
                     ) : (
                         movies.map((movie) => (
-                            <div key={movie._id} className="group flex flex-col items-center">
+                            <motion.div key={movie._id} variants={itemVariants} className="group flex flex-col items-center">
                                 <TransitionLink href={`/phim/${movie.slug}`} className="relative w-full aspect-[2/3] rounded-2xl overflow-hidden shadow-lg border-2 border-transparent group-hover:border-red-600 transition-all duration-500 transform group-hover:scale-[1.03] group-hover:-translate-y-2 group-hover:shadow-[0_15px_35px_rgba(185,28,28,0.2)] bg-gray-200 block">
                                     <img
                                         src={getImageUrl(movie.poster_url, { width: 400 })}
@@ -104,10 +132,10 @@ export default function ReunificationEvent() {
                                 <h3 className="mt-3 text-center text-gray-800 text-xs md:text-sm line-clamp-2 leading-tight group-hover:text-red-700 transition-colors font-medium tracking-tight">
                                     {decodeHtml(movie.name)}
                                 </h3>
-                            </div>
+                            </motion.div>
                         ))
                     )}
-                </div>
+                </motion.div>
 
                 {/* Banner Footer */}
                 <div className="mt-12 flex flex-col md:flex-row items-center justify-between gap-6 border-t border-red-200/50 pt-8">
