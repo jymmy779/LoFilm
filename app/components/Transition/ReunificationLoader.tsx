@@ -112,34 +112,40 @@ export default function ReunificationLoader() {
                     .flag-badge { width: 180px; }
                 }
                 .event-brand {
-                    font-size: 3.5rem;
+                    font-size: 2.5rem;
                     font-weight: 950;
                     color: #fff;
-                    letter-spacing: 0.3em;
+                    letter-spacing: 0.2em;
                     text-shadow: 0 0 30px rgba(255,255,255,0.2);
                     animation: cssFadeInUp 0.8s ease-out 0.2s forwards;
                     opacity: 0;
                 }
                 @media (min-width: 768px) {
-                    .event-brand { font-size: 6rem; }
+                    .event-brand { font-size: 6rem; letter-spacing: 0.3em; }
                 }
                 .event-celebration {
                     color: #fbbf24;
                     font-weight: 800;
-                    font-size: 0.75rem;
+                    font-size: 0.6rem;
                     text-transform: uppercase;
-                    letter-spacing: 0.4em;
-                    margin-top: 15px;
+                    letter-spacing: 0.2em;
+                    margin-top: 10px;
                     opacity: 0;
                     animation: cssFadeInUp 0.8s ease-out 0.4s forwards;
                 }
+                @media (min-width: 768px) {
+                    .event-celebration { font-size: 0.75rem; letter-spacing: 0.4em; margin-top: 15px; }
+                }
                 .tank-lane {
                     position: absolute;
-                    bottom: 12%;
+                    bottom: 15%;
                     left: 0;
                     width: 100%;
-                    height: 100px;
+                    height: 80px;
                     pointer-events: none;
+                }
+                @media (min-width: 768px) {
+                    .tank-lane { bottom: 12%; height: 100px; }
                 }
                 .bumpy-road {
                     position: absolute;
@@ -151,40 +157,52 @@ export default function ReunificationLoader() {
                 }
                 .tank {
                     position: absolute;
-                    width: 120px;
-                    height: 60px;
+                    width: 80px;
+                    height: 40px;
                     bottom: 20px;
                     animation: tankMove 8s linear infinite;
+                }
+                @media (min-width: 768px) {
+                    .tank { width: 120px; height: 60px; }
                 }
                 .tank-body {
                     position: absolute;
                     bottom: 10px;
                     left: 0;
-                    width: 90px;
-                    height: 28px;
+                    width: 60px;
+                    height: 20px;
                     background: #233123;
-                    border-radius: 6px;
-                    border: 3px solid #0d120d;
+                    border-radius: 4px;
+                    border: 2px solid #0d120d;
+                }
+                @media (min-width: 768px) {
+                    .tank-body { width: 90px; height: 28px; border-radius: 6px; border-width: 3px; }
                 }
                 .tank-turret {
                     position: absolute;
-                    bottom: 35px;
-                    left: 30px;
-                    width: 45px;
-                    height: 18px;
+                    bottom: 28px;
+                    left: 20px;
+                    width: 30px;
+                    height: 12px;
                     background: #233123;
-                    border-radius: 8px 8px 0 0;
-                    border: 3px solid #0d120d;
+                    border-radius: 6px 6px 0 0;
+                    border: 2px solid #0d120d;
+                }
+                @media (min-width: 768px) {
+                    .tank-turret { bottom: 35px; left: 30px; width: 45px; height: 18px; border-radius: 8px 8px 0 0; border-width: 3px; }
                 }
                 .tank-barrel {
                     position: absolute;
-                    bottom: 42px;
-                    left: 72px;
-                    width: 50px;
-                    height: 6px;
+                    bottom: 33px;
+                    left: 48px;
+                    width: 35px;
+                    height: 4px;
                     background: #233123;
                     border-radius: 0 4px 4px 0;
-                    border: 3px solid #0d120d;
+                    border: 2px solid #0d120d;
+                }
+                @media (min-width: 768px) {
+                    .tank-barrel { bottom: 42px; left: 72px; width: 50px; height: 6px; border-width: 3px; }
                 }
                 .tank-star {
                     position: absolute;
@@ -192,15 +210,23 @@ export default function ReunificationLoader() {
                     left: 50%;
                     transform: translate(-50%, -50%);
                     color: #fbbf24;
-                    font-size: 10px;
+                    font-size: 8px;
+                }
+                @media (min-width: 768px) {
+                    .tank-star { font-size: 10px; }
                 }
                 .vn-copyright {
                     position: absolute;
-                    bottom: 40px;
-                    font-size: 0.7rem;
+                    bottom: 30px;
+                    font-size: 0.6rem;
                     color: rgba(255,255,255,0.2);
-                    letter-spacing: 0.1em;
+                    letter-spacing: 0.05em;
                     text-transform: uppercase;
+                    text-align: center;
+                    width: 100%;
+                }
+                @media (min-width: 768px) {
+                    .vn-copyright { bottom: 40px; font-size: 0.7rem; letter-spacing: 0.1em; }
                 }
             `}</style>
 
