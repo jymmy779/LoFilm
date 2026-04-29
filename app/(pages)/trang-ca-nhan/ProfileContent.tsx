@@ -19,10 +19,7 @@ import {
 import { createClient } from "@/app/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
-import { Suspense } from 'react';
-import { getImageUrl } from "@/app/utils/movieUtils";
 import Image from "next/image";
-import TransitionLink from "@/app/components/Transition/TransitionLink";
 import LogoutModal from "@/app/components/Modals/LogoutModal";
 import ComingSoonModal from "@/app/components/Modals/ComingSoonModal";
 import CommonModal from "@/app/components/Modals/CommonModal";

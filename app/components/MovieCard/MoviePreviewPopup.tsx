@@ -5,7 +5,8 @@ import { useFavorites } from "@/app/(pages)/phim/[slug]/[episodeSlug]/hooks/useF
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
-import { getEpisodeStatus, getImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
+import { getEpisodeStatus, getImageUrl, getFriendlyEpisodeSlug, getRawImageUrl } from "@/app/utils/movieUtils";
+import SmartImage from "@/app/components/Common/SmartImage";
 
 export interface MoviePreviewPopupProps {
     movie: Movie;
@@ -84,10 +85,11 @@ export default function MoviePreviewPopup({
         let top = 0;
         let left = 0;
         if (typeof window !== 'undefined') {
-            top = cardRect.top + window.scrollY;
-            const idealLeft = cardRect.left + window.scrollX + (cardRect.width / 2) - 190; // 190 = 380/2
-            const minLeft = window.scrollX + 24; // 24px padding từ cạnh trái an toàn
-            const maxLeft = window.scrollX + document.documentElement.clientWidth - 380 - 24;
+            const popupWidth = 420;
+            top = cardRect.top + window.scrollY - 10; // Nhích lên 10px để cân đối hơn
+            const idealLeft = cardRect.left + window.scrollX + (cardRect.width / 2) - (popupWidth / 2);
+            const minLeft = window.scrollX + 24;
+            const maxLeft = window.scrollX + document.documentElement.clientWidth - popupWidth - 24;
             left = Math.max(minLeft, Math.min(idealLeft, maxLeft));
         }
         return { top, left };
@@ -130,12 +132,13 @@ export default function MoviePreviewPopup({
 
                     {/* Layer 2: Main Thumbnail (Fade-in) */}
                     {thumbUrl && (
-                        <Image
+                        <SmartImage
                             src={thumbUrl}
+                            rawSrc={getRawImageUrl(movie.thumb_url)}
                             alt={movie.name}
                             fill
                             priority
-                            sizes="380px"
+                            sizes="420px"
                             onLoad={() => setIsThumbLoaded(true)}
                             className={`object-cover transition-opacity duration-300 ease-in-out ${isThumbLoaded ? 'opacity-100' : 'opacity-0'}`}
                         />

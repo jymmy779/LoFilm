@@ -8,6 +8,7 @@ import { getImageUrl } from "@/app/utils/movieUtils";
 import { decodeHtml } from "@/app/utils/textUtils";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { motion } from "framer-motion";
+import ReunificationEventSkeleton from "./SpecialSections/ReunificationEventSkeleton";
 
 export default function ReunificationEvent() {
     const [isMounted, setIsMounted] = useState(false);
@@ -48,6 +49,7 @@ export default function ReunificationEvent() {
     };
 
     if (!isMounted || !showEvent) return null;
+    if (isLoading) return <ReunificationEventSkeleton />;
 
     const containerVariants = {
         hidden: { opacity: 0 },
@@ -100,41 +102,30 @@ export default function ReunificationEvent() {
                 <motion.div
                     variants={containerVariants}
                     initial="hidden"
-                    animate={isLoading ? "hidden" : "visible"}
+                    animate="visible"
                     className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6 lg:gap-8"
                 >
-                    {isLoading ? (
-                        // Skeleton Loading State
-                        Array.from({ length: 6 }).map((_, idx) => (
-                            <div key={idx} className="animate-pulse flex flex-col items-center">
-                                <div className="bg-gray-200/50 aspect-[2/3] w-full rounded-2xl mb-3"></div>
-                                <div className="h-3 bg-gray-200/50 rounded-full w-4/5 mb-1.5"></div>
-                                <div className="h-3 bg-gray-200/50 rounded-full w-2/3"></div>
-                            </div>
-                        ))
-                    ) : (
-                        movies.map((movie) => (
-                            <motion.div key={movie._id} variants={itemVariants} className="group flex flex-col items-center">
-                                <TransitionLink href={`/phim/${movie.slug}`} className="relative w-full aspect-[2/3] rounded-2xl overflow-hidden shadow-lg border-2 border-transparent group-hover:border-red-600 transition-all duration-500 transform group-hover:scale-[1.03] group-hover:-translate-y-2 group-hover:shadow-[0_15px_35px_rgba(185,28,28,0.2)] bg-gray-200 block">
-                                    <img
-                                        src={getImageUrl(movie.poster_url, { width: 400 })}
-                                        alt={movie.name}
-                                        className="w-full h-full object-cover transition-transform duration-700"
-                                        loading="lazy"
-                                    />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-red-950/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
-                                    <div className="absolute inset-0 p-4 flex flex-col justify-end translate-y-6 group-hover:translate-y-0 transition-all duration-300 opacity-0 group-hover:opacity-100">
-                                        <span className="w-full py-2.5 bg-yellow-400 text-red-900 font-medium rounded-xl text-[10px] uppercase shadow-lg border border-yellow-500 flex items-center justify-center">
-                                            Xem Phim
-                                        </span>
-                                    </div>
-                                </TransitionLink>
-                                <h3 className="mt-3 text-center text-gray-800 text-xs md:text-sm line-clamp-2 leading-tight group-hover:text-red-700 transition-colors font-medium tracking-tight">
-                                    {decodeHtml(movie.name)}
-                                </h3>
-                            </motion.div>
-                        ))
-                    )}
+                    {movies.map((movie) => (
+                        <motion.div key={movie._id} variants={itemVariants} className="group flex flex-col items-center">
+                            <TransitionLink href={`/phim/${movie.slug}`} className="relative w-full aspect-[2/3] rounded-2xl overflow-hidden shadow-lg border-2 border-transparent group-hover:border-red-600 transition-all duration-500 transform  group-hover:shadow-[0_15px_35px_rgba(185,28,28,0.2)] bg-gray-200 block">
+                                <img
+                                    src={getImageUrl(movie.poster_url, { width: 400 })}
+                                    alt={movie.name}
+                                    className="w-full h-full object-cover transition-transform duration-700"
+                                    loading="lazy"
+                                />
+                                <div className="absolute inset-0 bg-gradient-to-t from-red-950/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                                <div className="absolute inset-0 p-4 flex flex-col justify-end translate-y-6 group-hover:translate-y-0 transition-all duration-300 opacity-0 group-hover:opacity-100">
+                                    <span className="w-full py-2.5 bg-yellow-400 text-red-900 font-medium rounded-xl text-[10px] uppercase shadow-lg border border-yellow-500 flex items-center justify-center">
+                                        Xem Phim
+                                    </span>
+                                </div>
+                            </TransitionLink>
+                            <h3 className="mt-3 text-center text-gray-800 text-xs md:text-sm line-clamp-2 leading-tight group-hover:text-red-700 transition-colors font-medium tracking-tight">
+                                {decodeHtml(movie.name)}
+                            </h3>
+                        </motion.div>
+                    ))}
                 </motion.div>
 
                 {/* Banner Footer */}

@@ -14,8 +14,8 @@ export default function SwiperNavButtons({ prevClassName, nextClassName, variant
     const isGhost = variant === "ghost";
 
     const baseStyles = isGhost 
-        ? "xl:block hidden sw-button absolute top-[35%] -translate-y-1/2 z-40 text-white/30 hover:text-white transition-colors disabled:opacity-0 cursor-pointer"
-        : "xl:flex hidden absolute top-1/2 -translate-y-[calc(50%+24px)] z-10 w-10 h-10 rounded-full items-center justify-center transition-all duration-300 disabled:opacity-0 disabled:pointer-events-none cursor-pointer shadow-lg";
+        ? "xl:flex hidden sw-button absolute top-[42%] -translate-y-1/2 z-40 text-white/30 hover:text-white transition-colors disabled:opacity-0 cursor-pointer items-center justify-center"
+        : "xl:flex hidden absolute top-1/2 -translate-y-[calc(50%+32px)] z-10 w-10 h-10 rounded-full items-center justify-center transition-all duration-300 disabled:opacity-0 disabled:pointer-events-none cursor-pointer shadow-lg";
     
     const variantStyles = isGhost
         ? ""

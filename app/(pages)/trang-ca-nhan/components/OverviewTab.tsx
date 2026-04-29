@@ -34,7 +34,7 @@ export default function OverviewTab({ user, displayName, setShowPremiumModal }: 
           <p className="text-md font-medium text-white italic">LoFilm Free+</p>
           <button
             onClick={() => setShowPremiumModal(true)}
-            className="text-amber-400 text-xs font-medium mt-4 hover:underline cursor-pointer flex items-center gap-1 group/btn"
+            className="text-amber-400 text-xs font-medium mt-4 hover:text-amber-300 cursor-pointer flex items-center gap-1 group/btn"
           >
             <span className="">Nâng cấp Premium</span>
           </button>

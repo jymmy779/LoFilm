@@ -20,8 +20,14 @@ import FeaturedSliderSkeleton from "./components/FeaturedSlider/FeaturedSliderSk
 import RandomMovieRowSkeleton from "./components/MovieRow/RandomMovieRowSkeleton";
 import WideMovieRowSkeleton from "./components/MovieRow/WideMovieRowSkeleton";
 import ReunificationEvent from "./components/ReunificationEvent";
+import ReunificationEventSkeleton from "./components/SpecialSections/ReunificationEventSkeleton";
 
 export default function HomeClient({ prefetched }: { prefetched: HomePrefetch }) {
+    const today = new Date();
+    const month = today.getMonth() + 1;
+    const date = today.getDate();
+    const isEventPeriod = (month === 4 && date >= 25) || (month === 5 && date <= 2);
+
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         if (params.get('status') === 'verified') {
@@ -46,7 +52,11 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <div className="flex flex-col gap-6 md:gap-[50px] pb-20">
                 <CategoriesSection initialCategories={prefetched.categories} />
 
-                <ReunificationEvent />
+                {isEventPeriod && (
+                    <LazyRow estimatedHeight="600px" skeleton={<ReunificationEventSkeleton />}>
+                        <ReunificationEvent />
+                    </LazyRow>
+                )}
 
 
                 <ContinueWatchingRow initialHistory={prefetched.initialHistory} />
