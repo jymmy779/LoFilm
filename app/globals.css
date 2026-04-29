@@ -18,6 +18,12 @@ html {
   /* Prevents unwanted horizontal scrolling */
 }
 
+/* Fix extra space on right when in fullscreen */
+html.fullscreen-scrollbar-fix,
+html:has(:fullscreen) {
+  scrollbar-gutter: auto !important;
+}
+
 body {
   overflow-x: hidden;
 }

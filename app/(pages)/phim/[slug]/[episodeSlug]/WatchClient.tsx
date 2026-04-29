@@ -740,6 +740,15 @@ export default function WatchClient({
     }, [isTheaterMode]);
 
     useEffect(() => {
+        if (isFullscreen) {
+            document.documentElement.classList.add('fullscreen-scrollbar-fix');
+        } else {
+            document.documentElement.classList.remove('fullscreen-scrollbar-fix');
+        }
+        return () => document.documentElement.classList.remove('fullscreen-scrollbar-fix');
+    }, [isFullscreen]);
+
+    useEffect(() => {
         if (showEpisodeOverlay) {
             const activeEl = document.getElementById('active-episode');
             const container = document.getElementById('episode-list-container');
