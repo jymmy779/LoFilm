@@ -82,17 +82,18 @@ export default function InitialLoader() {
           align-items: center;
           gap: 20px;
         }
-        .lofilm-loader-text {
-          font-size: 3.5rem;
-          font-weight: 900;
-          letter-spacing: 0.3em;
-          color: white;
+        .lofilm-loader-logo {
+          width: 180px;
+          max-width: 80vw;
+          height: auto;
+          display: block;
+          margin: 0 auto;
           animation: cssFadeInUp 0.8s ease-out 0.2s forwards;
           opacity: 0;
-          text-shadow: 0 0 30px rgba(255,255,255,0.2);
+          filter: brightness(0.75) drop-shadow(0 10px 30px rgba(0,0,0,0.8));
         }
         @media (min-width: 768px) {
-          .lofilm-loader-text { font-size: 6rem; }
+          .lofilm-loader-logo { width: 260px; }
         }
         .lofilm-loader-bar-container {
           width: 140px;
@@ -121,9 +122,11 @@ export default function InitialLoader() {
 
       <div className={`lofilm-loader-overlay ${fadingOut ? 'fade-out' : ''}`}>
         <div className="lofilm-loader-content">
-          <div className="lofilm-loader-text font-heading">
-            LOFILM
-          </div>
+          <img
+            src="/lofilm_logo.webp"
+            alt="LoFilm Logo"
+            className="lofilm-loader-logo"
+          />
 
           <div className="lofilm-loader-bar-container">
             <div className="lofilm-loader-bar-fill"></div>

@@ -14,7 +14,7 @@ interface HistoryTabProps {
 export default function HistoryTab({ watchHistory, isHistoryLoading, onDeleteItem, onClearAll }: HistoryTabProps) {
   return (
     <div className="space-y-8 min-h-[400px]">
-      <div className="flex items-center flex-col lg:flex-row justify-between border-b border-white/5 pb-6">
+      <div className="flex items-center flex-col justify-between border-b border-white/5 pb-6">
         <div className="flex w-full items-center justify-between mb-2 gap-4">
           <h2 className="text-lg lg:text-xl font-bold text-white uppercase italic tracking-tighter text-amber-400">Dấu vết điện ảnh</h2>
           {watchHistory.length > 0 && (

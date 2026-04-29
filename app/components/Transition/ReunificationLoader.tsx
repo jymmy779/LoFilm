@@ -67,8 +67,8 @@ export default function ReunificationLoader() {
                     100% { transform: translateX(110vw) translateY(0px) rotate(0deg); }
                 }
                 @keyframes flagWave {
-                    0%, 100% { transform: rotate(12deg) scale(1) translateY(0); }
-                    50% { transform: rotate(15deg) scale(1.05) translateY(-5px); }
+                    0%, 100% { transform: scale(1) translateY(0); }
+                    50% { transform: scale(1.05) translateY(-5px); }
                 }
                 @keyframes pulseGold {
                     0%, 100% { opacity: 0.3; }
@@ -82,7 +82,7 @@ export default function ReunificationLoader() {
                     flex-direction: column;
                     align-items: center;
                     justify-content: center;
-                    background: #1a0505; /* Extra Dark Red */
+                    background: #050a14;
                     transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
                     overflow: hidden;
                 }
@@ -93,8 +93,8 @@ export default function ReunificationLoader() {
                 .loader-bg-glow {
                     position: absolute;
                     inset: 0;
-                    background: radial-gradient(circle at center, #7f1d1d 0%, transparent 70%);
-                    opacity: 0.2;
+                    background: radial-gradient(circle at center, #1e3a8a 0%, transparent 70%);
+                    opacity: 0.15;
                 }
                 .loader-center {
                     position: relative;
@@ -104,24 +104,42 @@ export default function ReunificationLoader() {
                 }
                 .flag-badge {
                     width: 120px;
-                    margin: 0 auto 30px;
+                    margin: 0 auto -45px; /* Tăng độ đè lên */
                     animation: cssFadeInUp 0.8s ease-out forwards, flagWave 3s ease-in-out 0.8s infinite;
                     opacity: 0;
+                    position: relative;
+                    z-index: 5;
+                }
+                .flag-badge::after {
+                    content: "";
+                    position: absolute;
+                    bottom: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 50%;
+                    background: linear-gradient(to top, #050a14 0%, transparent 100%);
+                    z-index: 6;
                 }
                 @media (min-width: 768px) {
-                    .flag-badge { width: 180px; }
+                    .flag-badge { width: 180px; margin-bottom: -65px; }
                 }
-                .event-brand {
-                    font-size: 2.5rem;
-                    font-weight: 950;
-                    color: #fff;
-                    letter-spacing: 0.2em;
-                    text-shadow: 0 0 30px rgba(255,255,255,0.2);
+                .flag-badge img {
+                    filter: brightness(0.75);
+                }
+                .event-logo {
+                    width: 180px;
+                    max-width: 80vw;
+                    height: auto;
+                    display: block;
+                    margin: 0 auto;
                     animation: cssFadeInUp 0.8s ease-out 0.2s forwards;
                     opacity: 0;
+                    filter: brightness(0.75) drop-shadow(0 10px 20px rgba(0,0,0,0.7)) drop-shadow(0 0 30px rgba(255,255,255,0.1));
+                    position: relative;
+                    z-index: 10; /* Đảm bảo nằm trên lá cờ */
                 }
                 @media (min-width: 768px) {
-                    .event-brand { font-size: 6rem; letter-spacing: 0.3em; }
+                    .event-logo { width: 260px; }
                 }
                 .event-celebration {
                     color: #fbbf24;
@@ -132,9 +150,17 @@ export default function ReunificationLoader() {
                     margin-top: 10px;
                     opacity: 0;
                     animation: cssFadeInUp 0.8s ease-out 0.4s forwards;
+                    text-align: center;
+                    margin-right: -0.2em; /* Bù trừ letter-spacing để căn giữa hoàn hảo */
+                    filter: brightness(0.75);
                 }
                 @media (min-width: 768px) {
-                    .event-celebration { font-size: 0.75rem; letter-spacing: 0.4em; margin-top: 15px; }
+                    .event-celebration { 
+                        font-size: 0.75rem; 
+                        letter-spacing: 0.4em; 
+                        margin-top: 15px;
+                        margin-right: -0.4em; /* Bù trừ cho bản desktop */
+                    }
                 }
                 .tank-lane {
                     position: absolute;
@@ -235,11 +261,13 @@ export default function ReunificationLoader() {
 
                 <div className="loader-center">
                     <div className="flag-badge">
-                        <img src="/vn-flag-full.gif" alt="Vietnam Flag" className="w-full h-auto drop-shadow-[0_20px_50px_rgba(185,28,28,0.5)]" />
+                        <img src="/vn-flag-full.gif" alt="Vietnam Flag" className="w-full h-auto" />
                     </div>
-                    <div className="event-brand font-heading">
-                        LOFILM
-                    </div>
+                    <img
+                        src="/lofilm_logo.webp"
+                        alt="LoFilm Logo"
+                        className="event-logo mb-2"
+                    />
                     <div className="event-celebration">
                         Chúc mừng Đại lễ 30/04 - 01/05
                     </div>
