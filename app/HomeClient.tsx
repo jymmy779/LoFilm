@@ -45,13 +45,14 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
 
             <CategoriesSection initialCategories={prefetched.categories} />
 
+            <ReunificationEvent />
+
+
             <ContinueWatchingRow initialHistory={prefetched.initialHistory} />
 
             <LazyRow estimatedHeight="410px" skeleton={<RandomMovieRowSkeleton />}>
                 <RandomMovieRow />
             </LazyRow>
-
-            <ReunificationEvent />
 
             <LazyRow estimatedHeight="370px" skeleton={<MovieRowSkeleton />}>
                 <MovieRow
