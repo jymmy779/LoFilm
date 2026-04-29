@@ -89,7 +89,7 @@ export default function LazyRow({
             ) : (
                 !noSkeleton && (
                     skeleton ? skeleton : (
-                        <div className="w-full px-5 lg:px-12 mb-8 md:mb-12 lg:mb-16 mt-8">
+                        <div className="w-full px-5 lg:px-12">
                             <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/30 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 overflow-hidden">
                                 <div className="w-full xl:w-[260px] flex-shrink-0 flex xl:flex-col justify-between xl:justify-center gap-4">
                                     <Skeleton width={200} className="h-[28px] lg:h-[35px] rounded-lg" />

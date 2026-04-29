@@ -52,7 +52,7 @@ function MovieRow({
     if (movies.length === 0) return null;
 
     return (
-        <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8 animate-fade-in group">
+        <Container as="section" className="relative z-30 animate-fade-in">
             <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-white/[0.03] p-4 md:p-6 lg:p-10 rounded-[2rem] border border-white/5 hover:border-white/10 transition-[border-color] duration-500 shadow-2xl">
 
                 {/* === LEFT SIDE: TITLE & LINK === */}

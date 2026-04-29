@@ -8,14 +8,14 @@ import "swiper/css";
 
 export default function FeaturedSliderSkeleton() {
     return (
-        <Container as="section" className="relative mb-8 md:mb-12 lg:mb-16 mt-8">
+        <Container as="section" className="relative">
             <div className="row-header flex items-center justify-between mb-6">
                 <div className="flex items-center gap-4">
                     <Skeleton width={200} className="rounded-lg h-[28px] lg:h-[35px]" />
                     <div className="h-8 w-8 lg:h-10 lg:w-10 rounded-full bg-white/5 animate-pulse" />
                 </div>
             </div>
-            
+
             <div className="relative mb-42 group">
                 <Swiper slidesPerView={1} className="featured-section-slider rounded-[30px] overflow-hidden">
                     <SwiperSlide>

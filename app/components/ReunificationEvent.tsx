@@ -71,7 +71,7 @@ export default function ReunificationEvent() {
     };
 
     return (
-        <Container as="section" className="relative z-30 my-15  animate-fade-in">
+        <Container as="section" className="relative z-30 animate-fade-in">
             {/* BANNER DESIGN: Warm Beige Background with Red Accents */}
             <div className="relative w-full rounded-[2rem] md:rounded-[2.5rem] overflow-hidden bg-[#fdf8e6] border-2 md:border-4 border-[#e2dcc8] shadow-2xl p-5 md:p-10 lg:p-12">
 

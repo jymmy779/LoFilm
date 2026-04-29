@@ -9,7 +9,7 @@ import "swiper/css";
 
 export default function WideMovieRowSkeleton() {
     return (
-        <Container as="section" className="cards-row cards-slide wide relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
+        <Container as="section" className="relative z-30">
             <div className="row-header flex items-center justify-between mb-4 md:mb-6">
                 <Skeleton width={200} className="h-7 lg:h-10 rounded-lg" />
                 <Skeleton width={80} height={20} className="rounded" />

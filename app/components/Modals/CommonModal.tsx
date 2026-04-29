@@ -2,6 +2,8 @@
 
 import { motion, AnimatePresence } from "framer-motion";
 import { LucideIcon } from "lucide-react";
+import { createPortal } from "react-dom";
+import { useEffect, useState } from "react";
 
 interface CommonModalProps {
   isOpen: boolean;
@@ -26,6 +28,13 @@ export default function CommonModal({
   icon: Icon,
   variant = "danger",
 }: CommonModalProps) {
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
   const getVariantStyles = () => {
     switch (variant) {
       case "danger":
@@ -63,7 +72,9 @@ export default function CommonModal({
 
   const styles = getVariantStyles();
 
-  return (
+  if (!mounted) return null;
+
+  return createPortal(
     <AnimatePresence>
       {isOpen && (
         <div className="fixed inset-0 z-[1000] flex items-center justify-center px-4">
@@ -87,7 +98,7 @@ export default function CommonModal({
               <div className={`w-12 h-12 md:w-14 md:h-14 rounded-full ${styles.iconBg} flex items-center justify-center mb-3 md:mb-4`}>
                 <Icon size={20} className={`${styles.iconColor} md:w-6 md:h-6`} />
               </div>
-              <h3 className="text-base md:text-lg font-bold text-white mb-1.5 md:mb-2 uppercase tracking-tight italic">
+              <h3 className="text-base md:text-lg font-bold text-white mb-1.5 md:mb-2 tracking-tight italic">
                 {title}
               </h3>
               <p className="text-[11px] md:text-xs text-white/50 mb-5 md:mb-6 px-2 md:px-4 leading-relaxed">
@@ -103,7 +114,7 @@ export default function CommonModal({
                 {onConfirm && (
                   <button
                     onClick={onConfirm}
-                    className={`flex-1 cursor-pointer px-3 md:px-4 py-2.5 md:py-3 rounded-xl ${styles.confirmBg} text-[10px] md:text-xs font-black text-white transition-all active:scale-95 shadow-lg tracking-wider`}
+                    className={`flex-1 text-nowrap cursor-pointer px-3 md:px-4 py-2.5 md:py-3 rounded-xl ${styles.confirmBg} text-[10px] md:text-xs font-bold text-white transition-all active:scale-95 shadow-lg tracking-wider`}
                   >
                     {confirmText}
                   </button>
@@ -113,6 +124,7 @@ export default function CommonModal({
           </motion.div>
         </div>
       )}
-    </AnimatePresence>
+    </AnimatePresence>,
+    document.body
   );
 }

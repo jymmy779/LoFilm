@@ -12,7 +12,7 @@ const CLIP_PATH_ODD = 'polygon(0 0, calc(100% - 16px) 5%, calc(100% - 9.9px) cal
 
 export default function TopMovieRowSkeleton() {
     return (
-        <Container as="section" className="top-movie-row-section relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
+        <Container as="section" className="top-movie-row-section relative z-30">
             <div className="row-header flex items-center justify-between mb-8">
                 <Skeleton width={200} className="h-[28px] lg:h-[35px] rounded-lg" />
             </div>

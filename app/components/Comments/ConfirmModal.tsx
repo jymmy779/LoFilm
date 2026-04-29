@@ -47,26 +47,26 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
   };
 
   return (
-    <div 
-      className={`modal-overlay ${isClosing ? "is-closing" : ""}`} 
+    <div
+      className={`modal-overlay ${isClosing ? "is-closing" : ""}`}
       onClick={handleClose}
     >
-      <div 
-        className={`modal-content ${isClosing ? "is-closing" : ""}`} 
+      <div
+        className={`modal-content ${isClosing ? "is-closing" : ""}`}
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="modal-title">{title}</h3>
         <p className="modal-msg">{message}</p>
         <div className="modal-actions">
-          <button 
-            className="btn-cancel" 
+          <button
+            className="btn-cancel"
             onClick={handleClose}
             disabled={isLoading}
           >
             {cancelLabel}
           </button>
-          <button 
-            className="btn-confirm-delete" 
+          <button
+            className="btn-confirm-delete"
             onClick={onConfirm}
             disabled={isLoading}
           >

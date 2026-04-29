@@ -8,7 +8,7 @@ import "swiper/css";
 
 export default function RandomMovieRowSkeleton() {
     return (
-        <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
+        <Container as="section" className="relative z-30">
             {/* Header Match */}
             <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-5">
                 <Skeleton width={200} className="h-6 rounded-md" />
@@ -20,7 +20,7 @@ export default function RandomMovieRowSkeleton() {
                 <div className="flex gap-[10px] md:gap-[14px] xl:gap-[16px]">
                     {[...Array(8)].map((_, i) => (
                         <div key={i} className="flex-shrink-0 w-[calc(40%-6px)] sm:w-[calc(30%-8.4px)] md:w-[calc(23.8%-10.7px)] xl:w-[calc(19.2%-12.9px)] 2xl:w-[calc(16.1%-13.4px)] pt-2 pb-2">
-                             <div className="w-full min-h-[95px] md:min-h-[115px] bg-white/5 rounded-xl animate-pulse" />
+                            <div className="w-full min-h-[95px] md:min-h-[115px] bg-white/5 rounded-xl animate-pulse" />
                         </div>
                     ))}
                 </div>

@@ -395,6 +395,7 @@
   transition: background 0.2s;
   border: none;
   min-width: 120px;
+  white-space: nowrap;
 }
 
 .btn-cancel {

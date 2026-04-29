@@ -82,6 +82,9 @@ export default function ProfileContent() {
     if (activeTab === 'history' && user) {
       const fetchHistory = async () => {
         setIsHistoryLoading(true);
+        let combinedHistory: any[] = [];
+
+        // 1. Fetch from Supabase
         const { data, error } = await supabase
           .from('watch_history')
           .select('*')
@@ -90,8 +93,41 @@ export default function ProfileContent() {
           .limit(40);
 
         if (!error && data) {
-          setWatchHistory(data);
+          combinedHistory = data;
         }
+
+        // 2. Merge with LocalStorage (exactly like ContinueWatchingRow)
+        try {
+          const GUEST_HISTORY_KEY = 'lofilm-guest-watch-history';
+          const localDataStr = localStorage.getItem(GUEST_HISTORY_KEY);
+          if (localDataStr) {
+            const localHistory = JSON.parse(localDataStr);
+            const localItems = Object.values(localHistory)
+              .filter((item: any) => {
+                // Check if already in Supabase
+                const isDuplicate = combinedHistory.some(sh =>
+                  sh.movie_slug === item.movie_slug && sh.episode_slug === item.episode_slug
+                );
+                return !isDuplicate;
+              })
+              .map((item: any) => ({
+                ...item,
+                id: `local-${item.movie_slug}-${item.episode_slug}`,
+                updated_at: new Date(item.updated_at).toISOString()
+              }));
+
+            combinedHistory = [...combinedHistory, ...localItems];
+          }
+        } catch (e) {
+          console.error("Error merging local history in profile:", e);
+        }
+
+        // 3. Sort by time
+        combinedHistory.sort((a, b) =>
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        );
+
+        setWatchHistory(combinedHistory);
         setIsHistoryLoading(false);
       };
       fetchHistory();
@@ -148,16 +184,52 @@ export default function ProfileContent() {
   });
 
   const deleteHistoryItem = (id: string) => {
+    const itemToDelete = watchHistory.find(i => i.id === id);
+    if (!itemToDelete) return;
+
     setConfirmModal({
       isOpen: true,
       title: "Xóa lịch sử?",
       message: "Bạn có chắc chắn muốn xóa bộ phim này khỏi lịch sử xem không?",
       confirmText: "Xóa ngay",
       onConfirm: async () => {
-        const { error } = await supabase.from('watch_history').delete().eq('id', id);
-        if (!error) {
-          setWatchHistory(prev => prev.filter(item => item.id !== id));
-          toast.success("Đã xóa khỏi lịch sử");
+        const isLocal = id.toString().startsWith('local-');
+
+        if (isLocal) {
+          try {
+            const GUEST_HISTORY_KEY = 'lofilm-guest-watch-history';
+            const localDataStr = localStorage.getItem(GUEST_HISTORY_KEY);
+            if (localDataStr) {
+              const history = JSON.parse(localDataStr);
+              const key = `${itemToDelete.movie_slug}/${itemToDelete.episode_slug}`;
+              if (history[key]) {
+                delete history[key];
+                localStorage.setItem(GUEST_HISTORY_KEY, JSON.stringify(history));
+              }
+            }
+            setWatchHistory(prev => prev.filter(item => item.id !== id));
+            toast.success("Đã xóa khỏi lịch sử máy");
+          } catch (e) {
+            console.error("Error deleting local item:", e);
+          }
+        } else {
+          const { error } = await supabase.from('watch_history').delete().eq('id', id);
+          if (!error) {
+            setWatchHistory(prev => prev.filter(item => item.id !== id));
+            try {
+              const GUEST_HISTORY_KEY = 'lofilm-guest-watch-history';
+              const localDataStr = localStorage.getItem(GUEST_HISTORY_KEY);
+              if (localDataStr) {
+                const history = JSON.parse(localDataStr);
+                const key = `${itemToDelete.movie_slug}/${itemToDelete.episode_slug}`;
+                if (history[key]) {
+                  delete history[key];
+                  localStorage.setItem(GUEST_HISTORY_KEY, JSON.stringify(history));
+                }
+              }
+            } catch (e) { }
+            toast.success("Đã xóa khỏi lịch sử");
+          }
         }
         setConfirmModal(prev => ({ ...prev, isOpen: false }));
       }
@@ -169,11 +241,12 @@ export default function ProfileContent() {
       isOpen: true,
       title: "Xóa toàn bộ lịch sử?",
       message: "Hành động này sẽ xóa vĩnh viễn tất cả lịch sử xem phim của bạn. Bạn không thể khôi phục lại dữ liệu này.",
-      confirmText: "Xoát tất cả",
+      confirmText: "Xoá toàn bộ",
       onConfirm: async () => {
         const { error } = await supabase.from('watch_history').delete().eq('user_id', user.id);
         if (!error) {
           setWatchHistory([]);
+          localStorage.removeItem('lofilm-guest-watch-history');
           toast.success("Đã xóa toàn bộ lịch sử");
         }
         setConfirmModal(prev => ({ ...prev, isOpen: false }));
@@ -591,6 +664,7 @@ export default function ProfileContent() {
         onClose={() => setShowLogoutModal(false)}
         onConfirm={handleLogout}
       />
+
       <ComingSoonModal
         isOpen={showPremiumModal}
         onClose={() => setShowPremiumModal(false)}

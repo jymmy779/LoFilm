@@ -9,7 +9,7 @@ import "swiper/css";
 
 export default function MoviePosterRowSkeleton() {
     return (
-        <Container as="section" className="movie-row-section relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
+        <Container as="section" className="movie-row-section relative z-30">
             <div className="row-header flex items-center justify-between mb-6">
                 <Skeleton width={200} className="h-[28px] lg:h-[35px] rounded-lg" />
                 <Skeleton width={80} height={20} className="rounded" />

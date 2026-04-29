@@ -101,7 +101,7 @@ function RandomMovieRow() {
     }
 
     return (
-        <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8 animate-fade-in">
+        <Container as="section" className="relative z-30 animate-fade-in">
             {/* Header */}
             <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-5">
                 <div className="flex items-center gap-3">

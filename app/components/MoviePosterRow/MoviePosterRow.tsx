@@ -48,7 +48,7 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
     if (movies.length === 0) return null;
 
     return (
-        <Container as="section" className="movie-row-section relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8 animate-fade-in">
+        <Container as="section" className="movie-row-section relative z-30 animate-fade-in">
             <div className="row-header flex items-center justify-between mb-6">
                 <h2 className="text-[20px] lg:text-[28px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-blue-100 to-white drop-shadow-sm flex items-center gap-4">
                     {title}
