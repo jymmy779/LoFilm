@@ -19,6 +19,7 @@ import TopMovieRowSkeleton from "./components/TopMovieRow/TopMovieRowSkeleton";
 import FeaturedSliderSkeleton from "./components/FeaturedSlider/FeaturedSliderSkeleton";
 import RandomMovieRowSkeleton from "./components/MovieRow/RandomMovieRowSkeleton";
 import WideMovieRowSkeleton from "./components/MovieRow/WideMovieRowSkeleton";
+import ReunificationEvent from "./components/ReunificationEvent";
 
 export default function HomeClient({ prefetched }: { prefetched: HomePrefetch }) {
     useEffect(() => {
@@ -49,6 +50,8 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
             <LazyRow estimatedHeight="410px" skeleton={<RandomMovieRowSkeleton />}>
                 <RandomMovieRow />
             </LazyRow>
+
+            <ReunificationEvent />
 
             <LazyRow estimatedHeight="370px" skeleton={<MovieRowSkeleton />}>
                 <MovieRow

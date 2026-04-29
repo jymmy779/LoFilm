@@ -8,13 +8,20 @@ export default function InitialLoader() {
 
   useEffect(() => {
     document.body.style.overflow = "hidden";
+    const startTime = Date.now();
+    const minimumDisplayTime = 2000; // 2 giây hiển thị tối thiểu
 
     const startFadeOut = () => {
-      setFadingOut(true);
+      const elapsed = Date.now() - startTime;
+      const remaining = Math.max(0, minimumDisplayTime - elapsed);
+
       window.setTimeout(() => {
-        setShow(false);
-        document.body.style.overflow = "unset";
-      }, 700);
+        setFadingOut(true);
+        window.setTimeout(() => {
+          setShow(false);
+          document.body.style.overflow = "unset";
+        }, 700);
+      }, remaining);
     };
 
     const handleLoad = () => {
@@ -22,15 +29,13 @@ export default function InitialLoader() {
     };
 
     if (document.readyState === "complete") {
-      // Nếu đã load xong rồi thì ẩn ngay
       startFadeOut();
     } else {
-      // Chờ cho đến khi toàn bộ tài nguyên (ảnh, font...) tải xong thì mới ẩn
       window.addEventListener("load", handleLoad);
     }
 
-    // Dự phòng: tối đa 3s nếu có tài nguyên nào đó bị kẹt
-    const safety = window.setTimeout(startFadeOut, 3000);
+    // Dự phòng: tối đa 5s nếu có tài nguyên nào đó bị kẹt (tăng lên vì đã có min time)
+    const safety = window.setTimeout(startFadeOut, 5000);
 
     return () => {
       window.removeEventListener("load", handleLoad);

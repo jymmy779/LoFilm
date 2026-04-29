@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
 import InitialLoader from "./components/Transition/InitialLoader";
+import ReunificationLoader from "./components/Transition/ReunificationLoader";
 import { PageTransitionProvider } from "./components/Transition/PageTransitionContext";
 import "./globals.css";
 import "react-loading-skeleton/dist/skeleton.css";
@@ -191,7 +192,13 @@ export default function RootLayout({
         </Suspense>
         <NetworkMonitor />
         <AuthListener />
-        <InitialLoader />
+        {(() => {
+          const today = new Date();
+          const month = today.getMonth() + 1;
+          const day = today.getDate();
+          const isEventPeriod = (month === 4 && day >= 25) || (month === 5 && day <= 2);
+          return isEventPeriod ? <ReunificationLoader /> : <InitialLoader />;
+        })()}
         <AuthProvider>
           <LazyMotion features={domAnimation}>
             <PageTransitionProvider>
