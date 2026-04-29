@@ -15,7 +15,7 @@ export default function FavoritesTab({ favorites, isFavoritesLoading, onDeleteIt
   return (
     <div className="space-y-8 min-h-[400px]">
       <div className="flex flex-col lg:flex-row items-center justify-between border-b border-white/5 pb-6">
-        <div className="flex items-center gap-4">
+        <div className="flex w-full items-center justify-between mb-2 gap-4">
           <h2 className="text-lg lg:text-xl font-bold text-white uppercase italic tracking-tighter text-rose-400">Kho tàng yêu thích</h2>
           {favorites.length > 0 && (
             <button

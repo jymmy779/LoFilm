@@ -15,7 +15,7 @@ export default function WatchlistTab({ watchlist, isWatchlistLoading, onDeleteIt
   return (
     <div className="space-y-8 min-h-[400px]">
       <div className="flex flex-col lg:flex-row items-center justify-between border-b border-white/5 pb-6">
-        <div className="flex items-center gap-4">
+        <div className="flex w-full justify-between mb-2 items-center gap-4">
           <h2 className="text-lg lg:text-xl font-bold text-white uppercase italic tracking-tighter text-amber-400">Xem sau</h2>
           {watchlist.length > 0 && (
             <button
