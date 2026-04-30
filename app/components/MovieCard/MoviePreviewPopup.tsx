@@ -43,7 +43,7 @@ export default function MoviePreviewPopup({
         let isMounted = true;
         const fetchExactPlayUrl = async () => {
             try {
-                const res = await fetch(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}&revalidate=30`);
+                const res = await fetch(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}&revalidate=60`);
                 const data = await res.json();
 
                 if (isMounted && data?.movie) {

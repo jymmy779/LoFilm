@@ -8,11 +8,7 @@ import { AnimatePresence } from "framer-motion";
 import { Movie } from "@/app/types/movie";
 import { getImageUrl } from "@/app/utils/movieUtils";
 
-// Code splitting: Chỉ tải Popup khi thực sự cần (người dùng hover)
-const MoviePreviewPopup = dynamic(() => import("./MoviePreviewPopup"), {
-    ssr: false,
-    loading: () => null
-});
+import MoviePreviewPopup from "./MoviePreviewPopup";
 
 // Biến global để quản lý việc chỉ hiện duy nhất 1 popup trên toàn trang
 let activePopupCloser: (() => void) | null = null;
