@@ -101,12 +101,6 @@ export default function ReunificationLoader() {
                     z-index: 10;
                     text-align: center;
                     margin-top: -50px;
-                    transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-                    will-change: transform, opacity;
-                }
-                .reunification-loader.fade-out .loader-center {
-                    transform: scale(0.9);
-                    opacity: 0;
                 }
                 .flag-badge {
                     width: 120px;

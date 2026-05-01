@@ -81,12 +81,6 @@ export default function InitialLoader() {
           flex-direction: column;
           align-items: center;
           gap: 20px;
-          transition: transform 0.7s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.7s cubic-bezier(0.4, 0, 0.2, 1);
-          will-change: transform, opacity;
-        }
-        .lofilm-loader-overlay.fade-out .lofilm-loader-content {
-          transform: scale(0.9);
-          opacity: 0;
         }
         .lofilm-loader-logo {
           width: 180px;
