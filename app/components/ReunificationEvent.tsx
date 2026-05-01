@@ -116,7 +116,7 @@ export default function ReunificationEvent() {
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-red-950/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="absolute inset-0 p-4 flex flex-col justify-end translate-y-6 group-hover:translate-y-0 transition-all duration-300 opacity-0 group-hover:opacity-100">
-                                    <span className="w-full py-2.5 bg-yellow-400 text-red-900 font-medium rounded-xl text-[10px] uppercase shadow-lg border border-yellow-500 flex items-center justify-center">
+                                    <span className="w-full py-2.5 bg-yellow-400 text-red-900 font-medium rounded-xl text-[10px] shadow-lg border border-yellow-500 flex items-center justify-center">
                                         Xem Phim
                                     </span>
                                 </div>
