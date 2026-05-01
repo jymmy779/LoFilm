@@ -14,11 +14,15 @@ interface WideMovieCardProps {
 export default function WideMovieCard({ movie, priority = false, adZone = "wide_movie" }: WideMovieCardProps) {
     const thumbUrl = movie.thumb_url ? getImageUrl(movie.thumb_url, { width: 800, quality: 80 }) : 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';
     return (
-        <TransitionLink
-            href={`/phim/${movie.slug}`}
+        <MoviePreviewWrapper
+            movie={movie}
+            adZone={adZone}
             className="block group cursor-pointer relative"
         >
-            <MoviePreviewWrapper movie={movie} adZone={adZone}>
+            <TransitionLink
+                href={`/phim/${movie.slug}`}
+                className="block w-full h-full"
+            >
                 {/* Background Thumbnail (Horizontal) - aspect 21/9 */}
                 <div className="v-thumbnail v-thumbnail-hoz relative aspect-[21/9] overflow-hidden transform-gpu bg-white/5">
                     <Image
@@ -54,7 +58,7 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
                         </div>
                     </div>
                 </div>
-            </MoviePreviewWrapper>
-        </TransitionLink>
+            </TransitionLink>
+        </MoviePreviewWrapper>
     );
 }

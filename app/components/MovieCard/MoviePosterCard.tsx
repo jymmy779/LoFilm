@@ -35,18 +35,18 @@ function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZon
         : "N/A";
 
     return (
-        <TransitionLink
-            href={moviePath}
-            onClick={handleAdClick}
-            className="block h-full"
+        <MoviePreviewWrapper
+            movie={movie}
+            user={user}
+            isFirst={isFirst}
+            isLast={isLast}
+            adZone={adZone}
+            className="sw-item group/item cursor-pointer relative h-full flex flex-col"
         >
-            <MoviePreviewWrapper
-                movie={movie}
-                user={user}
-                isFirst={isFirst}
-                isLast={isLast}
-                adZone={adZone}
-                className="sw-item group/item cursor-pointer relative h-full flex flex-col"
+            <TransitionLink
+                href={moviePath}
+                onClick={handleAdClick}
+                className="block h-full"
             >
                 <div className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-white/5 border border-white/10 group-hover/item:border-white/20 transition-[border-color,box-shadow] duration-500 shadow-lg group-hover/item:shadow-[0_0_20px_rgba(255,255,255,0.05)]">
                     {/* Poster Image */}
@@ -87,8 +87,8 @@ function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZon
                         <span>{decodeHtml(movie.origin_name)}</span>
                     </h4>
                 </div>
-            </MoviePreviewWrapper>
-        </TransitionLink>
+            </TransitionLink>
+        </MoviePreviewWrapper>
     );
 }
 

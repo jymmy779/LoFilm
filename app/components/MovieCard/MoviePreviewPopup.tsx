@@ -108,7 +108,6 @@ export default function MoviePreviewPopup({
             className="absolute z-[9999] w-[420px] pointer-events-auto hidden xl:block select-none transform-gpu"
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
-            onClick={(e) => e.stopPropagation()}
             style={{
                 top: position.top,
                 left: position.left

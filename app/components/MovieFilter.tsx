@@ -105,15 +105,35 @@ export default function MovieFilter({
             <AnimatePresence>
                 {isOpen && (
                     <motion.div
-                        initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                        animate={{ height: "auto", opacity: 1, marginTop: 16 }}
-                        exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                        transition={{
-                            duration: 0.3,
-                            ease: "easeInOut"
+                        variants={{
+                            open: { 
+                                height: "auto", 
+                                opacity: 1, 
+                                marginTop: 16,
+                                transition: {
+                                    height: { duration: 0.4, ease: [0.04, 0.62, 0.23, 0.98] },
+                                    opacity: { duration: 0.25, delay: 0.05 }
+                                }
+                            },
+                            closed: { 
+                                height: 0, 
+                                opacity: 0, 
+                                marginTop: 0,
+                                transition: {
+                                    height: { duration: 0.3, ease: [0.04, 0.62, 0.23, 0.98] },
+                                    opacity: { duration: 0.2 }
+                                }
+                            }
                         }}
-                        style={{ overflow: "hidden", transform: "translateZ(0)" }}
-                        className="bg-white/5 border border-white/10 rounded-2xl"
+                        initial="closed"
+                        animate="open"
+                        exit="closed"
+                        style={{ 
+                            overflow: "hidden", 
+                            willChange: "height, opacity",
+                            transform: "translateZ(0)" 
+                        }}
+                        className="bg-white/5 border border-white/10 rounded-2xl transform-gpu"
                     >
                         <div className="p-4 md:p-6 space-y-6">
                             {/* Row: Quốc gia */}

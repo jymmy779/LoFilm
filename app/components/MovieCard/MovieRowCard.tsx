@@ -19,14 +19,15 @@ function MovieRowCard({ movie, priority = false, adZone = "movie_row", onClick }
     const imgUrl = getImageUrl(movie.thumb_url, { width: 300, quality: 75 });
 
     return (
-        <TransitionLink
-            href={`/phim/${movie.slug}`}
-            onClick={onClick}
+        <MoviePreviewWrapper
+            movie={movie}
+            adZone={adZone}
             className="block group/item cursor-pointer optimize-render transform-gpu"
         >
-            <MoviePreviewWrapper
-                movie={movie}
-                adZone={adZone}
+            <TransitionLink
+                href={`/phim/${movie.slug}`}
+                onClick={onClick}
+                className="block w-full h-full"
             >
                 <div className="relative aspect-video rounded-xl overflow-hidden bg-white/5 mb-3 border border-white/10 group-hover/item:border-white/20 transition-all shadow-lg">
                     <SmartImage
@@ -68,8 +69,8 @@ function MovieRowCard({ movie, priority = false, adZone = "movie_row", onClick }
                         {decodeHtml(movie.origin_name)}
                     </p>
                 </div>
-            </MoviePreviewWrapper>
-        </TransitionLink>
+            </TransitionLink>
+        </MoviePreviewWrapper>
     );
 }
 
