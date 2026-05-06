@@ -91,24 +91,14 @@ export const TRANSPARENT_GIF = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQ
  * Build full image URL from potentially relative path and wrap with high-performance WebP proxy (wsrv.nl)
  * Supports resizing and optimization.
  */
-export function getImageUrl(url: string | undefined, options?: { width?: number; quality?: number; format?: string }): string {
+export function getImageUrl(url: string | undefined): string {
     if (!url) return TRANSPARENT_GIF;
 
-    // 1. Chuẩn hóa URL gốc (Trim trắng tránh lỗi proxy)
+    // Chuẩn hóa URL gốc (Trim trắng tránh lỗi)
     const trimmedUrl = url.trim();
-    const fullUrl = trimmedUrl.startsWith("http") ? trimmedUrl : `https://phimimg.com/${trimmedUrl.startsWith('/') ? trimmedUrl.slice(1) : trimmedUrl}`;
-
-    // 2. Sử dụng wsrv.nl làm proxy mặc định (nhanh, miễn phí, hỗ trợ xử lý ảnh tốt hơn)
-    // Thêm tham số &n=5 để trình duyệt cache ảnh tối ưu trong 5 ngày, cải thiện tốc độ load đáng kể
-    const { width, quality = 80, format = "webp" } = options || {};
-
-    let proxyUrl = `https://wsrv.nl/?url=${encodeURIComponent(fullUrl)}&output=${format}&q=${quality}&af&il&n=5`;
-
-    if (width) {
-        proxyUrl += `&w=${width}&we`;
-    }
-
-    return proxyUrl;
+    return trimmedUrl.startsWith("http") 
+        ? trimmedUrl 
+        : `https://phimimg.com/${trimmedUrl.startsWith('/') ? trimmedUrl.slice(1) : trimmedUrl}`;
 }
 
 /**
