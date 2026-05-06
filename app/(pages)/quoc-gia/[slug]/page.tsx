@@ -26,7 +26,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 
     return {
         title: `Phim ${title} | LoFilm - Xem phim online chất lượng cao`,
-        description: `Tổng hợp các bộ phim sản xuất tại ${title} mới nhất, được cập nhật liên tục trên LoFilm.`,
+        description: `Tổng hợp các bộ phim sản xuất tại ${title} mới nhất, được cập nhật liên tục trên LoFilm. Xem phim ${title} vietsub chất lượng 4K.`,
+        keywords: [
+            `phim ${title}`,
+            `xem phim ${title}`,
+            `phim ${title} moi`,
+            `phim ${title} hay`,
+            `phim ${title} vietsub`,
+            `phim ${title} thuyet minh`,
+            "lofilm",
+            "xem phim online"
+        ],
         alternates: {
             canonical: `https://www.munos.store/quoc-gia/${slug}`,
         },

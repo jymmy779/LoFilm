@@ -37,9 +37,19 @@ export const viewport: Viewport = {
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.munos.store'),
   title: "LoFilm - Xem Phim Online Chất Lượng Cao | Phim 4K Vietsub Miễn Phí",
-  description: "LoFilm - Trang xem phim online chất lượng cao 4K, Vietsub, thuyết minh miễn phí. Kho phim lẻ, phim bộ, anime, phim chiếu rạp mới nhất 2026. Xem phim LoFilm không quảng cáo, tốc độ nhanh.",
+  description: "LoFilm - Trang xem phim online chất lượng cao 4K, Vietsub, thuyết minh hoàn toàn miễn phí. Kho phim lẻ, phim bộ, anime, phim chiếu rạp mới nhất 2025-2026. Trải nghiệm xem phim LoFilm không quảng cáo, tốc độ tải cực nhanh, giao diện hiện đại.",
   manifest: '/manifest.json',
-  keywords: ["LoFilm", "lofilm", "lo film", "xem phim lofilm", "xem phim lo film", "lofilm tv", "lofilm net", "lofilm me", "lofilm chill", "lofilm phim", "lo phim", "trang phim lofilm", "web phim lofilm", "lofilm xem phim", "lofilm phim hay", "lofilm vietsub", "lofilm 4k", "phim moi", "phim hay 2026", "xem phim online", "phim vietsub", "phim bo moi", "phim le hay"],
+  keywords: [
+    "LoFilm", "lofilm", "lo film", "lofilmtv", "lofilm net", "lofilm me", "lofilm chill", "lofilm phim", 
+    "xem phim lofilm", "xem phim lo film", "trang phim lofilm", "web phim lofilm", "lofilm xem phim", 
+    "lofilm phim hay", "lofilm vietsub", "lofilm 4k", "phim moi", "phim hay 2026", "xem phim online", 
+    "phim vietsub", "phim bo moi", "phim le hay", "phim chieu rap", "phim thuyet minh", "phim long tieng", 
+    "xem phim hd", "phim online mien phi", "phim nhanh", "phim khong quang cao", "kho phim hay", 
+    "phim hanh dong", "phim tinh cam", "phim hai", "phim co trang", "phim ma", "phim kinh di", 
+    "phim hoat hinh", "anime vietsub", "phim trung quoc", "phim han quoc", "phim au my", "phim thai lan", 
+    "phim nhat ban", "phim viet nam", "phim moi nhat", "xem phim nhanh", "phim chat luong cao", 
+    "phim 1080p", "phim bluray", "phim netflix", "phim hulu", "phim disney", "phim hay moi ngay"
+  ],
   robots: {
     index: true,
     follow: true,

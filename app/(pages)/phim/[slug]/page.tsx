@@ -50,9 +50,26 @@ export async function generateMetadata({
         ? movie.content.replace(/<[^>]*>/g, '').substring(0, 160)
         : `Xem phim ${movie.name} (${movie.origin_name}) vietsub chất lượng cao tại LoFilm`;
 
+    // Tạo danh sách keywords động
+    const dynamicKeywords = [
+        movie.name,
+        movie.origin_name,
+        `xem phim ${movie.name}`,
+        `${movie.name} vietsub`,
+        `${movie.name} thuyet minh`,
+        `${movie.name} full hd`,
+        `${movie.name} lofilm`,
+        ...(movie.category?.map(c => c.name) || []),
+        ...(movie.category?.map(c => `phim ${c.name}`) || []),
+        ...(movie.actor?.slice(0, 5) || []),
+        ...(movie.director || []),
+        "LoFilm", "xem phim online", "phim moi"
+    ].filter(Boolean);
+
     return {
         title: `${movie.name} (${movie.origin_name}) - LoFilm`,
         description,
+        keywords: dynamicKeywords,
         openGraph: {
             title: `${movie.name} - LoFilm`,
             description,
