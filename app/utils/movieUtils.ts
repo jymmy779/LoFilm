@@ -91,7 +91,7 @@ export const TRANSPARENT_GIF = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQ
  * Build full image URL from potentially relative path and wrap with high-performance WebP proxy (wsrv.nl)
  * Supports resizing and optimization.
  */
-export function getImageUrl(url: string | undefined): string {
+export function getImageUrl(url: string | undefined, options?: { width?: number; quality?: number }): string {
     if (!url) return TRANSPARENT_GIF;
 
     // Chuẩn hóa URL gốc (Trim trắng tránh lỗi)
