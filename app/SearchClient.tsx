@@ -97,6 +97,7 @@ function SearchContent() {
             if (movies.length > 0) {
                 setIsPageLoading(true);
             } else {
+                setMovies([]); // Xóa kết quả cũ để tránh hiện tập phim sai
                 setIsLoading(true);
             }
 
@@ -133,20 +134,8 @@ function SearchContent() {
                         setIsLoading(false);
                         setIsPageLoading(false);
                     }
-
-                    // --- Background Enrichment (Smarter & Non-blocking) ---
-                    // Wait a bit for initial render to settle
-                    await new Promise(r => setTimeout(r, 100));
-                    
-                    const mounted = () => isMounted;
-                    await enrichMoviesMetadata({
-                        items,
-                        setItems: setMovies,
-                        isMounted: mounted,
-                        chunkSize: 4,
-                        delay: 100
-                    });
                 } else {
+
                     if (isMounted) {
                         setMovies([]);
                         setTotalPages(1);

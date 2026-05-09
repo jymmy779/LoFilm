@@ -159,6 +159,7 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
             if (movies.length > 0) {
                 setIsPageLoading(true);
             } else {
+                setMovies([]); // Clear old results to avoid flickering
                 setIsLoading(true);
             }
 
@@ -289,16 +290,6 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                     setIsLoading(false);
                     setIsPageLoading(false);
                 }
-
-                // Data Enrichment (Episode totals)
-                const mounted = () => isMounted;
-                await enrichMoviesMetadata({
-                    items,
-                    setItems: setMovies,
-                    isMounted: mounted,
-                    chunkSize: 4,
-                    delay: 50
-                });
             } catch (error) {
                 console.error("Lỗi fetch phim:", error);
                 if (isMounted) { setIsLoading(false); setIsPageLoading(false); }

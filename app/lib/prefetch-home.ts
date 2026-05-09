@@ -62,6 +62,22 @@ async function fetchFeatured(url: string, limit: number = 10): Promise<Movie[]> 
     }
 }
 
+/**
+ * Lấy danh sách phim cho Top Rows
+ */
+async function fetchTop(url: string, limit: number = 30): Promise<Movie[]> {
+    try {
+        const res = await fetchPhimJson(url, true);
+        const items = parseV1Items(res);
+        if (items.length === 0) return [];
+
+        return filterDuplicateMovies(items).slice(0, limit);
+    } catch (error) {
+        console.error(`Lỗi prefetch top row từ ${url}:`, error);
+        return [];
+    }
+}
+
 async function mapHero(payload: unknown): Promise<Movie[]> {
     const raw = parseV3HeroItems(payload);
     return filterDuplicateMovies(raw).slice(0, 8);
@@ -166,6 +182,8 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
         nominatedMovies,
         featuredTvMovies,
         featuredAnimeMovies,
+        topLeMovies,
+        topBoMovies,
     ] = await Promise.all([
         fetchPhimJson(URLS.hero, true),
         fetchPhimJson(URLS.categories),
@@ -173,6 +191,8 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
         mapNominated(),
         fetchFeatured(URLS.featuredTv, 10),
         fetchFeatured(URLS.featuredAnime, 10),
+        fetchTop(URLS.topPhimLe, 30),
+        fetchTop(URLS.topPhimBo, 30),
     ]);
 
     const heroMovies = await mapHero(heroRaw);
@@ -196,8 +216,8 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
         movieRowAuMy: [],
         posterChieuRap: [],
         posterPhimBo: [],
-        topPhimLe: [],
-        topPhimBo: [],
+        topPhimLe: topLeMovies,
+        topPhimBo: topBoMovies,
         posterKinhDi: [],
         posterHoatHinh: [],
         phimNgan: [],
