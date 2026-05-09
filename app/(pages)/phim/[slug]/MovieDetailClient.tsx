@@ -80,23 +80,24 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
 
     // Effect to correct the MAIN movie metadata if inaccurate
     useEffect(() => {
-        const correctMainMovie = async () => {
-            const curNum = parseInt(movie.episode_current?.match(/\d+/)?.[0] || "0");
-            const totNum = parseInt(movie.episode_total?.match(/\d+/)?.[0] || "1000"); // Default big if not found
+        const correctMainMovie = () => {
+            const episodesList = episodes?.[0]?.server_data || [];
+            const realEpisodesCount = episodesList.length;
+            
+            // Lấy số từ episode_total (ví dụ "169" từ "Tập 169" hoặc "169")
+            const totNum = parseInt(movie.episode_total?.match(/\d+/)?.[0] || "0");
 
-            // Check if inaccurate: current > total (e.g., 169 > 150)
-            if (curNum > totNum && movie.tmdb?.id && movie.tmdb.type === "tv") {
-                const tmdbTotal = await fetchTotalEpisodesFromTMDB(movie.tmdb.id);
-                if (tmdbTotal && tmdbTotal >= curNum) {
-                    setMovie(prev => ({
-                        ...prev,
-                        episode_total: tmdbTotal.toString()
-                    }));
-                }
+            // Nếu số tập thực tế có sẵn lớn hơn episode_total hiển thị, 
+            // hoặc episode_total không phải là số hợp lệ
+            if (realEpisodesCount > 0 && (realEpisodesCount > totNum || !totNum)) {
+                setMovie(prev => ({
+                    ...prev,
+                    episode_total: realEpisodesCount.toString()
+                }));
             }
         };
         correctMainMovie();
-    }, [movie.slug, movie.episode_current, movie.episode_total]);
+    }, [movie.slug, episodes, movie.episode_total]);
 
     // Effect to fetch Weekly Top movies
     useEffect(() => {
