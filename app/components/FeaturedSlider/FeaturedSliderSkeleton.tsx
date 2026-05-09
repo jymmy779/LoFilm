@@ -21,7 +21,7 @@ export default function FeaturedSliderSkeleton() {
                     <SwiperSlide>
                         <div className="relative w-full aspect-[21/9] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5] min-h-[500px] bg-slate-900 animate-pulse">
                             <div className="absolute inset-0 bg-gradient-to-t xl:bg-gradient-to-r from-[#14233E] via-[#14233E] via-[30%] to-transparent z-10" />
-                            <div className="relative z-20 w-full xl:w-[60%] h-full flex items-end xl:items-center px-5 md:px-10 text-left">
+                            <div className="absolute inset-0 z-20 w-full xl:w-[60%] flex items-end xl:items-center px-5 md:px-10 text-left supports-[(-webkit-touch-callout:none)]:h-full">
                                 <div className="lg:max-w-lg xl:max-w-2xl w-full space-y-4 lg:space-y-5">
                                     <div className="space-y-2">
                                         <Skeleton width="60%" height={24} baseColor="#1e293b" highlightColor="#334155" />
