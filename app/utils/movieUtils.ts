@@ -88,10 +88,13 @@ export function isMovieCompleted(movie: Movie): boolean {
 export const TRANSPARENT_GIF = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
 
 /**
- * Build full image URL from potentially relative path and wrap with high-performance WebP proxy (wsrv.nl)
- * Supports resizing and optimization.
+ * Build full image URL from potentially relative path.
+ * NOTE: `options` param is accepted for call-site readability but is IGNORED here.
+ * Actual resizing/quality optimization is handled by the custom imageLoader (wsrv.nl proxy)
+ * which is automatically invoked by Next.js <Image> component.
+ * If used with native <img>, the image will NOT be optimized — use <SmartImage> or <Image> instead.
  */
-export function getImageUrl(url: string | undefined, options?: { width?: number; quality?: number }): string {
+export function getImageUrl(url: string | undefined, _options?: { width?: number; quality?: number }): string {
     if (!url) return TRANSPARENT_GIF;
 
     // Chuẩn hóa URL gốc (Trim trắng tránh lỗi)

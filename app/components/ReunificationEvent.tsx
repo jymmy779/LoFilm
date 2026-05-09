@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Container from "@/app/components/Container";
 import { Movie } from "@/app/types/movie";
-import { getImageUrl } from "@/app/utils/movieUtils";
+import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
+import SmartImage from "@/app/components/Common/SmartImage";
 import { decodeHtml } from "@/app/utils/textUtils";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { motion } from "framer-motion";
@@ -108,11 +109,13 @@ export default function ReunificationEvent() {
                     {movies.map((movie) => (
                         <motion.div key={movie._id} variants={itemVariants} className="group flex flex-col items-center">
                             <TransitionLink href={`/phim/${movie.slug}`} className="relative w-full aspect-[2/3] rounded-2xl overflow-hidden shadow-lg border-2 border-transparent group-hover:border-red-600 transition-all duration-500 transform  group-hover:shadow-[0_15px_35px_rgba(185,28,28,0.2)] bg-gray-200 block">
-                                <img
+                                <SmartImage
                                     src={getImageUrl(movie.poster_url, { width: 400 })}
+                                    rawSrc={getRawImageUrl(movie.poster_url)}
                                     alt={movie.name}
-                                    className="w-full h-full object-cover transition-transform duration-700"
-                                    loading="lazy"
+                                    fill
+                                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
+                                    className="object-cover transition-transform duration-700"
                                 />
                                 <div className="absolute inset-0 bg-gradient-to-t from-red-950/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
                                 <div className="absolute inset-0 p-4 flex flex-col justify-end translate-y-6 group-hover:translate-y-0 transition-all duration-300 opacity-0 group-hover:opacity-100">

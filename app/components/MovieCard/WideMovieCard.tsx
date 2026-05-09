@@ -1,6 +1,6 @@
-import Image from "next/image";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import MoviePreviewWrapper from "./MoviePreviewWrapper";
+import SmartImage from "@/app/components/Common/SmartImage";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
 import { getEpisodeStatus, getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
@@ -25,12 +25,12 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
             >
                 {/* Background Thumbnail (Horizontal) - aspect 21/9 */}
                 <div className="v-thumbnail v-thumbnail-hoz relative aspect-[21/9] overflow-hidden transform-gpu bg-white/5">
-                    <Image
+                    <SmartImage
                         src={thumbUrl}
+                        rawSrc={getRawImageUrl(movie.thumb_url)}
                         alt={movie.name}
                         fill
                         priority={priority}
-                        unoptimized={true}
                         sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, 30vw"
                         className="object-cover transition-transform duration-700 group-hover:scale-105 transform-gpu"
                     />

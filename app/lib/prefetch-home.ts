@@ -7,8 +7,8 @@ import {
 
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 
-const REVALIDATE_SEC = 60; // 60 seconds for standard sections (categories, countries)
-const QUICK_REVALIDATE_SEC = 30; // 30 seconds for near real-time updates (hero, movie rows)
+const REVALIDATE_SEC = 600; // 10 minutes for standard sections (categories, countries)
+const QUICK_REVALIDATE_SEC = 300; // 5 minutes for near real-time updates (hero, movie rows)
 
 async function fetchPhimJson(url: string, quick: boolean = false): Promise<unknown> {
     return await fetchWithRedis(url, { revalidate: quick ? QUICK_REVALIDATE_SEC : REVALIDATE_SEC });
@@ -46,15 +46,47 @@ function mapMovieRow(items: Movie[]): Movie[] {
     return sortAndSlicePosterRowMovies(items);
 }
 
+/**
+ * Lấy danh sách phim và làm giàu dữ liệu content cho các phim đầu tiên
+ * Dùng cho Featured Sliders để hiển thị tức thì
+ */
+async function fetchAndEnrichFeatured(url: string, limit: number = 10, enrichCount: number = 3): Promise<Movie[]> {
+    try {
+        const res = await fetchPhimJson(url, true);
+        const items = parseV1Items(res);
+        if (items.length === 0) return [];
+
+        const filtered = filterDuplicateMovies(items).slice(0, limit);
+
+        // Lấy thêm content cho các phim đầu tiên
+        const enriched = await Promise.all(
+            filtered.map(async (m, i) => {
+                if (i >= enrichCount) return m;
+                try {
+                    const detail = await fetchPhimJson(`https://phimapi.com/phim/${m.slug}`);
+                    return { ...m, content: (detail as any)?.movie?.content || "" };
+                } catch {
+                    return m;
+                }
+            })
+        );
+
+        return enriched;
+    } catch (error) {
+        console.error(`Lỗi prefetch featured slider từ ${url}:`, error);
+        return [];
+    }
+}
+
 async function mapHero(payload: unknown): Promise<Movie[]> {
     const raw = parseV3HeroItems(payload);
     const movies = filterDuplicateMovies(raw).slice(0, 8);
-    
+
     // Nâng cao: Lấy thêm content cho hero movies ngay từ server
-    // Chỉ lấy cho 4 phim đầu để tối ưu TTFB
+    // Chỉ lấy cho 4 phim đầu để tối ưu TTFB và tiết kiệm function invocations
     const enriched = await Promise.all(
         movies.map(async (m, i) => {
-            if (i > 7) return m; 
+            if (i > 3) return m;
             try {
                 const detail = await fetchPhimJson(`https://phimapi.com/phim/${m.slug}`);
                 return { ...m, content: (detail as any)?.movie?.content || "" };
@@ -63,7 +95,7 @@ async function mapHero(payload: unknown): Promise<Movie[]> {
             }
         })
     );
-    
+
     return enriched;
 }
 
@@ -125,6 +157,7 @@ async function mapNominated(): Promise<Movie[]> {
                     year: movie.year,
                     quality: movie.quality,
                     lang: movie.lang,
+                    type: movie.type,
                     episode_current: movie.episode_current
                 } as Movie;
             } catch {
@@ -141,11 +174,15 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
         catRaw,
         hanRaw,
         nominatedMovies,
+        featuredTvMovies,
+        featuredAnimeMovies,
     ] = await Promise.all([
         fetchPhimJson(URLS.hero, true),
         fetchPhimJson(URLS.categories),
         fetchPhimJson(URLS.movieRowHan, true),
         mapNominated(),
+        fetchAndEnrichFeatured(URLS.featuredTv, 10, 3),
+        fetchAndEnrichFeatured(URLS.featuredAnime, 10, 3),
     ]);
 
     const heroMovies = await mapHero(heroRaw);
@@ -155,15 +192,15 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
         categories: parseCategories(catRaw),
         movieRowHan: mapMovieRow(parseV1Items(hanRaw)),
         nominated: nominatedMovies,
+        featuredTv: featuredTvMovies,
+        featuredAnime: featuredAnimeMovies,
         // Các dãy còn lại để rỗng để client tự fetch qua LazyRow, giảm tải TTFB cho server
         movieRowTrung: [],
         movieRowAuMy: [],
-        featuredTv: [],
         posterChieuRap: [],
         posterPhimBo: [],
         topPhimLe: [],
         topPhimBo: [],
-        featuredAnime: [],
         posterKinhDi: [],
         posterHoatHinh: [],
         phimNgan: [],

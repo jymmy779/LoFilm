@@ -75,16 +75,6 @@ function RandomMovieRow() {
             hasFetchedOnce = true;
             
             setMovies(finalMovies);
-
-            if (typeof window !== 'undefined') {
-                finalMovies.slice(0, 10).forEach(movie => {
-                    const preloadUrl = getImageUrl(movie.poster_url || movie.thumb_url, { width: 200, quality: 70 });
-                    if (preloadUrl) {
-                        const img = new window.Image();
-                        img.src = preloadUrl;
-                    }
-                });
-            }
         } catch (error) {
             console.error("Lỗi fetch movies theo mood:", error);
             setMovies([]);

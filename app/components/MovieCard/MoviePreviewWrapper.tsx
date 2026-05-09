@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { AnimatePresence } from "framer-motion";
 import { Movie } from "@/app/types/movie";
-import { getImageUrl } from "@/app/utils/movieUtils";
 
 import MoviePreviewPopup from "./MoviePreviewPopup";
 
@@ -60,21 +59,8 @@ export default function MoviePreviewWrapper({
         // 1. Tải trước dữ liệu trang phim: Click vào là hiện ngay
         router.prefetch(`/phim/${movie.slug}`);
 
-        // 2. Preload ảnh cho Popup & Detail Page
-        if (typeof window !== 'undefined') {
-            if (movie.thumb_url) {
-                const thumbPreloadUrl = getImageUrl(movie.thumb_url, { width: 380, quality: 75 });
-                new window.Image().src = thumbPreloadUrl;
-
-                const detailBgPreloadUrl = getImageUrl(movie.thumb_url, { width: 1200, quality: 75 });
-                new window.Image().src = detailBgPreloadUrl;
-            }
-
-            if (movie.poster_url) {
-                const posterPreloadUrl = getImageUrl(movie.poster_url, { width: 200, quality: 50 });
-                new window.Image().src = posterPreloadUrl;
-            }
-        }
+        // Note: Image preloading removed — getImageUrl() returns raw URLs (phimimg.com),
+        // but next/image loads via wsrv.nl proxy, causing double-download with cache miss.
 
         hoverTimer.current = setTimeout(() => {
             if (cardRef.current) {

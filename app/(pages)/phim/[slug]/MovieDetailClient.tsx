@@ -178,9 +178,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
         return t;
     }, [movie.trailer_url, movie.actor, suggestedMovies.length]);
 
-    // Get poster & thumb URLs
-    const posterUrl = getImageUrl(movie.poster_url);
-    const thumbUrl = getImageUrl(movie.thumb_url);
+    // Note: poster/thumb URLs are built inline via getImageUrl() where needed in JSX
 
     // Get first server episodes
     const firstServerEpisodes = episodes?.[0]?.server_data || [];
