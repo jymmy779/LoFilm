@@ -72,7 +72,6 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                         viewAllLink="/quoc-gia/han-quoc"
                         initialMovies={prefetched.movieRowHan}
                         sortByYear={true}
-                        shouldEnrich={true}
                         revalidate={30}
                     />
                 </LazyRow>
@@ -84,7 +83,6 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                         viewAllLink="/quoc-gia/trung-quoc"
                         initialMovies={prefetched.movieRowTrung}
                         sortByYear={true}
-                        shouldEnrich={true}
                         revalidate={30}
                     />
                 </LazyRow>
@@ -96,7 +94,6 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                         viewAllLink="/quoc-gia/au-my"
                         initialMovies={prefetched.movieRowAuMy}
                         sortByYear={true}
-                        shouldEnrich={true}
                         revalidate={30}
                     />
                 </LazyRow>

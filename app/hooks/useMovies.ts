@@ -4,12 +4,10 @@ import { useState, useEffect, useCallback, useRef } from "react";
 import axios from "axios";
 import { Movie } from "@/app/types/movie";
 import { filterDuplicateMovies } from "@/app/utils/movieUtils";
-import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
 
 interface UseMoviesOptions {
     apiUrl: string;
     initialMovies?: Movie[];
-    shouldEnrich?: boolean;
     filterDuplicates?: boolean;
     limit?: number;
     sortByYear?: boolean;
@@ -25,7 +23,6 @@ const movieCache: Record<string, Movie[]> = {};
 export function useMovies({
     apiUrl,
     initialMovies = [],
-    shouldEnrich = false,
     filterDuplicates = true,
     limit,
     sortByYear = false,
@@ -92,17 +89,6 @@ export function useMovies({
 
                 updateMovies(items);
                 setIsLoading(false);
-
-                if (shouldEnrich) {
-                    const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-                    void enrichMoviesMetadata({
-                        items,
-                        setItems: updateMovies,
-                        isMounted: () => isMounted.current,
-                        chunkSize: isMobile ? 2 : 4,
-                        delay: isMobile ? 300 : 100
-                    });
-                }
             } else {
                 throw new Error("Dữ liệu không hợp lệ");
             }
@@ -119,7 +105,7 @@ export function useMovies({
                 }
             }
         }
-    }, [apiUrl, filterDuplicates, limit, shouldEnrich, updateMovies, revalidate]);
+    }, [apiUrl, filterDuplicates, limit, updateMovies, revalidate]);
 
     useEffect(() => {
         isMounted.current = true;
@@ -134,17 +120,6 @@ export function useMovies({
         if (seeded) {
             // Fetch ngầm để cập nhật dữ liệu mới nhất từ API
             void fetchMovies(0, true); // Thêm flag backgroundFetch
-
-            if (shouldEnrich) {
-                const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-                void enrichMoviesMetadata({
-                    items: movies,
-                    setItems: updateMovies,
-                    isMounted: () => isMounted.current,
-                    chunkSize: isMobile ? 2 : 4,
-                    delay: isMobile ? 300 : 100
-                });
-            }
         } else {
             // Nếu chưa có gì cả, bắt buộc phải fetch và hiện loading
             void fetchMovies();
@@ -153,7 +128,7 @@ export function useMovies({
         return () => {
             isMounted.current = false;
         };
-    }, [apiUrl, seeded, shouldEnrich, sortByYear]);
+    }, [apiUrl, seeded, sortByYear]);
 
     return { movies, isLoading, error, refetch: fetchMovies };
 }

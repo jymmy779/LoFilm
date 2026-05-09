@@ -35,7 +35,6 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
     const { movies, isLoading } = useMovies({
         apiUrl,
         initialMovies,
-        shouldEnrich: true,
         limit: 20,
         sortByYear,
         revalidate

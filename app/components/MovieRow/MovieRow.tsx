@@ -19,7 +19,6 @@ interface MovieRowProps {
     viewAllLink: string;
     initialMovies?: Movie[];
     sortByYear?: boolean;
-    shouldEnrich?: boolean;
     revalidate?: number;
 }
 
@@ -33,11 +32,10 @@ function MovieRow({
     viewAllLink,
     initialMovies,
     sortByYear = false,
-    shouldEnrich = false,
     revalidate
 }: MovieRowProps) {
     const { openAdOnly } = useAdTrigger();
-    const { movies, isLoading } = useMovies({ apiUrl, initialMovies, sortByYear, shouldEnrich, revalidate });
+    const { movies, isLoading } = useMovies({ apiUrl, initialMovies, sortByYear, revalidate });
 
     const navId = title.replace(/\s+/g, '-').toLowerCase();
 
