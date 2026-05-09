@@ -41,51 +41,29 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
     const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
     const [activeIndex, setActiveIndex] = useState(0);
 
-    const scheduleContentEnrich = (first8: Movie[]) => {
-        const runEnrich = async () => {
-            const fetchSingle = async (m: Movie) => {
-                if (m.content) return;
-                try {
-                    const r = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${m.slug}`)}`);
-                    const content = r.data.movie?.content ?? "";
-                    if (content) {
-                        setMovies((prev) =>
-                            prev.map((item) => item.slug === m.slug ? { ...item, content: content } : item)
-                        );
-                    }
-                } catch (error) {
-                    console.error(`Lỗi fetch content cho ${m.slug}:`, error);
-                }
-            };
-            await Promise.all(first8.map(m => fetchSingle(m)));
-        };
-        runEnrich();
-    };
+
 
     useEffect(() => {
+        // Nếu đã có dữ liệu từ server (initialMovies) hoặc đã cache, không cần fetch lại ở client
+        // để tránh việc dữ liệu mới từ API (không có content) ghi đè lên dữ liệu đã được enrich
         if (hasFetchedHeroOnce && cachedHeroMovies.length > 0) return;
 
         if (initialMovies && initialMovies.length > 0) {
-            scheduleContentEnrich(initialMovies);
+            cachedHeroMovies = initialMovies;
+            hasFetchedHeroOnce = true;
+            setMovies(initialMovies);
+            return;
         }
+
         axios.get(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?limit=40")}`)
             .then((res) => {
                 const items: Movie[] = res.data.items || [];
                 const filtered = filterDuplicateMovies(items);
                 const first8 = filtered.slice(0, 8);
                 
-                const finalMovies = first8.map(newMovie => {
-                    const existingMovie = movies.find(p => p.slug === newMovie.slug);
-                    return {
-                        ...newMovie,
-                        content: existingMovie?.content || newMovie.content
-                    };
-                });
-
-                cachedHeroMovies = finalMovies;
+                cachedHeroMovies = first8;
                 hasFetchedHeroOnce = true;
-                setMovies(finalMovies);
-                scheduleContentEnrich(first8);
+                setMovies(first8);
             })
             .catch((err) => {
                 console.error("Lỗi fetch phim:", err);

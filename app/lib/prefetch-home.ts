@@ -47,31 +47,15 @@ function mapMovieRow(items: Movie[]): Movie[] {
 }
 
 /**
- * Lấy danh sách phim và làm giàu dữ liệu content cho các phim đầu tiên
- * Dùng cho Featured Sliders để hiển thị tức thì
+ * Lấy danh sách phim cho Featured Sliders
  */
-async function fetchAndEnrichFeatured(url: string, limit: number = 10, enrichCount: number = 3): Promise<Movie[]> {
+async function fetchFeatured(url: string, limit: number = 10): Promise<Movie[]> {
     try {
         const res = await fetchPhimJson(url, true);
         const items = parseV1Items(res);
         if (items.length === 0) return [];
 
-        const filtered = filterDuplicateMovies(items).slice(0, limit);
-
-        // Lấy thêm content cho các phim đầu tiên
-        const enriched = await Promise.all(
-            filtered.map(async (m, i) => {
-                if (i >= enrichCount) return m;
-                try {
-                    const detail = await fetchPhimJson(`https://phimapi.com/phim/${m.slug}`);
-                    return { ...m, content: (detail as any)?.movie?.content || "" };
-                } catch {
-                    return m;
-                }
-            })
-        );
-
-        return enriched;
+        return filterDuplicateMovies(items).slice(0, limit);
     } catch (error) {
         console.error(`Lỗi prefetch featured slider từ ${url}:`, error);
         return [];
@@ -80,23 +64,7 @@ async function fetchAndEnrichFeatured(url: string, limit: number = 10, enrichCou
 
 async function mapHero(payload: unknown): Promise<Movie[]> {
     const raw = parseV3HeroItems(payload);
-    const movies = filterDuplicateMovies(raw).slice(0, 8);
-
-    // Nâng cao: Lấy thêm content cho hero movies ngay từ server
-    // Chỉ lấy cho 4 phim đầu để tối ưu TTFB và tiết kiệm function invocations
-    const enriched = await Promise.all(
-        movies.map(async (m, i) => {
-            if (i > 3) return m;
-            try {
-                const detail = await fetchPhimJson(`https://phimapi.com/phim/${m.slug}`);
-                return { ...m, content: (detail as any)?.movie?.content || "" };
-            } catch {
-                return m;
-            }
-        })
-    );
-
-    return enriched;
+    return filterDuplicateMovies(raw).slice(0, 8);
 }
 
 const URLS = {
@@ -146,19 +114,12 @@ async function mapNominated(): Promise<Movie[]> {
                 const res = await fetchPhimJson(`https://phimapi.com/phim/${slug}`, true);
                 const movie = (res as any)?.movie;
                 if (!movie) return null;
-                // Chuyển đổi format từ detail sang item format nếu cần
                 return {
-                    _id: movie._id,
-                    name: movie.name,
-                    slug: movie.slug,
-                    origin_name: movie.origin_name,
-                    poster_url: movie.poster_url,
-                    thumb_url: movie.thumb_url,
-                    year: movie.year,
-                    quality: movie.quality,
-                    lang: movie.lang,
-                    type: movie.type,
-                    episode_current: movie.episode_current
+                    ...movie,
+                    // Đảm bảo có các field quan trọng
+                    content: movie.content,
+                    category: movie.category,
+                    tmdb: movie.tmdb
                 } as Movie;
             } catch {
                 return null;
@@ -166,6 +127,35 @@ async function mapNominated(): Promise<Movie[]> {
         })
     );
     return movies.filter(Boolean) as Movie[];
+}
+
+/**
+ * Hàm bổ sung metadata chi tiết cho danh sách phim (Server-side Enrichment)
+ * Giúp Hero và FeaturedSlider có content ngay khi load trang
+ */
+async function enrichMovies(movies: Movie[]): Promise<Movie[]> {
+    if (!movies.length) return [];
+    
+    return await Promise.all(
+        movies.map(async (m) => {
+            try {
+                const res = await fetchPhimJson(`https://phimapi.com/phim/${m.slug}`, true);
+                const detail = (res as any)?.movie;
+                if (!detail) return m;
+                return {
+                    ...m,
+                    content: detail.content,
+                    category: detail.category,
+                    tmdb: detail.tmdb,
+                    actor: detail.actor,
+                    director: detail.director,
+                    duration: detail.time
+                } as Movie;
+            } catch {
+                return m;
+            }
+        })
+    );
 }
 
 export async function prefetchHomePageData(): Promise<HomePrefetch> {
@@ -181,19 +171,26 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
         fetchPhimJson(URLS.categories),
         fetchPhimJson(URLS.movieRowHan, true),
         mapNominated(),
-        fetchAndEnrichFeatured(URLS.featuredTv, 10, 3),
-        fetchAndEnrichFeatured(URLS.featuredAnime, 10, 3),
+        fetchFeatured(URLS.featuredTv, 10),
+        fetchFeatured(URLS.featuredAnime, 10),
     ]);
 
     const heroMovies = await mapHero(heroRaw);
+    
+    // Thực hiện enrichment cho các section quan trọng nhất
+    const [enrichedHero, enrichedTv, enrichedAnime] = await Promise.all([
+        enrichMovies(heroMovies),
+        enrichMovies(featuredTvMovies),
+        enrichMovies(featuredAnimeMovies)
+    ]);
 
     return {
-        hero: heroMovies,
+        hero: enrichedHero,
         categories: parseCategories(catRaw),
         movieRowHan: mapMovieRow(parseV1Items(hanRaw)),
         nominated: nominatedMovies,
-        featuredTv: featuredTvMovies,
-        featuredAnime: featuredAnimeMovies,
+        featuredTv: enrichedTv,
+        featuredAnime: enrichedAnime,
         // Các dãy còn lại để rỗng để client tự fetch qua LazyRow, giảm tải TTFB cho server
         movieRowTrung: [],
         movieRowAuMy: [],

@@ -39,21 +39,11 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
     const [isLoading, setIsLoading] = useState(!seeded);
     const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
 
-    const enrichDetails = (slice: Movie[]) => {
-        const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-        void enrichMoviesMetadata({
-            items: slice,
-            setItems: setMovies,
-            isMounted: () => true, // FeaturedSlider wraps with memo, safe enough
-            chunkSize: isMobile ? 2 : 5,
-            delay: isMobile ? 300 : 50
-        });
-    };
+
 
     useEffect(() => {
         if (seeded) {
             setIsLoading(false);
-            enrichDetails(initialMovies!);
             return;
         }
 
@@ -68,7 +58,6 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
 
                     setMovies(slice);
                     setIsLoading(false);
-                    enrichDetails(slice);
                 } else {
                     setIsLoading(false);
                 }

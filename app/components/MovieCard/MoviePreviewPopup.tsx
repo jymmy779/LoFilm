@@ -32,7 +32,14 @@ export default function MoviePreviewPopup({
 
 
     // Default fallback logic before fetching exact slug
-    const isMultiEp = ["series", "hoathinh", "tvshows"].includes(movie.type || "");
+    const isMultiEp = 
+        ["series", "hoathinh", "tvshows"].includes(movie.type || "") || 
+        (movie.episode_current && (
+            movie.episode_current.toLowerCase().includes("tập") || 
+            movie.episode_current.includes("/")
+        )) ||
+        (movie.episode_total && parseInt(movie.episode_total) > 1);
+
     const [playUrl, setPlayUrl] = useState(`/phim/${movie.slug}/${isMultiEp ? 'tap-01' : 'tap-full'}`);
     const [isLoadingPlayUrl, setIsLoadingPlayUrl] = useState(true);
     const [updatedMetadata, setUpdatedMetadata] = useState<{ episode_current?: string; episode_total?: string } | null>(null);

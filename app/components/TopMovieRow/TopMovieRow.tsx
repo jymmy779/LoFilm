@@ -14,7 +14,6 @@ import { filterDuplicateMovies, getEpisodeStatus, getImageUrl, getRawImageUrl } 
 import Skeleton from "react-loading-skeleton";
 import SmartImage from "@/app/components/Common/SmartImage";
 import Container from "@/app/components/Container";
-import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
 import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 import MoviePreviewWrapper from "@/app/components/MovieCard/MoviePreviewWrapper";
 import SwiperNavButtons from "@/app/components/Common/SwiperNavButtons";
@@ -43,23 +42,12 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
         openAdOnly("top_movie");
     };
 
-    const enrichEpisodeTotals = async (topItems: Movie[], isMounted: () => boolean) => {
-        await enrichMoviesMetadata({
-            items: topItems,
-            setItems: setMovies,
-            isMounted,
-            chunkSize: 3,
-            delay: 60
-        });
-    };
-
     useEffect(() => {
         let isMounted = true;
         const mounted = () => isMounted;
 
         if (seeded && initialMovies!.length > 0) {
             setIsLoading(false);
-            void enrichEpisodeTotals(initialMovies!, mounted);
             return () => { isMounted = false; };
         }
 
@@ -74,8 +62,6 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                     const topItems = filtered.slice(0, 30);
                     setMovies(topItems);
                     setIsLoading(false);
-
-                    await enrichEpisodeTotals(topItems, mounted);
                     return;
                 }
             } catch (error: any) {
