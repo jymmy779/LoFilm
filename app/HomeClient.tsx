@@ -53,7 +53,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                 <CategoriesSection initialCategories={prefetched.categories} />
 
                 {isEventPeriod && (
-                    <LazyRow estimatedHeight="600px" skeleton={<ReunificationEventSkeleton />}>
+                    <LazyRow id="event-row" estimatedHeight="600px" skeleton={<ReunificationEventSkeleton />}>
                         <ReunificationEvent />
                     </LazyRow>
                 )}
@@ -61,11 +61,11 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
 
                 <ContinueWatchingRow initialHistory={prefetched.initialHistory} />
 
-                <LazyRow estimatedHeight="410px" skeleton={<RandomMovieRowSkeleton />}>
+                <LazyRow id="random-movie-row" estimatedHeight="410px" skeleton={<RandomMovieRowSkeleton />}>
                     <RandomMovieRow />
                 </LazyRow>
 
-                <LazyRow estimatedHeight="370px" skeleton={<MovieRowSkeleton />}>
+                <LazyRow id="row-han-quoc" estimatedHeight="370px" skeleton={<MovieRowSkeleton />}>
                     <MovieRow
                         title="Phim Hàn Quốc mới"
                         apiUrl="https://phimapi.com/v1/api/quoc-gia/han-quoc?limit=60"
@@ -77,7 +77,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     />
                 </LazyRow>
 
-                <LazyRow estimatedHeight="370px" skeleton={<MovieRowSkeleton />}>
+                <LazyRow id="row-trung-quoc" estimatedHeight="370px" skeleton={<MovieRowSkeleton />}>
                     <MovieRow
                         title="Phim Trung Quốc mới"
                         apiUrl="https://phimapi.com/v1/api/quoc-gia/trung-quoc?limit=60"
@@ -89,7 +89,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     />
                 </LazyRow>
 
-                <LazyRow estimatedHeight="370px" skeleton={<MovieRowSkeleton />}>
+                <LazyRow id="row-au-my" estimatedHeight="370px" skeleton={<MovieRowSkeleton />}>
                     <MovieRow
                         title="Phim Âu Mỹ mới"
                         apiUrl="https://phimapi.com/v1/api/quoc-gia/au-my?limit=60"
@@ -101,7 +101,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     />
                 </LazyRow>
 
-                <LazyRow estimatedHeight="650px" skeleton={<FeaturedSliderSkeleton />}>
+                <LazyRow id="slider-tv-shows" estimatedHeight="650px" skeleton={<FeaturedSliderSkeleton />}>
                     <FeaturedSlider
                         title="TV Shows Truyền Hình"
                         apiUrl="https://phimapi.com/v1/api/danh-sach/tv-shows?limit=60"
@@ -111,7 +111,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     />
                 </LazyRow>
 
-                <LazyRow estimatedHeight="540px" skeleton={<MoviePosterRowSkeleton />}>
+                <LazyRow id="poster-chieu-rap" estimatedHeight="540px" skeleton={<MoviePosterRowSkeleton />}>
                     <MoviePosterRow
                         title="Phim Chiếu Rạp Mới"
                         apiUrl="https://phimapi.com/v1/api/danh-sach/phim-chieu-rap?limit=60"
@@ -122,7 +122,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     />
                 </LazyRow>
 
-                <LazyRow estimatedHeight="540px" skeleton={<MoviePosterRowSkeleton />}>
+                <LazyRow id="poster-phim-bo" estimatedHeight="540px" skeleton={<MoviePosterRowSkeleton />}>
                     <MoviePosterRow
                         title="Phim Bộ Mới Nhất"
                         apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?year=2024&limit=60"
@@ -133,7 +133,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     />
                 </LazyRow>
 
-                <LazyRow estimatedHeight="520px" skeleton={<TopMovieRowSkeleton />}>
+                <LazyRow id="top-phim-le" estimatedHeight="520px" skeleton={<TopMovieRowSkeleton />}>
                     <TopMovieRow
                         title="Top 30 Phim Lẻ Hôm Nay"
                         apiUrl="https://phimapi.com/v1/api/danh-sach/phim-le?limit=60"
@@ -142,7 +142,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     />
                 </LazyRow>
 
-                <LazyRow estimatedHeight="520px" skeleton={<TopMovieRowSkeleton />}>
+                <LazyRow id="top-phim-bo" estimatedHeight="520px" skeleton={<TopMovieRowSkeleton />}>
                     <TopMovieRow
                         title="Top 30 Phim Bộ Hôm Nay"
                         apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=60"
@@ -151,7 +151,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     />
                 </LazyRow>
 
-                <LazyRow estimatedHeight="520px" skeleton={<TopMovieRowSkeleton />}>
+                <LazyRow id="lofilm-nominated" estimatedHeight="520px" skeleton={<TopMovieRowSkeleton />}>
                     <TopMovieRow
                         title="LoFilm Đề Cử"
                         apiUrl=""
@@ -160,7 +160,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     />
                 </LazyRow>
 
-                <LazyRow estimatedHeight="650px" skeleton={<FeaturedSliderSkeleton />}>
+                <LazyRow id="slider-anime" estimatedHeight="650px" skeleton={<FeaturedSliderSkeleton />}>
                     <FeaturedSlider
                         title="Hoạt Hình Anime Hay"
                         apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?country=nhat-ban&limit=60"
@@ -170,7 +170,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     />
                 </LazyRow>
 
-                <LazyRow estimatedHeight="540px" skeleton={<MoviePosterRowSkeleton />}>
+                <LazyRow id="poster-kinh-di" estimatedHeight="540px" skeleton={<MoviePosterRowSkeleton />}>
                     <MoviePosterRow
                         title="Phim Kinh Dị"
                         apiUrl="https://phimapi.com/v1/api/the-loai/kinh-di?limit=60"
@@ -179,7 +179,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     />
                 </LazyRow>
 
-                <LazyRow estimatedHeight="540px" skeleton={<MoviePosterRowSkeleton />}>
+                <LazyRow id="poster-hoat-hinh" estimatedHeight="540px" skeleton={<MoviePosterRowSkeleton />}>
                     <MoviePosterRow
                         title="Phim Hoạt Hình"
                         apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=60"
@@ -188,7 +188,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     />
                 </LazyRow>
 
-                <LazyRow estimatedHeight="410px" skeleton={<WideMovieRowSkeleton />}>
+                <LazyRow id="row-phim-ngan" estimatedHeight="410px" skeleton={<WideMovieRowSkeleton />}>
                     <WideMovieRow
                         title="Phim Ngắn Đặc Sắc"
                         apiUrl="https://phimapi.com/v1/api/the-loai/phim-ngan?limit=60"

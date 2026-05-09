@@ -25,10 +25,17 @@ interface ContinueWatchingRowProps {
 
 import ContinueWatchingRowSkeleton from "./ContinueWatchingRowSkeleton";
 
+// Global cache for ContinueWatchingRow
+let cachedHistory: any[] = [];
+let hasFetchedHistoryOnce = false;
+
 function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
     const { user, isLoading: isAuthLoading } = useAuth();
-    const [history, setHistory] = useState<any[]>(initialHistory || []);
-    const [isLoading, setIsLoading] = useState(!initialHistory);
+    const [history, setHistory] = useState<any[]>(() => {
+        if (cachedHistory.length > 0) return cachedHistory;
+        return initialHistory || [];
+    });
+    const [isLoading, setIsLoading] = useState(() => !hasFetchedHistoryOnce && !initialHistory);
     const supabase = createClient();
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
     const [itemToDelete, setItemToDelete] = useState<any>(null);
@@ -112,7 +119,11 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                 } catch (e) { }
             }
 
-            setHistory(prev => prev.filter(h => h.id !== id));
+            setHistory(prev => {
+                const newHistory = prev.filter(h => h.id !== id);
+                cachedHistory = newHistory;
+                return newHistory;
+            });
             toast.success(isLocal ? "Đã xóa khỏi lịch sử máy" : "Đã xóa khỏi lịch sử");
         } catch (error) {
             console.error("Lỗi khi xóa lịch sử:", error);
@@ -188,6 +199,8 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
             }).slice(0, 20);
 
             setHistory(finalHistory);
+            cachedHistory = finalHistory;
+            hasFetchedHistoryOnce = true;
             setIsLoading(false);
         };
         fetchHistory();
@@ -195,7 +208,7 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
 
     // Fix CLS: Hiển thị Skeleton ngay khi đang load trang hoặc đang load data
     // Chỉ ẩn đi khi chắc chắn không có lịch sử (isLoading = false và history = 0)
-    if (isLoading || isAuthLoading) {
+    if ((isLoading || isAuthLoading) && !hasFetchedHistoryOnce) {
         // Nếu đã xác định là khách (không login) và không load nữa thì mới return null
         if (!isAuthLoading && !user && !initialHistory && !isLoading) return null;
 

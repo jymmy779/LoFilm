@@ -14,22 +14,28 @@ interface LazyRowProps {
     noSkeleton?: boolean;
     // Optional: Custom skeleton component
     skeleton?: ReactNode;
+    // Optional: Unique ID to persist render state across navigations
+    id?: string;
 }
 
 /**
- * A wrapper to lazy-render heavy row components (like Swiper rows)
- * only when they are close to the viewport.
+ * Global registry to track which lazy rows have already been rendered
+ * during the current session. This prevents "re-loading" skeletons
+ * when navigating back to the home page.
  */
+const renderedRows = new Set<string>();
+
 export default function LazyRow({
     children,
     threshold = 0.01,
     estimatedHeight = "400px",
     className = "",
     noSkeleton = false,
-    skeleton
+    skeleton,
+    id
 }: LazyRowProps) {
-    const [isIntersecting, setIsIntersecting] = useState(false);
-    const [shouldRender, setShouldRender] = useState(false);
+    const [isIntersecting, setIsIntersecting] = useState(() => id ? renderedRows.has(id) : false);
+    const [shouldRender, setShouldRender] = useState(() => id ? renderedRows.has(id) : false);
     const containerRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
@@ -56,6 +62,8 @@ export default function LazyRow({
 
     useEffect(() => {
         if (isIntersecting) {
+            if (id) renderedRows.add(id);
+            
             const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
             if (!isMobile) {

@@ -29,10 +29,15 @@ interface HeroSliderProps {
 
 import HeroSliderSkeleton from "./HeroSliderSkeleton";
 
+// Global cache for HeroSlider
+let cachedHeroMovies: Movie[] = [];
+let hasFetchedHeroOnce = false;
+
 export default function HeroSlider({ initialMovies }: HeroSliderProps) {
-    const [movies, setMovies] = useState<Movie[]>(() =>
-        initialMovies && initialMovies.length > 0 ? initialMovies : []
-    );
+    const [movies, setMovies] = useState<Movie[]>(() => {
+        if (cachedHeroMovies.length > 0) return cachedHeroMovies;
+        return initialMovies && initialMovies.length > 0 ? initialMovies : [];
+    });
     const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
     const [activeIndex, setActiveIndex] = useState(0);
 
@@ -58,6 +63,8 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
     };
 
     useEffect(() => {
+        if (hasFetchedHeroOnce && cachedHeroMovies.length > 0) return;
+
         if (initialMovies && initialMovies.length > 0) {
             scheduleContentEnrich(initialMovies);
         }
@@ -66,21 +73,24 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                 const items: Movie[] = res.data.items || [];
                 const filtered = filterDuplicateMovies(items);
                 const first8 = filtered.slice(0, 8);
-                setMovies((prev) => {
-                    return first8.map(newMovie => {
-                        const existingMovie = prev.find(p => p.slug === newMovie.slug);
-                        return {
-                            ...newMovie,
-                            content: existingMovie?.content || newMovie.content
-                        };
-                    });
+                
+                const finalMovies = first8.map(newMovie => {
+                    const existingMovie = movies.find(p => p.slug === newMovie.slug);
+                    return {
+                        ...newMovie,
+                        content: existingMovie?.content || newMovie.content
+                    };
                 });
+
+                cachedHeroMovies = finalMovies;
+                hasFetchedHeroOnce = true;
+                setMovies(finalMovies);
                 scheduleContentEnrich(first8);
             })
             .catch((err) => {
                 console.error("Lỗi fetch phim:", err);
             });
-    }, []);
+    }, [initialMovies]);
 
     if (movies.length === 0) {
         return <HeroSliderSkeleton />;

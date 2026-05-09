@@ -25,10 +25,15 @@ const MOODS = [
 
 import RandomMovieRowSkeleton from "./RandomMovieRowSkeleton";
 
+// Global cache for RandomMovieRow
+let cachedRandomMovies: any[] = [];
+let cachedMood: any = MOODS[0];
+let hasFetchedOnce = false;
+
 function RandomMovieRow() {
-    const [selectedMood, setSelectedMood] = useState(MOODS[0]);
-    const [movies, setMovies] = useState<any[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [selectedMood, setSelectedMood] = useState(cachedMood);
+    const [movies, setMovies] = useState<any[]>(cachedRandomMovies);
+    const [isLoading, setIsLoading] = useState(!hasFetchedOnce);
     const [moodSwiper, setMoodSwiper] = useState<any>(null);
 
     const fetchMoviesByMood = async (moodId: string) => {
@@ -63,6 +68,12 @@ function RandomMovieRow() {
             }
 
             const finalMovies = uniqueMovies.slice(0, 24);
+            
+            // Update cache
+            cachedRandomMovies = finalMovies;
+            cachedMood = MOODS.find(m => m.id === moodId) || MOODS[0];
+            hasFetchedOnce = true;
+            
             setMovies(finalMovies);
 
             if (typeof window !== 'undefined') {
@@ -83,7 +94,11 @@ function RandomMovieRow() {
     };
 
     useEffect(() => {
-        fetchMoviesByMood(selectedMood.id);
+        // Only fetch if we haven't fetched yet OR if the mood changed manually
+        if (!hasFetchedOnce || selectedMood.id !== cachedMood.id) {
+            fetchMoviesByMood(selectedMood.id);
+        }
+        
         if (moodSwiper) {
             const index = MOODS.findIndex(m => m.id === selectedMood.id);
             moodSwiper.slideTo(index);

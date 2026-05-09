@@ -16,6 +16,12 @@ interface UseMoviesOptions {
     revalidate?: number;
 }
 
+/**
+ * Global cache to store movies across component mounts.
+ * Key: apiUrl, Value: Movie[]
+ */
+const movieCache: Record<string, Movie[]> = {};
+
 export function useMovies({
     apiUrl,
     initialMovies = [],
@@ -25,7 +31,12 @@ export function useMovies({
     sortByYear = false,
     revalidate
 }: UseMoviesOptions) {
-    const seeded = initialMovies.length > 0;
+    // Check if we have cached movies for this URL
+    const cachedMovies = movieCache[apiUrl] || [];
+    const hasInitial = initialMovies.length > 0;
+    const hasCache = cachedMovies.length > 0;
+    
+    const seeded = hasInitial || hasCache;
     const [isLoading, setIsLoading] = useState(!seeded);
     const [error, setError] = useState<string | null>(null);
     const isMounted = useRef(true);
@@ -45,18 +56,26 @@ export function useMovies({
         return processed;
     }, [sortByYear]);
 
-    const [movies, setMovies] = useState<Movie[]>(() => processMovies(initialMovies));
+    const [movies, setMovies] = useState<Movie[]>(() => {
+        if (hasCache) return processMovies(cachedMovies);
+        return processMovies(initialMovies);
+    });
 
     const updateMovies = useCallback((newMovies: Movie[]) => {
         if (!isMounted.current) return;
-        setMovies(processMovies(newMovies));
-    }, [processMovies]);
+        
+        const processed = processMovies(newMovies);
+        movieCache[apiUrl] = processed;
+        setMovies(processed);
+    }, [processMovies, apiUrl]);
 
-    const fetchMovies = useCallback(async (retryCount = 0) => {
+    const fetchMovies = useCallback(async (retryCount = 0, backgroundFetch = false) => {
         if (!isMounted.current) return;
         
         try {
-            setIsLoading(true);
+            if (!backgroundFetch) {
+                setIsLoading(true);
+            }
             const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}${revalidate ? `&revalidate=${revalidate}` : ""}`;
             const response = await axios.get(proxyUrl);
             
@@ -91,10 +110,12 @@ export function useMovies({
             console.error(`Lỗi khi fetch movies từ ${apiUrl}:`, err);
             if (isMounted.current) {
                 if (retryCount < 2) {
-                    setTimeout(() => fetchMovies(retryCount + 1), 2000);
+                    setTimeout(() => fetchMovies(retryCount + 1, backgroundFetch), 2000);
                 } else {
-                    setError("Không thể tải danh sách phim");
-                    setIsLoading(false);
+                    if (!backgroundFetch) {
+                        setError("Không thể tải danh sách phim");
+                        setIsLoading(false);
+                    }
                 }
             }
         }
@@ -103,14 +124,21 @@ export function useMovies({
     useEffect(() => {
         isMounted.current = true;
         
+        // 1. Cập nhật cache từ Server Props nếu có
+        if (hasInitial) {
+            movieCache[apiUrl] = processMovies(initialMovies);
+        }
+
+        // 2. Nếu đã có dữ liệu (từ cache hoặc server), chúng ta vẫn fetch ngầm để cập nhật tập mới/phim mới
+        // nhưng KHÔNG set isLoading = true để tránh hiện skeleton.
         if (seeded) {
-            // No need to re-sort unless it's explicitly required
-            // if (sortByYear) updateMovies(initialMovies);
-            
+            // Fetch ngầm để cập nhật dữ liệu mới nhất từ API
+            void fetchMovies(0, true); // Thêm flag backgroundFetch
+
             if (shouldEnrich) {
                 const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
                 void enrichMoviesMetadata({
-                    items: initialMovies,
+                    items: movies,
                     setItems: updateMovies,
                     isMounted: () => isMounted.current,
                     chunkSize: isMobile ? 2 : 4,
@@ -118,13 +146,14 @@ export function useMovies({
                 });
             }
         } else {
-            fetchMovies();
+            // Nếu chưa có gì cả, bắt buộc phải fetch và hiện loading
+            void fetchMovies();
         }
 
         return () => {
             isMounted.current = false;
         };
-    }, [apiUrl, seeded, shouldEnrich, sortByYear]); // eslint-disable-line react-hooks/exhaustive-deps
+    }, [apiUrl, seeded, shouldEnrich, sortByYear]);
 
     return { movies, isLoading, error, refetch: fetchMovies };
 }
