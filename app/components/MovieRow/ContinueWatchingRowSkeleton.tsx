@@ -1,7 +1,5 @@
-"use client";
-
 import React from "react";
-import Skeleton from "react-loading-skeleton";
+import Skeleton from "@/app/components/Skeleton/Skeleton";
 import Container from "@/app/components/Container";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
@@ -9,17 +7,17 @@ import "swiper/css";
 export default function ContinueWatchingRowSkeleton() {
     return (
         <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
-            <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/40 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 overflow-hidden">
-                {/* Header Skeleton */}
+            <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-white/[0.02] p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 overflow-hidden">
+                {/* Header */}
                 <div className="w-full xl:w-[260px] xl:flex-shrink-0 flex xl:flex-col justify-between xl:justify-center gap-4">
-                    <div>
-                        <Skeleton width={120} height={28} className="rounded-lg" />
-                        <Skeleton width={80} height={12} className="mt-2 rounded" />
+                    <div className="space-y-2">
+                        <Skeleton className="w-[120px] h-7" rounded="lg" />
+                        <Skeleton className="w-20 h-3 opacity-50" rounded="sm" />
                     </div>
-                    <Skeleton width={100} height={16} className="rounded" />
+                    <Skeleton className="w-24 h-4 opacity-50" rounded="md" />
                 </div>
 
-                {/* Swiper Swiper Match */}
+                {/* Content */}
                 <div className="w-full xl:w-[calc(100%-292px)]">
                     <Swiper
                         slidesPerView={"auto"}
@@ -28,14 +26,13 @@ export default function ContinueWatchingRowSkeleton() {
                             1280: { spaceBetween: 20 },
                             767: { spaceBetween: 16 },
                         }}
-                        className="swiper-carousel"
                     >
-                        {[...Array(5)].map((_, i) => (
+                        {[...Array(4)].map((_, i) => (
                             <SwiperSlide key={i} className="!w-[220px] sm:!w-[260px] md:!w-[300px]">
-                                <div className="aspect-video rounded-xl bg-white/5 mb-3 border border-white/5 animate-pulse" />
+                                <Skeleton className="aspect-video mb-3" rounded="xl" />
                                 <div className="space-y-2 px-1">
-                                    <Skeleton width="75%" height={16} />
-                                    <Skeleton width="50%" height={12} />
+                                    <Skeleton className="w-3/4 h-4" />
+                                    <Skeleton className="w-1/2 h-3 opacity-50" />
                                 </div>
                             </SwiperSlide>
                         ))}

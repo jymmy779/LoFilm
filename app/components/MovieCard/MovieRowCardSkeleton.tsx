@@ -1,19 +1,16 @@
-"use client";
-
 import React from 'react';
+import Skeleton from '@/app/components/Skeleton/Skeleton';
 
 export default function MovieRowCardSkeleton() {
   return (
     <div className="block">
-      {/* Thumbnail area aspect-video (16:9) */}
-      <div className="relative aspect-video rounded-lg overflow-hidden skeleton-shimmer mb-3" />
+      {/* Thumbnail area */}
+      <Skeleton className="relative aspect-video mb-3" rounded="lg" />
       
       {/* Info area */}
-      <div className="space-y-1">
-        {/* Title */}
-        <div className="h-[16px] md:h-[20px] w-full rounded-md skeleton-shimmer" />
-        {/* Alias */}
-        <div className="h-[14px] md:h-[16px] w-3/4 rounded-md skeleton-shimmer" />
+      <div className="space-y-2">
+        <Skeleton className="h-4 md:h-5 w-full" rounded="md" />
+        <Skeleton className="h-3 md:h-4 w-3/4 opacity-50" rounded="md" />
       </div>
     </div>
   );

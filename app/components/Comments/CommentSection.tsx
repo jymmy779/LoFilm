@@ -5,6 +5,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/app/utils/supabase/client";
 import CommentItem from "./CommentItem";
 import CommentInput from "./CommentInput";
+import Skeleton from "../Skeleton/Skeleton";
 import AuthPrompt from "./AuthPrompt";
 import { toast } from "react-hot-toast";
 import MovieInteractions from "../../(pages)/phim/[slug]/[episodeSlug]/MovieInteractions";
@@ -117,9 +118,15 @@ export default function CommentSection({ movieSlug }: CommentSectionProps) {
 
             <div className="comment-list mt-8">
                 {loading ? (
-                    <div className="flex flex-col gap-4">
-                        {[1, 2, 3].map(i => (
-                            <div key={i} className="h-24 bg-white/5 animate-pulse rounded-2xl" />
+                    <div className="flex flex-col gap-6">
+                        {[...Array(3)].map((_, i) => (
+                            <div key={i} className="flex gap-4">
+                                <Skeleton className="w-10 h-10 shrink-0" rounded="full" />
+                                <div className="flex-1 space-y-3 pt-1">
+                                    <Skeleton className="w-32 h-4" rounded="md" />
+                                    <Skeleton className="w-full h-12" rounded="xl" />
+                                </div>
+                            </div>
                         ))}
                     </div>
                 ) : comments.length > 0 ? (

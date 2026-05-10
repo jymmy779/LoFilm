@@ -3,6 +3,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { getImageUrl } from "@/app/utils/movieUtils";
+import Skeleton from "@/app/components/Skeleton/Skeleton";
 
 interface WatchlistTabProps {
   watchlist: any[];
@@ -32,8 +33,14 @@ export default function WatchlistTab({ watchlist, isWatchlistLoading, onDeleteIt
 
       {isWatchlistLoading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[1, 2, 3].map(i => (
-            <div key={i} className="h-48 bg-white/5 animate-pulse rounded-2xl" />
+          {[...Array(6)].map((_, i) => (
+            <div key={i} className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden">
+              <Skeleton className="aspect-video" rounded="none" />
+              <div className="p-4 space-y-3">
+                <Skeleton className="w-3/4 h-4" />
+                <Skeleton className="w-1/2 h-3" />
+              </div>
+            </div>
           ))}
         </div>
       ) : watchlist.length > 0 ? (

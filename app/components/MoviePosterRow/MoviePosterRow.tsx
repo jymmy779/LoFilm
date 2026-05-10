@@ -9,7 +9,6 @@ import "swiper/css/navigation";
 
 import { Movie } from "@/app/types/movie";
 import { getImageUrl } from "@/app/utils/movieUtils";
-import Skeleton from "react-loading-skeleton";
 import Container from "@/app/components/Container";
 import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
 import MovieCardSkeleton from "@/app/components/MovieCard/MovieCardSkeleton";

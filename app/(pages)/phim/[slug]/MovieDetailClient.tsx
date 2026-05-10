@@ -24,11 +24,12 @@ import {
 import SmartImage from "@/app/components/Common/SmartImage";
 import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
 import { fetchTotalEpisodesFromTMDB } from "@/app/utils/tmdbUtils";
+import Skeleton from "@/app/components/Skeleton/Skeleton";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import dynamic from "next/dynamic";
 import { TMDBActor, fetchActorsFromTMDB } from "@/app/utils/tmdbUtils";
 const CommentSection = dynamic(() => import("@/app/components/Comments/CommentSection"), {
-    loading: () => <div className="h-40 animate-pulse bg-white/5 rounded-2xl" />,
+    loading: () => <Skeleton className="h-40" rounded="2xl" />,
     ssr: false
 });
 
@@ -680,7 +681,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                                     <div className="aspect-[3/4] bg-white/5 rounded-2xl mb-3 flex items-center justify-center border border-white/5 group-hover:border-[#f5a623]/30 transition-all overflow-hidden relative">
                                                         <i className="fa-solid fa-user text-3xl text-white/10 group-hover:text-[#f5a623]/30 transition-colors"></i>
                                                         {isLoadingActors && (
-                                                            <div className="absolute inset-0 bg-white/5 animate-pulse" />
+                                                            <Skeleton className="absolute inset-0" rounded="none" />
                                                         )}
                                                     </div>
                                                     <div className="text-center">

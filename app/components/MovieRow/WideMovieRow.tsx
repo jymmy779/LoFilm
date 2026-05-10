@@ -10,7 +10,6 @@ import "swiper/css/navigation";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
 import { getImageUrl } from "@/app/utils/movieUtils";
-import Skeleton from "react-loading-skeleton";
 import Container from "@/app/components/Container";
 import WideMovieCard from "@/app/components/MovieCard/WideMovieCard";
 import WideMovieCardSkeleton from "@/app/components/MovieCard/WideMovieCardSkeleton";

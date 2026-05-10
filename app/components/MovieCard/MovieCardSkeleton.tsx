@@ -1,19 +1,16 @@
-"use client";
-
 import React from 'react';
+import Skeleton from '@/app/components/Skeleton/Skeleton';
 
 export default function MovieCardSkeleton() {
   return (
     <div className="sw-item relative block">
-      {/* Poster area matching aspect-[2/3] */}
-      <div className="v-thumbnail relative aspect-[2/3] rounded-2xl overflow-hidden mb-3 skeleton-shimmer" />
+      {/* Poster area */}
+      <Skeleton className="v-thumbnail relative aspect-[2/3] mb-3" rounded="2xl" />
       
       {/* Info area */}
-      <div className="info text-center space-y-1">
-        {/* Title (text-sm/base) */}
-        <div className="h-[18px] lg:h-[22px] w-3/4 mx-auto rounded-md skeleton-shimmer" />
-        {/* Alias (text-xs) */}
-        <div className="h-[14px] w-1/2 mx-auto rounded-md skeleton-shimmer" />
+      <div className="info text-center space-y-2">
+        <Skeleton className="h-[18px] lg:h-[20px] w-3/4 mx-auto" rounded="md" />
+        <Skeleton className="h-[14px] w-1/2 mx-auto opacity-50" rounded="md" />
       </div>
     </div>
   );

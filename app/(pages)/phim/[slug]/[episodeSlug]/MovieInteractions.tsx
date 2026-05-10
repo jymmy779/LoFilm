@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
 import { createClient } from "@/app/utils/supabase/client";
 import { toast } from "react-hot-toast";
+import Skeleton from "@/app/components/Skeleton/Skeleton";
 
 interface MovieInteractionsProps {
     movieSlug: string;
@@ -93,9 +94,9 @@ export default function MovieInteractions({ movieSlug }: MovieInteractionsProps)
     };
 
     if (loading) {
-        return <div className="flex gap-4 animate-pulse">
-            <div className="w-16 h-8 bg-white/5 rounded-lg" />
-            <div className="w-16 h-8 bg-white/5 rounded-lg" />
+        return <div className="flex gap-4">
+            <Skeleton className="w-16 h-8" rounded="lg" />
+            <Skeleton className="w-16 h-8" rounded="lg" />
         </div>;
     }
 

@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Skeleton from "react-loading-skeleton";
+import Skeleton from "@/app/components/Skeleton/Skeleton";
 import Container from "@/app/components/Container";
 
 export default function HeroSliderSkeleton() {
@@ -9,7 +9,7 @@ export default function HeroSliderSkeleton() {
         <section className="w-full relative h-[500px] md:h-[700px] lg:h-[850px] overflow-hidden bg-[#0a1628]">
             {/* Background shimmer */}
             <div className="absolute inset-0">
-                <Skeleton className="w-full h-full block" containerClassName="h-full" />
+                <Skeleton className="w-full h-full" rounded="none" />
                 <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628] via-[#0A1628]/60 to-transparent" />
             </div>
 
@@ -19,40 +19,42 @@ export default function HeroSliderSkeleton() {
                     
                     {/* Content (Left) */}
                     <div className="w-full max-w-[300px] md:max-w-md xl:max-w-2xl text-center min-[700px]:text-left">
-                        <div className="space-y-4">
-                            {/* Title area Match */}
-                            <div className="min-h-[76px] m-0 md:mb-[16px] flex items-end justify-center min-[700px]:justify-start">
-                                <Skeleton width="80%" className="h-8 md:h-12 lg:h-14 rounded-lg" />
+                        <div className="space-y-6">
+                            {/* Title area */}
+                            <div className="flex items-end justify-center min-[700px]:justify-start">
+                                <Skeleton className="w-4/5 h-10 md:h-14" rounded="lg" />
                             </div>
 
-                            {/* Origin name & Tags area Match */}
-                            <div className="space-y-2 md:mb-[16px] mb-0">
-                                <Skeleton width="40%" height={20} className="rounded" />
-                                <div className="flex gap-2 justify-center min-[700px]:justify-start h-7">
-                                    <Skeleton width={50} height={24} className="rounded" />
-                                    <Skeleton width={50} height={24} className="rounded" />
-                                    <Skeleton width={80} height={24} className="rounded" />
+                            {/* Tags area */}
+                            <div className="space-y-3">
+                                <Skeleton className="w-2/5 h-5" rounded="md" />
+                                <div className="flex gap-2 justify-center min-[700px]:justify-start">
+                                    <Skeleton className="w-12 h-6" rounded="md" />
+                                    <Skeleton className="w-12 h-6" rounded="md" />
+                                    <Skeleton className="w-20 h-6" rounded="md" />
                                 </div>
                             </div>
 
-                            {/* Description area Match (Desktop only) */}
-                            <div className="min-h-[60px] lg:block hidden max-w-lg mx-auto lg:mx-0">
-                                <Skeleton count={3} className="mb-2" />
+                            {/* Description Match (Desktop) */}
+                            <div className="hidden lg:block space-y-2 max-w-lg">
+                                <Skeleton className="w-full h-4" />
+                                <Skeleton className="w-full h-4" />
+                                <Skeleton className="w-2/3 h-4" />
                             </div>
 
-                            {/* Buttons area Match */}
-                            <div className="flex hidden min-[700px]:flex items-center justify-center min-[700px]:justify-start gap-5 pt-4">
-                                <Skeleton circle width={60} height={60} />
-                                <Skeleton width={150} height={45} className="rounded-full" />
+                            {/* Buttons area */}
+                            <div className="hidden min-[700px]:flex items-center justify-center min-[700px]:justify-start gap-5 pt-4">
+                                <Skeleton className="w-[60px] h-[60px]" rounded="full" />
+                                <Skeleton className="w-[150px] h-[45px]" rounded="full" />
                             </div>
                         </div>
                     </div>
 
                     {/* Thumbs (Right) */}
-                    <div className="w-[340px] min-[700px]:w-[400px] lg:w-[480px] min-h-[44px] min-[700px]:min-h-[32px] lg:min-h-[52px]">
+                    <div className="w-[340px] min-[700px]:w-[400px] lg:w-[480px]">
                         <div className="flex gap-2.5 overflow-hidden">
                             {[...Array(8)].map((_, i) => (
-                                <div key={i} className="flex-none w-[calc(12.5%-8.75px)] aspect-square min-[700px]:aspect-video rounded-full min-[700px]:rounded bg-white/5 border border-white/10" />
+                                <Skeleton key={i} className="flex-none w-[calc(12.5%-8.75px)] aspect-square min-[700px]:aspect-video" rounded="md" />
                             ))}
                         </div>
                     </div>

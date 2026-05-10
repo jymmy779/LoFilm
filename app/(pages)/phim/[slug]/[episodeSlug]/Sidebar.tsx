@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
+import Skeleton from "@/app/components/Skeleton/Skeleton";
 import { Star, ChevronDown, User } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
@@ -206,7 +207,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                                 <div className="w-16 h-16 rounded-full bg-white/5 border-2 border-white/10 group-hover:border-white flex items-center justify-center overflow-hidden transition-all relative">
                                     <User size={20} className="text-white/20 group-hover:text-white/40 transition-colors" />
                                     {isLoadingActors && (
-                                        <div className="absolute inset-0 bg-white/5 animate-pulse" />
+                                        <Skeleton className="absolute inset-0" rounded="none" />
                                     )}
                                 </div>
                                 <span className="text-[10px] text-white/60 group-hover:text-white text-center leading-tight truncate w-full transition-colors">

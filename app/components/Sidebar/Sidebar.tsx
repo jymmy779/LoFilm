@@ -8,7 +8,7 @@ import { Star, Eye } from "lucide-react";
 import { Movie } from "@/app/types/movie";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import { decodeHtml } from "@/app/utils/textUtils";
-import Skeleton from "react-loading-skeleton";
+import Skeleton from "../Skeleton/Skeleton";
 
 // Hàm chuẩn hóa tên để tìm các phần phim giống nhau
 const normalizeMovieName = (name: string) => {
@@ -109,13 +109,13 @@ const SidebarSection = ({ title, apiUrl, type, limit = 10 }: SidebarSectionProps
 
             <div className="space-y-4">
                 {isLoading ? (
-                    [...Array(6)].map((_, i) => (
+                    [...Array(limit > 5 ? 6 : limit)].map((_, i) => (
                         <div key={i} className="flex gap-3">
-                            <Skeleton width={type === 'rank' ? 20 : 0} height={20} className={type === 'rank' ? "mt-4" : "hidden"} />
-                            <Skeleton width={45} height={65} className="rounded-md shrink-0" />
-                            <div className="flex-grow pt-1">
-                                <Skeleton width="80%" height={14} className="mb-2" />
-                                <Skeleton width="40%" height={10} />
+                            {type === 'rank' && <Skeleton className="w-5 h-5 mt-4 opacity-20" rounded="sm" />}
+                            <Skeleton className="w-11 h-15 rounded-lg shrink-0" />
+                            <div className="flex-grow pt-1 space-y-2">
+                                <Skeleton className="w-full h-4" rounded="md" />
+                                <Skeleton className="w-1/2 h-3 opacity-50" rounded="sm" />
                             </div>
                         </div>
                     ))

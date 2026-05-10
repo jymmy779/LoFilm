@@ -15,8 +15,8 @@ import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
 import { getImageUrl, getRawImageUrl, filterDuplicateMovies } from "@/app/utils/movieUtils";
-import Skeleton from "react-loading-skeleton";
 import Container from "@/app/components/Container";
+import Skeleton from "@/app/components/Skeleton/Skeleton";
 import { motion, AnimatePresence } from "framer-motion";
 import FavoriteButton from "@/app/components/Common/FavoriteButton";
 
@@ -217,8 +217,9 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                             </p>
                                         ) : (
                                             <div className="flex flex-col gap-2">
-                                                <Skeleton count={2} />
-                                                <Skeleton width="60%" />
+                                                <Skeleton className="w-full h-4" />
+                                                <Skeleton className="w-full h-4" />
+                                                <Skeleton className="w-2/3 h-4" />
                                             </div>
                                         )}
                                     </div>

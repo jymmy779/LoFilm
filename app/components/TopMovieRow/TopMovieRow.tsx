@@ -11,7 +11,6 @@ import "swiper/css/navigation";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
 import { filterDuplicateMovies, getEpisodeStatus, getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
-import Skeleton from "react-loading-skeleton";
 import SmartImage from "@/app/components/Common/SmartImage";
 import Container from "@/app/components/Container";
 import { useAdTrigger } from "@/app/hooks/useAdTrigger";

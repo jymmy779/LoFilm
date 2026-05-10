@@ -11,6 +11,7 @@ import Container from "../Container";
 import SmartImage from "../Common/SmartImage";
 import axios from "axios";
 import { filterDuplicateMovies, getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
+import Skeleton from "../Skeleton/Skeleton";
 
 const MOODS = [
     { id: 'hanh-dong', title: 'Combat cháy máy', sub: 'Đánh đấm mãn nhãn', bgColor: 'bg-[#818cf8]' },
@@ -185,9 +186,7 @@ function RandomMovieRow() {
                             >
                                 {[...Array(12)].map((_, i) => (
                                     <SwiperSlide key={i}>
-                                        <div className="aspect-[2/3] rounded-lg bg-white/5 animate-pulse relative overflow-hidden">
-                                            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent -translate-x-full animate-[shimmer_2s_infinite]" />
-                                        </div>
+                                        <Skeleton className="aspect-[2/3]" rounded="lg" />
                                     </SwiperSlide>
                                 ))}
                             </Swiper>

@@ -11,6 +11,7 @@ import { toast } from "react-hot-toast";
 import LogoutModal from "@/app/components/Modals/LogoutModal";
 import ComingSoonModal from "@/app/components/Modals/ComingSoonModal";
 import { Crown } from "lucide-react";
+import Skeleton from "@/app/components/Skeleton/Skeleton";
 
 interface MemberButtonProps {
     flatten?: boolean;
@@ -62,7 +63,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
 
     if (loading && !showLogoutModal) {
         return (
-            <div className="w-24 h-10 bg-white/5 animate-pulse rounded-full" />
+            <Skeleton className="w-24 h-10" rounded="full" />
         );
     }
 

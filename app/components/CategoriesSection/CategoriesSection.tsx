@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import axios from "axios";
 import Container from "@/app/components/Container";
-import Skeleton from "react-loading-skeleton";
+import Skeleton from "@/app/components/Skeleton/Skeleton";
 import type { HomeCategory } from "@/app/types/home-prefetch";
 
 // Các màu gradient giống với màn hình tham khảo
@@ -42,11 +42,11 @@ export default function CategoriesSection({ initialCategories }: CategoriesSecti
     // Hiển thị skeleton loading nếu chưa tải xong
     if (categories.length === 0) {
         return (
-            <Container as="section" className="relative z-30 -mt-[80px] md:-mt-[140px] mb-10 pointer-events-none">
-                <Skeleton width={250} height={32} className="mb-6 rounded-lg" />
-                <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-4 pointer-events-auto">
+            <Container as="section" className="relative z-30 -mt-[80px] md:-mt-[140px] mb-10">
+                <Skeleton className="w-[250px] h-8 mb-6" rounded="lg" />
+                <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-4">
                     {[...Array(8)].map((_, i) => (
-                        <Skeleton key={i} height={120} className="w-full rounded-xl" />
+                        <Skeleton key={i} className="w-full h-[120px]" rounded="xl" />
                     ))}
                 </div>
             </Container>
