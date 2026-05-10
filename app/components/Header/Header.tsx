@@ -4,7 +4,6 @@ import { usePathname, useSearchParams } from "next/navigation";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { useEffect, useRef, useState } from "react";
 import axios from "axios";
-import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import { X } from "lucide-react";
 
@@ -76,55 +75,32 @@ export default function Header() {
         <header className={`w-full fixed top-0 left-0 z-50 [@supports(-webkit-touch-callout:none)]:pt-[max(env(safe-area-inset-top),12px)] ${isMenuOpen ? "" : "transition-all duration-300"} border-b ${showBackground ? "bg-[#0d1b2e] border-white/10 py-3 lg:px-5 shadow-lg" : "bg-transparent border-transparent py-2 lg:px-5"}`}>
             <div className="flex items-center justify-between h-[54px] md:h-[64px] w-full max-w-[1900px] mx-auto px-4 lg:px-0 gap-4 md:gap-8">
                 <div className="flex xl:hidden items-center justify-between w-full h-full gap-3">
-                    <AnimatePresence mode="wait">
+                    <div className="relative flex-1 h-full flex items-center">
                         {!isSearchActive ? (
-                            <motion.div
-                                key="logo-row"
-                                initial={{ opacity: 0, x: -10 }}
-                                animate={{ opacity: 1, x: 0 }}
-                                exit={{ opacity: 0, x: -10 }}
-                                transition={{ duration: 0.2 }}
-                                className="flex items-center gap-2"
-                            >
-                                <button
-                                    onClick={() => {
-                                        setIsMenuOpen(!isMenuOpen);
-                                        setIsSearchActive(false);
-                                    }}
-                                    className="p-2 cursor-pointer text-white/70 hover:text-white transition-colors flex items-center justify-center w-10 h-10 shrink-0 relative"
-                                    aria-label={isMenuOpen ? "Đóng menu" : "Mở menu"}
-                                >
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                                        <motion.line
-                                            x1="3" y1="6" x2="21" y2="6"
-                                            initial={{ rotate: 0, y: 0, x1: 3, x2: 21 }}
-                                            animate={{
-                                                rotate: isMenuOpen ? 45 : 0,
-                                                y: isMenuOpen ? 6 : 0,
-                                                x1: isMenuOpen ? 4.5 : 3,
-                                                x2: isMenuOpen ? 19.5 : 21
-                                            }}
-                                            transition={{ duration: 0.2 }}
-                                        />
-                                        <motion.line
-                                            x1="3" y1="12" x2="21" y2="12"
-                                            initial={{ opacity: 1 }}
-                                            animate={{ opacity: isMenuOpen ? 0 : 1 }}
-                                            transition={{ duration: 0.1 }}
-                                        />
-                                        <motion.line
-                                            x1="3" y1="18" x2="21" y2="18"
-                                            initial={{ rotate: 0, y: 0, x1: 3, x2: 21 }}
-                                            animate={{
-                                                rotate: isMenuOpen ? -45 : 0,
-                                                y: isMenuOpen ? -6 : 0,
-                                                x1: isMenuOpen ? 4.5 : 3,
-                                                x2: isMenuOpen ? 19.5 : 21
-                                            }}
-                                            transition={{ duration: 0.2 }}
-                                        />
-                                    </svg>
-                                </button>
+                            <div className="flex items-center gap-2 animate-fade-in shrink-0">
+                                    <button
+                                        onClick={() => {
+                                            setIsMenuOpen(!isMenuOpen);
+                                            setIsSearchActive(false);
+                                        }}
+                                        className="p-2 cursor-pointer text-white/70 hover:text-white transition-colors flex items-center justify-center w-10 h-10 shrink-0 relative"
+                                        aria-label={isMenuOpen ? "Đóng menu" : "Mở menu"}
+                                    >
+                                        <div className="relative w-10 h-10 flex items-center justify-center">
+                                            {/* Menu Icon */}
+                                            <div className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isMenuOpen ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"}`}>
+                                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+                                                    <line x1="3" y1="12" x2="21" y2="12"></line>
+                                                    <line x1="3" y1="6" x2="21" y2="6"></line>
+                                                    <line x1="3" y1="18" x2="21" y2="18"></line>
+                                                </svg>
+                                            </div>
+                                            {/* Close Icon */}
+                                            <div className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isMenuOpen ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"}`}>
+                                                <X size={24} strokeWidth={2.5} />
+                                            </div>
+                                        </div>
+                                    </button>
 
                                 <TransitionLink href="/" className="shrink-0">
                                     <Image
@@ -138,20 +114,13 @@ export default function Header() {
                                         sizes="(max-width: 768px) 140px, 140px"
                                     />
                                 </TransitionLink>
-                            </motion.div>
+                            </div>
                         ) : (
-                            <motion.div
-                                key="search-row"
-                                initial={{ opacity: 0, scale: 0.95 }}
-                                animate={{ opacity: 1, scale: 1 }}
-                                exit={{ opacity: 0, scale: 0.95 }}
-                                transition={{ duration: 0.2 }}
-                                className="flex-1"
-                            >
+                            <div className="flex-1 animate-reveal-left">
                                 <SearchBox autoFocus={true} />
-                            </motion.div>
+                            </div>
                         )}
-                    </AnimatePresence>
+                    </div>
 
                     <div className="flex items-center gap-1">
                         <NotificationBell />
@@ -163,28 +132,18 @@ export default function Header() {
                             className="p-2 cursor-pointer text-white/60 hover:text-white transition-colors shrink-0 flex items-center justify-center w-10 h-10"
                             aria-label={isSearchActive ? "Đóng tìm kiếm" : "Mở tìm kiếm"}
                         >
-                            <AnimatePresence mode="wait">
-                                {isSearchActive ? (
-                                    <motion.div
-                                        key="close-svg"
-                                        initial={{ rotate: -90, opacity: 0 }}
-                                        animate={{ rotate: 0, opacity: 1 }}
-                                        exit={{ rotate: 90, opacity: 0 }}
-                                    >
-                                        <X size={22} strokeWidth={2.5} />
-                                    </motion.div>
-                                ) : (
-                                    <motion.svg
-                                        key="search-svg"
-                                        initial={{ scale: 0.8, opacity: 0 }}
-                                        animate={{ scale: 1, opacity: 1 }}
-                                        exit={{ scale: 0.8, opacity: 0 }}
-                                        viewBox="0 0 512 512" width="20" height="20" fill="currentColor"
-                                    >
-                                        <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
-                                    </motion.svg>
-                                )}
-                            </AnimatePresence>
+                        <div className="relative w-10 h-10 flex items-center justify-center">
+                            {/* Search Icon */}
+                            <div className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSearchActive ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"}`}>
+                                <svg viewBox="0 0 512 512" width="20" height="20" fill="currentColor">
+                                    <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
+                                </svg>
+                            </div>
+                            {/* Close Icon */}
+                            <div className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSearchActive ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"}`}>
+                                <X size={22} strokeWidth={2.5} />
+                            </div>
+                        </div>
                         </button>
                     </div>
                 </div>
@@ -249,26 +208,21 @@ export default function Header() {
                 </div>
             </div>
 
-            <AnimatePresence>
-                {isMenuOpen && (
-                    <>
-                        <motion.div
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="xl:hidden fixed inset-0 z-[80] bg-black/60"
-                            onClick={() => setIsMenuOpen(false)}
-                        />
+            {/* Mobile Menu Drawer */}
+            <div 
+                className={`xl:hidden fixed inset-0 z-[80] bg-black/60 transition-opacity duration-300 ${isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+                onClick={() => setIsMenuOpen(false)}
+            />
 
-                        <motion.div
-                            initial={{ opacity: 0, y: -8, scale: 0.98 }}
-                            animate={{ opacity: 1, y: 0, scale: 1 }}
-                            exit={{ opacity: 0, y: -8, scale: 0.98 }}
-                            transition={{ duration: 0.2, ease: "easeOut" }}
-                            className="xl:hidden fixed left-4 right-4 top-[64px] md:top-[74px] z-[100] bg-[#111e31] border border-white/10 rounded-xl overflow-hidden origin-top overflow-y-auto max-h-[80vh]"
-                            style={{ willChange: "transform, opacity", transform: "translateZ(0)" }}
-                        >
-                            <div className="p-5 custom-scrollbar">
+            <div
+                className={`xl:hidden fixed left-4 right-4 top-[64px] md:top-[74px] z-[100] bg-[#111e31] border border-white/10 rounded-xl overflow-hidden origin-top transition-all duration-300 ${
+                    isMenuOpen 
+                    ? "opacity-100 translate-y-0 scale-100 pointer-events-auto" 
+                    : "opacity-0 -translate-y-4 scale-[0.98] pointer-events-none"
+                }`}
+                style={{ overflowY: 'auto', maxHeight: '80vh' }}
+            >
+                <div className="p-5 custom-scrollbar">
                                 <div className="flex flex-col">
                                     <div>
                                         <TransitionLink
@@ -287,25 +241,17 @@ export default function Header() {
                                             className="w-full flex cursor-pointer items-center justify-between py-3 text-base font-medium text-white/80 hover:text-[#f5a623] transition-colors"
                                         >
                                             <span>Thể loại</span>
-                                            <motion.svg
-                                                animate={{ rotate: expandedSections.includes('categories') ? 180 : 0 }}
+                                            <svg
+                                                className={`transition-transform duration-200 ${expandedSections.includes('categories') ? "rotate-180" : ""}`}
                                                 xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                                             >
                                                 <polyline points="6 9 12 15 18 9"></polyline>
-                                            </motion.svg>
+                                            </svg>
                                         </button>
 
-                                        <motion.div
-                                            initial={false}
-                                            animate={{
-                                                height: expandedSections.includes('categories') ? "auto" : 0,
-                                                opacity: expandedSections.includes('categories') ? 1 : 0,
-                                                marginTop: expandedSections.includes('categories') ? 6 : 0,
-                                                marginBottom: expandedSections.includes('categories') ? 6 : 0
-                                            }}
-                                            transition={{ duration: 0.15, ease: "easeOut" }}
-                                            className="overflow-hidden"
-                                            style={{ transform: "translateZ(0)" }}
+                                        <div
+                                            className={`overflow-hidden transition-all duration-300 ease-out ${expandedSections.includes('categories') ? "max-height-auto opacity-100 mt-1.5 mb-1.5" : "max-h-0 opacity-0 mt-0 mb-0"}`}
+                                            style={{ maxHeight: expandedSections.includes('categories') ? '500px' : '0' }}
                                         >
                                             <div className="grid grid-cols-2 gap-x-4 gap-y-2 p-3 bg-white/5 rounded-xl border border-white/5">
                                                 {categories.map((cat) => (
@@ -322,7 +268,7 @@ export default function Header() {
                                                     </TransitionLink>
                                                 ))}
                                             </div>
-                                        </motion.div>
+                                        </div>
                                     </div>
 
                                     <div className="border-b border-white/5">
@@ -331,25 +277,17 @@ export default function Header() {
                                             className="w-full flex cursor-pointer items-center justify-between py-3 text-base font-medium text-white/80 hover:text-[#f5a623] transition-colors"
                                         >
                                             <span>Quốc gia</span>
-                                            <motion.svg
-                                                animate={{ rotate: expandedSections.includes('countries') ? 180 : 0 }}
+                                            <svg
+                                                className={`transition-transform duration-200 ${expandedSections.includes('countries') ? "rotate-180" : ""}`}
                                                 xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
                                             >
                                                 <polyline points="6 9 12 15 18 9"></polyline>
-                                            </motion.svg>
+                                            </svg>
                                         </button>
 
-                                        <motion.div
-                                            initial={false}
-                                            animate={{
-                                                height: expandedSections.includes('countries') ? "auto" : 0,
-                                                opacity: expandedSections.includes('countries') ? 1 : 0,
-                                                marginTop: expandedSections.includes('countries') ? 6 : 0,
-                                                marginBottom: expandedSections.includes('countries') ? 6 : 0
-                                            }}
-                                            transition={{ duration: 0.15, ease: "easeOut" }}
-                                            className="overflow-hidden"
-                                            style={{ transform: "translateZ(0)" }}
+                                        <div
+                                            className={`overflow-hidden transition-all duration-300 ease-out ${expandedSections.includes('countries') ? "max-height-auto opacity-100 mt-1.5 mb-1.5" : "max-h-0 opacity-0 mt-0 mb-0"}`}
+                                            style={{ maxHeight: expandedSections.includes('countries') ? '500px' : '0' }}
                                         >
                                             <div className="grid grid-cols-3 gap-2 p-3 bg-white/5 rounded-xl border border-white/5">
                                                 {countries.map((country) => (
@@ -366,7 +304,7 @@ export default function Header() {
                                                     </TransitionLink>
                                                 ))}
                                             </div>
-                                        </motion.div>
+                                        </div>
                                     </div>
 
                                     {navLinks.map((item) => (
@@ -386,10 +324,7 @@ export default function Header() {
                                     </div>
                                 </div>
                             </div>
-                        </motion.div>
-                    </>
-                )}
-            </AnimatePresence>
+            </div>
         </header>
     );
 }

@@ -10,7 +10,6 @@ import {
   Heart,
   Bookmark
 } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 
 interface PlayerControlsProps {
   isExpanded: boolean;
@@ -66,37 +65,33 @@ const PlayerControls = ({
             </button>
 
             {/* Server Dropdown */}
-            <AnimatePresence>
-              {showServers && (
-                <motion.div
-                  initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                  transition={{ duration: 0.2, ease: "easeOut" }}
-                  className="absolute bottom-full left-0 mb-3 w-48 bg-[#1a2b4b] border border-white/10 rounded-lg shadow-2xl p-1 z-50 overflow-hidden"
-                >
-                  {episodes.map((server, index) => {
-                    const isActive = activeServer === index;
-                    return (
-                      <button
-                        key={index}
-                        onClick={() => {
-                          onServerChange(index);
-                          setShowServers(false);
-                        }}
-                        className={`w-full flex items-center gap-3 px-3 py-2.5 md:text-sm text-xs rounded-md transition-all text-left cursor-pointer ${isActive
-                          ? "bg-amber-400/10 border border-amber-400/20 text-amber-400"
-                          : "text-white/70 hover:bg-white/10 hover:text-white"
-                          }`}
-                      >
-                        <Play size={10} fill={isActive ? "currentColor" : "none"} className={isActive ? "text-amber-400" : "text-white/40"} />
-                        <span className="font-medium">{server.server_name}</span>
-                      </button>
-                    );
-                  })}
-                </motion.div>
-              )}
-            </AnimatePresence>
+            <div
+              className={`absolute bottom-full left-0 mb-3 w-48 bg-[#1a2b4b] border border-white/10 rounded-lg shadow-2xl p-1 z-50 overflow-hidden transition-all duration-200 ease-out ${
+                showServers 
+                  ? "opacity-100 translate-y-0 scale-100 pointer-events-auto" 
+                  : "opacity-0 translate-y-2 scale-95 pointer-events-none"
+              }`}
+            >
+              {episodes.map((server, index) => {
+                const isActive = activeServer === index;
+                return (
+                  <button
+                    key={index}
+                    onClick={() => {
+                      onServerChange(index);
+                      setShowServers(false);
+                    }}
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 md:text-sm text-xs rounded-md transition-all text-left cursor-pointer ${isActive
+                      ? "bg-amber-400/10 border border-amber-400/20 text-amber-400"
+                      : "text-white/70 hover:bg-white/10 hover:text-white"
+                      }`}
+                  >
+                    <Play size={10} fill={isActive ? "currentColor" : "none"} className={isActive ? "text-amber-400" : "text-white/40"} />
+                    <span className="font-medium">{server.server_name}</span>
+                  </button>
+                );
+              })}
+            </div>
           </div>
         )}
 

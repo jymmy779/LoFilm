@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+
 import axios from "axios";
 import Image from "next/image";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
@@ -538,61 +538,47 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                             </button>
                                         </div>
                                         {/* Animation wrapper for both ranges and grid */}
-                                        <AnimatePresence initial={false}>
-                                            {!isEpisodesCollapsed && (
-                                                <motion.div
-                                                    initial={{ height: 0, opacity: 0 }}
-                                                    animate={{ height: 'auto', opacity: 1 }}
-                                                    exit={{ height: 0, opacity: 0 }}
-                                                    transition={{ duration: 0.3, ease: "easeInOut" }}
-                                                    className="overflow-hidden"
-                                                    style={{ willChange: "height, opacity" }}
-                                                >
-                                                    {/* Episode Ranges Selection */}
-                                                    {episodeRanges.length > 0 && (
-                                                        <div className="flex flex-wrap gap-2 mb-6">
-                                                            {episodeRanges.map((range, idx) => (
-                                                                <button
-                                                                    key={idx}
-                                                                    onClick={() => setActiveRangeIndex(idx)}
-                                                                    className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer border ${activeRangeIndex === idx
-                                                                        ? 'bg-[#FFFFFF] text-[#0a1628] border-[#FFFFFF] shadow-[0_0_10px_rgba(255,255,255,0.2)]'
-                                                                        : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white'
-                                                                        }`}
-                                                                >
-                                                                    {range.label}
-                                                                </button>
-                                                            ))}
-                                                        </div>
-                                                    )}
-
-                                                    {/* Episode Grid with Animation */}
-                                                    <AnimatePresence initial={false} mode="wait">
-                                                        <motion.div
-                                                            key={activeRangeIndex}
-                                                            initial={{ opacity: 0, y: 10 }}
-                                                            animate={{ opacity: 1, y: 0 }}
-                                                            exit={{ opacity: 0, y: -10 }}
-                                                            transition={{ duration: 0.2 }}
-                                                            className="overflow-hidden"
-                                                            style={{ willChange: "opacity, transform" }}
+                                        <div
+                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
+                                                !isEpisodesCollapsed ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+                                            }`}
+                                        >
+                                            {/* Episode Ranges Selection */}
+                                            {episodeRanges.length > 0 && (
+                                                <div className="flex flex-wrap gap-2 mb-6">
+                                                    {episodeRanges.map((range, idx) => (
+                                                        <button
+                                                            key={idx}
+                                                            onClick={() => setActiveRangeIndex(idx)}
+                                                            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer border ${activeRangeIndex === idx
+                                                                ? 'bg-[#FFFFFF] text-[#0a1628] border-[#FFFFFF] shadow-[0_0_10px_rgba(255,255,255,0.2)]'
+                                                                : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white'
+                                                                }`}
                                                         >
-                                                            <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
-                                                                {displayedEpisodes.map((ep, idx) => (
-                                                                    <TransitionLink
-                                                                        key={idx}
-                                                                        href={`/phim/${movie.slug}/${getFriendlyEpisodeSlug(ep.slug)}`}
-                                                                        className="px-1 py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
-                                                                    >
-                                                                        {parseEpNumber(ep.name)}
-                                                                    </TransitionLink>
-                                                                ))}
-                                                            </div>
-                                                        </motion.div>
-                                                    </AnimatePresence>
-                                                </motion.div>
+                                                            {range.label}
+                                                        </button>
+                                                    ))}
+                                                </div>
                                             )}
-                                        </AnimatePresence>
+
+                                            {/* Episode Grid with Animation */}
+                                            <div 
+                                                key={activeRangeIndex}
+                                                className="animate-fade-in"
+                                            >
+                                                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
+                                                    {displayedEpisodes.map((ep, idx) => (
+                                                        <TransitionLink
+                                                            key={idx}
+                                                            href={`/phim/${movie.slug}/${getFriendlyEpisodeSlug(ep.slug)}`}
+                                                            className="px-1 py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
+                                                        >
+                                                            {parseEpNumber(ep.name)}
+                                                        </TransitionLink>
+                                                    ))}
+                                                </div>
+                                            </div>
+                                        </div>
                                     </>
                                 )}
 

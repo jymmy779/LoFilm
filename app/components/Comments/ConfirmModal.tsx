@@ -34,7 +34,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
       setIsClosing(true);
       const timer = setTimeout(() => {
         setShouldRender(false);
-      }, 200); // Khớp với time của animation
+      }, 250); // Khớp với time của animation
       return () => clearTimeout(timer);
     }
   }, [isOpen]);
@@ -48,11 +48,16 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   return (
     <div
-      className={`modal-overlay ${isClosing ? "is-closing" : ""}`}
+      className={`fixed inset-0 z-[9999] flex items-center justify-center p-6 ${isClosing ? "pointer-events-none" : ""}`}
       onClick={handleClose}
     >
+      <div 
+        className={`absolute inset-0 bg-black/80 ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+      />
       <div
-        className={`modal-content ${isClosing ? "is-closing" : ""}`}
+        className={`relative bg-[#1a1c1e] border border-white/10 rounded-2xl p-8 w-full max-max-w-[400px] shadow-2xl text-center ${
+          isClosing ? "animate-pop-out" : "animate-pop-in"
+        }`}
         onClick={(e) => e.stopPropagation()}
       >
         <h3 className="modal-title">{title}</h3>

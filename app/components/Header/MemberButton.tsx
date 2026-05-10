@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { User, LogOut, Settings } from "lucide-react";
 import { createClient } from "@/app/utils/supabase/client";
-import { motion, AnimatePresence } from "framer-motion";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
@@ -90,28 +89,8 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
     if (flatten) {
         return (
             <>
-                <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    variants={{
-                        visible: {
-                            transition: {
-                                staggerChildren: 0.05
-                            }
-                        }
-                    }}
-                    className="w-full flex flex-col gap-3"
-                    style={{ willChange: "transform, opacity" }}
-                >
-                    <motion.div
-                        variants={{
-                            hidden: { opacity: 0, y: 8 },
-                            visible: { opacity: 1, y: 0 }
-                        }}
-                        transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="flex items-center gap-3 px-1 py-1 rounded-full bg-white/5 border border-white/10 w-max mx-auto shadow-sm"
-                        style={{ willChange: "transform, opacity" }}
-                    >
+                <div className="w-full flex flex-col gap-3">
+                    <div className="flex items-center gap-3 px-1 py-1 rounded-full bg-white/5 border border-white/10 w-max mx-auto shadow-sm animate-fade-in">
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold text-sm border border-white/20 overflow-hidden shrink-0">
                             {user?.user_metadata?.avatar_url ? (
                                 <Image
@@ -126,17 +105,9 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                             )}
                         </div>
                         <span className="text-xs font-bold text-white/90 pr-3">{displayName}</span>
-                    </motion.div>
+                    </div>
 
-                    <motion.div
-                        variants={{
-                            hidden: { opacity: 0, y: 8 },
-                            visible: { opacity: 1, y: 0 }
-                        }}
-                        transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="grid grid-cols-2 gap-2 mt-2"
-                        style={{ willChange: "transform, opacity" }}
-                    >
+                    <div className="grid grid-cols-2 gap-2 mt-2 animate-fade-in" style={{ animationDelay: '0.1s' }}>
                         <TransitionLink
                             href="/trang-ca-nhan"
                             onClick={() => { if (pathname !== "/trang-ca-nhan") { setShowMenu(false); onClick?.(); } }}
@@ -153,17 +124,9 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                             <Settings size={14} className="text-amber-400" />
                             Cài đặt
                         </TransitionLink>
-                    </motion.div>
+                    </div>
 
-                    <motion.div
-                        variants={{
-                            hidden: { opacity: 0, y: 8 },
-                            visible: { opacity: 1, y: 0 }
-                        }}
-                        transition={{ duration: 0.2, ease: "easeOut" }}
-                        className="w-full"
-                        style={{ willChange: "transform, opacity" }}
-                    >
+                    <div className="w-full animate-fade-in" style={{ animationDelay: '0.2s' }}>
                         <button
                             onClick={() => setShowPremiumModal(true)}
                             className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-500/30 rounded-xl text-[11px] text-amber-400 hover:from-amber-500/30 hover:to-amber-600/30 transition-all font-bold cursor-pointer"
@@ -171,16 +134,9 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                             <Crown size={14} className="animate-pulse" />
                             NÂNG CẤP LOFILM PREMIUM
                         </button>
-                    </motion.div>
+                    </div>
 
-                    <motion.div
-                        variants={{
-                            hidden: { opacity: 0, y: 8 },
-                            visible: { opacity: 1, y: 0 }
-                        }}
-                        transition={{ duration: 0.2, ease: "easeOut" }}
-                        style={{ willChange: "transform, opacity" }}
-                    >
+                    <div className="animate-fade-in" style={{ animationDelay: '0.3s' }}>
                         <button
                             onClick={() => setShowLogoutModal(true)}
                             className="w-full flex items-center justify-center gap-2 px-4 py-2.5 bg-red-500/10 border border-red-500/20 rounded-xl text-xs text-red-300 hover:bg-red-500/20 transition-all font-semibold mt-1 cursor-pointer"
@@ -188,8 +144,8 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                             <LogOut size={14} />
                             Đăng xuất
                         </button>
-                    </motion.div>
-                </motion.div>
+                    </div>
+                </div>
                 <LogoutModal
                     isOpen={showLogoutModal}
                     onClose={() => setShowLogoutModal(false)}
@@ -229,14 +185,14 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                 </span>
             </button>
 
-            <AnimatePresence>
-                {showMenu && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute right-0 mt-3 w-48 bg-[#0d1b2e] border border-white/10 rounded-2xl shadow-2xl p-2 z-[100] backdrop-blur-xl overflow-hidden"
-                    >
+            {/* Member Dropdown Menu */}
+            <div
+                className={`absolute right-0 mt-3 w-48 bg-[#0d1b2e] border border-white/10 rounded-2xl shadow-2xl p-2 z-[100] backdrop-blur-xl overflow-hidden transition-all duration-200 origin-top-right ${
+                    showMenu
+                    ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
+                    : "opacity-0 translate-y-2 scale-[0.98] pointer-events-none"
+                }`}
+            >
                         <div className="px-3 py-2 border-b border-white/5 mb-1">
                             <p className="text-[10px] text-white/40 tracking-widest uppercase">Thành viên</p>
                             <p className="text-sm font-bold text-white/90 truncate mt-1">{displayName}</p>
@@ -282,9 +238,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                             <LogOut size={16} />
                             Đăng xuất
                         </button>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            </div>
             <LogoutModal
                 isOpen={showLogoutModal}
                 onClose={() => setShowLogoutModal(false)}

@@ -11,7 +11,7 @@ import { MenuItem } from "@/app/components/Header/types";
 
 import Sidebar from "@/app/components/Sidebar/Sidebar";
 
-import { motion, AnimatePresence } from "framer-motion";
+
 
 interface CatalogLayoutProps {
     title: string;
@@ -54,7 +54,7 @@ export default function CatalogLayout({
     sidebarProps
 }: CatalogLayoutProps) {
     return (
-        <main className="pt-30 md:pt-40 pb-12 min-h-screen">
+        <main className="pt-30 md:pt-40 pb-12 min-h-screen animate-fade-in">
             <Container>
                 <div className="catalog-page">
                     <CatalogHeader title={title} />
@@ -80,14 +80,9 @@ export default function CatalogLayout({
                                     )}
 
                                     <div className={` transition-opacity duration-300 ${(isLoading === false && isPageLoading) ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
-                                        <AnimatePresence mode="wait">
+                                        <div key={`${isLoading}-${currentPage}`} className="animate-fade-in">
                                             {isLoading ? (
-                                                <motion.div
-                                                    key="skeleton"
-                                                    initial={{ opacity: 0 }}
-                                                    animate={{ opacity: 1 }}
-                                                    exit={{ opacity: 0 }}
-                                                    transition={{ duration: 0.3 }}
+                                                <div
                                                     className={`grid gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 ${hideSidebar
                                                         ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8"
                                                         : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
@@ -96,14 +91,9 @@ export default function CatalogLayout({
                                                     {[...Array(24)].map((_, i) => (
                                                         <MovieCardSkeleton key={i} />
                                                     ))}
-                                                </motion.div>
+                                                </div>
                                             ) : (
-                                                <motion.div
-                                                    key="content"
-                                                    initial={{ opacity: 0 }}
-                                                    animate={{ opacity: 1 }}
-                                                    transition={{ duration: 0.4 }}
-                                                >
+                                                <div key="content">
                                                     {movies.length > 0 ? (
                                                         <div className={`grid gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 ${hideSidebar
                                                             ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8"
@@ -126,9 +116,9 @@ export default function CatalogLayout({
                                                             onPageChange={onPageChange}
                                                         />
                                                     )}
-                                                </motion.div>
+                                                </div>
                                             )}
-                                        </AnimatePresence>
+                                        </div>
                                     </div>
                                 </div>
                             </div>

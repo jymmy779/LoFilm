@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+
 import { Lock, ArrowRight, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/app/utils/supabase/client";
 import { useRouter } from "next/navigation";
@@ -89,10 +89,8 @@ export default function ResetPasswordPage() {
         <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-blue-500/5 rounded-full blur-[100px]" />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md bg-[#14233e]/60 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl"
+      <div
+        className="w-full max-w-md bg-[#14233e]/60 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl animate-fade-in"
       >
         <div className="text-center mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Đặt lại mật khẩu</h1>
@@ -153,7 +151,7 @@ export default function ResetPasswordPage() {
             </button>
           </form>
         )}
-      </motion.div>
+      </div>
     </div>
   );
 }

@@ -53,10 +53,6 @@ export default function ReunificationLoader() {
     return (
         <>
             <style>{`
-                @keyframes cssFadeInUp {
-                    from { opacity: 0; transform: translateY(15px); }
-                    to { opacity: 1; transform: translateY(0); }
-                }
                 @keyframes tankMove {
                     0% { transform: translateX(-150px) translateY(5px) rotate(3deg); }
                     15% { transform: translateX(10vw) translateY(-8px) rotate(-5deg); }
@@ -70,30 +66,9 @@ export default function ReunificationLoader() {
                     0%, 100% { transform: scale(1) translateY(0); }
                     50% { transform: scale(1.05) translateY(-5px); }
                 }
-                @keyframes pulseGold {
-                    0%, 100% { opacity: 0.3; }
-                    50% { opacity: 0.6; }
-                }
                 .reunification-loader {
-                    position: fixed;
-                    top: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 100dvh;
-                    z-index: 9999;
-                    display: flex;
-                    flex-direction: column;
-                    align-items: center;
-                    justify-content: center;
+                    @apply lofilm-loader-overlay;
                     background: #050a14;
-                    transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
-                    overflow: hidden;
-                    touch-action: none;
-                    overscroll-behavior: none;
-                }
-                .reunification-loader.fade-out {
-                    opacity: 0;
-                    visibility: hidden;
                 }
                 .loader-bg-glow {
                     position: absolute;
@@ -109,42 +84,21 @@ export default function ReunificationLoader() {
                 }
                 .flag-badge {
                     width: 120px;
-                    margin: 0 auto -45px; /* Tăng độ đè lên */
+                    margin: 0 auto -45px;
                     animation: cssFadeInUp 0.8s ease-out forwards, flagWave 3s ease-in-out 0.8s infinite;
                     opacity: 0;
                     position: relative;
                     z-index: 5;
                 }
-                .flag-badge::after {
-                    content: "";
-                    position: absolute;
-                    bottom: 0;
-                    left: 0;
-                    width: 100%;
-                    height: 50%;
-                    background: linear-gradient(to top, #050a14 0%, transparent 100%);
-                    z-index: 6;
-                }
                 @media (min-width: 768px) {
                     .flag-badge { width: 180px; margin-bottom: -65px; }
                 }
-                .flag-badge img {
-                    filter: brightness(0.75);
-                }
                 .event-logo {
-                    width: 180px;
-                    max-width: 80vw;
-                    height: auto;
-                    display: block;
-                    margin: 0 auto;
+                    @apply lofilm-loader-logo;
                     animation: cssFadeInUp 0.8s ease-out 0.2s forwards;
                     opacity: 0;
-                    filter: brightness(0.75) drop-shadow(0 10px 20px rgba(0,0,0,0.7)) drop-shadow(0 0 30px rgba(255,255,255,0.1));
                     position: relative;
-                    z-index: 10; /* Đảm bảo nằm trên lá cờ */
-                }
-                @media (min-width: 768px) {
-                    .event-logo { width: 260px; }
+                    z-index: 10;
                 }
                 .event-celebration {
                     color: #fbbf24;
@@ -156,16 +110,10 @@ export default function ReunificationLoader() {
                     opacity: 0;
                     animation: cssFadeInUp 0.8s ease-out 0.4s forwards;
                     text-align: center;
-                    margin-right: -0.2em; /* Bù trừ letter-spacing để căn giữa hoàn hảo */
                     filter: brightness(0.75);
                 }
                 @media (min-width: 768px) {
-                    .event-celebration { 
-                        font-size: 0.75rem; 
-                        letter-spacing: 0.4em; 
-                        margin-top: 15px;
-                        margin-right: -0.4em; /* Bù trừ cho bản desktop */
-                    }
+                    .event-celebration { font-size: 0.75rem; letter-spacing: 0.4em; margin-top: 15px; }
                 }
                 .tank-lane {
                     position: absolute;
@@ -174,17 +122,6 @@ export default function ReunificationLoader() {
                     width: 100%;
                     height: 80px;
                     pointer-events: none;
-                }
-                @media (min-width: 768px) {
-                    .tank-lane { bottom: 12%; height: 100px; }
-                }
-                .bumpy-road {
-                    position: absolute;
-                    bottom: 20px;
-                    left: 0;
-                    width: 100%;
-                    height: 2px;
-                    background: linear-gradient(to right, transparent, rgba(251, 191, 36, 0.2), transparent);
                 }
                 .tank {
                     position: absolute;
@@ -206,9 +143,6 @@ export default function ReunificationLoader() {
                     border-radius: 4px;
                     border: 2px solid #0d120d;
                 }
-                @media (min-width: 768px) {
-                    .tank-body { width: 90px; height: 28px; border-radius: 6px; border-width: 3px; }
-                }
                 .tank-turret {
                     position: absolute;
                     bottom: 28px;
@@ -218,9 +152,6 @@ export default function ReunificationLoader() {
                     background: #233123;
                     border-radius: 6px 6px 0 0;
                     border: 2px solid #0d120d;
-                }
-                @media (min-width: 768px) {
-                    .tank-turret { bottom: 35px; left: 30px; width: 45px; height: 18px; border-radius: 8px 8px 0 0; border-width: 3px; }
                 }
                 .tank-barrel {
                     position: absolute;
@@ -232,9 +163,6 @@ export default function ReunificationLoader() {
                     border-radius: 0 4px 4px 0;
                     border: 2px solid #0d120d;
                 }
-                @media (min-width: 768px) {
-                    .tank-barrel { bottom: 42px; left: 72px; width: 50px; height: 6px; border-width: 3px; }
-                }
                 .tank-star {
                     position: absolute;
                     top: 50%;
@@ -242,22 +170,6 @@ export default function ReunificationLoader() {
                     transform: translate(-50%, -50%);
                     color: #fbbf24;
                     font-size: 8px;
-                }
-                @media (min-width: 768px) {
-                    .tank-star { font-size: 10px; }
-                }
-                .vn-copyright {
-                    position: absolute;
-                    bottom: 30px;
-                    font-size: 0.6rem;
-                    color: rgba(255,255,255,0.2);
-                    letter-spacing: 0.05em;
-                    text-transform: uppercase;
-                    text-align: center;
-                    width: 100%;
-                }
-                @media (min-width: 768px) {
-                    .vn-copyright { bottom: 40px; font-size: 0.7rem; letter-spacing: 0.1em; }
                 }
             `}</style>
 
@@ -279,7 +191,6 @@ export default function ReunificationLoader() {
                 </div>
 
                 <div className="tank-lane">
-                    <div className="bumpy-road" />
                     <div className="tank">
                         <div className="tank-barrel" />
                         <div className="tank-turret">

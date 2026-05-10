@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+
 import {
   User,
   Camera,
@@ -552,73 +552,67 @@ export default function ProfileContent() {
 
             {/* Main Content Area */}
             <div className="flex-1 min-h-[400px] lg:min-h-[600px] lg:w-auto w-full">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={activeTab}
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  exit={{ opacity: 0, y: -10 }}
-                  transition={{ duration: 0.2 }}
-                  className="bg-[#16213e] border border-white/5 rounded-3xl md:rounded-[40px] p-6 shadow-2xl relative overflow-hidden"
-                >
-                  <div className="max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
-                    {activeTab === 'overview' && (
-                      <OverviewTab
-                        user={user}
-                        displayName={displayName}
-                        setShowPremiumModal={setShowPremiumModal}
-                      />
-                    )}
+              <div
+                key={activeTab}
+                className="bg-[#16213e] border border-white/5 rounded-3xl md:rounded-[40px] p-6 shadow-2xl relative overflow-hidden animate-fade-in"
+              >
+                <div className="max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
+                  {activeTab === 'overview' && (
+                    <OverviewTab
+                      user={user}
+                      displayName={displayName}
+                      setShowPremiumModal={setShowPremiumModal}
+                    />
+                  )}
 
-                    {activeTab === 'history' && (
-                      <HistoryTab
-                        watchHistory={watchHistory}
-                        isHistoryLoading={isHistoryLoading}
-                        onDeleteItem={deleteHistoryItem}
-                        onClearAll={clearAllHistory}
-                      />
-                    )}
+                  {activeTab === 'history' && (
+                    <HistoryTab
+                      watchHistory={watchHistory}
+                      isHistoryLoading={isHistoryLoading}
+                      onDeleteItem={deleteHistoryItem}
+                      onClearAll={clearAllHistory}
+                    />
+                  )}
 
-                    {activeTab === 'favorites' && (
-                      <FavoritesTab
-                        favorites={favorites}
-                        isFavoritesLoading={isFavoritesLoading}
-                        onDeleteItem={deleteFavoriteItem}
-                        onClearAll={clearAllFavorites}
-                      />
-                    )}
+                  {activeTab === 'favorites' && (
+                    <FavoritesTab
+                      favorites={favorites}
+                      isFavoritesLoading={isFavoritesLoading}
+                      onDeleteItem={deleteFavoriteItem}
+                      onClearAll={clearAllFavorites}
+                    />
+                  )}
 
-                    {activeTab === 'watchlist' && (
-                      <WatchlistTab
-                        watchlist={watchlist}
-                        isWatchlistLoading={isWatchlistLoading}
-                        onDeleteItem={deleteWatchlistItem}
-                        onClearAll={clearAllWatchlist}
-                      />
-                    )}
+                  {activeTab === 'watchlist' && (
+                    <WatchlistTab
+                      watchlist={watchlist}
+                      isWatchlistLoading={isWatchlistLoading}
+                      onDeleteItem={deleteWatchlistItem}
+                      onClearAll={clearAllWatchlist}
+                    />
+                  )}
 
-                    {activeTab === 'settings' && (
-                      <SettingsTab
-                        user={user}
-                        newName={newName}
-                        setNewName={setNewName}
-                        isEditingName={isEditingName}
-                        setIsEditingName={setIsEditingName}
-                        isUpdating={isUpdating}
-                        handleUpdateName={handleUpdateName}
-                        isChangingPassword={isChangingPassword}
-                        setIsChangingPassword={setIsChangingPassword}
-                        password={password}
-                        setPassword={setPassword}
-                        confirmPassword={confirmPassword}
-                        setConfirmPassword={setConfirmPassword}
-                        handleDirectUpdatePassword={handleDirectUpdatePassword}
-                        handleDeleteAccount={handleDeleteAccount}
-                      />
-                    )}
-                  </div>
-                </motion.div>
-              </AnimatePresence>
+                  {activeTab === 'settings' && (
+                    <SettingsTab
+                      user={user}
+                      newName={newName}
+                      setNewName={setNewName}
+                      isEditingName={isEditingName}
+                      setIsEditingName={setIsEditingName}
+                      isUpdating={isUpdating}
+                      handleUpdateName={handleUpdateName}
+                      isChangingPassword={isChangingPassword}
+                      setIsChangingPassword={setIsChangingPassword}
+                      password={password}
+                      setPassword={setPassword}
+                      confirmPassword={confirmPassword}
+                      setConfirmPassword={setConfirmPassword}
+                      handleDirectUpdatePassword={handleDirectUpdatePassword}
+                      handleDeleteAccount={handleDeleteAccount}
+                    />
+                  )}
+                </div>
+              </div>
             </div>
             {/* Kết thúc Cột nội dung chính giữa */}
           </div>

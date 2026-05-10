@@ -1,5 +1,4 @@
 import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
 import Image from "next/image";
 import { useFavorites } from "@/app/(pages)/phim/[slug]/[episodeSlug]/hooks/useFavorites";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
@@ -14,6 +13,7 @@ export interface MoviePreviewPopupProps {
     cardRect: DOMRect;
     isFirst?: boolean;
     isLast?: boolean;
+    isClosing?: boolean;
     adZone?: string;
     onMouseEnter: () => void;
     onMouseLeave: () => void;
@@ -25,6 +25,7 @@ export default function MoviePreviewPopup({
     cardRect,
     isFirst = false,
     isLast = false,
+    isClosing = false,
     adZone,
     onMouseEnter,
     onMouseLeave
@@ -107,12 +108,8 @@ export default function MoviePreviewPopup({
     const posterUrl = movie.poster_url ? getImageUrl(movie.poster_url, { width: 100, quality: 40 }) : null;
 
     return (
-        <motion.div
-            initial={{ opacity: 0, scale: 0.98 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.98 }}
-            transition={{ duration: 0.15, ease: "easeOut" }}
-            className="absolute z-[9999] w-[420px] pointer-events-auto hidden xl:block select-none transform-gpu"
+        <div
+            className={`absolute z-[9999] w-[420px] pointer-events-auto hidden xl:block select-none transform-gpu origin-center ${isClosing ? 'animate-pop-out' : 'animate-pop-in'}`}
             onMouseEnter={onMouseEnter}
             onMouseLeave={onMouseLeave}
             style={{
@@ -229,6 +226,6 @@ export default function MoviePreviewPopup({
                     )}
                 </div>
             </div>
-        </motion.div>
+        </div>
     );
 }

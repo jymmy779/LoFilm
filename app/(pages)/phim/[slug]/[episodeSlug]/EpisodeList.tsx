@@ -3,7 +3,6 @@
 import React, { useState, useMemo } from "react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { ChevronUp, ChevronDown, Server } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { getFriendlyEpisodeSlug, parseEpNumber } from "@/app/utils/movieUtils";
 
 interface EpisodeListProps {
@@ -116,72 +115,58 @@ const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServe
       </div>
 
       {/* Episodes Grid with Animation */}
-      <AnimatePresence initial={false}>
-        {!isCollapsed && (
-          <motion.div
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.3, ease: "easeInOut" }}
-            className="overflow-hidden"
-            style={{ willChange: "height, opacity" }}
-          >
-            {/* Episode Ranges Selection */}
-            {episodeRanges.length > 0 && (
-              <div className="flex flex-wrap gap-2 mb-6 pt-2">
-                {episodeRanges.map((range, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setActiveRangeIndex(idx)}
-                    className={`px-4 py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all cursor-pointer border ${activeRangeIndex === idx
-                      ? 'bg-[#FFFFFF] text-[#0a1628] border-[#FFFFFF] shadow-[0_0_10px_rgba(255,255,255,0.2)]'
-                      : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white'
-                      }`}
-                  >
-                    {range.label}
-                  </button>
-                ))}
-              </div>
-            )}
-
-            <AnimatePresence initial={false} mode="wait">
-              <motion.div
-                key={activeRangeIndex}
-                initial={{ opacity: 0, y: 5 }}
-                animate={{ opacity: 1, y: 0 }}
-                exit={{ opacity: 0, y: -5 }}
-                transition={{ duration: 0.2 }}
-                className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 pt-2"
-                style={{ willChange: "opacity, transform" }}
+      <div
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${
+          !isCollapsed ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+        }`}
+      >
+        {/* Episode Ranges Selection */}
+        {episodeRanges.length > 0 && (
+          <div className="flex flex-wrap gap-2 mb-6 pt-2">
+            {episodeRanges.map((range, idx) => (
+              <button
+                key={idx}
+                onClick={() => setActiveRangeIndex(idx)}
+                className={`px-4 py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all cursor-pointer border ${activeRangeIndex === idx
+                  ? 'bg-[#FFFFFF] text-[#0a1628] border-[#FFFFFF] shadow-[0_0_10px_rgba(255,255,255,0.2)]'
+                  : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white'
+                  }`}
               >
-                {displayedEpisodes.map((ep, i) => {
-                  const isActive = getFriendlyEpisodeSlug(ep.slug) === currentEpisode;
-
-                  return (
-                    <TransitionLink
-                      key={i}
-                      href={`/phim/${slug}/${getFriendlyEpisodeSlug(ep.slug)}`}
-                      transition={false}
-                      onClick={() => {
-                        if (!isActive) onEpisodeClick?.();
-                      }}
-                      className={`
-                        py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border
-                        ${isActive
-                          ? "bg-[#F0F0F0] text-[#0a1628] border-[#F0F0F0] shadow-[0_0_10px_rgba(255,255,255,0.15)] z-10"
-                          : "bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
-                        }
-                      `}
-                    >
-                      {ep.name.replace(/Tập\s*/i, "").replace(/^0+/, "")}
-                    </TransitionLink>
-                  );
-                })}
-              </motion.div>
-            </AnimatePresence>
-          </motion.div>
+                {range.label}
+              </button>
+            ))}
+          </div>
         )}
-      </AnimatePresence>
+
+        <div
+          key={activeRangeIndex}
+          className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 pt-2 animate-fade-in"
+        >
+          {displayedEpisodes.map((ep, i) => {
+            const isActive = getFriendlyEpisodeSlug(ep.slug) === currentEpisode;
+
+            return (
+              <TransitionLink
+                key={i}
+                href={`/phim/${slug}/${getFriendlyEpisodeSlug(ep.slug)}`}
+                transition={false}
+                onClick={() => {
+                  if (!isActive) onEpisodeClick?.();
+                }}
+                className={`
+                  py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border
+                  ${isActive
+                    ? "bg-[#F0F0F0] text-[#0a1628] border-[#F0F0F0] shadow-[0_0_10px_rgba(255,255,255,0.15)] z-10"
+                    : "bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
+                  }
+                `}
+              >
+                {ep.name.replace(/Tập\s*/i, "").replace(/^0+/, "")}
+              </TransitionLink>
+            );
+          })}
+        </div>
+      </div>
     </div>
   );
 };

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+
 import { Mail, Lock, User, ArrowRight, ThumbsUp, Star, History as HistoryIcon, AlertCircle, CheckCircle2 } from "lucide-react";
 import AuthInput from "@/app/components/Auth/AuthInput";
 import { createClient } from "@/app/utils/supabase/client";
@@ -229,14 +229,8 @@ export default function AuthContent() {
                 </div>
               </div>
 
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={isLogin ? 'login' : 'register'}
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                  exit={{ opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                >
+              <div className="relative">
+                <div key={isLogin ? 'login' : 'register'} className="animate-fade-in">
                   <div className="text-center mb-8">
                     <h2 className="text-xl md:text-3xl font-bold text-white mb-2">
                       {isLogin ? "Chào mừng trở lại!" : "Tạo tài khoản mới"}
@@ -345,8 +339,8 @@ export default function AuthContent() {
                       )}
                     </button>
                   </form>
-                </motion.div>
-              </AnimatePresence>
+                </div>
+              </div>
 
               {/* Membership Privileges Grid */}
               <div className="mt-8 pt-6 border-t border-white/5 grid grid-cols-2 gap-3">

@@ -2,7 +2,6 @@
 
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { MenuItem } from "./types";
-import { motion, AnimatePresence } from "framer-motion";
 import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 
 interface DropdownMenuProps {
@@ -63,39 +62,35 @@ export default function DropdownMenu({
             </button>
 
             {/* Dropdown panel */}
-            <AnimatePresence>
-                {open && items.length > 0 && (
-                    <motion.div 
-                        initial={{ opacity: 0, y: 10 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        exit={{ opacity: 0, y: 10 }}
-                        transition={{ duration: 0.2 }}
-                        className="absolute top-full left-0 z-50 pt-[8px]"
-                    >
-                        {/* Invisible bridge — covers the mt gap so onMouseLeave doesn't fire */}
-                        <div className="absolute top-0 left-0 w-full h-[8px]" />
-                        
-                        <div className="min-w-[580px] rounded-[8px] bg-[#0d1e35] border-t-2 border-[#f5a623] shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/5">
-                            <div className="grid grid-cols-4 gap-x-4 gap-y-3 p-5">
-                                {cols.map((col, colIdx) => (
-                                    <div key={colIdx} className="flex flex-col gap-3">
-                                        {col.map((item) => (
-                                            <TransitionLink
-                                                key={item._id}
-                                                href={`${hrefPrefix}/${item.slug}`}
-                                                onClick={() => openAdOnly(id === "the-loai" ? "category_tab" : "country_tab")}
-                                                className="text-sm text-white/70 hover:text-[#f5a623] hover:translate-x-1 transition-all duration-150 whitespace-nowrap block"
-                                            >
-                                                {item.name}
-                                            </TransitionLink>
-                                        ))}
-                                    </div>
+            <div 
+                className={`absolute top-full left-0 z-50 pt-[8px] transition-all duration-200 origin-top-left ${
+                    open 
+                    ? "opacity-100 translate-y-0 pointer-events-auto" 
+                    : "opacity-0 translate-y-2 pointer-events-none"
+                }`}
+            >
+                {/* Invisible bridge — covers the mt gap so onMouseLeave doesn't fire */}
+                <div className="absolute top-0 left-0 w-full h-[8px]" />
+                
+                <div className="min-w-[580px] rounded-[8px] bg-[#0d1e35] border-t-2 border-[#f5a623] shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-white/5">
+                    <div className="grid grid-cols-4 gap-x-4 gap-y-3 p-5">
+                        {cols.map((col, colIdx) => (
+                            <div key={colIdx} className="flex flex-col gap-3">
+                                {col.map((item) => (
+                                    <TransitionLink
+                                        key={item._id}
+                                        href={`${hrefPrefix}/${item.slug}`}
+                                        onClick={() => openAdOnly(id === "the-loai" ? "category_tab" : "country_tab")}
+                                        className="text-sm text-white/70 hover:text-[#f5a623] hover:translate-x-1 transition-all duration-150 whitespace-nowrap block"
+                                    >
+                                        {item.name}
+                                    </TransitionLink>
                                 ))}
                             </div>
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                        ))}
+                    </div>
+                </div>
+            </div>
         </div>
     );
 }

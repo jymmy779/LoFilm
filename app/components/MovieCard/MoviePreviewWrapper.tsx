@@ -4,7 +4,6 @@ import { useState, useRef, useEffect, HTMLAttributes } from "react";
 import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
-import { AnimatePresence } from "framer-motion";
 import { Movie } from "@/app/types/movie";
 
 import MoviePreviewPopup from "./MoviePreviewPopup";
@@ -35,6 +34,7 @@ export default function MoviePreviewWrapper({
     const [showPopup, setShowPopup] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
     const [cardRect, setCardRect] = useState<DOMRect | null>(null);
+    const [isClosing, setIsClosing] = useState(false);
     const cardRef = useRef<HTMLDivElement>(null);
     const hoverTimer = useRef<NodeJS.Timeout | null>(null);
     const leaveTimer = useRef<NodeJS.Timeout | null>(null);
@@ -46,55 +46,72 @@ export default function MoviePreviewWrapper({
     const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
         if (props.onMouseEnter) props.onMouseEnter(e);
 
-        if (activePopupCloser) {
-            activePopupCloser();
-            activePopupCloser = null;
-        }
-
+        // Hủy bỏ bất kỳ timer "rời đi" nào của card này
         if (leaveTimer.current) {
             clearTimeout(leaveTimer.current);
+            leaveTimer.current = null;
         }
 
+        // Nếu card này đang trong quá trình đóng, dừng việc đóng lại
+        if (isClosing) {
+            setIsClosing(false);
+            return;
+        }
+
+        // Nếu đã hiện rồi thì không làm gì thêm
+        if (showPopup) return;
+
         // *** SMART PREFETCH ***
-        // 1. Tải trước dữ liệu trang phim: Click vào là hiện ngay
         router.prefetch(`/phim/${movie.slug}`);
 
-        // Note: Image preloading removed — getImageUrl() returns raw URLs (phimimg.com),
-        // but next/image loads via wsrv.nl proxy, causing double-download with cache miss.
-
         hoverTimer.current = setTimeout(() => {
-            if (cardRef.current) {
-                if (activePopupCloser) {
-                    activePopupCloser();
-                }
+            // Đóng bất kỳ popup nào khác đang hiện trên toàn trang
+            if (activePopupCloser) {
+                activePopupCloser();
+            }
 
+            if (cardRef.current) {
                 setCardRect(cardRef.current.getBoundingClientRect());
                 setShowPopup(true);
+                setIsClosing(false);
 
+                // Đăng ký card này là active popup
                 activePopupCloser = () => {
                     setShowPopup(false);
+                    setIsClosing(false);
                 };
             }
-        }, 600);
+        }, 400); // Giảm delay xuống 400ms để nhạy hơn
     };
 
     const handleMouseLeave = (e?: React.MouseEvent<HTMLDivElement>) => {
         if (e && props.onMouseLeave) props.onMouseLeave(e);
 
+        // Hủy timer "đang chờ hiện" nếu người dùng rời đi sớm
         if (hoverTimer.current) {
             clearTimeout(hoverTimer.current);
+            hoverTimer.current = null;
         }
 
+        // Bắt đầu quá trình đóng
         leaveTimer.current = setTimeout(() => {
-            setShowPopup(false);
-            activePopupCloser = null;
-        }, 150);
+            setIsClosing(true);
+            
+            // Chờ animation CSS (250ms) chạy xong mới gỡ bỏ khỏi DOM
+            leaveTimer.current = setTimeout(() => {
+                setShowPopup(false);
+                setIsClosing(false);
+                if (activePopupCloser) activePopupCloser = null;
+                leaveTimer.current = null;
+            }, 250);
+        }, 100);
     };
 
     const handlePopupMouseEnter = () => {
         if (leaveTimer.current) {
             clearTimeout(leaveTimer.current);
         }
+        setIsClosing(false);
     };
 
     const handlePopupMouseLeave = () => {
@@ -112,7 +129,7 @@ export default function MoviePreviewWrapper({
             {children}
 
             {isMounted && createPortal(
-                <AnimatePresence>
+                <>
                     {showPopup && cardRect && (
                         <MoviePreviewPopup
                             key={`popup-${movie.slug}`}
@@ -122,11 +139,12 @@ export default function MoviePreviewWrapper({
                             isFirst={isFirst}
                             isLast={isLast}
                             adZone={adZone}
+                            isClosing={isClosing}
                             onMouseEnter={handlePopupMouseEnter}
                             onMouseLeave={handlePopupMouseLeave}
                         />
                     )}
-                </AnimatePresence>,
+                </>,
                 document.body
             )}
         </div>

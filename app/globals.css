@@ -99,7 +99,7 @@ body {
 @keyframes fade-in-smooth {
   0% {
     opacity: 0;
-    transform: translateY(20px);
+    transform: translateY(15px);
   }
 
   100% {
@@ -108,17 +108,108 @@ body {
   }
 }
 
+@keyframes scale-in-subtle {
+  0% {
+    opacity: 0;
+    transform: scale(0.7) translateY(20px);
+  }
+  70% {
+    transform: scale(1.05) translateY(-5px);
+  }
+  100% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+}
+
+@keyframes slide-right-reveal {
+  0% {
+    opacity: 0;
+    transform: translateX(-20px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes fade-out-smooth {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes scale-out-subtle {
+  0% {
+    opacity: 1;
+    transform: scale(1) translateY(0);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.7) translateY(20px);
+  }
+}
+
 .animate-fade-in {
-  animation: fade-in-smooth 0.6s cubic-bezier(0.22, 1, 0.36, 1) forwards;
-  will-change: opacity, transform;
+  animation: fade-in-smooth 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-fade-out {
+  animation: fade-out-smooth 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-scale-in {
+  animation: scale-in-subtle 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-pop-in {
+  animation: scale-in-subtle 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+}
+
+.animate-pop-out {
+  animation: scale-out-subtle 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-reveal-right {
+  animation: slide-right-reveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slide-left-reveal {
+  0% {
+    opacity: 0;
+    transform: translateX(40px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+.animate-reveal-left {
+  animation: slide-left-reveal 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes bell-shake {
+  0%, 100% { transform: rotate(0) scale(1); }
+  10%, 30%, 50%, 70%, 90% { transform: rotate(-10deg) scale(1.1); }
+  20%, 40%, 60%, 80% { transform: rotate(10deg) scale(1.1); }
+}
+
+.animate-bell-shake {
+  animation: bell-shake 2s ease-in-out infinite;
+  animation-delay: 5s;
 }
 
 /* Giảm độ phức tạp animation trên mobile để tránh drop frame */
 @media (max-width: 768px) {
-  .animate-fade-in {
+  .animate-fade-in, .animate-reveal-right {
     animation-duration: 0.4s;
-    will-change: auto;
-    /* Tắt Layer Promotion nếu không thực sự cần để tránh tràn memory */
+  }
+  .animate-scale-in {
+    animation-duration: 0.3s;
   }
 }
 
@@ -828,5 +919,20 @@ body.theater-mode footer:hover {
 
   50% {
     transform: rotate(15deg) scale(1.05) translateY(-5px);
+  }
+}
+
+.lofilm-loader-logo {
+  width: 180px;
+  max-width: 80vw;
+  height: auto;
+  display: block;
+  margin: 0 auto;
+  filter: brightness(0.75) drop-shadow(0 10px 30px rgba(0,0,0,0.8));
+}
+
+@media (min-width: 768px) {
+  .lofilm-loader-logo {
+    width: 260px;
   }
 }

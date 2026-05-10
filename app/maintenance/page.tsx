@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+
 import { Hammer, Clock, Sparkles } from "lucide-react";
 
 export default function MaintenancePage() {
@@ -47,48 +47,33 @@ export default function MaintenancePage() {
         <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-red-600/10 rounded-full blur-[120px]" />
       </div>
 
-      <motion.div
-        initial={{ opacity: 0, scale: 0.95 }}
-        animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.8 }}
-        className="relative z-10 w-full max-w-xl px-6 text-center"
+      <div
+        className="relative z-10 w-full max-w-xl px-6 text-center animate-fade-in"
       >
         {/* Logo/Icon Area */}
         <div className="relative mb-8 md:mb-12 flex justify-center">
-          <motion.div
-            animate={{
-              rotate: [0, 5, -5, 0],
-              scale: [1, 1.05, 1]
-            }}
-            transition={{
-              duration: 4,
-              repeat: Infinity,
-              ease: "easeInOut"
-            }}
-            className="p-6 md:p-8 rounded-2xl md:rounded-3xl bg-white/5 border border-white/10 backdrop-blur-2xl shadow-2xl relative overflow-hidden"
+          <div
+            className="p-6 md:p-8 rounded-2xl md:rounded-3xl bg-white/5 border border-white/10 backdrop-blur-2xl shadow-2xl relative overflow-hidden animate-pulse"
           >
             {/* Glow overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent pointer-events-none" />
             <Hammer className="w-12 h-12 md:w-16 md:h-16 text-blue-500 mb-2 relative z-10" />
             <div className="text-white/40 font-bold text-[10px] md:text-xs uppercase tracking-[0.3em]">Under Maintenance</div>
-          </motion.div>
+          </div>
 
           {/* Floating extra elements */}
-          <motion.div
-            animate={{ y: [0, -10, 0] }}
-            transition={{ duration: 3, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
-            className="absolute -top-2 -right-1 md:-top-4 md:-right-2 p-2 md:p-3 rounded-full bg-blue-600/20 backdrop-blur-md border border-blue-500/30"
+          <div
+            className="absolute -top-2 -right-1 md:-top-4 md:-right-2 p-2 md:p-3 rounded-full bg-blue-600/20 backdrop-blur-md border border-blue-500/30 animate-bounce"
           >
             <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
-          </motion.div>
+          </div>
 
-          <motion.div
-            animate={{ y: [0, 10, 0] }}
-            transition={{ duration: 3.5, repeat: Infinity, ease: "easeInOut", delay: 1 }}
-            className="absolute -bottom-2 -left-1 md:-bottom-4 md:-left-2 p-2 md:p-3 rounded-full bg-white/5 backdrop-blur-md border border-white/10"
+          <div
+            className="absolute -bottom-2 -left-1 md:-bottom-4 md:-left-2 p-2 md:p-3 rounded-full bg-white/5 backdrop-blur-md border border-white/10 animate-bounce"
+            style={{ animationDelay: '0.5s' }}
           >
             <Clock className="w-4 h-4 md:w-5 md:h-5 text-white/60" />
-          </motion.div>
+          </div>
         </div>
 
         {/* Text Content */}
@@ -113,7 +98,7 @@ export default function MaintenancePage() {
             </div>
           </div>
         </div>
-      </motion.div>
+      </div>
 
       {/* Decorative Binary/Text */}
       <div className="fixed top-0 right-0 p-4 md:p-8 text-[8px] md:text-xs font-mono text-white/5 uppercase tracking-[0.5em] select-none hidden sm:block">

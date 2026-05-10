@@ -8,7 +8,6 @@ import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
 import { decodeHtml } from "@/app/utils/textUtils";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
-import { motion } from "framer-motion";
 import ReunificationEventSkeleton from "./SpecialSections/ReunificationEventSkeleton";
 
 export default function ReunificationEvent() {
@@ -52,27 +51,6 @@ export default function ReunificationEvent() {
     if (!isMounted || !showEvent) return null;
     if (isLoading) return <ReunificationEventSkeleton />;
 
-    const containerVariants = {
-        hidden: { opacity: 0 },
-        visible: {
-            opacity: 1,
-            transition: {
-                staggerChildren: 0.1
-            }
-        }
-    };
-
-    const itemVariants = {
-        hidden: { opacity: 0, y: 20 },
-        visible: {
-            opacity: 1,
-            y: 0,
-            transition: {
-                duration: 0.5
-            }
-        }
-    };
-
     return (
         <Container as="section" className="relative z-30 animate-fade-in">
             {/* BANNER DESIGN: Warm Beige Background with Red Accents */}
@@ -100,15 +78,14 @@ export default function ReunificationEvent() {
                 </div>
 
                 {/* Movies Grid */}
-                <motion.div
-                    variants={containerVariants}
-                    initial="hidden"
-                    animate="visible"
-                    className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6 lg:gap-8"
-                >
-                    {movies.map((movie) => (
-                        <motion.div key={movie._id} variants={itemVariants} className="group flex flex-col items-center">
-                            <TransitionLink href={`/phim/${movie.slug}`} className="relative w-full aspect-[2/3] rounded-2xl overflow-hidden shadow-lg border-2 border-transparent group-hover:border-red-600 transition-all duration-500 transform  group-hover:shadow-[0_15px_35px_rgba(185,28,28,0.2)] bg-gray-200 block">
+                <div className="relative z-10 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4 sm:gap-6 lg:gap-8">
+                    {movies.map((movie, idx) => (
+                        <div
+                            key={movie._id}
+                            className="group flex flex-col items-center animate-fade-in"
+                            style={{ animationDelay: `${idx * 100}ms` }}
+                        >
+                            <TransitionLink href={`/phim/${movie.slug}`} className="relative w-full aspect-[2/3] rounded-2xl overflow-hidden shadow-lg border-2 border-transparent group-hover:border-red-600 transition-all duration-500 transform group-hover:shadow-[0_15px_35px_rgba(185,28,28,0.2)] bg-gray-200 block">
                                 <SmartImage
                                     src={getImageUrl(movie.poster_url, { width: 400 })}
                                     rawSrc={getRawImageUrl(movie.poster_url)}
@@ -127,9 +104,9 @@ export default function ReunificationEvent() {
                             <h3 className="mt-3 text-center text-gray-800 text-xs md:text-sm line-clamp-2 leading-tight group-hover:text-red-700 transition-colors font-medium tracking-tight">
                                 {decodeHtml(movie.name)}
                             </h3>
-                        </motion.div>
+                        </div>
                     ))}
-                </motion.div>
+                </div>
 
                 {/* Banner Footer */}
                 <div className="mt-12 flex flex-col md:flex-row items-center justify-between gap-6 border-t border-red-200/50 pt-8">

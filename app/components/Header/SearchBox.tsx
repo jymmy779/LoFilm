@@ -7,7 +7,6 @@ import { Movie } from "@/app/types/movie";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
 import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
-import { motion, AnimatePresence } from "framer-motion";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 
 interface SearchBoxProps {
@@ -225,42 +224,23 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
             </div>
 
             {/* Live Search Results Dropdown */}
-            <AnimatePresence>
-                {showResults && isFocused && searchQuery.trim().length >= 2 && results.length > 0 && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 5, scale: 0.95 }}
-                        transition={{ duration: 0.15 }}
-                        className="absolute top-full left-0 right-0 mt-2 md:mt-3 bg-[#0d1b2e] border border-white/10 rounded-xl md:rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden z-[100] md:min-w-[400px]"
-                    >
+            <div
+                className={`absolute top-full left-0 right-0 mt-2 md:mt-3 bg-[#0d1b2e] border border-white/10 rounded-xl md:rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden z-[100] md:min-w-[400px] transition-all duration-200 origin-top ${
+                    showResults && isFocused && searchQuery.trim().length >= 2 && results.length > 0
+                    ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
+                    : "opacity-0 translate-y-2 scale-[0.98] pointer-events-none"
+                }`}
+            >
                         <div className="p-3 md:p-4">
                             <div className="text-[9.5px] md:text-[10px] font-bold uppercase tracking-widest text-[#f5a623] mb-3 md:mb-4 flex items-center gap-1.5 md:gap-2">
                                 <span className="w-1 h-2.5 md:h-3 bg-[#f5a623] rounded-full" />
                                 Kết quả tìm kiếm
                             </div>
 
-                            <motion.div
-                                className="space-y-1 overflow-y-auto max-h-[60vh] md:max-h-[70vh] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pr-1"
-                                variants={{
-                                    show: {
-                                        transition: {
-                                            staggerChildren: 0.05
-                                        }
-                                    }
-                                }}
-                                initial="hidden"
-                                animate="show"
-                            >
+                            <div className="space-y-1 overflow-y-auto max-h-[60vh] md:max-h-[70vh] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pr-1">
                                 {results.length > 0 ? (
                                     results.map((movie: Movie, index: number) => (
-                                        <motion.div
-                                            key={movie._id}
-                                            variants={{
-                                                hidden: { opacity: 0, x: -10 },
-                                                show: { opacity: 1, x: 0 }
-                                            }}
-                                        >
+                                        <div key={movie._id}>
                                             <TransitionLink
                                                 href={`/phim/${movie.slug}`}
                                                 className={`group flex gap-2.5 md:gap-3 p-1.5 md:p-2 rounded-xl transition-all duration-300 ${activeIndex === index ? 'bg-white/10 ring-1 ring-[#f5a623]/30' : 'hover:bg-white/5'}`}
@@ -297,10 +277,10 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                                                     </div>
                                                 </div>
                                             </TransitionLink>
-                                        </motion.div>
+                                        </div>
                                     ))
                                 ) : null}
-                            </motion.div>
+                            </div>
                         </div>
 
                         {results.length > 0 && (
@@ -315,9 +295,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                                 Xem tất cả kết quả
                             </TransitionLink>
                         )}
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            </div>
         </div>
     );
 }

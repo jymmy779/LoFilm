@@ -3,7 +3,7 @@
 
 import { useState, useEffect } from "react";
 import { ThumbsUp, ThumbsDown, Reply, MoreHorizontal, Eye, Flag, Trash2, EyeOff, Pencil } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+
 import Image from "next/image";
 import { createClient } from "@/app/utils/supabase/client";
 import CommentInput from "./CommentInput";
@@ -277,34 +277,21 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                     </div>
 
                     <div className="text text-sm overflow-hidden">
-                        <AnimatePresence mode="wait">
-                            {isEditing ? (
-                                <motion.div
-                                    key="edit-form"
-                                    initial={{ height: 0, opacity: 0 }}
-                                    animate={{ height: 'auto', opacity: 1 }}
-                                    exit={{ height: 0, opacity: 0 }}
-                                    transition={{ duration: 0.3, ease: 'easeInOut' }}
-                                >
-                                    <CommentInput
-                                        isEdit={true}
-                                        initialContent={commentContent}
-                                        onSubmit={handleUpdate}
-                                        onCancel={() => setIsEditing(false)}
-                                    />
-                                </motion.div>
-                            ) : (
-                                <motion.div
-                                    key="comment-text"
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className={comment.is_spoiler && !showSpoiler ? "text-spoiler" : "text-spoiler revealed"}
-                                >
-                                    {commentContent}
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                        <div
+                            className={`overflow-hidden transition-all duration-300 ease-in-out ${isEditing ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}
+                        >
+                            <CommentInput
+                                isEdit={true}
+                                initialContent={commentContent}
+                                onSubmit={handleUpdate}
+                                onCancel={() => setIsEditing(false)}
+                            />
+                        </div>
+                        {!isEditing && (
+                            <div className={`${comment.is_spoiler && !showSpoiler ? "text-spoiler" : "text-spoiler revealed"} animate-fade-in`}>
+                                {commentContent}
+                            </div>
+                        )}
                     </div>
 
                     <div className="comment-bottom line-center d-flex">
@@ -344,106 +331,83 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                                 <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 448 512" height="1em" width="1em"><path d="M8 256a56 56 0 1 1 112 0A56 56 0 1 1 8 256zm160 0a56 56 0 1 1 112 0A56 56 0 1 1 -112 0zm216-56a56 56 0 1 1 0 112 56 56 0 1 1 0-112z"></path></svg>
                             </button>
 
-                            <AnimatePresence>
-                                {isMenuOpen && (
-                                    <motion.div
-                                        initial={{ opacity: 0, scale: 0.95, y: 5 }}
-                                        animate={{ opacity: 1, scale: 1, y: 0 }}
-                                        exit={{ opacity: 0, scale: 0.95, y: 5 }}
-                                        transition={{ duration: 0.1, ease: "easeOut" }}
-                                        className="v-dropdown-menu border border-white/10 shadow-2xl will-change-transform"
-                                    >
-                                        {comment.is_spoiler && (
-                                            <button className="dropdown-item text-amber-500" onClick={() => { setShowSpoiler(!showSpoiler); setIsMenuOpen(false); }}>
-                                                <Eye size={14} /> <span>Tiết lộ nội dung này</span>
-                                            </button>
-                                        )}
-                                        <button className="dropdown-item" onClick={reportComment}>
-                                            <Flag size={14} /> <span>Báo xấu</span>
-                                        </button>
-                                        {user?.id === comment.user_id && (
-                                            <>
-                                                <button className="dropdown-item text-amber-500/80" onClick={handleEdit}>
-                                                    <Pencil size={14} /> <span>Chỉnh sửa</span>
-                                                </button>
-                                                <button className="dropdown-item text-red-500/80" onClick={handleDelete}>
-                                                    <Trash2 size={14} /> <span>Xóa bình luận</span>
-                                                </button>
-                                            </>
-                                        )}
-                                    </motion.div>
+                            <div
+                                className={`v-dropdown-menu border border-white/10 shadow-2xl transition-all duration-200 ${isMenuOpen ? 'visible opacity-100 scale-100 translate-y-0' : 'invisible opacity-0 scale-95 translate-y-2'}`}
+                            >
+                                {comment.is_spoiler && (
+                                    <button className="dropdown-item text-amber-500" onClick={() => { setShowSpoiler(!showSpoiler); setIsMenuOpen(false); }}>
+                                        <Eye size={14} /> <span>Tiết lộ nội dung này</span>
+                                    </button>
                                 )}
-                            </AnimatePresence>
+                                <button className="dropdown-item" onClick={reportComment}>
+                                    <Flag size={14} /> <span>Báo xấu</span>
+                                </button>
+                                {user?.id === comment.user_id && (
+                                    <>
+                                        <button className="dropdown-item text-amber-500/80" onClick={handleEdit}>
+                                            <Pencil size={14} /> <span>Chỉnh sửa</span>
+                                        </button>
+                                        <button className="dropdown-item text-red-500/80" onClick={handleDelete}>
+                                            <Trash2 size={14} /> <span>Xóa bình luận</span>
+                                        </button>
+                                    </>
+                                )}
+                            </div>
                         </div>
 
 
                     </div>
 
                     <div className="reply-form-wrap">
-                        <AnimatePresence>
-                            {showReplyForm && (
-                                <motion.div
-                                    initial={{ height: 0, opacity: 0, overflow: 'hidden' }}
-                                    animate={{ height: 'auto', opacity: 1 }}
-                                    exit={{ height: 0, opacity: 0 }}
-                                    transition={{ duration: 0.3, ease: 'easeInOut' }}
-                                >
-                                    <CommentInput
-                                        isReply={true}
-                                        placeholder={`Trả lời ${displayName}...`}
-                                        onSubmit={handleAddReply}
-                                        onCancel={() => setShowReplyForm(false)}
-                                    />
-                                </motion.div>
-                            )}
-                        </AnimatePresence>
+                        <div
+                            className={`overflow-hidden transition-all duration-300 ease-in-out ${showReplyForm ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}
+                        >
+                            <CommentInput
+                                isReply={true}
+                                placeholder={`Trả lời ${displayName}...`}
+                                onSubmit={handleAddReply}
+                                onCancel={() => setShowReplyForm(false)}
+                            />
+                        </div>
                     </div>
                 </div>
             </div>
 
-            <AnimatePresence>
-                {isRepliesExpanded && replies.length > 0 && (
-                    <motion.div
-                        className="reply-list"
-                        initial={{ height: 0, opacity: 0, overflow: 'hidden' }}
-                        animate={{ height: 'auto', opacity: 1 }}
-                        exit={{ height: 0, opacity: 0 }}
-                        transition={{ duration: 0.4, ease: 'easeInOut' }}
-                    >
-                        {replies.slice(0, visibleReplies).map(reply => (
-                            <CommentItem
-                                key={reply.id}
-                                comment={reply}
-                                user={user}
-                                movieSlug={movieSlug}
-                                isReply={true}
-                                onReplyAdded={() => {/* NOP */ }}
-                                onDelete={(id) => setReplies(replies.filter(r => r.id !== id))}
-                            />
-                        ))}
-                        <div className="reply-actions mt-2 ml-10 flex items-center gap-4">
-                            {replies.length > visibleReplies && (
-                                <button
-                                    className="show-more-replies lg:text-sm text-xs cursor-pointer btn btn-xs btn-link text-amber-500/70 hover:text-amber-400 flex items-center gap-2"
-                                    onClick={() => setVisibleReplies(prev => prev + 5)}
-                                >
-                                    <span className="w-8 h-px bg-amber-500/20"></span>
-                                    Xem thêm trả lời khác
-                                </button>
-                            )}
-                            {visibleReplies > 5 && (
-                                <button
-                                    className="hide-replies lg:text-sm text-xs cursor-pointer btn btn-xs btn-link text-white/30 hover:text-white/60 flex items-center gap-2"
-                                    onClick={() => setVisibleReplies(5)}
-                                >
-                                    <span className="w-4 h-px bg-white/10"></span>
-                                    Ẩn bớt
-                                </button>
-                            )}
-                        </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            <div
+                className={`reply-list overflow-hidden transition-all duration-400 ease-in-out ${isRepliesExpanded && replies.length > 0 ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'}`}
+            >
+                {replies.slice(0, visibleReplies).map(reply => (
+                    <CommentItem
+                        key={reply.id}
+                        comment={reply}
+                        user={user}
+                        movieSlug={movieSlug}
+                        isReply={true}
+                        onReplyAdded={() => {/* NOP */ }}
+                        onDelete={(id) => setReplies(replies.filter(r => r.id !== id))}
+                    />
+                ))}
+                <div className="reply-actions mt-2 ml-10 flex items-center gap-4">
+                    {replies.length > visibleReplies && (
+                        <button
+                            className="show-more-replies lg:text-sm text-xs cursor-pointer btn btn-xs btn-link text-amber-500/70 hover:text-amber-400 flex items-center gap-2"
+                            onClick={() => setVisibleReplies(prev => prev + 5)}
+                        >
+                            <span className="w-8 h-px bg-amber-500/20"></span>
+                            Xem thêm trả lời khác
+                        </button>
+                    )}
+                    {visibleReplies > 5 && (
+                        <button
+                            className="hide-replies lg:text-sm text-xs cursor-pointer btn btn-xs btn-link text-white/30 hover:text-white/60 flex items-center gap-2"
+                            onClick={() => setVisibleReplies(5)}
+                        >
+                            <span className="w-4 h-px bg-white/10"></span>
+                            Ẩn bớt
+                        </button>
+                    )}
+                </div>
+            </div>
 
             <ConfirmModal
                 isOpen={isDeleteModalOpen}

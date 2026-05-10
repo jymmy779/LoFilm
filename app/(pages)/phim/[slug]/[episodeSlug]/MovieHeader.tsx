@@ -3,7 +3,7 @@
 import React from "react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { ChevronLeft } from "lucide-react";
-import { motion } from "framer-motion";
+
 import Container from "@/app/components/Container";
 
 interface MovieHeaderProps {
@@ -14,13 +14,8 @@ interface MovieHeaderProps {
 
 const MovieHeader = ({ slug, movieName, episodeName }: MovieHeaderProps) => {
   return (
-    <motion.div
-      key="watch-header"
-      initial={{ height: 0, opacity: 0, marginBottom: 0 }}
-      animate={{ height: "auto", opacity: 1, marginBottom: 24 }}
-      exit={{ height: 0, opacity: 0, marginBottom: 0 }}
-      transition={{ duration: 0.4, ease: "easeInOut" }}
-      className="overflow-hidden backdrop-blur-md"
+    <div
+      className="overflow-hidden backdrop-blur-md mb-6 animate-fade-in"
     >
       <Container>
         <div className="flex items-center gap-3">
@@ -35,7 +30,7 @@ const MovieHeader = ({ slug, movieName, episodeName }: MovieHeaderProps) => {
           </h2>
         </div>
       </Container>
-    </motion.div>
+    </div>
   );
 };
 

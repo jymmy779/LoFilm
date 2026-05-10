@@ -5,7 +5,7 @@ import Image from "next/image";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import Skeleton from "@/app/components/Skeleton/Skeleton";
 import { Star, ChevronDown, User } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
 import { fetchActorsFromTMDB, TMDBActor } from "@/app/utils/tmdbUtils";

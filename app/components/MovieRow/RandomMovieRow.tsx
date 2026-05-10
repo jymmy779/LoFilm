@@ -3,7 +3,6 @@
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import React, { useState, useEffect, memo } from "react";
 import { Dices, Play } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
@@ -164,106 +163,86 @@ function RandomMovieRow() {
 
             {/* Movies Swiper */}
             <div className="relative ">
-                <AnimatePresence mode="wait">
-                    {isLoading ? (
-                        <motion.div
-                            key="loading"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            className="w-full"
+                {isLoading ? (
+                    <div key="loading" className="w-full animate-fade-in">
+                        <Swiper
+                            spaceBetween={10}
+                            slidesPerView={2.5}
+                            breakpoints={{
+                                640: { slidesPerView: 3.5, spaceBetween: 12 },
+                                768: { slidesPerView: 4.5, spaceBetween: 14 },
+                                1024: { slidesPerView: 6.5, spaceBetween: 14 },
+                                1280: { slidesPerView: 8.5, spaceBetween: 16 },
+                                1536: { slidesPerView: 10.5, spaceBetween: 16 },
+                            }}
                         >
-                            <Swiper
-                                spaceBetween={10}
-                                slidesPerView={2.5}
-                                breakpoints={{
-                                    640: { slidesPerView: 3.5, spaceBetween: 12 },
-                                    768: { slidesPerView: 4.5, spaceBetween: 14 },
-                                    1024: { slidesPerView: 6.5, spaceBetween: 14 },
-                                    1280: { slidesPerView: 8.5, spaceBetween: 16 },
-                                    1536: { slidesPerView: 10.5, spaceBetween: 16 },
-                                }}
-                            >
-                                {[...Array(12)].map((_, i) => (
-                                    <SwiperSlide key={i}>
-                                        <Skeleton className="aspect-[2/3]" rounded="lg" />
-                                    </SwiperSlide>
-                                ))}
-                            </Swiper>
-                        </motion.div>
-                    ) : movies.length > 0 ? (
-                        <motion.div
-                            key="content"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            exit={{ opacity: 0 }}
-                            transition={{ duration: 0.2 }}
+                            {[...Array(12)].map((_, i) => (
+                                <SwiperSlide key={i}>
+                                    <Skeleton className="aspect-[2/3]" rounded="lg" />
+                                </SwiperSlide>
+                            ))}
+                        </Swiper>
+                    </div>
+                ) : movies.length > 0 ? (
+                    <div key={selectedMood.id} className="animate-scale-in">
+                        <Swiper
+                            spaceBetween={10}
+                            slidesPerView={2.5}
+                            breakpoints={{
+                                640: { slidesPerView: 3.5, spaceBetween: 12 },
+                                768: { slidesPerView: 4.5, spaceBetween: 14 },
+                                1024: { slidesPerView: 6.5, spaceBetween: 14 },
+                                1280: { slidesPerView: 8.5, spaceBetween: 16 },
+                                1536: { slidesPerView: 10.5, spaceBetween: 16 },
+                            }}
+                            className="rounded-xl overflow-visible"
                         >
-                            <Swiper
-                                key={selectedMood.id}
-                                spaceBetween={10}
-                                slidesPerView={2.5}
-                                breakpoints={{
-                                    640: { slidesPerView: 3.5, spaceBetween: 12 },
-                                    768: { slidesPerView: 4.5, spaceBetween: 14 },
-                                    1024: { slidesPerView: 6.5, spaceBetween: 14 },
-                                    1280: { slidesPerView: 8.5, spaceBetween: 16 },
-                                    1536: { slidesPerView: 10.5, spaceBetween: 16 },
-                                }}
-                                className="rounded-xl overflow-visible"
-                            >
-                                {movies.map((movie, index) => {
-                                    const imgUrl = getImageUrl(movie.poster_url || movie.thumb_url, { width: 180, quality: 70 });
-                                    const isPriority = index < 10;
+                            {movies.map((movie, index) => {
+                                const imgUrl = getImageUrl(movie.poster_url || movie.thumb_url, { width: 180, quality: 70 });
+                                const isPriority = index < 10;
 
-                                    return (
-                                        <SwiperSlide key={movie._id}>
-                                            <TransitionLink
-                                                href={`/phim/${movie.slug}`}
-                                                className="group relative block cursor-pointer rounded-lg overflow-hidden border border-white/5 bg-white/5 active:scale-95 transition-all"
-                                            >
-                                                <div className="relative aspect-[2/3]">
-                                                    <SmartImage
-                                                        src={imgUrl}
-                                                        rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url)}
-                                                        alt={movie.name}
-                                                        fill
-                                                        priority={isPriority}
-                                                        loading={isPriority ? "eager" : "lazy"}
-                                                        sizes="(max-width: 640px) 120px, (max-width: 1024px) 180px, 220px"
-                                                        className="object-cover transition-opacity duration-300 group-hover:opacity-60"
-                                                    />
+                                return (
+                                    <SwiperSlide key={movie._id}>
+                                        <TransitionLink
+                                            href={`/phim/${movie.slug}`}
+                                            className="group relative block cursor-pointer rounded-lg overflow-hidden border border-white/5 bg-white/5 active:scale-95 transition-all"
+                                        >
+                                            <div className="relative aspect-[2/3]">
+                                                <SmartImage
+                                                    src={imgUrl}
+                                                    rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url)}
+                                                    alt={movie.name}
+                                                    fill
+                                                    priority={isPriority}
+                                                    loading={isPriority ? "eager" : "lazy"}
+                                                    sizes="(max-width: 640px) 120px, (max-width: 1024px) 180px, 220px"
+                                                    className="object-cover transition-opacity duration-300 group-hover:opacity-60"
+                                                />
 
-                                                    <div className="absolute inset-x-0 bottom-0 h-1/2 flex flex-col justify-end p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
-                                                        <div className="bg-gradient-to-t from-black/90 via-black/60 to-transparent absolute inset-0 pointer-events-none" />
+                                                <div className="absolute inset-x-0 bottom-0 h-1/2 flex flex-col justify-end p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
+                                                    <div className="bg-gradient-to-t from-black/90 via-black/60 to-transparent absolute inset-0 pointer-events-none" />
 
-                                                        <div className="relative z-10">
-                                                            <h5 className="text-white text-[11px] font-bold mb-0.5 line-clamp-1 uppercase tracking-tight leading-tight">{movie.name}</h5>
-                                                            <p className="text-[9px] text-white/50 mb-2 line-clamp-1 italic">{movie.origin_name}</p>
+                                                    <div className="relative z-10">
+                                                        <h5 className="text-white text-[11px] font-bold mb-0.5 line-clamp-1 uppercase tracking-tight leading-tight">{movie.name}</h5>
+                                                        <p className="text-[9px] text-white/50 mb-2 line-clamp-1 italic">{movie.origin_name}</p>
 
-                                                            <div className="inline-flex items-center gap-1 bg-amber-500 text-[#0a1628] text-[8px] font-black py-1 px-2 rounded-sm uppercase tracking-tighter shadow-lg translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                                                                <Play size={8} fill="currentColor" /> Xem
-                                                            </div>
+                                                        <div className="inline-flex items-center gap-1 bg-amber-500 text-[#0a1628] text-[8px] font-black py-1 px-2 rounded-sm uppercase tracking-tighter shadow-lg translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
+                                                            <Play size={8} fill="currentColor" /> Xem
                                                         </div>
                                                     </div>
                                                 </div>
-                                            </TransitionLink>
-                                        </SwiperSlide>
-                                    );
-                                })}
-                            </Swiper>
-                        </motion.div>
-                    ) : (
-                        <motion.div
-                            key="empty"
-                            initial={{ opacity: 0 }}
-                            animate={{ opacity: 1 }}
-                            className="flex flex-col items-center justify-center py-20 text-white/40"
-                        >
-                            <p className="italic text-sm">Hiện chưa có phim nào cho tâm trạng này, hãy thử cái khác nhé!</p>
-                        </motion.div>
-                    )}
-                </AnimatePresence>
+                                            </div>
+                                        </TransitionLink>
+                                    </SwiperSlide>
+                                );
+                            })}
+                        </Swiper>
+                    </div>
+                ) : (
+                    <div key="empty" className="flex flex-col items-center justify-center py-20 text-white/40 animate-fade-in">
+                        <p className="italic text-sm">Hiện chưa có phim nào cho tâm trạng này, hãy thử cái khác nhé!</p>
+                    </div>
+                )}
             </div>
         </Container>
     );

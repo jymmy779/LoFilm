@@ -1,6 +1,6 @@
 import { History, Play, Trash2, X } from "lucide-react";
 import Image from "next/image";
-import { motion } from "framer-motion";
+
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { getImageUrl } from "@/app/utils/movieUtils";
 import Skeleton from "@/app/components/Skeleton/Skeleton";
@@ -47,10 +47,8 @@ export default function HistoryTab({ watchHistory, isHistoryLoading, onDeleteIte
           ))}
         </div>
       ) : watchHistory.length > 0 ? (
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+        <div
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in"
         >
           {watchHistory.map((item) => {
             const progress = (item.watched_seconds / item.duration) * 100;
@@ -112,7 +110,7 @@ export default function HistoryTab({ watchHistory, isHistoryLoading, onDeleteIte
               </div>
             );
           })}
-        </motion.div>
+        </div>
       ) : (
         <div className="flex flex-col items-center justify-center pt-8 md:pt-16 pb-12">
           <div className="w-16 h-16 md:w-24 md:h-24 bg-white/5 rounded-full flex items-center justify-center text-white/10 mb-4 md:mb-8">

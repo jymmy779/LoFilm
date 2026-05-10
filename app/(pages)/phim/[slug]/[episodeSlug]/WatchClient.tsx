@@ -5,7 +5,7 @@ import React, { useState, useEffect, useRef, useMemo } from "react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { AlertTriangle, RefreshCcw, List, X } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { motion, AnimatePresence } from "framer-motion";
+
 import Hls from "hls.js";
 // @ts-ignore
 import Plyr from "plyr";
@@ -768,11 +768,9 @@ export default function WatchClient({
 
     return (
         <div className={`pt-35 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} bg-[#0a1628] transition-all duration-500 ${isFullscreen ? 'video-fullscreen-active' : ''}`}>
-            <AnimatePresence>
-                {!isTheaterMode && !isFullscreen && (
-                    <MovieHeader slug={slug} movieName={movie.name} episodeName={episode.name} />
-                )}
-            </AnimatePresence>
+            <div className={`transition-all duration-500 ease-in-out ${!isTheaterMode && !isFullscreen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
+                <MovieHeader slug={slug} movieName={movie.name} episodeName={episode.name} />
+            </div>
 
             <div className={`transition-all duration-500 ease-in-out relative ${isExpanded ? 'w-full' : 'max-w-[1900px] mx-auto px-5 lg:px-12'} ${isFullscreen ? '!max-w-none !p-0 !m-0 !fixed !inset-0 !z-[9999]' : ''}`}>
                 <div key={videoSrc} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden shadow-2xl transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreen ? '!rounded-none !border-0 !h-screen' : ''}`}>
@@ -922,31 +920,20 @@ export default function WatchClient({
 
                     {/* Loading Overlay when switching episodes */}
                     {plyrContainer && createPortal(
-                        <AnimatePresence>
-                            {isChangingEpisode && (
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className="absolute inset-0 z-[200] bg-black/60 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center"
-                                >
-                                    <div className="relative mb-4 md:mb-6">
-                                        <div className="md:w-16 md:h-16 w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <div className="md:w-8 md:h-8 w-6 h-6 border-4 border-white/10 border-b-white/40 rounded-full animate-spin [animation-duration:1.5s] [animation-direction:reverse]" />
-                                        </div>
-                                    </div>
-                                    <motion.div
-                                        initial={{ y: 10, opacity: 0 }}
-                                        animate={{ y: 0, opacity: 1 }}
-                                        transition={{ delay: 0.1 }}
-                                    >
-                                        <h3 className="text-white text-md md:text-lg lg:text-xl font-bold tracking-tight mb-2">Đang chuyển tập...</h3>
-                                        <p className="text-white/40 text-xs md:text-sm">Vui lòng đợi trong giây lát</p>
-                                    </motion.div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>,
+                        <div
+                            className={`absolute inset-0 z-[200] bg-black/60 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300 ${isChangingEpisode ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                        >
+                            <div className="relative mb-4 md:mb-6">
+                                <div className="md:w-16 md:h-16 w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                    <div className="md:w-8 md:h-8 w-6 h-6 border-4 border-white/10 border-b-white/40 rounded-full animate-spin [animation-duration:1.5s] [animation-direction:reverse]" />
+                                </div>
+                            </div>
+                            <div className={`transition-all duration-500 delay-100 ${isChangingEpisode ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                                <h3 className="text-white text-md md:text-lg lg:text-xl font-bold tracking-tight mb-2">Đang chuyển tập...</h3>
+                                <p className="text-white/40 text-xs md:text-sm">Vui lòng đợi trong giây lát</p>
+                            </div>
+                        </div>,
                         plyrContainer
                     )}
 
@@ -1033,51 +1020,39 @@ export default function WatchClient({
                     )}
 
 
-                    {/* Replay/End Overlay - Rendered into Plyr Container for Fullscreen Support */}
+                    {/* Replay/End Overlay */}
                     {plyrContainer && createPortal(
-                        <AnimatePresence>
-                            {showEndOverlay && (
-                                <motion.div
-                                    initial={{ opacity: 0 }}
-                                    animate={{ opacity: 1 }}
-                                    exit={{ opacity: 0 }}
-                                    className="absolute inset-0 z-[150] bg-black/90 flex flex-col items-center justify-center p-3 md:p-6 text-center pointer-events-auto"
+                        <div
+                            className={`absolute inset-0 z-[150] bg-black/90 flex flex-col items-center justify-center p-3 md:p-6 text-center pointer-events-auto transition-opacity duration-300 ${showEndOverlay ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                        >
+                            <div className="flex items-center justify-center gap-4 md:gap-8 pointer-events-auto scale-90 md:scale-100">
+                                <button
+                                    onClick={() => {
+                                        setShowEndOverlay(false);
+                                        if (plyrRef.current) {
+                                            plyrRef.current.currentTime = 0;
+                                            plyrRef.current.play();
+                                        }
+                                    }}
+                                    className={`group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-all duration-500 ${showEndOverlay ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
                                 >
-                                    <div className="flex items-center justify-center gap-4 md:gap-8 pointer-events-auto scale-90 md:scale-100">
-                                        <motion.button
-                                            initial={{ y: 20, opacity: 0 }}
-                                            animate={{ y: 0, opacity: 1 }}
-                                            onClick={() => {
-                                                setShowEndOverlay(false);
-                                                if (plyrRef.current) {
-                                                    plyrRef.current.currentTime = 0;
-                                                    plyrRef.current.play();
-                                                }
-                                            }}
-                                            className="group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-transform"
-                                        >
-                                            <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shadow-lg group-hover:bg-white/20">
-                                                <RefreshCcw size={20} className="md:w-6 md:h-6" />
-                                            </div>
-                                            <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Xem lại</span>
-                                        </motion.button>
-
-                                        <motion.button
-                                            initial={{ y: 20, opacity: 0 }}
-                                            animate={{ y: 0, opacity: 1 }}
-                                            transition={{ delay: 0.1 }}
-                                            onClick={() => setShowEpisodeOverlay(true)}
-                                            className="group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-transform"
-                                        >
-                                            <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shadow-lg group-hover:bg-white/20">
-                                                <List size={20} className="md:w-6 md:h-6" />
-                                            </div>
-                                            <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Danh sách tập</span>
-                                        </motion.button>
+                                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shadow-lg group-hover:bg-white/20">
+                                        <RefreshCcw size={20} className="md:w-6 md:h-6" />
                                     </div>
-                                </motion.div>
-                            )}
-                        </AnimatePresence>,
+                                    <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Xem lại</span>
+                                </button>
+
+                                <button
+                                    onClick={() => setShowEpisodeOverlay(true)}
+                                    className={`group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-all duration-500 delay-75 ${showEndOverlay ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                                >
+                                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shadow-lg group-hover:bg-white/20">
+                                        <List size={20} className="md:w-6 md:h-6" />
+                                    </div>
+                                    <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Danh sách tập</span>
+                                </button>
+                            </div>
+                        </div>,
                         plyrContainer
                     )}
 
@@ -1104,35 +1079,35 @@ export default function WatchClient({
                 </div>
             </div>
 
-            <AnimatePresence>
-                {!isTheaterMode && (
-                    <motion.div key="watch-content" initial={{ height: 0, opacity: 0, marginTop: 0 }} animate={{ height: "auto", opacity: 1, marginTop: 32 }} exit={{ height: 0, opacity: 0, marginTop: 0 }} transition={{ duration: 0.5, ease: "easeInOut" }} className="overflow-hidden">
-                        <Container className="wc-main">
-                            <div className="flex flex-col xl:flex-row gap-8">
-                                <div className="flex-1">
-                                    <div className="flex flex-col gap-6 p-5 md:p-10 bg-white/[0.03] border border-white/10 rounded-3xl shadow-2xl">
-                                        <MovieInfo slug={slug} movie={movie} episode={episode} />
-                                        <EpisodeList
-                                            slug={slug}
-                                            currentEpisode={episodeSlug}
-                                            episodes={episodes}
-                                            activeServer={activeServerIndex}
-                                            onServerChange={setActiveServerIndex}
-                                            onEpisodeClick={() => setIsChangingEpisode(true)}
-                                        />
-                                        <div className="mt-6 pt-6 border-t border-white/5">
-                                            <CommentSection movieSlug={slug} />
-                                        </div>
-                                    </div>
-                                </div>
-                                <div className="w-full xl:w-100">
-                                    <Sidebar movie={movie} suggestedMovies={enrichedSuggestions} />
+            <div
+                className={`overflow-hidden transition-all duration-500 ease-in-out ${
+                    !isTheaterMode ? "max-h-[5000px] opacity-100 mt-8" : "max-h-0 opacity-0 mt-0"
+                }`}
+            >
+                <Container className="wc-main">
+                    <div className="flex flex-col xl:flex-row gap-8">
+                        <div className="flex-1">
+                            <div className="flex flex-col gap-6 p-5 md:p-10 bg-white/[0.03] border border-white/10 rounded-3xl shadow-2xl">
+                                <MovieInfo slug={slug} movie={movie} episode={episode} />
+                                <EpisodeList
+                                    slug={slug}
+                                    currentEpisode={episodeSlug}
+                                    episodes={episodes}
+                                    activeServer={activeServerIndex}
+                                    onServerChange={setActiveServerIndex}
+                                    onEpisodeClick={() => setIsChangingEpisode(true)}
+                                />
+                                <div className="mt-6 pt-6 border-t border-white/5">
+                                    <CommentSection movieSlug={slug} />
                                 </div>
                             </div>
-                        </Container>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+                        </div>
+                        <div className="w-full xl:w-100">
+                            <Sidebar movie={movie} suggestedMovies={enrichedSuggestions} />
+                        </div>
+                    </div>
+                </Container>
+            </div>
 
             <ReportModal isOpen={showReportModal} onClose={() => setShowReportModal(false)} movieName={movie.name} episodeName={episode.name} />
         </div>

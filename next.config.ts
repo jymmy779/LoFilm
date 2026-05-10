@@ -3,7 +3,6 @@ import type { NextConfig } from "next";
 const nextConfig: NextConfig = {
     transpilePackages: [
         "swiper", 
-        "framer-motion", 
         "lucide-react", 
         "plyr-react", 
         "plyr",
@@ -18,7 +17,7 @@ const nextConfig: NextConfig = {
     ],
     experimental: {
         scrollRestoration: true,
-        optimizePackageImports: ["swiper", "lucide-react", "framer-motion"],
+        optimizePackageImports: ["swiper", "lucide-react"],
         // Disable Next.js Router Cache: ensures every navigation fetches fresh server data
         // Without this, clicking a link shows stale cached data until hard refresh
         staleTimes: {

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef } from "react";
 import { Bell } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/app/utils/supabase/client";
 
 interface Notification {
@@ -90,36 +89,25 @@ export default function NotificationBell() {
                 className="relative p-2 text-white/70 hover:text-white transition-colors duration-200 focus:outline-none cursor-pointer"
                 aria-label="Thông báo"
             >
-                <motion.div
-                    animate={hasNew ? {
-                        rotate: [0, -10, 10, -10, 10, 0],
-                        scale: [1, 1.1, 1]
-                    } : {}}
-                    transition={{ repeat: Infinity, duration: 2, repeatDelay: 5 }}
-                >
+                <div className={hasNew ? "animate-bell-shake" : ""}>
                     <Bell size={20} className={hasNew ? "text-amber-400" : ""} />
-                </motion.div>
+                </div>
 
-                <AnimatePresence>
-                    {hasNew && (
-                        <motion.span
-                            initial={{ scale: 0 }}
-                            animate={{ scale: 1 }}
-                            exit={{ scale: 0 }}
-                            className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-[#0d1b2e] shadow-[0_0_8px_rgba(239,68,68,0.6)]"
-                        />
-                    )}
-                </AnimatePresence>
+                {hasNew && (
+                    <span
+                        className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-[#0d1b2e] shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pop-in"
+                    />
+                )}
             </button>
 
-            <AnimatePresence>
-                {isOpen && (
-                    <motion.div
-                        initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                        animate={{ opacity: 1, y: 0, scale: 1 }}
-                        exit={{ opacity: 0, y: 10, scale: 0.95 }}
-                        className="absolute right-[-10px] md:right-0 mt-3 w-[260px] xs:w-[280px] md:w-[320px] bg-[#111e31]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-[100]"
-                    >
+            {/* Dropdown panel */}
+            <div
+                className={`absolute right-[-10px] md:right-0 mt-3 w-[260px] xs:w-[280px] md:w-[320px] bg-[#111e31]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-[100] transition-all duration-200 origin-top-right ${
+                    isOpen
+                    ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
+                    : "opacity-0 translate-y-2 scale-[0.98] pointer-events-none"
+                }`}
+            >
                         <div className="px-4 py-3 md:px-5 md:py-4 border-b border-white/5 bg-white/5">
                             <h3 className="text-[13px] md:text-sm font-bold text-white flex items-center gap-2">
                                 <span className="w-1.5 h-1.5 bg-amber-500 rounded-full" />
@@ -155,9 +143,7 @@ export default function NotificationBell() {
                                 </div>
                             )}
                         </div>
-                    </motion.div>
-                )}
-            </AnimatePresence>
+            </div>
         </div>
     );
 }
