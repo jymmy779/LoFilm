@@ -94,11 +94,35 @@ export default function AuthContent() {
     try {
       if (isLogin) {
         // Handle Login
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
         });
+
         if (error) throw error;
+
+        // KIỂM TRA XÁC THỰC EMAIL (BẢO MẬT)
+        // Nếu user tồn tại nhưng chưa confirmed email, chặn không cho vào
+        if (data.user && !data.user.email_confirmed_at) {
+          // Gửi lại email xác nhận tự động để hỗ trợ người dùng
+          await supabase.auth.resend({
+            type: 'signup',
+            email: email,
+            options: {
+              emailRedirectTo: `${window.location.origin}/auth/callback`,
+            }
+          });
+
+          // Đăng xuất ngay lập tức để xóa session tạm thời
+          await supabase.auth.signOut();
+          
+          toast.error("Email của bạn chưa được xác thực. Chúng tôi đã gửi lại một email xác nhận mới, vui lòng kiểm tra hộp thư (cả hòm thư Rác)!", {
+            duration: 6000,
+            icon: '✉️'
+          });
+          setIsLoading(false);
+          return;
+        }
 
         // Lưu thông tin "Ghi nhớ"
         if (rememberMe) {

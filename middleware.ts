@@ -83,7 +83,12 @@ export async function middleware(request: NextRequest) {
   // Chỉ gọi getUser() khi thực sự cần (route bảo vệ hoặc có cookie tiềm năng)
   // Lưu ý: isPublicRoute đã được handle ở trên nên ở đây chỉ còn các route khác
   if (hasAuthCookie || isProtectedRoute) {
-    await supabase.auth.getUser()
+    const { data: { user } } = await supabase.auth.getUser()
+    
+    // Nếu là route bảo vệ mà user chưa xác thực email, redirect về login
+    if (isProtectedRoute && user && !user.email_confirmed_at) {
+      return NextResponse.redirect(new URL('/dang-nhap?error=unverified', request.url))
+    }
   }
 
   return supabaseResponse
