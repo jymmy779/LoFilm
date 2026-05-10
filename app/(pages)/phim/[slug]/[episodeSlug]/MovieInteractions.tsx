@@ -8,9 +8,10 @@ import Skeleton from "@/app/components/Skeleton/Skeleton";
 
 interface MovieInteractionsProps {
     movieSlug: string;
+    user: any;
 }
 
-export default function MovieInteractions({ movieSlug }: MovieInteractionsProps) {
+export default function MovieInteractions({ movieSlug, user }: MovieInteractionsProps) {
     const [likes, setLikes] = useState(0);
     const [dislikes, setDislikes] = useState(0);
     const [userInteraction, setUserInteraction] = useState<'like' | 'dislike' | null>(null);
@@ -33,14 +34,13 @@ export default function MovieInteractions({ movieSlug }: MovieInteractionsProps)
                 }
 
                 // 2. Get user current interaction
-                const { data: { user } } = await supabase.auth.getUser();
                 if (user) {
                     const { data: interactionRes } = await supabase
                         .from('movie_interactions')
                         .select('type')
                         .eq('movie_slug', movieSlug)
                         .eq('user_id', user.id)
-                        .maybeSingle(); // maybeSingle() trả về null thay vì error 406
+                        .maybeSingle(); 
 
                     if (interactionRes) {
                         setUserInteraction(interactionRes.type as 'like' | 'dislike');
@@ -57,7 +57,6 @@ export default function MovieInteractions({ movieSlug }: MovieInteractionsProps)
     }, [movieSlug, supabase]);
 
     const handleInteraction = async (type: 'like' | 'dislike') => {
-        const { data: { user } } = await supabase.auth.getUser();
         if (!user) {
             toast.error("Bạn cần đăng nhập để thực hiện!");
             return;

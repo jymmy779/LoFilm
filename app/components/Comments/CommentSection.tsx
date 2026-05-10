@@ -98,7 +98,7 @@ export default function CommentSection({ movieSlug }: CommentSectionProps) {
     return (
         <div className="comment-section">
             <div className="mb-6">
-                 <MovieInteractions movieSlug={movieSlug} />
+                 <MovieInteractions movieSlug={movieSlug} user={user} />
             </div>
 
             <h3 className="comment-label">
