@@ -154,17 +154,13 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
             if (cached) {
                 setMovies(cached.movies);
                 setTotalPages(cached.totalPages);
-                setPageTitle(cached.pageTitle);
                 setIsLoading(false);
-                setIsPageLoading(true); // Still show a light loading for the background fetch
+                setIsPageLoading(true);
             } else {
-                // Use lightweight loading indicator if we already have movies on screen
-                if (movies.length > 0) {
-                    setIsPageLoading(true);
-                } else {
-                    setMovies([]); // Clear old results to avoid flickering
-                    setIsLoading(true);
-                }
+                // Nếu chưa có trong cache, xóa dữ liệu cũ và hiện Skeleton ngay lập tức
+                setMovies([]);
+                setIsLoading(true);
+                setIsPageLoading(false);
             }
 
             try {

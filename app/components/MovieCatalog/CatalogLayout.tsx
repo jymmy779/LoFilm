@@ -72,14 +72,7 @@ export default function CatalogLayout({
                             {/* Main Content Area */}
                             <div className="flex-grow w-full lg:min-w-0">
                                 <div className="relative">
-                                    {/* Loading Overlay for pagination/filter changes */}
-                                    {(isLoading === false && isPageLoading) && (
-                                        <div className="absolute inset-x-0 -top-4 bottom-0 z-40 flex justify-center pt-20 pointer-events-none">
-                                            <div className="sticky top-1/2 -translate-y-1/2 w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin"></div>
-                                        </div>
-                                    )}
-
-                                    <div className={` transition-opacity duration-300 ${(isLoading === false && isPageLoading) ? 'opacity-40 pointer-events-none' : 'opacity-100'}`}>
+                                    <div className="transition-opacity duration-300 opacity-100">
                                         <div key={`${isLoading}-${currentPage}`} className="animate-fade-in">
                                             {isLoading ? (
                                                 <div

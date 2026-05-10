@@ -102,13 +102,10 @@ function SearchContent() {
                 setIsLoading(false);
                 setIsPageLoading(true);
             } else {
-                // Use lightweight loading indicator if we already have movies on screen
-                if (movies.length > 0) {
-                    setIsPageLoading(true);
-                } else {
-                    setMovies([]); // Xóa kết quả cũ để tránh hiện tập phim sai
-                    setIsLoading(true);
-                }
+                // Nếu chưa có trong cache, xóa dữ liệu cũ và hiện Skeleton ngay lập tức
+                setMovies([]);
+                setIsLoading(true);
+                setIsPageLoading(false);
             }
 
             try {
