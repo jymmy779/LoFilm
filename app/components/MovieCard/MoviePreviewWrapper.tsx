@@ -43,22 +43,27 @@ export default function MoviePreviewWrapper({
         setIsMounted(true);
     }, []);
 
+    const closeAnimationTimer = useRef<NodeJS.Timeout | null>(null);
+
     const handleMouseEnter = (e: React.MouseEvent<HTMLDivElement>) => {
         if (props.onMouseEnter) props.onMouseEnter(e);
 
-        // Hủy bỏ bất kỳ timer "rời đi" nào của card này
+        // Hủy bỏ tất cả các timer đóng/ẩn đang chạy
         if (leaveTimer.current) {
             clearTimeout(leaveTimer.current);
             leaveTimer.current = null;
         }
-
-        // Nếu card này đang trong quá trình đóng, dừng việc đóng lại
-        if (isClosing) {
-            setIsClosing(false);
-            return;
+        if (closeAnimationTimer.current) {
+            clearTimeout(closeAnimationTimer.current);
+            closeAnimationTimer.current = null;
         }
 
-        // Nếu đã hiện rồi thì không làm gì thêm
+        // Nếu card này đang trong quá trình đóng (animation), dừng việc đóng lại và giữ hiện thị
+        if (isClosing) {
+            setIsClosing(false);
+        }
+
+        // Nếu đã hiện rồi thì không làm gì thêm (nhưng vẫn phải clear các timer đóng ở trên)
         if (showPopup) return;
 
         // *** SMART PREFETCH ***
@@ -81,7 +86,7 @@ export default function MoviePreviewWrapper({
                     setIsClosing(false);
                 };
             }
-        }, 400); // Giảm delay xuống 400ms để nhạy hơn
+        }, 400); // Giữ delay 400ms để tránh hiện popup vô tội vạ khi lướt nhanh
     };
 
     const handleMouseLeave = (e?: React.MouseEvent<HTMLDivElement>) => {
@@ -93,17 +98,19 @@ export default function MoviePreviewWrapper({
             hoverTimer.current = null;
         }
 
-        // Bắt đầu quá trình đóng
+        // Bắt đầu quá trình đóng sau 100ms chờ đợi
         leaveTimer.current = setTimeout(() => {
             setIsClosing(true);
             
-            // Chờ animation CSS (250ms) chạy xong mới gỡ bỏ khỏi DOM
-            leaveTimer.current = setTimeout(() => {
+            // Chờ animation CSS (250ms) chạy xong mới gỡ bỏ khỏi DOM hoàn toàn
+            closeAnimationTimer.current = setTimeout(() => {
                 setShowPopup(false);
                 setIsClosing(false);
                 if (activePopupCloser) activePopupCloser = null;
-                leaveTimer.current = null;
+                closeAnimationTimer.current = null;
             }, 250);
+
+            leaveTimer.current = null;
         }, 100);
     };
 
