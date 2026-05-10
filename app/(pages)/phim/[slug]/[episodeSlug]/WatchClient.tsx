@@ -7,8 +7,6 @@ import { AlertTriangle, RefreshCcw, List, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import Hls from "hls.js";
-// @ts-ignore
-import Plyr from "plyr";
 import "plyr/dist/plyr.css";
 import Container from "@/app/components/Container";
 import PlayerControls from "./PlayerControls";
@@ -115,7 +113,7 @@ export default function WatchClient({
 
     const videoRef = useRef<HTMLVideoElement>(null);
     const hlsRef = useRef<Hls | null>(null);
-    const plyrRef = useRef<Plyr | null>(null);
+    const plyrRef = useRef<any>(null);
 
     const currentIndex = useMemo(() => {
         if (!episodes || episodes.length === 0) return -1;
@@ -456,7 +454,9 @@ export default function WatchClient({
                 }
             }
 
-            const player = new Plyr(videoRef.current, defaultOptions);
+            const PlyrLib = (await import('plyr')).default;
+            if (!isMounted || !videoRef.current) return;
+            const player = new PlyrLib(videoRef.current, defaultOptions);
             plyrRef.current = player;
 
             player.on('ready', () => {
