@@ -773,7 +773,7 @@ export default function WatchClient({
             </div>
 
             <div className={`transition-all duration-500 ease-in-out relative ${isExpanded ? 'w-full' : 'max-w-[1900px] mx-auto px-5 lg:px-12'} ${isFullscreen ? '!max-w-none !p-0 !m-0 !fixed !inset-0 !z-[9999]' : ''}`}>
-                <div key={videoSrc} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden shadow-2xl transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreen ? '!rounded-none !border-0 !h-screen' : ''}`}>
+                <div key={videoSrc} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreen ? '!rounded-none !border-0 !h-screen' : ''}`}>
                     <style jsx global>{`
                         .hide-large-play .plyr__control--overlaid { display: none !important; }
                         .plyr { z-index: auto !important; aspect-ratio: 16/9; width: 100%; border-radius: inherit; touch-action: pan-y; will-change: transform, opacity; }
@@ -848,7 +848,6 @@ export default function WatchClient({
                                 transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
                                 z-index: 100 !important;
                                 box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
-                                backdrop-filter: blur(8px) !important;
                             }
                             .plyr__volume:focus-within input,
                             .plyr__volume:active input {
@@ -921,7 +920,7 @@ export default function WatchClient({
                     {/* Loading Overlay when switching episodes */}
                     {plyrContainer && createPortal(
                         <div
-                            className={`absolute inset-0 z-[200] bg-black/60 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300 ${isChangingEpisode ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                            className={`absolute inset-0 z-[200] bg-black/60 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300 ${isChangingEpisode ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                         >
                             <div className="relative mb-4 md:mb-6">
                                 <div className="md:w-16 md:h-16 w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
@@ -940,11 +939,6 @@ export default function WatchClient({
                     {/* Episode List Overlay Panel */}
                     {plyrContainer && createPortal(
                         <div className={`absolute inset-0 z-[210] ${showEpisodeOverlay ? 'visible' : 'invisible'} [transition-property:visibility] duration-500`}>
-                            {/* Backdrop shadow */}
-                            <div
-                                className={`absolute inset-0 bg-black/60 transition-opacity duration-500 ${showEpisodeOverlay ? 'opacity-100' : 'opacity-0'}`}
-                                onClick={() => setShowEpisodeOverlay(false)}
-                            />
 
                             {/* Panel sliding from right */}
                             <div
@@ -952,7 +946,7 @@ export default function WatchClient({
                                 onDoubleClick={(e) => e.stopPropagation()}
                                 onMouseDown={(e) => e.stopPropagation()}
                                 onMouseUp={(e) => e.stopPropagation()}
-                                className={`absolute top-0 right-0 h-full w-[200px] sm:w-[260px] md:w-[360px] bg-[#0F111A] border-l border-white/5 shadow-2xl transition-transform duration-500 ease-out flex flex-col select-none outline-none [backface-visibility:hidden] [will-change:transform] [-webkit-tap-highlight-color:transparent] ${showEpisodeOverlay ? 'translate-x-0' : 'translate-x-full'}`}>
+                                className={`absolute top-0 right-0 h-full w-[200px] sm:w-[260px] md:w-[360px] bg-[#0F111A] border-l border-white/5 transition-transform duration-500 ease-out flex flex-col select-none outline-none [backface-visibility:hidden] [will-change:transform] [-webkit-tap-highlight-color:transparent] ${showEpisodeOverlay ? 'translate-x-0' : 'translate-x-full'}`}>
                                 {/* Header */}
                                 <div className="p-2 sm:p-3 lg:p-5 border-b gap-10 border-white/5 flex items-center justify-between bg-white/[0.02]">
                                     <div className="flex flex-col gap-0.5">
@@ -1036,7 +1030,7 @@ export default function WatchClient({
                                     }}
                                     className={`group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-all duration-500 ${showEndOverlay ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
                                 >
-                                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shadow-lg group-hover:bg-white/20">
+                                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 group-hover:bg-white/20">
                                         <RefreshCcw size={20} className="md:w-6 md:h-6" />
                                     </div>
                                     <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Xem lại</span>
@@ -1046,7 +1040,7 @@ export default function WatchClient({
                                     onClick={() => setShowEpisodeOverlay(true)}
                                     className={`group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-all duration-500 delay-75 ${showEndOverlay ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
                                 >
-                                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 shadow-lg group-hover:bg-white/20">
+                                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 group-hover:bg-white/20">
                                         <List size={20} className="md:w-6 md:h-6" />
                                     </div>
                                     <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Danh sách tập</span>
@@ -1086,7 +1080,7 @@ export default function WatchClient({
                 <Container className="wc-main">
                     <div className="flex flex-col xl:flex-row gap-8">
                         <div className="flex-1">
-                            <div className="flex flex-col gap-6 p-5 md:p-10 bg-white/[0.03] border border-white/10 rounded-3xl shadow-2xl">
+                            <div className="flex flex-col gap-6 p-5 md:p-10 bg-white/[0.03] border border-white/10 rounded-3xl">
                                 <MovieInfo slug={slug} movie={movie} episode={episode} />
                                 <EpisodeList
                                     slug={slug}

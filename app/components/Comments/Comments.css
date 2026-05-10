@@ -172,11 +172,9 @@
   background: #1a1c1e;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
   padding: 4px;
   display: flex;
   flex-direction: column;
-  backdrop-filter: blur(10px);
 }
 
 .dropdown-item {
@@ -271,8 +269,7 @@
 }
 
 .btn-submit:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 5px 15px rgba(245, 166, 35, 0.3);
+  background: #ffcc33;
 }
 
 .btn-submit:disabled {
@@ -309,7 +306,7 @@
 
 .btn-login-prompt:hover {
   background: #ffcc33;
-  box-shadow: 0 0 20px rgba(245, 166, 35, 0.4);
+  border-color: rgba(245, 166, 35, 0.5);
 }
 
 .text-spoiler {
@@ -356,7 +353,6 @@
   padding: 2rem;
   width: 100%;
   max-width: 400px;
-  box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
   text-align: center;
   animation: slideUp 0.3s ease-out;
 }

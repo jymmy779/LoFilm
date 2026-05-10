@@ -15,7 +15,7 @@ interface MovieHeaderProps {
 const MovieHeader = ({ slug, movieName, episodeName }: MovieHeaderProps) => {
   return (
     <div
-      className="overflow-hidden backdrop-blur-md mb-6 animate-fade-in"
+      className="overflow-hidden mb-6 animate-fade-in"
     >
       <Container>
         <div className="flex items-center gap-3">

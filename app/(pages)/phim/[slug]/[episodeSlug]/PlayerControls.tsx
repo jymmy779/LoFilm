@@ -49,7 +49,7 @@ const PlayerControls = ({
   const [showServers, setShowServers] = useState(false);
 
   return (
-    <div className={`w-full bg-white/5 border border-white/10 p-3 md:p-4 mt-4 backdrop-blur-md transition-all duration-500 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-xl'}`}>
+    <div className={`w-full bg-[#0d192b]/50 border border-white/10 p-3 md:p-4 mt-4 transition-all duration-500 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-xl'}`}>
       <div className="flex flex-wrap items-center gap-4 md:gap-6 max-w-[1900px] mx-auto px-5 lg:px-12">
 
         {/* Đổi Server - Chỉ hiện nếu có nhiều hơn 1 server */}
@@ -66,7 +66,7 @@ const PlayerControls = ({
 
             {/* Server Dropdown */}
             <div
-              className={`absolute bottom-full left-0 mb-3 w-48 bg-[#1a2b4b] border border-white/10 rounded-lg shadow-2xl p-1 z-50 overflow-hidden transition-all duration-200 ease-out ${
+              className={`absolute bottom-full left-0 mb-3 w-48 bg-[#1a2b4b] border border-white/10 rounded-lg p-1 z-50 overflow-hidden transition-all duration-200 ease-out ${
                 showServers 
                   ? "opacity-100 translate-y-0 scale-100 pointer-events-auto" 
                   : "opacity-0 translate-y-2 scale-95 pointer-events-none"
@@ -129,9 +129,9 @@ const PlayerControls = ({
         <button
           onClick={onToggleFavorite}
           className={`
-            lg:w-10 lg:h-10 w-8 h-8 flex items-center justify-center rounded-full border transition-all cursor-pointer shadow-lg 
+            lg:w-10 lg:h-10 w-8 h-8 flex items-center justify-center rounded-full border transition-all cursor-pointer 
             ${isFavorited
-              ? "bg-rose-500 border-rose-500 text-white shadow-rose-500/20"
+              ? "bg-rose-500 border-rose-500 text-white"
               : "bg-white/5 border-white/10 text-white/60 hover:text-rose-400 hover:border-rose-400/30"
             }
           `}
@@ -144,9 +144,9 @@ const PlayerControls = ({
         <button
           onClick={onToggleWatchlist}
           className={`
-            lg:w-10 lg:h-10 w-8 h-8 flex items-center justify-center rounded-full border transition-all cursor-pointer shadow-lg 
+            lg:w-10 lg:h-10 w-8 h-8 flex items-center justify-center rounded-full border transition-all cursor-pointer 
             ${isInWatchlist
-              ? "bg-amber-500 border-amber-500 text-black shadow-amber-500/20"
+              ? "bg-amber-500 border-amber-500 text-black"
               : "bg-white/5 border-white/10 text-white/60 hover:text-amber-400 hover:border-amber-400/30"
             }
           `}

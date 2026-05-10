@@ -35,7 +35,7 @@ const FilterRow = React.memo(({ label, items, activeValue, onSelect, useValueFie
                             key={val || item.label || item.name}
                             onClick={() => onSelect(val)}
                             className={`item px-3 py-1.5 rounded-lg text-xs transition-all duration-200 cursor-pointer select-none border ${isActive
-                                ? "bg-[#f5a623] border-[#f5a623] text-[#0a1628] font-bold shadow-lg shadow-[#f5a623]/20"
+                                ? "bg-[#f5a623] border-[#f5a623] text-[#0a1628] font-bold"
                                 : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-[#f5a623]/50"
                                 }`}
                         >
@@ -119,7 +119,7 @@ export default function MovieFilter({
             <button
                 onClick={handleToggle}
                 className={`flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 cursor-pointer text-sm font-medium ${isOpen
-                    ? "bg-[#f5a623] border-[#f5a623] text-[#0a1628] shadow-lg shadow-[#f5a623]/20"
+                    ? "bg-[#f5a623] border-[#f5a623] text-[#0a1628]"
                     : "bg-white/5 border-white/10 text-white hover:border-[#f5a623]/50 hover:bg-white/10"
                     }`}
             >
@@ -136,7 +136,7 @@ export default function MovieFilter({
                     : "grid-rows-[0fr] opacity-0 mt-0 scale-[0.98]"
                     }`}
             >
-                <div className="overflow-hidden bg-white/5 border border-white/10 rounded-2xl shadow-2xl">
+                <div className="overflow-hidden bg-[#14233e] border border-white/10 rounded-2xl">
                     <div className="p-4 md:p-6 space-y-6">
                         {/* Row: Quốc gia */}
                         <FilterRow
@@ -190,7 +190,7 @@ export default function MovieFilter({
                         <div className="flex items-center gap-3 pt-4 border-t border-white/5">
                             <button
                                 onClick={handleApply}
-                                className="md:px-6 px-4 py-2 md:py-2.5 rounded-full bg-gradient-to-r from-[#f5a623] to-[#ffcc33] text-[#0a1628] font-bold text-xs md:text-sm flex items-center gap-2 hover:opacity-90 transition-opacity shadow-lg shadow-[#f5a623]/20 cursor-pointer"
+                                className="md:px-6 px-4 py-2 md:py-2.5 rounded-full bg-gradient-to-r from-[#f5a623] to-[#ffcc33] text-[#0a1628] font-bold text-xs md:text-sm flex items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer"
                             >
                                 Lọc kết quả
                                 <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 448 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">

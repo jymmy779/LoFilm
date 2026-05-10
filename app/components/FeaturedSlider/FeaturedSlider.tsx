@@ -110,7 +110,7 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
                     loop={true}
                     autoplay={{ delay: 6000, disableOnInteraction: false, pauseOnMouseEnter: false }}
                     thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
-                    className="featured-section-slider rounded-[30px] overflow-hidden shadow-2xl"
+                    className="featured-section-slider rounded-[30px] overflow-hidden"
                 >
                     {movies.map((movie, index) => (
                         <SwiperSlide key={movie._id}>

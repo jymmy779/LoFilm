@@ -117,7 +117,7 @@ export default function MoviePreviewPopup({
                 left: position.left
             }}
         >
-            <div className="bg-[#111319]/98 rounded-2xl overflow-hidden shadow-[0_30px_70px_-15px_rgba(0,0,0,1)] ">
+            <div className="bg-[#111319]/98 rounded-2xl overflow-hidden border border-white/5">
                 {/* Image Container with CSS Masking & Angled Gradient matching Rophim */}
                 <div className="relative aspect-video w-full bg-[#1c1f26] overflow-hidden [mask-image:linear-gradient(to_top,transparent_0,black_30px)] [-webkit-mask-image:linear-gradient(to_top,transparent_0,black_30px)]">
                     {/* Layer 1: Blurred Poster Placeholder (Instant) */}
@@ -165,7 +165,7 @@ export default function MoviePreviewPopup({
                     <div className="flex items-center gap-2 pt-1">
                         <TransitionLink
                             href={playUrl}
-                            className="flex-[1.5] h-10 bg-gradient-to-r from-[#f5a623] to-[#fbd671] hover:brightness-110 text-black rounded-full flex items-center justify-center gap-2 font-bold text-xs transition-all pointer-events-auto cursor-pointer shadow-[0_4px_15px_-3px_rgba(245,166,35,0.4)]"
+                            className="flex-[1.5] h-10 bg-gradient-to-r from-[#f5a623] to-[#fbd671] hover:brightness-110 text-black rounded-full flex items-center justify-center gap-2 font-bold text-xs transition-all pointer-events-auto cursor-pointer"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="10" height="10" fill="currentColor">
                                 <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z" />
@@ -179,7 +179,7 @@ export default function MoviePreviewPopup({
                                 e.preventDefault();
                                 toggleFavorite();
                             }}
-                            className={`flex-1 h-10 border border-white/20 rounded-full flex items-center justify-center gap-1.5 font-bold text-[11px] transition-all pointer-events-auto cursor-pointer ${isFavorited ? 'bg-rose-500 border-rose-500 text-white shadow-[0_0_15px_-3px_rgba(244,63,94,0.5)]' : 'hover:bg-white/5 text-white'}`}
+                            className={`flex-1 h-10 rounded-full flex items-center justify-center gap-1.5 font-bold text-[11px] transition-all pointer-events-auto cursor-pointer ${isFavorited ? 'bg-rose-500 text-white' : 'bg-white/10 hover:bg-white/15 text-white'}`}
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="12" height="12" fill={isFavorited ? "white" : "currentColor"}>
                                 <path d="M462.3 62.6C407.5 15.9 326 24.3 275.7 76.2L256 96.5l-19.7-20.3C186.1 24.3 104.5 15.9 49.7 62.6c-62.8 53.6-66.1 149.8-9.9 207.9l193.5 199.8c12.5 12.9 32.8 12.9 45.3 0l193.5-199.8c56.3-58.1 53-154.3-9.8-207.9z"></path>
@@ -189,7 +189,7 @@ export default function MoviePreviewPopup({
 
                         <TransitionLink
                             href={detailUrl}
-                            className="flex-1 h-10 border border-white/20 hover:bg-white/5 text-white rounded-full flex items-center justify-center gap-1.5 font-bold text-[11px] transition-all pointer-events-auto cursor-pointer"
+                            className="flex-1 h-10 bg-white/10 hover:bg-white/15 text-white rounded-full flex items-center justify-center gap-1.5 font-bold text-[11px] transition-all pointer-events-auto cursor-pointer"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="12" height="12" fill="currentColor">
                                 <path d="M256 8C119.043 8 8 119.083 8 256c0 136.997 111.043 248 248 248s248-111.003 248-248C504 119.083 392.957 8 256 8zm0 110c23.196 0 42 18.804 42 42s-18.804 42-42 42-42-18.804-42-42 18.804-42 42-42zm56 254c0 6.627-5.373 12-12 12h-88c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h12v-64h-12c-6.627 0-12-5.373-12-12v-24c0-6.627 5.373-12 12-12h64c6.627 0 12 5.373 12 12v100h12c6.627 0 12 5.373 12 12v24z"></path>
@@ -203,10 +203,10 @@ export default function MoviePreviewPopup({
                         <div className="px-2.5 py-1 border border-[#f5a623] rounded-lg text-[#f5a623] text-[10px] font-bold">
                             ★ {imdbRating}
                         </div>
-                        <div className="px-2.5 py-1 border border-white/20 rounded-lg text-white/60 text-[10px] font-bold">
+                        <div className="px-2.5 py-1 bg-white/10 rounded-lg text-white/60 text-[10px] font-bold">
                             {movie.year}
                         </div>
-                        <div className="px-2.5 py-1 border border-white/20 rounded-lg text-white/60 text-[10px] font-bold">
+                        <div className="px-2.5 py-1 bg-white/10 rounded-lg text-white/60 text-[10px] font-bold">
                             {updatedMetadata
                                 ? getEpisodeStatus({ ...movie, ...updatedMetadata })
                                 : getEpisodeStatus(movie)}

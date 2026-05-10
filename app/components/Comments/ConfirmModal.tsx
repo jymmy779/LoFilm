@@ -55,7 +55,7 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
         className={`absolute inset-0 bg-black/80 ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
       />
       <div
-        className={`relative bg-[#1a1c1e] border border-white/10 rounded-2xl p-8 w-full max-max-w-[400px] shadow-2xl text-center ${
+        className={`relative bg-[#1a1c1e] border border-white/10 rounded-2xl p-8 w-full max-max-w-[400px] text-center ${
           isClosing ? "animate-pop-out" : "animate-pop-in"
         }`}
         onClick={(e) => e.stopPropagation()}

@@ -29,7 +29,7 @@ function MovieRowCard({ movie, priority = false, adZone = "movie_row", onClick }
                 onClick={onClick}
                 className="block w-full h-full"
             >
-                <div className="relative aspect-video rounded-xl overflow-hidden bg-white/5 mb-3 border border-white/10 group-hover/item:border-white/20 transition-all shadow-lg">
+                <div className="relative aspect-video rounded-xl overflow-hidden mb-3 transition-all bg-[#0a1628] border border-white/10">
                     <SmartImage
                         src={imgUrl}
                         rawSrc={getRawImageUrl(movie.thumb_url)}
@@ -50,10 +50,10 @@ function MovieRowCard({ movie, priority = false, adZone = "movie_row", onClick }
                         </div>
                     </div>
 
-                    <div className="absolute inset-x-0 bottom-[-1] h-1/2 bg-gradient-to-t from-[#0A1628] via-[#0A1628]/40 to-transparent pointer-events-none" />
+
 
                     {movie.episode_current && (
-                        <div className="absolute bottom-2 left-2 h-5 flex items-center justify-center px-1.5 bg-[#1a2035]/80 rounded border border-white/10 shadow-sm z-10">
+                        <div className="absolute bottom-2 left-2 h-5 flex items-center justify-center px-1.5 bg-black/70 rounded z-10 border border-white/5">
                             <span className="text-[9px] md:text-xs font-bold text-white tracking-tighter leading-none">
                                 {movie.episode_current}
                             </span>

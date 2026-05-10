@@ -116,9 +116,8 @@ const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServe
 
       {/* Episodes Grid with Animation */}
       <div
-        className={`overflow-hidden transition-all duration-300 ease-in-out ${
-          !isCollapsed ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
-        }`}
+        className={`overflow-hidden transition-all duration-300 ease-in-out ${!isCollapsed ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+          }`}
       >
         {/* Episode Ranges Selection */}
         {episodeRanges.length > 0 && (
@@ -128,7 +127,7 @@ const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServe
                 key={idx}
                 onClick={() => setActiveRangeIndex(idx)}
                 className={`px-4 py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all cursor-pointer border ${activeRangeIndex === idx
-                  ? 'bg-[#FFFFFF] text-[#0a1628] border-[#FFFFFF] shadow-[0_0_10px_rgba(255,255,255,0.2)]'
+                  ? 'bg-[#FFFFFF] text-[#0a1628] border-[#FFFFFF]'
                   : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white'
                   }`}
               >
@@ -156,7 +155,7 @@ const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServe
                 className={`
                   py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border
                   ${isActive
-                    ? "bg-[#F0F0F0] text-[#0a1628] border-[#F0F0F0] shadow-[0_0_10px_rgba(255,255,255,0.15)] z-10"
+                    ? "bg-[#F0F0F0] text-[#0a1628] border-[#F0F0F0] z-10"
                     : "bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
                   }
                 `}

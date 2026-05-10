@@ -84,7 +84,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
         const correctMainMovie = () => {
             const episodesList = episodes?.[0]?.server_data || [];
             const realEpisodesCount = episodesList.length;
-            
+
             // Lấy số từ episode_total (ví dụ "169" từ "Tập 169" hoặc "169")
             const totNum = parseInt(movie.episode_total?.match(/\d+/)?.[0] || "0");
 
@@ -282,10 +282,10 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
 
                     {/* DC SIDE - Movie Info Column */}
                     <div className="dc-side w-full xl:w-[440px] shrink-0">
-                        <div className="ds-info p-[20px] lg:p-[40px] lg:backdrop-blur-md rounded-3xl shadow-2xl relative transform-gpu will-change-[filter]">
+                        <div className="ds-info p-[20px] lg:p-[40px] bg-[#0d192b]/50 border border-white/5 rounded-3xl relative transform-gpu will-change-[filter]">
 
                             <div className="v-thumb-l xl:block flex justify-center mb-6">
-                                <div className="v-thumbnail relative w-[120px] h-[180px] lg:w-[160px] lg:h-[240px] rounded-2xl overflow-hidden shadow-lg ring-1 ring-white/20 transform-gpu">
+                                <div className="v-thumbnail relative w-[120px] h-[180px] lg:w-[160px] lg:h-[240px] rounded-2xl overflow-hidden transform-gpu">
                                     <SmartImage
                                         className="absolute inset-0 w-full h-full object-cover object-top"
                                         src={getImageUrl(movie.poster_url, { width: 300, quality: 80 })}
@@ -307,19 +307,19 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                             <div className="detail-more xl:block hidden space-y-5">
                                 <div className="hl-tags flex flex-wrap gap-2">
                                     {rating && (
-                                        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#f5c518]/20 backdrop-blur-md rounded-md text-[#f5c518] font-bold text-[10px] border border-[#f5c518]/30">
+                                        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#f5c518]/10 rounded-md text-[#f5c518] font-bold text-[10px]">
                                             <span className="text-[9px]">★</span>
                                             <span>{rating}</span>
                                         </div>
                                     )}
-                                    <div className="px-2 py-1 bg-white/10 backdrop-blur-md rounded-md text-white/80 text-[11px] font-medium border border-white/20">{movie.year}</div>
-                                    <div className="px-2 py-1 bg-white/10 backdrop-blur-md rounded-md text-white/80 text-[11px] font-medium border border-white/20">{getEpisodeStatus(movie)}</div>
+                                    <div className="px-2 py-1 bg-white/5 rounded-md text-white/60 text-[11px] font-medium">{movie.year}</div>
+                                    <div className="px-2 py-1 bg-white/5 rounded-md text-white/60 text-[11px] font-medium">{getEpisodeStatus(movie)}</div>
                                 </div>
 
                                 {movie.category && movie.category.length > 0 && (
                                     <div className="hl-tags flex flex-wrap gap-2">
                                         {movie.category.map((cat) => (
-                                            <a key={cat.slug} href={`/the-loai/${cat.slug}`} className="px-3 py-1 bg-white/5 backdrop-blur-sm text-white/70 border border-white/10 rounded-full text-xs font-medium hover:bg-white/10 hover:text-white transition-all">
+                                            <a key={cat.slug} href={`/the-loai/${cat.slug}`} className="px-3 py-1 bg-white/5 text-white/50 rounded-full text-xs font-medium hover:bg-white/10 hover:text-white transition-all">
                                                 {cat.name}
                                             </a>
                                         ))}
@@ -378,7 +378,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
 
                         {/* Top phim tuần này - Added as requested */}
                         {!isLoadingWeekly && weeklyMovies.length > 0 && (
-                            <div className="hidden xl:block child-box child-top mt-6 bg-[#14233e]/40 border border-white/5 rounded-3xl overflow-hidden shadow-2xl relative transform-gpu">
+                            <div className="hidden xl:block child-box child-top mt-6 bg-[#0d192b]/50 border border-white/5 rounded-3xl overflow-hidden relative transform-gpu">
                                 <div className="child-header flex items-center gap-3 px-6 py-5 border-b border-white/5 bg-white/5">
                                     <div className="inc-icon">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 25" fill="none">
@@ -410,7 +410,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                                     {index + 1}
                                                 </div>
                                                 <div className="h-item flex flex-1 gap-4 overflow-hidden">
-                                                    <TransitionLink href={`/phim/${m.slug}`} className="v-thumb-m relative w-[52px] h-[72px] shrink-0 rounded-xl overflow-hidden border border-white/10 shadow-lg bg-white/5">
+                                                    <TransitionLink href={`/phim/${m.slug}`} className="v-thumb-m relative w-[52px] h-[72px] shrink-0 rounded-xl overflow-hidden bg-white/5">
                                                         <SmartImage
                                                             src={getImageUrl(m.poster_url || m.thumb_url || "", { width: 120, quality: 70 })}
                                                             rawSrc={getRawImageUrl(m.poster_url || m.thumb_url || "")}
@@ -427,8 +427,8 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                                         </h4>
                                                         <div className="alias-title text-[11px] text-white/40 font-medium italic truncate mb-2">{decodeHtml(m.origin_name)}</div>
                                                         <div className="info-line flex gap-2">
-                                                            <div className="tag-small px-1.5 py-0.5 bg-white/10 backdrop-blur-md border border-white/20 rounded text-[9.5px] font-bold text-white/50">{m.year}</div>
-                                                            <div className="tag-small px-1.5 py-0.5 bg-amber-500/20 backdrop-blur-md border border-amber-400/30 rounded text-amber-400 text-[9.5px] font-bold tracking-tighter">
+                                                            <div className="tag-small px-1.5 py-0.5 bg-white/5 rounded text-[9.5px] font-bold text-white/30">{m.year}</div>
+                                                            <div className="tag-small px-1.5 py-0.5 bg-amber-500/10 rounded text-amber-400 text-[9.5px] font-bold tracking-tighter">
                                                                 {(() => {
                                                                     const cur = m.episode_current || "";
                                                                     const slashMatch = cur.match(/(\d+\/\d+)/);
@@ -454,7 +454,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
 
                     {/* Right Column - Tabs Content */}
                     <div className="dc-side w-full flex-1 shrink-0">
-                        <div className="ds-info p-[20px] lg:p-[40px] lg:backdrop-blur-md rounded-3xl shadow-2xl relative transform-gpu will-change-[filter]">
+                        <div className="ds-info p-[20px] lg:p-[40px] bg-[#0d192b]/50 border border-white/5 rounded-3xl relative transform-gpu will-change-[filter]">
                             {/* DM Bar: Watch Now & Rating */}
                             <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
                                 <div className="flex flex-wrap items-center gap-3">
@@ -471,13 +471,13 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                     <div className="flex items-center gap-3">
                                         <FavoriteButton
                                             movie={movie}
-                                            className="w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-white/10 text-white border border-white/10 shadow-lg"
+                                            className="cursor-pointer transition-all duration-300 flex items-center justify-center w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-white/10 text-white border border-white/10 shadow-lg"
                                             iconSize={18}
                                         />
 
                                         <WatchlistButton
                                             movie={movie}
-                                            className="w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-white/10 text-white border border-white/10 shadow-lg"
+                                            className="cursor-pointer transition-all duration-300 flex items-center justify-center w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-white/10 text-white border border-white/10 shadow-lg"
                                             iconSize={18}
                                         />
 
@@ -485,7 +485,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                             onClick={() => {
                                                 document.getElementById('comment-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                             }}
-                                            className="w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white border border-white/10 shadow-lg transition-colors cursor-pointer group"
+                                            className="w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white border border-white/10 transition-colors cursor-pointer group"
                                             title="Bình luận"
                                         >
                                             <MessageSquare size={18} className="group-hover:scale-110 transition-transform" />
@@ -514,7 +514,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                     >
                                         {tab}
                                         {activeTab === tab && (
-                                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#f5a623] rounded-full shadow-[0_0_10px_rgba(245,166,35,0.8)]" />
+                                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#f5a623] rounded-full" />
                                         )}
                                     </button>
                                 ))}
@@ -539,9 +539,8 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                         </div>
                                         {/* Animation wrapper for both ranges and grid */}
                                         <div
-                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${
-                                                !isEpisodesCollapsed ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
-                                            }`}
+                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${!isEpisodesCollapsed ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
+                                                }`}
                                         >
                                             {/* Episode Ranges Selection */}
                                             {episodeRanges.length > 0 && (
@@ -550,9 +549,9 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                                         <button
                                                             key={idx}
                                                             onClick={() => setActiveRangeIndex(idx)}
-                                                            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer border ${activeRangeIndex === idx
-                                                                ? 'bg-[#FFFFFF] text-[#0a1628] border-[#FFFFFF] shadow-[0_0_10px_rgba(255,255,255,0.2)]'
-                                                                : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white'
+                                                            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeRangeIndex === idx
+                                                                ? 'bg-[#FFFFFF] text-[#0a1628]'
+                                                                : 'bg-[#0d192b] text-gray-400 hover:bg-white/10 hover:text-white'
                                                                 }`}
                                                         >
                                                             {range.label}
@@ -562,7 +561,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                             )}
 
                                             {/* Episode Grid with Animation */}
-                                            <div 
+                                            <div
                                                 key={activeRangeIndex}
                                                 className="animate-fade-in"
                                             >
@@ -624,7 +623,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
 
                                 {/* Trailer Tab */}
                                 {activeTab === 'Trailer' && movie.trailer_url && (
-                                    <div className="relative aspect-video rounded-3xl overflow-hidden shadow-2xl ring-1 ring-white/10">
+                                    <div className="relative aspect-video rounded-3xl overflow-hidden">
                                         <iframe
                                             src={getYoutubeEmbedUrl(movie.trailer_url)}
                                             className="absolute inset-0 w-full h-full"
@@ -640,7 +639,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                         {tmdbActors.length > 0 ? (
                                             tmdbActors.map((actor) => (
                                                 <div key={actor.id} className="group w-full cursor-pointer">
-                                                    <div className="aspect-[3/4] bg-white/5 rounded-2xl mb-3 flex items-center justify-center  border border-white/5 group-hover:border-[#f5a623]/30 transition-all overflow-hidden relative shadow-lg">
+                                                    <div className="aspect-[3/4] bg-white/5 rounded-2xl mb-3 flex items-center justify-center group-hover:border-[#f5a623]/30 transition-all overflow-hidden relative">
                                                         {actor.profile_path ? (
                                                             <Image
                                                                 src={getImageUrl(`https://image.tmdb.org/t/p/w200${actor.profile_path}`, { width: 160, quality: 75 })}

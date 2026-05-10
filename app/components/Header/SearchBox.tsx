@@ -225,7 +225,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
 
             {/* Live Search Results Dropdown */}
             <div
-                className={`absolute top-full left-0 right-0 mt-2 md:mt-3 bg-[#0d1b2e] border border-white/10 rounded-xl md:rounded-2xl shadow-[0_20px_50px_rgba(0,0,0,0.5)] overflow-hidden z-[100] md:min-w-[400px] transition-all duration-200 origin-top ${
+                className={`absolute top-full left-0 right-0 mt-2 md:mt-3 bg-[#0d1b2e] border border-white/10 rounded-xl md:rounded-2xl overflow-hidden z-[100] md:min-w-[400px] transition-all duration-200 origin-top ${
                     showResults && isFocused && searchQuery.trim().length >= 2 && results.length > 0
                     ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
                     : "opacity-0 translate-y-2 scale-[0.98] pointer-events-none"

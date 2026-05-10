@@ -101,8 +101,8 @@ const SidebarSection = ({ title, apiUrl, type, limit = 10 }: SidebarSectionProps
     }, [apiUrl, title]);
 
     return (
-        <div key={isLoading ? 'loading' : 'loaded'} className="bg-[#14233e]/40 border border-white/5 rounded-2xl p-5 mb-6 shadow-xl animate-fade-in">
-            <div className="flex items-center gap-2 mb-5 pb-3 border-b border-white/5">
+        <div key={isLoading ? 'loading' : 'loaded'} className="bg-[#14233e]/40 border border-white/10 rounded-2xl p-5 mb-6 animate-fade-in">
+            <div className="flex items-center gap-2 mb-5 pb-3 border-b border-white/10">
                 <div className="w-1 h-5 bg-amber-400 rounded-full" />
                 <h3 className="text-sm font-bold uppercase tracking-wider text-white/90">{title}</h3>
             </div>
@@ -135,7 +135,7 @@ const SidebarSection = ({ title, apiUrl, type, limit = 10 }: SidebarSectionProps
                                         {index + 1}.
                                     </span>
                                 )}
-                                <div className={`relative shrink-0 overflow-hidden rounded-lg shadow-lg border border-white/10 ${type === 'rank' ? 'w-11 h-15' : 'w-12 h-16'}`}>
+                                <div className={`relative shrink-0 overflow-hidden rounded-lg ${type === 'rank' ? 'w-11 h-15' : 'w-12 h-16'}`}>
                                     <SmartImage
                                         src={getImageUrl(movie.poster_url || movie.thumb_url || "", { width: 100, quality: 60 })}
                                         rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url)}
@@ -145,7 +145,7 @@ const SidebarSection = ({ title, apiUrl, type, limit = 10 }: SidebarSectionProps
                                         priority={index < 5}
                                         className="object-cover transition-transform duration-500 group-hover:scale-110"
                                     />
-                                    <div className="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+
                                 </div>
                                 <div className="flex-grow min-w-0">
                                     <h4 className="text-[13px] font-bold text-white/90 group-hover:text-amber-400 transition-colors line-clamp-1 leading-tight mb-1">

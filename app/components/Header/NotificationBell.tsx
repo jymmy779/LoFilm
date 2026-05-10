@@ -95,14 +95,14 @@ export default function NotificationBell() {
 
                 {hasNew && (
                     <span
-                        className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-[#0d1b2e] shadow-[0_0_8px_rgba(239,68,68,0.6)] animate-pop-in"
+                        className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-[#0d1b2e] animate-pop-in"
                     />
                 )}
             </button>
 
             {/* Dropdown panel */}
             <div
-                className={`absolute right-[-10px] md:right-0 mt-3 w-[260px] xs:w-[280px] md:w-[320px] bg-[#111e31]/95 backdrop-blur-xl border border-white/10 rounded-2xl shadow-2xl overflow-hidden z-[100] transition-all duration-200 origin-top-right ${
+                className={`absolute right-[-10px] md:right-0 mt-3 w-[260px] xs:w-[280px] md:w-[320px] bg-[#111e31] border border-white/10 rounded-2xl overflow-hidden z-[100] transition-all duration-200 origin-top-right ${
                     isOpen
                     ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
                     : "opacity-0 translate-y-2 scale-[0.98] pointer-events-none"

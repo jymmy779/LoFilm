@@ -105,7 +105,7 @@ export default async function WatchPage({ params }: Props) {
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full pointer-events-none" />
 
                 <div className="max-w-md w-full text-center relative z-10">
-                    <div className="bg-[#111e35] border border-white/5 p-10 md:p-14 rounded-[40px] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.8)]">
+                    <div className="bg-[#111e35] border border-white/5 p-10 md:p-14 rounded-[40px]">
                         <div className="w-24 h-24 bg-white/5 border border-white/10 rounded-3xl flex items-center justify-center mx-auto mb-8 rotate-12 hover:rotate-0 transition-transform duration-500">
                             <AlertTriangle size={48} className="text-amber-500" />
                         </div>
@@ -121,7 +121,7 @@ export default async function WatchPage({ params }: Props) {
                         <div className="flex flex-col gap-4">
                             <a 
                                 href="" 
-                                className="w-full py-4 bg-amber-500 text-[#0a1628] font-black rounded-2xl hover:bg-amber-400 hover:scale-[1.02] active:scale-95 transition-all duration-300 shadow-lg shadow-amber-500/10 text-center"
+                                className="w-full py-4 bg-amber-500 text-[#0a1628] font-black rounded-2xl hover:bg-amber-400 active:scale-95 transition-all duration-300 text-center"
                             >
                                 THỬ TẢI LẠI TRANG
                             </a>

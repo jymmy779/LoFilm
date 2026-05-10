@@ -51,7 +51,7 @@ function MovieRow({
 
     return (
         <Container as="section" className="relative z-30 animate-fade-in">
-            <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-white/[0.03] p-4 md:p-6 lg:p-10 rounded-[2rem] border border-white/5 hover:border-white/10 transition-[border-color] duration-500 shadow-2xl">
+            <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-white/[0.03] p-4 md:p-6 lg:p-10 rounded-[2rem] border border-white/10 hover:border-white/20 transition-[border-color] duration-500">
 
                 {/* === LEFT SIDE: TITLE & LINK === */}
                 <div className="w-full xl:w-[260px] xl:flex-shrink-0 flex xl:flex-col justify-between xl:justify-center gap-4">

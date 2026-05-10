@@ -155,20 +155,20 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                     {/* Tags */}
                                     <div className="flex flex-wrap items-center justify-center min-[700px]:justify-start gap-2 h-7 overflow-hidden">
                                         {(currentMovie.tmdb?.vote_average || 0) > 0 && (
-                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-amber-500/20 text-amber-200 border border-amber-400/30 rounded shadow-lg shadow-black/10 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-colors duration-300">
+                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-amber-500/20 text-amber-200 border border-amber-400/30 rounded [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-colors duration-300">
                                                 ★ {(currentMovie.tmdb?.vote_average || 0).toFixed(1)}
                                             </span>
                                         )}
-                                        <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/20 text-white border border-white/20 rounded shadow-lg shadow-black/10 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-colors duration-300">
+                                        <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/20 text-white border border-white/10 rounded [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-colors duration-300">
                                             {currentMovie.year}
                                         </span>
                                         {currentMovie.episode_current && (
-                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/20 text-white border border-white/20 rounded shadow-lg shadow-black/10 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-colors duration-300">
+                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/20 text-white border border-white/10 rounded [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-colors duration-300">
                                                 {currentMovie.episode_current}
                                             </span>
                                         )}
                                         {currentMovie.quality && (
-                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/20 text-white border border-white/20 rounded shadow-lg shadow-black/10 [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-colors duration-300">
+                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/20 text-white border border-white/10 rounded [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-colors duration-300">
                                                 {currentMovie.quality}
                                             </span>
                                         )}

@@ -34,7 +34,7 @@ const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
   return (
     <div className="flex md:flex-row gap-6 pb-10 border-b border-b-white/10">
       <div className="v-thumb-l flex justify-center flex-shrink-0">
-        <div className="v-thumbnail relative w-[100px] h-[150px] rounded-xl overflow-hidden shadow-lg ring-1 ring-white/20 transform-gpu">
+        <div className="v-thumbnail relative w-[100px] h-[150px] rounded-xl overflow-hidden transform-gpu">
           <SmartImage
             src={getImageUrl(movie.poster_url, { width: 200, quality: 75 })}
             rawSrc={getRawImageUrl(movie.poster_url)}
@@ -61,7 +61,7 @@ const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
               <span>{rating}</span>
             </div>
             <div className="px-1.5 py-0.5 bg-white/10 rounded flex items-center justify-center text-white/70 text-[9px] font-medium  tracking-wider">{movie.quality}</div>
-            <div className="px-1.5 py-0.5 bg-amber-500/10 border flex items-center justify-center border-amber-500/20 rounded text-amber-400 text-[9px] tracking-tight font-medium ">{episode.name}</div>
+            <div className="px-1.5 py-0.5 bg-amber-500/10 flex items-center justify-center rounded text-amber-400 text-[9px] tracking-tight font-medium ">{episode.name}</div>
           </div>
         </div>
       </div>

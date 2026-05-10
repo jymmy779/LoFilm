@@ -54,7 +54,7 @@ export default function ReunificationEvent() {
     return (
         <Container as="section" className="relative z-30 animate-fade-in">
             {/* BANNER DESIGN: Warm Beige Background with Red Accents */}
-            <div className="relative w-full rounded-[2rem] md:rounded-[2.5rem] overflow-hidden bg-[#fdf8e6] border-2 md:border-4 border-[#e2dcc8] shadow-2xl p-5 md:p-10 lg:p-12">
+            <div className="relative w-full rounded-[2rem] md:rounded-[2.5rem] overflow-hidden bg-[#fdf8e6] border-2 md:border-4 border-[#e2dcc8] p-5 md:p-10 lg:p-12">
 
                 {/* Decorative Background Texture */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')" }}></div>
@@ -85,7 +85,7 @@ export default function ReunificationEvent() {
                             className="group flex flex-col items-center animate-fade-in"
                             style={{ animationDelay: `${idx * 100}ms` }}
                         >
-                            <TransitionLink href={`/phim/${movie.slug}`} className="relative w-full aspect-[2/3] rounded-2xl overflow-hidden shadow-lg border-2 border-transparent group-hover:border-red-600 transition-all duration-500 transform group-hover:shadow-[0_15px_35px_rgba(185,28,28,0.2)] bg-gray-200 block">
+                            <TransitionLink href={`/phim/${movie.slug}`} className="relative w-full aspect-[2/3] rounded-2xl overflow-hidden border border-red-500/10 transition-all duration-500 bg-gray-200 block">
                                 <SmartImage
                                     src={getImageUrl(movie.poster_url, { width: 400 })}
                                     rawSrc={getRawImageUrl(movie.poster_url)}
@@ -94,9 +94,9 @@ export default function ReunificationEvent() {
                                     sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 16vw"
                                     className="object-cover transition-transform duration-700"
                                 />
-                                <div className="absolute inset-0 bg-gradient-to-t from-red-950/90 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity"></div>
+
                                 <div className="absolute inset-0 p-4 flex flex-col justify-end translate-y-6 group-hover:translate-y-0 transition-all duration-300 opacity-0 group-hover:opacity-100">
-                                    <span className="w-full py-2.5 bg-yellow-400 text-red-900 font-medium rounded-xl text-[10px] shadow-lg border border-yellow-500 flex items-center justify-center">
+                                    <span className="w-full py-2.5 bg-yellow-400 text-red-900 font-medium rounded-xl text-[10px] border border-yellow-500 flex items-center justify-center">
                                         Xem Phim
                                     </span>
                                 </div>
@@ -115,7 +115,7 @@ export default function ReunificationEvent() {
                     </div>
                     <TransitionLink
                         href="/quoc-gia/viet-nam"
-                        className="order-1 md:order-2 group/btn relative px-8 py-3 bg-red-600 text-white font-medium text-xs tracking-widest rounded-full shadow-lg hover:bg-red-700 transition-all duration-300 transform active:scale-95 overflow-hidden"
+                        className="order-1 md:order-2 group/btn relative px-8 py-3 bg-red-600 text-white font-medium text-xs tracking-widest rounded-full hover:bg-red-700 transition-all duration-300 transform active:scale-95 overflow-hidden"
                     >
                         <span className="relative z-10 flex items-center text-nowrap gap-1">
                             Xem Thêm

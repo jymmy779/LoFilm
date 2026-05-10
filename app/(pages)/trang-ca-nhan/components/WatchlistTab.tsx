@@ -65,7 +65,7 @@ export default function WatchlistTab({ watchlist, isWatchlistLoading, onDeleteIt
                     className="object-cover object-top transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
-                    <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center text-black shadow-xl transform scale-75 group-hover:scale-100 transition-transform duration-300">
+                    <div className="w-12 h-12 rounded-full bg-amber-500 flex items-center justify-center text-black transition-all duration-300">
                       <Bookmark size={24} className="fill-current" />
                     </div>
                   </div>
@@ -104,7 +104,7 @@ export default function WatchlistTab({ watchlist, isWatchlistLoading, onDeleteIt
             </p>
             <TransitionLink
               href="/"
-              className="mt-6 md:mt-10 inline-block bg-amber-500 text-black px-6 py-3 md:px-10 md:py-4 rounded-full text-[10px] md:text-xs font-medium tracking-[0.2em] hover:scale-105 active:scale-95 transition-all shadow-xl shadow-amber-500/20 cursor-pointer text-center"
+              className="mt-6 md:mt-10 inline-block bg-amber-500 text-black px-6 py-3 md:px-10 md:py-4 rounded-full text-[10px] md:text-xs font-medium tracking-[0.2em] hover:bg-amber-400 active:scale-95 transition-all cursor-pointer text-center"
             >
               Khám phá ngay
             </TransitionLink>

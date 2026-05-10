@@ -3,7 +3,7 @@ import TransitionLink from '@/app/components/Transition/TransitionLink';
 
 export default function Footer() {
     return (
-        <footer className="relative w-full border-t border-white/5 bg-[#0F111A] overflow-hidden mt-10 pb-6 animate-fade-in">
+        <footer className="relative w-full border-t border-white/10 bg-[#0F111A] overflow-hidden pb-6 transition-all duration-300">
             <div className="absolute top-0 right-0 w-[600px] h-[600px] pointer-events-none opacity-[0.08] bg-gradient-to-bl from-orange-500/40 via-yellow-500/20 to-transparent rounded-full translate-x-1/2 -translate-y-1/2"></div>
             <div className="absolute bottom-0 left-0 w-[400px] h-[400px] pointer-events-none opacity-[0.05] bg-gradient-to-tr from-blue-500/30 to-transparent rounded-full -translate-x-1/2 translate-y-1/2"></div>
 
@@ -84,7 +84,7 @@ export default function Footer() {
                             </p>
                             <p className="flex items-center gap-2 pt-2">
                                 <span className="text-white/50">Liên hệ:</span>
-                                <a href="https://t.me/janencl" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center bg-white/5 px-2 py-1 rounded-[15px] border border-white/5 hover:border-white/20 transition-all duration-300">
+                                <a href="https://t.me/janencl" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center bg-white/5 px-2 py-1 rounded-[15px] border border-white/10 hover:border-white/20 transition-all duration-300">
                                     <span className="blur-xs group-hover:blur-[0px] transition-all duration-300 text-white/60 text-[12px] font-medium whitespace-nowrap">
                                         @janencl
                                     </span>
@@ -92,7 +92,7 @@ export default function Footer() {
                             </p>
                         </div>
 
-                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-5 border-t border-white/5">
+                        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 pt-5 border-t border-white/10">
                             <div className="text-[13px] text-white/30 font-medium">
                                 © {new Date().getFullYear()} <span className="text-white/50">LoFilm</span>. All rights reserved.
                             </div>

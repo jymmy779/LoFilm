@@ -104,7 +104,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
             </div>
 
             {/* Emotion Chart */}
-            <div className="sidebar-card relative overflow-hidden border border-white/20 bg-white/[0.06] rounded-3xl p-6 shadow-2xl shadow-black/80 flex flex-col transform-gpu">
+            <div className="sidebar-card relative overflow-hidden bg-white/[0.06] border border-white/5 rounded-3xl p-6 flex flex-col transform-gpu">
                 <div className="relative mb-6 text-center">
                     <h3 className="text-[16px] font-bold text-white tracking-[0.2em] mb-1 drop-shadow-sm font-montserrat uppercase">Biểu đồ cảm xúc</h3>
                     <p className="text-[10px] text-white/60 tracking-widest uppercase">Cảm xúc hiện tại của người xem</p>
@@ -123,7 +123,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                             </div>
                             <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden relative border border-white/5">
                                 <div
-                                    className="h-full rounded-full relative shadow-[0_0_10px_rgba(255,255,255,0.15)] transform-gpu"
+                                    className="h-full rounded-full relative transform-gpu"
                                     style={{
                                         width: `${item.percent}%`,
                                         background: `linear-gradient(90deg, ${item.color}, ${item.color}cc)`,
@@ -150,7 +150,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                                 </div>
                                 <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden relative border border-white/5">
                                     <div
-                                        className="h-full rounded-full relative shadow-[0_0_10px_rgba(255,255,255,0.15)] transform-gpu"
+                                        className="h-full rounded-full relative transform-gpu"
                                         style={{
                                             width: `${item.percent}%`,
                                             background: `linear-gradient(90deg, ${item.color}, ${item.color}cc)`,
@@ -181,7 +181,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                     {tmdbActors.length > 0 ? (
                         tmdbActors.map((actor, idx) => (
                             <div key={idx} className="flex flex-col items-center gap-2 group cursor-pointer relative">
-                                <div className="w-16 h-16 rounded-full bg-white/5 border-2 border-white/10 group-hover:border-amber-400 flex items-center justify-center overflow-hidden transition-all relative shadow-xl">
+                                <div className="w-16 h-16 rounded-full bg-white/5 border border-white/5 group-hover:border-amber-400 flex items-center justify-center overflow-hidden transition-all relative">
                                     {actor.profile_path ? (
                                         <SmartImage
                                             src={getImageUrl(`https://image.tmdb.org/t/p/w200${actor.profile_path}`, { width: 100, quality: 75 })}
@@ -229,7 +229,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                             href={`/phim/${movie.slug}`}
                             className="flex gap-4 py-3 border-b border-white/5 hover:bg-white/[0.02] -mx-4 px-4 transition-all group first:pt-0 last:border-0"
                         >
-                            <div className="w-16 h-24 shrink-0 rounded-lg overflow-hidden relative shadow-lg bg-white/5">
+                            <div className="w-16 h-24 shrink-0 rounded-lg overflow-hidden relative bg-white/5">
                                 <SmartImage
                                     src={getImageUrl(movie.poster_url || "", { width: 200, quality: 75 })}
                                     rawSrc={getRawImageUrl(movie.poster_url || "")}
@@ -244,8 +244,8 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                                 <h4 className="text-[13px] font-bold text-white line-clamp-1 group-hover:text-amber-400 transition-colors mb-0.5">{movie.title}</h4>
                                 <div className="text-[11px] text-white/40 font-medium italic line-clamp-1 mb-2">{movie.alias}</div>
                                 <div className="flex gap-2">
-                                    <span className="px-1.5 py-0.5 bg-white/10 backdrop-blur-md border border-white/20 rounded font-bold text-[9px] text-white/50">{movie.year}</span>
-                                    <span className="px-1.5 py-0.5 bg-amber-500/20 backdrop-blur-md border border-amber-400/30 rounded text-amber-400 font-bold text-[9px] tracking-tighter">
+                                    <span className="px-1.5 py-0.5 bg-white/5 rounded font-bold text-[9px] text-white/30">{movie.year}</span>
+                                    <span className="px-1.5 py-0.5 bg-amber-500/10 rounded text-amber-400 font-bold text-[9px] tracking-tighter">
                                         {movie.ep}
                                     </span>
                                 </div>

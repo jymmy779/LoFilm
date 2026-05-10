@@ -48,7 +48,7 @@ function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZon
                 onClick={handleAdClick}
                 className="block h-full"
             >
-                <div className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-white/5 border border-white/10 group-hover/item:border-white/20 transition-[border-color,box-shadow] duration-500 shadow-lg group-hover/item:shadow-[0_0_20px_rgba(255,255,255,0.05)]">
+                <div className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-[#0a1628]">
                     {/* Poster Image */}
                     <SmartImage
                         src={getImageUrl(movie.poster_url, { width: 400, quality: 80 })}
@@ -61,19 +61,17 @@ function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZon
                         className="object-cover transition-transform duration-700 ease-out group-hover/item:scale-110 transform-gpu"
                     />
 
-                    {/* Masked Gradient overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628] via-transparent to-transparent opacity-60 group-hover/item:opacity-40 transition-opacity pointer-events-none" />
-                    <div className="absolute inset-x-0 bottom-[-1px] h-1/3 bg-gradient-to-t from-[#0A1628] to-transparent pointer-events-none" />
 
-                    {/* Glassmorphism Badges */}
+
+                    {/* Solid Badges (No Glassmorphism) */}
                     <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center flex-wrap gap-1 px-2 z-10 translate-y-1 group-hover/item:translate-y-0 transition-transform duration-300">
-                        <div className="h-5 px-1.5 bg-[#1a2035]/80 rounded-md text-white text-[9px] font-bold border border-white/20 flex items-center justify-center whitespace-nowrap shadow-sm tracking-tighter leading-none">
+                        <div className="h-5 px-1.5 bg-gray-500 rounded-md text-white text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
                             {movie.quality || "HD"}
                         </div>
-                        <div className="h-5 px-1.5 bg-[#1a2a4a]/80 rounded-md text-blue-200 text-[9px] font-bold border border-blue-400/30 flex items-center justify-center whitespace-nowrap shadow-sm tracking-tighter leading-none">
+                        <div className="h-5 px-1.5 bg-green-600 rounded-md text-white text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
                             {(movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
                         </div>
-                        <div className="h-5 px-1.5 bg-[#3a2a10]/80 rounded-md text-amber-200 text-[9px] font-bold border border-amber-400/30 flex items-center justify-center whitespace-nowrap shadow-sm tracking-tighter leading-none">
+                        <div className="h-5 px-1.5 bg-amber-600 rounded-md text-white text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
                             {getEpisodeStatus(movie)}
                         </div>
                     </div>

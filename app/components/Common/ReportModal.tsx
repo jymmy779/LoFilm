@@ -104,7 +104,7 @@ export default function ReportModal({ isOpen, onClose, movieName, episodeName }:
 
       {/* Modal Content */}
       <div
-        className={`relative w-full max-w-lg bg-[#14233e] border border-white/10 rounded-3xl overflow-hidden shadow-2xl ${isClosing ? 'animate-pop-out' : 'animate-pop-in'}`}
+        className={`relative w-full max-w-lg bg-[#14233e] border border-white/10 rounded-3xl overflow-hidden ${isClosing ? 'animate-pop-out' : 'animate-pop-in'}`}
       >
         <div className="p-6 md:p-8">
           {/* Header */}
@@ -170,7 +170,7 @@ export default function ReportModal({ isOpen, onClose, movieName, episodeName }:
                 type="submit"
                 disabled={!selectedType || isSubmitting}
                 className={`w-full py-2 lg:py-4 rounded-full font-bold flex items-center justify-center gap-3 transition-all cursor-pointer ${selectedType && !isSubmitting
-                  ? "bg-red-500 hover:bg-red-600 text-white shadow-lg shadow-red-500/20"
+                  ? "bg-red-500 hover:bg-red-600 text-white"
                   : "bg-white/5 text-white/20 cursor-not-allowed"
                   }`}
               >
@@ -187,7 +187,7 @@ export default function ReportModal({ isOpen, onClose, movieName, episodeName }:
           ) : (
             <div className="py-12 flex flex-col items-center text-center animate-fade-in">
               <div
-                className="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center text-white mb-6 shadow-xl shadow-green-500/20"
+                className="w-20 h-20 rounded-full bg-green-500 flex items-center justify-center text-white mb-6"
               >
                 <CheckCircle2 size={40} />
               </div>

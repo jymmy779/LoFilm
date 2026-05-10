@@ -300,7 +300,7 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
 
                                             {/* Labels */}
                                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/item:opacity-100 transition-opacity flex items-center justify-center">
-                                                <div className="w-12 h-12 rounded-full bg-amber-400 flex items-center justify-center text-black shadow-xl transform scale-75 group-hover/item:scale-100 transition-transform">
+                                                <div className="w-12 h-12 rounded-full bg-amber-400 flex items-center justify-center text-black border border-amber-500/20 transform scale-75 group-hover/item:scale-100 transition-transform">
                                                     <Play size={24} fill="black" />
                                                 </div>
                                             </div>

@@ -128,7 +128,7 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                                     <TransitionLink
                                         href={`/phim/${movie.slug}`}
                                         onClick={handleAdClick}
-                                        className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-4 bg-white/5 border border-white/10 transition-[border-color,box-shadow] duration-500 ease-out group-hover/item:border-white/20 group-hover/item:shadow-[0_0_20px_rgba(255,255,255,0.05)] transform-gpu cursor-pointer"
+                                        className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-4 bg-[#0a1628] transition-[box-shadow] duration-500 ease-out transform-gpu cursor-pointer"
                                         style={{
                                             WebkitClipPath: isEven ? CLIP_PATH_EVEN : CLIP_PATH_ODD,
                                             clipPath: isEven ? CLIP_PATH_EVEN : CLIP_PATH_ODD
@@ -158,17 +158,17 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                                             </div>
                                         </div>
 
-                                        <div className="absolute inset-x-0 bottom-[-1px] h-1/2 bg-gradient-to-t from-[#0A1628] via-[#0A1628]/40 to-transparent pointer-events-none z-[5]" />
+
 
                                         {/* Glassmorphism Badges */}
                                         <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center flex-wrap gap-1 px-2 z-10 translate-y-1 group-hover/item:translate-y-0 transition-transform duration-300">
-                                            <div className="h-5 px-1.5 bg-[#1a2035]/80 rounded-md text-white text-[9px] font-bold border border-white/20 flex items-center justify-center whitespace-nowrap shadow-sm tracking-tighter leading-none">
+                                            <div className="h-5 px-1.5 bg-gray-500 rounded-md text-white text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
                                                 {movie.quality || "HD"}
                                             </div>
-                                            <div className="h-5 px-1.5 bg-[#1a2a4a]/80 rounded-md text-blue-200 text-[9px] font-bold border border-blue-400/30 flex items-center justify-center whitespace-nowrap shadow-sm tracking-tighter leading-none">
+                                            <div className="h-5 px-1.5 bg-green-600 rounded-md text-white text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
                                                 {(movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
                                             </div>
-                                            <div className="h-5 px-1.5 bg-[#3a2a10]/80 rounded-md text-amber-200 text-[9px] font-bold border border-amber-400/30 flex items-center justify-center whitespace-nowrap shadow-sm tracking-tighter leading-none">
+                                            <div className="h-5 px-1.5 bg-amber-600 rounded-md text-white text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
                                                 {getEpisodeStatus(movie)}
                                             </div>
                                         </div>
@@ -197,19 +197,19 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                                                 {decodeHtml(movie.origin_name)}
                                             </p>
                                             <div className="info-line flex flex-nowrap items-center gap-1.5 mt-1">
-                                                <div className="tag-small px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-bold leading-none whitespace-nowrap">
+                                                <div className="tag-small px-1.5 py-0.5 bg-[#1a2035]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-bold leading-none whitespace-nowrap">
                                                     {(() => {
                                                         const epMatch = movie.episode_current?.match(/\d+/);
                                                         return epMatch ? `T${epMatch[0]}` : (movie.quality || "HD");
                                                     })()}
                                                 </div>
-                                                <div className="tag-small px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none whitespace-nowrap">
+                                                <div className="tag-small px-1.5 py-0.5 bg-[#1a2035]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none whitespace-nowrap">
                                                     {(() => {
                                                         const phanMatch = movie.name?.match(/Phần\s+(\d+)/i) || movie.origin_name?.match(/Season\s+(\d+)/i);
                                                         return phanMatch ? `Phần ${phanMatch[1]}` : (movie.year || "2024");
                                                     })()}
                                                 </div>
-                                                <div className="tag-small px-1.5 py-0.5 bg-white/5 border border-white/10 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none whitespace-nowrap">
+                                                <div className="tag-small px-1.5 py-0.5 bg-[#1a2035]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none whitespace-nowrap">
                                                     {getEpisodeStatus(movie)}
                                                 </div>
                                             </div>

@@ -96,7 +96,7 @@ function WideMovieRow({
                     >
                         {movies.map((movie, index) => (
                             <SwiperSlide key={movie._id}>
-                                <div onClick={handleAdClick} className="block relative group cursor-pointer overflow-hidden rounded-xl md:rounded-2xl bg-slate-900/40 border border-white/5 transition-all duration-300 transform-gpu hover:border-white/10">
+                                <div onClick={handleAdClick} className="block relative group cursor-pointer overflow-hidden rounded-xl md:rounded-2xl bg-slate-900/40 transition-all duration-300 transform-gpu">
                                     <WideMovieCard movie={movie} priority={index < 2} />
                                 </div>
                             </SwiperSlide>

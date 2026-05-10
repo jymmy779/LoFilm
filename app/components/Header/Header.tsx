@@ -72,7 +72,7 @@ export default function Header() {
     const showBackground = isSolid || isScrolled || isMenuOpen;
 
     return (
-        <header className={`w-full fixed top-0 left-0 z-50 [@supports(-webkit-touch-callout:none)]:pt-[max(env(safe-area-inset-top),12px)] ${isMenuOpen ? "" : "transition-all duration-300"} border-b ${showBackground ? "bg-[#0d1b2e] border-white/10 py-3 lg:px-5 shadow-lg" : "bg-transparent border-transparent py-2 lg:px-5"}`}>
+        <header className={`w-full fixed top-0 left-0 z-50 [@supports(-webkit-touch-callout:none)]:pt-[max(env(safe-area-inset-top),12px)] ${isMenuOpen ? "" : "transition-all duration-300"} border-b ${showBackground ? "bg-[#0d1b2e] border-white/10 py-3 lg:px-5" : "bg-transparent border-transparent py-2 lg:px-5"}`}>
             <div className="flex items-center justify-between h-[54px] md:h-[64px] w-full max-w-[1900px] mx-auto px-4 lg:px-0 gap-4 md:gap-8">
                 <div className="flex xl:hidden items-center justify-between w-full h-full gap-3">
                     <div className="relative flex-1 h-full flex items-center">
@@ -228,14 +228,14 @@ export default function Header() {
                                         <TransitionLink
                                             href="/"
                                             onClick={() => { if (pathname !== "/") setIsMenuOpen(false); }}
-                                            className="text-base cursor-pointer font-medium text-white/80 py-3 border-b border-white/5 flex items-center justify-between hover:text-[#f5a623] transition-colors"
+                                            className="text-base cursor-pointer font-medium text-white/80 py-3 border-b border-white/10 flex items-center justify-between hover:text-[#f5a623] transition-colors"
                                         >
                                             Trang chủ
                                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
                                         </TransitionLink>
                                     </div>
 
-                                    <div className="border-b border-white/5">
+                                    <div className="border-b border-white/10">
                                         <button
                                             onClick={() => setExpandedSections(prev => prev.includes('categories') ? prev.filter(s => s !== 'categories') : [...prev, 'categories'])}
                                             className="w-full flex cursor-pointer items-center justify-between py-3 text-base font-medium text-white/80 hover:text-[#f5a623] transition-colors"
@@ -253,7 +253,7 @@ export default function Header() {
                                             className={`overflow-hidden transition-all duration-300 ease-out ${expandedSections.includes('categories') ? "max-height-auto opacity-100 mt-1.5 mb-1.5" : "max-h-0 opacity-0 mt-0 mb-0"}`}
                                             style={{ maxHeight: expandedSections.includes('categories') ? '500px' : '0' }}
                                         >
-                                            <div className="grid grid-cols-2 gap-x-4 gap-y-2 p-3 bg-white/5 rounded-xl border border-white/5">
+                                            <div className="grid grid-cols-2 gap-x-4 gap-y-2 p-3 bg-white/5 rounded-xl border border-white/10">
                                                 {categories.map((cat) => (
                                                     <TransitionLink
                                                         key={cat._id}
@@ -271,7 +271,7 @@ export default function Header() {
                                         </div>
                                     </div>
 
-                                    <div className="border-b border-white/5">
+                                    <div className="border-b border-white/10">
                                         <button
                                             onClick={() => setExpandedSections(prev => prev.includes('countries') ? prev.filter(s => s !== 'countries') : [...prev, 'countries'])}
                                             className="w-full flex cursor-pointer items-center justify-between py-3 text-base font-medium text-white/80 hover:text-[#f5a623] transition-colors"
@@ -289,7 +289,7 @@ export default function Header() {
                                             className={`overflow-hidden transition-all duration-300 ease-out ${expandedSections.includes('countries') ? "max-height-auto opacity-100 mt-1.5 mb-1.5" : "max-h-0 opacity-0 mt-0 mb-0"}`}
                                             style={{ maxHeight: expandedSections.includes('countries') ? '500px' : '0' }}
                                         >
-                                            <div className="grid grid-cols-3 gap-2 p-3 bg-white/5 rounded-xl border border-white/5">
+                                            <div className="grid grid-cols-3 gap-2 p-3 bg-white/5 rounded-xl border border-white/10">
                                                 {countries.map((country) => (
                                                     <TransitionLink
                                                         key={country._id}
@@ -312,14 +312,14 @@ export default function Header() {
                                             <TransitionLink
                                                 href={item.href}
                                                 onClick={() => { if (pathname !== item.href) setIsMenuOpen(false); }}
-                                                className="text-base text-white/80 py-3 border-b border-white/5 hover:text-[#f5a623] transition-colors font-medium block"
+                                                className="text-base text-white/80 py-3 border-b border-white/10 hover:text-[#f5a623] transition-colors font-medium block"
                                             >
                                                 {item.label}
                                             </TransitionLink>
                                         </div>
                                     ))}
 
-                                    <div className="pt-4 pb-2 flex justify-center border-t border-white/5 mt-4">
+                                    <div className="pt-4 pb-2 flex justify-center border-t border-white/10 mt-4">
                                         <MemberButton flatten={true} onClick={() => setIsMenuOpen(false)} />
                                     </div>
                                 </div>

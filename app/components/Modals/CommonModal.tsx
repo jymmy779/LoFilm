@@ -40,31 +40,31 @@ export default function CommonModal({
         return {
           iconBg: "bg-red-500/10",
           iconColor: "text-red-500",
-          confirmBg: "bg-red-500 hover:bg-red-600 shadow-red-500/20",
+          confirmBg: "bg-red-500 hover:bg-red-600",
         };
       case "warning":
         return {
           iconBg: "bg-amber-500/10",
           iconColor: "text-amber-500",
-          confirmBg: "bg-amber-500 hover:bg-amber-600 shadow-amber-500/20",
+          confirmBg: "bg-amber-500 hover:bg-amber-600",
         };
       case "info":
         return {
           iconBg: "bg-blue-500/10",
           iconColor: "text-blue-500",
-          confirmBg: "bg-blue-500 hover:bg-blue-600 shadow-blue-500/20",
+          confirmBg: "bg-blue-500 hover:bg-blue-600",
         };
       case "success":
         return {
           iconBg: "bg-green-500/10",
           iconColor: "text-green-500",
-          confirmBg: "bg-green-500 hover:bg-green-600 shadow-green-500/20",
+          confirmBg: "bg-green-500 hover:bg-green-600",
         };
       default:
         return {
           iconBg: "bg-red-500/10",
           iconColor: "text-red-500",
-          confirmBg: "bg-red-500 hover:bg-red-600 shadow-red-500/20",
+          confirmBg: "bg-red-500 hover:bg-red-600",
         };
     }
   };
@@ -98,7 +98,7 @@ export default function CommonModal({
         style={{ animationDuration: '0.3s' }}
       />
       <div 
-        className={`relative w-[90%] max-w-[320px] md:max-w-xs bg-[#111e31] border border-white/10 rounded-2xl p-5 md:p-6 overflow-hidden shadow-2xl ${
+        className={`relative w-[90%] max-w-[320px] md:max-w-xs bg-[#111e31] border border-white/10 rounded-2xl p-5 md:p-6 overflow-hidden ${
           isClosing ? 'animate-pop-out' : 'animate-pop-in'
         }`}
       >
@@ -122,7 +122,7 @@ export default function CommonModal({
             {onConfirm && (
               <button
                 onClick={onConfirm}
-                className={`flex-1 text-nowrap cursor-pointer px-3 md:px-4 py-2.5 md:py-3 rounded-xl ${styles.confirmBg} text-[10px] md:text-xs font-bold text-white transition-all active:scale-95 shadow-lg tracking-wider`}
+                className={`flex-1 text-nowrap cursor-pointer px-3 md:px-4 py-2.5 md:py-3 rounded-xl ${styles.confirmBg} text-[10px] md:text-xs font-bold text-white transition-all active:scale-95 tracking-wider`}
               >
                 {confirmText}
               </button>

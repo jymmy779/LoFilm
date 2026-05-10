@@ -332,7 +332,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                             </button>
 
                             <div
-                                className={`v-dropdown-menu border border-white/10 shadow-2xl transition-all duration-200 ${isMenuOpen ? 'visible opacity-100 scale-100 translate-y-0' : 'invisible opacity-0 scale-95 translate-y-2'}`}
+                                className={`v-dropdown-menu border border-white/10 transition-all duration-200 ${isMenuOpen ? 'visible opacity-100 scale-100 translate-y-0' : 'invisible opacity-0 scale-95 translate-y-2'}`}
                             >
                                 {comment.is_spoiler && (
                                     <button className="dropdown-item text-amber-500" onClick={() => { setShowSpoiler(!showSpoiler); setIsMenuOpen(false); }}>

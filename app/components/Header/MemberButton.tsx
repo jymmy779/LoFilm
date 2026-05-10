@@ -71,7 +71,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
             <TransitionLink
                 href="/dang-nhap"
                 onClick={() => { if (pathname !== "/dang-nhap") onClick?.(); }}
-                className="flex items-center cursor-pointer gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-gradient-to-r from-[#FED877] to-[#F5A623] text-[#0A1628] font-bold text-xs md:text-sm shadow-[0_4px_15px_rgba(245,166,35,0.3)] hover:shadow-[0_8px_25px_rgba(245,166,35,0.5)] hover:-translate-y-0.5 active:scale-95 transition-all duration-300 whitespace-nowrap shrink-0 overflow-hidden relative group/btn"
+                className="flex items-center cursor-pointer gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-gradient-to-r from-[#FED877] to-[#F5A623] text-[#0A1628] font-bold text-xs md:text-sm hover:-translate-y-0.5 active:scale-95 transition-all duration-300 whitespace-nowrap shrink-0 overflow-hidden relative group/btn"
             >
                 <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 skew-x-[-20deg]" />
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="14" height="14" fill="currentColor" className="relative z-10">
@@ -90,7 +90,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
         return (
             <>
                 <div className="w-full flex flex-col gap-3">
-                    <div className="flex items-center gap-3 px-1 py-1 rounded-full bg-white/5 border border-white/10 w-max mx-auto shadow-sm animate-fade-in">
+                    <div className="flex items-center gap-3 px-1 py-1 rounded-full bg-white/5 border border-white/10 w-max mx-auto animate-fade-in">
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold text-sm border border-white/20 overflow-hidden shrink-0">
                             {user?.user_metadata?.avatar_url ? (
                                 <Image
@@ -167,7 +167,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                 onClick={() => setShowMenu(!showMenu)}
                 className="flex items-center cursor-pointer gap-2 pr-1 pl-1 py-1 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 group"
             >
-                <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold text-sm shadow-lg group-hover:scale-105 transition-transform overflow-hidden border border-white/20 shrink-0">
+                <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black font-bold text-sm transition-all overflow-hidden border border-white/20 shrink-0">
                     {user?.user_metadata?.avatar_url ? (
                         <Image
                             src={user.user_metadata.avatar_url}
@@ -187,7 +187,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
 
             {/* Member Dropdown Menu */}
             <div
-                className={`absolute right-0 mt-3 w-48 bg-[#0d1b2e] border border-white/10 rounded-2xl shadow-2xl p-2 z-[100] backdrop-blur-xl overflow-hidden transition-all duration-200 origin-top-right ${
+                className={`absolute right-0 mt-3 w-48 bg-[#0d1b2e] border border-white/10 rounded-2xl p-2 z-[100] overflow-hidden transition-all duration-200 origin-top-right ${
                     showMenu
                     ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
                     : "opacity-0 translate-y-2 scale-[0.98] pointer-events-none"
