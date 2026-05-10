@@ -28,6 +28,7 @@ import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import dynamic from "next/dynamic";
 import { TMDBActor, fetchActorsFromTMDB } from "@/app/utils/tmdbUtils";
 import { globalCache } from "@/app/utils/globalCache";
+import EpisodeList from "./[episodeSlug]/EpisodeList";
 const CommentSection = dynamic(() => import("@/app/components/Comments/CommentSection"), {
     loading: () => <Skeleton className="h-40" rounded="2xl" />,
     ssr: false
@@ -42,8 +43,8 @@ interface MovieDetailClientProps {
 export default function MovieDetailClient({ movie: initialMovie, episodes, suggestedMovies }: MovieDetailClientProps) {
     const [movie, setMovie] = useState<Movie>(initialMovie);
     const [activeTab, setActiveTab] = useState('Tập phim');
-    const [isEpisodesCollapsed, setIsEpisodesCollapsed] = useState(false);
-    const [activeRangeIndex, setActiveRangeIndex] = useState(0);
+    const [activeServerIndex, setActiveServerIndex] = useState(0);
+    const [isChangingEpisode, setIsChangingEpisode] = useState(false);
     const filteredSuggestions = useMemo(() => filterDuplicateMovies(suggestedMovies), [suggestedMovies]);
     const [weeklyMovies, setWeeklyMovies] = useState<Movie[]>(() => globalCache.getRaw<Movie[]>("top_weekly_detail") || []);
     const [isLoadingWeekly, setIsLoadingWeekly] = useState(!globalCache.has("top_weekly_detail"));
@@ -170,58 +171,8 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
         return t;
     }, [movie.trailer_url, movie.actor, suggestedMovies.length]);
 
-    // Note: poster/thumb URLs are built inline via getImageUrl() where needed in JSX
-
     // Get first server episodes
     const firstServerEpisodes = episodes?.[0]?.server_data || [];
-
-    // Calculate episode ranges based on ACTUAL episode numbers
-    const episodeRanges = useMemo(() => {
-        let maxEpNum = 0;
-        firstServerEpisodes.forEach(ep => {
-            const num = parseEpNumber(ep.name);
-            if (typeof num === 'number' && num > maxEpNum) maxEpNum = num;
-        });
-
-        if (maxEpNum <= CHUNK_SIZE) return [];
-
-        const ranges = [];
-        for (let i = 1; i <= maxEpNum; i += CHUNK_SIZE) {
-            const start = i;
-            const end = i + CHUNK_SIZE - 1;
-
-            // Check if any episodes actually exist in this numeric range
-            const hasEpisodesInRange = firstServerEpisodes.some(ep => {
-                const num = parseEpNumber(ep.name);
-                return typeof num === 'number' && num >= start && num <= end;
-            });
-
-            if (hasEpisodesInRange) {
-                ranges.push({
-                    label: `Tập ${start} - ${Math.min(end, maxEpNum)}`,
-                    startValue: start,
-                    endValue: end
-                });
-            }
-        }
-        return ranges;
-    }, [firstServerEpisodes, CHUNK_SIZE]);
-
-    // Current displayed episodes based on active range selection
-    const displayedEpisodes = useMemo(() => {
-        if (episodeRanges.length === 0) return firstServerEpisodes;
-        const range = episodeRanges[activeRangeIndex];
-
-        return firstServerEpisodes.filter(ep => {
-            const num = parseEpNumber(ep.name);
-            // If it's a number, check if it's in the selected range
-            if (typeof num === 'number') {
-                return num >= range.startValue && num <= range.endValue;
-            }
-            // If it's not a number (e.g. "Full", "Special"), include it in the first range
-            return activeRangeIndex === 0;
-        });
-    }, [firstServerEpisodes, episodeRanges, activeRangeIndex]);
 
     // Status text
     // Status logic: Check both API status and common sense (episode count)
@@ -513,62 +464,15 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                             <div className="tab-content">
                                 {/* Episodes Tab */}
                                 {activeTab === 'Tập phim' && (
-                                    <>
-                                        <div className="flex justify-between items-center mb-6">
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-1.5 h-1.5 rounded-full bg-[#ffcc33] animate-pulse"></div>
-                                                <h3 className="text-xs md:text-sm font-bold text-gray-400 uppercase tracking-widest">Danh sách tập</h3>
-                                            </div>
-                                            <button
-                                                onClick={() => setIsEpisodesCollapsed(!isEpisodesCollapsed)}
-                                                className="group flex items-center gap-2 text-[10px] md:text-xs font-bold text-gray-500 hover:text-white transition-colors uppercase tracking-widest cursor-pointer"
-                                            >
-                                                <span>{isEpisodesCollapsed ? 'Mở rộng' : 'Rút gọn'}</span>
-                                                <i className={`fa-solid ${isEpisodesCollapsed ? 'fa-chevron-down group-hover:translate-y-0.5' : 'fa-chevron-up group-hover:-translate-y-0.5'} transition-transform`}></i>
-                                            </button>
-                                        </div>
-                                        {/* Animation wrapper for both ranges and grid */}
-                                        <div
-                                            className={`overflow-hidden transition-all duration-300 ease-in-out ${!isEpisodesCollapsed ? "max-h-[2000px] opacity-100" : "max-h-0 opacity-0"
-                                                }`}
-                                        >
-                                            {/* Episode Ranges Selection */}
-                                            {episodeRanges.length > 0 && (
-                                                <div className="flex flex-wrap gap-2 mb-6">
-                                                    {episodeRanges.map((range, idx) => (
-                                                        <button
-                                                            key={idx}
-                                                            onClick={() => setActiveRangeIndex(idx)}
-                                                            className={`px-4 py-2 rounded-lg text-xs font-bold transition-all cursor-pointer ${activeRangeIndex === idx
-                                                                ? 'bg-[#FFFFFF] text-[#0a1628]'
-                                                                : 'bg-[#0d192b] text-gray-400 hover:bg-white/10 hover:text-white'
-                                                                }`}
-                                                        >
-                                                            {range.label}
-                                                        </button>
-                                                    ))}
-                                                </div>
-                                            )}
-
-                                            {/* Episode Grid with Animation */}
-                                            <div
-                                                key={activeRangeIndex}
-                                                className="animate-fade-in"
-                                            >
-                                                <div className="grid grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-8 gap-3">
-                                                    {displayedEpisodes.map((ep, idx) => (
-                                                        <TransitionLink
-                                                            key={idx}
-                                                            href={`/phim/${movie.slug}/${getFriendlyEpisodeSlug(ep.slug)}`}
-                                                            className="px-1 py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
-                                                        >
-                                                            {parseEpNumber(ep.name)}
-                                                        </TransitionLink>
-                                                    ))}
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </>
+                                    <EpisodeList
+                                        slug={movie.slug}
+                                        currentEpisode=""
+                                        episodes={episodes}
+                                        activeServer={activeServerIndex}
+                                        onServerChange={setActiveServerIndex}
+                                        onEpisodeClick={() => setIsChangingEpisode(true)}
+                                        showServers={false}
+                                    />
                                 )}
 
                                 {/* Overview Tab */}

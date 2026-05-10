@@ -21,9 +21,18 @@ interface EpisodeListProps {
   activeServer?: number;
   onServerChange?: (index: number) => void;
   onEpisodeClick?: () => void;
+  showServers?: boolean;
 }
 
-const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServerChange, onEpisodeClick }: EpisodeListProps) => {
+const EpisodeList = ({
+  slug,
+  currentEpisode,
+  episodes,
+  activeServer = 0,
+  onServerChange,
+  onEpisodeClick,
+  showServers = true
+}: EpisodeListProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [activeRangeIndex, setActiveRangeIndex] = useState(0);
   const CHUNK_SIZE = 100;
@@ -82,24 +91,31 @@ const EpisodeList = ({ slug, currentEpisode, episodes, activeServer = 0, onServe
     <div className="w-full pt-10">
       {/* Header with Servers and Toggle */}
       <div className="flex items-center justify-between gap-6 mb-0 pb-4">
-        <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
-          {episodes.map((server, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                onServerChange?.(index);
-                setActiveRangeIndex(0);
-              }}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] md:text-xs tracking-wider transition-all cursor-pointer font-medium whitespace-nowrap ${activeServer === index
-                ? "bg-amber-500 text-[#0a1628]"
-                : "bg-white/5 text-gray-500 hover:text-white"
-                }`}
-            >
-              <Server size={12} />
-              {server.server_name}
-            </button>
-          ))}
-        </div>
+        {showServers ? (
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+            {episodes.map((server, index) => (
+              <button
+                key={index}
+                onClick={() => {
+                  onServerChange?.(index);
+                  setActiveRangeIndex(0);
+                }}
+                className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] md:text-xs tracking-wider transition-all cursor-pointer font-medium whitespace-nowrap ${activeServer === index
+                  ? "bg-amber-500 text-[#0a1628]"
+                  : "bg-white/5 text-gray-500 hover:text-white"
+                  }`}
+              >
+                <Server size={12} />
+                {server.server_name}
+              </button>
+            ))}
+          </div>
+        ) : (
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-1.5 h-1.5 rounded-full bg-amber-500 animate-pulse"></div>
+            <h3 className="text-xs md:text-sm font-bold text-gray-400 uppercase tracking-widest">Danh sách tập</h3>
+          </div>
+        )}
 
         <button
           onClick={() => setIsCollapsed(!isCollapsed)}

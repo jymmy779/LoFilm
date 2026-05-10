@@ -513,7 +513,14 @@ export default function WatchClient({
             });
 
             player.on('play', () => {
-                if (showEndOverlayRef.current) player.pause();
+                if (showEndOverlayRef.current) {
+                    // Prevent "AbortError: The play() request was interrupted by a call to pause()"
+                    setTimeout(() => {
+                        if (plyrRef.current && showEndOverlayRef.current) {
+                            plyrRef.current.pause();
+                        }
+                    }, 10);
+                }
             });
 
             player.on('playing', () => {
@@ -586,12 +593,18 @@ export default function WatchClient({
             player.on('seeked', () => {
                 if (player.duration > 0 && player.currentTime >= player.duration - 0.5) {
                     if (isSeries && nextEpisode && autoNextRef.current) {
-                        player.pause();
+                        setTimeout(() => {
+                            if (plyrRef.current) plyrRef.current.pause();
+                        }, 10);
                         setIsChangingEpisode(true);
                         router.push(`/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`);
                     } else if (!showEndOverlayRef.current) {
-                        player.pause();
-                        player.currentTime = player.duration - 0.1;
+                        setTimeout(() => {
+                            if (plyrRef.current) {
+                                plyrRef.current.pause();
+                                plyrRef.current.currentTime = plyrRef.current.duration - 0.1;
+                            }
+                        }, 10);
                         setShowEndOverlay(true);
                     }
                 }
@@ -602,8 +615,12 @@ export default function WatchClient({
                     setIsChangingEpisode(true);
                     router.push(`/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`);
                 } else if (!showEndOverlayRef.current) {
-                    player.pause();
-                    player.currentTime = player.duration - 0.1;
+                    setTimeout(() => {
+                        if (plyrRef.current) {
+                            plyrRef.current.pause();
+                            plyrRef.current.currentTime = plyrRef.current.duration - 0.1;
+                        }
+                    }, 10);
                     setShowEndOverlay(true);
                 }
             });
@@ -1013,6 +1030,7 @@ export default function WatchClient({
                                 <button
                                     onClick={() => {
                                         setShowEndOverlay(false);
+                                        showEndOverlayRef.current = false;
                                         if (plyrRef.current) {
                                             plyrRef.current.currentTime = 0;
                                             plyrRef.current.play();
