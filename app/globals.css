@@ -490,7 +490,10 @@ body.theater-mode footer:hover {
 .lofilm-loader-overlay,
 .reunification-loader {
   position: fixed;
-  inset: 0;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100dvh; /* Fix cho iOS Toolbar */
   z-index: 9999;
   display: flex;
   flex-direction: column;
@@ -499,6 +502,8 @@ body.theater-mode footer:hover {
   overflow: hidden;
   transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
   will-change: opacity;
+  touch-action: none; /* Chặn cuộn trên iOS */
+  overscroll-behavior: none;
 }
 
 .lofilm-loader-overlay.fade-out,

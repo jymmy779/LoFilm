@@ -59,7 +59,10 @@ export default function InitialLoader() {
         }
         .lofilm-loader-overlay {
           position: fixed;
-          inset: 0;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100dvh;
           z-index: 9999;
           display: flex;
           flex-direction: column;
@@ -69,6 +72,8 @@ export default function InitialLoader() {
           transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
           will-change: opacity;
           overflow: hidden;
+          touch-action: none;
+          overscroll-behavior: none;
         }
         .lofilm-loader-overlay.fade-out {
           opacity: 0;

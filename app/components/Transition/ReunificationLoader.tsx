@@ -76,7 +76,10 @@ export default function ReunificationLoader() {
                 }
                 .reunification-loader {
                     position: fixed;
-                    inset: 0;
+                    top: 0;
+                    left: 0;
+                    width: 100%;
+                    height: 100dvh;
                     z-index: 9999;
                     display: flex;
                     flex-direction: column;
@@ -85,6 +88,8 @@ export default function ReunificationLoader() {
                     background: #050a14;
                     transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
                     overflow: hidden;
+                    touch-action: none;
+                    overscroll-behavior: none;
                 }
                 .reunification-loader.fade-out {
                     opacity: 0;
