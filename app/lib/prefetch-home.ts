@@ -8,7 +8,7 @@ import {
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 
 const REVALIDATE_SEC = 60; // Đồng bộ 60 giây toàn hệ thống
-const QUICK_REVALIDATE_SEC = 60; 
+const QUICK_REVALIDATE_SEC = 60;
 
 async function fetchPhimJson(url: string, quick: boolean = false): Promise<unknown> {
     return await fetchWithRedis(url, { revalidate: quick ? QUICK_REVALIDATE_SEC : REVALIDATE_SEC });
@@ -101,26 +101,26 @@ const URLS = {
 } as const;
 
 const NOMINATED_SLUGS = [
+    "nu-than-chinh-nghia-nu-than-cong-ly",
     "phu-nhan-dai-quan-the-ky-21",
-    "ban-trai-theo-yeu-cau",
+    "nhat-ky-tu-do-cua-toi",
     "anh-sang-cua-doi-ta",
-    "avatar-lua-va-tro-tan",
-    "khi-anh-chay-ve-phia-em",
-    "nhap-thanh-van",
-    "hoa-mau",
+    "dia-nguc-doc-than-phan-5",
     "hanh-trinh-cua-baki-samurai-bat-bai",
     "tay-du-ky-phan-2",
-    "lien-hoa-lau",
-    "thanh-guom-diet-quy-vo-han-thanh",
-    "nhat-ky-tu-do-cua-toi",
     "gimbap-va-onigiri",
-    "doi-gio-hu-2026",
-    "nhiem-vu-bat-kha-thi-nghiep-bao-phan-2",
+    "nhap-thanh-van",
+    "khi-anh-chay-ve-phia-em",
     "na-tra-2-ma-dong-nao-hai",
     "dai-ca-di-hoc",
-    "dia-nguc-doc-than-phan-5",
-    "dau-vet-2016",
-    "yaiba-huyen-thoai-samurai"
+    "yaiba-huyen-thoai-samurai",
+    "avatar-lua-va-tro-tan",
+    "lien-hoa-lau",
+    "ban-trai-theo-yeu-cau",
+    "hoa-mau",
+    "thanh-guom-diet-quy-vo-han-thanh",
+    "doi-gio-hu-2026",
+    "nhiem-vu-bat-kha-thi-nghiep-bao-phan-2"
 ];
 
 async function mapNominated(): Promise<Movie[]> {
@@ -151,7 +151,7 @@ async function mapNominated(): Promise<Movie[]> {
  */
 async function enrichMovies(movies: Movie[]): Promise<Movie[]> {
     if (!movies.length) return [];
-    
+
     return await Promise.all(
         movies.map(async (m) => {
             try {
@@ -196,7 +196,7 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
     ]);
 
     const heroMovies = await mapHero(heroRaw);
-    
+
     // Thực hiện enrichment cho các section quan trọng nhất
     const [enrichedHero, enrichedTv, enrichedAnime] = await Promise.all([
         enrichMovies(heroMovies),
