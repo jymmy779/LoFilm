@@ -68,12 +68,12 @@ function RandomMovieRow() {
             }
 
             const finalMovies = uniqueMovies.slice(0, 24);
-            
+
             // Update cache
             cachedRandomMovies = finalMovies;
             cachedMood = MOODS.find(m => m.id === moodId) || MOODS[0];
             hasFetchedOnce = true;
-            
+
             setMovies(finalMovies);
         } catch (error) {
             console.error("Lỗi fetch movies theo mood:", error);
@@ -88,7 +88,7 @@ function RandomMovieRow() {
         if (!hasFetchedOnce || selectedMood.id !== cachedMood.id) {
             fetchMoviesByMood(selectedMood.id);
         }
-        
+
         if (moodSwiper) {
             const index = MOODS.findIndex(m => m.id === selectedMood.id);
             moodSwiper.slideTo(index);
@@ -111,7 +111,7 @@ function RandomMovieRow() {
             <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-5">
                 <div className="flex items-center gap-3">
                     <h3 className="text-lg font-bold md:text-xl tracking-widest uppercase relative italic text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-purple-100 to-white drop-shadow-sm">
-                        Tâm Trạng Của Bạn
+                        Mood này phim nấy
                         <div className="absolute -bottom-[21px] left-0 w-full h-0.5 bg-gradient-to-r from-purple-200 to-transparent opacity-70" />
                     </h3>
                 </div>

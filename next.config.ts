@@ -2,11 +2,11 @@ import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
     transpilePackages: [
-        "swiper", 
-        "lucide-react", 
-        "plyr-react", 
+        "swiper",
+        "lucide-react",
+        "plyr-react",
         "plyr",
-        "react-icons", 
+        "react-icons",
         "axios",
         "react-loading-skeleton",
         "zod",
