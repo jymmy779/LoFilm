@@ -1025,7 +1025,7 @@ export default function WatchClient({
                         <div
                             className={`absolute inset-0 z-[150] bg-black/90 flex flex-col items-center justify-center p-3 md:p-6 text-center pointer-events-auto transition-opacity duration-300 ${showEndOverlay ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                         >
-                            <div className="flex items-center justify-center gap-4 md:gap-8 pointer-events-auto scale-90 md:scale-100">
+                            <div className="flex items-center justify-center gap-4 md:gap-8 scale-90 md:scale-100">
                                 <button
                                     onClick={() => {
                                         setShowEndOverlay(false);
@@ -1080,9 +1080,8 @@ export default function WatchClient({
             </div>
 
             <div
-                className={`overflow-hidden transition-all duration-500 ease-in-out ${
-                    !isTheaterMode ? "max-h-[5000px] opacity-100 mt-8" : "max-h-0 opacity-0 mt-0"
-                }`}
+                className={`overflow-hidden transition-all duration-500 ease-in-out ${!isTheaterMode ? "max-h-[5000px] opacity-100 mt-8" : "max-h-0 opacity-0 mt-0"
+                    }`}
             >
                 <Container className="wc-main">
                     <div className="flex flex-col xl:flex-row gap-8">
