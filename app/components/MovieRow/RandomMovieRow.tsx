@@ -7,10 +7,10 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
-import Image from "next/image";
 import Container from "../Container";
+import SmartImage from "../Common/SmartImage";
 import axios from "axios";
-import { filterDuplicateMovies, getImageUrl } from "@/app/utils/movieUtils";
+import { filterDuplicateMovies, getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 
 const MOODS = [
     { id: 'hanh-dong', title: 'Combat cháy máy', sub: 'Đánh đấm mãn nhãn', bgColor: 'bg-[#818cf8]' },
@@ -224,17 +224,15 @@ function RandomMovieRow() {
                                                 className="group relative block cursor-pointer rounded-lg overflow-hidden border border-white/5 bg-white/5 active:scale-95 transition-all"
                                             >
                                                 <div className="relative aspect-[2/3]">
-                                                    <Image
+                                                    <SmartImage
                                                         src={imgUrl}
+                                                        rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url)}
                                                         alt={movie.name}
                                                         fill
                                                         priority={isPriority}
                                                         loading={isPriority ? "eager" : "lazy"}
                                                         sizes="(max-width: 640px) 120px, (max-width: 1024px) 180px, 220px"
                                                         className="object-cover transition-opacity duration-300 group-hover:opacity-60"
-                                                        onError={(e: any) => {
-                                                            e.target.src = "https://placehold.co/240x360/0a1628/white?text=No+Image";
-                                                        }}
                                                     />
 
                                                     <div className="absolute inset-x-0 bottom-0 h-1/2 flex flex-col justify-end p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">

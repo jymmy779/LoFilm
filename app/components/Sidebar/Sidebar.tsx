@@ -2,11 +2,11 @@
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import SmartImage from "../Common/SmartImage";
 import axios from "axios";
 import { Star, Eye } from "lucide-react";
 import { Movie } from "@/app/types/movie";
-import { getImageUrl } from "@/app/utils/movieUtils";
+import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import { decodeHtml } from "@/app/utils/textUtils";
 import Skeleton from "react-loading-skeleton";
 
@@ -136,8 +136,9 @@ const SidebarSection = ({ title, apiUrl, type, limit = 10 }: SidebarSectionProps
                                     </span>
                                 )}
                                 <div className={`relative shrink-0 overflow-hidden rounded-lg shadow-lg border border-white/10 ${type === 'rank' ? 'w-11 h-15' : 'w-12 h-16'}`}>
-                                    <Image
+                                    <SmartImage
                                         src={getImageUrl(movie.poster_url || movie.thumb_url || "", { width: 100, quality: 60 })}
+                                        rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url)}
                                         alt={movie.name}
                                         fill
                                         sizes="50px"

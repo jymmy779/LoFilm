@@ -1,6 +1,21 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+    transpilePackages: [
+        "swiper", 
+        "framer-motion", 
+        "lucide-react", 
+        "plyr-react", 
+        "plyr",
+        "react-icons", 
+        "axios",
+        "react-loading-skeleton",
+        "zod",
+        "@supabase/supabase-js",
+        "@supabase/ssr",
+        "hls.js",
+        "nprogress"
+    ],
     experimental: {
         scrollRestoration: true,
         optimizePackageImports: ["swiper", "lucide-react", "framer-motion"],

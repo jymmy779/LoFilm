@@ -7,8 +7,8 @@ import { Navigation } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
-import { getImageUrl } from "@/app/utils/movieUtils";
-import Image from "next/image";
+import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
+import SmartImage from "../Common/SmartImage";
 import { motion } from "framer-motion";
 import Container from "@/app/components/Container";
 import { Play } from "lucide-react";
@@ -285,8 +285,9 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                                         className="block group/item relative"
                                     >
                                         <div className="relative aspect-video rounded-xl overflow-hidden bg-white/5 mb-3 border border-white/5">
-                                            <Image
+                                            <SmartImage
                                                 src={getImageUrl(item.movie_poster, { width: 320, quality: 75 })}
+                                                rawSrc={getRawImageUrl(item.movie_poster)}
                                                 alt={item.movie_name}
                                                 fill
                                                 priority={false}
