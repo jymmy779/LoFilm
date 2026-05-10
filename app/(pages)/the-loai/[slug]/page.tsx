@@ -4,7 +4,7 @@ import CategoryClient from "./CategoryClient";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
 
-export const revalidate = 30; // Cập nhật danh sách phim mỗi 30 giây
+export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
 type Props = {
     params: Promise<{ slug: string }>;

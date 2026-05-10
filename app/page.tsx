@@ -4,7 +4,7 @@ import HomeClient from "./HomeClient";
 import SearchClient from "./SearchClient";
 import { prefetchHomePageData } from "./lib/prefetch-home";
 
-export const revalidate = 30; // Cập nhật trang chủ mỗi 30 giây
+export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<any> }): Promise<Metadata> {
     const params = await searchParams;

@@ -7,7 +7,7 @@ import { Movie } from "@/app/types/movie";
 import { FilterState } from "@/app/components/MovieFilter";
 import { MenuItem } from "@/app/components/Header/types";
 import { CatalogInitialData } from "@/app/utils/serverFetch";
-import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
+import { globalCache } from "@/app/utils/globalCache";
 
 interface UseMovieCatalogProps {
     baseApiUrl: string;
@@ -129,38 +129,42 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
             }
         };
         fetchFilters();
-    }, []); // eslint-disable-line react-hooks/exhaustive-deps
-
-    // 5. Fetch Movies and Enrich Data
+    }, []); // eslint-disable-line react-hooks/exhaust    // 5. Fetch Movies and Enrich Data
     useEffect(() => {
-        // Skip first fetch if we have valid initialData
-        if (isFirstMount.current && hasValidInitialData) {
+        // Generate a stable cache key based on the current context
+        const cacheKey = `catalog_${baseApiUrl}_${currentPage}_${JSON.stringify(activeFilters)}_${slug || ''}`;
+        
+        // Save initial server data to cache on first load if valid
+        if (isFirstMount.current && hasValidInitialData && initialData) {
+            globalCache.set(cacheKey, {
+                movies: initialData.movies,
+                totalPages: initialData.totalPages,
+                pageTitle: initialData.pageTitle
+            });
             isFirstMount.current = false;
-
-            // Still run enrichment for initial data
-            const enrichInitial = async () => {
-                const mounted = () => true; // Initial enrich is less critical on unmount but keep it safe
-                await enrichMoviesMetadata({
-                    items: initialData!.movies,
-                    setItems: setMovies,
-                    isMounted: mounted,
-                    chunkSize: 4,
-                    delay: 50
-                });
-            };
-            enrichInitial();
             return;
         }
         isFirstMount.current = false;
 
         let isMounted = true;
+        
         const fetchMovies = async () => {
-            // Use lightweight loading indicator if we already have movies on screen
-            if (movies.length > 0) {
-                setIsPageLoading(true);
+            // Check cache first for SWR
+            const cached = globalCache.getRaw<any>(cacheKey);
+            if (cached) {
+                setMovies(cached.movies);
+                setTotalPages(cached.totalPages);
+                setPageTitle(cached.pageTitle);
+                setIsLoading(false);
+                setIsPageLoading(true); // Still show a light loading for the background fetch
             } else {
-                setMovies([]); // Clear old results to avoid flickering
-                setIsLoading(true);
+                // Use lightweight loading indicator if we already have movies on screen
+                if (movies.length > 0) {
+                    setIsPageLoading(true);
+                } else {
+                    setMovies([]); // Clear old results to avoid flickering
+                    setIsLoading(true);
+                }
             }
 
             try {
@@ -179,8 +183,6 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                 };
 
                 // Priority Logic: Type > Category > Country > Year
-                // FIX: If we have a type (like Japanese Anime), we must stick to the Type endpoint
-                // and pass country as a parameter, NOT jump to the country endpoint.
                 if (type) {
                     const typeSlug = typeMap[type] || "phim-moi";
                     apiUrl = `https://phimapi.com/v1/api/danh-sach/${typeSlug}`;
@@ -205,7 +207,7 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                 params.set("page", currentPage.toString());
                 params.set("limit", itemsPerPage.toString());
 
-                // Sorting (Applied to all endpoints, though some might ignore it)
+                // Sorting
                 if (sort) {
                     const sortMap: Record<string, string> = {
                         "update": "modified.time",
@@ -219,15 +221,12 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
 
                 // 3. Special Case: Handle redirects if we are on a slug-specific page 
                 if (slug) {
-                    // Escape Category context
                     if (baseApiUrl.includes("the-loai")) {
-                        // User chose a DIFFERENT category
                         if (activeFilters.category && activeFilters.category !== slug) {
                             router.push(`/the-loai/${activeFilters.category}`);
                             if (isMounted) { setIsLoading(false); setIsPageLoading(false); }
                             return;
                         }
-                        // User chose "Tất cả" (empty string)
                         if (activeFilters.category === "") {
                             const target = activeFilters.type === "single" ? "/danh-sach/phim-le" : (activeFilters.type === "series" ? "/danh-sach/phim-bo" : "/danh-sach/phim-moi");
                             router.push(target);
@@ -236,15 +235,12 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                         }
                     }
                     
-                    // Escape Country context
                     if (baseApiUrl.includes("quoc-gia")) {
-                        // User chose a DIFFERENT country
                         if (activeFilters.country && activeFilters.country !== slug) {
                             router.push(`/quoc-gia/${activeFilters.country}`);
                             if (isMounted) { setIsLoading(false); setIsPageLoading(false); }
                             return;
                         }
-                        // User chose "Tất cả" (empty string)
                         if (activeFilters.country === "") {
                             const target = activeFilters.type === "single" ? "/danh-sach/phim-le" : (activeFilters.type === "series" ? "/danh-sach/phim-bo" : "/danh-sach/phim-moi");
                             router.push(target);
@@ -261,19 +257,12 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                 let title = "";
 
                 if (res.data?.status === "success" || res.data?.status === true) {
-                    // Support both v1 and v3 structures
                     items = res.data.data?.items || res.data.items || [];
                     totalItems = res.data.data?.params?.pagination?.totalItems || res.data.pagination?.totalItems || 0;
-                    
-                    // Robust title extraction
-                    title = res.data.data?.titlePage || 
-                            res.data.data?.seoOnpage?.title_page || 
-                            res.data.data?.seoOnpage?.title || 
-                            res.data.titlePage || 
-                            "";
+                    title = res.data.data?.titlePage || res.data.data?.seoOnpage?.title_page || res.data.data?.seoOnpage?.title || res.data.titlePage || "";
                 }
 
-                // 4. Secondary Client-side Filter (Extra stability)
+                // 4. Secondary Client-side Filter
                 if (activeFilters.type && items.length > 0) {
                     const targetType = activeFilters.type;
                     items = items.filter(movie => {
@@ -284,9 +273,19 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                 }
 
                 if (isMounted) {
+                    const calculatedTotalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+                    
                     setMovies(items);
-                    setTotalPages(Math.ceil(totalItems / itemsPerPage) || 1);
+                    setTotalPages(calculatedTotalPages);
                     setPageTitle(title);
+                    
+                    // Update cache
+                    globalCache.set(cacheKey, {
+                        movies: items,
+                        totalPages: calculatedTotalPages,
+                        pageTitle: title
+                    });
+
                     setIsLoading(false);
                     setIsPageLoading(false);
                 }

@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import AnimeClient from "./AnimeClient";
 import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
 
-export const revalidate = 30;
+export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
 export const metadata: Metadata = {
     title: "Phim Hoạt Hình Anime | LoFilm - Xem phim hoạt hình mới nhất",

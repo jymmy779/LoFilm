@@ -6,7 +6,6 @@ import nProgress from "nprogress";
 import { Movie } from "@/app/types/movie";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
-import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 
 interface SearchBoxProps {
@@ -88,15 +87,6 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                         // 2. Lưu vào cache
                         searchCache.current[normalizedCacheKey] = finalItems;
                         setActiveIndex(-1);
-
-                        // 3. Làm giàu dữ liệu (Số tập, TMDB...) cho kết quả tìm kiếm
-                        enrichMoviesMetadata({
-                            items: finalItems,
-                            setItems: setResults,
-                            isMounted: () => !controller.signal.aborted,
-                            chunkSize: 4,
-                            delay: 50
-                        });
                     }
                 } catch (error) {
                     if (axios.isCancel(error)) return;

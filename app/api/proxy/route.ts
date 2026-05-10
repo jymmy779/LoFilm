@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const revalidateParam = searchParams.get('revalidate');
-    const revalidate = revalidateParam ? parseInt(revalidateParam) : 30;
+    const revalidate = revalidateParam ? parseInt(revalidateParam) : 60;
 
     const data = await fetchWithRedis(targetUrl, { revalidate });
 

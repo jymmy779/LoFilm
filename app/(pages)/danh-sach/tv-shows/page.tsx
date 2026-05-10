@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import TVShowsClient from "./TVShowsClient";
 import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
 
-export const revalidate = 30;
+export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
 export const metadata: Metadata = {
     title: "Danh sách TV Shows mới nhất | LoFilm - Gameshow hot cập nhật 24/7",

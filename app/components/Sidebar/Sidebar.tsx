@@ -9,6 +9,7 @@ import { Movie } from "@/app/types/movie";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import { decodeHtml } from "@/app/utils/textUtils";
 import Skeleton from "../Skeleton/Skeleton";
+import { globalCache } from "@/app/utils/globalCache";
 
 // Hàm chuẩn hóa tên để tìm các phần phim giống nhau
 const normalizeMovieName = (name: string) => {
@@ -30,12 +31,21 @@ interface SidebarSectionProps {
 }
 
 const SidebarSection = ({ title, apiUrl, type, limit = 10 }: SidebarSectionProps) => {
-    const [movies, setMovies] = useState<Movie[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    // 1. Khởi tạo từ Cache nếu có (SWR)
+    const [movies, setMovies] = useState<Movie[]>(() => {
+        return globalCache.getRaw<Movie[]>(`sidebar-${apiUrl}`) || [];
+    });
+    const [isLoading, setIsLoading] = useState(!globalCache.has(`sidebar-${apiUrl}`));
 
     useEffect(() => {
         const fetchData = async () => {
             try {
+                // Nếu cache còn mới (dưới 2 phút), không cần fetch lại ngay
+                const freshData = globalCache.get<Movie[]>(`sidebar-${apiUrl}`, 2 * 60 * 1000);
+                if (freshData && movies.length > 0) {
+                    setIsLoading(false);
+                    return;
+                }
                 // 1. Determine target limit and URL logic
                 const isWeekly = title.toLowerCase().includes("tuần");
                 const isSeries = title.toLowerCase().includes("bộ");
@@ -89,6 +99,8 @@ const SidebarSection = ({ title, apiUrl, type, limit = 10 }: SidebarSectionProps
                             .slice(0, limit);
                     }
 
+                    // Lưu vào cache toàn cục
+                    globalCache.set(`sidebar-${apiUrl}`, items);
                     setMovies(items);
                 }
             } catch (err) {

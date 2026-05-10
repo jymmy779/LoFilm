@@ -7,8 +7,8 @@ import {
 
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 
-const REVALIDATE_SEC = 600; // 10 minutes for standard sections (categories, countries)
-const QUICK_REVALIDATE_SEC = 300; // 5 minutes for near real-time updates (hero, movie rows)
+const REVALIDATE_SEC = 60; // Đồng bộ 60 giây toàn hệ thống
+const QUICK_REVALIDATE_SEC = 60; 
 
 async function fetchPhimJson(url: string, quick: boolean = false): Promise<unknown> {
     return await fetchWithRedis(url, { revalidate: quick ? QUICK_REVALIDATE_SEC : REVALIDATE_SEC });

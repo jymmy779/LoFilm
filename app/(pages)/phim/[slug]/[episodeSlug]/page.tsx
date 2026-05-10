@@ -4,7 +4,7 @@ import { AlertTriangle } from "lucide-react";
 import { Metadata } from "next";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 
-export const revalidate = 30; // Cập nhật tập mới mỗi 30 giây
+export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
 const API_BASE = "https://phimapi.com";
 
@@ -210,7 +210,7 @@ export default async function WatchPage({ params }: Props) {
 
     return (
         <WatchClient 
-            key={episodeSlug}
+            key={slug}
             slug={slug} 
             episodeSlug={episodeSlug} 
             movie={{

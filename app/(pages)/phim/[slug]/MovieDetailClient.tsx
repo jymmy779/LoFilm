@@ -22,12 +22,12 @@ import {
     getYoutubeEmbedUrl
 } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
-import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
 import { fetchTotalEpisodesFromTMDB } from "@/app/utils/tmdbUtils";
 import Skeleton from "@/app/components/Skeleton/Skeleton";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import dynamic from "next/dynamic";
 import { TMDBActor, fetchActorsFromTMDB } from "@/app/utils/tmdbUtils";
+import { globalCache } from "@/app/utils/globalCache";
 const CommentSection = dynamic(() => import("@/app/components/Comments/CommentSection"), {
     loading: () => <Skeleton className="h-40" rounded="2xl" />,
     ssr: false
@@ -45,9 +45,8 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
     const [isEpisodesCollapsed, setIsEpisodesCollapsed] = useState(false);
     const [activeRangeIndex, setActiveRangeIndex] = useState(0);
     const filteredSuggestions = useMemo(() => filterDuplicateMovies(suggestedMovies), [suggestedMovies]);
-    const [enrichedSuggestions, setEnrichedSuggestions] = useState<Movie[]>(filteredSuggestions);
-    const [weeklyMovies, setWeeklyMovies] = useState<Movie[]>([]);
-    const [isLoadingWeekly, setIsLoadingWeekly] = useState(true);
+    const [weeklyMovies, setWeeklyMovies] = useState<Movie[]>(() => globalCache.getRaw<Movie[]>("top_weekly_detail") || []);
+    const [isLoadingWeekly, setIsLoadingWeekly] = useState(!globalCache.has("top_weekly_detail"));
     const [tmdbActors, setTmdbActors] = useState<TMDBActor[]>([]);
     const [isLoadingActors, setIsLoadingActors] = useState(false);
     const [isThumbLoaded, setIsThumbLoaded] = useState(false);
@@ -61,23 +60,6 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
 
     const CHUNK_SIZE = 100;
 
-    // Effect to enrich suggested movies data (episode_total)
-    useEffect(() => {
-        let isMounted = true;
-        setEnrichedSuggestions(filteredSuggestions);
-
-        if (filteredSuggestions.length === 0) return;
-
-        enrichMoviesMetadata({
-            items: filteredSuggestions,
-            setItems: (updated) => { if (isMounted) setEnrichedSuggestions(updated); },
-            isMounted: () => isMounted,
-            chunkSize: 4,
-            delay: 100
-        });
-
-        return () => { isMounted = false; };
-    }, [suggestedMovies, filteredSuggestions]);
 
     // Effect to correct the MAIN movie metadata if inaccurate
     useEffect(() => {
@@ -127,7 +109,9 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                     processed.sort((a: any, b: any) => b.rating - a.rating);
 
                     // 3. Lấy 10 phim đứng đầu cho trang chi tiết
-                    setWeeklyMovies(processed.slice(0, 10));
+                    const finalItems = processed.slice(0, 10);
+                    setWeeklyMovies(finalItems);
+                    globalCache.set("top_weekly_detail", finalItems);
                 }
             } catch (err) {
                 console.error("Error fetching top weekly (synced with sidebar):", err);
@@ -135,7 +119,13 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                 setIsLoadingWeekly(false);
             }
         };
-        fetchTopWeekly();
+
+        // Nếu đã có cache nhưng hết hạn thì vẫn fetch ngầm (SWR)
+        if (!globalCache.get("top_weekly_detail")) {
+            fetchTopWeekly();
+        } else {
+            setIsLoadingWeekly(false);
+        }
     }, []);
 
     // Effect to fetch TMDB Actors images
@@ -685,9 +675,9 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                 )}
 
                                 {/* Suggestions Tab */}
-                                {activeTab === 'Đề xuất' && enrichedSuggestions.length > 0 && (
+                                {activeTab === 'Đề xuất' && filteredSuggestions.length > 0 && (
                                     <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-4 lg:gap-6">
-                                        {enrichedSuggestions.map((m) => (
+                                        {filteredSuggestions.map((m) => (
                                             <div key={m._id} className="transform hover:scale-[1.02] transition-transform">
                                                 <MoviePosterCard movie={m} />
                                             </div>

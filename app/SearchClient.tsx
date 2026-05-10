@@ -6,8 +6,7 @@ import axios from "axios";
 import { Movie } from "@/app/types/movie";
 import { FilterState } from "@/app/components/MovieFilter";
 import { MenuItem } from "@/app/components/Header/types";
-import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
-
+import { globalCache } from "@/app/utils/globalCache";
 
 import CatalogLayout from "@/app/components/MovieCatalog/CatalogLayout";
 import { Film, AlertCircle, RotateCcw, Trash2 } from "lucide-react";
@@ -87,18 +86,29 @@ function SearchContent() {
 
     useEffect(() => {
         let isMounted = true;
+        const cacheKey = `search_${keyword}_${currentPage}_${JSON.stringify(activeFilters)}`;
+
         const fetchMovies = async () => {
             if (!keyword) {
                 setIsLoading(false);
                 return;
             }
 
-            // Use lightweight loading indicator if we already have movies on screen
-            if (movies.length > 0) {
+            // Check cache first for SWR
+            const cached = globalCache.getRaw<any>(cacheKey);
+            if (cached) {
+                setMovies(cached.movies);
+                setTotalPages(cached.totalPages);
+                setIsLoading(false);
                 setIsPageLoading(true);
             } else {
-                setMovies([]); // Xóa kết quả cũ để tránh hiện tập phim sai
-                setIsLoading(true);
+                // Use lightweight loading indicator if we already have movies on screen
+                if (movies.length > 0) {
+                    setIsPageLoading(true);
+                } else {
+                    setMovies([]); // Xóa kết quả cũ để tránh hiện tập phim sai
+                    setIsLoading(true);
+                }
             }
 
             try {
@@ -126,16 +136,23 @@ function SearchContent() {
                 if (res.data?.status === "success" || res.data?.status === true) {
                     const items = res.data.data?.items || [];
                     const totalItems = res.data.data?.params?.pagination?.totalItems || 0;
+                    const calculatedTotalPages = Math.ceil(totalItems / 48) || 1;
                     
                     if (isMounted) {
                         setMovies(items);
-                        setTotalPages(Math.ceil(totalItems / 48) || 1);
-                        setIsError(false); // Reset error on success
+                        setTotalPages(calculatedTotalPages);
+                        setIsError(false);
+                        
+                        // Update cache
+                        globalCache.set(cacheKey, {
+                            movies: items,
+                            totalPages: calculatedTotalPages
+                        });
+
                         setIsLoading(false);
                         setIsPageLoading(false);
                     }
                 } else {
-
                     if (isMounted) {
                         setMovies([]);
                         setTotalPages(1);

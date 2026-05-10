@@ -18,7 +18,6 @@ import CommentSection from "@/app/components/Comments/CommentSection";
 import ReportModal from "@/app/components/Common/ReportModal";
 import { getImageUrl, getRawImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
-import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
 import { fetchTotalEpisodesFromTMDB } from "@/app/utils/tmdbUtils";
 import { useAuth } from "@/app/components/Auth/AuthContext";
 import { toast } from "react-hot-toast";
@@ -71,7 +70,15 @@ export default function WatchClient({
     suggestedMovies: initialSuggestions
 }: WatchClientProps) {
     const [movie, setMovie] = useState<any>(initialMovie);
-    const [enrichedSuggestions, setEnrichedSuggestions] = useState<any[]>(initialSuggestions);
+    const filteredSuggestions = useMemo(() => {
+        // Lọc trùng lặp dựa trên slug
+        const seen = new Set();
+        return initialSuggestions.filter(m => {
+            if (!m.slug || seen.has(m.slug)) return false;
+            seen.add(m.slug);
+            return true;
+        });
+    }, [initialSuggestions]);
     const router = useRouter();
     const { user } = useAuth();
     const [isExpanded, setIsExpanded] = useState(false);
@@ -166,23 +173,6 @@ export default function WatchClient({
         }
     }, []);
 
-    // Effect to enrich suggested movies data
-    useEffect(() => {
-        let isMounted = true;
-        setEnrichedSuggestions(initialSuggestions);
-
-        if (initialSuggestions.length === 0) return;
-
-        enrichMoviesMetadata({
-            items: initialSuggestions,
-            setItems: (updated) => { if (isMounted) setEnrichedSuggestions(updated); },
-            isMounted: () => isMounted,
-            chunkSize: 4,
-            delay: 100
-        });
-
-        return () => { isMounted = false; };
-    }, [initialSuggestions]);
 
     // Effect to correct the MAIN movie metadata if inaccurate
     useEffect(() => {
@@ -1096,7 +1086,7 @@ export default function WatchClient({
                             </div>
                         </div>
                         <div className="w-full xl:w-100">
-                            <Sidebar movie={movie} suggestedMovies={enrichedSuggestions} />
+                            <Sidebar movie={movie} suggestedMovies={filteredSuggestions} />
                         </div>
                     </div>
                 </Container>

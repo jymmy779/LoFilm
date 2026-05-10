@@ -3,7 +3,7 @@ import { Suspense } from "react";
 import MovieListClient from "./MovieListClient";
 import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
 
-export const revalidate = 30;
+export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
 export const metadata: Metadata = {
     title: "Danh sách Phim Lẻ mới nhất | LoFilm - Kho phim lẻ Việt Nam, Quốc Tế",

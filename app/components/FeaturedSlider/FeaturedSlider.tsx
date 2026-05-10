@@ -18,7 +18,6 @@ import { filterDuplicateMovies, getImageUrl, getRawImageUrl, getEpisodeStatus } 
 import SmartImage from "@/app/components/Common/SmartImage";
 import FavoriteButton from "@/app/components/Common/FavoriteButton";
 import Container from "@/app/components/Container";
-import { enrichMoviesMetadata } from "@/app/utils/enrichmentUtils";
 
 interface FeaturedSliderProps {
     title: string;
