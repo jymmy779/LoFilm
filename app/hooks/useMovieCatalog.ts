@@ -291,9 +291,21 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
             }
         };
 
+
         fetchMovies();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        return () => { isMounted = false; };
+        
+        // Optimize scroll: small delay to let React render skeletons/content first, 
+        // avoiding layout shifts during scroll animation.
+        const scrollTimeout = setTimeout(() => {
+            requestAnimationFrame(() => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            });
+        }, 100);
+
+        return () => { 
+            isMounted = false; 
+            clearTimeout(scrollTimeout);
+        };
     }, [currentPage, activeFilters, baseApiUrl, itemsPerPage, slug, router]); // eslint-disable-line react-hooks/exhaustive-deps
 
     // 6. Client-side sorting for rating (since API doesn't support it well)

@@ -73,7 +73,7 @@ export default function CatalogLayout({
                             <div className="flex-grow w-full lg:min-w-0">
                                 <div className="relative">
                                     <div className="transition-opacity duration-300 opacity-100">
-                                        <div key={`${isLoading}-${currentPage}`} className="animate-fade-in">
+                                        <div key={`${isLoading}-${currentPage}`} className="animate-fade-in-simple">
                                             {isLoading ? (
                                                 <div
                                                     className={`grid gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 ${hideSidebar

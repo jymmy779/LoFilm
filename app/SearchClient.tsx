@@ -170,8 +170,19 @@ function SearchContent() {
         };
 
         fetchMovies();
-        window.scrollTo({ top: 0, behavior: "smooth" });
-        return () => { isMounted = false; };
+        
+        // Optimize scroll: small delay to let React render skeletons/content first, 
+        // avoiding layout shifts during scroll animation.
+        const scrollTimeout = setTimeout(() => {
+            requestAnimationFrame(() => {
+                window.scrollTo({ top: 0, behavior: "smooth" });
+            });
+        }, 100);
+
+        return () => { 
+            isMounted = false; 
+            clearTimeout(scrollTimeout);
+        };
     }, [keyword, currentPage, activeFilters]);
 
     const handleFilterChange = (filters: FilterState) => {
