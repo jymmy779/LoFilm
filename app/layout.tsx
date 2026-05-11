@@ -22,6 +22,7 @@ const montserrat = Montserrat({
 
 import { Toaster } from "react-hot-toast";
 import { Suspense } from "react";
+import { GoogleAnalytics } from '@next/third-parties/google'
 
 
 export const viewport: Viewport = {
@@ -234,6 +235,7 @@ export default function RootLayout({
           }}
         />
         <ScrollToTop />
+        <GoogleAnalytics gaId="G-FCV3H66SFX" />
       </body>
     </html>
   );
