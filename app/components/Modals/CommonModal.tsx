@@ -78,34 +78,24 @@ export default function CommonModal({
     if (isOpen) {
       setShouldRender(true);
       setIsClosing(false);
-      // Lock scroll
-      document.body.classList.add("no-scroll");
     } else if (shouldRender) {
       setIsClosing(true);
       const timer = setTimeout(() => {
         setShouldRender(false);
         setIsClosing(false);
-        // Unlock scroll
-        document.body.classList.remove("no-scroll");
       }, 250);
-      return () => {
-        clearTimeout(timer);
-      };
+      return () => clearTimeout(timer);
     }
-
-    return () => {
-      // Cleanup on unmount
-      document.body.classList.remove("no-scroll");
-    };
   }, [isOpen, shouldRender]);
 
   if (!mounted || !shouldRender) return null;
 
   return createPortal(
-    <div className={`fixed inset-0 h-[100dvh] w-full z-[1000] flex items-center justify-center px-4 ${isClosing ? 'pointer-events-none' : ''}`}>
+    <div className={`fixed inset-0 z-[1000] flex items-center justify-center px-4 ${isClosing ? 'pointer-events-none' : ''}`}>
       <div 
         onClick={onClose}
-        className={`absolute inset-0 bg-black/60 touch-none ${isClosing ? 'animate-backdrop-out' : 'animate-backdrop-in'}`}
+        className={`absolute inset-0 bg-black/60 ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+        style={{ animationDuration: '0.3s' }}
       />
       <div 
         className={`relative w-[90%] max-w-[320px] md:max-w-xs bg-[#111e31] border border-white/10 rounded-2xl p-5 md:p-6 overflow-hidden ${
