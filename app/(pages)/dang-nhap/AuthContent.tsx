@@ -115,8 +115,8 @@ export default function AuthContent() {
 
           // Đăng xuất ngay lập tức để xóa session tạm thời
           await supabase.auth.signOut();
-          
-          toast.error("Email của bạn chưa được xác thực. Chúng tôi đã gửi lại một email xác nhận mới, vui lòng kiểm tra hộp thư (cả hòm thư Rác)!", {
+
+          toast.error("Email của bạn chưa được xác thực. Chúng tôi đã gửi lại một email xác nhận mới, vui lòng kiểm tra hộp thư (cả hòm thư Spam)!", {
             duration: 6000,
             icon: '✉️'
           });

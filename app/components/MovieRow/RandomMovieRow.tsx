@@ -111,7 +111,7 @@ function RandomMovieRow() {
             <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-5">
                 <div className="flex items-center gap-3">
                     <h3 className="text-lg font-bold md:text-xl tracking-widest uppercase relative italic text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-purple-100 to-white drop-shadow-sm">
-                        Mood này phim nấy
+                        Mood nào phim nấy
                         <div className="absolute -bottom-[21px] left-0 w-full h-0.5 bg-gradient-to-r from-purple-200 to-transparent opacity-70" />
                     </h3>
                 </div>
