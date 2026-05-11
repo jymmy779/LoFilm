@@ -41,7 +41,7 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
                 {/* Bottom Info Section */}
                 <div className="px-3 md:px-4 pb-3 md:pb-4 flex gap-3 relative z-20">
                     {/* Poster overlapping the thumbnail (-mt-6 for mobile, -mt-8 for desktop which is ~20% of the poster height) */}
-                    <div className="w-16 md:w-20 shrink-0 aspect-[2/3] rounded-lg overflow-hidden border-2 border-[#1a2035] bg-[#0a1628] -mt-6 md:-mt-8 relative z-30 transition-transform duration-300 group-hover/link:-translate-y-1">
+                    <div className="hidden md:block w-20 shrink-0 aspect-[2/3] rounded-lg overflow-hidden border-2 border-[#1a2035] bg-[#0a1628] md:-mt-8 relative z-30 transition-transform duration-300 group-hover/link:-translate-y-1">
                         <SmartImage
                             src={posterUrl}
                             rawSrc={getRawImageUrl(movie.poster_url)}
@@ -54,7 +54,7 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
                     </div>
 
                     {/* Text Info */}
-                    <div className="flex-1 min-w-0 flex gap-1 flex-col pt-1.5 md:pt-3">
+                    <div className="flex-1 min-w-0 flex flex-col gap-1 pt-1.5 md:pt-3 items-center md:items-start text-center md:text-left">
                         <h4 className="text-[13px] md:text-[15px] font-bold text-white truncate group-hover/link:text-yellow-400 transition-colors drop-shadow-sm mb-0.5">
                             {decodeHtml(movie.name)}
                         </h4>
@@ -63,7 +63,7 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
                         </span>
 
                         {/* Badges: year, episode, quality */}
-                        <div className="flex flex-wrap gap-1.5 items-center">
+                        <div className="hidden md:flex flex-wrap gap-1.5 items-center">
                             <div className="tag-small px-1.5 py-0.5 bg-[#1a2035]/80 rounded text-[9px] md:text-[10px] text-white/50 font-medium leading-none flex items-center justify-center">
                                 {movie.year || "2024"}
                             </div>

@@ -233,12 +233,14 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                     </div>
 
                     <div className="flex xl:flex-col gap-3">
-                        <TransitionLink
-                            href="/trang-ca-nhan?tab=history"
-                            className="text-amber-400/80 font-medium hover:text-amber-400 transition-colors flex items-center gap-2 text-[10px] md:text-sm tracking-widest w-max"
-                        >
-                            Tất cả lịch sử
-                        </TransitionLink>
+                        {user && (
+                            <TransitionLink
+                                href="/trang-ca-nhan?tab=history"
+                                className="text-amber-400/80 font-medium hover:text-amber-400 transition-colors flex items-center gap-2 text-[10px] md:text-sm tracking-widest w-max"
+                            >
+                                Tất cả lịch sử
+                            </TransitionLink>
+                        )}
 
                         {history.length > 0 && (
                             <button
