@@ -32,14 +32,22 @@ export default function ReportModal({ isOpen, onClose, movieName, episodeName }:
     if (isOpen) {
       setShouldRender(true);
       setIsClosing(false);
+      document.body.classList.add("no-scroll");
     } else if (shouldRender) {
       setIsClosing(true);
       const timer = setTimeout(() => {
         setShouldRender(false);
         setIsClosing(false);
+        document.body.classList.remove("no-scroll");
       }, 250);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+      };
     }
+
+    return () => {
+      document.body.classList.remove("no-scroll");
+    };
   }, [isOpen, shouldRender]);
 
   if (!shouldRender) return null;
@@ -95,11 +103,11 @@ export default function ReportModal({ isOpen, onClose, movieName, episodeName }:
   };
 
   return (
-    <div className={`fixed inset-0 z-[1000] flex items-center justify-center p-4 ${isClosing ? 'pointer-events-none' : ''}`}>
+    <div className={`fixed inset-0 h-[100dvh] w-full z-[1000] flex items-center justify-center p-4 ${isClosing ? 'pointer-events-none' : ''}`}>
       {/* Backdrop */}
       <div
         onClick={onClose}
-        className={`absolute inset-0 bg-black/80 ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+        className={`absolute inset-0 bg-black/80 touch-none ${isClosing ? 'animate-backdrop-out' : 'animate-backdrop-in'}`}
       />
 
       {/* Modal Content */}

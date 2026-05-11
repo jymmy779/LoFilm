@@ -56,6 +56,15 @@ export default function Header() {
         };
     }, []);
 
+    useEffect(() => {
+        if (isMenuOpen || isSearchActive) {
+            document.body.classList.add("no-scroll");
+        } else {
+            document.body.classList.remove("no-scroll");
+        }
+        return () => document.body.classList.remove("no-scroll");
+    }, [isMenuOpen, isSearchActive]);
+
     const dropdownProps = { activeMenu, setActiveMenu, closeTimeout };
 
     const navLinks = [
@@ -210,7 +219,7 @@ export default function Header() {
 
             {/* Mobile Menu Drawer */}
             <div 
-                className={`xl:hidden fixed inset-0 z-[80] bg-black/60 transition-opacity duration-300 ${isMenuOpen ? "opacity-100 pointer-events-auto" : "opacity-0 pointer-events-none"}`}
+                className={`xl:hidden fixed inset-0 h-[100dvh] z-[80] bg-black/60 touch-none ${isMenuOpen ? "animate-backdrop-in pointer-events-auto" : "animate-backdrop-out pointer-events-none"}`}
                 onClick={() => setIsMenuOpen(false)}
             />
 

@@ -30,13 +30,21 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
     if (isOpen) {
       setShouldRender(true);
       setIsClosing(false);
+      document.body.classList.add("no-scroll");
     } else {
       setIsClosing(true);
       const timer = setTimeout(() => {
         setShouldRender(false);
+        document.body.classList.remove("no-scroll");
       }, 250); // Khớp với time của animation
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+      };
     }
+
+    return () => {
+      document.body.classList.remove("no-scroll");
+    };
   }, [isOpen]);
 
   if (!shouldRender) return null;
@@ -48,11 +56,11 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
   return (
     <div
-      className={`fixed inset-0 z-[9999] flex items-center justify-center p-6 ${isClosing ? "pointer-events-none" : ""}`}
+      className={`fixed inset-0 h-[100dvh] w-full z-[9999] flex items-center justify-center p-6 ${isClosing ? "pointer-events-none" : ""}`}
       onClick={handleClose}
     >
       <div 
-        className={`absolute inset-0 bg-black/80 ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+        className={`absolute inset-0 bg-black/80 touch-none ${isClosing ? 'animate-backdrop-out' : 'animate-backdrop-in'}`}
       />
       <div
         className={`relative bg-[#1a1c1e] border border-white/10 rounded-2xl p-8 w-full max-max-w-[400px] text-center ${
