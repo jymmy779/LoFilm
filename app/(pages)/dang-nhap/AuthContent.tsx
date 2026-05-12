@@ -190,7 +190,7 @@ export default function AuthContent() {
           throw error;
         }
 
-        toast.success("Đăng ký thành công! Vui lòng kiểm tra email để xác thực tài khoản.");
+        toast.success("Đăng ký thành công! Vui lòng kiểm tra email (cả hòm thư Spam) để xác thực tài khoản.");
         setIsLogin(true);
       }
     } catch (error: any) {
