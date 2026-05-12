@@ -21,6 +21,7 @@ import RandomMovieRowSkeleton from "./components/MovieRow/RandomMovieRowSkeleton
 import WideMovieRowSkeleton from "./components/MovieRow/WideMovieRowSkeleton";
 import ReunificationEvent from "./components/ReunificationEvent";
 import ReunificationEventSkeleton from "./components/SpecialSections/ReunificationEventSkeleton";
+import SocialStatsSection from "./components/SocialStats/SocialStatsSection";
 
 export default function HomeClient({ prefetched }: { prefetched: HomePrefetch }) {
     const today = new Date();
@@ -72,7 +73,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                         viewAllLink="/quoc-gia/han-quoc"
                         initialMovies={prefetched.movieRowHan}
                         sortByYear={true}
-                        revalidate={30}
+                        revalidate={120}
                     />
                 </LazyRow>
 
@@ -83,7 +84,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                         viewAllLink="/quoc-gia/trung-quoc"
                         initialMovies={prefetched.movieRowTrung}
                         sortByYear={true}
-                        revalidate={30}
+                        revalidate={120}
                     />
                 </LazyRow>
 
@@ -94,7 +95,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                         viewAllLink="/quoc-gia/au-my"
                         initialMovies={prefetched.movieRowAuMy}
                         sortByYear={true}
-                        revalidate={30}
+                        revalidate={120}
                     />
                 </LazyRow>
 
@@ -115,7 +116,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                         viewAllLink="/danh-sach/phim-chieu-rap"
                         initialMovies={prefetched.posterChieuRap}
                         sortByYear={true}
-                        revalidate={30}
+                        revalidate={120}
                     />
                 </LazyRow>
 
@@ -126,7 +127,7 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                         viewAllLink="/danh-sach/phim-bo"
                         initialMovies={prefetched.posterPhimBo}
                         sortByYear={true}
-                        revalidate={30}
+                        revalidate={120}
                     />
                 </LazyRow>
 
@@ -156,6 +157,8 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                         initialMovies={prefetched.nominated}
                     />
                 </LazyRow>
+
+                {/* <SocialStatsSection /> */}
 
                 <LazyRow id="slider-anime" estimatedHeight="650px" skeleton={<FeaturedSliderSkeleton />}>
                     <FeaturedSlider

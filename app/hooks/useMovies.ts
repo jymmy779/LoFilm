@@ -18,7 +18,8 @@ interface UseMoviesOptions {
  * Global cache to store movies across component mounts.
  * Key: apiUrl, Value: Movie[]
  */
-const movieCache: Record<string, Movie[]> = {};
+const movieCache: Record<string, { data: Movie[], timestamp: number }> = {};
+const STALE_TIME = 5 * 60 * 1000; // 5 phút
 
 export function useMovies({
     apiUrl,
@@ -29,7 +30,8 @@ export function useMovies({
     revalidate
 }: UseMoviesOptions) {
     // Check if we have cached movies for this URL
-    const cachedMovies = movieCache[apiUrl] || [];
+    const cacheEntry = movieCache[apiUrl];
+    const cachedMovies = cacheEntry?.data || [];
     const hasInitial = initialMovies.length > 0;
     const hasCache = cachedMovies.length > 0;
     
@@ -62,12 +64,25 @@ export function useMovies({
         if (!isMounted.current) return;
         
         const processed = processMovies(newMovies);
-        movieCache[apiUrl] = processed;
+        movieCache[apiUrl] = { 
+            data: processed, 
+            timestamp: Date.now() 
+        };
         setMovies(processed);
     }, [processMovies, apiUrl]);
 
     const fetchMovies = useCallback(async (retryCount = 0, backgroundFetch = false) => {
         if (!isMounted.current) return;
+        
+        // Kiểm tra xem có cần fetch thực sự không (nếu là background fetch)
+        if (backgroundFetch && movieCache[apiUrl]) {
+            const now = Date.now();
+            const lastFetched = movieCache[apiUrl].timestamp;
+            if (now - lastFetched < STALE_TIME) {
+                // Dữ liệu vẫn còn mới, không cần gọi server nữa
+                return;
+            }
+        }
         
         try {
             if (!backgroundFetch) {
@@ -110,25 +125,22 @@ export function useMovies({
     useEffect(() => {
         isMounted.current = true;
         
-        // 1. Cập nhật cache từ Server Props nếu có
-        if (hasInitial) {
-            movieCache[apiUrl] = processMovies(initialMovies);
+        // 1. Cập nhật cache từ Server Props nếu có nhưng CHƯA có trong cache trình duyệt
+        if (hasInitial && !movieCache[apiUrl]) {
+            movieCache[apiUrl] = {
+                data: processMovies(initialMovies),
+                timestamp: Date.now() // Đánh dấu thời điểm Server nạp xuống là "vừa mới"
+            };
         }
 
-        // 2. Nếu đã có dữ liệu (từ cache hoặc server), chúng ta vẫn fetch ngầm để cập nhật tập mới/phim mới
-        // nhưng KHÔNG set isLoading = true để tránh hiện skeleton.
-        if (seeded) {
-            // Fetch ngầm để cập nhật dữ liệu mới nhất từ API
-            void fetchMovies(0, true); // Thêm flag backgroundFetch
-        } else {
-            // Nếu chưa có gì cả, bắt buộc phải fetch và hiện loading
-            void fetchMovies();
-        }
+        // 2. Chỉ fetch nếu dữ liệu chưa có HOẶC đã quá cũ (STALE_TIME)
+        // fetchMovies đã có logic kiểm tra timestamp bên trong
+        void fetchMovies(0, seeded);
 
         return () => {
             isMounted.current = false;
         };
-    }, [apiUrl, seeded, sortByYear]);
+    }, [apiUrl, seeded, sortByYear, fetchMovies, hasInitial, initialMovies, processMovies]);
 
     return { movies, isLoading, error, refetch: fetchMovies };
 }

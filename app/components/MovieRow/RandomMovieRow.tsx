@@ -29,6 +29,8 @@ import RandomMovieRowSkeleton from "./RandomMovieRowSkeleton";
 let cachedRandomMovies: any[] = [];
 let cachedMood: any = MOODS[0];
 let hasFetchedOnce = false;
+let lastFetchedTime = 0;
+const RANDOM_STALE_TIME = 60 * 60 * 1000; // 1 tiếng
 
 function RandomMovieRow() {
     const [selectedMood, setSelectedMood] = useState(cachedMood);
@@ -36,19 +38,22 @@ function RandomMovieRow() {
     const [isLoading, setIsLoading] = useState(!hasFetchedOnce);
     const [moodSwiper, setMoodSwiper] = useState<any>(null);
 
-    const fetchMoviesByMood = async (moodId: string) => {
+    const fetchMoviesByMood = async (moodId: string, force = false) => {
+        // Kiểm tra cache nếu không phải lệnh force refresh
+        const now = Date.now();
+        if (!force && hasFetchedOnce && selectedMood.id === cachedMood.id && (now - lastFetchedTime < RANDOM_STALE_TIME)) {
+            return;
+        }
+
         setIsLoading(true);
         try {
-            const p1 = Math.floor(Math.random() * 10) + 1;
-            const p2 = Math.floor(Math.random() * 10) + 1;
-            const p3 = Math.floor(Math.random() * 10) + 1;
-            const p4 = Math.floor(Math.random() * 10) + 1;
+            // Lấy 2 trang đầu cố định để tận dụng CACHE tuyệt đối (thay vì random page)
+            const p1 = 1;
+            const p2 = 2;
 
             const urls = [
-                `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p1}`)}&revalidate=30`,
-                `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p2}`)}&revalidate=30`,
-                `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p3}`)}&revalidate=30`,
-                `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p4}`)}&revalidate=30`
+                `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p1}`)}&revalidate=3600`,
+                `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p2}`)}&revalidate=3600`
             ];
 
             const pageResponses = await Promise.allSettled(urls.map(url => axios.get(url)));
@@ -57,35 +62,39 @@ function RandomMovieRow() {
                 .flatMap(res => res.value.data?.data?.items || []);
 
             if (allMovies.length === 0) {
-                setMovies([]);
+                if (movies.length === 0) setMovies([]);
                 return;
             }
 
             const uniqueMovies = filterDuplicateMovies(allMovies);
+            
+            // Xáo trộn ngẫu nhiên
             for (let i = uniqueMovies.length - 1; i > 0; i--) {
                 const j = Math.floor(Math.random() * (i + 1));
                 [uniqueMovies[i], uniqueMovies[j]] = [uniqueMovies[j], uniqueMovies[i]];
             }
 
-            const finalMovies = uniqueMovies.slice(0, 24);
+            // Lấy 32 phim cho phong phú
+            const finalMovies = uniqueMovies.slice(0, 32);
 
-            // Update cache
+            // Cập nhật cache toàn cục
             cachedRandomMovies = finalMovies;
             cachedMood = MOODS.find(m => m.id === moodId) || MOODS[0];
             hasFetchedOnce = true;
+            lastFetchedTime = Date.now();
 
             setMovies(finalMovies);
         } catch (error) {
             console.error("Lỗi fetch movies theo mood:", error);
-            setMovies([]);
+            if (movies.length === 0) setMovies([]);
         } finally {
             setIsLoading(false);
         }
     };
 
     useEffect(() => {
-        // Only fetch if we haven't fetched yet OR if the mood changed manually
-        if (!hasFetchedOnce || selectedMood.id !== cachedMood.id) {
+        const shouldFetch = !hasFetchedOnce || selectedMood.id !== cachedMood.id;
+        if (shouldFetch) {
             fetchMoviesByMood(selectedMood.id);
         }
 
