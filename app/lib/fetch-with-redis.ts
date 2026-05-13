@@ -7,10 +7,11 @@ const DEFAULT_REVALIDATE_SEC = 60; // Cache 60 giây theo ý bạn
 let redis: Redis | null = null;
 
 try {
+    console.log('[Redis Init] REDIS_URL is:', process.env.REDIS_URL ? 'FOUND' : 'NOT FOUND');
     if (process.env.REDIS_URL) {
         redis = new Redis(process.env.REDIS_URL, {
             maxRetriesPerRequest: 1,
-            connectTimeout: 2000, // Timeout kết nối 2s để không làm chậm app
+            connectTimeout: 2000,
         });
         redis.on('error', (err) => console.error('[Redis Error]', err.message));
     }
