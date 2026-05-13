@@ -404,9 +404,9 @@ export default function WatchClient({
             tooltips: { controls: false, seek: true },
             seekTime: 10,
             loop: { active: false },
-            // NEW: Giảm độ nhạy trên mobile bằng cách tắt clickToPlay mặc định của Plyr
-            // để người dùng phải tap chủ động hơn thay vì vẹt tay trúng bất cứ đâu
-            clickToPlay: typeof window !== 'undefined' ? window.innerWidth > 768 : true,
+            // NEW: Tắt clickToPlay trên thiết bị cảm ứng để tránh xung đột với logic touch tùy chỉnh
+            // Chúng ta chỉ bật clickToPlay cho thiết bị dùng chuột (Desktop)
+            clickToPlay: typeof window !== 'undefined' ? !window.matchMedia('(pointer: coarse)').matches : true,
             hideControls: true,
         };
 
@@ -459,8 +459,15 @@ export default function WatchClient({
                         if (window.innerWidth < 1024) {
                             const target = e.target as HTMLElement;
 
-                            // Nếu đang hiện danh sách tập, không can thiệp để cho phép cuộn và click tập phim
-                            if (showEpisodeOverlayRef.current || target.closest('[id="episode-list-container"]') || target.closest('.z-\\[210\\]')) {
+                            // Nếu đang hiện danh sách tập, hoặc chạm vào các overlay chức năng, không can thiệp để cho phép tương tác bình thường
+                            if (
+                                showEpisodeOverlayRef.current || 
+                                target.closest('[id="episode-list-container"]') || 
+                                target.closest('.z-\\[210\\]') || 
+                                target.closest('.z-\\[150\\]') || 
+                                target.closest('.z-\\[200\\]') || 
+                                target.closest('.watch-top-overlay')
+                            ) {
                                 return;
                             }
 
@@ -474,8 +481,11 @@ export default function WatchClient({
                                 return;
                             }
 
-                            // 2. Kiểm tra nếu chạm vào vùng video (không phải các nút điều khiển hoặc nút Play to ở giữa)
-                            const isControl = target.closest('.plyr__controls') || target.closest('.plyr__control--overlaid') || target.closest('.plyr__control');
+                            // 2. Kiểm tra nếu chạm vào vùng video (không phải các nút điều khiển mặc định của Plyr hoặc nút tùy chỉnh của mình)
+                            const isControl = target.closest('.plyr__controls') || 
+                                            target.closest('.plyr__control--overlaid') || 
+                                            target.closest('.plyr__control') || 
+                                            target.closest('.watch-top-overlay');
 
                             if (!isControl) {
                                 // Nếu controls đang hiện, thì toggle play
@@ -895,7 +905,7 @@ export default function WatchClient({
 
                     {/* Movie Info Overlay (Top Left) - Rendered into Plyr Container for Fullscreen Support */}
                     {plyrContainer && createPortal(
-                        <div className={`watch-top-overlay absolute top-2 left-2 md:top-6 md:left-6 z-[60] pointer-events-none max-w-[55%]  lg:max-w-[70%] transition-all duration-500 ${!showEndOverlay ? 'opacity-100' : 'opacity-0'}`}>
+                        <div className={`watch-top-overlay absolute top-2 left-2 md:top-6 md:left-6 z-[110] pointer-events-none max-w-[55%]  lg:max-w-[70%] transition-all duration-500 ${!showEndOverlay ? 'opacity-100' : 'opacity-0'}`}>
                             <div className="flex flex-col gap-1">
                                 <h1 className="text-white text-[13px] md:text-[20px] font-bold [text-shadow:2px_2px_4px_rgba(0,0,0,0.9)] leading-tight line-clamp-1">
                                     {movie.name}
@@ -913,8 +923,11 @@ export default function WatchClient({
                     {/* Episode List Trigger Button (Top Right) */}
                     {plyrContainer && createPortal(
                         <button
-                            onClick={() => setShowEpisodeOverlay(true)}
-                            className={`watch-top-overlay absolute top-3 right-3 md:top-8 md:right-8 z-[60] flex items-center gap-2 md:gap-2.5 bg-black/60 hover:bg-amber-500/20 border border-white/10 hover:border-amber-500/50 py-1.5 md:py-2.5 px-3 md:px-5 rounded-full transition-all duration-300 cursor-pointer group shadow-lg ${!showEpisodeOverlay ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                            onClick={(e) => {
+                                e.stopPropagation();
+                                setShowEpisodeOverlay(true);
+                            }}
+                            className={`watch-top-overlay absolute top-3 right-3 md:top-8 md:right-8 z-[110] flex items-center gap-2 md:gap-2.5 bg-black/60 hover:bg-amber-500/20 border border-white/10 hover:border-amber-500/50 py-1.5 md:py-2.5 px-3 md:px-5 rounded-full transition-all duration-300 cursor-pointer group shadow-lg ${!showEpisodeOverlay ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                         >
                             <List size={14} className="md:w-5 md:h-5 text-white group-hover:text-amber-400 transition-colors" />
                             <span className="text-white text-[10px] md:text-[14px] font-bold tracking-wide group-hover:text-amber-500 transition-colors">Danh sách tập</span>
