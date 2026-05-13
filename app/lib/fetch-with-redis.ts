@@ -22,8 +22,10 @@ try {
  * fetchWithRedis: Sử dụng Redis RAM Cache để tăng tốc tối đa.
  * Nếu Redis lỗi, sẽ tự động dùng fetch thông thường (Fallback).
  */
-export const fetchWithRedis = cache(async (url: string, options?: RequestInit & { revalidate?: number }): Promise<any> => {
-    const revalidate = options?.revalidate ?? options?.next?.revalidate ?? DEFAULT_REVALIDATE_SEC;
+export const fetchWithRedis = cache(async (url: string, options?: RequestInit & { revalidate?: number | false }): Promise<any> => {
+    const rawRevalidate = options?.revalidate ?? options?.next?.revalidate ?? DEFAULT_REVALIDATE_SEC;
+    // Đảm bảo revalidate luôn là số giây (nếu là false thì dùng mặc định)
+    const revalidate = typeof rawRevalidate === 'number' ? rawRevalidate : DEFAULT_REVALIDATE_SEC;
     const cacheKey = `fetch:${url}`;
 
     // 1. Thử lấy từ Redis trước
