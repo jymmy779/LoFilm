@@ -5,7 +5,7 @@ import {
     sortAndSlicePosterRowMovies,
 } from "@/app/utils/movieUtils";
 
-import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
+import { fetchWithRedis, redis } from "@/app/lib/fetch-with-redis";
 
 const REVALIDATE_SEC = 60; // Đồng bộ 60 giây toàn hệ thống
 const QUICK_REVALIDATE_SEC = 60;
@@ -175,6 +175,20 @@ async function enrichMovies(movies: Movie[]): Promise<Movie[]> {
 }
 
 export async function prefetchHomePageData(): Promise<HomePrefetch> {
+    const BUNDLE_KEY = "home:prefetch:bundle";
+    
+    // 1. Thử lấy từ cache bundle trước để tốc độ đạt tối đa
+    if (redis) {
+        try {
+            const cached = await redis.get(BUNDLE_KEY);
+            if (cached) {
+                return JSON.parse(cached);
+            }
+        } catch (err) {
+            console.error("[Redis Bundle Error]", err);
+        }
+    }
+
     const [
         heroRaw,
         catRaw,
@@ -204,7 +218,7 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
         enrichMovies(featuredAnimeMovies)
     ]);
 
-    return {
+    const result: HomePrefetch = {
         hero: enrichedHero,
         categories: parseCategories(catRaw),
         movieRowHan: mapMovieRow(parseV1Items(hanRaw)),
@@ -222,4 +236,15 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
         posterHoatHinh: [],
         phimNgan: [],
     };
+
+    // 2. Lưu vào cache bundle cho lần sau (60 giây)
+    if (redis && result) {
+        try {
+            await redis.setex(BUNDLE_KEY, 60, JSON.stringify(result));
+        } catch (err) {
+            console.error("[Redis Bundle Set Error]", err);
+        }
+    }
+
+    return result;
 }

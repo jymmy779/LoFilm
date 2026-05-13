@@ -4,7 +4,7 @@ import Redis from 'ioredis';
 const DEFAULT_REVALIDATE_SEC = 60; // Cache 60 giây theo ý bạn
 
 // Khởi tạo Redis client (Singleton)
-let redis: Redis | null = null;
+export let redis: Redis | null = null;
 
 try {
     console.log('[Redis Init] REDIS_URL is:', process.env.REDIS_URL ? 'FOUND' : 'NOT FOUND');

@@ -41,13 +41,13 @@ export default async function Home({
     return <SearchClient />;
   }
 
-  const [homePrefetch, supabase] = await Promise.all([
+  const supabase = await createClient();
+  const [homePrefetch, { data: { session } }] = await Promise.all([
       prefetchHomePageData(),
-      createClient()
+      supabase.auth.getSession()
   ]);
 
-  // Thử lấy lịch sử xem ngay từ server nạp xuống
-  const { data: { session } } = await supabase.auth.getSession();
+  // Nếu có session, nạp lịch sử xem phim
   if (session?.user) {
       const { data: history } = await supabase
           .from('watch_history')
@@ -57,7 +57,6 @@ export default async function Home({
           .limit(20);
       
       if (history) {
-          // Chỉ hiện những phim chưa xem hết (dưới 90%)
           homePrefetch.initialHistory = history.filter(item => {
               if (!item.duration) return true;
               return (item.watched_seconds / item.duration) < 0.9;
