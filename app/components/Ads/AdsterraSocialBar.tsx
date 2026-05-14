@@ -7,15 +7,15 @@ export default function AdsterraSocialBar() {
   const [shouldLoadAd, setShouldLoadAd] = useState(false);
 
   useEffect(() => {
-    // Thời gian chờ: 4 tiếng (tính bằng milliseconds)
-    const COOLDOWN_TIME = 4 * 60 * 60 * 1000;
+    // Thời gian chờ: 2 tiếng (tối ưu doanh thu cho traffic 1k)
+    const COOLDOWN_TIME = 2 * 60 * 60 * 1000;
     
     try {
       const lastShown = localStorage.getItem("adsterra_socialbar_last_shown");
       const now = Date.now();
 
       if (!lastShown || now - parseInt(lastShown, 10) > COOLDOWN_TIME) {
-        // Đã qua 4 tiếng hoặc chưa từng hiện -> Cho phép nạp mã quảng cáo
+        // Đã qua 2 tiếng hoặc chưa từng hiện -> Cho phép nạp mã quảng cáo
         setShouldLoadAd(true);
         // Lưu lại thời điểm nạp mã hiện tại
         localStorage.setItem("adsterra_socialbar_last_shown", now.toString());
@@ -26,7 +26,7 @@ export default function AdsterraSocialBar() {
     }
   }, []);
 
-  // Nếu chưa đủ 4 tiếng, return null để KHÔNG nạp bất cứ mã Adsterra nào
+  // Nếu chưa đủ 2 tiếng, return null để KHÔNG nạp bất cứ mã Adsterra nào
   if (!shouldLoadAd) return null;
 
   return (
