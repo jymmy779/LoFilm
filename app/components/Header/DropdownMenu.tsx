@@ -2,7 +2,6 @@
 
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { MenuItem } from "./types";
-import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 
 interface DropdownMenuProps {
     id: string;
@@ -25,7 +24,6 @@ export default function DropdownMenu({
     setActiveMenu,
     closeTimeout,
 }: DropdownMenuProps) {
-    const { openAdOnly } = useAdTrigger();
     const open = activeMenu === id;
 
     const onEnter = () => {
@@ -80,7 +78,6 @@ export default function DropdownMenu({
                                     <TransitionLink
                                         key={item._id}
                                         href={`${hrefPrefix}/${item.slug}`}
-                                        onClick={() => openAdOnly(id === "the-loai" ? "category_tab" : "country_tab")}
                                         className="text-sm text-white/70 hover:text-[#f5a623] hover:translate-x-1 transition-all duration-150 whitespace-nowrap block"
                                     >
                                         {item.name}

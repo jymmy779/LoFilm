@@ -15,7 +15,6 @@ import WideMovieCard from "@/app/components/MovieCard/WideMovieCard";
 import WideMovieCardSkeleton from "@/app/components/MovieCard/WideMovieCardSkeleton";
 import { useMovies } from "@/app/hooks/useMovies";
 import SwiperNavButtons from "@/app/components/Common/SwiperNavButtons";
-import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 
 interface WideMovieRowProps {
     title: string;
@@ -34,14 +33,9 @@ function WideMovieRow({
     initialMovies,
     revalidate
 }: WideMovieRowProps) {
-    const { openAdOnly } = useAdTrigger();
     const { movies, isLoading } = useMovies({ apiUrl, initialMovies, sortByYear: true, revalidate });
 
     const navId = title.replace(/\s+/g, '-').toLowerCase();
-
-    const handleAdClick = () => {
-        openAdOnly("wide_movie_row");
-    };
 
     if (isLoading) {
         return <WideMovieRowSkeleton />;
@@ -96,7 +90,7 @@ function WideMovieRow({
                     >
                         {movies.map((movie, index) => (
                             <SwiperSlide key={movie._id}>
-                                <div onClick={handleAdClick} className="block relative group cursor-pointer overflow-hidden rounded-xl md:rounded-2xl bg-slate-900/40 transition-all duration-300 transform-gpu">
+                                <div className="block relative group cursor-pointer overflow-hidden rounded-xl md:rounded-2xl bg-slate-900/40 transition-all duration-300 transform-gpu">
                                     <WideMovieCard movie={movie} priority={index < 2} />
                                 </div>
                             </SwiperSlide>

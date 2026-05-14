@@ -12,10 +12,8 @@ import DropdownMenu from "./DropdownMenu";
 import SearchBox from "./SearchBox";
 import MemberButton from "./MemberButton";
 import NotificationBell from "./NotificationBell";
-import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 
 export default function Header() {
-    const { openAdOnly } = useAdTrigger();
     const pathname = usePathname();
     const searchParams = useSearchParams();
     const hasSearchQuery = !!searchParams.get("search");
@@ -261,7 +259,6 @@ export default function Header() {
                                                         href={`/the-loai/${cat.slug}`}
                                                         onClick={() => {
                                                             if (pathname !== `/the-loai/${cat.slug}`) setIsMenuOpen(false);
-                                                            openAdOnly("category_tab");
                                                         }}
                                                         className="text-sm text-white/60 hover:text-[#f5a623] py-1 transition-colors"
                                                     >
@@ -297,7 +294,6 @@ export default function Header() {
                                                         href={`/quoc-gia/${country.slug}`}
                                                         onClick={() => {
                                                             if (pathname !== `/quoc-gia/${country.slug}`) setIsMenuOpen(false);
-                                                            openAdOnly("country_tab");
                                                         }}
                                                         className="text-sm text-white/60 hover:text-[#f5a623] py-1 transition-colors"
                                                     >

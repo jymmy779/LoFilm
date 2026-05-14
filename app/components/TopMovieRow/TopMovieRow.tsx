@@ -13,7 +13,6 @@ import { decodeHtml } from "@/app/utils/textUtils";
 import { filterDuplicateMovies, getEpisodeStatus, getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
 import Container from "@/app/components/Container";
-import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 import MoviePreviewWrapper from "@/app/components/MovieCard/MoviePreviewWrapper";
 import SwiperNavButtons from "@/app/components/Common/SwiperNavButtons";
 
@@ -31,15 +30,10 @@ const CLIP_PATH_ODD = 'polygon(0 0, calc(100% - 16px) 5%, calc(100% - 9.9px) cal
 import TopMovieRowSkeleton from "./TopMovieRowSkeleton";
 
 function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowProps) {
-    const { openAdOnly } = useAdTrigger();
     const seeded = !!(initialMovies && initialMovies.length > 0);
     const [movies, setMovies] = useState<Movie[]>(() => initialMovies ?? []);
     const [isLoading, setIsLoading] = useState(!seeded);
     const navId = title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
-
-    const handleAdClick = () => {
-        openAdOnly("top_movie");
-    };
 
     useEffect(() => {
         let isMounted = true;
@@ -127,7 +121,6 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                                 >
                                     <TransitionLink
                                         href={`/phim/${movie.slug}`}
-                                        onClick={handleAdClick}
                                         className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-4 bg-[#0a1628] transition-[box-shadow] duration-500 ease-out transform-gpu cursor-pointer"
                                         style={{
                                             WebkitClipPath: isEven ? CLIP_PATH_EVEN : CLIP_PATH_ODD,
@@ -188,7 +181,6 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                                         <div className="flex flex-col flex-nowrap gap-1.5 min-w-0">
                                             <TransitionLink
                                                 href={`/phim/${movie.slug}`}
-                                                onClick={handleAdClick}
                                                 className="text-white text-sm md:text-base leading-tight hover:text-[#FED877] transition-colors line-clamp-1 lg:font-bold cursor-pointer"
                                             >
                                                 {decodeHtml(movie.name)}

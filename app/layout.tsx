@@ -23,6 +23,7 @@ const montserrat = Montserrat({
 import { Toaster } from "react-hot-toast";
 import { Suspense } from "react";
 import { GoogleAnalytics } from '@next/third-parties/google'
+import Script from "next/script";
 
 
 export const viewport: Viewport = {
@@ -236,6 +237,11 @@ export default function RootLayout({
         />
         <ScrollToTop />
         <GoogleAnalytics gaId="G-FCV3H66SFX" />
+        {/* Adsterra Social Bar */}
+        <Script 
+          src="https://pl29441602.profitablecpmratenetwork.com/bc/f4/8c/bcf48c95c7e9337ee7ff8c3ff7acb1c8.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

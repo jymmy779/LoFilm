@@ -21,9 +21,6 @@ interface MovieRowProps {
     sortByYear?: boolean;
     revalidate?: number;
 }
-
-import { useAdTrigger } from "@/app/hooks/useAdTrigger";
-
 import MovieRowSkeleton from "./MovieRowSkeleton";
 
 function MovieRow({
@@ -34,14 +31,9 @@ function MovieRow({
     sortByYear = false,
     revalidate
 }: MovieRowProps) {
-    const { openAdOnly } = useAdTrigger();
     const { movies, isLoading } = useMovies({ apiUrl, initialMovies, sortByYear, revalidate });
 
     const navId = title.replace(/\s+/g, '-').toLowerCase();
-
-    const handleAdClick = () => {
-        openAdOnly("movie_row");
-    };
 
     if (isLoading) {
         return <MovieRowSkeleton />;
@@ -97,7 +89,6 @@ function MovieRow({
                                     <MovieRowCard
                                         movie={movie}
                                         priority={eager}
-                                        onClick={handleAdClick}
                                     />
                                 </SwiperSlide>
                             );

@@ -2,7 +2,6 @@
 
 import { memo } from "react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
-import { useAdTrigger } from "@/app/hooks/useAdTrigger";
 import SmartImage from "@/app/components/Common/SmartImage";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
@@ -20,12 +19,9 @@ interface MoviePosterCardProps {
 }
 
 function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZone }: MoviePosterCardProps) {
-    const { openAdOnly } = useAdTrigger();
     const moviePath = `/phim/${movie.slug}`;
 
-    const handleAdClick = () => {
-        openAdOnly(adZone || "movie_poster_row");
-    };
+
 
     // Chuẩn bị dữ liệu hiển thị cho Popup
     const description = movie.content ? cleanContent(decodeHtml(movie.content)) : "Đang cập nhật nội dung cho bộ phim này...";
@@ -45,7 +41,6 @@ function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZon
         >
             <TransitionLink
                 href={moviePath}
-                onClick={handleAdClick}
                 className="block h-full"
             >
                 <div className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-[#0a1628]">
