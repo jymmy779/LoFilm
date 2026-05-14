@@ -45,7 +45,8 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
     const [activeTab, setActiveTab] = useState('Tập phim');
     const [activeServerIndex, setActiveServerIndex] = useState(0);
     const [isChangingEpisode, setIsChangingEpisode] = useState(false);
-    const filteredSuggestions = useMemo(() => filterDuplicateMovies(suggestedMovies), [suggestedMovies]);
+    const [suggestedMoviesState, setSuggestedMoviesState] = useState<Movie[]>(suggestedMovies);
+    const filteredSuggestions = useMemo(() => filterDuplicateMovies(suggestedMoviesState), [suggestedMoviesState]);
     const [weeklyMovies, setWeeklyMovies] = useState<Movie[]>(() => globalCache.getRaw<Movie[]>("top_weekly_detail") || []);
     const [isLoadingWeekly, setIsLoadingWeekly] = useState(!globalCache.has("top_weekly_detail"));
     const [tmdbActors, setTmdbActors] = useState<TMDBActor[]>([]);
@@ -58,6 +59,30 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
         setMovie(initialMovie); // Reset when prop changes
         setIsThumbLoaded(false); // Reset loading state when movie changes
     }, [initialMovie.slug]);
+
+    // Client-side fetch suggested movies (dời từ server để giảm TTFB)
+    useEffect(() => {
+        const fetchSuggestions = async () => {
+            const firstCategory = initialMovie.category?.[0]?.slug;
+            if (!firstCategory) return;
+
+            try {
+                const res = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${firstCategory}?page=1&limit=20`)}&revalidate=60`);
+                const items: Movie[] = res.data?.data?.items || [];
+                const filtered = items.filter((m: Movie) => m.slug !== initialMovie.slug).slice(0, 18);
+                if (filtered.length > 0) {
+                    setSuggestedMoviesState(filtered);
+                }
+            } catch (err) {
+                console.error("Failed to fetch suggestions:", err);
+            }
+        };
+
+        // Chỉ fetch nếu server không truyền sẵn
+        if (suggestedMovies.length === 0) {
+            fetchSuggestions();
+        }
+    }, [initialMovie.slug, initialMovie.category]);
 
     const CHUNK_SIZE = 100;
 
@@ -167,9 +192,10 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
         const t = ['Tập phim', 'Tổng quan'];
         if (movie.trailer_url) t.push('Trailer');
         if (movie.actor && movie.actor.length > 0) t.push('Diễn viên');
-        if (suggestedMovies.length > 0) t.push('Đề xuất');
+        // Luôn hiện tab Đề xuất — data sẽ load client-side
+        t.push('Đề xuất');
         return t;
-    }, [movie.trailer_url, movie.actor, suggestedMovies.length]);
+    }, [movie.trailer_url, movie.actor]);
 
     // Get first server episodes
     const firstServerEpisodes = episodes?.[0]?.server_data || [];
@@ -579,14 +605,26 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                 )}
 
                                 {/* Suggestions Tab */}
-                                {activeTab === 'Đề xuất' && filteredSuggestions.length > 0 && (
-                                    <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-4 lg:gap-6">
-                                        {filteredSuggestions.map((m) => (
-                                            <div key={m._id} className="transform hover:scale-[1.02] transition-transform">
-                                                <MoviePosterCard movie={m} />
-                                            </div>
-                                        ))}
-                                    </div>
+                                {activeTab === 'Đề xuất' && (
+                                    filteredSuggestions.length > 0 ? (
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-4 lg:gap-6">
+                                            {filteredSuggestions.map((m) => (
+                                                <div key={m._id} className="transform hover:scale-[1.02] transition-transform">
+                                                    <MoviePosterCard movie={m} />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-4 lg:gap-6">
+                                            {[...Array(6)].map((_, i) => (
+                                                <div key={i} className="space-y-3">
+                                                    <Skeleton className="aspect-[2/3]" rounded="2xl" />
+                                                    <Skeleton className="h-4 w-3/4 mx-auto" />
+                                                    <Skeleton className="h-3 w-1/2 mx-auto opacity-50" />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    )
                                 )}
                             </div>
                         </div>

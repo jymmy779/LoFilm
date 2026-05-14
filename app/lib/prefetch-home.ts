@@ -124,6 +124,22 @@ const NOMINATED_SLUGS = [
 ];
 
 async function mapNominated(): Promise<Movie[]> {
+    const NOMINATED_KEY = "home:nominated";
+    const NOMINATED_TTL = 86400; // 24 giờ — danh sách đề cử hiếm khi thay đổi
+
+    // 1. Thử lấy từ Redis cache riêng trước
+    if (redis) {
+        try {
+            const cached = await redis.get(NOMINATED_KEY);
+            if (cached) {
+                return JSON.parse(cached);
+            }
+        } catch (err) {
+            console.error("[Redis Nominated Cache Error]", err);
+        }
+    }
+
+    // 2. Cache miss → fetch từng slug
     const movies = await Promise.all(
         NOMINATED_SLUGS.map(async (slug) => {
             try {
@@ -142,7 +158,18 @@ async function mapNominated(): Promise<Movie[]> {
             }
         })
     );
-    return movies.filter(Boolean) as Movie[];
+    const result = movies.filter(Boolean) as Movie[];
+
+    // 3. Lưu cache riêng 24h
+    if (redis && result.length > 0) {
+        try {
+            await redis.setex(NOMINATED_KEY, NOMINATED_TTL, JSON.stringify(result));
+        } catch (err) {
+            console.error("[Redis Nominated Set Error]", err);
+        }
+    }
+
+    return result;
 }
 
 /**
@@ -176,19 +203,42 @@ async function enrichMovies(movies: Movie[]): Promise<Movie[]> {
 
 export async function prefetchHomePageData(): Promise<HomePrefetch> {
     const BUNDLE_KEY = "home:prefetch:bundle";
-    
-    // 1. Thử lấy từ cache bundle trước để tốc độ đạt tối đa
+    const STALE_KEY = "home:prefetch:bundle:stale"; // Bản backup cho SWR pattern
+    const BUNDLE_TTL = 60;    // Cache chính: 60 giây (đồng bộ với toàn hệ thống)
+    const STALE_TTL = 300;    // Cache stale: 5 phút — dùng khi cache chính hết hạn
+
+    // 1. Thử lấy từ cache bundle chính trước
     if (redis) {
         try {
             const cached = await redis.get(BUNDLE_KEY);
             if (cached) {
                 return JSON.parse(cached);
             }
+
+            // 2. Cache chính MISS → Kiểm tra bản stale (SWR Pattern)
+            const staleCached = await redis.get(STALE_KEY);
+            if (staleCached) {
+                // Trả stale data ngay cho user (TỨC THÌ, không chờ!)
+                // Đồng thời refresh ngầm trong background (fire-and-forget)
+                refreshBundleInBackground(BUNDLE_KEY, STALE_KEY, BUNDLE_TTL, STALE_TTL);
+                return JSON.parse(staleCached);
+            }
         } catch (err) {
             console.error("[Redis Bundle Error]", err);
         }
     }
 
+    // 3. Cả 2 cache đều MISS → Fetch mới (blocking, lần đầu hoặc Redis down)
+    return await fetchAndCacheBundle(BUNDLE_KEY, STALE_KEY, BUNDLE_TTL, STALE_TTL);
+}
+
+/**
+ * Fetch toàn bộ data trang chủ và lưu vào cả 2 cache key
+ */
+async function fetchAndCacheBundle(
+    bundleKey: string, staleKey: string,
+    bundleTtl: number, staleTtl: number
+): Promise<HomePrefetch> {
     const [
         heroRaw,
         catRaw,
@@ -237,10 +287,14 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
         phimNgan: [],
     };
 
-    // 2. Lưu vào cache bundle cho lần sau (60 giây)
+    // Lưu vào CẢ 2 cache key
     if (redis && result) {
         try {
-            await redis.setex(BUNDLE_KEY, 60, JSON.stringify(result));
+            const jsonData = JSON.stringify(result);
+            await Promise.all([
+                redis.setex(bundleKey, bundleTtl, jsonData),
+                redis.setex(staleKey, staleTtl, jsonData),
+            ]);
         } catch (err) {
             console.error("[Redis Bundle Set Error]", err);
         }
@@ -248,3 +302,18 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
 
     return result;
 }
+
+/**
+ * Stale-While-Revalidate: Refresh data ngầm trong background
+ * User đã nhận stale data rồi, hàm này chạy fire-and-forget
+ */
+function refreshBundleInBackground(
+    bundleKey: string, staleKey: string,
+    bundleTtl: number, staleTtl: number
+): void {
+    // Fire-and-forget — không await, không block response
+    fetchAndCacheBundle(bundleKey, staleKey, bundleTtl, staleTtl)
+        .then(() => console.log("[SWR] Home bundle refreshed in background"))
+        .catch(err => console.error("[SWR] Background refresh failed:", err));
+}
+

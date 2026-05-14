@@ -48,7 +48,7 @@ export default function LazyRow({
             },
             {
                 // Tăng rootMargin để load sớm hơn, tránh bị khoảng trống khi scroll nhanh
-                rootMargin: typeof window !== 'undefined' && window.innerWidth < 768 ? "800px 0px" : "1500px 0px",
+                rootMargin: typeof window !== 'undefined' && window.innerWidth < 768 ? "400px 0px" : "1500px 0px",
                 threshold
             }
         );
@@ -63,7 +63,7 @@ export default function LazyRow({
     useEffect(() => {
         if (isIntersecting) {
             if (id) renderedRows.add(id);
-            
+
             const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
 
             if (!isMobile) {

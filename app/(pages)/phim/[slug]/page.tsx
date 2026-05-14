@@ -15,22 +15,7 @@ async function getMovieDetail(slug: string): Promise<MovieDetailResponse | null>
     return data;
 }
 
-// Fetch suggested movies by first category
-async function getSuggestedMovies(movie: Movie): Promise<Movie[]> {
-    try {
-        const firstCategory = movie.category?.[0]?.slug;
-        if (!firstCategory) return [];
 
-        const data = await fetchWithRedis(`${API_BASE}/v1/api/the-loai/${firstCategory}?page=1&limit=20`);
-
-
-        // Filter out current movie from suggestions
-        const items: Movie[] = data.data?.items || [];
-        return items.filter((m: Movie) => m.slug !== movie.slug).slice(0, 18);
-    } catch {
-        return [];
-    }
-}
 
 // Dynamic metadata for SEO
 export async function generateMetadata({
@@ -95,8 +80,6 @@ export default async function MoviePage({
         notFound();
     }
 
-    // Suggested movies - Chạy song song sau khi có data category
-    const suggestedMovies = await getSuggestedMovies(detail.movie);
 
     // Schema dữ liệu cấu trúc (JSON-LD) cho SEO
     const jsonLd = {
@@ -124,7 +107,7 @@ export default async function MoviePage({
             <MovieDetailClient
                 movie={detail.movie}
                 episodes={detail.episodes}
-                suggestedMovies={suggestedMovies}
+                suggestedMovies={[]}
             />
         </>
     );
