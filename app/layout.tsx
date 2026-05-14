@@ -101,6 +101,7 @@ export default function RootLayout({
   return (
     <html lang="vi" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
+        <meta name="clckd" content="7b88ce9a85e401383596fcdebfbf0c88" />
         <link rel="preconnect" href="https://wsrv.nl" />
         <link rel="preconnect" href="https://phimimg.com" crossOrigin="anonymous" />
         <link rel="preconnect" href="https://img.phimapi.com" crossOrigin="anonymous" />
