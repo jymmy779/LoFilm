@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import { X, Send, AlertCircle, CheckCircle2 } from "lucide-react";
 import { toast } from "react-hot-toast";
 
@@ -21,6 +22,7 @@ const ERROR_TYPES = [
 ];
 
 export default function ReportModal({ isOpen, onClose, movieName, episodeName }: ReportModalProps) {
+  const [mounted, setMounted] = useState(false);
   const [shouldRender, setShouldRender] = useState(isOpen);
   const [isClosing, setIsClosing] = useState(false);
   const [selectedType, setSelectedType] = useState<string>("");
@@ -28,7 +30,12 @@ export default function ReportModal({ isOpen, onClose, movieName, episodeName }:
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
 
-  React.useEffect(() => {
+  useEffect(() => {
+    setMounted(true);
+    return () => setMounted(false);
+  }, []);
+
+  useEffect(() => {
     if (isOpen) {
       setShouldRender(true);
       setIsClosing(false);
@@ -42,7 +49,7 @@ export default function ReportModal({ isOpen, onClose, movieName, episodeName }:
     }
   }, [isOpen, shouldRender]);
 
-  if (!shouldRender) return null;
+  if (!mounted || !shouldRender) return null;
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,7 +101,7 @@ export default function ReportModal({ isOpen, onClose, movieName, episodeName }:
     setIsSubmitting(false);
   };
 
-  return (
+  return createPortal(
     <div className={`fixed inset-0 z-[1000] flex items-center justify-center p-4 ${isClosing ? 'pointer-events-none' : ''}`}>
       {/* Backdrop */}
       <div
@@ -199,6 +206,7 @@ export default function ReportModal({ isOpen, onClose, movieName, episodeName }:
           )}
         </div>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
