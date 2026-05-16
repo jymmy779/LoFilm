@@ -34,8 +34,11 @@ export default function InitialLoader() {
       window.addEventListener("load", handleLoad);
     }
 
-    // Dự phòng: tối đa 5s nếu có tài nguyên nào đó bị kẹt (tăng lên vì đã có min time)
-    const safety = window.setTimeout(startFadeOut, 5000);
+    // Dự phòng: tối đa 10s nếu có tài nguyên nào đó bị kẹt
+    const safety = window.setTimeout(() => {
+      console.log("[InitialLoader] Safety timeout reached. Forcing hide.");
+      startFadeOut();
+    }, 10000);
 
     return () => {
       window.removeEventListener("load", handleLoad);

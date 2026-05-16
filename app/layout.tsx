@@ -119,6 +119,7 @@ export const metadata: Metadata = {
 
 import AuthListener from "./components/Auth/AuthListener";
 import NetworkMonitor from "./components/Network/NetworkMonitor";
+import WakeUpMonitor from "./components/Common/WakeUpMonitor";
 import ScrollToTop from "./components/Common/ScrollToTop";
 import { AuthProvider } from "./components/Auth/AuthContext";
 
@@ -230,6 +231,7 @@ export default function RootLayout({
       <body className={`${inter.variable} ${montserrat.variable} bg-[#0f1115] text-white font-sans`} suppressHydrationWarning>
 
         <NetworkMonitor />
+        <WakeUpMonitor />
         <AuthListener />
         {(() => {
           const today = new Date();

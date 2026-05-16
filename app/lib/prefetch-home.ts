@@ -203,9 +203,11 @@ async function enrichMovies(movies: Movie[]): Promise<Movie[]> {
 
 export async function prefetchHomePageData(): Promise<HomePrefetch> {
     const BUNDLE_KEY = "home:prefetch:bundle";
-    const STALE_KEY = "home:prefetch:bundle:stale"; // Bản backup cho SWR pattern
-    const BUNDLE_TTL = 600;    // Cache chính: 10 phút (tăng từ 60s để giảm tải server)
-    const STALE_TTL = 3600;    // Cache stale: 1 giờ — dùng khi cache chính hết hạn
+    const STALE_KEY = "home:prefetch:bundle:stale"; 
+    const EMERGENCY_KEY = "home:prefetch:bundle:emergency"; // Bản dự phòng cuối cùng (24h)
+    const BUNDLE_TTL = 600;    // Cache chính: 10 phút
+    const STALE_TTL = 3600;    // Cache stale: 1 giờ
+    const EMERGENCY_TTL = 86400; // 24 giờ
 
     // 1. Thử lấy từ cache bundle chính trước
     if (redis) {
@@ -220,27 +222,33 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
             const staleCached = await redis.get(STALE_KEY);
             if (staleCached) {
                 console.log("[Redis] Home bundle STALE HIT - Refreshing in background");
-                // Trả stale data ngay cho user (TỨC THÌ, không chờ!)
-                // Đồng thời refresh ngầm trong background (fire-and-forget)
-                refreshBundleInBackground(BUNDLE_KEY, STALE_KEY, BUNDLE_TTL, STALE_TTL);
+                refreshBundleInBackground(BUNDLE_KEY, STALE_KEY, EMERGENCY_KEY, BUNDLE_TTL, STALE_TTL, EMERGENCY_TTL);
                 return JSON.parse(staleCached);
             }
-            console.log("[Redis] Home bundle MISS - Fetching fresh data");
+
+            // 3. Cả STALE cũng MISS (rất hiếm) → Kiểm tra EMERGENCY backup (24h)
+            const emergencyCached = await redis.get(EMERGENCY_KEY);
+            if (emergencyCached) {
+                console.log("[Redis] Home bundle EMERGENCY HIT - Serving 24h backup");
+                refreshBundleInBackground(BUNDLE_KEY, STALE_KEY, EMERGENCY_KEY, BUNDLE_TTL, STALE_TTL, EMERGENCY_TTL);
+                return JSON.parse(emergencyCached);
+            }
+            console.log("[Redis] Home bundle MISS ALL - Fetching fresh data");
         } catch (err) {
             console.error("[Redis Bundle Error]", err);
         }
     }
 
-    // 3. Cả 2 cache đều MISS → Fetch mới (blocking, lần đầu hoặc Redis down)
-    return await fetchAndCacheBundle(BUNDLE_KEY, STALE_KEY, BUNDLE_TTL, STALE_TTL);
+    // 4. Cả 3 cache đều MISS → Fetch mới (blocking, lần đầu hoặc Redis down)
+    return await fetchAndCacheBundle(BUNDLE_KEY, STALE_KEY, EMERGENCY_KEY, BUNDLE_TTL, STALE_TTL, EMERGENCY_TTL);
 }
 
 /**
  * Fetch toàn bộ data trang chủ và lưu vào cả 2 cache key
  */
 async function fetchAndCacheBundle(
-    bundleKey: string, staleKey: string,
-    bundleTtl: number, staleTtl: number
+    bundleKey: string, staleKey: string, emergencyKey: string,
+    bundleTtl: number, staleTtl: number, emergencyTtl: number
 ): Promise<HomePrefetch> {
     const [
         heroRaw,
@@ -297,6 +305,7 @@ async function fetchAndCacheBundle(
             await Promise.all([
                 redis.setex(bundleKey, bundleTtl, jsonData),
                 redis.setex(staleKey, staleTtl, jsonData),
+                redis.setex(emergencyKey, emergencyTtl, jsonData),
             ]);
         } catch (err) {
             console.error("[Redis Bundle Set Error]", err);
@@ -311,11 +320,11 @@ async function fetchAndCacheBundle(
  * User đã nhận stale data rồi, hàm này chạy fire-and-forget
  */
 function refreshBundleInBackground(
-    bundleKey: string, staleKey: string,
-    bundleTtl: number, staleTtl: number
+    bundleKey: string, staleKey: string, emergencyKey: string,
+    bundleTtl: number, staleTtl: number, emergencyTtl: number
 ): void {
     // Fire-and-forget — không await, không block response
-    fetchAndCacheBundle(bundleKey, staleKey, bundleTtl, staleTtl)
+    fetchAndCacheBundle(bundleKey, staleKey, emergencyKey, bundleTtl, staleTtl, emergencyTtl)
         .then(() => console.log("[SWR] Home bundle refreshed in background"))
         .catch(err => console.error("[SWR] Background refresh failed:", err));
 }
