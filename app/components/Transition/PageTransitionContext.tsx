@@ -99,7 +99,7 @@ export function PageTransitionProvider({
       
       {/* INSTANT SPINNER OVERLAY - TRULY INSTANT */}
       {phase === "exiting" && (
-        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-[#0f1115]">
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-gradient-to-br from-[#121d33] via-[#0a1628] to-[#050a14]">
           <div className="relative flex items-center justify-center">
             {/* Outer Glowing Ring */}
             <div className="absolute h-16 w-16 animate-pulse-fast rounded-full border-2 border-[#f5a623]/20 shadow-[0_0_20px_rgba(245,166,35,0.15)]"></div>
