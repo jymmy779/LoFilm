@@ -75,17 +75,32 @@ export default function CommonModal({
   const [isClosing, setIsClosing] = useState(false);
 
   useEffect(() => {
+    const html = document.documentElement;
+    const body = document.body;
+
     if (isOpen) {
       setShouldRender(true);
       setIsClosing(false);
+      html.classList.add("no-scroll");
+      body.classList.add("no-scroll");
     } else if (shouldRender) {
       setIsClosing(true);
+      html.classList.remove("no-scroll");
+      body.classList.remove("no-scroll");
       const timer = setTimeout(() => {
         setShouldRender(false);
         setIsClosing(false);
       }, 250);
-      return () => clearTimeout(timer);
+      return () => {
+        clearTimeout(timer);
+        html.classList.remove("no-scroll");
+        body.classList.remove("no-scroll");
+      };
     }
+    return () => {
+      html.classList.remove("no-scroll");
+      body.classList.remove("no-scroll");
+    };
   }, [isOpen, shouldRender]);
 
   if (!mounted || !shouldRender) return null;
