@@ -38,8 +38,11 @@ export default function ReunificationLoader() {
             window.addEventListener("load", handleLoad);
         }
 
-        // Dự phòng: tối đa 6s nếu có tài nguyên nào đó bị kẹt (cho sự kiện cần lâu hơn tí)
-        const safety = window.setTimeout(startFadeOut, 6000);
+        // Dự phòng: tối đa 10s nếu có tài nguyên nào đó bị kẹt (cho sự kiện cần lâu hơn tí)
+        const safety = window.setTimeout(() => {
+            console.log("[ReunificationLoader] Safety timeout reached. Forcing hide.");
+            startFadeOut();
+        }, 10000);
 
         return () => {
             window.removeEventListener("load", handleLoad);
@@ -180,11 +183,9 @@ export default function ReunificationLoader() {
                     <div className="flag-badge">
                         <img src="/vn-flag-full.gif" alt="Vietnam Flag" className="w-full h-auto" />
                     </div>
-                    <img
-                        src="/lofilm_logo.webp"
-                        alt="LoFilm Logo"
-                        className="event-logo mb-2"
-                    />
+                    <div className="lofilm-loader-text !mb-0">
+                        LoFilm
+                    </div>
                     <div className="event-celebration">
                         Chúc mừng Đại lễ 30/04 - 01/05
                     </div>
