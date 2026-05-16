@@ -50,12 +50,9 @@ export default function InitialLoader() {
     <>
       <div className={`lofilm-loader-overlay ${fadingOut ? 'fade-out' : ''}`}>
         <div className="lofilm-loader-content">
-          <img
-            src="/lofilm_logo.webp"
-            alt="LoFilm Logo"
-            className="lofilm-loader-logo"
-            style={{ animation: 'cssFadeInUp 0.8s ease-out 0.2s forwards', opacity: 0 }}
-          />
+          <div className="lofilm-loader-text">
+            LoFilm
+          </div>
 
           <div className="lofilm-loader-bar-container">
             <div className="lofilm-loader-bar-fill"></div>

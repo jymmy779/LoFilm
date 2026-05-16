@@ -7,9 +7,8 @@ import {
   useState,
   useRef,
   useEffect,
-  Suspense,
 } from "react";
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
+import { useRouter, usePathname } from "next/navigation";
 import { toast } from "react-hot-toast";
 
 interface PageTransitionContextType {
@@ -28,22 +27,8 @@ export function usePageTransition() {
   return useContext(PageTransitionContext);
 }
 
-// Duration in ms for each phase
-const EXIT_DURATION = 500; // Tăng nhẹ để mượt hơn
-const ENTER_DURATION = 600;
-const MIN_HOLD_DURATION = 200; // Thời gian tối thiểu màn hình bị che hoàn toàn
-
-function SearchParamsListener({
-  onSearchChange,
-}: {
-  onSearchChange: (search: string) => void;
-}) {
-  const searchParams = useSearchParams();
-  useEffect(() => {
-    onSearchChange(searchParams.toString());
-  }, [searchParams, onSearchChange]);
-  return null;
-}
+// Duration in ms for entering phase
+const ENTER_DURATION = 400;
 
 export function PageTransitionProvider({
   children,
@@ -53,48 +38,20 @@ export function PageTransitionProvider({
   const router = useRouter();
   const pathname = usePathname();
   const [phase, setPhase] = useState<"idle" | "exiting" | "entering">("idle");
-  const pendingHref = useRef<string | null>(null);
   const prevPathname = useRef(pathname);
-  const prevSearch = useRef("");
-
-  const handleSearchChange = useCallback(
-    (search: string) => {
-      // Only trigger if we are in "exiting" phase. We don't want to trigger on initial load.
-      if (search !== prevSearch.current) {
-        prevSearch.current = search;
-        setPhase((prev) => {
-          if (prev === "exiting") {
-            setTimeout(() => {
-              setPhase("entering");
-              setTimeout(() => setPhase("idle"), ENTER_DURATION);
-            }, MIN_HOLD_DURATION);
-            return "exiting";
-          }
-          return prev;
-        });
-      }
-    },
-    []
-  );
 
   // Detect when pathname actually changes (navigation completed)
   useEffect(() => {
     if (pathname !== prevPathname.current) {
       prevPathname.current = pathname;
       
-      // If we were exiting, switch to entering
-      setPhase((prev) => {
-        if (prev === "exiting") {
-          // Thêm một chút delay (MIN_HOLD_DURATION) để đảm bảo Next.js đã hoán đổi DOM xong
-          // Khắc phục triệt để lỗi "lộ trang cũ" khi mạng yếu/DOM nặng
-          setTimeout(() => {
-            setPhase("entering");
-            setTimeout(() => setPhase("idle"), ENTER_DURATION);
-          }, MIN_HOLD_DURATION);
-          return "exiting"; // Giữ nguyên phase exiting cho đến khi timeout trên chạy
-        }
-        return prev;
-      });
+      // Navigation finished, show entering animation briefly
+      setPhase("entering");
+      const timer = setTimeout(() => {
+        setPhase("idle");
+      }, ENTER_DURATION);
+      
+      return () => clearTimeout(timer);
     }
   }, [pathname]);
 
@@ -109,41 +66,69 @@ export function PageTransitionProvider({
         return;
       }
 
-      // Same pathname + query = same document (unless isHard)
+      // Check if same page
       if (typeof window !== "undefined" && !isHard) {
         try {
           const target = new URL(href, window.location.origin);
           const current = new URL(window.location.href);
-          if (
-            target.pathname === current.pathname &&
-            target.search === current.search
-          ) {
+          if (target.pathname === current.pathname && target.search === current.search) {
             return;
           }
-        } catch {
-          /* invalid href */
+        } catch { /* invalid href */ }
+      }
+
+      // PHASE 1: TRIGGER EXITING IMMEDIATELY (INSTANT FEEDBACK)
+      setPhase("exiting");
+
+      // PHASE 2: PERFORM NAVIGATION after a tiny delay to ensure the spinner is rendered
+      // Next.js router.push can sometimes be blocking on the main thread
+      setTimeout(() => {
+        if (isHard && typeof window !== "undefined") {
+          window.location.href = href;
+          return;
         }
-      } else if (href === pathname && !isHard) {
-        return;
-      }
-
-      // Chuyển hướng ngay lập tức theo yêu cầu (bỏ hiệu ứng rèm cửa)
-      if (isHard && typeof window !== "undefined") {
-        window.location.href = href;
-        return;
-      }
-
-      router.push(href);
+        router.push(href);
+      }, 0);
     },
-    [pathname, router]
+    [router]
   );
 
   return (
     <PageTransitionContext.Provider value={{ navigateWithTransition, phase }}>
-      <Suspense fallback={null}>
-        <SearchParamsListener onSearchChange={handleSearchChange} />
-      </Suspense>
       {children}
+      
+      {/* INSTANT SPINNER OVERLAY - TRULY INSTANT */}
+      {phase === "exiting" && (
+        <div className="fixed inset-0 z-[99999] flex items-center justify-center bg-[#0f1115]">
+          <div className="relative flex items-center justify-center">
+            {/* Outer Glowing Ring */}
+            <div className="absolute h-16 w-16 animate-pulse-fast rounded-full border-2 border-[#f5a623]/20 shadow-[0_0_20px_rgba(245,166,35,0.15)]"></div>
+            
+            {/* Main Spinner Ring */}
+            <div className="h-12 w-12 animate-spin-fast rounded-full border-[3px] border-transparent border-t-[#f5a623] border-r-[#f5a623]/30 shadow-[0_0_15px_rgba(245,166,35,0.4)]"></div>
+            
+            {/* Center Point */}
+            <div className="absolute h-1.5 w-1.5 rounded-full bg-[#f5a623] shadow-[0_0_10px_#f5a623]"></div>
+          </div>
+        </div>
+      )}
+
+      <style jsx global>{`
+        @keyframes spin-fast {
+          from { transform: rotate(0deg); }
+          to { transform: rotate(360deg); }
+        }
+        @keyframes pulse-fast {
+          0%, 100% { transform: scale(1); opacity: 0.3; }
+          50% { transform: scale(1.15); opacity: 0.6; }
+        }
+        .animate-spin-fast {
+          animation: spin-fast 0.7s linear infinite;
+        }
+        .animate-pulse-fast {
+          animation: pulse-fast 1.2s ease-in-out infinite;
+        }
+      `}</style>
     </PageTransitionContext.Provider>
   );
 }

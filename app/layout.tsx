@@ -87,7 +87,7 @@ export const metadata: Metadata = {
   },
 };
 
-import TopProgressBar from "./components/Transition/TopProgressBar";
+
 import AuthListener from "./components/Auth/AuthListener";
 import NetworkMonitor from "./components/Network/NetworkMonitor";
 import ScrollToTop from "./components/Common/ScrollToTop";
@@ -199,9 +199,7 @@ export default function RootLayout({
         />
       </head>
       <body className={`${inter.variable} ${montserrat.variable} bg-[#0f1115] text-white font-sans`} suppressHydrationWarning>
-        <Suspense fallback={null}>
-          <TopProgressBar />
-        </Suspense>
+
         <NetworkMonitor />
         <AuthListener />
         {(() => {

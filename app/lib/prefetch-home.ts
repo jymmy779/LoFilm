@@ -204,25 +204,28 @@ async function enrichMovies(movies: Movie[]): Promise<Movie[]> {
 export async function prefetchHomePageData(): Promise<HomePrefetch> {
     const BUNDLE_KEY = "home:prefetch:bundle";
     const STALE_KEY = "home:prefetch:bundle:stale"; // Bản backup cho SWR pattern
-    const BUNDLE_TTL = 60;    // Cache chính: 60 giây (đồng bộ với toàn hệ thống)
-    const STALE_TTL = 300;    // Cache stale: 5 phút — dùng khi cache chính hết hạn
+    const BUNDLE_TTL = 600;    // Cache chính: 10 phút (tăng từ 60s để giảm tải server)
+    const STALE_TTL = 3600;    // Cache stale: 1 giờ — dùng khi cache chính hết hạn
 
     // 1. Thử lấy từ cache bundle chính trước
     if (redis) {
         try {
             const cached = await redis.get(BUNDLE_KEY);
             if (cached) {
+                console.log("[Redis] Home bundle HIT");
                 return JSON.parse(cached);
             }
 
             // 2. Cache chính MISS → Kiểm tra bản stale (SWR Pattern)
             const staleCached = await redis.get(STALE_KEY);
             if (staleCached) {
+                console.log("[Redis] Home bundle STALE HIT - Refreshing in background");
                 // Trả stale data ngay cho user (TỨC THÌ, không chờ!)
                 // Đồng thời refresh ngầm trong background (fire-and-forget)
                 refreshBundleInBackground(BUNDLE_KEY, STALE_KEY, BUNDLE_TTL, STALE_TTL);
                 return JSON.parse(staleCached);
             }
+            console.log("[Redis] Home bundle MISS - Fetching fresh data");
         } catch (err) {
             console.error("[Redis Bundle Error]", err);
         }
