@@ -72,7 +72,25 @@ export default function CatalogLayout({
                             {/* Main Content Area */}
                             <div className="flex-grow w-full lg:min-w-0">
                                 <div className="relative">
-                                    <div className="transition-opacity duration-300 opacity-100">
+                                    {/* Pagination Loading Overlay */}
+                                    {isPageLoading && (
+                                        <div className="absolute inset-0 z-40 bg-[#0f1115]/40 transition-opacity duration-300">
+                                            <div className="sticky top-1/2 -translate-y-1/2 w-full flex justify-center">
+                                                <div className="scale-110">
+                                                    {/* Pure Spinner Ring */}
+                                                    <div className="h-10 w-10 animate-spin-loader rounded-full border-2 border-white/10 border-t-[#f5a623]"></div>
+                                                </div>
+                                            </div>
+
+                                            <style jsx>{`
+                                                @keyframes spin-loader { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+                                                @keyframes pulse-loader { 0%, 100% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.1); opacity: 0.6; } }
+                                                .animate-spin-loader { animation: spin-loader 0.8s linear infinite; }
+                                                .animate-pulse-loader { animation: pulse-loader 1.2s ease-in-out infinite; }
+                                            `}</style>
+                                        </div>
+                                    )}
+                                    <div className={`transition-opacity duration-300 ${isPageLoading ? 'opacity-40' : 'opacity-100'}`}>
                                         <div key={`${isLoading}-${currentPage}`} className="animate-fade-in-simple">
                                             {isLoading ? (
                                                 <div

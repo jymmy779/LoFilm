@@ -151,16 +151,25 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
         const fetchMovies = async () => {
             // Check cache first for SWR
             const cached = globalCache.getRaw<any>(cacheKey);
+            
             if (cached) {
                 setMovies(cached.movies);
                 setTotalPages(cached.totalPages);
                 setIsLoading(false);
-                setIsPageLoading(true);
-            } else {
-                // Nếu chưa có trong cache, xóa dữ liệu cũ và hiện Skeleton ngay lập tức
-                setMovies([]);
+                setIsPageLoading(false);
+                return; // Nếu có cache thì hiện luôn, không cần spinner
+            }
+
+            // Nếu không có cache:
+            // - Nếu là lần đầu tiên (chưa có phim): Hiện Skeleton (isLoading)
+            // - Nếu đã có phim (chuyển trang/lọc): Hiện Overlay (isPageLoading) và GIỮ LẠI PHIM CŨ
+            if (movies.length === 0) {
                 setIsLoading(true);
                 setIsPageLoading(false);
+            } else {
+                setIsLoading(false);
+                setIsPageLoading(true);
+                // KHÔNG setMovies([]) ở đây để giữ lại trang cũ làm nền cho Overlay
             }
 
             try {
