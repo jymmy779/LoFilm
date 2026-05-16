@@ -209,7 +209,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
     const rating = movie.tmdb?.vote_average ? movie.tmdb.vote_average.toFixed(1) : null;
 
     return (
-        <main className="min-h-screen pb-20">
+        <main className="min-h-screen pb-20 animate-fade-in">
             {/* Background Cover */}
             <div className="relative w-full h-[40vh] md:h-[50vh] xl:h-[80vh] overflow-hidden transform-gpu">
                 <div className="absolute inset-0 scale-105 will-change-transform">

@@ -784,7 +784,7 @@ export default function WatchClient({
 
 
     return (
-        <div className={`pt-35 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} bg-[#0a1628] transition-all duration-500 ${isFullscreen ? 'video-fullscreen-active' : ''}`}>
+        <div className={`pt-35 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} bg-[#0a1628] transition-all duration-500 animate-fade-in ${isFullscreen ? 'video-fullscreen-active' : ''}`}>
             <div className={`transition-all duration-500 ease-in-out ${!isTheaterMode && !isFullscreen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
                 <MovieHeader slug={slug} movieName={movie.name} episodeName={episode.name} />
             </div>
