@@ -43,39 +43,43 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
     }
 
     // 2. Nếu không có trong cache, gọi API gốc
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), 10000);
+    const fetchWithRetry = async (retryCount = 0): Promise<any> => {
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 30000); // Nâng lên 30 giây
 
-    try {
-        const response = await fetch(url, {
-            ...options,
-            signal: controller.signal,
-        });
+        try {
+            const response = await fetch(url, {
+                ...options,
+                signal: controller.signal,
+            });
 
-        clearTimeout(timeoutId);
+            clearTimeout(timeoutId);
 
-        if (response.ok) {
-            const data = await response.json();
-
-            // 3. Lưu vào Redis cho lần sau (chỉ lưu nếu có dữ liệu)
-            if (redis && data) {
-                try {
-                    // Dùng setex: (key, seconds, value)
-                    await redis.setex(cacheKey, revalidate, JSON.stringify(data));
-                } catch (err) {
-                    console.error(`[Redis Set Error] ${url}`, err);
+            if (response.ok) {
+                const data = await response.json();
+                if (redis && data) {
+                    try {
+                        await redis.setex(cacheKey, revalidate, JSON.stringify(data));
+                    } catch (err) {
+                        console.error(`[Redis Set Error] ${url}`, err);
+                    }
                 }
+                return data;
+            } else {
+                throw new Error(`API returned ${response.status}`);
             }
-            return data;
-        } else {
-            console.error(`[Fetch Error] API returned ${response.status}: ${url}`);
+        } catch (error: any) {
+            clearTimeout(timeoutId);
+            if (retryCount < 1) { // Thử lại 1 lần nữa nếu lỗi
+                // console.log(`[Retrying] ${url} - lần ${retryCount + 1}`);
+                return fetchWithRetry(retryCount + 1);
+            }
+            console.error(`[Fetch Error After Retry] ${url}`, error.message);
             return null;
         }
-    } catch (error: any) {
-        clearTimeout(timeoutId);
-        console.error(`[Fetch Error] ${url}`, error.message);
-        return null;
-    }
+    };
+
+    return fetchWithRetry();
 });
 
 /**

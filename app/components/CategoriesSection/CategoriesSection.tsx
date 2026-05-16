@@ -29,7 +29,7 @@ export default function CategoriesSection({ initialCategories }: CategoriesSecti
     useEffect(() => {
         if ((initialCategories?.length ?? 0) > 0) return;
 
-        axios.get(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/the-loai")}`)
+        axios.get(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/the-loai")}&revalidate=86400`)
             .then(res => {
                 const sortedCategories = (res.data as HomeCategory[]).sort((a, b) =>
                     a.name.localeCompare(b.name, "vi")
