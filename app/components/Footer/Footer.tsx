@@ -25,7 +25,7 @@ export default function Footer() {
                             <TransitionLink href="/" className="shrink-0 transition-transform hover:scale-105">
                                 <Image
                                     src="/lofilm_logo.webp"
-                                    alt="LoFilm Logo"
+                                    alt="LoFilm - Xem phim online chất lượng cao"
                                     width={140}
                                     height={70}
                                     unoptimized
@@ -117,7 +117,7 @@ export default function Footer() {
                             <Image
                                 src="/lofilm_logo.webp"
                                 fill
-                                alt=''
+                                alt='LoFilm Cinematic'
                                 loading='eager'
                                 unoptimized
                                 sizes="350px"

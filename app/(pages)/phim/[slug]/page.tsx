@@ -81,7 +81,7 @@ export default async function MoviePage({
     }
 
 
-    // Schema dữ liệu cấu trúc (JSON-LD) cho SEO
+    // Schema dữ liệu cấu trúc (JSON-LD) cho SEO - Nâng cấp với đầy đủ thông tin
     const jsonLd = {
         "@context": "https://schema.org",
         "@type": "Movie",
@@ -90,11 +90,23 @@ export default async function MoviePage({
         "description": (detail.movie.content || "").replace(/<[^>]*>/g, ''),
         "image": detail.movie.poster_url,
         "datePublished": detail.movie.year,
-        "director": {
+        "director": (detail.movie.director || []).map(name => ({
             "@type": "Person",
-            "name": detail.movie.director?.[0] || "Đang cập nhật"
-        },
+            "name": name
+        })),
+        "actor": (detail.movie.actor || []).slice(0, 10).map(name => ({
+            "@type": "Person",
+            "name": name
+        })),
         "genre": detail.movie.category?.map(c => c.name),
+        "duration": detail.movie.time,
+        "aggregateRating": detail.movie.tmdb?.vote_average ? {
+            "@type": "AggregateRating",
+            "ratingValue": detail.movie.tmdb.vote_average,
+            "bestRating": "10",
+            "worstRating": "1",
+            "ratingCount": detail.movie.tmdb.vote_count || "100"
+        } : undefined,
         "url": `https://www.munos.store/phim/${slug}`
     };
 

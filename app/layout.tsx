@@ -29,16 +29,25 @@ import AdsterraSocialBar from "./components/Ads/AdsterraSocialBar";
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
-  themeColor: '#0a1628',
+  maximumScale: 5, // Cho phép zoom để cải thiện accessibility
+  userScalable: true,
+  themeColor: [
+    { media: '(prefers-color-scheme: light)', color: '#0a1628' },
+    { media: '(prefers-color-scheme: dark)', color: '#000000' },
+  ],
   viewportFit: 'cover',
 };
 
 export const metadata: Metadata = {
   metadataBase: new URL('https://www.munos.store'),
-  title: "LoFilm - Xem Phim Online Chất Lượng Cao | Phim 4K Vietsub Miễn Phí",
+  title: {
+    default: "LoFilm - Xem Phim Online Chất Lượng Cao | Phim 4K Vietsub Miễn Phí",
+    template: "%s | LoFilm"
+  },
   description: "LoFilm - Trang xem phim online chất lượng cao 4K, Vietsub, thuyết minh hoàn toàn miễn phí. Kho phim lẻ, phim bộ, anime, phim chiếu rạp mới nhất 2025-2026. Trải nghiệm xem phim LoFilm không quảng cáo, tốc độ tải cực nhanh, giao diện hiện đại.",
+  applicationName: 'LoFilm',
+  authors: [{ name: 'LoFilm Team' }],
+  generator: 'Next.js',
   manifest: '/manifest.json',
   keywords: [
     "LoFilm", "lofilm", "lo film", "lofilmtv", "lofilm net", "lofilm me", "lofilm chill", "lofilm phim", 
@@ -51,6 +60,23 @@ export const metadata: Metadata = {
     "phim nhat ban", "phim viet nam", "phim moi nhat", "xem phim nhanh", "phim chat luong cao", 
     "phim 1080p", "phim bluray", "phim netflix", "phim hulu", "phim disney", "phim hay moi ngay"
   ],
+  referrer: 'origin-when-cross-origin',
+  creator: 'LoFilm',
+  publisher: 'LoFilm',
+  formatDetection: {
+    email: false,
+    address: false,
+    telephone: false,
+  },
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: 'default',
+    title: 'LoFilm',
+  },
+  icons: {
+    icon: '/favicon.ico',
+    apple: '/lofilm_logo.webp',
+  },
   robots: {
     index: true,
     follow: true,
@@ -84,6 +110,9 @@ export const metadata: Metadata = {
   },
   alternates: {
     canonical: '/',
+    languages: {
+      'vi-VN': '/',
+    },
   },
 };
 

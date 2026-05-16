@@ -51,10 +51,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
     }));
 
-    // 4. Lấy danh sách phim mới nhất - mở rộng lên 10 trang (~200 phim)
+    // 4. Lấy danh sách phim mới nhất - mở rộng lên 50 trang (~1000 phim)
     let movieRoutes: any[] = [];
     try {
-        const pages = Array.from({ length: 10 }, (_, i) => i + 1);
+        const pages = Array.from({ length: 50 }, (_, i) => i + 1);
         const moviePromises = pages.map(page =>
             fetch(`${API_BASE}/danh-sach/phim-moi-cap-nhat?page=${page}`)
                 .then(res => res.json())
