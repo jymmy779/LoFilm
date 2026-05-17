@@ -303,11 +303,11 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
 
         fetchMovies();
         
-        // Optimize scroll: small delay to let React render skeletons/content first, 
-        // avoiding layout shifts during scroll animation.
+        // Optimize scroll: small delay to let React render skeletons/content first.
+        // Use 'instant' instead of 'smooth' to prevent stuttering/lag on mobile/desktop.
         const scrollTimeout = setTimeout(() => {
             requestAnimationFrame(() => {
-                window.scrollTo({ top: 0, behavior: "smooth" });
+                window.scrollTo({ top: 0, behavior: "instant" });
             });
         }, 100);
 
