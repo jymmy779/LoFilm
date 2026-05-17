@@ -99,6 +99,8 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                     />
                 </LazyRow>
 
+                <SocialStatsSection />
+
                 <LazyRow id="slider-tv-shows" estimatedHeight="650px" skeleton={<FeaturedSliderSkeleton />}>
                     <FeaturedSlider
                         title="Showbiz cực cuốn"
@@ -157,8 +159,6 @@ export default function HomeClient({ prefetched }: { prefetched: HomePrefetch })
                         initialMovies={prefetched.nominated}
                     />
                 </LazyRow>
-
-                {/* <SocialStatsSection /> */}
 
                 <LazyRow id="slider-anime" estimatedHeight="650px" skeleton={<FeaturedSliderSkeleton />}>
                     <FeaturedSlider

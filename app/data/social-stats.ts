@@ -98,11 +98,16 @@ export const WEEKLY_FAVORITES = [
 ];
 
 export const HOT_GENRES = [
-  { id: 1, name: "Chính kịch", color: "#e11d48", trend: "neutral" },
-  { id: 2, name: "Hành Động", color: "#2563eb", trend: "up" },
-  { id: 3, name: "Hài Hước", color: "#7c3aed", trend: "down" },
-  { id: 4, name: "Phiêu Lưu", color: "#65a30d", trend: "down" },
-  { id: 5, name: "Tình Cảm", color: "#d97706", trend: "neutral" },
+  { id: 1, name: "Chính kịch", slug: "chinh-kich", color: "#e11d48", trend: "neutral" },
+  { id: 2, name: "Hành Động", slug: "hanh-dong", color: "#2563eb", trend: "up" },
+  { id: 3, name: "Hài Hước", slug: "hai-huoc", color: "#7c3aed", trend: "down" },
+  { id: 4, name: "Phiêu Lưu", slug: "phieu-luu", color: "#65a30d", trend: "down" },
+  { id: 5, name: "Tình Cảm", slug: "tinh-cam", color: "#d97706", trend: "neutral" },
+  { id: 6, name: "Viễn Tưởng", slug: "vien-tuong", color: "#06b6d4", trend: "up" },
+  { id: 7, name: "Kinh Dị", slug: "kinh-di", color: "#ef4444", trend: "up" },
+  { id: 8, name: "Hoạt Hình", slug: "hoat-hinh", color: "#f59e0b", trend: "neutral" },
+  { id: 9, name: "Hình Sự", slug: "hinh-su", color: "#3b82f6", trend: "down" },
+  { id: 10, name: "Cổ Trang", slug: "co-trang", color: "#10b981", trend: "up" },
 ];
 
 export const NEW_COMMENTS = [
