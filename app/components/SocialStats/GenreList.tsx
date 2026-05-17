@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Folder, X, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { createPortal } from "react-dom";
 import { HOT_GENRES } from "@/app/data/social-stats";
-import Link from "next/link";
+import TransitionLink from "@/app/components/Transition/TransitionLink";
 
 export default function GenreList() {
     const [isOpen, setIsOpen] = useState(false);
@@ -72,7 +72,7 @@ export default function GenreList() {
                                 <span className="text-white/20 text-[8px]">-</span>
                             )}
                         </div>
-                        <Link
+                        <TransitionLink
                             href={`/the-loai/${genre.slug}`}
                             className="px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full text-[9px] sm:text-[10px] font-bold transition-all duration-300 cursor-pointer"
                             style={{
@@ -82,7 +82,7 @@ export default function GenreList() {
                             }}
                         >
                             {genre.name}
-                        </Link>
+                        </TransitionLink>
                     </div>
                 ))}
             </div>
@@ -157,7 +157,7 @@ export default function GenreList() {
                                         </div>
 
                                         {/* Genre Pill shape matching design system */}
-                                        <Link
+                                        <TransitionLink
                                             href={`/the-loai/${genre.slug}`}
                                             onClick={() => setIsOpen(false)}
                                             className="px-2.5 py-1 sm:px-3.5 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold transition-all duration-300 cursor-pointer"
@@ -168,7 +168,7 @@ export default function GenreList() {
                                             }}
                                         >
                                             {genre.name}
-                                        </Link>
+                                        </TransitionLink>
                                     </div>
                                 );
                             })}
