@@ -131,7 +131,44 @@ export async function GET() {
             }
         });
     } catch (err: any) {
-        console.error("Top Comments API error:", err);
-        return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });
+        console.error("Top Comments API error (using local fallback data due to connection issue):", err);
+        try {
+            const { TOP_COMMENTS } = require('@/app/data/social-stats');
+            const fallbackComments = TOP_COMMENTS.map((c: any) => {
+                const slug = c.movie.title.toLowerCase()
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/đ/g, "d")
+                    .replace(/Đ/g, "d")
+                    .replace(/[^a-z0-9\s-]/g, "")
+                    .replace(/\s+/g, "-");
+
+                return {
+                    id: `fallback-${c.id}`,
+                    user: {
+                        name: c.user.name || "Thành viên",
+                        avatar: c.user.avatar
+                    },
+                    movie: {
+                        slug: slug,
+                        title: c.movie.title,
+                        poster: c.movie.poster,
+                        backdrop: c.movie.backdrop
+                    },
+                    content: c.content || "",
+                    upvotes: c.upvotes || 0,
+                    downvotes: c.downvotes || 0,
+                    replies: c.replies || 0,
+                    createdAt: Date.now()
+                };
+            });
+            return NextResponse.json(fallbackComments, {
+                headers: {
+                    'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60, max-age=0'
+                }
+            });
+        } catch (fallbackErr) {
+            return NextResponse.json({ error: 'Server error and fallback failed' }, { status: 500 });
+        }
     }
 }

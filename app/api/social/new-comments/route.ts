@@ -86,7 +86,34 @@ export async function GET() {
             }
         });
     } catch (err: any) {
-        console.error("New Comments API error:", err);
-        return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });
+        console.error("New Comments API error (using local fallback data due to connection issue):", err);
+        try {
+            const { NEW_COMMENTS } = require('@/app/data/social-stats');
+            const fallbackComments = NEW_COMMENTS.map((c: any) => {
+                const slug = c.movie.toLowerCase()
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/đ/g, "d")
+                    .replace(/Đ/g, "d")
+                    .replace(/[^a-z0-9\s-]/g, "")
+                    .replace(/\s+/g, "-");
+
+                return {
+                    id: `fallback-${c.id}`,
+                    user: c.user || "Thành viên",
+                    avatar: c.avatar,
+                    content: c.content || "",
+                    movie: c.movie,
+                    slug: slug
+                };
+            });
+            return NextResponse.json(fallbackComments, {
+                headers: {
+                    'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60, max-age=0'
+                }
+            });
+        } catch (fallbackErr) {
+            return NextResponse.json({ error: 'Server error and fallback failed' }, { status: 500 });
+        }
     }
 }

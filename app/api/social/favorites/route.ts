@@ -68,7 +68,31 @@ export async function GET() {
             }
         });
     } catch (err: any) {
-        console.error("Favorites API error:", err);
-        return NextResponse.json({ error: err.message || 'Server error' }, { status: 500 });
+        console.error("Favorites API error (using local fallback data due to connection issue):", err);
+        try {
+            const { WEEKLY_FAVORITES } = require('@/app/data/social-stats');
+            const fallbackFavorites = WEEKLY_FAVORITES.map((m: any) => {
+                const slug = m.title.toLowerCase()
+                    .normalize("NFD")
+                    .replace(/[\u0300-\u036f]/g, "")
+                    .replace(/đ/g, "d")
+                    .replace(/Đ/g, "d")
+                    .replace(/[^a-z0-9\s-]/g, "")
+                    .replace(/\s+/g, "-");
+
+                return {
+                    slug: slug,
+                    title: m.title,
+                    avatar: m.avatar
+                };
+            });
+            return NextResponse.json(fallbackFavorites, {
+                headers: {
+                    'Cache-Control': 'public, s-maxage=300, stale-while-revalidate=60, max-age=0'
+                }
+            });
+        } catch (fallbackErr) {
+            return NextResponse.json({ error: 'Server error and fallback failed' }, { status: 500 });
+        }
     }
 }
