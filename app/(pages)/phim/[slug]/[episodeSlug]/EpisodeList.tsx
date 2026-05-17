@@ -164,7 +164,7 @@ const EpisodeList = ({
               <TransitionLink
                 key={i}
                 href={`/phim/${slug}/${getFriendlyEpisodeSlug(ep.slug)}`}
-                transition={false}
+                transition={!isActive}
                 onClick={() => {
                   if (!isActive) onEpisodeClick?.();
                 }}

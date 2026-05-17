@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import axios from 'axios';
+import { fetchWithRedis } from '@/app/lib/fetch-with-redis';
 
 export const revalidate = 900; // Cache this route for 15 minutes
 
@@ -40,8 +41,8 @@ export async function GET() {
         await Promise.all(
             uniqueSlugs.map(async (slug) => {
                 try {
-                    const res = await axios.get(`https://phimapi.com/phim/${slug}`, { timeout: 5000 });
-                    const movieData = res.data?.movie;
+                    const data = await fetchWithRedis(`https://phimapi.com/phim/${slug}`, { revalidate: 43200 });
+                    const movieData = data?.movie;
                     if (movieData) {
                         movieNamesMap[slug] = movieData.name || "Phim";
                     }

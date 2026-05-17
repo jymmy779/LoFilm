@@ -461,11 +461,11 @@ export default function WatchClient({
 
                             // Nếu đang hiện danh sách tập, hoặc chạm vào các overlay chức năng, không can thiệp để cho phép tương tác bình thường
                             if (
-                                showEpisodeOverlayRef.current || 
-                                target.closest('[id="episode-list-container"]') || 
-                                target.closest('.z-\\[210\\]') || 
-                                target.closest('.z-\\[150\\]') || 
-                                target.closest('.z-\\[200\\]') || 
+                                showEpisodeOverlayRef.current ||
+                                target.closest('[id="episode-list-container"]') ||
+                                target.closest('.z-\\[210\\]') ||
+                                target.closest('.z-\\[150\\]') ||
+                                target.closest('.z-\\[200\\]') ||
                                 target.closest('.watch-top-overlay')
                             ) {
                                 return;
@@ -482,10 +482,10 @@ export default function WatchClient({
                             }
 
                             // 2. Kiểm tra nếu chạm vào vùng video (không phải các nút điều khiển mặc định của Plyr hoặc nút tùy chỉnh của mình)
-                            const isControl = target.closest('.plyr__controls') || 
-                                            target.closest('.plyr__control--overlaid') || 
-                                            target.closest('.plyr__control') || 
-                                            target.closest('.watch-top-overlay');
+                            const isControl = target.closest('.plyr__controls') ||
+                                target.closest('.plyr__control--overlaid') ||
+                                target.closest('.plyr__control') ||
+                                target.closest('.watch-top-overlay');
 
                             if (!isControl) {
                                 // Nếu controls đang hiện, thì toggle play
@@ -994,7 +994,7 @@ export default function WatchClient({
                                                 key={idx}
                                                 id={isActive ? 'active-episode' : undefined}
                                                 href={`/phim/${slug}/${epSlug}`}
-                                                transition={false}
+                                                transition={!isActive}
                                                 onClick={() => {
                                                     if (!isActive) {
                                                         setIsChangingEpisode(true);
