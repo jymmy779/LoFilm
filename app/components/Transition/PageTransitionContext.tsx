@@ -39,21 +39,63 @@ export function PageTransitionProvider({
   const pathname = usePathname();
   const [phase, setPhase] = useState<"idle" | "exiting" | "entering">("idle");
   const prevPathname = useRef(pathname);
+  const targetHrefRef = useRef<string | null>(null);
 
-  // Detect when pathname actually changes (navigation completed)
+  // 1. Detect standard pathname changes (for normal link clicks or page changes)
   useEffect(() => {
     if (pathname !== prevPathname.current) {
       prevPathname.current = pathname;
+      targetHrefRef.current = null; // Clear target ref
       
       // Navigation finished, show entering animation briefly
-      setPhase("entering");
+      requestAnimationFrame(() => {
+        setPhase("entering");
+      });
+      
       const timer = setTimeout(() => {
-        setPhase("idle");
+        requestAnimationFrame(() => {
+          setPhase("idle");
+        });
       }, ENTER_DURATION);
       
       return () => clearTimeout(timer);
     }
   }, [pathname]);
+
+  // 2. Detect query-only or same-page transitions (e.g. search pages or filter page changes)
+  // This runs on every render to check if the browser's URL now matches our target transition URL.
+  useEffect(() => {
+    if (phase === "exiting" && targetHrefRef.current) {
+      try {
+        const currentUrl = new URL(window.location.href);
+        const targetUrl = new URL(targetHrefRef.current, window.location.origin);
+        
+        if (
+          currentUrl.pathname === targetUrl.pathname &&
+          currentUrl.search === targetUrl.search
+        ) {
+          targetHrefRef.current = null;
+          requestAnimationFrame(() => {
+            setPhase("entering");
+          });
+          
+          const timer = setTimeout(() => {
+            requestAnimationFrame(() => {
+              setPhase("idle");
+            });
+          }, ENTER_DURATION);
+          
+          return () => clearTimeout(timer);
+        }
+      } catch {
+        // Fallback if URL is invalid
+        targetHrefRef.current = null;
+        requestAnimationFrame(() => {
+          setPhase("idle");
+        });
+      }
+    }
+  }); // Runs on every render, client-side only
 
   const navigateWithTransition = useCallback(
     (href: string, isHard: boolean = false) => {
@@ -76,6 +118,9 @@ export function PageTransitionProvider({
           }
         } catch { /* invalid href */ }
       }
+
+      // Store target URL to track same-page query changes (e.g. search page search term changes)
+      targetHrefRef.current = href;
 
       // PHASE 1: TRIGGER EXITING IMMEDIATELY (INSTANT FEEDBACK)
       setPhase("exiting");
