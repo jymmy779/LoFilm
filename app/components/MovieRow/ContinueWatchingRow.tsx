@@ -218,7 +218,7 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
     if (!isLoading && !isAuthLoading && history.length === 0) return null;
 
     return (
-        <Container as="section" className="continue-watching-section relative z-30 animate-fade-in">
+        <Container as="section" className="continue-watching-section relative z-30">
             <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/40 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 relative overflow-hidden">
                 {/* Background Decor subtle */}
                 <div className="absolute top-0 left-0 w-32 h-32 bg-amber-400/5 blur-[100px] pointer-events-none"></div>

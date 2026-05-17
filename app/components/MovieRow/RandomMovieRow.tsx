@@ -115,7 +115,7 @@ function RandomMovieRow() {
     }
 
     return (
-        <Container as="section" className="relative z-30 animate-fade-in">
+        <Container as="section" className="relative z-30">
             {/* Header */}
             <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-5">
                 <div className="flex items-center gap-3">
@@ -173,7 +173,7 @@ function RandomMovieRow() {
             {/* Movies Swiper */}
             <div className="relative ">
                 {isLoading ? (
-                    <div key="loading" className="w-full animate-fade-in">
+                    <div className="w-full">
                         <Swiper
                             spaceBetween={10}
                             slidesPerView={2.5}
@@ -193,7 +193,7 @@ function RandomMovieRow() {
                         </Swiper>
                     </div>
                 ) : movies.length > 0 ? (
-                    <div key={selectedMood.id} className="animate-scale-in">
+                    <div>
                         <Swiper
                             spaceBetween={10}
                             slidesPerView={2.5}
@@ -248,7 +248,7 @@ function RandomMovieRow() {
                         </Swiper>
                     </div>
                 ) : (
-                    <div key="empty" className="flex flex-col items-center justify-center py-20 text-white/40 animate-fade-in">
+                    <div className="flex flex-col items-center justify-center py-20 text-white/40">
                         <p className="italic text-sm">Hiện chưa có phim nào cho tâm trạng này, hãy thử cái khác nhé!</p>
                     </div>
                 )}

@@ -52,7 +52,7 @@ export default function ReunificationEvent() {
     if (isLoading) return <ReunificationEventSkeleton />;
 
     return (
-        <Container as="section" className="relative z-30 animate-fade-in">
+        <Container as="section" className="relative z-30">
             {/* BANNER DESIGN: Warm Beige Background with Red Accents */}
             <div className="relative w-full rounded-[2rem] md:rounded-[2.5rem] overflow-hidden bg-[#fdf8e6] border-2 md:border-4 border-[#e2dcc8] p-5 md:p-10 lg:p-12">
 
@@ -82,8 +82,7 @@ export default function ReunificationEvent() {
                     {movies.map((movie, idx) => (
                         <div
                             key={movie._id}
-                            className="group flex flex-col items-center animate-fade-in"
-                            style={{ animationDelay: `${idx * 100}ms` }}
+                            className="group flex flex-col items-center"
                         >
                             <TransitionLink href={`/phim/${movie.slug}`} className="relative w-full aspect-[2/3] rounded-2xl overflow-hidden border border-red-500/10 transition-all duration-500 bg-gray-200 block">
                                 <SmartImage

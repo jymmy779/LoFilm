@@ -57,7 +57,7 @@ export default function CategoriesSection({ initialCategories }: CategoriesSecti
     const displayCategories = categories.slice(0, 8);
 
     return (
-        <Container as="section" className="relative z-30 -mt-[90px] md:-mt-[120px] pointer-events-none animate-fade-in">
+        <Container as="section" className="relative z-30 -mt-[90px] md:-mt-[120px] pointer-events-none">
             <h2 className=" text-xl lg:text-2xl font-bold text-white mb-6">Bạn đang quan tâm gì?</h2>
 
             {/* Grid layout cho 8 danh mục */}

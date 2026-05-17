@@ -76,7 +76,7 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
     if (movies.length === 0) return null;
 
     return (
-        <Container as="section" className="relative animate-fade-in">
+        <Container as="section" className="relative">
             <div className="row-header flex items-center justify-between mb-6">
                 <h2 className="text-[20px] lg:text-[28px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-green-200 via-green-100 to-white drop-shadow-sm flex items-center gap-4">
                     {title}

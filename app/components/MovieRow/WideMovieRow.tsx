@@ -44,7 +44,7 @@ function WideMovieRow({
     if (movies.length === 0) return null;
 
     return (
-        <Container as="section" className="relative z-30 animate-fade-in">
+        <Container as="section" className="relative z-30">
             {/* Header */}
             <div className="row-header flex items-center justify-between mb-4 md:mb-6">
                 <h2 className="category-name text-xl md:text-2xl lg:text-3xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-orange-400 via-orange-200 to-white drop-shadow-sm">

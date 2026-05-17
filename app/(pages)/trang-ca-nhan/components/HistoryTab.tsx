@@ -48,7 +48,7 @@ export default function HistoryTab({ watchHistory, isHistoryLoading, onDeleteIte
         </div>
       ) : watchHistory.length > 0 ? (
         <div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 animate-fade-in"
+          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
         >
           {watchHistory.map((item) => {
             const progress = (item.watched_seconds / item.duration) * 100;

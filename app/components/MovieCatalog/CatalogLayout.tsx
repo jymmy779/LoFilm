@@ -54,7 +54,7 @@ export default function CatalogLayout({
     sidebarProps
 }: CatalogLayoutProps) {
     return (
-        <main className="pt-30 md:pt-40 pb-12 min-h-screen animate-fade-in">
+        <main className="pt-30 md:pt-40 pb-12 min-h-screen">
             <Container>
                 <div className="catalog-page">
                     <CatalogHeader title={title} />
@@ -72,27 +72,9 @@ export default function CatalogLayout({
                             {/* Main Content Area */}
                             <div className="flex-grow w-full lg:min-w-0">
                                 <div className="relative">
-                                    {/* Pagination Loading Overlay */}
-                                    {isPageLoading && (
-                                        <div className="absolute inset-0 z-40 bg-[#0f1115]/40 transition-opacity duration-300">
-                                            <div className="sticky top-1/2 -translate-y-1/2 w-full flex justify-center">
-                                                <div className="scale-110">
-                                                    {/* Pure Spinner Ring */}
-                                                    <div className="h-10 w-10 animate-spin-loader rounded-full border-2 border-white/10 border-t-[#f5a623]"></div>
-                                                </div>
-                                            </div>
-
-                                            <style jsx>{`
-                                                @keyframes spin-loader { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-                                                @keyframes pulse-loader { 0%, 100% { transform: scale(1); opacity: 0.3; } 50% { transform: scale(1.1); opacity: 0.6; } }
-                                                .animate-spin-loader { animation: spin-loader 0.8s linear infinite; }
-                                                .animate-pulse-loader { animation: pulse-loader 1.2s ease-in-out infinite; }
-                                            `}</style>
-                                        </div>
-                                    )}
-                                    <div className={`transition-opacity duration-300 ${isPageLoading ? 'opacity-40' : 'opacity-100'}`}>
-                                        <div key={`${isLoading}-${currentPage}`} className="animate-fade-in-simple">
-                                            {isLoading ? (
+                                    <div>
+                                        <div className="w-full">
+                                            {isLoading || isPageLoading ? (
                                                 <div
                                                     className={`grid gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 ${hideSidebar
                                                         ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8"

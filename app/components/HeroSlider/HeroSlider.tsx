@@ -76,7 +76,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
     const currentMovie = movies[activeIndex];
 
     return (
-        <section id="top_slider" className="animate-fade-in w-full relative h-[500px] md:h-[700px] lg:h-[850px] overflow-hidden">
+        <section id="top_slider" className="w-full relative h-[500px] md:h-[700px] lg:h-[850px] overflow-hidden">
             {/* === MAIN SWIPER (Background only) === */}
             <Swiper
                 modules={[Autoplay, EffectFade, Thumbs]}

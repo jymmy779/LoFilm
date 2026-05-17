@@ -553,8 +553,7 @@ export default function ProfileContent() {
             {/* Main Content Area */}
             <div className="flex-1 min-h-[400px] lg:min-h-[600px] lg:w-auto w-full">
               <div
-                key={activeTab}
-                className="bg-[#16213e] border border-white/5 rounded-3xl md:rounded-[40px] p-6 relative overflow-hidden animate-fade-in"
+                className="bg-[#16213e] border border-white/5 rounded-3xl md:rounded-[40px] p-6 relative overflow-hidden"
               >
                 <div className="max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
                   {activeTab === 'overview' && (
