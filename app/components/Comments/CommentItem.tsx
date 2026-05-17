@@ -280,12 +280,14 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                         <div
                             className={`overflow-hidden transition-all duration-300 ease-in-out ${isEditing ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}
                         >
-                            <CommentInput
-                                isEdit={true}
-                                initialContent={commentContent}
-                                onSubmit={handleUpdate}
-                                onCancel={() => setIsEditing(false)}
-                            />
+                            {isEditing && (
+                                <CommentInput
+                                    isEdit={true}
+                                    initialContent={commentContent}
+                                    onSubmit={handleUpdate}
+                                    onCancel={() => setIsEditing(false)}
+                                />
+                            )}
                         </div>
                         {!isEditing && (
                             <div className={`${comment.is_spoiler && !showSpoiler ? "text-spoiler" : "text-spoiler revealed"} animate-fade-in`}>
@@ -362,12 +364,14 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                         <div
                             className={`overflow-hidden transition-all duration-300 ease-in-out ${showReplyForm ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}
                         >
-                            <CommentInput
-                                isReply={true}
-                                placeholder={`Trả lời ${displayName}...`}
-                                onSubmit={handleAddReply}
-                                onCancel={() => setShowReplyForm(false)}
-                            />
+                            {showReplyForm && (
+                                <CommentInput
+                                    isReply={true}
+                                    placeholder={`Trả lời ${displayName}...`}
+                                    onSubmit={handleAddReply}
+                                    onCancel={() => setShowReplyForm(false)}
+                                />
+                            )}
                         </div>
                     </div>
                 </div>

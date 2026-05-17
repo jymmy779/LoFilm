@@ -63,9 +63,17 @@ export function PageTransitionProvider({
   }, [pathname]);
 
   // 2. Detect query-only or same-page transitions (e.g. search pages or filter page changes)
-  // This runs on every render to check if the browser's URL now matches our target transition URL.
+  // We use a polling mechanism when in "exiting" phase to detect when the URL changes,
+  // since query-only updates in Next.js might not trigger a layout re-render in production.
   useEffect(() => {
-    if (phase === "exiting" && targetHrefRef.current) {
+    if (phase !== "exiting" || !targetHrefRef.current) return;
+
+    let intervalId: NodeJS.Timeout;
+    let timeoutId: NodeJS.Timeout;
+    let idleTimer: NodeJS.Timeout;
+
+    const checkUrl = () => {
+      if (!targetHrefRef.current) return;
       try {
         const currentUrl = new URL(window.location.href);
         const targetUrl = new URL(targetHrefRef.current, window.location.origin);
@@ -74,28 +82,50 @@ export function PageTransitionProvider({
           currentUrl.pathname === targetUrl.pathname &&
           currentUrl.search === targetUrl.search
         ) {
+          // Found match! Clear target and transition
           targetHrefRef.current = null;
+          clearInterval(intervalId);
+          clearTimeout(timeoutId);
+          
           requestAnimationFrame(() => {
             setPhase("entering");
           });
           
-          const timer = setTimeout(() => {
+          idleTimer = setTimeout(() => {
             requestAnimationFrame(() => {
               setPhase("idle");
             });
           }, ENTER_DURATION);
-          
-          return () => clearTimeout(timer);
         }
       } catch {
         // Fallback if URL is invalid
         targetHrefRef.current = null;
+        clearInterval(intervalId);
+        clearTimeout(timeoutId);
         requestAnimationFrame(() => {
           setPhase("idle");
         });
       }
-    }
-  }); // Runs on every render, client-side only
+    };
+
+    // Poll every 50ms
+    intervalId = setInterval(checkUrl, 50);
+
+    // Safety timeout: if navigation is stuck for more than 2.5s, force idle phase so user is not blocked
+    timeoutId = setTimeout(() => {
+      targetHrefRef.current = null;
+      clearInterval(intervalId);
+      requestAnimationFrame(() => {
+        setPhase("idle");
+      });
+    }, 2500);
+
+    return () => {
+      clearInterval(intervalId);
+      clearTimeout(timeoutId);
+      if (idleTimer) clearTimeout(idleTimer);
+    };
+  }, [phase]);
 
   const navigateWithTransition = useCallback(
     (href: string, isHard: boolean = false) => {
