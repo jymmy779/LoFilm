@@ -1,5 +1,6 @@
 import { cache } from 'react';
 import Redis from 'ioredis';
+import axios from 'axios';
 
 const DEFAULT_REVALIDATE_SEC = 60; // Cache 60 giây theo ý bạn
 
@@ -21,7 +22,7 @@ try {
 
 /**
  * fetchWithRedis: Sử dụng Redis RAM Cache để tăng tốc tối đa.
- * Nếu Redis lỗi, sẽ tự động dùng fetch thông thường (Fallback).
+ * Nếu Redis lỗi, sẽ tự động dùng axios thông thường (Fallback).
  */
 export const fetchWithRedis = cache(async (url: string, options?: RequestInit & { revalidate?: number | false }): Promise<any> => {
     const rawRevalidate = options?.revalidate ?? options?.next?.revalidate ?? DEFAULT_REVALIDATE_SEC;
@@ -42,21 +43,19 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
         }
     }
 
-    // 2. Nếu không có trong cache, gọi API gốc
+    // 2. Nếu không có trong cache, gọi API gốc bằng Axios để tránh bị Next.js Fetch Cache lỗi/kẹt 404
     const fetchWithRetry = async (retryCount = 0): Promise<any> => {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 30000); // Nâng lên 30 giây
-
         try {
-            const response = await fetch(url, {
-                ...options,
-                signal: controller.signal,
+            const response = await axios.get(url, {
+                timeout: 20000, // 20 giây timeout
+                headers: {
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'Accept': 'application/json',
+                }
             });
 
-            clearTimeout(timeoutId);
-
-            if (response.ok) {
-                const data = await response.json();
+            if (response.status === 200 && response.data) {
+                const data = response.data;
                 if (redis && data) {
                     try {
                         await redis.setex(cacheKey, revalidate, JSON.stringify(data));
@@ -66,15 +65,14 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
                 }
                 return data;
             } else {
-                throw new Error(`API returned ${response.status}`);
+                throw new Error(`API returned status ${response.status}`);
             }
         } catch (error: any) {
-            clearTimeout(timeoutId);
             if (retryCount < 1) { // Thử lại 1 lần nữa nếu lỗi
                 // console.log(`[Retrying] ${url} - lần ${retryCount + 1}`);
                 return fetchWithRetry(retryCount + 1);
             }
-            console.error(`[Fetch Error After Retry] ${url}`, error.message);
+            console.error(`[Axios Fetch Error After Retry] ${url}`, error.message);
             return null;
         }
     };

@@ -39,16 +39,18 @@ export default function WakeUpMonitor() {
     document.addEventListener("visibilitychange", handleVisibilityChange);
 
     // Lắng nghe sự kiện quay lại từ Back/Forward Cache (Mobile hay dùng cái này)
-    window.addEventListener("pageshow", (event) => {
+    const handlePageShow = (event: PageTransitionEvent) => {
       if (event.persisted) {
         console.log("[WakeUpMonitor] Page restored from bfcache. Refreshing...");
         router.refresh();
       }
-    });
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
 
     return () => {
       document.removeEventListener("visibilitychange", handleVisibilityChange);
-      window.removeEventListener("pageshow", () => {});
+      window.removeEventListener("pageshow", handlePageShow);
     };
   }, [router]);
 
