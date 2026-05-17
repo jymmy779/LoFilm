@@ -19,9 +19,11 @@ export default function CommentSection({ movieSlug }: CommentSectionProps) {
     const [comments, setComments] = useState<any[]>([]);
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
+    const [visibleCount, setVisibleCount] = useState(5);
     const supabase = createClient();
 
     useEffect(() => {
+        setVisibleCount(5); // Reset visible count when movie changes
         const fetchUser = async () => {
             const { data: { session } } = await supabase.auth.getSession();
             setUser(session?.user || null);
@@ -130,16 +132,47 @@ export default function CommentSection({ movieSlug }: CommentSectionProps) {
                         ))}
                     </div>
                 ) : comments.length > 0 ? (
-                    comments.map(comment => (
-                        <CommentItem
-                            key={comment.id}
-                            comment={comment}
-                            user={user}
-                            movieSlug={movieSlug}
-                            onReplyAdded={() => { }}
-                            onDelete={(id) => setComments(comments.filter(c => c.id !== id))}
-                        />
-                    ))
+                    <>
+                        <div className="flex flex-col gap-6">
+                            {comments.slice(0, visibleCount).map(comment => (
+                                <CommentItem
+                                    key={comment.id}
+                                    comment={comment}
+                                    user={user}
+                                    movieSlug={movieSlug}
+                                    onReplyAdded={() => { }}
+                                    onDelete={(id) => setComments(comments.filter(c => c.id !== id))}
+                                />
+                            ))}
+                        </div>
+
+                        {(comments.length > visibleCount || visibleCount > 5) && (
+                            <div className="flex justify-center items-center gap-4 mt-6">
+                                {comments.length > visibleCount && (
+                                    <button
+                                        onClick={() => setVisibleCount(prev => prev + 5)}
+                                        className="group text-[12px] md:text-[13px] text-white/40 hover:text-[#f5a623] font-semibold transition-colors duration-300 cursor-pointer flex items-center gap-1.5 py-2 px-4"
+                                    >
+                                        <span>Xem thêm bình luận (+{comments.length - visibleCount})</span>
+                                        <i className="fa-solid fa-chevron-down text-[10px] group-hover:translate-y-0.5 transition-transform duration-300"></i>
+                                    </button>
+                                )}
+
+                                {visibleCount > 5 && (
+                                    <button
+                                        onClick={() => {
+                                            setVisibleCount(5);
+                                            document.querySelector('.comment-section')?.scrollIntoView({ behavior: 'instant', block: 'start' });
+                                        }}
+                                        className="group text-[12px] md:text-[13px] text-white/30 hover:text-red-400 font-semibold transition-colors duration-300 cursor-pointer flex items-center gap-1.5 py-2 px-4"
+                                    >
+                                        <span>Thu gọn</span>
+                                        <i className="fa-solid fa-chevron-up text-[10px] group-hover:-translate-y-0.5 transition-transform duration-300"></i>
+                                    </button>
+                                )}
+                            </div>
+                        )}
+                    </>
                 ) : (
                     <div className="text-center py-10 md:py-14 bg-white/[0.02] border border-white/10 rounded-2xl">
                         <div className="w-12 h-12 bg-white/5 rounded-full flex items-center justify-center mx-auto mb-3 text-white/10">
