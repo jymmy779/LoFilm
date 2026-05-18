@@ -362,6 +362,45 @@ function getRandomPastDate() {
     return now.toISOString();
 }
 
+// Helper: Dynamically determine the comment pool selector/profile per movie for organic realism
+function getCommentPoolSelector(defaultPool) {
+    const roll = Math.random();
+    
+    // Profile 1: Pure Positive Hype (35% chance)
+    if (roll < 0.35) {
+        return (isEpisode = false) => {
+            return isEpisode ? GENZ_COMMENTS_POOL.episode : defaultPool;
+        };
+    }
+    
+    // Profile 2: Highly Critical / Controversial (15% chance)
+    if (roll < 0.50) {
+        return (isEpisode = false) => {
+            const rand = Math.random();
+            if (rand < 0.50) return GENZ_COMMENTS_POOL.negative;
+            if (rand < 0.90) return isEpisode ? GENZ_COMMENTS_POOL.episode : defaultPool;
+            return GENZ_COMMENTS_POOL.experience;
+        };
+    }
+    
+    // Profile 3: Technical / Sync / Translation discussion (15% chance)
+    if (roll < 0.65) {
+        return (isEpisode = false) => {
+            const rand = Math.random();
+            if (rand < 0.50) return GENZ_COMMENTS_POOL.experience;
+            return isEpisode ? GENZ_COMMENTS_POOL.episode : defaultPool;
+        };
+    }
+    
+    // Profile 4: Standard Organic Mix (35% chance)
+    return (isEpisode = false) => {
+        const rand = Math.random();
+        if (rand < 0.15) return GENZ_COMMENTS_POOL.negative;
+        if (rand < 0.30) return GENZ_COMMENTS_POOL.experience;
+        return isEpisode ? GENZ_COMMENTS_POOL.episode : defaultPool;
+    };
+}
+
 // Helper: Sleep delay
 const sleep = (ms) => new Promise(resolve => setTimeout(resolve, ms));
 
@@ -626,25 +665,24 @@ async function seedInteractions() {
         console.log(`--------------------------------------------------`);
         console.log(`🎬 [${mIdx + 1}/${selectedMovies.length}] Seeding movie: "${movie.name}" (${movie.slug})`);
 
-        // 1. SEED COMMENTS WITH HIGH INDIVIDUAL EPISODE DISTRIBUTION
+        // 1. SEED COMMENTS WITH HIGH INDIVIDUAL EPISODE DISTRIBUTION (MAX 18-28 COMMENTS PER MOVIE)
         const commentsToInsert = [];
         const totalEpisodes = movie.episodes.length;
         const commentPool = GENZ_COMMENTS_POOL[movie.categoryType] || GENZ_COMMENTS_POOL.general;
+        const selectPool = getCommentPoolSelector(commentPool);
         const shuffledUsers = [...VIRTUAL_PROFILES].sort(() => 0.5 - Math.random());
         let userPointer = 0;
 
+        // Smart cap: Limit total comments per movie between 18 and 28 comments max
+        const maxCommentsCap = Math.floor(Math.random() * 11) + 18; 
+        let remainingBudget = maxCommentsCap;
+
         // A. General comments: seed only 1 to 2 comments directly on the general page
-        const genCount = Math.floor(Math.random() * 2) + 1; // 1 or 2 comments
+        const genCount = Math.min(remainingBudget, Math.floor(Math.random() * 2) + 1); // 1 or 2 comments
         for (let i = 0; i < genCount; i++) {
             if (userPointer >= shuffledUsers.length) break;
             const user = shuffledUsers[userPointer++];
-            const rand = Math.random();
-            let chosenPool = commentPool;
-            if (rand < 0.15) {
-                chosenPool = GENZ_COMMENTS_POOL.negative;
-            } else if (rand < 0.30) {
-                chosenPool = GENZ_COMMENTS_POOL.experience;
-            }
+            const chosenPool = selectPool(false);
             const content = decorateComment(chosenPool[Math.floor(Math.random() * chosenPool.length)]);
             const realUserId = validUserIds[Math.floor(Math.random() * validUserIds.length)];
 
@@ -657,6 +695,7 @@ async function seedInteractions() {
                 is_spoiler: Math.random() < 0.1,
                 created_at: getRandomPastDate()
             });
+            remainingBudget--;
         }
 
         // B. Episode comments: seed comments for active episodes
@@ -666,14 +705,29 @@ async function seedInteractions() {
             : Math.min(totalEpisodes, 5);
 
         if (movie.isCompleted && totalEpisodes > 1) {
-            console.log(`   ✨ Completed series (HT) detected! Spreading comments across ALL ${totalEpisodes} episodes.`);
+            console.log(`   ✨ Completed series (HT) detected! Spreading comments across ALL ${totalEpisodes} episodes (capped at max ${maxCommentsCap} comments).`);
         }
 
         for (let epIdx = 0; epIdx < maxEpisodesToSeed; epIdx++) {
+            if (remainingBudget <= 0) break;
+
             const episodeSlug = movie.episodes[epIdx];
-            const epCommentsCount = totalEpisodes === 1
-                ? Math.floor(Math.random() * 3) + 4  // 4 to 6 comments for single episode movies (like Phim Lẻ)
-                : Math.floor(Math.random() * 2) + 2; // 2 or 3 comments per episode for series (TV Shows / Phim Bộ)
+            
+            // Distribute remaining budget intelligently and organically across episodes
+            let epCommentsCount = 0;
+            if (totalEpisodes === 1) {
+                epCommentsCount = Math.min(remainingBudget, Math.floor(Math.random() * 3) + 4); // 4 to 6 comments for single episode movies (like Phim Lẻ)
+            } else if (totalEpisodes > 8) {
+                // For long series, have some episodes with 0, 1, or 2 comments organically
+                const randEp = Math.random();
+                if (randEp < 0.35) epCommentsCount = 0;
+                else if (randEp < 0.85) epCommentsCount = 1;
+                else epCommentsCount = 2;
+                epCommentsCount = Math.min(remainingBudget, epCommentsCount);
+            } else {
+                // For shorter series
+                epCommentsCount = Math.min(remainingBudget, Math.floor(Math.random() * 2) + 1); // 1 or 2 comments per episode for series (TV Shows / Phim Bộ)
+            }
 
             for (let i = 0; i < epCommentsCount; i++) {
                 if (userPointer >= shuffledUsers.length) {
@@ -681,14 +735,7 @@ async function seedInteractions() {
                     userPointer = 0;
                 }
                 const user = shuffledUsers[userPointer++];
-                const epPool = GENZ_COMMENTS_POOL.episode;
-                const rand = Math.random();
-                let chosenPool = epPool;
-                if (rand < 0.15) {
-                    chosenPool = GENZ_COMMENTS_POOL.negative;
-                } else if (rand < 0.30) {
-                    chosenPool = GENZ_COMMENTS_POOL.experience;
-                }
+                const chosenPool = selectPool(true);
                 const content = decorateComment(chosenPool[Math.floor(Math.random() * chosenPool.length)]);
                 const realUserId = validUserIds[Math.floor(Math.random() * validUserIds.length)];
 
@@ -701,6 +748,7 @@ async function seedInteractions() {
                     is_spoiler: Math.random() < 0.15,
                     created_at: getRandomPastDate()
                 });
+                remainingBudget--;
             }
         }
 
