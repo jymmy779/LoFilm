@@ -552,16 +552,38 @@ async function seedSpecificMovies() {
     // =========================================================================
     const selectedSlugs = selectedMovies.map(m => m.slug);
 
-    // Fetch previously seeded comments for the system virtual user IDs and filter to target only selected movies
+    // Fetch previously seeded comments for the system virtual user IDs using robust pagination to bypass Supabase's 1000-row limit
+    let commentsData = [];
+    let page = 0;
+    const pageSize = 1000;
+    let hasMore = true;
+
+    while (hasMore) {
+        const { data, error } = await supabase
+            .from('comments')
+            .select('id, movie_slug')
+            .in('user_id', validUserIds)
+            .range(page * pageSize, (page + 1) * pageSize - 1);
+
+        if (error) {
+            console.warn(`   ⚠️ Warning: Failed to fetch previous comments batch ${page + 1}:`, error.message);
+            break;
+        }
+
+        if (!data || data.length === 0) {
+            hasMore = false;
+        } else {
+            commentsData = commentsData.concat(data);
+            if (data.length < pageSize) {
+                hasMore = false;
+            } else {
+                page++;
+            }
+        }
+    }
+
     let commentsToCleanup = [];
-    const { data: commentsData, error: commentsError } = await supabase
-        .from('comments')
-        .select('id, movie_slug')
-        .in('user_id', validUserIds);
-        
-    if (commentsError) {
-        console.warn(`   ⚠️ Warning: Failed to fetch previous comments for cleanup:`, commentsError.message);
-    } else if (commentsData) {
+    if (commentsData.length > 0) {
         // Filter comments to keep only those belonging to the selected movies or their episodes
         commentsToCleanup = commentsData.filter(comment => {
             if (!comment.movie_slug) return false;

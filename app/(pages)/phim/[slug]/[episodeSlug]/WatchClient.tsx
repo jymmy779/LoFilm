@@ -149,15 +149,37 @@ export default function WatchClient({
     }, [activeServerIndex, episodeSlug]);
 
     const videoSrc = useMemo(() => {
-        if (!episodes || episodes.length === 0) return episode.link_m3u8;
-        const server = episodes[activeServerIndex] || episodes[0];
-        const found = server.server_data.find((ep) => getFriendlyEpisodeSlug(ep.slug) === episodeSlug);
-        if (found) return found.link_m3u8;
-        for (const s of episodes) {
-            const f = s.server_data.find((ep) => getFriendlyEpisodeSlug(ep.slug) === episodeSlug);
-            if (f) return f.link_m3u8;
+        let originalSrc = episode.link_m3u8;
+        if (episodes && episodes.length > 0) {
+            const server = episodes[activeServerIndex] || episodes[0];
+            const found = server.server_data.find((ep) => getFriendlyEpisodeSlug(ep.slug) === episodeSlug);
+            if (found) {
+                originalSrc = found.link_m3u8;
+            } else {
+                for (const s of episodes) {
+                    const f = s.server_data.find((ep) => getFriendlyEpisodeSlug(ep.slug) === episodeSlug);
+                    if (f) {
+                        originalSrc = f.link_m3u8;
+                        break;
+                    }
+                }
+            }
         }
-        return episode.link_m3u8;
+
+        // Tự động bypass CORS bằng cách proxy hóa tất cả các link m3u8 dạng http/https
+        if (originalSrc && originalSrc.startsWith("http")) {
+            try {
+                const urlObj = new URL(originalSrc);
+                const host = urlObj.hostname;
+                const path = urlObj.pathname.startsWith("/") ? urlObj.pathname.slice(1) : urlObj.pathname;
+                const search = urlObj.search;
+                return `/api/video-proxy/${host}/${path}${search}`;
+            } catch (e) {
+                console.error("Lỗi khi chuyển đổi URL sang Proxy:", e);
+                return originalSrc;
+            }
+        }
+        return originalSrc;
     }, [activeServerIndex, episodeSlug, episodes, episode.link_m3u8]);
 
 
@@ -635,7 +657,7 @@ export default function WatchClient({
                 }
             });
 
-            if (Hls.isSupported() && videoSrc.endsWith('.m3u8')) {
+            if (Hls.isSupported() && (videoSrc.includes('.m3u8') || videoSrc.includes('/video-proxy/'))) {
                 const hls = new Hls({
                     capLevelToPlayerSize: true,
                     autoStartLoad: true,

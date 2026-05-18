@@ -67,8 +67,8 @@ const PlayerControls = ({
             {/* Server Dropdown */}
             <div
               className={`absolute bottom-full left-0 mb-3 w-48 bg-[#1a2b4b] border border-white/10 rounded-lg p-1 z-50 overflow-hidden transition-all duration-200 ease-out ${showServers
-                  ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
-                  : "opacity-0 translate-y-2 scale-95 pointer-events-none"
+                ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
+                : "opacity-0 translate-y-2 scale-95 pointer-events-none"
                 }`}
             >
               {episodes.map((server, index) => {

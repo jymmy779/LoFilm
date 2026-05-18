@@ -575,18 +575,37 @@ async function seedInteractions() {
     // =========================================================================
     console.log("🧹 Cleaning up previous virtual interactions to start fresh...");
     
-    // Fetch previously seeded comments for the system virtual user IDs
-    let commentsToCleanup = [];
-    const { data: commentsData, error: commentsError } = await supabase
-        .from('comments')
-        .select('id')
-        .in('user_id', validUserIds);
-        
-    if (commentsError) {
-        console.warn(`   ⚠️ Warning: Failed to fetch previous comments for cleanup:`, commentsError.message);
-    } else if (commentsData) {
-        commentsToCleanup = commentsData;
+    // Fetch previously seeded comments for the system virtual user IDs using robust pagination to bypass Supabase's 1000-row limit
+    let commentsData = [];
+    let page = 0;
+    const pageSize = 1000;
+    let hasMore = true;
+
+    while (hasMore) {
+        const { data, error } = await supabase
+            .from('comments')
+            .select('id')
+            .in('user_id', validUserIds)
+            .range(page * pageSize, (page + 1) * pageSize - 1);
+
+        if (error) {
+            console.warn(`   ⚠️ Warning: Failed to fetch previous comments batch ${page + 1}:`, error.message);
+            break;
+        }
+
+        if (!data || data.length === 0) {
+            hasMore = false;
+        } else {
+            commentsData = commentsData.concat(data);
+            if (data.length < pageSize) {
+                hasMore = false;
+            } else {
+                page++;
+            }
+        }
     }
+
+    let commentsToCleanup = commentsData;
         
     if (commentsToCleanup.length > 0) {
         const commentIds = commentsToCleanup.map(c => c.id);
