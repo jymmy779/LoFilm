@@ -82,8 +82,20 @@ export async function GET() {
             })
             .filter((c) => c !== null);
 
-        // Take only top 10 newest comments
-        const top10Comments = mappedComments.slice(0, 10);
+        // Deduplicate comments with identical content (case-insensitive, trimmed) to keep only the newest one
+        const seenContents = new Set();
+        const uniqueComments = [];
+        for (const comment of mappedComments) {
+            if (!comment) continue;
+            const normContent = comment.content.trim().toLowerCase();
+            if (!seenContents.has(normContent)) {
+                seenContents.add(normContent);
+                uniqueComments.push(comment);
+            }
+        }
+
+        // Take only top 10 newest unique comments
+        const top10Comments = uniqueComments.slice(0, 10);
 
         return NextResponse.json(top10Comments, {
             headers: {

@@ -128,7 +128,19 @@ export async function GET() {
             return b.createdAt - a.createdAt;
         });
 
-        const top20Comments = mappedComments.slice(0, 20);
+        // Deduplicate comments with identical content (case-insensitive, trimmed) to keep only the one with the highest upvotes
+        const seenContents = new Set();
+        const uniqueComments = [];
+        for (const comment of mappedComments) {
+            if (!comment) continue;
+            const normContent = comment.content.trim().toLowerCase();
+            if (!seenContents.has(normContent)) {
+                seenContents.add(normContent);
+                uniqueComments.push(comment);
+            }
+        }
+
+        const top20Comments = uniqueComments.slice(0, 20);
 
         return NextResponse.json(top20Comments, {
             headers: {

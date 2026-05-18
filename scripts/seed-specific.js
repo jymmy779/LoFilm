@@ -132,7 +132,26 @@ const GENZ_COMMENTS_POOL = {
         "mê từ cái nhìn đầu tiên lun á chời",
         "nhạc phim đỉnh thực sự nghe cuốn vcl",
         "chờ mãi mới có phim chất lượng thế này",
-        "coi xong lụy luôn á chời ui"
+        "coi xong lụy luôn á chời ui",
+        "má ơi phim gì mà cuốn dữ thần chời",
+        "vừa cày xong trong 1 đêm lun á thề ko phí thời gian",
+        "nhìn tạo hình thui đã thấy mùi đỉnh chóp rồi nha",
+        "dàn cast chất lượng vcl coi mà mê chữ ê kéo dài",
+        "vibe phim này chữa lành cực kì recommend nhen",
+        "cái kết làm tui xỉu up xỉu down lụy mất mấy ngày",
+        "có ai bị dính bộ này giống tui ko cứu tuiii",
+        "nhạc phim cất lên cái là nổi da gà lun á chời",
+        "coi giải trí cuối tuần bao phê nha cả nhà yêu",
+        "art với màu phim nịnh mắt ghê á",
+        "phim này ko coi là tiếc nửa đời người lun thề",
+        "mới coi tập 1 thui mà dính ngang ngược dị á chời :v",
+        "chấm 10/10 ko có nhưng nha quý dị",
+        "chemistry đỉnh thế này ko iu nhau hơi phí",
+        "chờ mỏi mòn cuối cùng cũng ra mắt rồi cày thôiii",
+        "phim cuốn vch coi ko dứt ra nổi lun á",
+        "nội dung bánh cuốn ghê đóng cũng đạt nữa",
+        "ôi mê cái vibe cổ điển/hiện đại này thực sự",
+        "coi xong lụy luôn dàn diễn viên phụ thương xỉu"
     ],
     korea: [
         "phim Hàn xẻng hồi giờ vẫn đỉnh đét",
@@ -143,7 +162,15 @@ const GENZ_COMMENTS_POOL = {
         "coi phim Hàn mà muốn có bồ ghê á",
         "nữ chính dễ thương xỉu, đóng tự nhiên vch",
         "cặp này ngọt ngào sâu răng lun chời ơi",
-        "ôi diễn xuất đỉnh vãi, chạm tới cảm xúc lun"
+        "ôi diễn xuất đỉnh vãi, chạm tới cảm xúc lun",
+        "nội dung đỉnh đét đúng chất drama xứ Hàn",
+        "oppa diễn tập này xuất thần ghê á trùi",
+        "khóc sụt sùi luôn chời ơi cảm động quáaa",
+        "visual tràn màn hình cứu rỗi linh hồn tui",
+        "coi phim Hàn chỉ để ngắm nam phụ thui á chời",
+        "nhạc phim bộ này nổi tiếng vch nghe hoài ko chán",
+        "coi phim mà thèm ăn mì Hàn Quốc ghê á trùi",
+        "cặp đôi chính chemistry tràn màn hình cưng xỉu"
     ],
     china: [
         "tạo hình cổ trang cưng xĩu á trùi",
@@ -153,7 +180,14 @@ const GENZ_COMMENTS_POOL = {
         "mê tạo hình của nữ chính ghê, xinh xỉu",
         "kịch bản hay, diễn xuất tự nhiên ko bị sượng trân",
         "phim này coi bánh cuốn dã man, đẩy thuyền nhiệt tình",
-        "ôi lọt hố bộ này rồi cứu tuiii"
+        "ôi lọt hố bộ này rồi cứu tuiii",
+        "nam chính thâm tình xỉu lên xỉu xuống chời ơi",
+        "kỹ xảo bộ này đỉnh đét ko bị giả trân nha",
+        "mê màu phim cổ trang này thực sự nịnh mắt vch",
+        "hóng từng tập mệt mỏi nhưng xứng đáng ghê",
+        "tạo hình thần tiên tỉ tỉ cưng xĩu á cả nhà",
+        "coi phim này mê mệt cả ngày lẫn đêm lun",
+        "kịch bản ngược luyến tàn tâm khóc hết nước mắt luôn trùi"
     ],
     horror: [
         "má ơi coi ban đêm sợ qué giật cả mình",
@@ -162,7 +196,12 @@ const GENZ_COMMENTS_POOL = {
         "sợ ma mà vẫn ham hố coi, coi xong ko dám đi vệ sinh lun :v",
         "phim này vibe rùng rợn dã man, đỉnh thực sự",
         "nhìn tạo hình ma quỷ ghê xỉu, coi hồi hộp vãi",
-        "phim kinh dị chất lượng nhất dạo gần đây, phê đét"
+        "phim kinh dị chất lượng nhất dạo gần đây, phê đét",
+        "coi một mình ban đêm nổi hết cả da gà da vịt",
+        "soundtrack phim này ghê rợn vcl ám ảnh thực sự",
+        "plot twist đỉnh chóp ko ngờ tới lun á chời",
+        "sợ qué mà ko dứt ra được cuốn vãi chưởng",
+        "coi xong tắt đèn đi ngủ vẫn ám ảnh khuôn mặt đó huuu"
     ],
     episode: [
         "ủa tập này cuốn thế chời ơi",
@@ -174,9 +213,80 @@ const GENZ_COMMENTS_POOL = {
         "chờ mỏi mòn mới ra tập mới coi phê vch",
         "tập này lấy nước mắt ghê, khóc mệt lun",
         "ôi tập này kịch tính dã man coi hồi hộp xỉu",
-        "ad ơi cập nhật tập mới nhanh nha hóng qué"
+        "ad ơi cập nhật tập mới nhanh nha hóng qué",
+        "ủa mới coi mà đã hết tập rồi nhanh dị chời",
+        "uây twist tập này sốc ngang cành hông lun á",
+        "hóng tập sau ghê ad ơi bão tập đi pleaseee",
+        "khóc hết nước mắt với phân cảnh cuối lun á",
+        "tập này ngọt sâu răng cưng xỉu đẩy thuyền gấp",
+        "nhân vật này tập này đáng thương quá trùi ưi",
+        "tập này kịch tính dã man coi hồi hộp muốn rớt tim",
+        "coi tập này xong thức trắng đêm hóng tập tiếp theo",
+        "ôi nam chính tập này ngầu lòi xỉu lên xỉu xuống",
+        "càng ngày càng hay nha kịch bản đỉnh vcl",
+        "tập này ngọt ngào quá coi mà quéo hết cả giò",
+        "ủa sao tập này ngắn thế coi chưa đã thèm nữa",
+        "ad cập nhật tập mới nhanh nha hóng muốn xỉu rồi",
+        "phan cảnh này làm tui cười rách cả miệng :)))",
+        "tập này drama ngập tràn coi mà tức giùm nữ chính",
+        "chemistry tập này đỉnh đét lun á chời",
+        "hết tập đúng khúc gây cấn tức ghê á trùi",
+        "tập này coi đi coi lại 3 lần vẫn phê",
+        "đúng khúc hay thì hết phim huuuu"
     ]
 };
+
+const usedCommentContents = new Set();
+
+// Helper: Decorate a comment to make it completely unique with cute GenZ slangs and emojis
+function decorateComment(baseText) {
+    let attempts = 0;
+    while (attempts < 100) {
+        let text = baseText;
+        let modified = false;
+        
+        // 1. Replacements: force more replacements or make them more active
+        if (Math.random() < 0.6 || !modified) {
+            const before = text;
+            text = text.replace(/\bkhông\b/g, Math.random() < 0.5 ? 'ko' : 'hông');
+            text = text.replace(/\bluôn\b/g, Math.random() < 0.5 ? 'lun' : 'lunnn');
+            text = text.replace(/\btrời\b/g, Math.random() < 0.5 ? 'chời' : 'trùi');
+            text = text.replace(/\byêu\b/g, Math.random() < 0.5 ? 'iu' : 'yew');
+            text = text.replace(/\bnha\b/g, Math.random() < 0.5 ? 'nhaaa' : 'nhen');
+            text = text.replace(/\bquá\b/g, Math.random() < 0.5 ? 'quáaa' : 'vcl');
+            if (text !== before) modified = true;
+        }
+
+        // 2. Random cute suffixes
+        const suffixes = [" áaa", " nhaaa", " lunnn", " trùi ưii", " chời ơi", " chời ạ", " á", " nè", " nha", " lun", " ghê", " á chời", " vcl", " vch", " dã man", " thực sự"];
+        if (Math.random() < 0.7 || !modified) {
+            text += suffixes[Math.floor(Math.random() * suffixes.length)];
+            modified = true;
+        }
+
+        // 3. Random emojis / text icons
+        const emojis = [" :))", " =))", " =]]", " :v", " ^^", " >.<", " :)))", " :-D", " <3", " :D", " ._.", " :]", " :P"];
+        if (Math.random() < 0.8 || !modified) {
+            text += emojis[Math.floor(Math.random() * emojis.length)];
+            modified = true;
+        }
+
+        text = text.replace(/\s+/g, ' ').trim();
+        
+        // If it's unique across the entire seed run, add to set and return
+        if (!usedCommentContents.has(text.toLowerCase())) {
+            usedCommentContents.add(text.toLowerCase());
+            return text;
+        }
+        
+        attempts++;
+    }
+    
+    // Fallback in case we hit 100 attempts: append a highly randomized unique suffix (e.g. random number/char)
+    const fallbackText = baseText + " " + Math.floor(Math.random() * 1000) + " :))";
+    usedCommentContents.add(fallbackText.toLowerCase());
+    return fallbackText;
+}
 
 // Helper: Get random date in past 7 days
 function getRandomPastDate() {
@@ -342,29 +452,26 @@ async function seedSpecificMovies() {
     console.log(`\n📊 Total movies successfully resolved for seeding: ${selectedMovies.length}`);
     
     // =========================================================================
-    // CLEANUP STAGE: Clear previous virtual interactions to start fresh & avoid duplicates
-    // =========================================================================
-    console.log("🧹 Cleaning up previous virtual interactions to start fresh...");
-    
-    const virtualNames = VIRTUAL_PROFILES.map(p => p.name);
-    
-    // Fetch previously seeded comments for the selected names in batches of 10
+    const selectedSlugs = selectedMovies.map(m => m.slug);
+
+    // Fetch previously seeded comments for the system virtual user IDs and filter to target only selected movies
     let commentsToCleanup = [];
-    const batchSize = 10;
-    for (let i = 0; i < virtualNames.length; i += batchSize) {
-        const batch = virtualNames.slice(i, i + batchSize);
-        const { data, error } = await supabase
-            .from('comments')
-            .select('id')
-            .in('user_name', batch);
-            
-        if (error) {
-            console.warn(`   ⚠️ Warning: Failed to fetch previous comments for cleanup batch ${i / batchSize + 1}:`, error.message);
-        } else if (data) {
-            commentsToCleanup = commentsToCleanup.concat(data);
-        }
-    }
+    const { data: commentsData, error: commentsError } = await supabase
+        .from('comments')
+        .select('id, movie_slug')
+        .in('user_id', validUserIds);
         
+    if (commentsError) {
+        console.warn(`   ⚠️ Warning: Failed to fetch previous comments for cleanup:`, commentsError.message);
+    } else if (commentsData) {
+        // Filter comments to keep only those belonging to the selected movies or their episodes
+        commentsToCleanup = commentsData.filter(comment => {
+            if (!comment.movie_slug) return false;
+            const baseSlug = comment.movie_slug.split('/')[0];
+            return selectedSlugs.includes(baseSlug);
+        });
+    }
+    
     if (commentsToCleanup.length > 0) {
         const commentIds = commentsToCleanup.map(c => c.id);
         console.log(`   🧹 Found ${commentIds.length} previous comments to delete. Processing in batches...`);
@@ -405,7 +512,6 @@ async function seedSpecificMovies() {
         console.log(`   🧹 Successfully deleted ${deletedComments} previous virtual comments.`);
     }
 
-    const selectedSlugs = selectedMovies.map(m => m.slug);
     if (selectedSlugs.length > 0) {
         // D. Delete movie interactions of virtual users
         const { error: movieIntDeleteErr } = await supabase
@@ -454,7 +560,7 @@ async function seedSpecificMovies() {
         for (let i = 0; i < genCount; i++) {
             if (userPointer >= shuffledUsers.length) break;
             const user = shuffledUsers[userPointer++];
-            const content = commentPool[Math.floor(Math.random() * commentPool.length)];
+            const content = decorateComment(commentPool[Math.floor(Math.random() * commentPool.length)]);
             const realUserId = validUserIds[Math.floor(Math.random() * validUserIds.length)];
 
             commentsToInsert.push({
@@ -491,7 +597,7 @@ async function seedSpecificMovies() {
                 }
                 const user = shuffledUsers[userPointer++];
                 const epPool = GENZ_COMMENTS_POOL.episode;
-                const content = epPool[Math.floor(Math.random() * epPool.length)];
+                const content = decorateComment(epPool[Math.floor(Math.random() * epPool.length)]);
                 const realUserId = validUserIds[Math.floor(Math.random() * validUserIds.length)];
 
                 commentsToInsert.push({
