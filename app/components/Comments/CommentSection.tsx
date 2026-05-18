@@ -22,6 +22,9 @@ export default function CommentSection({ movieSlug }: CommentSectionProps) {
     const [visibleCount, setVisibleCount] = useState(5);
     const supabase = createClient();
 
+    // Lấy slug gốc của phim (bỏ phần tập phim đằng sau nếu có) để đồng bộ lượt thích của cả bộ phim
+    const mainMovieSlug = movieSlug.includes('/') ? movieSlug.split('/')[0] : movieSlug;
+
     useEffect(() => {
         setVisibleCount(5); // Reset visible count when movie changes
         const fetchUser = async () => {
@@ -108,7 +111,7 @@ export default function CommentSection({ movieSlug }: CommentSectionProps) {
     return (
         <div className="comment-section">
             <div className="mb-6">
-                 <MovieInteractions movieSlug={movieSlug} user={user} />
+                 <MovieInteractions movieSlug={mainMovieSlug} user={user} />
             </div>
 
             <h3 className="comment-label">

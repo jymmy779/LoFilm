@@ -1153,7 +1153,7 @@ export default function WatchClient({
                                     onEpisodeClick={() => setIsChangingEpisode(true)}
                                 />
                                 <div className="mt-6 pt-6 border-t border-white/5">
-                                    <CommentSection movieSlug={`${slug}/${episodeSlug}`} />
+                                    <CommentSection movieSlug={`${slug}/${getFriendlyEpisodeSlug(episodeSlug)}`} />
                                 </div>
                             </div>
                         </div>
