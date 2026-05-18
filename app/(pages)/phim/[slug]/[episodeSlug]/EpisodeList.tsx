@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { ChevronUp, ChevronDown, Server } from "lucide-react";
 import { getFriendlyEpisodeSlug, parseEpNumber } from "@/app/utils/movieUtils";
@@ -86,6 +86,27 @@ const EpisodeList = ({
       return activeRangeIndex === 0;
     });
   }, [episodeData, episodeRanges, activeRangeIndex]);
+
+  // Tự động chuyển tab (range) sang phần chứa tập phim đang phát
+  useEffect(() => {
+    if (!currentEpisode || episodeRanges.length === 0) return;
+
+    // Tìm thông tin tập phim hiện tại trong danh sách dữ liệu
+    const curEp = episodeData.find(ep => getFriendlyEpisodeSlug(ep.slug) === currentEpisode);
+    if (!curEp) return;
+
+    const epNum = parseEpNumber(curEp.name);
+    if (typeof epNum !== 'number') return;
+
+    // Tìm index của range chứa tập phim này
+    const matchedRangeIndex = episodeRanges.findIndex(range =>
+      epNum >= range.startValue && epNum <= range.endValue
+    );
+
+    if (matchedRangeIndex !== -1 && matchedRangeIndex !== activeRangeIndex) {
+      setActiveRangeIndex(matchedRangeIndex);
+    }
+  }, [currentEpisode, episodeRanges, episodeData, activeRangeIndex]);
 
   return (
     <div className="w-full pt-10">
