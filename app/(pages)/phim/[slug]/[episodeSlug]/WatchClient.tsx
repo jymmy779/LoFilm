@@ -86,6 +86,7 @@ export default function WatchClient({
     const [isAutoNext, setIsAutoNext] = useState(true);
     const [activeServerIndex, setActiveServerIndex] = useState(0);
     const [hasError, setHasError] = useState(false);
+    const [useProxyFallback, setUseProxyFallback] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
     const userRef = useRef<any>(null);
 
@@ -146,6 +147,7 @@ export default function WatchClient({
 
     useEffect(() => {
         setHasError(false);
+        setUseProxyFallback(false);
     }, [activeServerIndex, episodeSlug]);
 
     const videoSrc = useMemo(() => {
@@ -166,8 +168,8 @@ export default function WatchClient({
             }
         }
 
-        // Tự động bypass CORS bằng cách proxy hóa tất cả các link m3u8 dạng http/https
-        if (originalSrc && originalSrc.startsWith("http")) {
+        // CHỈ sử dụng Proxy khi kích hoạt useProxyFallback (gặp lỗi CORS/network ở link gốc)
+        if (useProxyFallback && originalSrc && originalSrc.startsWith("http")) {
             try {
                 const urlObj = new URL(originalSrc);
                 const host = urlObj.hostname;
@@ -179,8 +181,10 @@ export default function WatchClient({
                 return originalSrc;
             }
         }
+        
+        // Mặc định trả về link gốc siêu tốc trực tiếp từ CDN
         return originalSrc;
-    }, [activeServerIndex, episodeSlug, episodes, episode.link_m3u8]);
+    }, [activeServerIndex, episodeSlug, episodes, episode.link_m3u8, useProxyFallback]);
 
 
     useEffect(() => {
@@ -676,6 +680,14 @@ export default function WatchClient({
                 hlsRef.current = hls;
                 hls.on(Hls.Events.ERROR, (event, data) => {
                     if (data.fatal) {
+                        // Tự động kích hoạt Proxy Fallback nếu link gốc bị lỗi mạng hoặc CORS
+                        if (data.type === Hls.ErrorTypes.NETWORK_ERROR && !useProxyFallback) {
+                            console.warn("Direct stream failed due to network/CORS error. Falling back to LoFilm Proxy...");
+                            setUseProxyFallback(true);
+                            hls.destroy();
+                            return;
+                        }
+
                         setHasError(true);
                         switch (data.type) {
                             case Hls.ErrorTypes.NETWORK_ERROR:
@@ -698,7 +710,14 @@ export default function WatchClient({
                 });
             } else if (videoRef.current) {
                 videoRef.current.src = videoSrc;
-                videoRef.current.onerror = () => setHasError(true);
+                videoRef.current.onerror = () => {
+                    if (!useProxyFallback) {
+                        console.warn("Native video direct stream failed. Falling back to LoFilm Proxy...");
+                        setUseProxyFallback(true);
+                    } else {
+                        setHasError(true);
+                    }
+                };
             }
         }, 100);
 
