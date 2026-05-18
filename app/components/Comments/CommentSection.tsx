@@ -37,14 +37,22 @@ export default function CommentSection({ movieSlug }: CommentSectionProps) {
 
         const fetchComments = async () => {
             setLoading(true);
-            const { data, error } = await supabase
+            let query = supabase
                 .from('comments')
                 .select(`
                     id, user_id, user_name, user_avatar, movie_slug, content, parent_id, is_spoiler, is_reported, created_at,
                     reactions:comment_reactions (id, user_id, type)
-                `)
-                .eq('movie_slug', movieSlug)
-                .order('created_at', { ascending: false });
+                `);
+
+            if (movieSlug.includes('/')) {
+                // Trang xem tập phim cụ thể -> Chỉ lấy bình luận của đúng tập đó
+                query = query.eq('movie_slug', movieSlug);
+            } else {
+                // Trang chi tiết phim -> Lấy bình luận chung của phim VÀ của tất cả các tập
+                query = query.or(`movie_slug.eq.${movieSlug},movie_slug.like.${movieSlug}/%`);
+            }
+
+            const { data, error } = await query.order('created_at', { ascending: false });
 
             if (error) {
                 console.error("Error fetching comments:", error);

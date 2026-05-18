@@ -1112,7 +1112,7 @@ export default function WatchClient({
                                     onEpisodeClick={() => setIsChangingEpisode(true)}
                                 />
                                 <div className="mt-6 pt-6 border-t border-white/5">
-                                    <CommentSection movieSlug={slug} />
+                                    <CommentSection movieSlug={`${slug}/${episodeSlug}`} />
                                 </div>
                             </div>
                         </div>

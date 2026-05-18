@@ -42,8 +42,12 @@ export async function GET() {
             return NextResponse.json([]);
         }
 
-        // 2. Extract unique movie slugs
-        const uniqueSlugs = Array.from(new Set(rawComments.map(c => c.movie_slug).filter(Boolean) as string[]));
+        // 2. Extract unique movie slugs (extract base slug if it's episode-specific)
+        const uniqueSlugs = Array.from(new Set(rawComments.map(c => {
+            const slug = c.movie_slug;
+            if (!slug) return null;
+            return slug.includes('/') ? slug.split('/')[0] : slug;
+        }).filter(Boolean) as string[]));
 
         // 3. Fetch movie details in parallel
         const movieMetaMap: Record<string, { title: string; poster: string; backdrop: string; isValid: boolean }> = {};
@@ -83,7 +87,8 @@ export async function GET() {
                 const slug = comment.movie_slug;
                 if (!slug) return null;
 
-                const meta = movieMetaMap[slug];
+                const baseMovieSlug = slug.includes('/') ? slug.split('/')[0] : slug;
+                const meta = movieMetaMap[baseMovieSlug];
                 if (!meta || !meta.isValid) return null;
 
                 const upvotes = comment.reactions?.filter((r: any) => r.type === "up").length || 0;
@@ -101,7 +106,7 @@ export async function GET() {
                         avatar: userAvatar
                     },
                     movie: {
-                        slug: comment.movie_slug,
+                        slug: baseMovieSlug,
                         title: meta.title,
                         poster: meta.poster,
                         backdrop: meta.backdrop

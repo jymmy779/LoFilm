@@ -44,12 +44,13 @@ export async function GET() {
             console.error("Error fetching comments for trending:", error);
         }
 
-        // 2. Count comments per movie_slug
+        // 2. Count comments per movie_slug (extracting base slug if it's episode-specific)
         const counts: Record<string, number> = {};
         if (comments) {
             comments.forEach((c) => {
                 if (c.movie_slug) {
-                    counts[c.movie_slug] = (counts[c.movie_slug] || 0) + 1;
+                    const baseSlug = c.movie_slug.includes('/') ? c.movie_slug.split('/')[0] : c.movie_slug;
+                    counts[baseSlug] = (counts[baseSlug] || 0) + 1;
                 }
             });
         }

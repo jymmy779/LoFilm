@@ -38,6 +38,26 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
     const displayName = comment.user_name || "Thành viên";
     const avatarUrl = comment.user_avatar;
 
+    const isDetailMoviePage = movieSlug && !movieSlug.includes('/');
+    const commentHasEpisode = comment.movie_slug && comment.movie_slug.includes('/');
+    
+    let episodeBadge = null;
+    if (isDetailMoviePage && commentHasEpisode) {
+        const rawEp = comment.movie_slug.split('/')[1];
+        let epText = '';
+        if (rawEp === 'full' || rawEp === 'tap-full') {
+            epText = 'Bản Full';
+        } else {
+            const numMatch = rawEp.match(/\d+/);
+            epText = numMatch ? `Tập ${parseInt(numMatch[0])}` : rawEp;
+        }
+        episodeBadge = (
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-[#f5a623]/10 text-[#f5a623] border border-[#f5a623]/20 ml-2 select-none animate-fade-in">
+                {epText}
+            </span>
+        );
+    }
+
     // Calculate relative time
     const getTimeAgo = (dateStr: string) => {
         const date = new Date(dateStr);
@@ -269,8 +289,9 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                     )}
                 </div>
                 <div className="info">
-                    <div className="comment-header">
+                    <div className="comment-header flex items-center">
                         <div className="user-name line-center">{displayName}</div>
+                        {episodeBadge}
                         <div className="ch-logs">
                             <div className="c-time">{getTimeAgo(comment.created_at)}</div>
                         </div>
