@@ -245,6 +245,54 @@ const GENZ_COMMENTS_POOL = {
         "hết tập đúng khúc gây cấn tức ghê á trùi",
         "tập này coi đi coi lại 3 lần vẫn phê",
         "đúng khúc hay thì hết phim huuuu"
+    ],
+    negative: [
+        "phim coi chán vcl phí thời gian ghê =))",
+        "diễn xuất sượng trân coi phát mệt thực sự",
+        "kịch bản đầu voi đuôi chuột coi tức á chời",
+        "nam chính diễn đơ như khúc gỗ :v",
+        "phim này buff quá đà coi nhạt nhẽo ghê",
+        "coi được 5p tắt luôn sến sẩm quá chời",
+        "kỹ xảo nhìn giả trân vcl cười ẻ :)))",
+        "uây kịch bản sến rện coi mà nổi hết da gà",
+        "hóng cho cố coi xong thất vọng tràn trề ._.",
+        "plot twist khiên cưỡng vãi chưởng coi ko thuyết phục",
+        "nữ chính đóng sượng vch coi mất cảm xúc thực sự",
+        "soundtrack nghe chói tai ghê á trùi >.<",
+        "càng về sau càng nhạt, coi phí thời gian thực sự",
+        "phí cả dàn cast đỉnh mà kịch bản chán đời vcl",
+        "nội dung nhạt nhẽo ko có gì đặc sắc lun á chời =]]",
+        "phim này xây dựng nhân vật ức chế vcl xem bực cả mình",
+        "mong chờ bao nhiêu xem thất vọng bấy nhiêu chán ghê",
+        "diễn viên đẹp mà đóng đơ như tượng coi nản",
+        "phim dài dòng lê thê coi buồn ngủ vcl :v",
+        "kết phim nhảm nhí vãi chưởng coi tức ói máu",
+        "chemistry nam nữ chính nhạt nhẽo như nước lã",
+        "cắt ghép cảnh lộn xộn coi chả hiểu gì luôn á chời",
+        "cốt truyện sáo rỗng motip cũ rích coi nhàm chán",
+        "tình tiết phim phi lý vãi chưởng coi nghẹn họng luôn",
+    ],
+    experience: [
+        "sub lệch pha rồi ad ơi fix giùm em với chời ạ",
+        "phim này có bản thuyết minh chưa ad ơi :v",
+        "ad dịch nhanh dã man, vừa chiếu xong đã có sub rồi yêu ghê",
+        "phim bị lỗi load không được ad ơi, xoay vòng vòng mãi",
+        "giọng thuyết minh tập này nghe ấm ghê á trùi",
+        "hóng bản lồng tiếng quá chời, coi vietsub hơi mỏi mắt",
+        "sub tập này bị mất vài đoạn dịch ad ơi xem hơi cấn",
+        "đang coi ngon lành mà bị giật lag quá chời ơi ._.",
+        "ad ơi lên thuyết minh nhanh nhen hóng quáaa",
+        "bản dịch sát nghĩa ghê, cảm ơn team sub nhiều nhen ^^",
+        "phim bị lỗi tiếng đi trước hình rồi ad ơi fix gấp",
+        "thích giọng lồng tiếng phim này ghê á cả nhà",
+        "sub dịch hơi cấn cấn nhen, nhiều chỗ dịch hơi thô :v",
+        "tập này bị đứng hình ở phút thứ 10 rồi ad ơi",
+        "ad cập nhật link dự phòng đi link này load chậm quá",
+        "đang đoạn hay thì bị lỗi player xoay vòng vòng tức ghê",
+        "team sub làm việc năng suất ghê, vừa chiếu đã có vietsub",
+        "phim này coi lồng tiếng hay hơn vietsub nha mn =))",
+        "sub dịch cute vcl, thích cách dùng từ của nhóm dịch",
+        "ad ơi tập này bị mất tiếng thuyết minh rồi check giùm em"
     ]
 };
 
@@ -590,7 +638,14 @@ async function seedInteractions() {
         for (let i = 0; i < genCount; i++) {
             if (userPointer >= shuffledUsers.length) break;
             const user = shuffledUsers[userPointer++];
-            const content = decorateComment(commentPool[Math.floor(Math.random() * commentPool.length)]);
+            const rand = Math.random();
+            let chosenPool = commentPool;
+            if (rand < 0.15) {
+                chosenPool = GENZ_COMMENTS_POOL.negative;
+            } else if (rand < 0.30) {
+                chosenPool = GENZ_COMMENTS_POOL.experience;
+            }
+            const content = decorateComment(chosenPool[Math.floor(Math.random() * chosenPool.length)]);
             const realUserId = validUserIds[Math.floor(Math.random() * validUserIds.length)];
 
             commentsToInsert.push({
@@ -627,7 +682,14 @@ async function seedInteractions() {
                 }
                 const user = shuffledUsers[userPointer++];
                 const epPool = GENZ_COMMENTS_POOL.episode;
-                const content = decorateComment(epPool[Math.floor(Math.random() * epPool.length)]);
+                const rand = Math.random();
+                let chosenPool = epPool;
+                if (rand < 0.15) {
+                    chosenPool = GENZ_COMMENTS_POOL.negative;
+                } else if (rand < 0.30) {
+                    chosenPool = GENZ_COMMENTS_POOL.experience;
+                }
+                const content = decorateComment(chosenPool[Math.floor(Math.random() * chosenPool.length)]);
                 const realUserId = validUserIds[Math.floor(Math.random() * validUserIds.length)];
 
                 commentsToInsert.push({
