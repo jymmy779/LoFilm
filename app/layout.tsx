@@ -50,14 +50,14 @@ export const metadata: Metadata = {
   generator: 'Next.js',
   manifest: '/manifest.json',
   keywords: [
-    "LoFilm", "lofilm", "lo film", "lofilmtv", "lofilm net", "lofilm me", "lofilm chill", "lofilm phim", 
-    "xem phim lofilm", "xem phim lo film", "trang phim lofilm", "web phim lofilm", "lofilm xem phim", 
-    "lofilm phim hay", "lofilm vietsub", "lofilm 4k", "phim moi", "phim hay 2026", "xem phim online", 
-    "phim vietsub", "phim bo moi", "phim le hay", "phim chieu rap", "phim thuyet minh", "phim long tieng", 
-    "xem phim hd", "phim online mien phi", "phim nhanh", "phim khong quang cao", "kho phim hay", 
-    "phim hanh dong", "phim tinh cam", "phim hai", "phim co trang", "phim ma", "phim kinh di", 
-    "phim hoat hinh", "anime vietsub", "phim trung quoc", "phim han quoc", "phim au my", "phim thai lan", 
-    "phim nhat ban", "phim viet nam", "phim moi nhat", "xem phim nhanh", "phim chat luong cao", 
+    "LoFilm", "lofilm", "lo film", "lofilmtv", "lofilm net", "lofilm me", "lofilm chill", "lofilm phim",
+    "xem phim lofilm", "xem phim lo film", "trang phim lofilm", "web phim lofilm", "lofilm xem phim",
+    "lofilm phim hay", "lofilm vietsub", "lofilm 4k", "phim moi", "phim hay 2026", "xem phim online",
+    "phim vietsub", "phim bo moi", "phim le hay", "phim chieu rap", "phim thuyet minh", "phim long tieng",
+    "xem phim hd", "phim online mien phi", "phim nhanh", "phim khong quang cao", "kho phim hay",
+    "phim hanh dong", "phim tinh cam", "phim hai", "phim co trang", "phim ma", "phim kinh di",
+    "phim hoat hinh", "anime vietsub", "phim trung quoc", "phim han quoc", "phim au my", "phim thai lan",
+    "phim nhat ban", "phim viet nam", "phim moi nhat", "xem phim nhanh", "phim chat luong cao",
     "phim 1080p", "phim bluray", "phim netflix", "phim hulu", "phim disney", "phim hay moi ngay"
   ],
   referrer: 'origin-when-cross-origin',
@@ -173,7 +173,7 @@ export default function RootLayout({
               "url": "https://www.munos.store",
               "logo": "https://www.munos.store/lofilm_logo.webp",
               "sameAs": [
-                "https://t.me/janencl",
+                "https://t.me/ponpornsec",
                 "https://t.me/+5S1xkPn1SCAxZWZl"
               ],
             })
@@ -241,17 +241,17 @@ export default function RootLayout({
           return isEventPeriod ? <ReunificationLoader /> : <InitialLoader />;
         })()}
         <AuthProvider>
-            <PageTransitionProvider>
-              <div className="min-h-screen flex flex-col">
-                <Suspense fallback={<div className="h-[64px] bg-[#0d1b2e] w-full fixed top-0 left-0 z-50 border-b border-white/10" />}>
-                  <Header />
-                </Suspense>
-                <main className="flex-1 min-h-[70vh] md:min-h-[80vh] flex flex-col bg-[#0a1628]">
-                  {children}
-                </main>
-                <Footer />
-              </div>
-            </PageTransitionProvider>
+          <PageTransitionProvider>
+            <div className="min-h-screen flex flex-col">
+              <Suspense fallback={<div className="h-[64px] bg-[#0d1b2e] w-full fixed top-0 left-0 z-50 border-b border-white/10" />}>
+                <Header />
+              </Suspense>
+              <main className="flex-1 min-h-[70vh] md:min-h-[80vh] flex flex-col bg-[#0a1628]">
+                {children}
+              </main>
+              <Footer />
+            </div>
+          </PageTransitionProvider>
         </AuthProvider>
         <Toaster
           position="top-center"

@@ -84,9 +84,9 @@ export default function Footer() {
                             </p>
                             <p className="flex items-center gap-2 pt-2">
                                 <span className="text-white/50">Liên hệ:</span>
-                                <a href="https://t.me/janencl" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center bg-white/5 px-2 py-1 rounded-[15px] border border-white/10 hover:border-white/20 transition-all duration-300">
+                                <a href="https://t.me/ponpornsec" target="_blank" rel="noopener noreferrer" className="group inline-flex items-center bg-white/5 px-2 py-1 rounded-[15px] border border-white/10 hover:border-white/20 transition-all duration-300">
                                     <span className="blur-xs group-hover:blur-[0px] transition-all duration-300 text-white/60 text-[12px] font-medium whitespace-nowrap">
-                                        @janencl
+                                        @ponpornsec
                                     </span>
                                 </a>
                             </p>
