@@ -46,7 +46,14 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
     // 2. Nếu không có trong cache, gọi API gốc bằng Axios để tránh bị Next.js Fetch Cache lỗi/kẹt 404
     const fetchWithRetry = async (retryCount = 0): Promise<any> => {
         try {
-            const response = await axios.get(url, {
+            // Thêm cache-buster để bypass cache của Cloudflare/CDN bên thứ 3
+            // Thay đổi theo chu kỳ revalidate để đồng bộ dữ liệu (vd: 60s) tránh spam API
+            const safeRevalidate = revalidate && revalidate > 0 ? revalidate : 60;
+            const separator = url.includes('?') ? '&' : '?';
+            const cacheBuster = `_t=${Math.floor(Date.now() / 1000 / safeRevalidate)}`;
+            const fetchUrl = `${url}${separator}${cacheBuster}`;
+
+            const response = await axios.get(fetchUrl, {
                 timeout: 20000, // 20 giây timeout
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
