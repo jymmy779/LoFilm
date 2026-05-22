@@ -31,10 +31,10 @@ interface Props {
     }>;
 }
 
-// Reuse fetch logic for metadata
+    // Reuse fetch logic for metadata
 async function getMovieDetail(slug: string) {
     return await fetchWithRedis(`${API_BASE}/phim/${slug}`, {
-        next: { revalidate: 30 }
+        next: { revalidate: 60 }
     });
 }
 
@@ -94,7 +94,7 @@ export default async function WatchPage({ params }: Props) {
     let data: any = null;
     try {
         data = await fetchWithRedis(`${API_BASE}/phim/${slug}`, {
-            next: { revalidate: 30 } // Cache 30 giây
+            next: { revalidate: 60 } // Cache 60 giây
         });
     } catch (error) {
         console.error("Fetch movie error:", error);

@@ -55,7 +55,7 @@ export async function GET() {
         await Promise.all(
             uniqueSlugs.map(async (slug) => {
                 try {
-                    const data = await fetchWithRedis(`https://phimapi.com/phim/${slug}`, { revalidate: 43200 });
+                    const data = await fetchWithRedis(`https://phimapi.com/phim/${slug}`, { revalidate: 60 });
                     const movieData = data?.movie;
                     if (movieData) {
                         const rawPoster = getImageUrl(movieData.poster_url);
