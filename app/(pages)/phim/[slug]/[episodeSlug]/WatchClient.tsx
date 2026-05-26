@@ -470,7 +470,7 @@ export default function WatchClient({
                 }
             }
 
-            const PlyrLib = (await import('plyr')).default;
+            const PlyrLib = (await import('plyr') as any).default;
             if (!isMounted || !videoRef.current) return;
             const player = new PlyrLib(videoRef.current, defaultOptions);
             plyrRef.current = player;
