@@ -815,7 +815,7 @@ export default function WatchClient({
                     const targetScroll = activeEl.offsetTop - container.offsetHeight / 2 + activeEl.offsetHeight / 2;
                     container.scrollTo({
                         top: targetScroll,
-                        behavior: 'smooth'
+                        behavior: 'auto'
                     });
                 }, 100); // Đợi xíu để animation của panel kịp chạy ra
             }
