@@ -53,7 +53,7 @@ function MovieRowCard({ movie, priority = false, adZone = "movie_row", onClick }
 
 
                     {movie.episode_current && (
-                        <div className="absolute bottom-2 left-2 h-5 flex items-center justify-center px-1.5 bg-black/70 rounded z-10 border border-white/5">
+                        <div className="absolute bottom-2 left-2 h-5 flex items-center justify-center px-1.5 bg-black/70 rounded z-20 border border-white/5 transform-gpu">
                             <span className="text-[9px] md:text-xs font-bold text-white tracking-tighter leading-none">
                                 {movie.episode_current}
                             </span>

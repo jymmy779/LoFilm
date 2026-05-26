@@ -482,7 +482,7 @@ export default function WatchClient({
                 if (container) {
                     // Xử lý chạm trên mobile: Chạm 1 lần hiện controls, chạm lần 2 (khi controls đang hiện) mới pause/play
                     container.addEventListener('touchstart', (e: TouchEvent) => {
-                        if (window.innerWidth < 1024) {
+                        if (window.innerWidth < 1024 || window.matchMedia('(pointer: coarse)').matches) {
                             const target = e.target as HTMLElement;
 
                             // Nếu đang hiện danh sách tập, hoặc chạm vào các overlay chức năng, không can thiệp để cho phép tương tác bình thường
