@@ -122,6 +122,7 @@ export default function WatchClient({
     const videoRef = useRef<HTMLVideoElement>(null);
     const hlsRef = useRef<Hls | null>(null);
     const plyrRef = useRef<any>(null);
+    const fallbackTimeRef = useRef<number>(0);
 
     const currentIndex = useMemo(() => {
         if (!episodes || episodes.length === 0) return -1;
@@ -190,6 +191,7 @@ export default function WatchClient({
     useEffect(() => {
         setShowEndOverlay(false);
         setIsChangingEpisode(false);
+        fallbackTimeRef.current = 0;
     }, [episodeSlug]);
 
     useEffect(() => {
@@ -438,8 +440,9 @@ export default function WatchClient({
 
         const initTimeout = setTimeout(async () => {
             if (!isMounted || !videoRef.current) return;
-            let startFrom = 0;
-            if (!hasResumed) {
+            let startFrom = fallbackTimeRef.current;
+            const isFallbackResume = startFrom > 0;
+            if (startFrom === 0 && !hasResumed) {
                 // 1. Thử lấy từ Supabase nếu đã login
                 const { data: { user: currentUser } } = await supabase.auth.getUser();
                 if (currentUser) {
@@ -585,14 +588,20 @@ export default function WatchClient({
                 }
             });
 
-            if (startFrom > 0 && !hasResumed) {
+            if (startFrom > 0 && (!hasResumed || isFallbackResume)) {
                 player.once('ready', () => {
-                    if (player.currentTime < startFrom - 5) {
+                    if (player.currentTime < startFrom - 5 || isFallbackResume) {
                         player.currentTime = startFrom;
-                        toast.success(`Đã khôi phục vị trí xem cũ: ${Math.floor(startFrom / 60)} phút`, { icon: '🕒', duration: 2500 });
+                        if (isFallbackResume) {
+                            toast.success(`Đang tự động kết nối máy chủ dự phòng...`, { icon: '🔄', duration: 2500 });
+                            setTimeout(() => player.play().catch(() => {}), 500);
+                            fallbackTimeRef.current = 0; // reset
+                        } else {
+                            toast.success(`Đã khôi phục vị trí xem cũ: ${Math.floor(startFrom / 60)} phút`, { icon: '🕒', duration: 2500 });
+                        }
                     }
                 });
-                setHasResumed(true);
+                if (!hasResumed) setHasResumed(true);
             }
 
             player.on('timeupdate', () => {
@@ -666,14 +675,7 @@ export default function WatchClient({
                     capLevelToPlayerSize: true,
                     autoStartLoad: true,
                     startLevel: -1,
-                    startPosition: startFrom > 0 ? startFrom : -1,
-                    // Bắt lỗi nhanh hơn
-                    manifestLoadingTimeOut: 3500,
-                    manifestLoadingMaxRetry: 1,
-                    levelLoadingTimeOut: 3500,
-                    levelLoadingMaxRetry: 1,
-                    fragLoadingTimeOut: 3500,
-                    fragLoadingMaxRetry: 1
+                    startPosition: startFrom > 0 ? startFrom : -1
                 });
                 hls.loadSource(videoSrc);
                 hls.attachMedia(videoRef.current);
@@ -683,6 +685,9 @@ export default function WatchClient({
                         // Tự động kích hoạt Proxy Fallback nếu link gốc bị lỗi mạng hoặc CORS
                         if (data.type === Hls.ErrorTypes.NETWORK_ERROR && !useProxyFallback) {
                             console.warn("Direct stream failed due to network/CORS error. Falling back to LoFilm Proxy...");
+                            if (plyrRef.current) {
+                                fallbackTimeRef.current = plyrRef.current.currentTime;
+                            }
                             setUseProxyFallback(true);
                             hls.destroy();
                             return;
@@ -691,19 +696,16 @@ export default function WatchClient({
                         setHasError(true);
                         switch (data.type) {
                             case Hls.ErrorTypes.NETWORK_ERROR:
-                                // Chỉ thử lại 1 lần, nếu vẫn lỗi thì dừng
-                                if (data.details === Hls.ErrorDetails.MANIFEST_LOAD_ERROR ||
-                                    data.details === Hls.ErrorDetails.MANIFEST_LOAD_TIMEOUT) {
-                                    hls.destroy();
-                                } else {
-                                    hls.startLoad();
-                                }
+                                console.warn("Fatal network error in video player. Retrying to load source...", data.details);
+                                hls.startLoad();
                                 break;
                             case Hls.ErrorTypes.MEDIA_ERROR:
+                                console.warn("Fatal media error in video player. Attempting recovery...");
                                 hls.recoverMediaError();
                                 break;
                             default:
-                                hls.destroy();
+                                console.error("Fatal unrecoverable error in Hls player.", data);
+                                // Không gọi hls.destroy() vô lý để giữ giao diện player không bị chết hoàn toàn
                                 break;
                         }
                     }
@@ -713,6 +715,9 @@ export default function WatchClient({
                 videoRef.current.onerror = () => {
                     if (!useProxyFallback) {
                         console.warn("Native video direct stream failed. Falling back to LoFilm Proxy...");
+                        if (plyrRef.current) {
+                            fallbackTimeRef.current = plyrRef.current.currentTime;
+                        }
                         setUseProxyFallback(true);
                     } else {
                         setHasError(true);
