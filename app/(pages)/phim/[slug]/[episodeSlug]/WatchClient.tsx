@@ -8,6 +8,7 @@ import { useRouter } from "next/navigation";
 
 import Hls from "hls.js";
 import "plyr/dist/plyr.css";
+import { fetchAndParseAdSegments, getSkipTarget, type AdSegment } from "@/app/utils/adSkipUtils";
 import Container from "@/app/components/Container";
 import PlayerControls from "./PlayerControls";
 import EpisodeList from "./EpisodeList";
@@ -17,6 +18,7 @@ import MovieInfo from "./MovieInfo";
 import CommentSection from "@/app/components/Comments/CommentSection";
 import ReportModal from "@/app/components/Common/ReportModal";
 import { getImageUrl, getRawImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
+import { removeAdsFromM3u8 } from "@/app/utils/adSkipUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
 import { fetchTotalEpisodesFromTMDB } from "@/app/utils/tmdbUtils";
 import { useAuth } from "@/app/components/Auth/AuthContext";
@@ -71,7 +73,6 @@ export default function WatchClient({
 }: WatchClientProps) {
     const [movie, setMovie] = useState<any>(initialMovie);
     const filteredSuggestions = useMemo(() => {
-        // Lọc trùng lặp dựa trên slug
         const seen = new Set();
         return initialSuggestions.filter(m => {
             if (!m.slug || seen.has(m.slug)) return false;
@@ -169,7 +170,6 @@ export default function WatchClient({
             }
         }
 
-        // CHỈ sử dụng Proxy khi kích hoạt useProxyFallback (gặp lỗi CORS/network ở link gốc)
         if (useProxyFallback && originalSrc && originalSrc.startsWith("http")) {
             try {
                 const urlObj = new URL(originalSrc);
@@ -183,7 +183,6 @@ export default function WatchClient({
             }
         }
         
-        // Mặc định trả về link gốc siêu tốc trực tiếp từ CDN
         return originalSrc;
     }, [activeServerIndex, episodeSlug, episodes, episode.link_m3u8, useProxyFallback]);
 
@@ -202,13 +201,11 @@ export default function WatchClient({
     }, []);
 
 
-    // Effect to correct the MAIN movie metadata if inaccurate
     useEffect(() => {
         const correctMainMovie = async () => {
             const curNum = parseInt(movie.episode_current?.match(/\d+/)?.[0] || "0");
-            const totNum = parseInt(movie.episode_total?.match(/\d+/)?.[0] || "1000"); // Default big if not found
+            const totNum = parseInt(movie.episode_total?.match(/\d+/)?.[0] || "1000");
 
-            // Check if inaccurate: current > total (e.g., 169 > 150)
             if (curNum > totNum && movie.tmdb?.id && movie.tmdb.type === "tv") {
                 const tmdbTotal = await fetchTotalEpisodesFromTMDB(movie.tmdb.id);
                 if (tmdbTotal && tmdbTotal >= curNum) {
@@ -232,7 +229,6 @@ export default function WatchClient({
         const checkStatus = async () => {
 
             if (user) {
-                // Check Fav
                 const { data: favData } = await supabase
                     .from('favorites')
                     .select('id')
@@ -241,7 +237,6 @@ export default function WatchClient({
                     .maybeSingle();
                 if (favData) setIsFavorited(true);
 
-                // Check Watchlist
                 const { data: watchData } = await supabase
                     .from('watchlist')
                     .select('id')
@@ -315,17 +310,14 @@ export default function WatchClient({
         const currentUser = userRef.current;
         if (!currentTime || duration <= 0) return;
 
-        // Chỉ lưu sau mỗi 10s để giảm tải
         if (Math.abs(currentTime - lastSavedTime.current) < 10) return;
         lastSavedTime.current = currentTime;
 
-        // 1. Lưu vào LocalStorage cho tất cả (Dự phòng cho khách và cả user khi reload nhanh)
         try {
             const GUEST_HISTORY_KEY = 'lofilm-guest-watch-history';
             const historyStr = localStorage.getItem(GUEST_HISTORY_KEY);
             let history = historyStr ? JSON.parse(historyStr) : {};
 
-            // Dọn dẹp các mục cũ hơn 7 ngày
             const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
             const now = Date.now();
             Object.keys(history).forEach(key => {
@@ -334,7 +326,6 @@ export default function WatchClient({
                 }
             });
 
-            // Lưu mục hiện tại
             history[`${slug}/${episodeSlug}`] = {
                 movie_slug: slug,
                 episode_slug: episodeSlug,
@@ -346,7 +337,6 @@ export default function WatchClient({
                 updated_at: now
             };
 
-            // Giới hạn tối đa 40 phim để tránh phình to localStorage
             const keys = Object.keys(history);
             if (keys.length > 40) {
                 const oldestKey = keys.sort((a, b) => history[a].updated_at - history[b].updated_at)[0];
@@ -358,7 +348,6 @@ export default function WatchClient({
             console.error("Error saving progress to localStorage:", e);
         }
 
-        // 2. Lưu vào Supabase nếu đã đăng nhập
         if (currentUser) {
             await supabase.from('watch_history').upsert({
                 user_id: currentUser.id,
@@ -374,7 +363,6 @@ export default function WatchClient({
         }
     };
 
-    // Function to call Supabase RPC and record a valid view
     const recordViewToSupabase = async () => {
         const sessionKey = `viewed_${slug}`;
         if (typeof window !== 'undefined' && sessionStorage.getItem(sessionKey)) return;
@@ -432,8 +420,6 @@ export default function WatchClient({
             tooltips: { controls: false, seek: true },
             seekTime: 10,
             loop: { active: false },
-            // NEW: Tắt clickToPlay trên thiết bị cảm ứng để tránh xung đột với logic touch tùy chỉnh
-            // Chúng ta chỉ bật clickToPlay cho thiết bị dùng chuột (Desktop)
             clickToPlay: typeof window !== 'undefined' ? !window.matchMedia('(pointer: coarse)').matches : true,
             hideControls: true,
         };
@@ -443,7 +429,6 @@ export default function WatchClient({
             let startFrom = fallbackTimeRef.current;
             const isFallbackResume = startFrom > 0;
             if (startFrom === 0 && !hasResumed) {
-                // 1. Thử lấy từ Supabase nếu đã login
                 const { data: { user: currentUser } } = await supabase.auth.getUser();
                 if (currentUser) {
                     const { data: history } = await supabase
@@ -458,7 +443,6 @@ export default function WatchClient({
                     }
                 }
 
-                // 2. Nếu chưa login HOẶC Supabase không có dữ liệu (>10s), thử lấy từ LocalStorage
                 if (startFrom <= 10) {
                     try {
                         const historyStr = localStorage.getItem('lofilm-guest-watch-history');
@@ -481,14 +465,10 @@ export default function WatchClient({
             player.on('ready', () => {
                 const container = player.elements.container;
                 setPlyrContainer(container);
-
                 if (container) {
-                    // Xử lý chạm trên mobile: Chạm 1 lần hiện controls, chạm lần 2 (khi controls đang hiện) mới pause/play
                     container.addEventListener('touchstart', (e: TouchEvent) => {
                         if (window.innerWidth < 1024 || window.matchMedia('(pointer: coarse)').matches) {
                             const target = e.target as HTMLElement;
-
-                            // Nếu đang hiện danh sách tập, hoặc chạm vào các overlay chức năng, không can thiệp để cho phép tương tác bình thường
                             if (
                                 showEpisodeOverlayRef.current ||
                                 target.closest('[id="episode-list-container"]') ||
@@ -496,97 +476,40 @@ export default function WatchClient({
                                 target.closest('.z-\\[150\\]') ||
                                 target.closest('.z-\\[200\\]') ||
                                 target.closest('.watch-top-overlay')
-                            ) {
-                                return;
-                            }
-
+                            ) return;
                             const touch = e.touches[0];
                             const rect = container.getBoundingClientRect();
                             const relativeY = touch.clientY - rect.top;
-
-                            // 1. Chặn vuốt hệ thống ở 50px trên cùng
-                            if (relativeY < 50) {
-                                e.stopPropagation();
-                                return;
-                            }
-
-                            // 2. Kiểm tra nếu chạm vào vùng video (không phải các nút điều khiển mặc định của Plyr hoặc nút tùy chỉnh của mình)
-                            const isControl = target.closest('.plyr__controls') ||
-                                target.closest('.plyr__control--overlaid') ||
-                                target.closest('.plyr__control') ||
-                                target.closest('.watch-top-overlay');
-
+                            if (relativeY < 50) { e.stopPropagation(); return; }
+                            const isControl = target.closest('.plyr__controls') || target.closest('.plyr__control--overlaid') || target.closest('.plyr__control') || target.closest('.watch-top-overlay');
                             if (!isControl) {
-                                // Nếu controls đang hiện, thì toggle play
-                                // Nếu controls đang ẩn, let Plyr handle (nó sẽ hiện controls lên)
                                 if (player.elements.container?.classList.contains('plyr--hide-controls') === false) {
-                                    // Chạm vào vùng trống khi đang hiện controls -> Pause/Play
-                                    e.preventDefault(); // Ngắn chặn hành vi mặc định nếu cần
+                                    e.preventDefault();
                                     player.togglePlay();
                                 }
                             }
                         }
                     }, { capture: true, passive: false });
-
-                    // Tùy chỉnh nút Mute cho mobile
                     const muteButton = container.querySelector('button[data-plyr="mute"]');
                     if (muteButton) {
                         muteButton.addEventListener('click', (e: Event) => {
-                            if (window.innerWidth < 768) {
-                                e.stopImmediatePropagation();
-                                e.preventDefault();
-                            }
+                            if (window.innerWidth < 768) { e.stopImmediatePropagation(); e.preventDefault(); }
                         }, { capture: true });
                     }
-
-                    // Tùy chỉnh icon Rewind/Forward
                     const rewindBtn = container.querySelector('button[data-plyr="rewind"]');
                     const forwardBtn = container.querySelector('button[data-plyr="fast-forward"]');
-                    if (rewindBtn) {
-                        rewindBtn.innerHTML = renderToStaticMarkup(<MdReplay10 size={24} style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.3))' }} />);
-                    }
-                    if (forwardBtn) {
-                        forwardBtn.innerHTML = renderToStaticMarkup(<MdForward10 size={24} style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.3))' }} />);
-                    }
+                    if (rewindBtn) rewindBtn.innerHTML = renderToStaticMarkup(<MdReplay10 size={24} style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.3))' }} />);
+                    if (forwardBtn) forwardBtn.innerHTML = renderToStaticMarkup(<MdForward10 size={24} style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.3))' }} />);
                 }
             });
 
             player.on('play', () => {
                 if (showEndOverlayRef.current) {
-                    // Prevent "AbortError: The play() request was interrupted by a call to pause()"
-                    setTimeout(() => {
-                        if (plyrRef.current && showEndOverlayRef.current) {
-                            plyrRef.current.pause();
-                        }
-                    }, 10);
+                    setTimeout(() => { if (plyrRef.current && showEndOverlayRef.current) plyrRef.current.pause(); }, 10);
                 }
             });
 
-            player.on('playing', () => {
-                setHasStartedPlaying(true);
-                setHasError(false);
-            });
-
-            player.on('pause', () => { });
-
-
-            player.on('enterfullscreen', () => {
-                setIsFullscreen(true);
-                if (window.innerWidth < 1024 && screen.orientation && (screen.orientation as any).lock) {
-                    (screen.orientation as any).lock('landscape').catch(() => {
-                        // Bỏ qua lỗi nếu trình duyệt không hỗ trợ hoặc bị chặn
-                    });
-                }
-            });
-
-            player.on('exitfullscreen', () => {
-                setIsFullscreen(false);
-                if (screen.orientation && screen.orientation.unlock) {
-                    try {
-                        screen.orientation.unlock();
-                    } catch (e) { }
-                }
-            });
+            player.on('playing', () => { setHasStartedPlaying(true); setHasError(false); });
 
             if (startFrom > 0 && (!hasResumed || isFallbackResume)) {
                 player.once('ready', () => {
@@ -595,7 +518,7 @@ export default function WatchClient({
                         if (isFallbackResume) {
                             toast.success(`Đang tự động kết nối máy chủ dự phòng...`, { icon: '🔄', duration: 2500 });
                             setTimeout(() => player.play().catch(() => {}), 500);
-                            fallbackTimeRef.current = 0; // reset
+                            fallbackTimeRef.current = 0;
                         } else {
                             toast.success(`Đã khôi phục vị trí xem cũ: ${Math.floor(startFrom / 60)} phút`, { icon: '🕒', duration: 2500 });
                         }
@@ -635,6 +558,9 @@ export default function WatchClient({
                 }
             });
 
+            // Dọn dẹp đoạn code bắt sự kiện tua vì chúng ta đã giải quyết tận gốc ở lớp mạng (Network)
+
+
             player.on('seeked', () => {
                 if (player.duration > 0 && player.currentTime >= player.duration - 0.5) {
                     if (isSeries && nextEpisode && autoNextRef.current) {
@@ -671,11 +597,31 @@ export default function WatchClient({
             });
 
             if (Hls.isSupported() && (videoSrc.includes('.m3u8') || videoSrc.includes('/video-proxy/'))) {
+                // Tạo một Playlist Loader tùy chỉnh để xóa sạch dấu vết quảng cáo khỏi file M3U8
+                class CustomPlaylistLoader extends Hls.DefaultConfig.loader {
+                    constructor(config: any) {
+                        super(config);
+                    }
+                    load(context: any, config: any, callbacks: any) {
+                        const onSuccess = callbacks.onSuccess;
+                        callbacks.onSuccess = function (response: any, stats: any, context: any, networkDetails: any) {
+                            if (response.data && typeof response.data === 'string') {
+                                if (response.data.includes('/v8/') && response.data.includes('/segment_')) {
+                                    response.data = removeAdsFromM3u8(response.data);
+                                }
+                            }
+                            onSuccess(response, stats, context, networkDetails);
+                        };
+                        super.load(context, config, callbacks);
+                    }
+                }
+
                 const hls = new Hls({
                     capLevelToPlayerSize: true,
                     autoStartLoad: true,
                     startLevel: -1,
-                    startPosition: startFrom > 0 ? startFrom : -1
+                    startPosition: startFrom > 0 ? startFrom : -1,
+                    pLoader: CustomPlaylistLoader as any
                 });
                 hls.loadSource(videoSrc);
                 hls.attachMedia(videoRef.current);
@@ -705,7 +651,6 @@ export default function WatchClient({
                                 break;
                             default:
                                 console.error("Fatal unrecoverable error in Hls player.", data);
-                                // Không gọi hls.destroy() vô lý để giữ giao diện player không bị chết hoàn toàn
                                 break;
                         }
                     }
