@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation";
 
 import Hls from "hls.js";
 import "plyr/dist/plyr.css";
-import { fetchAndParseAdSegments, getSkipTarget, type AdSegment } from "@/app/utils/adSkipUtils";
+
 import Container from "@/app/components/Container";
 import PlayerControls from "./PlayerControls";
 import EpisodeList from "./EpisodeList";
@@ -18,7 +18,7 @@ import MovieInfo from "./MovieInfo";
 import CommentSection from "@/app/components/Comments/CommentSection";
 import ReportModal from "@/app/components/Common/ReportModal";
 import { getImageUrl, getRawImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
-import { removeAdsFromM3u8 } from "@/app/utils/adSkipUtils";
+
 import SmartImage from "@/app/components/Common/SmartImage";
 import { fetchTotalEpisodesFromTMDB } from "@/app/utils/tmdbUtils";
 import { useAuth } from "@/app/components/Auth/AuthContext";
@@ -87,7 +87,6 @@ export default function WatchClient({
     const [isAutoNext, setIsAutoNext] = useState(true);
     const [activeServerIndex, setActiveServerIndex] = useState(0);
     const [hasError, setHasError] = useState(false);
-    const [useProxyFallback, setUseProxyFallback] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
     const userRef = useRef<any>(null);
 
@@ -149,7 +148,6 @@ export default function WatchClient({
 
     useEffect(() => {
         setHasError(false);
-        setUseProxyFallback(false);
     }, [activeServerIndex, episodeSlug]);
 
     const videoSrc = useMemo(() => {
@@ -170,7 +168,9 @@ export default function WatchClient({
             }
         }
 
-        if (useProxyFallback && originalSrc && originalSrc.startsWith("http")) {
+        // Luôn route qua proxy để server lọc ads trước khi trả về client.
+        // Không dùng direct stream nữa vì proxy đã xử lý cả CORS lẫn ad removal.
+        if (originalSrc && originalSrc.startsWith("http")) {
             try {
                 const urlObj = new URL(originalSrc);
                 const host = urlObj.hostname;
@@ -184,7 +184,8 @@ export default function WatchClient({
         }
         
         return originalSrc;
-    }, [activeServerIndex, episodeSlug, episodes, episode.link_m3u8, useProxyFallback]);
+    }, [activeServerIndex, episodeSlug, episodes, episode.link_m3u8]);
+
 
 
     useEffect(() => {
@@ -597,48 +598,17 @@ export default function WatchClient({
             });
 
             if (Hls.isSupported() && (videoSrc.includes('.m3u8') || videoSrc.includes('/video-proxy/'))) {
-                // Tạo một Playlist Loader tùy chỉnh để xóa sạch dấu vết quảng cáo khỏi file M3U8
-                class CustomPlaylistLoader extends Hls.DefaultConfig.loader {
-                    constructor(config: any) {
-                        super(config);
-                    }
-                    load(context: any, config: any, callbacks: any) {
-                        const onSuccess = callbacks.onSuccess;
-                        callbacks.onSuccess = function (response: any, stats: any, context: any, networkDetails: any) {
-                            if (response.data && typeof response.data === 'string') {
-                                if (/\/v\d+\/[a-f0-9]+\/segment_\d+\.ts/.test(response.data)) {
-                                    response.data = removeAdsFromM3u8(response.data);
-                                }
-                            }
-                            onSuccess(response, stats, context, networkDetails);
-                        };
-                        super.load(context, config, callbacks);
-                    }
-                }
-
                 const hls = new Hls({
                     capLevelToPlayerSize: true,
                     autoStartLoad: true,
                     startLevel: -1,
                     startPosition: startFrom > 0 ? startFrom : -1,
-                    pLoader: CustomPlaylistLoader as any
                 });
                 hls.loadSource(videoSrc);
                 hls.attachMedia(videoRef.current);
                 hlsRef.current = hls;
                 hls.on(Hls.Events.ERROR, (event, data) => {
                     if (data.fatal) {
-                        // Tự động kích hoạt Proxy Fallback nếu link gốc bị lỗi mạng hoặc CORS
-                        if (data.type === Hls.ErrorTypes.NETWORK_ERROR && !useProxyFallback) {
-                            console.warn("Direct stream failed due to network/CORS error. Falling back to LoFilm Proxy...");
-                            if (plyrRef.current) {
-                                fallbackTimeRef.current = plyrRef.current.currentTime;
-                            }
-                            setUseProxyFallback(true);
-                            hls.destroy();
-                            return;
-                        }
-
                         setHasError(true);
                         switch (data.type) {
                             case Hls.ErrorTypes.NETWORK_ERROR:
@@ -657,17 +627,7 @@ export default function WatchClient({
                 });
             } else if (videoRef.current) {
                 videoRef.current.src = videoSrc;
-                videoRef.current.onerror = () => {
-                    if (!useProxyFallback) {
-                        console.warn("Native video direct stream failed. Falling back to LoFilm Proxy...");
-                        if (plyrRef.current) {
-                            fallbackTimeRef.current = plyrRef.current.currentTime;
-                        }
-                        setUseProxyFallback(true);
-                    } else {
-                        setHasError(true);
-                    }
-                };
+                videoRef.current.onerror = () => setHasError(true);
             }
         }, 100);
 
