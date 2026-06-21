@@ -606,7 +606,7 @@ export default function WatchClient({
                         const onSuccess = callbacks.onSuccess;
                         callbacks.onSuccess = function (response: any, stats: any, context: any, networkDetails: any) {
                             if (response.data && typeof response.data === 'string') {
-                                if (response.data.includes('/v8/') && response.data.includes('/segment_')) {
+                                if (/\/v\d+\/[a-f0-9]+\/segment_\d+\.ts/.test(response.data)) {
                                     response.data = removeAdsFromM3u8(response.data);
                                 }
                             }

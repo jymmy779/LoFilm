@@ -6,13 +6,14 @@
  * How it works:
  * This CDN has 2 types of DISCONTINUITY blocks:
  *
- *   1. convertv8/xxx.ts  → Film content with text/watermark overlay.
- *                          Still film, just with ad text on top. DO NOT SKIP.
+ *   1. convertv7/xxx.ts, convertv8/xxx.ts, ...  → Film content with text/watermark overlay.
+ *                                                  Still film, just with ad text on top. DO NOT SKIP.
  *
- *   2. /v8/<hash>/segment_000N.ts → Actual video ad clip with different audio.
- *                                   This is the real ad to skip.
+ *   2. /vN/<hash>/segment_000N.ts  → Actual video ad clip (N can be any number: v7, v8, v9...)
+ *                                    This is the real ad to skip.
  *
- * We only skip type 2: absolute paths matching /v8/<hash>/segment_N pattern.
+ * We only skip type 2: absolute paths matching /vN/<hex-hash>/segment_NNNN.ts pattern.
+ * Version number (vN) is intentionally NOT hardcoded to future-proof against CDN changes.
  */
 
 export interface AdSegment {
@@ -23,15 +24,19 @@ export interface AdSegment {
 /**
  * Returns true ONLY for real video ad segments.
  *
- * Pattern: absolute path like /v8/<hash>/segment_0001.ts
- * NOT convertv8/ which is still film content with text overlay.
+ * Pattern: absolute path like /vN/<hex-hash>/segment_0001.ts
+ * - N can be any version number (v7, v8, v9, v10...)
+ * - hash is a 32-char hex string (MD5-like)
+ * - filename must be segment_NNNN.ts
+ * NOT convert... paths which are still film content with text overlay.
  */
 function isAdSegmentUrl(url: string): boolean {
     const trimmed = url.trim();
 
-    // Real video ad: absolute path starting with /v8/ followed by hash and segment_N filename
-    // e.g. /v8/18d007379882ef14b73445b93bf6168d/segment_0001.ts
-    if (/^\/v8\/[a-f0-9]+\/segment_\d+\.ts$/.test(trimmed)) return true;
+    // Real video ad: absolute path /vN/<hex-hash>/segment_NNNN.ts
+    // Version number is NOT hardcoded — works for v7, v8, v9, v10, etc.
+    // e.g. /v7/18d007379882ef14b73445b93bf6168d/segment_0001.ts
+    if (/^\/v\d+\/[a-f0-9]+\/segment_\d+\.ts$/.test(trimmed)) return true;
 
     return false;
 }
@@ -208,7 +213,8 @@ export function removeAdsFromM3u8(m3u8Text: string): string {
             }
         } else {
             // Đây là URL của phân mảnh video
-            const isAd = line.includes('/v8/') && line.includes('/segment_');
+            // Match /vN/<hex-hash>/segment_NNNN.ts — version number intentionally not hardcoded
+            const isAd = /^\/v\d+\/[a-f0-9]+\/segment_\d+\.ts$/.test(line);
             if (isAd) {
                 // ĐÂY LÀ QUẢNG CÁO! Vứt bỏ toàn bộ tag và URL của nó
                 currentSegmentTags = [];
