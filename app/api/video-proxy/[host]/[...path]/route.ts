@@ -103,7 +103,14 @@ function removeAdsFromM3u8(m3u8Text: string): string {
             }
         } else {
             // Đây là URL segment
-            const isAd = /^\/v\d+\/[a-f0-9]+\/segment_\d+\.ts$/.test(line);
+            // Có thể là định dạng /vN/hash/segment_N.ts hoặc chứa /adjump/
+            // Thêm heuristic: quảng cáo thường có đường dẫn dài chứa nhiều dấu '/' (>= 2)
+            // Trong khi phim thật thường là tên file trực tiếp hoặc path ngắn (0-1 dấu '/')
+            const slashCount = (line.match(/\//g) || []).length;
+            const isAd = 
+                /^\/v\d+\/[a-f0-9]+\/segment_\d+\.ts$/.test(line) || 
+                line.includes('/adjump/') || 
+                slashCount >= 3;
 
             if (isAd) {
                 // Quảng cáo → vứt bỏ toàn bộ tags + URL đi kèm
