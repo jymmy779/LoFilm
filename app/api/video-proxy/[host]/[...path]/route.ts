@@ -48,16 +48,20 @@ export async function GET(
             });
         }
 
-        // Còn lại (.ts, v.v.) → stream thẳng, không đụng vào
-        return new NextResponse(response.body, {
+        // Còn lại (.ts, v.v.) → tải về buffer để tránh lỗi ERR_INCOMPLETE_CHUNKED_ENCODING khi stream
+        const buffer = await response.arrayBuffer();
+        const headers: Record<string, string> = {
+            "Content-Type": contentType,
+            "Content-Length": buffer.byteLength.toString(),
+            "Access-Control-Allow-Origin": "*",
+            "Access-Control-Allow-Methods": "GET, OPTIONS",
+            "Access-Control-Allow-Headers": "*",
+            "Cache-Control": "public, max-age=3600",
+        };
+
+        return new NextResponse(buffer, {
             status: response.status,
-            headers: {
-                "Content-Type": contentType,
-                "Access-Control-Allow-Origin": "*",
-                "Access-Control-Allow-Methods": "GET, OPTIONS",
-                "Access-Control-Allow-Headers": "*",
-                "Cache-Control": "public, max-age=3600",
-            },
+            headers,
         });
     } catch (error: any) {
         console.error(`[Video Proxy Error] ${targetUrl}:`, error.message || error);
