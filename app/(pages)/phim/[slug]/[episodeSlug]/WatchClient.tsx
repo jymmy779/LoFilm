@@ -168,21 +168,6 @@ export default function WatchClient({
             }
         }
 
-        // Luôn route qua proxy để server lọc ads trước khi trả về client.
-        // Không dùng direct stream nữa vì proxy đã xử lý cả CORS lẫn ad removal.
-        if (originalSrc && originalSrc.startsWith("http")) {
-            try {
-                const urlObj = new URL(originalSrc);
-                const host = urlObj.hostname;
-                const path = urlObj.pathname.startsWith("/") ? urlObj.pathname.slice(1) : urlObj.pathname;
-                const search = urlObj.search;
-                return `/api/video-proxy/${host}/${path}${search}`;
-            } catch (e) {
-                console.error("Lỗi khi chuyển đổi URL sang Proxy:", e);
-                return originalSrc;
-            }
-        }
-        
         return originalSrc;
     }, [activeServerIndex, episodeSlug, episodes, episode.link_m3u8]);
 
@@ -597,7 +582,7 @@ export default function WatchClient({
                 }
             });
 
-            if (Hls.isSupported() && (videoSrc.includes('.m3u8') || videoSrc.includes('/video-proxy/'))) {
+            if (Hls.isSupported() && (videoSrc.includes('.m3u8'))) {
                 const hls = new Hls({
                     capLevelToPlayerSize: true,
                     autoStartLoad: true,

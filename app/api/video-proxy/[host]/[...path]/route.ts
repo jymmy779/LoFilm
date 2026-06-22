@@ -34,7 +34,46 @@ export async function GET(
         // Nếu là file M3U8 → tải về và trả về trực tiếp
         const isM3u8 = contentType.includes("mpegurl") || pathStr.endsWith(".m3u8");
         if (isM3u8) {
-            const text = await response.text();
+            let text = await response.text();
+            
+            // Viết lại các URL bên trong m3u8 để trỏ qua proxy
+            const basePath = pathStr.substring(0, pathStr.lastIndexOf('/') + 1);
+            
+            const rewriteSingleUrl = (url: string) => {
+                if (url.startsWith('http://') || url.startsWith('https://')) {
+                    try {
+                        const urlObj = new URL(url);
+                        const newHost = urlObj.hostname;
+                        const newPath = urlObj.pathname.startsWith('/') ? urlObj.pathname.slice(1) : urlObj.pathname;
+                        return `/api/video-proxy/${newHost}/${newPath}${urlObj.search}`;
+                    } catch {
+                        return url;
+                    }
+                }
+                if (url.startsWith('/')) {
+                    return `/api/video-proxy/${host}${url}`;
+                }
+                return `/api/video-proxy/${host}/${basePath}${url}`;
+            };
+
+            const lines = text.split('\n');
+            const rewrittenLines = lines.map(line => {
+                const trimmed = line.trim();
+                if (!trimmed) return line;
+                
+                if (trimmed.startsWith('#')) {
+                    if (trimmed.includes('URI="')) {
+                        return trimmed.replace(/URI="([^"]+)"/, (match, url) => {
+                            return `URI="${rewriteSingleUrl(url)}"`;
+                        });
+                    }
+                    return line;
+                }
+                
+                return rewriteSingleUrl(trimmed);
+            });
+            text = rewrittenLines.join('\n');
+
             return new NextResponse(text, {
                 status: response.status,
                 headers: {
