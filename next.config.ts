@@ -39,13 +39,16 @@ const nextConfig: NextConfig = {
     async headers() {
         return [
             {
-                source: '/(.*)',
+                // Bảo browser không cache HTML — tránh lỗi giao diện sau khi deploy mới
+                // Static assets (/_next/static/) vẫn cache tốt vì đã có content hash trong tên file
+                source: '/((?!_next/static|_next/image|favicon.ico).*)',
                 headers: [
                     { key: 'X-Content-Type-Options', value: 'nosniff' },
                     { key: 'X-Frame-Options', value: 'DENY' },
                     { key: 'X-XSS-Protection', value: '1; mode=block' },
                     { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
                     { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains; preload' },
+                    { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
                 ],
             },
             {
