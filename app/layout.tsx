@@ -109,10 +109,7 @@ export const metadata: Metadata = {
     images: ['https://www.munos.store/lofilm_logo.webp'],
   },
   alternates: {
-    canonical: '/',
-    languages: {
-      'vi-VN': '/',
-    },
+    canonical: 'https://www.munos.store',
   },
 };
 

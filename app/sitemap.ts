@@ -51,29 +51,71 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
     }));
 
-    // 4. Lấy danh sách phim mới nhất - mở rộng lên 50 trang (~1000 phim)
-    let movieRoutes: any[] = [];
+    // 4. Lấy danh sách phim + episode URLs (tăng lên 100 trang ~2000 phim)
+    let movieRoutes: MetadataRoute.Sitemap = [];
+    let episodeRoutes: MetadataRoute.Sitemap = [];
+
     try {
-        const pages = Array.from({ length: 50 }, (_, i) => i + 1);
-        const moviePromises = pages.map(page =>
-            fetch(`${API_BASE}/danh-sach/phim-moi-cap-nhat?page=${page}`)
-                .then(res => res.json())
-                .catch(() => ({ items: [] }))
-        );
+        const pages = Array.from({ length: 100 }, (_, i) => i + 1);
 
-        const responses = await Promise.all(moviePromises);
+        // Batch 10 trang mỗi lần để tránh timeout
+        const batchSize = 10;
+        for (let b = 0; b < pages.length; b += batchSize) {
+            const batch = pages.slice(b, b + batchSize);
+            const responses = await Promise.all(
+                batch.map(page =>
+                    fetch(`${API_BASE}/danh-sach/phim-moi-cap-nhat?page=${page}`)
+                        .then(res => res.json())
+                        .catch(() => ({ items: [] }))
+                )
+            );
 
-        movieRoutes = responses.flatMap(data =>
-            (data.items || []).map((movie: any) => ({
-                url: `${BASE_URL}/phim/${movie.slug}`,
-                lastModified: new Date(movie.modified?.time || new Date()),
-                changeFrequency: 'weekly' as const,
-                priority: 0.6,
-            }))
-        );
+            for (const data of responses) {
+                const items = data.items || [];
+                for (const movie of items) {
+                    // URL trang chi tiết phim (priority cao nhất)
+                    movieRoutes.push({
+                        url: `${BASE_URL}/phim/${movie.slug}`,
+                        lastModified: new Date(movie.modified?.time || new Date()),
+                        changeFrequency: 'weekly' as const,
+                        priority: 0.7,
+                    });
+                }
+            }
+        }
+
+        // 5. Fetch episodes cho 30 phim bộ đầu tiên (series có nhiều tập = nhiều long-tail URL)
+        const seriesMovies = movieRoutes.slice(0, 30);
+        const episodePromises = seriesMovies.map(async (movieRoute) => {
+            try {
+                const movieSlug = movieRoute.url.split('/phim/')[1];
+                const detail = await fetch(`${API_BASE}/phim/${movieSlug}`)
+                    .then(res => res.json())
+                    .catch(() => null);
+
+                if (!detail?.movie || !detail?.episodes?.length) return [];
+                if (detail.movie.type === 'single') return []; // Bỏ phim lẻ
+
+                const server = detail.episodes[0];
+                if (!server?.server_data?.length || server.server_data.length < 2) return [];
+
+                return server.server_data.slice(0, 50).map((ep: any) => ({
+                    url: `${BASE_URL}/phim/${movieSlug}/${ep.slug}`,
+                    lastModified: new Date(detail.movie.modified?.time || new Date()),
+                    changeFrequency: 'weekly' as const,
+                    priority: 0.5,
+                }));
+            } catch {
+                return [];
+            }
+        });
+
+        const episodeBatches = await Promise.all(episodePromises);
+        episodeRoutes = episodeBatches.flat();
+
     } catch (error) {
         console.error("Sitemap generation error:", error);
     }
 
-    return [...staticRoutes, ...genreRoutes, ...countryRoutes, ...movieRoutes];
+    return [...staticRoutes, ...genreRoutes, ...countryRoutes, ...movieRoutes, ...episodeRoutes];
 }

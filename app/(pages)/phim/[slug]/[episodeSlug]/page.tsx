@@ -74,16 +74,51 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         }
     }
 
-    const title = `Xem phim ${movie.name}${currentEpisodeName} | LoFilm`;
-    const description = `Xem phim ${movie.name} (${movie.origin_name}) ${currentEpisodeName} chất lượng cao, thuyết minh vietsub cực hay tại LoFilm.`;
+    const title = `Xem phim ${movie.name}${currentEpisodeName} Vietsub | LoFilm`;
+    const cleanDescription = (movie.content || "").replace(/<[^>]*>/g, '').substring(0, 155);
+    const description = cleanDescription
+        ? `${cleanDescription}...`
+        : `Xem phim ${movie.name} (${movie.origin_name})${currentEpisodeName} vietsub, thuyết minh chất lượng HD tại LoFilm. Miễn phí, không quảng cáo.`;
+
+    const keywords = [
+        movie.name,
+        movie.origin_name,
+        `xem phim ${movie.name}`,
+        `${movie.name} vietsub`,
+        `${movie.name} thuyet minh`,
+        `${movie.name} full hd`,
+        `xem ${movie.name} lofilm`,
+        ...(movie.category?.map((c: any) => c.name) || []),
+        ...(movie.actor?.slice(0, 5) || []),
+        "lofilm", "xem phim online mien phi", "phim hay 2026"
+    ].filter(Boolean);
 
     return {
         title,
         description,
+        keywords,
+        alternates: {
+            canonical: `https://www.munos.store/phim/${slug}/${episodeSlug}`,
+        },
         openGraph: {
             title,
             description,
-            images: [movie.poster_url],
+            url: `https://www.munos.store/phim/${slug}/${episodeSlug}`,
+            siteName: 'LoFilm',
+            locale: 'vi_VN',
+            type: 'video.movie',
+            images: [{
+                url: movie.poster_url || movie.thumb_url,
+                width: 1200,
+                height: 675,
+                alt: `${movie.name} - LoFilm`,
+            }],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title,
+            description,
+            images: [movie.poster_url || movie.thumb_url],
         },
     };
 }
@@ -208,7 +243,45 @@ export default async function WatchPage({ params }: Props) {
     // Fetch suggested movies in parallel
     const suggestedMovies = await getSuggestedMovies(movie);
 
+    // VideoObject schema for Google rich results
+    const videoJsonLd = {
+        "@context": "https://schema.org",
+        "@type": "VideoObject",
+        "name": `${movie.name} - ${currentEpisode.name}`,
+        "description": (movie.content || "").replace(/<[^>]*>/g, '').substring(0, 300) ||
+            `Xem phim ${movie.name} (${movie.origin_name}) - ${currentEpisode.name} vietsub chất lượng cao tại LoFilm`,
+        "thumbnailUrl": movie.poster_url || movie.thumb_url,
+        "uploadDate": movie.modified?.time || new Date().toISOString(),
+        "contentUrl": `https://www.munos.store/phim/${slug}/${episodeSlug}`,
+        "embedUrl": `https://www.munos.store/phim/${slug}/${episodeSlug}`,
+        "duration": movie.time ? `PT${movie.time.replace(/[^0-9]/g, '')}M` : undefined,
+        "inLanguage": "vi",
+        "actor": (movie.actor || []).slice(0, 5).map((name: string) => ({
+            "@type": "Person",
+            "name": name
+        })),
+        "director": (movie.director || []).map((name: string) => ({
+            "@type": "Person",
+            "name": name
+        })),
+        "genre": movie.category?.map((c: any) => c.name),
+        "publisher": {
+            "@type": "Organization",
+            "name": "LoFilm",
+            "url": "https://www.munos.store",
+            "logo": {
+                "@type": "ImageObject",
+                "url": "https://www.munos.store/lofilm_logo.webp"
+            }
+        }
+    };
+
     return (
+        <>
+        <script
+            type="application/ld+json"
+            dangerouslySetInnerHTML={{ __html: JSON.stringify(videoJsonLd) }}
+        />
         <WatchClient 
             key={slug}
             slug={slug} 
@@ -231,5 +304,6 @@ export default async function WatchPage({ params }: Props) {
             episodes={episodes}
             suggestedMovies={suggestedMovies}
         />
+        </>
     );
 }
