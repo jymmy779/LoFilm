@@ -106,7 +106,8 @@ const EpisodeList = ({
     if (matchedRangeIndex !== -1 && matchedRangeIndex !== activeRangeIndex) {
       setActiveRangeIndex(matchedRangeIndex);
     }
-  }, [currentEpisode, episodeRanges, episodeData, activeRangeIndex]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [currentEpisode, episodeRanges, episodeData]);
 
   return (
     <div className="w-full pt-10">
