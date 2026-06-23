@@ -67,6 +67,9 @@ export async function GET() {
             }
         }
 
+        // Limit to top 15 candidates before fetching details to avoid rate limits and timeouts
+        candidateSlugs = candidateSlugs.slice(0, 15);
+
         // 4. Fetch movie details in parallel
         const fetchedMovies = await Promise.all(
             candidateSlugs.map(async (slug) => {

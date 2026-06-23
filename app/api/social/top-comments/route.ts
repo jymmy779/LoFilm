@@ -42,14 +42,48 @@ export async function GET() {
             return NextResponse.json([]);
         }
 
-        // 2. Extract unique movie slugs (extract base slug if it's episode-specific)
-        const uniqueSlugs = Array.from(new Set(rawComments.map(c => {
+        // 2. Map, sort by upvotes DESC, and deduplicate FIRST
+        const mappedRawComments = rawComments.map((comment) => {
+            const upvotes = comment.reactions?.filter((r: any) => r.type === "up").length || 0;
+            const downvotes = comment.reactions?.filter((r: any) => r.type === "down").length || 0;
+            return {
+                ...comment,
+                upvotes,
+                downvotes,
+                createdAt: new Date(comment.created_at).getTime()
+            };
+        });
+
+        // Sort by upvotes DESC, then by createdAt DESC (newest first)
+        mappedRawComments.sort((a: any, b: any) => {
+            if (b.upvotes !== a.upvotes) {
+                return b.upvotes - a.upvotes;
+            }
+            return b.createdAt - a.createdAt;
+        });
+
+        // Deduplicate comments with identical content
+        const seenContents = new Set();
+        const uniqueRawComments = [];
+        for (const comment of mappedRawComments) {
+            const normContent = (comment.content || "").trim().toLowerCase();
+            if (!seenContents.has(normContent)) {
+                seenContents.add(normContent);
+                uniqueRawComments.push(comment);
+            }
+        }
+
+        // 3. Take top 20 comments
+        const top20RawComments = uniqueRawComments.slice(0, 20);
+
+        // 4. Extract unique movie slugs from ONLY the top 20 comments
+        const uniqueSlugs = Array.from(new Set(top20RawComments.map(c => {
             const slug = c.movie_slug;
             if (!slug) return null;
             return slug.includes('/') ? slug.split('/')[0] : slug;
         }).filter(Boolean) as string[]));
 
-        // 3. Fetch movie details in parallel
+        // 5. Fetch movie details in parallel for only the top 20 unique slugs
         const movieMetaMap: Record<string, { title: string; poster: string; backdrop: string; isValid: boolean }> = {};
 
         await Promise.all(
@@ -81,8 +115,8 @@ export async function GET() {
             })
         );
 
-        // 4. Map, sort by upvotes DESC, and slice top 20
-        const mappedComments = rawComments
+        // 6. Map to final format
+        const top20Comments = top20RawComments
             .map((comment) => {
                 const slug = comment.movie_slug;
                 if (!slug) return null;
@@ -90,9 +124,6 @@ export async function GET() {
                 const baseMovieSlug = slug.includes('/') ? slug.split('/')[0] : slug;
                 const meta = movieMetaMap[baseMovieSlug];
                 if (!meta || !meta.isValid) return null;
-
-                const upvotes = comment.reactions?.filter((r: any) => r.type === "up").length || 0;
-                const downvotes = comment.reactions?.filter((r: any) => r.type === "down").length || 0;
 
                 let userAvatar = comment.user_avatar;
                 if (userAvatar && userAvatar.startsWith("http") && !userAvatar.includes("wsrv.nl")) {
@@ -112,35 +143,13 @@ export async function GET() {
                         backdrop: meta.backdrop
                     },
                     content: comment.content || "",
-                    upvotes,
-                    downvotes,
+                    upvotes: comment.upvotes,
+                    downvotes: comment.downvotes,
                     replies: 0,
-                    createdAt: new Date(comment.created_at).getTime()
+                    createdAt: comment.createdAt
                 };
             })
             .filter((c) => c !== null);
-
-        // Sort by upvotes DESC, then by createdAt DESC (newest first)
-        mappedComments.sort((a: any, b: any) => {
-            if (b.upvotes !== a.upvotes) {
-                return b.upvotes - a.upvotes;
-            }
-            return b.createdAt - a.createdAt;
-        });
-
-        // Deduplicate comments with identical content (case-insensitive, trimmed) to keep only the one with the highest upvotes
-        const seenContents = new Set();
-        const uniqueComments = [];
-        for (const comment of mappedComments) {
-            if (!comment) continue;
-            const normContent = comment.content.trim().toLowerCase();
-            if (!seenContents.has(normContent)) {
-                seenContents.add(normContent);
-                uniqueComments.push(comment);
-            }
-        }
-
-        const top20Comments = uniqueComments.slice(0, 20);
 
         return NextResponse.json(top20Comments, {
             headers: {

@@ -32,14 +32,29 @@ export async function GET() {
             return NextResponse.json([]);
         }
 
-        // 2. Extract unique movie slugs (extract base slug if it's episode-specific)
-        const uniqueSlugs = Array.from(new Set(rawComments.map(c => {
+        // 2. Deduplicate comments with identical content (case-insensitive, trimmed) to keep only the newest one
+        const seenContents = new Set();
+        const uniqueRawComments = [];
+        for (const comment of rawComments) {
+            if (!comment) continue;
+            const normContent = (comment.content || "").trim().toLowerCase();
+            if (!seenContents.has(normContent)) {
+                seenContents.add(normContent);
+                uniqueRawComments.push(comment);
+            }
+        }
+
+        // Take only top 10 newest unique comments
+        const top10RawComments = uniqueRawComments.slice(0, 10);
+
+        // 3. Extract unique movie slugs from top 10 only (extract base slug if it's episode-specific)
+        const uniqueSlugs = Array.from(new Set(top10RawComments.map(c => {
             const slug = c.movie_slug;
             if (!slug) return null;
             return slug.includes('/') ? slug.split('/')[0] : slug;
         }).filter(Boolean) as string[]));
 
-        // 3. Fetch movie details in parallel
+        // 4. Fetch movie details in parallel
         const movieNamesMap: Record<string, string> = {};
 
         await Promise.all(
@@ -56,8 +71,8 @@ export async function GET() {
             })
         );
 
-        // 4. Map comments and return
-        const mappedComments = rawComments
+        // 5. Map comments and return
+        const top10Comments = top10RawComments
             .map((comment) => {
                 const slug = comment.movie_slug;
                 if (!slug) return null;
@@ -81,21 +96,6 @@ export async function GET() {
                 };
             })
             .filter((c) => c !== null);
-
-        // Deduplicate comments with identical content (case-insensitive, trimmed) to keep only the newest one
-        const seenContents = new Set();
-        const uniqueComments = [];
-        for (const comment of mappedComments) {
-            if (!comment) continue;
-            const normContent = comment.content.trim().toLowerCase();
-            if (!seenContents.has(normContent)) {
-                seenContents.add(normContent);
-                uniqueComments.push(comment);
-            }
-        }
-
-        // Take only top 10 newest unique comments
-        const top10Comments = uniqueComments.slice(0, 10);
 
         return NextResponse.json(top10Comments, {
             headers: {
