@@ -304,49 +304,56 @@ export default function WatchClient({
     };
 
     const lastSavedTime = useRef(0);
-    const saveProgress = async (currentTime: number, duration: number) => {
+    const lastSavedTimeDB = useRef(0);
+    const saveProgress = async (currentTime: number, duration: number, forceDbSync = false) => {
         const currentUser = userRef.current;
         if (!currentTime || duration <= 0) return;
 
-        if (Math.abs(currentTime - lastSavedTime.current) < 10) return;
-        lastSavedTime.current = currentTime;
+        const timeDiff = Math.abs(currentTime - lastSavedTime.current);
+        const dbTimeDiff = Math.abs(currentTime - lastSavedTimeDB.current);
 
-        try {
-            const GUEST_HISTORY_KEY = 'lofilm-guest-watch-history';
-            const historyStr = localStorage.getItem(GUEST_HISTORY_KEY);
-            let history = historyStr ? JSON.parse(historyStr) : {};
+        // 1. Lưu LocalStorage mỗi 10s (rất nhẹ, không tốn tài nguyên)
+        if (timeDiff >= 10) {
+            lastSavedTime.current = currentTime;
+            try {
+                const GUEST_HISTORY_KEY = 'lofilm-guest-watch-history';
+                const historyStr = localStorage.getItem(GUEST_HISTORY_KEY);
+                let history = historyStr ? JSON.parse(historyStr) : {};
 
-            const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-            const now = Date.now();
-            Object.keys(history).forEach(key => {
-                if (now - history[key].updated_at > SEVEN_DAYS_MS) {
-                    delete history[key];
+                const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+                const now = Date.now();
+                Object.keys(history).forEach(key => {
+                    if (now - history[key].updated_at > SEVEN_DAYS_MS) {
+                        delete history[key];
+                    }
+                });
+
+                history[`${slug}/${episodeSlug}`] = {
+                    movie_slug: slug,
+                    episode_slug: episodeSlug,
+                    movie_name: movie.name,
+                    movie_poster: movie.thumb_url || movie.poster_url,
+                    episode_name: episode.name,
+                    watched_seconds: Math.floor(currentTime),
+                    duration: Math.floor(duration),
+                    updated_at: now
+                };
+
+                const keys = Object.keys(history);
+                if (keys.length > 40) {
+                    const oldestKey = keys.sort((a, b) => history[a].updated_at - history[b].updated_at)[0];
+                    delete history[oldestKey];
                 }
-            });
 
-            history[`${slug}/${episodeSlug}`] = {
-                movie_slug: slug,
-                episode_slug: episodeSlug,
-                movie_name: movie.name,
-                movie_poster: movie.thumb_url || movie.poster_url,
-                episode_name: episode.name,
-                watched_seconds: Math.floor(currentTime),
-                duration: Math.floor(duration),
-                updated_at: now
-            };
-
-            const keys = Object.keys(history);
-            if (keys.length > 40) {
-                const oldestKey = keys.sort((a, b) => history[a].updated_at - history[b].updated_at)[0];
-                delete history[oldestKey];
+                localStorage.setItem(GUEST_HISTORY_KEY, JSON.stringify(history));
+            } catch (e) {
+                console.error("Error saving progress to localStorage:", e);
             }
-
-            localStorage.setItem(GUEST_HISTORY_KEY, JSON.stringify(history));
-        } catch (e) {
-            console.error("Error saving progress to localStorage:", e);
         }
 
-        if (currentUser) {
+        // 2. Lưu Database Supabase mỗi 60s HOẶC khi bị ép (pause, close) để chống quá tải DB
+        if (currentUser && (dbTimeDiff >= 60 || forceDbSync)) {
+            lastSavedTimeDB.current = currentTime;
             await supabase.from('watch_history').upsert({
                 user_id: currentUser.id,
                 movie_slug: slug,
@@ -504,6 +511,12 @@ export default function WatchClient({
             player.on('play', () => {
                 if (showEndOverlayRef.current) {
                     setTimeout(() => { if (plyrRef.current && showEndOverlayRef.current) plyrRef.current.pause(); }, 10);
+                }
+            });
+
+            player.on('pause', () => {
+                if (plyrRef.current) {
+                    saveProgress(plyrRef.current.currentTime, plyrRef.current.duration, true);
                 }
             });
 
