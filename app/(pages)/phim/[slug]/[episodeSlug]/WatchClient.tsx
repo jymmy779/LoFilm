@@ -168,18 +168,6 @@ export default function WatchClient({
             }
         }
 
-        // Đẩy luồng video qua Proxy để tận dụng băng thông của server Next.js (chống bóp băng thông từ server gốc)
-        try {
-            if (originalSrc.startsWith('http')) {
-                const urlObj = new URL(originalSrc);
-                const proxyHost = urlObj.hostname;
-                const proxyPath = urlObj.pathname.startsWith('/') ? urlObj.pathname.slice(1) : urlObj.pathname;
-                return `/api/video-proxy/${proxyHost}/${proxyPath}${urlObj.search}`;
-            }
-        } catch (e) {
-            console.error("Error formatting proxy URL:", e);
-        }
-
         return originalSrc;
     }, [activeServerIndex, episodeSlug, episodes, episode.link_m3u8]);
 
