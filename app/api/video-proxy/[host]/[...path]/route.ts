@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
+export const runtime = "edge";
 export async function GET(
     request: NextRequest,
     props: { params: Promise<{ host: string; path: string[] }> }
@@ -86,18 +87,19 @@ export async function GET(
             });
         }
 
-        // Còn lại (.ts, v.v.) → tải về buffer để tránh lỗi ERR_INCOMPLETE_CHUNKED_ENCODING khi stream
-        const buffer = await response.arrayBuffer();
-        const headers: Record<string, string> = {
-            "Content-Type": contentType,
-            "Content-Length": buffer.byteLength.toString(),
-            "Access-Control-Allow-Origin": "*",
-            "Access-Control-Allow-Methods": "GET, OPTIONS",
-            "Access-Control-Allow-Headers": "*",
-            "Cache-Control": "public, max-age=3600",
-        };
+        // Còn lại (.ts, v.v.) → Stream trực tiếp để giảm TTFB và chống giật lag
+        const headers = new Headers();
+        headers.set("Content-Type", contentType);
+        headers.set("Access-Control-Allow-Origin", "*");
+        headers.set("Access-Control-Allow-Methods", "GET, OPTIONS");
+        headers.set("Access-Control-Allow-Headers", "*");
+        headers.set("Cache-Control", "public, max-age=3600");
+        
+        if (response.headers.has("Content-Length")) {
+            headers.set("Content-Length", response.headers.get("Content-Length")!);
+        }
 
-        return new NextResponse(buffer, {
+        return new NextResponse(response.body, {
             status: response.status,
             headers,
         });

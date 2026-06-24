@@ -168,6 +168,18 @@ export default function WatchClient({
             }
         }
 
+        // Đẩy luồng video qua Proxy để tận dụng băng thông của server Next.js (chống bóp băng thông từ server gốc)
+        try {
+            if (originalSrc.startsWith('http')) {
+                const urlObj = new URL(originalSrc);
+                const proxyHost = urlObj.hostname;
+                const proxyPath = urlObj.pathname.startsWith('/') ? urlObj.pathname.slice(1) : urlObj.pathname;
+                return `/api/video-proxy/${proxyHost}/${proxyPath}${urlObj.search}`;
+            }
+        } catch (e) {
+            console.error("Error formatting proxy URL:", e);
+        }
+
         return originalSrc;
     }, [activeServerIndex, episodeSlug, episodes, episode.link_m3u8]);
 
@@ -588,6 +600,13 @@ export default function WatchClient({
                     autoStartLoad: true,
                     startLevel: -1,
                     startPosition: startFrom > 0 ? startFrom : -1,
+                    // Tối ưu bộ đệm (buffering) để chống giật lag
+                    maxBufferLength: 60,
+                    maxMaxBufferLength: 600,
+                    maxBufferSize: 100 * 1000 * 1000, // 100MB
+                    fragLoadingTimeOut: 30000,
+                    manifestLoadingTimeOut: 30000,
+                    levelLoadingTimeOut: 30000,
                 });
                 hls.loadSource(videoSrc);
                 hls.attachMedia(videoRef.current);
