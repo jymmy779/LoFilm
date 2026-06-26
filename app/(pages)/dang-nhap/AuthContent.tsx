@@ -11,6 +11,8 @@ import { toast } from "react-hot-toast";
 import { usePageTransition } from "@/app/components/Transition/PageTransitionContext";
 import CatalogHeader from "../../components/CatalogHeader";
 import Container from "../../components/Container";
+import Link from "next/link";
+import { checkEmailExists } from "@/app/actions/authActions";
 
 // Import Sidebar từ đúng thư mục
 import SidebarComp from "@/app/components/Sidebar/Sidebar";
@@ -207,6 +209,16 @@ export default function AuthContent() {
       return;
     }
     setIsLoading(true);
+
+    // 1. Kiểm tra tài khoản có thực sự tồn tại hay không
+    const exists = await checkEmailExists(email);
+    if (!exists) {
+      toast.error("Tài khoản với email này không tồn tại!");
+      setIsLoading(false);
+      return;
+    }
+
+    // 2. Nếu tồn tại, tiến hành gửi email khôi phục
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
       redirectTo: `${window.location.origin}/dat-lai-mat-khau`,
     });
