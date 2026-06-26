@@ -17,6 +17,7 @@ import MovieHeader from "./MovieHeader";
 import MovieInfo from "./MovieInfo";
 import CommentSection from "@/app/components/Comments/CommentSection";
 import ReportModal from "@/app/components/Common/ReportModal";
+import ShareModal from "@/app/components/Movie/ShareModal";
 import { getImageUrl, getRawImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
 
 import SmartImage from "@/app/components/Common/SmartImage";
@@ -88,6 +89,7 @@ export default function WatchClient({
     const [activeServerIndex, setActiveServerIndex] = useState(0);
     const [hasError, setHasError] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
     const userRef = useRef<any>(null);
 
     useEffect(() => {
@@ -1053,6 +1055,7 @@ export default function WatchClient({
                         activeServer={activeServerIndex}
                         onServerChange={setActiveServerIndex}
                         onReport={() => setShowReportModal(true)}
+                        onShare={() => setShowShareModal(true)}
                     />
                 </div>
             </div>
@@ -1087,6 +1090,12 @@ export default function WatchClient({
             </div>
 
             <ReportModal isOpen={showReportModal} onClose={() => setShowReportModal(false)} movieName={movie.name} episodeName={episode.name} />
+            <ShareModal 
+                isOpen={showShareModal} 
+                onClose={() => setShowShareModal(false)} 
+                movieName={movie.name} 
+                shareUrl={typeof window !== "undefined" ? `${window.location.origin}/phim/${slug}/${episodeSlug}${user ? `?ref=${user.id}` : ''}` : ''} 
+            />
         </div>
     );
 }

@@ -8,7 +8,8 @@ import {
   Flag,
   Play,
   Heart,
-  Bookmark
+  Bookmark,
+  Share2
 } from "lucide-react";
 
 interface PlayerControlsProps {
@@ -28,6 +29,7 @@ interface PlayerControlsProps {
   activeServer: number;
   onServerChange: (index: number) => void;
   onReport?: () => void;
+  onShare?: () => void;
 }
 
 const PlayerControls = ({
@@ -44,7 +46,8 @@ const PlayerControls = ({
   episodes,
   activeServer,
   onServerChange,
-  onReport
+  onReport,
+  onShare
 }: PlayerControlsProps) => {
   const [showServers, setShowServers] = useState(false);
 
@@ -173,15 +176,27 @@ const PlayerControls = ({
           ))}
         </div>
 
-        {/* Báo lỗi (Float Right on MD+) */}
+        {/* Các nút phía bên phải */}
         <div className="flex-grow" />
-        <button
-          onClick={onReport}
-          className="flex items-center cursor-pointer gap-2 text-white/60 hover:text-red-400 transition-colors group"
-        >
-          <Flag size={14} />
-          <span className="md:text-sm text-xs font-medium">Báo lỗi</span>
-        </button>
+        <div className="flex items-center gap-4 md:gap-6">
+          {/* Chia sẻ */}
+          <button
+            onClick={onShare}
+            className="flex items-center cursor-pointer gap-2 text-white/60 hover:text-blue-400 transition-colors group"
+          >
+            <Share2 size={14} />
+            <span className="md:text-sm text-xs font-medium">Chia sẻ</span>
+          </button>
+
+          {/* Báo lỗi */}
+          <button
+            onClick={onReport}
+            className="flex items-center cursor-pointer gap-2 text-white/60 hover:text-red-400 transition-colors group"
+          >
+            <Flag size={14} />
+            <span className="md:text-sm text-xs font-medium">Báo lỗi</span>
+          </button>
+        </div>
 
       </div>
     </div>
