@@ -72,6 +72,27 @@ export default function WatchClient({
     episodes,
     suggestedMovies: initialSuggestions
 }: WatchClientProps) {
+    const processedEpisodes = useMemo(() => {
+        if (!episodes) return [];
+        const list: typeof episodes = [];
+        episodes.forEach(server => {
+            // Server VIP (Sử dụng trình phát gốc, HLS)
+            list.push({
+                ...server,
+                server_name: `${server.server_name} - VIP`
+            });
+            
+            // Server Dự Phòng (Sử dụng Iframe Embed)
+            if (server.server_data.some(ep => ep.link_embed)) {
+                list.push({
+                    ...server,
+                    server_name: `${server.server_name} - Dự Phòng`
+                });
+            }
+        });
+        return list;
+    }, [episodes]);
+
     const [movie, setMovie] = useState<any>(initialMovie);
     const filteredSuggestions = useMemo(() => {
         const seen = new Set();
@@ -121,32 +142,38 @@ export default function WatchClient({
 
     const supabase = createClient();
 
+    const containerRef = useRef<HTMLDivElement>(null);
     const videoRef = useRef<HTMLVideoElement>(null);
     const hlsRef = useRef<Hls | null>(null);
     const plyrRef = useRef<any>(null);
     const fallbackTimeRef = useRef<number>(0);
 
+    const isEmbedServer = useMemo(() => {
+        const server = processedEpisodes[activeServerIndex];
+        return server?.server_name.includes('Dự Phòng') || false;
+    }, [processedEpisodes, activeServerIndex]);
+
     const currentIndex = useMemo(() => {
-        if (!episodes || episodes.length === 0) return -1;
-        const server = episodes[activeServerIndex] || episodes[0];
+        if (!processedEpisodes || processedEpisodes.length === 0) return -1;
+        const server = processedEpisodes[activeServerIndex] || processedEpisodes[0];
 
         return server.server_data.findIndex((ep: any) => getFriendlyEpisodeSlug(ep.slug) === episodeSlug);
-    }, [episodes, activeServerIndex, episodeSlug]);
+    }, [processedEpisodes, activeServerIndex, episodeSlug]);
 
     const nextEpisode = useMemo(() => {
-        if (!episodes || episodes.length === 0 || currentIndex === -1) return null;
-        const server = episodes[activeServerIndex] || episodes[0];
+        if (!processedEpisodes || processedEpisodes.length === 0 || currentIndex === -1) return null;
+        const server = processedEpisodes[activeServerIndex] || processedEpisodes[0];
         if (currentIndex < server.server_data.length - 1) {
             return server.server_data[currentIndex + 1];
         }
         return null;
-    }, [episodes, activeServerIndex, currentIndex]);
+    }, [processedEpisodes, activeServerIndex, currentIndex]);
 
     const isSeries = useMemo(() => {
-        if (!episodes || episodes.length === 0) return false;
-        const server = episodes[0];
+        if (!processedEpisodes || processedEpisodes.length === 0) return false;
+        const server = processedEpisodes[0];
         return server.server_data.length > 1;
-    }, [episodes]);
+    }, [processedEpisodes]);
 
     useEffect(() => {
         setHasError(false);
@@ -154,13 +181,13 @@ export default function WatchClient({
 
     const videoSrc = useMemo(() => {
         let originalSrc = episode.link_m3u8;
-        if (episodes && episodes.length > 0) {
-            const server = episodes[activeServerIndex] || episodes[0];
+        if (processedEpisodes && processedEpisodes.length > 0) {
+            const server = processedEpisodes[activeServerIndex] || processedEpisodes[0];
             const found = server.server_data.find((ep) => getFriendlyEpisodeSlug(ep.slug) === episodeSlug);
             if (found) {
                 originalSrc = found.link_m3u8;
             } else {
-                for (const s of episodes) {
+                for (const s of processedEpisodes) {
                     const f = s.server_data.find((ep) => getFriendlyEpisodeSlug(ep.slug) === episodeSlug);
                     if (f) {
                         originalSrc = f.link_m3u8;
@@ -169,9 +196,15 @@ export default function WatchClient({
                 }
             }
         }
-
         return originalSrc;
-    }, [activeServerIndex, episodeSlug, episodes, episode.link_m3u8]);
+    }, [activeServerIndex, episodeSlug, processedEpisodes, episode.link_m3u8]);
+
+    const embedSrc = useMemo(() => {
+        if (!isEmbedServer) return null;
+        const server = processedEpisodes[activeServerIndex];
+        const found = server?.server_data.find((ep) => getFriendlyEpisodeSlug(ep.slug) === episodeSlug);
+        return found?.link_embed || null;
+    }, [isEmbedServer, processedEpisodes, activeServerIndex, episodeSlug]);
 
 
 
@@ -397,6 +430,8 @@ export default function WatchClient({
     };
 
     useEffect(() => {
+        if (isEmbedServer) return;
+
         let isMounted = true;
         const video = videoRef.current;
         if (!video) return;
@@ -603,13 +638,14 @@ export default function WatchClient({
                     autoStartLoad: true,
                     startLevel: -1,
                     startPosition: startFrom > 0 ? startFrom : -1,
-                    // Tối ưu bộ đệm (buffering) để chống giật lag
-                    maxBufferLength: 60,
+                    // Tối ưu bộ đệm (buffering) chống giật lag
+                    maxBufferLength: 120, // Tăng lên 120s
                     maxMaxBufferLength: 600,
-                    maxBufferSize: 100 * 1000 * 1000, // 100MB
-                    fragLoadingTimeOut: 30000,
-                    manifestLoadingTimeOut: 30000,
-                    levelLoadingTimeOut: 30000,
+                    maxBufferSize: 100 * 1000 * 1000, 
+                    fragLoadingTimeOut: 60000, // Tăng timeout mạng yếu
+                    manifestLoadingTimeOut: 60000,
+                    levelLoadingTimeOut: 60000,
+                    enableWorker: true, // Chạy trên luồng phụ
                 });
                 hls.loadSource(videoSrc);
                 hls.attachMedia(videoRef.current);
@@ -644,13 +680,14 @@ export default function WatchClient({
             if (plyrRef.current) {
                 try { plyrRef.current.destroy(); } catch (e) { }
                 plyrRef.current = null;
+                setPlyrContainer(null);
             }
             if (hlsRef.current) {
                 try { hlsRef.current.destroy(); } catch (e) { }
                 hlsRef.current = null;
             }
         };
-    }, [videoSrc, nextEpisode, slug]);
+    }, [videoSrc, nextEpisode, slug, isEmbedServer]);
 
     useEffect(() => {
         const handleKeyDown = (e: KeyboardEvent) => {
@@ -739,7 +776,9 @@ export default function WatchClient({
         }
     }, [showEpisodeOverlay, episodeSlug, activeServerIndex]);
 
+    if (!movie || !episode) return null;
 
+    const portalTarget = isEmbedServer ? containerRef.current : plyrContainer;
 
     return (
         <div className={`pt-35 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} bg-[#0a1628] transition-all duration-500 animate-fade-in ${isFullscreen ? 'video-fullscreen-active' : ''}`}>
@@ -748,7 +787,7 @@ export default function WatchClient({
             </div>
 
             <div className={`transition-all duration-500 ease-in-out relative ${isExpanded ? 'w-full' : 'max-w-[1900px] mx-auto px-5 lg:px-12'} ${isFullscreen ? '!max-w-none !p-0 !m-0 !fixed !inset-0 !z-[9999]' : ''}`}>
-                <div key={videoSrc} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreen ? '!rounded-none !border-0 !h-screen' : ''}`}>
+                <div ref={containerRef} key={videoSrc} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreen ? '!rounded-none !border-0 !h-screen' : ''}`}>
                     <style jsx global>{`
                         .hide-large-play .plyr__control--overlaid { display: none !important; }
                         .plyr { z-index: auto !important; aspect-ratio: 16/9; width: 100%; border-radius: inherit; touch-action: pan-y; will-change: transform, opacity; }
@@ -859,10 +898,23 @@ export default function WatchClient({
                             }
                         }
                     `}</style>
-                    <video ref={videoRef} className="w-full h-full object-contain" playsInline loop={false} poster={getImageUrl(movie.thumb_url, { width: 1280, quality: 85 })} />
+                    
+                    {/* HLS Video Container (Không xoá khỏi DOM để tránh lỗi NotFoundError của React, chỉ ẩn đi) */}
+                    <div className={`w-full h-full absolute inset-0 z-0 ${isEmbedServer ? 'hidden' : 'block'}`}>
+                        <video ref={videoRef} className="w-full h-full object-contain" playsInline loop={false} poster={getImageUrl(movie.thumb_url, { width: 1280, quality: 85 })} />
+                    </div>
+
+                    {/* Iframe Embed */}
+                    {isEmbedServer && embedSrc && (
+                        <iframe 
+                            src={embedSrc}
+                            allowFullScreen
+                            className="w-full h-full border-0 absolute inset-0 z-[5]"
+                        />
+                    )}
 
                     {/* Movie Info Overlay (Top Left) - Rendered into Plyr Container for Fullscreen Support */}
-                    {plyrContainer && createPortal(
+                    {portalTarget && !isEmbedServer && createPortal(
                         <div className={`watch-top-overlay absolute top-2 left-2 md:top-6 md:left-6 z-[110] pointer-events-none max-w-[55%]  lg:max-w-[70%] transition-all duration-500 ${!showEndOverlay ? 'opacity-100' : 'opacity-0'}`}>
                             <div className="flex flex-col gap-1">
                                 <h1 className="text-white text-[13px] md:text-[20px] font-bold [text-shadow:2px_2px_4px_rgba(0,0,0,0.9)] leading-tight line-clamp-1">
@@ -875,11 +927,11 @@ export default function WatchClient({
                                 </div>
                             </div>
                         </div>,
-                        plyrContainer
+                        portalTarget
                     )}
 
                     {/* Episode List Trigger Button (Top Right) */}
-                    {plyrContainer && createPortal(
+                    {portalTarget && createPortal(
                         <button
                             onClick={(e) => {
                                 e.stopPropagation();
@@ -890,13 +942,13 @@ export default function WatchClient({
                             <List size={14} className="md:w-5 md:h-5 text-white group-hover:text-amber-400 transition-colors" />
                             <span className="text-white text-[10px] md:text-[14px] font-bold tracking-wide group-hover:text-amber-500 transition-colors">Danh sách tập</span>
                         </button>,
-                        plyrContainer
+                        portalTarget
                     )}
 
 
 
                     {/* Loading Overlay when switching episodes */}
-                    {plyrContainer && createPortal(
+                    {portalTarget && createPortal(
                         <div
                             className={`absolute inset-0 z-[200] bg-black/60 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300 ${isChangingEpisode ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                         >
@@ -911,11 +963,11 @@ export default function WatchClient({
                                 <p className="text-white/40 text-xs md:text-sm">Vui lòng đợi trong giây lát</p>
                             </div>
                         </div>,
-                        plyrContainer
+                        portalTarget
                     )}
 
                     {/* Episode List Overlay Panel */}
-                    {plyrContainer && createPortal(
+                    {portalTarget && createPortal(
                         <div className={`absolute inset-0 z-[210] ${showEpisodeOverlay ? 'visible' : 'invisible'} [transition-property:visibility] duration-500`}>
 
                             {/* Panel sliding from right */}
@@ -930,7 +982,7 @@ export default function WatchClient({
                                     <div className="flex flex-col gap-0.5">
                                         <h3 className="text-white text-[13px] md:text-[20px] font-bold line-clamp-1">{movie.name}</h3>
                                         <span className="text-white/40 text-[10px] md:text-xs lg:text-sm">
-                                            Danh sách tập • {episodes[activeServerIndex]?.server_data?.length || 0} tập
+                                            Danh sách tập • {processedEpisodes[activeServerIndex]?.server_data?.length || 0} tập
                                         </span>
                                     </div>
                                     <button
@@ -943,7 +995,7 @@ export default function WatchClient({
 
                                 {/* List Body */}
                                 <div id="episode-list-container" className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-1.5 sm:p-3 lg:p-5 flex flex-col gap-1.5 md:gap-2 lg:gap-3">
-                                    {episodes[activeServerIndex]?.server_data?.map((ep, idx) => {
+                                    {processedEpisodes[activeServerIndex]?.server_data?.map((ep, idx) => {
                                         const epSlug = getFriendlyEpisodeSlug(ep.slug);
                                         const isActive = epSlug === episodeSlug;
 
@@ -995,12 +1047,12 @@ export default function WatchClient({
                                 </div>
                             </div>
                         </div>,
-                        plyrContainer
+                        portalTarget
                     )}
 
 
                     {/* Replay/End Overlay */}
-                    {plyrContainer && createPortal(
+                    {portalTarget && createPortal(
                         <div
                             className={`absolute inset-0 z-[150] bg-black/90 flex flex-col items-center justify-center p-3 md:p-6 text-center pointer-events-auto transition-opacity duration-300 ${showEndOverlay ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                         >
@@ -1033,7 +1085,7 @@ export default function WatchClient({
                                 </button>
                             </div>
                         </div>,
-                        plyrContainer
+                        portalTarget
                     )}
 
 
@@ -1051,7 +1103,7 @@ export default function WatchClient({
                         onToggleFavorite={toggleFavorite}
                         isInWatchlist={isInWatchlist}
                         onToggleWatchlist={toggleWatchlist}
-                        episodes={episodes}
+                        episodes={processedEpisodes}
                         activeServer={activeServerIndex}
                         onServerChange={setActiveServerIndex}
                         onReport={() => setShowReportModal(true)}
@@ -1072,7 +1124,7 @@ export default function WatchClient({
                                 <EpisodeList
                                     slug={slug}
                                     currentEpisode={episodeSlug}
-                                    episodes={episodes}
+                                    episodes={processedEpisodes}
                                     activeServer={activeServerIndex}
                                     onServerChange={setActiveServerIndex}
                                     onEpisodeClick={() => setIsChangingEpisode(true)}
