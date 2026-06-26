@@ -977,7 +977,14 @@ export default function WatchClient({
                                                 </div>
                                                 <div className="flex flex-col gap-0 min-w-0">
                                                     <h4 className={`text-[9px] sm:text-[11px] lg:text-[13px] font-bold truncate ${isActive ? 'text-amber-500' : 'text-white/80 group-hover:text-white'}`}>
-                                                        {ep.name}
+                                                        {(() => {
+                                                            const rawName = ep.name || "";
+                                                            const displayName = rawName.replace(/Tập\s*/i, "").trim();
+                                                            if (!displayName || /^0+$/.test(displayName) || displayName.toLowerCase() === "trailer") {
+                                                                return "Trailer";
+                                                            }
+                                                            return ep.name;
+                                                        })()}
                                                     </h4>
                                                 </div>
                                             </TransitionLink>

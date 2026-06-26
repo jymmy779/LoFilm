@@ -198,7 +198,14 @@ const EpisodeList = ({
                   }
                 `}
               >
-                {ep.name.replace(/Tập\s*/i, "").replace(/^0+/, "")}
+                {(() => {
+                  const rawName = ep.name || "";
+                  const displayName = rawName.replace(/Tập\s*/i, "").trim();
+                  if (!displayName || /^0+$/.test(displayName) || displayName.toLowerCase() === "trailer") {
+                    return "Trailer";
+                  }
+                  return displayName.replace(/^0+(?=\d)/, "");
+                })()}
               </TransitionLink>
             );
           })}
