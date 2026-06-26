@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import axios from 'axios';
 import { fetchWithRedis } from '@/app/lib/fetch-with-redis';
 
-export const revalidate = 900; // Cache this route for 15 minutes
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {

@@ -4,7 +4,7 @@ import axios from 'axios';
 import { getImageUrl } from '@/app/utils/movieUtils';
 import { fetchWithRedis } from '@/app/lib/fetch-with-redis';
 
-export const revalidate = 43200; // Cache this route for 12 hours
+export const dynamic = 'force-dynamic';
 
 const FALLBACK_SLUGS = [
     "mai",

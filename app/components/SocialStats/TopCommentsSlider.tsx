@@ -35,23 +35,31 @@ export default function TopCommentsSlider() {
     const [loading, setLoading] = useState(() => !globalCache.has("social-top-comments"));
 
     useEffect(() => {
+        const controller = new AbortController();
+
         const loadTopComments = async () => {
             try {
-                const res = await axios.get("/api/social/top-comments");
+                const res = await axios.get("/api/social/top-comments", { signal: controller.signal });
                 if (res.data && Array.isArray(res.data)) {
-                    setComments(res.data);
-                    globalCache.set("social-top-comments", res.data);
-                } else {
-                    setComments([]);
+                    if (res.data.length > 0) {
+                        setComments(res.data);
+                        globalCache.set("social-top-comments", res.data);
+                    } else if (!globalCache.has("social-top-comments")) {
+                        setComments([]);
+                    }
                 }
             } catch (err) {
-                console.error("Error loading social top comments:", err);
+                if (!axios.isCancel(err)) {
+                    console.error("Error loading social top comments:", err);
+                }
             } finally {
                 setLoading(false);
             }
         };
 
         loadTopComments();
+
+        return () => controller.abort();
     }, []);
 
     return (

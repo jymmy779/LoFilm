@@ -21,23 +21,31 @@ export default function TrendingList() {
 
     useEffect(() => {
         setMounted(true);
+        const controller = new AbortController();
+
         const fetchTrendingMovies = async () => {
             try {
-                const res = await axios.get("/api/social/trending");
+                const res = await axios.get("/api/social/trending", { signal: controller.signal });
                 if (res.data && Array.isArray(res.data)) {
-                    setMovies(res.data);
-                    globalCache.set("social-trending", res.data);
-                } else {
-                    setMovies([]);
+                    if (res.data.length > 0) {
+                        setMovies(res.data);
+                        globalCache.set("social-trending", res.data);
+                    } else if (!globalCache.has("social-trending")) {
+                        setMovies([]);
+                    }
                 }
             } catch (err) {
-                console.error("Error loading trending list:", err);
+                if (!axios.isCancel(err)) {
+                    console.error("Error loading trending list:", err);
+                }
             } finally {
                 setLoading(false);
             }
         };
 
         fetchTrendingMovies();
+
+        return () => controller.abort();
     }, []);
 
     const [shouldRender, setShouldRender] = useState(isOpen);

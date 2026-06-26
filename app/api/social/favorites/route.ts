@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import { getImageUrl } from '@/app/utils/movieUtils';
 
-export const revalidate = 43200; // Cache this route for 12 hours
+export const dynamic = 'force-dynamic';
 
 export async function GET() {
     try {

@@ -21,23 +21,31 @@ export default function NewCommentsTicker() {
     const [isTransitioning, setIsTransitioning] = useState(false);
 
     useEffect(() => {
+        const controller = new AbortController();
+
         const loadNewestComments = async () => {
             try {
-                const res = await axios.get("/api/social/new-comments");
+                const res = await axios.get("/api/social/new-comments", { signal: controller.signal });
                 if (res.data && Array.isArray(res.data)) {
-                    setComments(res.data);
-                    globalCache.set("social-new-comments", res.data);
-                } else {
-                    setComments([]);
+                    if (res.data.length > 0) {
+                        setComments(res.data);
+                        globalCache.set("social-new-comments", res.data);
+                    } else if (!globalCache.has("social-new-comments")) {
+                        setComments([]);
+                    }
                 }
             } catch (err) {
-                console.error("Error loading newest comments:", err);
+                if (!axios.isCancel(err)) {
+                    console.error("Error loading newest comments:", err);
+                }
             } finally {
                 setLoading(false);
             }
         };
 
         loadNewestComments();
+
+        return () => controller.abort();
     }, []);
 
     // Ticker animation loop

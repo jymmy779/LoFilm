@@ -21,24 +21,32 @@ export default function FavoriteList() {
 
     useEffect(() => {
         setMounted(true);
+        const controller = new AbortController();
+
         const fetchWeeklyFavorites = async () => {
             try {
                 // Fetch from our secure aggregated API route which bypasses RLS on server-side
-                const res = await axios.get("/api/social/favorites");
+                const res = await axios.get("/api/social/favorites", { signal: controller.signal });
                 if (res.data && Array.isArray(res.data)) {
-                    setMovies(res.data);
-                    globalCache.set("social-favorites", res.data);
-                } else {
-                    setMovies([]);
+                    if (res.data.length > 0) {
+                        setMovies(res.data);
+                        globalCache.set("social-favorites", res.data);
+                    } else if (!globalCache.has("social-favorites")) {
+                        setMovies([]);
+                    }
                 }
             } catch (err) {
-                console.error("Error loading weekly favorites:", err);
+                if (!axios.isCancel(err)) {
+                    console.error("Error loading weekly favorites:", err);
+                }
             } finally {
                 setLoading(false);
             }
         };
 
         fetchWeeklyFavorites();
+
+        return () => controller.abort();
     }, []);
 
     const [shouldRender, setShouldRender] = useState(isOpen);
