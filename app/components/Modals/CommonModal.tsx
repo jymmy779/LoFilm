@@ -14,6 +14,7 @@ interface CommonModalProps {
   cancelText?: string;
   icon: LucideIcon;
   variant?: "danger" | "warning" | "info" | "success";
+  isLoading?: boolean;
 }
 
 export default function CommonModal({
@@ -26,6 +27,7 @@ export default function CommonModal({
   cancelText = "Hủy bỏ",
   icon: Icon,
   variant = "danger",
+  isLoading = false,
 }: CommonModalProps) {
   const [mounted, setMounted] = useState(false);
 
@@ -130,16 +132,22 @@ export default function CommonModal({
           <div className="flex w-full gap-2 mt-2">
             <button
               onClick={onClose}
-              className="flex-1 px-3 md:px-4 cursor-pointer py-2.5 md:py-3 rounded-xl bg-white/5 border border-white/10 text-[10px] md:text-xs font-bold text-white/40 hover:text-white hover:bg-white/10 transition-all tracking-wider"
+              disabled={isLoading}
+              className={`flex-1 px-3 md:px-4 py-2.5 md:py-3 rounded-xl bg-white/5 border border-white/10 text-[10px] md:text-xs font-bold text-white/40 transition-all tracking-wider ${isLoading ? 'opacity-50 cursor-not-allowed' : 'hover:text-white hover:bg-white/10 cursor-pointer'}`}
             >
               {cancelText}
             </button>
             {onConfirm && (
               <button
                 onClick={onConfirm}
-                className={`flex-1 text-nowrap cursor-pointer px-3 md:px-4 py-2.5 md:py-3 rounded-xl ${styles.confirmBg} text-[10px] md:text-xs font-bold text-white transition-all active:scale-95 tracking-wider`}
+                disabled={isLoading}
+                className={`flex-1 text-nowrap px-3 md:px-4 py-2.5 md:py-3 rounded-xl ${styles.confirmBg} text-[10px] md:text-xs font-bold text-white transition-all tracking-wider flex items-center justify-center ${isLoading ? 'opacity-70 cursor-not-allowed' : 'active:scale-95 cursor-pointer'}`}
               >
-                {confirmText}
+                {isLoading ? (
+                  <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin"></div>
+                ) : (
+                  confirmText
+                )}
               </button>
             )}
           </div>

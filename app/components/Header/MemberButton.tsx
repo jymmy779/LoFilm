@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { User, LogOut, Settings } from "lucide-react";
 import { createClient } from "@/app/utils/supabase/client";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
@@ -26,6 +26,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
     const supabase = createClient();
     const router = useRouter();
     const pathname = usePathname();
+    const dropdownRef = useRef<HTMLDivElement>(null);
 
     useEffect(() => {
         const checkUser = async () => {
@@ -43,6 +44,22 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
         return () => subscription.unsubscribe();
     }, [supabase]);
 
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+                setShowMenu(false);
+            }
+        };
+
+        if (showMenu) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [showMenu]);
+
     const handleLogout = async () => {
         if (typeof window !== "undefined" && !navigator.onLine) {
             setShowLogoutModal(false);
@@ -59,6 +76,10 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
         // Làm mới trang hiện tại để cập nhật trạng thái auth mà không chuyển hướng
         window.location.reload();
     };
+
+    if (pathname === '/dang-nhap' || pathname === '/dat-lai-mat-khau') {
+        return null;
+    }
 
     if (loading && !showLogoutModal) {
         return (
@@ -162,7 +183,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
     }
 
     return (
-        <div className="relative">
+        <div className="relative" ref={dropdownRef}>
             <button
                 onClick={() => setShowMenu(!showMenu)}
                 className="flex items-center cursor-pointer gap-2 pr-1 pl-1 py-1 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 group"

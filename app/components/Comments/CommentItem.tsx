@@ -1,20 +1,20 @@
 /* app/components/Comments/CommentItem.tsx */
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { ThumbsUp, ThumbsDown, Reply, MoreHorizontal, Eye, Flag, Trash2, EyeOff, Pencil } from "lucide-react";
 
 import Image from "next/image";
 import { createClient } from "@/app/utils/supabase/client";
 import CommentInput from "./CommentInput";
 import { toast } from "react-hot-toast";
-import ConfirmModal from "./ConfirmModal";
+import CommonModal from "@/app/components/Modals/CommonModal";
 import { reportCommentToTelegram } from "@/app/actions/reportActions";
 
 interface CommentItemProps {
     comment: any;
     user: any;
-    onReplyAdded: () => void;
+    onReplyAdded: (newReply?: any) => void;
     onDelete?: (id: string) => void;
     isReply?: boolean;
     movieSlug?: string;
@@ -34,6 +34,23 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
     const [isEditing, setIsEditing] = useState(false);
     const [commentContent, setCommentContent] = useState(comment.content);
     const supabase = createClient();
+    const menuRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+                setIsMenuOpen(false);
+            }
+        };
+
+        if (isMenuOpen) {
+            document.addEventListener("mousedown", handleClickOutside);
+        }
+
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, [isMenuOpen]);
 
     const displayName = comment.user_name || "Thành viên";
     const avatarUrl = comment.user_avatar;
@@ -118,6 +135,21 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                     user_id: user.id,
                     type: type
                 });
+
+                // Add notification
+                if (comment.user_id && comment.user_id !== user.id) {
+                    supabase.from('user_notifications').insert({
+                        user_id: comment.user_id,
+                        actor_name: user?.user_metadata?.full_name || "Thành viên",
+                        actor_avatar: user?.user_metadata?.avatar_url || null,
+                        type: type === 'up' ? 'like' : 'dislike',
+                        comment_id: comment.id,
+                        movie_slug: comment.movie_slug,
+                        content: comment.content?.substring(0, 50) + (comment.content?.length > 50 ? '...' : '')
+                    }).then(({ error }) => {
+                        if (error) console.error("Notification error:", error);
+                    });
+                }
             }
         } catch (error) {
             console.error("Error reacting to comment:", error);
@@ -157,6 +189,8 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
     const handleAddReply = async (content: string, isSpoiler: boolean) => {
         if (!user) return;
 
+        const targetParentId = isReply ? comment.parent_id : comment.id;
+
         const { data, error } = await supabase
             .from('comments')
             .insert({
@@ -165,23 +199,45 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                 user_avatar: user?.user_metadata?.avatar_url || null,
                 movie_slug: comment.movie_slug,
                 content: content,
-                parent_id: comment.id,
+                parent_id: targetParentId,
                 is_spoiler: isSpoiler
             })
             .select(`
                 *,
                 reactions:comment_reactions (*)
             `)
-            .maybeSingle(); // maybeSingle() trả về null thay vì error 406
+            .maybeSingle();
 
         if (error) {
             toast.error("Không thể trả lời bình luận");
         } else {
-            setReplies([...replies, data]);
-            setIsRepliesExpanded(true);
-            setVisibleReplies(prev => Math.max(prev, replies.length + 1));
-            setShowReplyForm(false);
-            toast.success("Đã gửi trả lời");
+            if (isReply && onReplyAdded) {
+                // If this is already a reply, pass the new reply up to the parent CommentItem
+                onReplyAdded(data);
+                setShowReplyForm(false);
+                toast.success("Đã gửi trả lời");
+            } else {
+                setReplies([...replies, data]);
+                setIsRepliesExpanded(true);
+                setVisibleReplies(prev => Math.max(prev, replies.length + 1));
+                setShowReplyForm(false);
+                toast.success("Đã gửi trả lời");
+            }
+
+            // Add notification
+            if (comment.user_id && comment.user_id !== user.id) {
+                supabase.from('user_notifications').insert({
+                    user_id: comment.user_id,
+                    actor_name: user?.user_metadata?.full_name || "Thành viên",
+                    actor_avatar: user?.user_metadata?.avatar_url || null,
+                    type: 'reply',
+                    comment_id: comment.id,
+                    movie_slug: comment.movie_slug,
+                    content: content.substring(0, 50) + (content.length > 50 ? '...' : '')
+                }).then(({ error }) => {
+                    if (error) console.error("Notification error:", error);
+                });
+            }
         }
     };
 
@@ -277,7 +333,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
     };
 
     return (
-        <div className={`comment-item-wrap ${isReply ? 'is-reply' : ''}`}>
+        <div className={`comment-item-wrap ${isReply ? 'is-reply' : ''} ${isMenuOpen ? 'relative z-[100]' : ''}`}>
             <div className="d-item" id={`comment-${comment.id}`}>
                 <div className="user-avatar">
                     {avatarUrl ? (
@@ -335,17 +391,15 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                             </div>
                         </div>
 
-                        {!isReply && (
-                            <button
-                                type="button"
-                                className="btn btn-xs btn-basic btn-comment"
-                                onClick={() => setShowReplyForm(!showReplyForm)}
-                            >
-                                <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" height="1em" width="1em"><path d="M205 34.8c11.5 5.1 19 16.6 19 29.2l0 64 112 0c97.2 0 176 78.8 176 176c0 113.3-81.5 163.9-100.2 174.1c-2.5 1.4-5.3 1.9-8.1 1.9c-10.9 0-19.7-8.9-19.7-19.7c0-7.5 4.3-14.4 9.8-19.5c9.4-8.8 22.2-26.4 22.2-56.7c0-53-43-96-96-96l-96 0 0 64c0 12.6-7.4 24.1-19 29.2s-25 3-34.4-5.4l-160-144C3.9 225.7 0 217.1 0 208s3.9-17.7 10.6-23.8l160-144c9.4-8.5 22.9-10.6 34.4-5.4z"></path></svg>
-                            </button>
-                        )}
+                        <button
+                            type="button"
+                            className="btn btn-xs btn-basic btn-comment"
+                            onClick={() => setShowReplyForm(!showReplyForm)}
+                        >
+                            <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" height="1em" width="1em"><path d="M205 34.8c11.5 5.1 19 16.6 19 29.2l0 64 112 0c97.2 0 176 78.8 176 176c0 113.3-81.5 163.9-100.2 174.1c-2.5 1.4-5.3 1.9-8.1 1.9c-10.9 0-19.7-8.9-19.7-19.7c0-7.5 4.3-14.4 9.8-19.5c9.4-8.8 22.2-26.4 22.2-56.7c0-53-43-96-96-96l-96 0 0 64c0 12.6-7.4 24.1-19 29.2s-25 3-34.4-5.4l-160-144C3.9 225.7 0 217.1 0 208s3.9-17.7 10.6-23.8l160-144c9.4-8.5 22.9-10.6 34.4-5.4z"></path></svg>
+                        </button>
 
-                        <div className="comment-menu">
+                        <div className="comment-menu" ref={menuRef}>
                             <button
                                 type="button"
                                 className="btn btn-xs btn-basic btn-menu"
@@ -399,7 +453,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
             </div>
 
             <div
-                className={`reply-list overflow-hidden transition-all duration-400 ease-in-out ${isRepliesExpanded && replies.length > 0 ? 'max-h-[5000px] opacity-100' : 'max-h-0 opacity-0'}`}
+                className={`reply-list ${replies.length > 0 ? 'has-replies' : ''} transition-all duration-400 ease-in-out ${isRepliesExpanded && replies.length > 0 ? 'max-h-[5000px] opacity-100 overflow-visible' : 'max-h-0 opacity-0 overflow-hidden'}`}
             >
                 {replies.slice(0, visibleReplies).map(reply => (
                     <CommentItem
@@ -408,7 +462,11 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                         user={user}
                         movieSlug={movieSlug}
                         isReply={true}
-                        onReplyAdded={() => {/* NOP */ }}
+                        onReplyAdded={(newReply) => {
+                            setReplies([...replies, newReply]);
+                            setIsRepliesExpanded(true);
+                            setVisibleReplies(prev => Math.max(prev, replies.length + 1));
+                        }}
                         onDelete={(id) => setReplies(replies.filter(r => r.id !== id))}
                     />
                 ))}
@@ -434,14 +492,16 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                 </div>
             </div>
 
-            <ConfirmModal
+            <CommonModal
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
                 onConfirm={confirmDelete}
                 isLoading={isDeleting}
                 title="Xóa bình luận?"
                 message="Hành động này không thể hoàn tác. Bạn có chắc chắn muốn xóa bình luận này không?"
-                confirmLabel="Vẫn xóa"
+                confirmText="Vẫn xóa"
+                icon={Trash2}
+                variant="danger"
             />
         </div>
     );

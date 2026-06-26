@@ -81,6 +81,28 @@ export default function CommentSection({ movieSlug }: CommentSectionProps) {
         return () => subscription.unsubscribe();
     }, [movieSlug, supabase]);
 
+    // Tự động scroll đến bình luận nếu URL có chứa hash (khi bấm từ trang khác sang)
+    useEffect(() => {
+        if (!loading && comments.length > 0) {
+            const hash = window.location.hash;
+            if (hash && hash.startsWith('#comment-')) {
+                // Đợi 1 chút để DOM render xong các comment
+                setTimeout(() => {
+                    const el = document.getElementById(hash.substring(1));
+                    if (el) {
+                        el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                        el.style.transition = 'background-color 0.5s';
+                        const originalBg = el.style.backgroundColor;
+                        el.style.backgroundColor = 'rgba(245, 166, 35, 0.2)'; // amber-500/20
+                        setTimeout(() => {
+                            el.style.backgroundColor = originalBg;
+                        }, 2000);
+                    }
+                }, 500);
+            }
+        }
+    }, [loading, comments.length]);
+
     const handleAddComment = async (content: string, isSpoiler: boolean) => {
         if (!user) return;
 

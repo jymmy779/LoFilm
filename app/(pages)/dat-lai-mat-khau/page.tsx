@@ -63,7 +63,11 @@ export default function ResetPasswordPage() {
         router.push("/trang-ca-nhan");
       }, 2000);
     } catch (error: any) {
-      toast.error(error.message || "Đã có lỗi xảy ra");
+      if (error.message && error.message.includes("different from the old password")) {
+        toast.error("Mật khẩu mới không được giống mật khẩu cũ");
+      } else {
+        toast.error(error.message || "Đã có lỗi xảy ra");
+      }
     } finally {
       setIsLoading(false);
     }

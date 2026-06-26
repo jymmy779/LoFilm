@@ -14,14 +14,18 @@ export default function AuthListener() {
       // Catch password recovery event
       if (event === "PASSWORD_RECOVERY") {
         toast.success("Hệ thống đã sẵn sàng để bạn đặt lại mật khẩu!");
+        localStorage.removeItem('lofilm-guest-watch-history');
         router.push("/dat-lai-mat-khau");
+        router.refresh(); // Ép Next.js tải lại server state (cookie) để Header cập nhật Account B
       }
       
       // Handle signed in event if we are on the login page but arrived via a special link
       if (event === "SIGNED_IN") {
         // If we have a recovery token in the URL fragment
         if (window.location.hash.includes("type=recovery") || window.location.hash.includes("access_token=")) {
+          localStorage.removeItem('lofilm-guest-watch-history');
           router.push("/dat-lai-mat-khau");
+          router.refresh();
         }
       }
     });

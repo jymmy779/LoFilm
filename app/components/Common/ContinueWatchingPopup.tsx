@@ -5,6 +5,7 @@ import { Play, X, Clock } from "lucide-react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
+import { usePathname } from "next/navigation";
 
 interface WatchHistoryItem {
     movie_slug: string;
@@ -21,6 +22,7 @@ export default function ContinueWatchingPopup() {
     const [recentMovie, setRecentMovie] = useState<WatchHistoryItem | null>(null);
     const [isVisible, setIsVisible] = useState(false);
     const [isDismissed, setIsDismissed] = useState(false);
+    const pathname = usePathname();
 
     useEffect(() => {
         // Delay slighty so it doesn't pop up too aggressively on initial load
@@ -73,7 +75,8 @@ export default function ContinueWatchingPopup() {
         setTimeout(() => setIsDismissed(true), 500); // Wait for transition
     };
 
-    if (!recentMovie || isDismissed) return null;
+    // Ẩn ở trang auth và trang xem phim
+    if (!recentMovie || isDismissed || pathname === '/dang-nhap' || pathname === '/dat-lai-mat-khau' || pathname.includes('/phim/')) return null;
 
     const progressPercent = Math.min(100, Math.max(0, (recentMovie.watched_seconds / recentMovie.duration) * 100));
     
@@ -94,7 +97,7 @@ export default function ContinueWatchingPopup() {
     })();
 
     return (
-        <div className={`fixed z-[100] transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] 
+        <div className={`fixed z-[90] transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] 
             /* Mobile: Bottom Center */
             bottom-8 left-4 right-4 
             /* Tablet/Desktop: Bottom Right */
