@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
+import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Star, MessageSquare } from "lucide-react";
@@ -71,9 +71,14 @@ export default function TopCommentsSlider() {
 
             <div className="relative px-1">
                 <Swiper
-                    modules={[Navigation]}
+                    modules={[Navigation, Autoplay]}
                     slidesPerView={"auto"}
                     spaceBetween={12}
+                    autoplay={{
+                        delay: 4000,
+                        disableOnInteraction: true,
+                        pauseOnMouseEnter: true
+                    }}
                     breakpoints={{
                         640: { spaceBetween: 16 },
                         1024: { spaceBetween: 20 },
