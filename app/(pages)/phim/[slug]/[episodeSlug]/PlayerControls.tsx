@@ -9,7 +9,8 @@ import {
   Play,
   Heart,
   Bookmark,
-  Share2
+  Share2,
+  MessageCircle
 } from "lucide-react";
 
 interface PlayerControlsProps {
@@ -176,9 +177,19 @@ const PlayerControls = ({
           ))}
         </div>
 
-        {/* Các nút phía bên phải */}
         <div className="flex-grow" />
         <div className="flex items-center gap-4 md:gap-6">
+          {/* Liên hệ Threads */}
+          <a
+            href="https://www.threads.com/@lofilm_adm" // Thay link Threads thực tế của bạn vào đây
+            target="_blank"
+            rel="noopener noreferrer"
+            className="flex items-center cursor-pointer gap-2 text-white/60 hover:text-pink-400 transition-colors group"
+          >
+            <MessageCircle size={14} />
+            <span className="md:text-sm text-xs font-medium">Nhắn tin</span>
+          </a>
+
           {/* Chia sẻ */}
           <button
             onClick={onShare}

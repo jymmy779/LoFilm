@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useRef, useMemo } from "react";
+import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { AlertTriangle, RefreshCcw, List, X } from "lucide-react";
@@ -142,7 +142,10 @@ export default function WatchClient({
 
     const supabase = createClient();
 
-    const containerRef = useRef<HTMLDivElement>(null);
+    const [containerNode, setContainerNode] = useState<HTMLDivElement | null>(null);
+    const containerCallbackRef = useCallback((node: HTMLDivElement | null) => {
+        if (node) setContainerNode(node);
+    }, []);
     const videoRef = useRef<HTMLVideoElement>(null);
     const hlsRef = useRef<Hls | null>(null);
     const plyrRef = useRef<any>(null);
@@ -778,7 +781,7 @@ export default function WatchClient({
 
     if (!movie || !episode) return null;
 
-    const portalTarget = isEmbedServer ? containerRef.current : plyrContainer;
+    const portalTarget = isEmbedServer ? containerNode : plyrContainer;
 
     return (
         <div className={`pt-35 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} bg-[#0a1628] transition-all duration-500 animate-fade-in ${isFullscreen ? 'video-fullscreen-active' : ''}`}>
@@ -787,7 +790,7 @@ export default function WatchClient({
             </div>
 
             <div className={`transition-all duration-500 ease-in-out relative ${isExpanded ? 'w-full' : 'max-w-[1900px] mx-auto px-5 lg:px-12'} ${isFullscreen ? '!max-w-none !p-0 !m-0 !fixed !inset-0 !z-[9999]' : ''}`}>
-                <div ref={containerRef} key={videoSrc} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreen ? '!rounded-none !border-0 !h-screen' : ''}`}>
+                <div ref={containerCallbackRef} key={`${activeServerIndex}-${episodeSlug}`} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreen ? '!rounded-none !border-0 !h-screen' : ''}`}>
                     <style jsx global>{`
                         .hide-large-play .plyr__control--overlaid { display: none !important; }
                         .plyr { z-index: auto !important; aspect-ratio: 16/9; width: 100%; border-radius: inherit; touch-action: pan-y; will-change: transform, opacity; }
