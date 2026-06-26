@@ -119,6 +119,7 @@ import NetworkMonitor from "./components/Network/NetworkMonitor";
 import WakeUpMonitor from "./components/Common/WakeUpMonitor";
 import ScrollToTop from "./components/Common/ScrollToTop";
 import { AuthProvider } from "./components/Auth/AuthContext";
+import ContinueWatchingPopup from "./components/Common/ContinueWatchingPopup";
 
 export default function RootLayout({
   children,
@@ -247,6 +248,7 @@ export default function RootLayout({
                 {children}
               </main>
               <Footer />
+              <ContinueWatchingPopup />
             </div>
           </PageTransitionProvider>
         </AuthProvider>
