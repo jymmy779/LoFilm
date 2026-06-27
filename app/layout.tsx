@@ -19,8 +19,9 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
+import ClientToaster from "./components/Common/ClientToaster";
 
-import { Toaster } from "react-hot-toast";
+
 import { Suspense } from "react";
 import { GoogleAnalytics } from '@next/third-parties/google'
 import AdsterraSocialBar from "./components/Ads/AdsterraSocialBar";
@@ -118,6 +119,7 @@ import AuthListener from "./components/Auth/AuthListener";
 import NetworkMonitor from "./components/Network/NetworkMonitor";
 import WakeUpMonitor from "./components/Common/WakeUpMonitor";
 import ScrollToTop from "./components/Common/ScrollToTop";
+import FloatingMessageButton from "./components/Common/FloatingMessageButton";
 import { AuthProvider } from "./components/Auth/AuthContext";
 import ContinueWatchingPopup from "./components/Common/ContinueWatchingPopup";
 
@@ -252,19 +254,10 @@ export default function RootLayout({
             </div>
           </PageTransitionProvider>
         </AuthProvider>
-        <Toaster
-          position="top-center"
-          reverseOrder={false}
-          toastOptions={{
-            style: {
-              background: '#14233e',
-              color: '#fff',
-              border: '1px solid rgba(255, 255, 254, 0.1)',
-              borderRadius: '16px',
-            },
-          }}
-        />
+
+        <ClientToaster />
         <ScrollToTop />
+        <FloatingMessageButton />
         <GoogleAnalytics gaId="G-FCV3H66SFX" />
         {/* Adsterra Social Bar - 4 hours cooldown */}
         <AdsterraSocialBar />

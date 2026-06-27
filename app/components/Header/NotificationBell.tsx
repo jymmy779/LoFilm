@@ -114,17 +114,19 @@ export default function NotificationBell() {
             })
             .subscribe();
 
-        const handleClickOutside = (event: MouseEvent) => {
+        const handleClickOutside = (event: MouseEvent | TouchEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setIsOpen(false);
             }
         };
-        document.addEventListener("mousedown", handleClickOutside);
+        document.addEventListener("mousedown", handleClickOutside, true);
+        document.addEventListener("touchstart", handleClickOutside, { capture: true, passive: true });
 
         return () => {
             supabase.removeChannel(siteChannel);
             if (userChannel) supabase.removeChannel(userChannel);
-            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("mousedown", handleClickOutside, true);
+            document.removeEventListener("touchstart", handleClickOutside, true);
         };
     }, []);
 
@@ -179,15 +181,15 @@ export default function NotificationBell() {
 
     const renderLabel = (type: string) => {
         switch (type) {
-            case 'system': return <span className="text-[10px] font-bold text-amber-500 bg-amber-500/10 px-1.5 py-0.5 rounded ml-2 border border-amber-500/20">Hệ thống</span>;
-            default: return <span className="text-[10px] font-bold text-blue-400 bg-blue-500/10 px-1.5 py-0.5 rounded ml-2 border border-blue-500/20">Cá nhân</span>;
+            case 'system': return <span className="text-[10px] md:text-[11px] lg:text-xs font-bold text-amber-500 bg-amber-500/10 px-1.5 md:px-2 py-0.5 rounded ml-2 border border-amber-500/20">Hệ thống</span>;
+            default: return <span className="text-[10px] md:text-[11px] lg:text-xs font-bold text-blue-400 bg-blue-500/10 px-1.5 md:px-2 py-0.5 rounded ml-2 border border-blue-500/20">Cá nhân</span>;
         }
     };
 
     const renderContent = (notif: UnifiedNotification) => {
         if (notif.type === 'system') {
             return (
-                <p className="text-[12px] md:text-[13px] text-white/90 leading-relaxed mt-1">
+                <p className="text-[12px] md:text-sm lg:text-[14px] text-white/90 leading-relaxed mt-1 md:mt-1.5">
                     {notif.message}
                 </p>
             );
@@ -199,12 +201,12 @@ export default function NotificationBell() {
         if (notif.type === 'dislike') actionText = "không thích bình luận của bạn";
 
         return (
-            <div className="mt-1">
-                <p className="text-[12px] md:text-[13px] text-white/90 leading-relaxed">
+            <div className="mt-1 md:mt-1.5">
+                <p className="text-[12px] md:text-sm lg:text-[15px] text-white/90 leading-relaxed">
                     <span className="font-bold text-white">{notif.actor_name}</span> {actionText}
                 </p>
                 {notif.comment_content && (
-                    <div className="mt-1.5 p-2 bg-black/20 rounded border border-white/5 border-l-2 border-l-white/20 text-white/50 text-[11px] md:text-[12px] line-clamp-2 italic">
+                    <div className="mt-1.5 md:mt-2 p-2 md:p-2.5 bg-black/20 rounded border border-white/5 border-l-2 border-l-white/20 text-white/50 text-[11px] md:text-[13px] lg:text-sm line-clamp-2 italic">
                         "{notif.comment_content}"
                     </div>
                 )}
@@ -234,21 +236,20 @@ export default function NotificationBell() {
                 )}
             </button>
 
-            {/* Dropdown panel */}
             <div
-                className={`absolute right-[-10px] md:right-0 mt-3 w-[280px] sm:w-[320px] md:w-[360px] bg-[#111e31] border border-white/10 rounded-2xl overflow-hidden z-[100] transition-all duration-200 origin-top-right shadow-xl ${
+                className={`absolute right-[-10px] md:right-0 mt-3 w-[280px] sm:w-[320px] md:w-[360px] lg:w-[420px] xl:w-[460px] bg-[#111e31] border border-white/10 rounded-2xl overflow-hidden z-[100] transition-all duration-200 origin-top-right shadow-xl ${
                     isOpen
                     ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
                     : "opacity-0 translate-y-2 scale-[0.98] pointer-events-none"
                 }`}
             >
-                <div className="px-4 py-3 md:px-5 md:py-4 border-b border-white/5 bg-white/5 flex justify-between items-center">
-                    <h3 className="text-[13px] md:text-sm font-bold text-white flex items-center gap-2">
+                <div className="px-4 py-3 md:px-5 md:py-4 lg:py-5 border-b border-white/5 bg-white/5 flex justify-between items-center">
+                    <h3 className="text-[13px] md:text-[15px] lg:text-base font-bold text-white flex items-center gap-2">
                         Thông báo
                     </h3>
                 </div>
 
-                <div className="max-h-[350px] md:max-h-[400px] overflow-y-auto custom-scrollbar">
+                <div className="max-h-[350px] md:max-h-[450px] lg:max-h-[500px] overflow-y-auto custom-scrollbar">
                     {notifications.length > 0 ? (
                         <div className="divide-y divide-white/5">
                             {notifications.map((notif) => {
@@ -292,17 +293,21 @@ export default function NotificationBell() {
                                     >
                                         <div className="shrink-0 mt-0.5 relative">
                                             {notif.type !== 'system' && notif.actor_avatar ? (
-                                                <div className="relative w-8 h-8 rounded-full overflow-hidden border border-white/10">
+                                                <div className="relative w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded-full overflow-hidden border border-white/10">
                                                     <Image src={notif.actor_avatar} alt="Avatar" fill className="object-cover" />
                                                 </div>
                                             ) : (
-                                                <div className="w-8 h-8 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
-                                                    {renderIcon(notif.type)}
+                                                <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                                                    <div className="scale-100 md:scale-110 lg:scale-125">
+                                                        {renderIcon(notif.type)}
+                                                    </div>
                                                 </div>
                                             )}
                                             {notif.type !== 'system' && notif.actor_avatar && (
-                                                <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-[#111e31] rounded-full flex items-center justify-center">
-                                                    {renderIcon(notif.type)}
+                                                <div className="absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 bg-[#111e31] rounded-full flex items-center justify-center border border-white/10">
+                                                    <div className="scale-75 md:scale-90 lg:scale-100">
+                                                        {renderIcon(notif.type)}
+                                                    </div>
                                                 </div>
                                             )}
                                         </div>
@@ -310,7 +315,7 @@ export default function NotificationBell() {
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center justify-between gap-2">
                                                 <div className="flex items-center">
-                                                    <span className="text-[10px] md:text-[11px] text-white/40">
+                                                    <span className="text-[10px] md:text-xs lg:text-[13px] text-white/40">
                                                         {getTimeAgo(notif.created_at)}
                                                     </span>
                                                     {renderLabel(notif.type)}
@@ -326,9 +331,9 @@ export default function NotificationBell() {
                             })}
                         </div>
                     ) : (
-                        <div className="py-12 px-6 text-center">
-                            <Bell size={32} className="mx-auto text-white/10 mb-3" />
-                            <p className="text-xs text-white/40">Hiện chưa có thông báo mới nào</p>
+                        <div className="py-12 md:py-16 px-6 text-center">
+                            <Bell size={32} className="mx-auto text-white/10 mb-3 md:mb-4 md:w-10 md:h-10 lg:w-12 lg:h-12" />
+                            <p className="text-xs md:text-sm lg:text-[15px] text-white/40">Hiện chưa có thông báo mới nào</p>
                         </div>
                     )}
                 </div>

@@ -94,7 +94,7 @@ export default function Header() {
     const showBackground = isSolid || isScrolled || isMenuOpen;
 
     return (
-        <header className={`w-full fixed top-0 left-0 z-50 [@supports(-webkit-touch-callout:none)]:pt-[max(env(safe-area-inset-top),12px)] ${isMenuOpen ? "" : "transition-all duration-300"} border-b ${showBackground ? "bg-[#0d1b2e] border-white/10 py-3 lg:px-5" : "bg-transparent border-transparent py-2 lg:px-5"}`}>
+        <header className={`w-full fixed top-0 left-0 z-[100] [@supports(-webkit-touch-callout:none)]:pt-[max(env(safe-area-inset-top),12px)] ${isMenuOpen ? "" : "transition-all duration-300"} border-b ${showBackground ? "bg-[#0d1b2e] border-white/10 py-3 lg:px-5" : "bg-transparent border-transparent py-2 lg:px-5"}`}>
             <div className="flex items-center justify-between h-[54px] md:h-[64px] w-full max-w-[1900px] mx-auto px-4 lg:px-0 gap-4 md:gap-8">
                 <div className="flex xl:hidden items-center justify-between w-full h-full gap-3">
                     <div className="relative flex-1 h-full flex items-center">
@@ -189,7 +189,7 @@ export default function Header() {
                         </div>
 
                         <nav className="flex items-center gap-4 2xl:gap-6">
-                            <TransitionLink href="/" className="text-[13px] 2xl:text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 whitespace-nowrap">
+                            <TransitionLink href="/" className="text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 whitespace-nowrap">
                                 Trang chủ
                             </TransitionLink>
 
@@ -215,7 +215,7 @@ export default function Header() {
                                 <TransitionLink
                                     key={item.label}
                                     href={item.href}
-                                    className="text-[13px] 2xl:text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 whitespace-nowrap"
+                                    className="text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 whitespace-nowrap"
                                 >
                                     {item.label}
                                 </TransitionLink>

@@ -45,7 +45,7 @@ export default function DropdownMenu({
             onMouseEnter={onEnter}
             onMouseLeave={onLeave}
         >
-            <button className="flex items-center gap-1 text-[13px] 2xl:text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 cursor-pointer whitespace-nowrap">
+            <button className="flex items-center gap-1 text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 cursor-pointer whitespace-nowrap">
                 <span>{label}</span>
                 <svg
                     xmlns="http://www.w3.org/2000/svg"

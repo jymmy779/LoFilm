@@ -100,11 +100,11 @@ export default function ContinueWatchingPopup() {
         <div className={`fixed z-[90] transition-all duration-500 ease-[cubic-bezier(0.2,0.8,0.2,1)] 
             /* Mobile: Bottom Center */
             bottom-8 left-4 right-4 
-            /* Tablet/Desktop: Bottom Right */
-            md:bottom-8 md:right-8 md:left-auto md:w-[460px] xl:w-[520px]
+            /* Tablet/Desktop: Bottom Left */
+            md:bottom-8 md:left-8 md:right-auto md:w-[460px] xl:w-[520px]
             ${isVisible 
                 ? "translate-y-0 md:translate-x-0 opacity-100" 
-                : "translate-y-[150%] md:translate-y-0 md:translate-x-[150%] opacity-0 pointer-events-none"
+                : "translate-y-[150%] md:translate-y-0 md:-translate-x-[150%] opacity-0 pointer-events-none"
             }
         `}>
             <TransitionLink 

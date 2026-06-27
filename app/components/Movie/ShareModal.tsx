@@ -114,23 +114,23 @@ export default function ShareModal({ isOpen, onClose, movieName, shareUrl }: Sha
             <div 
                 className={`relative w-full max-w-lg bg-[#14233e] border border-white/10 rounded-3xl overflow-hidden ${isClosing ? 'animate-pop-out' : 'animate-pop-in'}`}
             >
-                <div className="p-6 md:p-8">
+                <div className="p-5 md:p-6 lg:p-8">
                     {/* Header */}
-                    <div className="flex items-center justify-between mb-4 md:mb-6">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20">
-                                <Share2 className="text-blue-500" size={20} />
+                    <div className="flex items-center justify-between mb-4 md:mb-5">
+                        <div className="flex items-center gap-2.5 md:gap-3">
+                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20 shrink-0">
+                                <Share2 className="text-blue-500 w-4 h-4 md:w-5 md:h-5" />
                             </div>
                             <div>
-                                <h3 className="text-lg md:text-xl font-bold text-white uppercase tracking-wider">Chia sẻ phim</h3>
-                                <p className="text-white/40 text-xs">Lan toả bộ phim này tới bạn bè</p>
+                                <h3 className="text-base md:text-lg lg:text-xl font-bold text-white uppercase tracking-wider">Chia sẻ phim</h3>
+                                <p className="text-[11px] md:text-xs text-white/40">Lan toả bộ phim này tới bạn bè</p>
                             </div>
                         </div>
                         <button 
                             onClick={onClose}
-                            className="w-8 h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all cursor-pointer"
+                            className="w-7 h-7 md:w-8 md:h-8 flex items-center justify-center rounded-full bg-white/5 hover:bg-white/10 text-white/60 hover:text-white transition-all cursor-pointer shrink-0"
                         >
-                            <X size={18} />
+                            <X className="w-4 h-4 md:w-4 md:h-4" />
                         </button>
                     </div>
 
@@ -139,48 +139,48 @@ export default function ShareModal({ isOpen, onClose, movieName, shareUrl }: Sha
                             Bạn đang chia sẻ phim: <span className="text-amber-400 font-semibold">{movieName}</span>
                         </p>
 
-                        <label className="block text-white text-sm font-medium mb-3">Mạng xã hội:</label>
+                        <label className="block text-white text-[13px] md:text-sm font-medium mb-2.5 md:mb-3">Mạng xã hội:</label>
                         {/* Social Buttons */}
-                        <div className={`grid ${canNativeShare ? 'grid-cols-4' : 'grid-cols-3'} gap-2 sm:gap-3`}>
+                        <div className={`grid ${canNativeShare ? 'grid-cols-4' : 'grid-cols-3'} gap-2 md:gap-3`}>
                             <button 
                                 onClick={() => handleShare("facebook")}
-                                className="flex flex-col items-center justify-center gap-2 p-2 sm:p-3 rounded-2xl bg-white/5 hover:bg-[#1877F2]/10 border border-white/5 hover:border-[#1877F2]/30 group transition-all"
+                                className="flex flex-col items-center justify-center gap-1.5 md:gap-2 p-2 md:p-3 rounded-xl md:rounded-2xl bg-white/5 hover:bg-[#1877F2]/10 border border-white/5 hover:border-[#1877F2]/30 group transition-all"
                             >
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#1877F2] flex items-center justify-center">
-                                    <FaFacebookF size={20} className="text-white" />
+                                <div className="w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full bg-[#1877F2] flex items-center justify-center shrink-0">
+                                    <FaFacebookF className="text-white w-4 h-4 md:w-5 md:h-5" />
                                 </div>
-                                <span className="text-[11px] sm:text-xs font-medium text-white/70 group-hover:text-white transition-colors">Facebook</span>
+                                <span className="text-[10px] sm:text-[11px] md:text-xs font-medium text-white/70 group-hover:text-white transition-colors">Facebook</span>
                             </button>
                             
                             <button 
                                 onClick={() => handleShare("telegram")}
-                                className="flex flex-col items-center justify-center gap-2 p-2 sm:p-3 rounded-2xl bg-white/5 hover:bg-[#229ED9]/10 border border-white/5 hover:border-[#229ED9]/30 group transition-all"
+                                className="flex flex-col items-center justify-center gap-1.5 md:gap-2 p-2 md:p-3 rounded-xl md:rounded-2xl bg-white/5 hover:bg-[#229ED9]/10 border border-white/5 hover:border-[#229ED9]/30 group transition-all"
                             >
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#229ED9] flex items-center justify-center">
-                                    <FaTelegramPlane size={20} className="text-white -ml-0.5" />
+                                <div className="w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full bg-[#229ED9] flex items-center justify-center shrink-0">
+                                    <FaTelegramPlane className="text-white -ml-0.5 w-4 h-4 md:w-5 md:h-5" />
                                 </div>
-                                <span className="text-[11px] sm:text-xs font-medium text-white/70 group-hover:text-white transition-colors">Telegram</span>
+                                <span className="text-[10px] sm:text-[11px] md:text-xs font-medium text-white/70 group-hover:text-white transition-colors">Telegram</span>
                             </button>
 
                             <button 
                                 onClick={() => handleShare("twitter")}
-                                className="flex flex-col items-center justify-center gap-2 p-2 sm:p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 group transition-all"
+                                className="flex flex-col items-center justify-center gap-1.5 md:gap-2 p-2 md:p-3 rounded-xl md:rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 group transition-all"
                             >
-                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-black flex items-center justify-center border border-white/20">
-                                    <FaTwitter size={18} className="text-white" />
+                                <div className="w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full bg-black flex items-center justify-center border border-white/20 shrink-0">
+                                    <FaTwitter className="text-white w-[15px] h-[15px] md:w-[18px] md:h-[18px]" />
                                 </div>
-                                <span className="text-[11px] sm:text-xs font-medium text-white/70 group-hover:text-white transition-colors">X (Twitter)</span>
+                                <span className="text-[10px] sm:text-[11px] md:text-xs font-medium text-white/70 group-hover:text-white transition-colors">X (Twitter)</span>
                             </button>
 
                             {canNativeShare && (
                                 <button 
                                     onClick={handleNativeShare}
-                                    className="flex flex-col items-center justify-center gap-2 p-2 sm:p-3 rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 group transition-all"
+                                    className="flex flex-col items-center justify-center gap-1.5 md:gap-2 p-2 md:p-3 rounded-xl md:rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 group transition-all"
                                 >
-                                    <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-white/10 flex items-center justify-center border border-white/10">
-                                        <Share2 size={18} className="text-white" />
+                                    <div className="w-9 h-9 sm:w-11 sm:h-11 md:w-12 md:h-12 rounded-full bg-white/10 flex items-center justify-center border border-white/10 shrink-0">
+                                        <Share2 className="text-white w-[15px] h-[15px] md:w-[18px] md:h-[18px]" />
                                     </div>
-                                    <span className="text-[11px] sm:text-xs font-medium text-white/70 group-hover:text-white transition-colors">Khác</span>
+                                    <span className="text-[10px] sm:text-[11px] md:text-xs font-medium text-white/70 group-hover:text-white transition-colors">Khác</span>
                                 </button>
                             )}
                         </div>
@@ -188,20 +188,20 @@ export default function ShareModal({ isOpen, onClose, movieName, shareUrl }: Sha
                         <div className="w-full h-px bg-white/5 my-6" />
 
                         {/* Copy Link Section */}
-                        <div className="space-y-3">
-                            <label className="text-sm font-medium text-white">Sao chép liên kết</label>
-                            <div className="flex items-center gap-2 bg-[#0a1628] border border-white/10 rounded-xl p-1.5 pl-4 transition-colors">
+                        <div className="space-y-2.5 md:space-y-3">
+                            <label className="text-[13px] md:text-sm font-medium text-white">Sao chép liên kết</label>
+                            <div className="flex items-center gap-2 bg-[#0a1628] border border-white/10 rounded-xl p-1 md:p-1.5 pl-3 md:pl-4 transition-colors">
                                 <input 
                                     type="text" 
                                     value={shareUrl}
                                     readOnly
-                                    className="flex-1 bg-transparent text-sm text-white/90 outline-none w-full"
+                                    className="flex-1 bg-transparent text-[13px] md:text-sm text-white/90 outline-none w-full"
                                 />
                                 <button 
                                     onClick={handleCopy}
-                                    className="flex items-center gap-1.5 px-4 py-2.5 rounded-lg text-sm font-bold transition-all bg-blue-500 hover:bg-blue-600 text-white"
+                                    className="flex items-center gap-1.5 px-3 py-2 md:px-4 md:py-2.5 rounded-lg text-[13px] md:text-sm font-bold transition-all bg-blue-500 hover:bg-blue-600 text-white shrink-0"
                                 >
-                                    <Copy size={16} />
+                                    <Copy className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                     <span>Sao chép</span>
                                 </button>
                             </div>
