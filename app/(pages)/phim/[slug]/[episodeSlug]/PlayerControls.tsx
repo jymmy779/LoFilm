@@ -202,4 +202,4 @@ const PlayerControls = ({
   );
 };
 
-export default PlayerControls;
+export default React.memo(PlayerControls);

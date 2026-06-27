@@ -15,7 +15,9 @@ interface CommentSectionProps {
     movieSlug: string;
 }
 
-export default function CommentSection({ movieSlug }: CommentSectionProps) {
+import React from "react";
+
+function CommentSection({ movieSlug }: CommentSectionProps) {
     const [comments, setComments] = useState<any[]>([]);
     const [user, setUser] = useState<any>(null);
     const [loading, setLoading] = useState(true);
@@ -218,3 +220,5 @@ export default function CommentSection({ movieSlug }: CommentSectionProps) {
         </div>
     );
 }
+
+export default React.memo(CommentSection);

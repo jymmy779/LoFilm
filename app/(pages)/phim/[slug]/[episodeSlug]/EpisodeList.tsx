@@ -215,4 +215,4 @@ const EpisodeList = ({
   );
 };
 
-export default EpisodeList;
+export default React.memo(EpisodeList);

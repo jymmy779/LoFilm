@@ -100,19 +100,13 @@ export default function NotificationBell() {
             })
             .subscribe();
 
-        // Realtime for User Notifications
-        let userChannel: any = null;
-        const userChannelName = `user_notifs_${Math.random().toString(36).substring(7)}`;
-        userChannel = supabase
-            .channel(userChannelName)
-            .on('postgres_changes', { 
-                event: 'INSERT', 
-                schema: 'public', 
-                table: 'user_notifications'
-            }, () => {
+        // Polling for User Notifications every 60 seconds (thay vì WebSocket)
+        // Giúp tiết kiệm cực kỳ nhiều RAM, CPU cho Database và API Quota
+        const pollingInterval = setInterval(() => {
+            if (currentUserId) {
                 fetchNotifications(currentUserId);
-            })
-            .subscribe();
+            }
+        }, 60000);
 
         const handleClickOutside = (event: MouseEvent | TouchEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -124,7 +118,7 @@ export default function NotificationBell() {
 
         return () => {
             supabase.removeChannel(siteChannel);
-            if (userChannel) supabase.removeChannel(userChannel);
+            clearInterval(pollingInterval);
             document.removeEventListener("mousedown", handleClickOutside, true);
             document.removeEventListener("touchstart", handleClickOutside, true);
         };

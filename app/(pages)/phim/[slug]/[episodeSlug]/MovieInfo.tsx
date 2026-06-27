@@ -82,4 +82,4 @@ const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
   );
 };
 
-export default MovieInfo;
+export default React.memo(MovieInfo);

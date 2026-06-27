@@ -131,6 +131,8 @@ export default function WatchClient({
     const [showEpisodeOverlay, setShowEpisodeOverlay] = useState(false);
     const [isChangingEpisode, setIsChangingEpisode] = useState(false);
     const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
+    const [isIframeLoading, setIsIframeLoading] = useState(false);
+
 
     useEffect(() => { showEndOverlayRef.current = showEndOverlay; }, [showEndOverlay]);
     const showEpisodeOverlayRef = useRef(showEpisodeOverlay);
@@ -209,7 +211,9 @@ export default function WatchClient({
         return found?.link_embed || null;
     }, [isEmbedServer, processedEpisodes, activeServerIndex, episodeSlug]);
 
-
+    useEffect(() => {
+        if (embedSrc) setIsIframeLoading(true);
+    }, [embedSrc]);
 
     useEffect(() => {
         setShowEndOverlay(false);
@@ -243,11 +247,11 @@ export default function WatchClient({
         correctMainMovie();
     }, [slug]);
 
-    const toggleAutoNext = () => {
+    const toggleAutoNext = useCallback(() => {
         const newValue = !isAutoNext;
         setIsAutoNext(newValue);
         localStorage.setItem('lofilm-auto-next', String(newValue));
-    };
+    }, [isAutoNext]);
 
     useEffect(() => {
         const checkStatus = async () => {
@@ -273,7 +277,7 @@ export default function WatchClient({
         checkStatus();
     }, [slug, supabase, user]);
 
-    const toggleFavorite = async () => {
+    const toggleFavorite = useCallback(async () => {
         if (!user) {
             toast.error("Vui lòng đăng nhập để lưu phim yêu thích!");
             return;
@@ -299,9 +303,9 @@ export default function WatchClient({
             setIsFavorited(prevStatus);
             toast.error("Lỗi: " + err.message);
         }
-    };
+    }, [user, isFavorited, slug, movie, supabase]);
 
-    const toggleWatchlist = async () => {
+    const toggleWatchlist = useCallback(async () => {
         if (!user) {
             toast.error("Vui lòng đăng nhập để thêm vào danh sách xem sau!");
             return;
@@ -327,11 +331,11 @@ export default function WatchClient({
             setIsInWatchlist(prevStatus);
             toast.error("Lỗi: " + err.message);
         }
-    };
+    }, [user, isInWatchlist, slug, movie, supabase]);
 
     const lastSavedTime = useRef(0);
     const lastSavedTimeDB = useRef(0);
-    const saveProgress = async (currentTime: number, duration: number, forceDbSync = false) => {
+    const saveProgress = useCallback(async (currentTime: number, duration: number, forceDbSync = false) => {
         const currentUser = userRef.current;
         if (!currentTime || duration <= 0) return;
 
@@ -392,9 +396,9 @@ export default function WatchClient({
                 updated_at: new Date().toISOString()
             }, { onConflict: 'user_id,movie_slug,episode_slug' });
         }
-    };
+    }, [slug, episodeSlug, movie, episode, supabase]);
 
-    const recordViewToSupabase = async () => {
+    const recordViewToSupabase = useCallback(async () => {
         const sessionKey = `viewed_${slug}`;
         if (typeof window !== 'undefined' && sessionStorage.getItem(sessionKey)) return;
 
@@ -430,7 +434,7 @@ export default function WatchClient({
         } catch (err) {
             console.error("System error recording view:", err);
         }
-    };
+    }, [slug, supabase]);
 
     useEffect(() => {
         if (isEmbedServer) return;
@@ -909,11 +913,28 @@ export default function WatchClient({
 
                     {/* Iframe Embed */}
                     {isEmbedServer && embedSrc && (
-                        <iframe 
-                            src={embedSrc}
-                            allowFullScreen
-                            className="w-full h-full border-0 absolute inset-0 z-[5]"
-                        />
+                        <>
+                            <iframe 
+                                src={embedSrc}
+                                allowFullScreen
+                                onLoad={() => setIsIframeLoading(false)}
+                                className="w-full h-full border-0 absolute inset-0 z-[5]"
+                            />
+                            {isIframeLoading && (
+                                <div className="absolute inset-0 z-[200] bg-[#0a1628] flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300">
+                                    <div className="relative mb-4 md:mb-6">
+                                        <div className="md:w-16 md:h-16 w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
+                                        <div className="absolute inset-0 flex items-center justify-center">
+                                            <div className="md:w-8 md:h-8 w-6 h-6 border-4 border-white/10 border-b-white/40 rounded-full animate-spin [animation-duration:1.5s] [animation-direction:reverse]" />
+                                        </div>
+                                    </div>
+                                    <div className="transition-all duration-500 delay-100">
+                                        <h3 className="text-white text-md md:text-lg lg:text-xl font-bold tracking-tight mb-2">Đang kết nối Server...</h3>
+                                        <p className="text-white/40 text-xs md:text-sm">Vui lòng đợi trong giây lát</p>
+                                    </div>
+                                </div>
+                            )}
+                        </>
                     )}
 
                     {/* Movie Info Overlay (Top Left) - Rendered into Plyr Container for Fullscreen Support */}
