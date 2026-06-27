@@ -64,8 +64,10 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                 if (user) {
                     const { error } = await supabase.from('watch_history').delete().eq('user_id', user.id);
                     if (error) throw error;
+                    localStorage.removeItem(`lofilm-watch-history-${user.id}`);
+                } else {
+                    localStorage.removeItem('lofilm-guest-watch-history');
                 }
-                localStorage.removeItem('lofilm-guest-watch-history');
                 setHistory([]);
                 toast.success("Đã xóa toàn bộ lịch sử");
             } catch (error) {
@@ -88,14 +90,14 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
 
         try {
             if (isLocal) {
-                const GUEST_HISTORY_KEY = 'lofilm-guest-watch-history';
-                const localDataStr = localStorage.getItem(GUEST_HISTORY_KEY);
+                const HISTORY_KEY = user ? `lofilm-watch-history-${user.id}` : 'lofilm-guest-watch-history';
+                const localDataStr = localStorage.getItem(HISTORY_KEY);
                 if (localDataStr) {
                     const localHistory = JSON.parse(localDataStr);
                     const key = `${item.movie_slug}/${item.episode_slug}`;
                     if (localHistory[key]) {
                         delete localHistory[key];
-                        localStorage.setItem(GUEST_HISTORY_KEY, JSON.stringify(localHistory));
+                        localStorage.setItem(HISTORY_KEY, JSON.stringify(localHistory));
                     }
                 }
             } else {
@@ -105,14 +107,14 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
 
                 // Also attempt local cleanup
                 try {
-                    const GUEST_HISTORY_KEY = 'lofilm-guest-watch-history';
-                    const localDataStr = localStorage.getItem(GUEST_HISTORY_KEY);
+                    const HISTORY_KEY = user ? `lofilm-watch-history-${user.id}` : 'lofilm-guest-watch-history';
+                    const localDataStr = localStorage.getItem(HISTORY_KEY);
                     if (localDataStr) {
                         const localHistory = JSON.parse(localDataStr);
                         const key = `${item.movie_slug}/${item.episode_slug}`;
                         if (localHistory[key]) {
                             delete localHistory[key];
-                            localStorage.setItem(GUEST_HISTORY_KEY, JSON.stringify(localHistory));
+                            localStorage.setItem(HISTORY_KEY, JSON.stringify(localHistory));
                         }
                     }
                 } catch (e) { }
@@ -154,7 +156,8 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
 
             // 2. Lấy dữ liệu từ LocalStorage (cho khách hoặc dự phòng reload)
             try {
-                const localDataStr = localStorage.getItem('lofilm-guest-watch-history');
+                const HISTORY_KEY = user ? `lofilm-watch-history-${user.id}` : 'lofilm-guest-watch-history';
+                const localDataStr = localStorage.getItem(HISTORY_KEY);
                 if (localDataStr) {
                     const localHistory = JSON.parse(localDataStr);
                     const now = Date.now();

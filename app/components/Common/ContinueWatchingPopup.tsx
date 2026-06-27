@@ -6,6 +6,8 @@ import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
 import { usePathname } from "next/navigation";
+import { useAuth } from "@/app/components/Auth/AuthContext";
+import { createClient } from "@/app/utils/supabase/client";
 
 interface WatchHistoryItem {
     movie_slug: string;
@@ -23,26 +25,60 @@ export default function ContinueWatchingPopup() {
     const [isVisible, setIsVisible] = useState(false);
     const [isDismissed, setIsDismissed] = useState(false);
     const pathname = usePathname();
+    const { user, isLoading } = useAuth();
+    const supabase = createClient();
 
     useEffect(() => {
+        if (isLoading) return; // Wait for auth state to load
+
         // Delay slighty so it doesn't pop up too aggressively on initial load
-        const timer = setTimeout(() => {
+        const timer = setTimeout(async () => {
             try {
-                const GUEST_HISTORY_KEY = 'lofilm-guest-watch-history';
+                let mostRecent: WatchHistoryItem | null = null;
                 
-                const historyStr = localStorage.getItem(GUEST_HISTORY_KEY);
+                // 1. Read from LocalStorage based on user context
+                const HISTORY_KEY = user ? `lofilm-watch-history-${user.id}` : 'lofilm-guest-watch-history';
+                const historyStr = localStorage.getItem(HISTORY_KEY);
                 
-                if (!historyStr) return;
+                if (historyStr) {
+                    const history: Record<string, WatchHistoryItem> = JSON.parse(historyStr);
+                    const movies = Object.values(history);
+                    if (movies.length > 0) {
+                        // Sort by most recently updated
+                        movies.sort((a, b) => b.updated_at - a.updated_at);
+                        mostRecent = movies[0];
+                    }
+                }
                 
-                const history: Record<string, WatchHistoryItem> = JSON.parse(historyStr);
-                const movies = Object.values(history);
-                
-                if (movies.length === 0) return;
-                
-                // Sort by most recently updated
-                movies.sort((a, b) => b.updated_at - a.updated_at);
-                
-                const mostRecent = movies[0];
+                // 2. Fetch from Supabase for cross-device synchronization if logged in
+                if (user) {
+                    const { data } = await supabase
+                        .from('watch_history')
+                        .select('*')
+                        .eq('user_id', user.id)
+                        .order('updated_at', { ascending: false })
+                        .limit(1)
+                        .maybeSingle();
+                        
+                    if (data) {
+                        const dbUpdatedAt = new Date(data.updated_at).getTime();
+                        // If Supabase record is newer than local storage, use it instead
+                        if (!mostRecent || dbUpdatedAt > mostRecent.updated_at) {
+                            mostRecent = {
+                                movie_slug: data.movie_slug,
+                                episode_slug: data.episode_slug,
+                                movie_name: data.movie_name,
+                                movie_poster: data.movie_poster,
+                                episode_name: data.episode_name,
+                                watched_seconds: data.watched_seconds,
+                                duration: data.duration,
+                                updated_at: dbUpdatedAt
+                            };
+                        }
+                    }
+                }
+
+                if (!mostRecent) return;
 
                 // Conditions to show:
                 // 1. Watched more than 30 seconds
@@ -66,7 +102,7 @@ export default function ContinueWatchingPopup() {
         }, 3000); // Show after 3 seconds
 
         return () => clearTimeout(timer);
-    }, []);
+    }, [user, isLoading, supabase]);
 
     const handleDismiss = (e: React.MouseEvent) => {
         e.preventDefault();

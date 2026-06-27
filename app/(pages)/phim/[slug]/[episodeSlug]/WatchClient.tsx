@@ -346,8 +346,8 @@ export default function WatchClient({
         if (timeDiff >= 10) {
             lastSavedTime.current = currentTime;
             try {
-                const GUEST_HISTORY_KEY = 'lofilm-guest-watch-history';
-                const historyStr = localStorage.getItem(GUEST_HISTORY_KEY);
+                const HISTORY_KEY = currentUser ? `lofilm-watch-history-${currentUser.id}` : 'lofilm-guest-watch-history';
+                const historyStr = localStorage.getItem(HISTORY_KEY);
                 let history = historyStr ? JSON.parse(historyStr) : {};
 
                 const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
@@ -375,7 +375,7 @@ export default function WatchClient({
                     delete history[oldestKey];
                 }
 
-                localStorage.setItem(GUEST_HISTORY_KEY, JSON.stringify(history));
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
             } catch (e) {
                 console.error("Error saving progress to localStorage:", e);
             }
@@ -482,7 +482,8 @@ export default function WatchClient({
 
                 if (startFrom <= 10) {
                     try {
-                        const historyStr = localStorage.getItem('lofilm-guest-watch-history');
+                        const HISTORY_KEY = currentUser ? `lofilm-watch-history-${currentUser.id}` : 'lofilm-guest-watch-history';
+                        const historyStr = localStorage.getItem(HISTORY_KEY);
                         if (historyStr) {
                             const history = JSON.parse(historyStr);
                             const item = history[`${slug}/${episodeSlug}`];
