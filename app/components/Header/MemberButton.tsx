@@ -45,18 +45,20 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
     }, [supabase]);
 
     useEffect(() => {
-        const handleClickOutside = (event: MouseEvent) => {
+        const handleClickOutside = (event: MouseEvent | TouchEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
                 setShowMenu(false);
             }
         };
 
         if (showMenu) {
-            document.addEventListener("mousedown", handleClickOutside);
+            document.addEventListener("mousedown", handleClickOutside, true);
+            document.addEventListener("touchstart", handleClickOutside, { capture: true, passive: true });
         }
 
         return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
+            document.removeEventListener("mousedown", handleClickOutside, true);
+            document.removeEventListener("touchstart", handleClickOutside, true);
         };
     }, [showMenu]);
 
@@ -176,7 +178,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                     isOpen={showPremiumModal}
                     onClose={() => setShowPremiumModal(false)}
                     title="LOFILM Premium"
-                    message="Dịch vụ nâng cấp Premium trên điện thoại đang được tối ưu. Bạn sẽ sớm được tận hưởng các đặc quyền 4K ngay trên lòng bàn tay!"
+                    message="Dịch vụ nâng cấp Premium đang được triển khai"
                 />
             </>
         );

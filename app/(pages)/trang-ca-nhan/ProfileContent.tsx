@@ -659,7 +659,7 @@ export default function ProfileContent() {
         isOpen={showPremiumModal}
         onClose={() => setShowPremiumModal(false)}
         title="LOFILM Premium"
-        message="Dịch vụ nâng cấp Premium đang được triển khai. Bạn sẽ sớm được tận hưởng đặc quyền xem phim không quảng cáo, chất lượng 4K và nhiều tính năng độc quyền khác!"
+        message="Dịch vụ nâng cấp Premium đang được triển khai"
       />
     </div>
   );

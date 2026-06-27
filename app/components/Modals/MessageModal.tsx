@@ -118,6 +118,7 @@ export default function MessageModal({ isOpen, onClose }: MessageModalProps) {
 
                         <Link
                             href="/lien-he"
+                            onClick={onClose}
                             className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl md:rounded-2xl bg-white/5 hover:bg-amber-500/10 border border-white/5 hover:border-amber-500/30 group transition-all"
                         >
                             <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-amber-500 flex items-center justify-center shrink-0">

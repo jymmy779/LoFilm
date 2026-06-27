@@ -554,6 +554,20 @@ export default function WatchClient({
 
             player.on('playing', () => { setHasStartedPlaying(true); setHasError(false); });
 
+            player.on('enterfullscreen', () => {
+                const orientation = window.screen?.orientation as any;
+                if (orientation && orientation.lock) {
+                    orientation.lock('landscape').catch(() => {});
+                }
+            });
+
+            player.on('exitfullscreen', () => {
+                const orientation = window.screen?.orientation as any;
+                if (orientation && orientation.unlock) {
+                    orientation.unlock();
+                }
+            });
+
             if (startFrom > 0 && (!hasResumed || isFallbackResume)) {
                 player.once('ready', () => {
                     if (player.currentTime < startFrom - 5 || isFallbackResume) {

@@ -48,11 +48,11 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
             }
         };
 
-        document.addEventListener("mousedown", handleClickOutside);
-        document.addEventListener("touchstart", handleClickOutside);
+        document.addEventListener("mousedown", handleClickOutside, true);
+        document.addEventListener("touchstart", handleClickOutside, { capture: true, passive: true });
         return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-            document.removeEventListener("touchstart", handleClickOutside);
+            document.removeEventListener("mousedown", handleClickOutside, true);
+            document.removeEventListener("touchstart", handleClickOutside, true);
         };
     }, []);
 
