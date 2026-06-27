@@ -34,7 +34,7 @@ export default function ContinueWatchingPopup() {
         // Delay slighty so it doesn't pop up too aggressively on initial load
         const timer = setTimeout(async () => {
             try {
-                let mostRecent: WatchHistoryItem | null = null;
+                let localMovies: WatchHistoryItem[] = [];
                 
                 // 1. Read from LocalStorage based on user context
                 const HISTORY_KEY = user ? `lofilm-watch-history-${user.id}` : 'lofilm-guest-watch-history';
@@ -42,12 +42,7 @@ export default function ContinueWatchingPopup() {
                 
                 if (historyStr) {
                     const history: Record<string, WatchHistoryItem> = JSON.parse(historyStr);
-                    const movies = Object.values(history);
-                    if (movies.length > 0) {
-                        // Sort by most recently updated
-                        movies.sort((a, b) => b.updated_at - a.updated_at);
-                        mostRecent = movies[0];
-                    }
+                    localMovies = Object.values(history);
                 }
                 
                 // 2. Fetch from Supabase for cross-device synchronization if logged in
@@ -57,45 +52,49 @@ export default function ContinueWatchingPopup() {
                         .select('*')
                         .eq('user_id', user.id)
                         .order('updated_at', { ascending: false })
-                        .limit(1)
-                        .maybeSingle();
+                        .limit(10);
                         
-                    if (data) {
-                        const dbUpdatedAt = new Date(data.updated_at).getTime();
-                        // If Supabase record is newer than local storage, use it instead
-                        if (!mostRecent || dbUpdatedAt > mostRecent.updated_at) {
-                            mostRecent = {
-                                movie_slug: data.movie_slug,
-                                episode_slug: data.episode_slug,
-                                movie_name: data.movie_name,
-                                movie_poster: data.movie_poster,
-                                episode_name: data.episode_name,
-                                watched_seconds: data.watched_seconds,
-                                duration: data.duration,
-                                updated_at: dbUpdatedAt
-                            };
-                        }
+                    if (data && data.length > 0) {
+                        const dbMovies = data.map(d => ({
+                            movie_slug: d.movie_slug,
+                            episode_slug: d.episode_slug,
+                            movie_name: d.movie_name,
+                            movie_poster: d.movie_poster,
+                            episode_name: d.episode_name,
+                            watched_seconds: d.watched_seconds,
+                            duration: d.duration,
+                            updated_at: new Date(d.updated_at).getTime()
+                        }));
+
+                        const combinedMap = new Map<string, WatchHistoryItem>();
+                        [...localMovies, ...dbMovies].forEach(m => {
+                            const key = m.movie_slug;
+                            const existing = combinedMap.get(key);
+                            if (!existing || m.updated_at > existing.updated_at) {
+                                combinedMap.set(key, m);
+                            }
+                        });
+                        localMovies = Array.from(combinedMap.values());
                     }
                 }
 
+                // Filter for unfinished movies, sort by updated_at
+                const unfinishedMovies = localMovies.filter(m => 
+                    m.duration > 0 && 
+                    m.watched_seconds > 30 && 
+                    (m.watched_seconds / m.duration) < 0.90
+                ).sort((a, b) => b.updated_at - a.updated_at);
+
+                const mostRecent = unfinishedMovies.length > 0 ? unfinishedMovies[0] : null;
+
                 if (!mostRecent) return;
 
-                // Conditions to show:
-                // 1. Watched more than 30 seconds
-                // 2. Not finished (less than 95% complete)
-                // 3. Duration is valid (> 0)
-                if (
-                    mostRecent.duration > 0 &&
-                    mostRecent.watched_seconds > 30 &&
-                    (mostRecent.watched_seconds / mostRecent.duration) < 0.95
-                ) {
-                    setRecentMovie(mostRecent);
-                    
-                    // Delay a tiny bit to allow the component to mount in the hidden state before transitioning
-                    setTimeout(() => {
-                        setIsVisible(true);
-                    }, 50);
-                }
+                setRecentMovie(mostRecent);
+                
+                // Delay a tiny bit to allow the component to mount in the hidden state before transitioning
+                setTimeout(() => {
+                    setIsVisible(true);
+                }, 50);
             } catch (e) {
                 console.error("Error reading watch history for popup:", e);
             }

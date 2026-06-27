@@ -148,10 +148,21 @@ export default function WatchClient({
     const containerCallbackRef = useCallback((node: HTMLDivElement | null) => {
         if (node) setContainerNode(node);
     }, []);
+
+    const handleServerChange = useCallback((index: number) => {
+        setActiveServerIndex(index);
+        if (containerNode) {
+            containerNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        } else {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+    }, [containerNode]);
     const videoRef = useRef<HTMLVideoElement>(null);
     const hlsRef = useRef<Hls | null>(null);
     const plyrRef = useRef<any>(null);
     const fallbackTimeRef = useRef<number>(0);
+    const seekTargetRef = useRef<number | null>(null);
+    const seekTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
     const isEmbedServer = useMemo(() => {
         const server = processedEpisodes[activeServerIndex];
@@ -730,17 +741,43 @@ export default function WatchClient({
                     player.togglePlay();
                     break;
                 case 'ArrowRight':
-                case 'KeyL': // YouTube style forward
+                case 'KeyL': { // YouTube style forward
                     e.preventDefault();
-                    player.forward(10);
+                    const current = seekTargetRef.current !== null ? seekTargetRef.current : player.currentTime;
+                    const target = Math.min(player.duration || 0, current + 10);
+                    seekTargetRef.current = target;
+                    player.currentTime = target;
+                    
+                    const seekInput = player.elements.inputs?.seek;
+                    if (seekInput && player.duration) {
+                        seekInput.value = ((target / player.duration) * 100).toString();
+                        seekInput.style.setProperty('--value', `${(target / player.duration) * 100}%`);
+                    }
                     if (player.elements.container) player.elements.container.classList.remove('plyr--hide-controls');
+                    
+                    if (seekTimeoutRef.current) clearTimeout(seekTimeoutRef.current);
+                    seekTimeoutRef.current = setTimeout(() => { seekTargetRef.current = null; }, 1000);
                     break;
+                }
                 case 'ArrowLeft':
-                case 'KeyJ': // YouTube style rewind
+                case 'KeyJ': { // YouTube style rewind
                     e.preventDefault();
-                    player.rewind(10);
+                    const current = seekTargetRef.current !== null ? seekTargetRef.current : player.currentTime;
+                    const target = Math.max(0, current - 10);
+                    seekTargetRef.current = target;
+                    player.currentTime = target;
+                    
+                    const seekInput = player.elements.inputs?.seek;
+                    if (seekInput && player.duration) {
+                        seekInput.value = ((target / player.duration) * 100).toString();
+                        seekInput.style.setProperty('--value', `${(target / player.duration) * 100}%`);
+                    }
                     if (player.elements.container) player.elements.container.classList.remove('plyr--hide-controls');
+                    
+                    if (seekTimeoutRef.current) clearTimeout(seekTimeoutRef.current);
+                    seekTimeoutRef.current = setTimeout(() => { seekTargetRef.current = null; }, 1000);
                     break;
+                }
                 case 'KeyF':
                     e.preventDefault();
                     player.fullscreen.toggle();
@@ -1144,7 +1181,7 @@ export default function WatchClient({
                         onToggleWatchlist={toggleWatchlist}
                         episodes={processedEpisodes}
                         activeServer={activeServerIndex}
-                        onServerChange={setActiveServerIndex}
+                        onServerChange={handleServerChange}
                         onReport={() => setShowReportModal(true)}
                         onShare={() => setShowShareModal(true)}
                     />
@@ -1165,7 +1202,7 @@ export default function WatchClient({
                                     currentEpisode={episodeSlug}
                                     episodes={processedEpisodes}
                                     activeServer={activeServerIndex}
-                                    onServerChange={setActiveServerIndex}
+                                    onServerChange={handleServerChange}
                                     onEpisodeClick={() => setIsChangingEpisode(true)}
                                 />
                                 <div className="mt-6 pt-6 border-t border-white/5">
