@@ -129,7 +129,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="vi" suppressHydrationWarning data-scroll-behavior="smooth">
+    <html lang="vi" suppressHydrationWarning>
       <head>
         <meta name="clckd" content="7b88ce9a85e401383596fcdebfbf0c88" />
         <link rel="preconnect" href="https://wsrv.nl" />

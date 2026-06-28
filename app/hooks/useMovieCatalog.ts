@@ -44,13 +44,26 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
         (!defaultType || initialFilters.type === defaultType)
     );
 
+    // Synchronously check cache so we don't flash skeletons when navigating back.
+    // This allows Next.js scroll restoration to find the correct DOM height instantly.
+    const cacheKey = `catalog_${baseApiUrl}_${initialPage}_${JSON.stringify(initialFilters)}_${slug || ''}`;
+    const cachedData = globalCache.getRaw<any>(cacheKey);
+
     // 2. State
-    const [movies, setMovies] = useState<Movie[]>(hasValidInitialData ? initialData!.movies : []);
-    const [isLoading, setIsLoading] = useState(!hasValidInitialData); // false if we have server data
+    const [movies, setMovies] = useState<Movie[]>(
+        hasValidInitialData ? initialData!.movies : (cachedData ? cachedData.movies : [])
+    );
+    const [isLoading, setIsLoading] = useState(
+        hasValidInitialData ? false : (cachedData ? false : true)
+    ); // false if we have server data or cached data
     const [isPageLoading, setIsPageLoading] = useState(false); // lightweight loading for pagination/filter changes
     const [currentPage, setCurrentPage] = useState(initialPage);
-    const [totalPages, setTotalPages] = useState(hasValidInitialData ? initialData!.totalPages : 1);
-    const [pageTitle, setPageTitle] = useState(hasValidInitialData ? initialData!.pageTitle : "");
+    const [totalPages, setTotalPages] = useState(
+        hasValidInitialData ? initialData!.totalPages : (cachedData ? cachedData.totalPages : 1)
+    );
+    const [pageTitle, setPageTitle] = useState(
+        hasValidInitialData ? initialData!.pageTitle : (cachedData ? cachedData.pageTitle : "")
+    );
     const [isFilterOpen, setIsFilterOpen] = useState(initialFilterOpen);
     const [activeFilters, setActiveFilters] = useState<FilterState>(initialFilters);
     const [categories, setCategories] = useState<MenuItem[]>(initialData?.categories || []);
@@ -80,12 +93,14 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
     const handlePageChange = (newPage: number) => {
         setCurrentPage(newPage);
         updateUrl(newPage, activeFilters, isFilterOpen);
+        window.scrollTo({ top: 0, behavior: "instant" });
     };
 
     const handleFilterChange = (filters: FilterState) => {
         setActiveFilters(filters);
         setCurrentPage(1);
         updateUrl(1, filters, isFilterOpen);
+        window.scrollTo({ top: 0, behavior: "instant" });
     };
 
     const toggleUrlTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -303,17 +318,8 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
 
         fetchMovies();
         
-        // Optimize scroll: small delay to let React render skeletons/content first.
-        // Use 'instant' instead of 'smooth' to prevent stuttering/lag on mobile/desktop.
-        const scrollTimeout = setTimeout(() => {
-            requestAnimationFrame(() => {
-                window.scrollTo({ top: 0, behavior: "instant" });
-            });
-        }, 100);
-
         return () => { 
             isMounted = false; 
-            clearTimeout(scrollTimeout);
         };
     }, [currentPage, activeFilters, baseApiUrl, itemsPerPage, slug, router]); // eslint-disable-line react-hooks/exhaustive-deps
 

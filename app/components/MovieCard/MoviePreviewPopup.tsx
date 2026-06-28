@@ -80,7 +80,6 @@ export default function MoviePreviewPopup({
     }, [movie.slug]);
 
     const { isFavorited, toggleFavorite } = useFavorites(
-        user,
         movie.slug,
         movie.name,
         movie.poster_url,

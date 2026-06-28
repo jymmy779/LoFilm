@@ -1,8 +1,10 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/app/utils/supabase/client";
 import { toast } from "react-hot-toast";
+import { useAuth } from "@/app/components/Auth/AuthContext";
 
-export const useFavorites = (user: any, movieSlug: string, movieName: string, moviePoster: string, movieThumb?: string) => {
+export const useFavorites = (movieSlug: string, movieName: string, moviePoster: string, movieThumb?: string) => {
+    const { user } = useAuth();
     const [isFavorited, setIsFavorited] = useState(false);
     const supabase = createClient();
 
