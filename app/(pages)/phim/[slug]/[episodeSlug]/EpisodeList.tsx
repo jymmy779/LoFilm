@@ -110,7 +110,7 @@ const EpisodeList = ({
   }, [currentEpisode, episodeRanges, episodeData]);
 
   return (
-    <div className="w-full pt-10">
+    <div className="w-full">
       {/* Header with Servers and Toggle */}
       <div className="flex items-center justify-between gap-6 mb-0 pb-4">
         {showServers ? (
