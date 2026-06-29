@@ -6,6 +6,13 @@ import {
 } from "@/app/utils/movieUtils";
 
 import { fetchWithRedis, redis } from "@/app/lib/fetch-with-redis";
+import { createClient } from "@supabase/supabase-js";
+
+// Client Supabase an toàn cho Background jobs (không dính tới cookies Next.js)
+const supabase = createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+);
 
 const REVALIDATE_SEC = 60; // Đồng bộ 60 giây toàn hệ thống
 const QUICK_REVALIDATE_SEC = 60;
@@ -81,6 +88,69 @@ async function fetchTop(url: string, limit: number = 30): Promise<Movie[]> {
 async function mapHero(payload: unknown): Promise<Movie[]> {
     const raw = parseV3HeroItems(payload);
     return filterDuplicateMovies(raw).slice(0, 8);
+}
+
+/**
+ * Lấy danh sách phim Độc quyền mới nhất cho Hero Slider
+ */
+async function getExclusiveMoviesForHero(): Promise<Movie[]> {
+    try {
+        const { data } = await supabase
+            .from('exclusive_movies')
+            .select('*')
+            .eq('status', 'published')
+            .order('created_at', { ascending: false })
+            .limit(3);
+
+        if (!data || data.length === 0) return [];
+        
+        const apiKey = "fb7bb23f03b6994dafc674c074d01761"; // TMDB API Key chung của dự án
+        
+        return await Promise.all(data.map(async (m: any) => {
+            let movieObj: any = {
+                _id: m.id,
+                name: m.name,
+                origin_name: m.origin_name,
+                slug: m.slug,
+                type: m.type,
+                thumb_url: m.thumb_url,
+                poster_url: m.poster_url,
+                year: m.year || new Date().getFullYear(),
+                is_copyright: true,
+                sub_docquyen: true,
+                lang: m.lang_tag || "Vietsub Độc Quyền",
+                episode_current: m.type === "single" ? "Full" : "Tập mới",
+                quality: "FHD",
+            };
+
+            if (m.tmdb_id) {
+                try {
+                    const tmdbType = m.type === "single" ? "movie" : "tv";
+                    const resVi = await fetch(`https://api.themoviedb.org/3/${tmdbType}/${m.tmdb_id}?api_key=${apiKey}&language=vi-VN&append_to_response=credits`);
+                    
+                    if (resVi.ok) {
+                        const tmdb = await resVi.json();
+                        movieObj.content = tmdb.overview || "";
+                        // Dùng ảnh siêu nét W1280 cho Hero Slider
+                        movieObj.thumb_url = `https://image.tmdb.org/t/p/w1280${tmdb.backdrop_path || tmdb.poster_path}`;
+                        movieObj.poster_url = `https://image.tmdb.org/t/p/w500${tmdb.poster_path}`;
+                        movieObj.category = tmdb.genres?.map((g: any) => ({ name: g.name })) || [];
+                        movieObj.actor = tmdb.credits?.cast?.slice(0, 5).map((c: any) => c.name) || [];
+                        movieObj.director = tmdb.credits?.crew?.filter((c: any) => c.job === "Director").map((c: any) => c.name) || [];
+                        movieObj.tmdb = { id: m.tmdb_id, vote_average: tmdb.vote_average, vote_count: tmdb.vote_count, type: tmdbType };
+                        if (tmdb.runtime) movieObj.time = `${tmdb.runtime} phút`;
+                        if (tmdb.number_of_episodes) movieObj.episode_total = tmdb.number_of_episodes.toString();
+                    }
+                } catch (e) {
+                    console.error("Lỗi lấy TMDB cho hero slider:", e);
+                }
+            }
+            return movieObj as Movie;
+        }));
+    } catch (e) {
+        console.error("Lỗi lấy phim độc quyền cho Hero:", e);
+        return [];
+    }
 }
 
 const URLS = {
@@ -282,15 +352,23 @@ async function fetchAndCacheBundle(
 
     const heroMovies = await mapHero(heroRaw);
 
-    // Thực hiện enrichment cho các section quan trọng nhất
-    const [enrichedHero, enrichedTv, enrichedAnime] = await Promise.all([
+    // Thực hiện enrichment cho các section quan trọng nhất & Fetch Độc Quyền
+    const [enrichedHero, enrichedTv, enrichedAnime, exclusiveHeroMovies] = await Promise.all([
         enrichMovies(heroMovies),
         enrichMovies(featuredTvMovies),
-        enrichMovies(featuredAnimeMovies)
+        enrichMovies(featuredAnimeMovies),
+        getExclusiveMoviesForHero() // Lấy 3 phim độc quyền mới nhất
     ]);
 
+    // Trộn 3 phim độc quyền lên đầu danh sách Hero Slider
+    let finalHero = [...enrichedHero];
+    if (exclusiveHeroMovies && exclusiveHeroMovies.length > 0) {
+        // Bỏ bớt các phim đuôi của API để giữ nguyên số lượng = 8
+        finalHero = [...exclusiveHeroMovies, ...finalHero.slice(0, 8 - exclusiveHeroMovies.length)];
+    }
+
     const result: HomePrefetch = {
-        hero: enrichedHero,
+        hero: finalHero,
         categories: parseCategories(catRaw),
         movieRowHan: mapMovieRow(parseV1Items(hanRaw)),
         nominated: nominatedMovies,
