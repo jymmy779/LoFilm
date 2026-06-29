@@ -64,5 +64,8 @@ export default async function Home({
       }
   }
 
-  return <HomeClient prefetched={homePrefetch} />;
+  const { getSiteSettings } = await import("./actions/adminSettings");
+  const settings = await getSiteSettings();
+
+  return <HomeClient prefetched={homePrefetch} activeEvent={settings.active_event} />;
 }

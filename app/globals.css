@@ -980,3 +980,45 @@ body.theater-mode footer:hover {
     width: 260px;
   }
 }
+
+/* --- Netflix Style Captions for Plyr --- */
+:root {
+    --plyr-captions-background: transparent;
+    --plyr-captions-text-color: #ffffff;
+}
+
+.plyr__captions,
+.plyr:not(.plyr--hide-controls) .plyr__controls:not(:empty)~.plyr__captions {
+    transform: translateY(-40px) !important;
+}
+
+.plyr__captions .plyr__caption {
+    font-family: "Netflix Sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+    background-color: transparent !important;
+    text-shadow: 
+        0px 0px 7px rgba(0, 0, 0, 0.75),
+        0px 0px 7px rgba(0, 0, 0, 0.75),
+        0px 0px 7px rgba(0, 0, 0, 0.75),
+        0px 2px 4px rgba(0, 0, 0, 0.8) !important;
+    font-size: 32px !important;
+    line-height: normal !important;
+    padding: 4px 8px !important;
+    font-weight: 500 !important;
+}
+
+/* Responsive font size cho các màn hình nhỏ */
+@media (max-width: 1024px) {
+    .plyr__captions .plyr__caption { font-size: 28px !important; }
+}
+
+@media (max-width: 768px) {
+    .plyr__captions .plyr__caption { font-size: 22px !important; }
+    .plyr__captions,
+    .plyr:not(.plyr--hide-controls) .plyr__controls:not(:empty)~.plyr__captions { 
+        transform: translateY(-20px) !important; 
+    }
+}
+
+@media (max-width: 480px) {
+    .plyr__captions .plyr__caption { font-size: 16px !important; }
+}

@@ -21,7 +21,13 @@ interface MoviePosterCardProps {
 function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZone }: MoviePosterCardProps) {
     const moviePath = `/phim/${movie.slug}`;
 
-
+    const getExclusiveBadgeStyle = (tag: string) => {
+        if (tag?.includes("Song Ngữ")) return "bg-fuchsia-600/90 border-fuchsia-500/30";
+        if (tag?.includes("Thuyết Minh")) return "bg-blue-600/90 border-blue-500/30";
+        if (tag?.includes("Lồng Tiếng")) return "bg-emerald-600/90 border-emerald-500/30";
+        if (tag?.includes("RAW")) return "bg-orange-600/90 border-orange-500/30";
+        return "bg-red-600/90 border-red-500/30"; // Mặc định Vietsub là Đỏ
+    };
 
     // Chuẩn bị dữ liệu hiển thị cho Popup
     const description = movie.content ? cleanContent(decodeHtml(movie.content)) : "Đang cập nhật nội dung cho bộ phim này...";
@@ -56,7 +62,15 @@ function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZon
                         className="object-cover transition-transform duration-700 ease-out group-hover/item:scale-110 transform-gpu"
                     />
 
-
+                    {/* Exclusive Badge */}
+                    {(movie as any).is_exclusive || movie.sub_docquyen ? (
+                        <div className="absolute top-2 right-2 z-20">
+                            <div className={`${getExclusiveBadgeStyle(movie.lang || "")} backdrop-blur-sm px-1.5 py-0.5 rounded text-[9px] font-bold text-white shadow-md border tracking-wide uppercase flex items-center gap-1`}>
+                                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
+                                {movie.lang || "Vietsub Độc Quyền"}
+                            </div>
+                        </div>
+                    ) : null}
 
                     {/* Solid Badges (No Glassmorphism) */}
                     <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center flex-wrap gap-1 px-2 z-20 translate-y-1 group-hover/item:translate-y-0 transition-transform duration-300 transform-gpu">
@@ -64,7 +78,7 @@ function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZon
                             {movie.quality || "HD"}
                         </div>
                         <div className="h-5 px-1.5 bg-green-600 rounded-md text-white text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
-                            {(movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
+                            {(movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM").replace(" Độc Quyền", "")}
                         </div>
                         <div className="h-5 px-1.5 bg-amber-600 rounded-md text-white text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
                             {getEpisodeStatus(movie)}

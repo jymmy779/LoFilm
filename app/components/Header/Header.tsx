@@ -85,6 +85,7 @@ export default function Header() {
         { href: "/danh-sach/phim-bo", label: "Phim bộ" },
         { href: "/danh-sach/phim-le", label: "Phim lẻ" },
         { href: "/danh-sach/phim-chieu-rap", label: "Phim chiếu rạp" },
+        { href: "/doc-quyen", label: "Độc quyền", isBeta: true },
     ];
 
     const segments = pathname.split('/').filter(Boolean);
@@ -215,9 +216,12 @@ export default function Header() {
                                 <TransitionLink
                                     key={item.label}
                                     href={item.href}
-                                    className="text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 whitespace-nowrap"
+                                    className="text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 whitespace-nowrap inline-flex items-start"
                                 >
-                                    {item.label}
+                                    <span>{item.label}</span>
+                                    {item.isBeta && (
+                                        <span className="animate-pulse text-[8px] font-bold bg-red-600 text-white px-1 py-[2px] rounded-[3px] leading-none ml-1 -mt-1 shadow-sm">Beta</span>
+                                    )}
                                 </TransitionLink>
                             ))}
                         </nav>
@@ -332,9 +336,12 @@ export default function Header() {
                                             <TransitionLink
                                                 href={item.href}
                                                 onClick={() => { if (pathname !== item.href) setIsMenuOpen(false); }}
-                                                className="text-base text-white/80 py-3 border-b border-white/10 hover:text-[#f5a623] transition-colors font-medium block"
+                                                className="text-base text-white/80 py-3 border-b border-white/10 hover:text-[#f5a623] transition-colors font-medium flex items-start"
                                             >
-                                                {item.label}
+                                                <span>{item.label}</span>
+                                                {item.isBeta && (
+                                                    <span className="animate-pulse text-[8px] font-bold bg-red-600 text-white px-1 py-[2px] rounded-[3px] leading-none ml-1 shadow-sm mt-0.5">Beta</span>
+                                                )}
                                             </TransitionLink>
                                         </div>
                                     ))}

@@ -23,11 +23,8 @@ import ReunificationEvent from "./components/ReunificationEvent";
 import ReunificationEventSkeleton from "./components/SpecialSections/ReunificationEventSkeleton";
 import SocialStatsSection from "./components/SocialStats/SocialStatsSection";
 
-export default function HomeClient({ prefetched }: { prefetched: HomePrefetch }) {
-    const today = new Date();
-    const month = today.getMonth() + 1;
-    const date = today.getDate();
-    const isEventPeriod = (month === 4 && date >= 25) || (month === 5 && date <= 2);
+export default function HomeClient({ prefetched, activeEvent }: { prefetched: HomePrefetch, activeEvent?: string }) {
+    const isEventPeriod = activeEvent === 'reunification';
 
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);

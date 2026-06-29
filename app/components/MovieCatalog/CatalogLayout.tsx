@@ -29,6 +29,7 @@ interface CatalogLayoutProps {
     emptyMessage?: React.ReactNode;
     isPageLoading?: boolean;
     hideSidebar?: boolean;
+    hideFilter?: boolean;
     sidebarProps?: {
         weeklyLimit?: number;
         seriesLimit?: number;
@@ -51,6 +52,7 @@ export default function CatalogLayout({
     emptyMessage = "Chưa có phim nào trong danh sách này.",
     isPageLoading = false,
     hideSidebar = false,
+    hideFilter = false,
     sidebarProps
 }: CatalogLayoutProps) {
     return (
@@ -59,14 +61,16 @@ export default function CatalogLayout({
                 <div className="catalog-page">
                     <CatalogHeader title={title} />
 
-                    <MovieFilter
-                        categories={categories}
-                        countries={countries}
-                        initialFilters={activeFilters}
-                        initialIsOpen={isFilterOpen}
-                        onFilterChange={onFilterChange}
-                        onToggle={onToggleFilter}
-                    />
+                    {!hideFilter && (
+                        <MovieFilter
+                            categories={categories}
+                            countries={countries}
+                            initialFilters={activeFilters}
+                            initialIsOpen={isFilterOpen}
+                            onFilterChange={onFilterChange}
+                            onToggle={onToggleFilter}
+                        />
+                    )}
 
                     <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 mt-8">
                             {/* Main Content Area */}

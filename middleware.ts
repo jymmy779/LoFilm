@@ -22,8 +22,26 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 1. Kiểm tra Maintenance Mode trước (Không cần Auth)
-  const isMaintenanceMode = process.env.NEXT_PUBLIC_MAINTENANCE_MODE === 'true';
+  // 1. Kiểm tra Maintenance Mode từ Supabase (Cache 60s để tránh quá tải)
+  let isMaintenanceMode = false;
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/site_settings?key=eq.maintenance_mode&select=value`, {
+      headers: {
+        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`
+      },
+      next: { revalidate: 30 } // Cache 30 giây
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (data && data.length > 0) {
+        isMaintenanceMode = data[0].value === true || data[0].value === 'true';
+      }
+    }
+  } catch (e) {
+    // Fallback: nếu đứt cáp hoặc Supabase sập, không tự ý khóa web
+    isMaintenanceMode = false;
+  }
 
   if (isMaintenanceMode) {
     const isStaticAsset = pathname.startsWith('/_next') || 
@@ -31,7 +49,7 @@ export async function middleware(request: NextRequest) {
                           pathname.includes('.') ||
                           pathname.startsWith('/favicon.ico');
 
-    if (pathname !== '/maintenance' && !isStaticAsset) {
+    if (pathname !== '/maintenance' && !pathname.startsWith('/admin') && !isStaticAsset) {
       return NextResponse.redirect(new URL('/maintenance', request.url));
     }
   } else if (pathname === '/maintenance') {
@@ -48,6 +66,18 @@ export async function middleware(request: NextRequest) {
 
   if (isPublicRoute && !pathname.includes('api')) {
      return NextResponse.next();
+  }
+
+  // 2.5 Admin Route Protection
+  if (pathname.startsWith('/admin')) {
+    if (pathname === '/admin/login') {
+      return NextResponse.next();
+    }
+    const adminToken = request.cookies.get('lofilm_admin_token')?.value;
+    if (adminToken !== process.env.ADMIN_PASSWORD) {
+      return NextResponse.redirect(new URL('/admin/login', request.url));
+    }
+    return NextResponse.next();
   }
 
   // 3. Chỉ xử lý Supabase Auth cho các trang không phải công cộng (Cá nhân, API, v.v.)

@@ -50,6 +50,7 @@ interface WatchClientProps {
     episode: {
         name: string;
         link_m3u8: string;
+        link_vtt?: string;
     };
     episodes: Array<{
         server_name: string;
@@ -683,6 +684,22 @@ export default function WatchClient({
                 hls.loadSource(videoSrc);
                 hls.attachMedia(videoRef.current);
                 hlsRef.current = hls;
+                
+                hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                    if (episode.link_vtt && videoRef.current) {
+                        const existingTracks = videoRef.current.querySelectorAll('track');
+                        existingTracks.forEach(t => t.remove());
+
+                        const track = document.createElement('track');
+                        track.kind = 'captions';
+                        track.label = 'Vietnamese';
+                        track.srclang = 'vi';
+                        track.src = episode.link_vtt;
+                        track.default = true;
+                        videoRef.current.appendChild(track);
+                    }
+                });
+
                 hls.on(Hls.Events.ERROR, (event, data) => {
                     if (data.fatal) {
                         setHasError(true);
@@ -704,6 +721,19 @@ export default function WatchClient({
             } else if (videoRef.current) {
                 videoRef.current.src = videoSrc;
                 videoRef.current.onerror = () => setHasError(true);
+                
+                if (episode.link_vtt) {
+                    const existingTracks = videoRef.current.querySelectorAll('track');
+                    existingTracks.forEach(t => t.remove());
+
+                    const track = document.createElement('track');
+                    track.kind = 'captions';
+                    track.label = 'Vietnamese';
+                    track.srclang = 'vi';
+                    track.src = episode.link_vtt;
+                    track.default = true;
+                    videoRef.current.appendChild(track);
+                }
             }
         }, 100);
 
@@ -836,6 +866,7 @@ export default function WatchClient({
     }, [showEpisodeOverlay, episodeSlug, activeServerIndex]);
 
     if (!movie || !episode) return null;
+    console.log("Episode Data:", episode);
 
     const portalTarget = isEmbedServer ? containerNode : plyrContainer;
 
@@ -960,7 +991,8 @@ export default function WatchClient({
                     
                     {/* HLS Video Container (Không xoá khỏi DOM để tránh lỗi NotFoundError của React, chỉ ẩn đi) */}
                     <div className={`w-full h-full absolute inset-0 z-0 ${isEmbedServer ? 'hidden' : 'block'}`}>
-                        <video ref={videoRef} className="w-full h-full object-contain" playsInline loop={false} poster={getImageUrl(movie.thumb_url, { width: 1280, quality: 85 })} />
+                        <video ref={videoRef} crossOrigin="anonymous" className="w-full h-full object-contain" playsInline loop={false} poster={getImageUrl(movie.thumb_url, { width: 1280, quality: 85 })}>
+                        </video>
                     </div>
 
                     {/* Iframe Embed */}

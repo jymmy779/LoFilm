@@ -8,12 +8,7 @@ export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 // API base URL
 const API_BASE = "https://phimapi.com";
 
-// Fetch movie detail by slug
-async function getMovieDetail(slug: string): Promise<MovieDetailResponse | null> {
-    const data = await fetchWithRedis(`${API_BASE}/phim/${slug}`);
-    if (!data || !data.status || !data.movie) return null;
-    return data;
-}
+import { getMovieDetail } from "@/app/utils/movieFetcher";
 
 
 

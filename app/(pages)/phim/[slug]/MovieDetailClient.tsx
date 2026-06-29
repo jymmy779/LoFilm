@@ -497,7 +497,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                         activeServer={activeServerIndex}
                                         onServerChange={setActiveServerIndex}
                                         onEpisodeClick={() => setIsChangingEpisode(true)}
-                                        showServers={false}
+                                        showServers={episodes.length > 1}
                                     />
                                 )}
 

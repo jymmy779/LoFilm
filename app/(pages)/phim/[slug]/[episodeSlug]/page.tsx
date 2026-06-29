@@ -31,12 +31,7 @@ interface Props {
     }>;
 }
 
-    // Reuse fetch logic for metadata
-async function getMovieDetail(slug: string) {
-    return await fetchWithRedis(`${API_BASE}/phim/${slug}`, {
-        next: { revalidate: 60 }
-    });
-}
+import { getMovieDetail } from "@/app/utils/movieFetcher";
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug, episodeSlug } = await params;
@@ -128,9 +123,7 @@ export default async function WatchPage({ params }: Props) {
 
     let data: any = null;
     try {
-        data = await fetchWithRedis(`${API_BASE}/phim/${slug}`, {
-            next: { revalidate: 60 } // Cache 60 giây
-        });
+        data = await getMovieDetail(slug);
     } catch (error) {
         console.error("Fetch movie error:", error);
         return (
@@ -300,6 +293,7 @@ export default async function WatchPage({ params }: Props) {
             episode={{
                 name: currentEpisode.name,
                 link_m3u8: currentEpisode.link_m3u8,
+                link_vtt: currentEpisode.link_vtt,
             }}
             episodes={episodes}
             suggestedMovies={suggestedMovies}

@@ -3,9 +3,18 @@ import Header from "./components/Header/Header";
 import Footer from "./components/Footer/Footer";
 import InitialLoader from "./components/Transition/InitialLoader";
 import ReunificationLoader from "./components/Transition/ReunificationLoader";
+import { getSiteSettings } from "./actions/adminSettings";
 import { PageTransitionProvider } from "./components/Transition/PageTransitionContext";
 import "./globals.css";
 import { Inter, Montserrat } from "next/font/google";
+
+async function EventLoaderWrapper() {
+  const settings = await getSiteSettings();
+  if (settings.active_event === 'reunification') {
+    return <ReunificationLoader />;
+  }
+  return <InitialLoader />;
+}
 
 const inter = Inter({
   subsets: ["latin", "vietnamese"],
@@ -122,6 +131,7 @@ import ScrollToTop from "./components/Common/ScrollToTop";
 import FloatingMessageButton from "./components/Common/FloatingMessageButton";
 import { AuthProvider } from "./components/Auth/AuthContext";
 import ContinueWatchingPopup from "./components/Common/ContinueWatchingPopup";
+import HideOnAdmin from "./components/Common/HideOnAdmin";
 
 export default function RootLayout({
   children,
@@ -233,34 +243,35 @@ export default function RootLayout({
         <NetworkMonitor />
         <WakeUpMonitor />
         <AuthListener />
-        {(() => {
-          const today = new Date();
-          const month = today.getMonth() + 1;
-          const day = today.getDate();
-          const isEventPeriod = (month === 4 && day >= 25) || (month === 5 && day <= 2);
-          return isEventPeriod ? <ReunificationLoader /> : <InitialLoader />;
-        })()}
+        {/* Render Event Loader or Default Loader based on admin settings */}
+        <EventLoaderWrapper />
         <AuthProvider>
           <PageTransitionProvider>
             <div className="min-h-screen flex flex-col">
-              <Suspense fallback={<div className="h-[64px] bg-[#0d1b2e] w-full fixed top-0 left-0 z-50 border-b border-white/10" />}>
-                <Header />
-              </Suspense>
+              <HideOnAdmin>
+                <Suspense fallback={<div className="h-[64px] bg-[#0d1b2e] w-full fixed top-0 left-0 z-50 border-b border-white/10" />}>
+                  <Header />
+                </Suspense>
+              </HideOnAdmin>
               <main className="flex-1 min-h-[70vh] md:min-h-[80vh] flex flex-col bg-[#0a1628]">
                 {children}
               </main>
-              <Footer />
-              <ContinueWatchingPopup />
+              <HideOnAdmin>
+                <Footer />
+                <ContinueWatchingPopup />
+              </HideOnAdmin>
             </div>
           </PageTransitionProvider>
         </AuthProvider>
 
-        <ClientToaster />
-        <ScrollToTop />
-        <FloatingMessageButton />
-        <GoogleAnalytics gaId="G-FCV3H66SFX" />
-        {/* Adsterra Social Bar - 4 hours cooldown */}
-        <AdsterraSocialBar />
+        <HideOnAdmin>
+          <ClientToaster />
+          <ScrollToTop />
+          <FloatingMessageButton />
+          <GoogleAnalytics gaId="G-FCV3H66SFX" />
+          {/* Adsterra Social Bar - 4 hours cooldown */}
+          <AdsterraSocialBar />
+        </HideOnAdmin>
       </body>
     </html>
   );
