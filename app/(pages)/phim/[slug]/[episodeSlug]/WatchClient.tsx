@@ -866,7 +866,6 @@ export default function WatchClient({
     }, [showEpisodeOverlay, episodeSlug, activeServerIndex]);
 
     if (!movie || !episode) return null;
-    console.log("Episode Data:", episode);
 
     const portalTarget = isEmbedServer ? containerNode : plyrContainer;
 

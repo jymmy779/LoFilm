@@ -8,18 +8,24 @@ export async function getMovieDetail(slug: string): Promise<MovieDetailResponse 
     try {
         const supabase = await createClient();
         
-        // Fetch cả 2 nguồn song song để tối ưu tốc độ
-        const [exclusiveRes, phimApiRes] = await Promise.allSettled([
+        // Fetch cả 3 nguồn song song để tối ưu tốc độ: Độc quyền, PhimAPI, và View nội bộ
+        const [exclusiveRes, phimApiRes, viewRes] = await Promise.allSettled([
             supabase
                 .from('exclusive_movies')
                 .select(`*, exclusive_episodes (*)`)
                 .eq('slug', slug)
                 .single(),
-            fetchWithRedis(`${API_BASE}/phim/${slug}`)
+            fetchWithRedis(`${API_BASE}/phim/${slug}`),
+            supabase
+                .from('movie_views')
+                .select('view_count')
+                .eq('movie_slug', slug)
+                .maybeSingle()
         ]);
 
         const exclusiveMovie = exclusiveRes.status === 'fulfilled' ? exclusiveRes.value.data : null;
         const phimApiData = phimApiRes.status === 'fulfilled' ? phimApiRes.value : null;
+        const localViewCount = viewRes.status === 'fulfilled' && viewRes.value.data ? viewRes.value.data.view_count : 0;
 
         // KỊCH BẢN 1: TỒN TẠI BẢN ĐỘC QUYỀN (Có thể merge hoặc đứng độc lập)
         if (exclusiveMovie && exclusiveMovie.status === 'published') {
@@ -85,7 +91,7 @@ export async function getMovieDetail(slug: string): Promise<MovieDetailResponse 
                         showtimes: phimApiData?.movie?.showtimes || "",
                         slug: exclusiveMovie.slug,
                         year: data.release_date ? parseInt(data.release_date.split('-')[0]) : data.first_air_date ? parseInt(data.first_air_date.split('-')[0]) : new Date().getFullYear(),
-                        view: 1000,
+                        view: localViewCount || phimApiData?.movie?.view || 1000,
                         actor: data.credits?.cast?.slice(0, 10).map((c: any) => c.name) || [],
                         director: data.credits?.crew?.filter((c: any) => c.job === "Director").map((c: any) => c.name) || [],
                         category: data.genres?.map((g: any) => ({ name: g.name })) || [],
@@ -109,6 +115,7 @@ export async function getMovieDetail(slug: string): Promise<MovieDetailResponse 
                     ...phimApiData.movie,
                     lang: exclusiveMovie.lang_tag || phimApiData.movie.lang,
                     sub_docquyen: true,
+                    view: localViewCount || phimApiData.movie.view || 1000,
                 };
                 return {
                     status: true,
@@ -121,6 +128,10 @@ export async function getMovieDetail(slug: string): Promise<MovieDetailResponse 
 
         // KỊCH BẢN 2: CHỈ CÓ TRÊN PHIMAPI (Không có bản độc quyền)
         if (phimApiData && phimApiData.status) {
+            if (localViewCount && phimApiData.movie) {
+                // Ưu tiên lấy view nội bộ, nếu không có thì xài của PhimAPI
+                phimApiData.movie.view = localViewCount;
+            }
             return phimApiData;
         }
 
