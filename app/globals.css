@@ -1006,9 +1006,13 @@ body.theater-mode footer:hover {
     font-weight: 500 !important;
 }
 
-/* Responsive font size cho các màn hình nhỏ */
+/* Responsive font size và vị trí cho các màn hình nhỏ */
 @media (max-width: 1024px) {
     .plyr__captions .plyr__caption { font-size: 28px !important; }
+    .plyr__captions,
+    .plyr:not(.plyr--hide-controls) .plyr__controls:not(:empty)~.plyr__captions { 
+        transform: translateY(-15px) !important; 
+    }
 }
 
 @media (max-width: 768px) {
@@ -1021,4 +1025,17 @@ body.theater-mode footer:hover {
 
 @media (max-width: 480px) {
     .plyr__captions .plyr__caption { font-size: 16px !important; }
+    .plyr__captions,
+    .plyr:not(.plyr--hide-controls) .plyr__controls:not(:empty)~.plyr__captions { 
+        transform: translateY(0px) !important; 
+    }
+}
+
+/* Fix riêng cho Mobile khi xoay ngang (Landscape) */
+@media (max-height: 500px) and (orientation: landscape) {
+    .plyr__captions .plyr__caption { font-size: 20px !important; }
+    .plyr__captions,
+    .plyr:not(.plyr--hide-controls) .plyr__controls:not(:empty)~.plyr__captions { 
+        transform: translateY(10px) !important; /* Kéo sub xuống hẳn dưới đáy do chiều cao màn hình ngang rất hẹp */
+    }
 }
