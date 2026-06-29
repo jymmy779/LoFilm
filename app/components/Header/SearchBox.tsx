@@ -91,8 +91,8 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                 setIsSearching(true);
                 if (isFocused) setShowResults(true);
                 try {
-                    const apiUrl = `https://phimapi.com/v1/api/tim-kiem?keyword=${encodeURIComponent(query)}&limit=10`; // Lấy 10 phim (đã tối ưu băng thông)
-                    const res = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`, {
+                    const apiUrl = `/api/search?keyword=${encodeURIComponent(query)}&limit=10`; // API nội bộ trộn cả phim độc quyền và phim thường
+                    const res = await axios.get(apiUrl, {
                         signal: controller.signal
                     });
 

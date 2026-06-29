@@ -24,23 +24,27 @@ export async function middleware(request: NextRequest) {
 
   // 1. Kiểm tra Maintenance Mode từ Supabase (Cache 60s để tránh quá tải)
   let isMaintenanceMode = false;
-  try {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/site_settings?key=eq.maintenance_mode&select=value`, {
-      headers: {
-        'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-        'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`
-      },
-      next: { revalidate: 30 } // Cache 30 giây
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (data && data.length > 0) {
-        isMaintenanceMode = data[0].value === true || data[0].value === 'true';
+  
+  // Bỏ qua chế độ bảo trì nếu đang chạy ở localhost (để Admin vẫn code và test được bình thường)
+  if (!host.includes('localhost')) {
+    try {
+      const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/site_settings?key=eq.maintenance_mode&select=value`, {
+        headers: {
+          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`
+        },
+        next: { revalidate: 30 } // Cache 30 giây
+      });
+      if (res.ok) {
+        const data = await res.json();
+        if (data && data.length > 0) {
+          isMaintenanceMode = data[0].value === true || data[0].value === 'true';
+        }
       }
+    } catch (e) {
+      // Fallback: nếu đứt cáp hoặc Supabase sập, không tự ý khóa web
+      isMaintenanceMode = false;
     }
-  } catch (e) {
-    // Fallback: nếu đứt cáp hoặc Supabase sập, không tự ý khóa web
-    isMaintenanceMode = false;
   }
 
   if (isMaintenanceMode) {

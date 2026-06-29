@@ -17,6 +17,12 @@ export async function addExclusiveMovie(formData: FormData) {
         return { error: "Vui lòng nhập đủ các trường bắt buộc" };
     }
 
+    let movieName = "";
+    let originName = "";
+    let thumbUrl = "";
+    let posterUrl = "";
+    let year = new Date().getFullYear();
+
     // Nếu không nhập TMDB ID, phải đảm bảo phim đã có trên PhimAPI
     if (!tmdbId.trim()) {
         try {
@@ -28,8 +34,46 @@ export async function addExclusiveMovie(formData: FormData) {
             if (checkData.movie?.tmdb?.id) {
                 tmdbId = checkData.movie.tmdb.id;
             }
+            movieName = checkData.movie?.name || "";
+            originName = checkData.movie?.origin_name || "";
+            thumbUrl = checkData.movie?.thumb_url || "";
+            posterUrl = checkData.movie?.poster_url || "";
+            year = checkData.movie?.year || new Date().getFullYear();
         } catch (error) {
             return { error: "Lỗi kiểm tra PhimAPI. Vui lòng nhập TMDB ID." };
+        }
+    } else {
+        // Có TMDB ID thì gọi API TMDB để lấy data (nếu phim chưa có trên PhimAPI)
+        try {
+            const tmdbType = type === "single" ? "movie" : "tv";
+            const apiKey = "fb7bb23f03b6994dafc674c074d01761"; 
+            const [resVi, resEn] = await Promise.all([
+                fetch(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId.trim()}?api_key=${apiKey}&language=vi-VN`),
+                fetch(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId.trim()}?api_key=${apiKey}&language=en-US`)
+            ]);
+            
+            const dataVi = resVi.ok ? await resVi.json() : null;
+            const dataEn = resEn.ok ? await resEn.json() : null;
+            
+            if (dataVi || dataEn) {
+                const data = dataVi || dataEn;
+                const enData = dataEn || dataVi;
+                
+                movieName = data.title || data.name || "";
+                originName = enData.title || enData.name || data.original_title || data.original_name || "";
+                
+                const pPath = enData.poster_path || data.poster_path || "";
+                const bPath = enData.backdrop_path || data.backdrop_path || pPath;
+                posterUrl = pPath ? `https://image.tmdb.org/t/p/w500${pPath}` : "";
+                thumbUrl = bPath ? `https://image.tmdb.org/t/p/w780${bPath}` : "";
+                
+                const releaseDate = data.release_date || data.first_air_date || "";
+                if (releaseDate) {
+                    year = parseInt(releaseDate.split('-')[0]);
+                }
+            }
+        } catch (e) {
+            console.error("Lỗi lấy data TMDB", e);
         }
     }
 
@@ -42,7 +86,12 @@ export async function addExclusiveMovie(formData: FormData) {
             slug: slug.toLowerCase().trim(), 
             type, 
             status, 
-            lang_tag: langTag 
+            lang_tag: langTag,
+            name: movieName,
+            origin_name: originName,
+            thumb_url: thumbUrl,
+            poster_url: posterUrl,
+            year: year
         }
     ]).select().single();
 

@@ -125,8 +125,8 @@ function SearchContent() {
                 params.set("sort_field", sortField);
                 params.set("sort_type", "desc");
 
-                const apiUrl = `https://phimapi.com/v1/api/tim-kiem?${params.toString()}`;
-                const res = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`);
+                const apiUrl = `/api/search?${params.toString()}`;
+                const res = await axios.get(apiUrl);
 
                 if (!isMounted) return;
 

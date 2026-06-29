@@ -28,26 +28,13 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
     const rawRevalidate = options?.revalidate ?? options?.next?.revalidate ?? DEFAULT_REVALIDATE_SEC;
     // Đảm bảo revalidate luôn là số giây (nếu là false thì dùng mặc định)
     const revalidate = typeof rawRevalidate === 'number' ? rawRevalidate : DEFAULT_REVALIDATE_SEC;
-    const cacheKey = `fetch:${url}`;
+    // Đổi prefix để phân biệt với cache cũ, tránh lỗi format
+    const cacheKey = `swr:${url}`;
 
-    // 1. Thử lấy từ Redis trước
-    if (redis) {
-        try {
-            const cachedData = await redis.get(cacheKey);
-            if (cachedData) {
-                // console.log(`[Cache Hit] ${url}`);
-                return JSON.parse(cachedData);
-            }
-        } catch (err) {
-            console.error(`[Redis Get Error] ${url}`, err);
-        }
-    }
-
-    // 2. Nếu không có trong cache, gọi API gốc bằng Axios để tránh bị Next.js Fetch Cache lỗi/kẹt 404
-    const fetchWithRetry = async (retryCount = 0): Promise<any> => {
+    // Hàm gọi API gốc
+    const fetchFreshData = async (retryCount = 0): Promise<any> => {
         try {
             // Thêm cache-buster để bypass cache của Cloudflare/CDN bên thứ 3
-            // Thay đổi theo chu kỳ revalidate để đồng bộ dữ liệu (vd: 60s) tránh spam API
             const safeRevalidate = revalidate && revalidate > 0 ? revalidate : 60;
             const separator = url.includes('?') ? '&' : '?';
             const cacheBuster = `_t=${Math.floor(Date.now() / 1000 / safeRevalidate)}`;
@@ -65,7 +52,12 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
                 const data = response.data;
                 if (redis && data) {
                     try {
-                        await redis.setex(cacheKey, revalidate, JSON.stringify(data));
+                        const payload = {
+                            timestamp: Date.now(),
+                            data: data
+                        };
+                        // LƯU VĨNH VIỄN (không dùng setex nữa)
+                        await redis.set(cacheKey, JSON.stringify(payload));
                     } catch (err) {
                         console.error(`[Redis Set Error] ${url}`, err);
                     }
@@ -76,15 +68,42 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
             }
         } catch (error: any) {
             if (retryCount < 1) { // Thử lại 1 lần nữa nếu lỗi
-                // console.log(`[Retrying] ${url} - lần ${retryCount + 1}`);
-                return fetchWithRetry(retryCount + 1);
+                return fetchFreshData(retryCount + 1);
             }
             console.error(`[Axios Fetch Error After Retry] ${url}`, error.message);
-            return null;
+            return null; // Nếu sập hẳn thì đành chịu (nhưng nhờ SWR, ta ít khi phải chạy tới dòng này)
         }
     };
 
-    return fetchWithRetry();
+    // 1. Lục trong Redis trước
+    if (redis) {
+        try {
+            const cachedData = await redis.get(cacheKey);
+            if (cachedData) {
+                const parsed = JSON.parse(cachedData);
+                
+                // Kiểm tra xem data có đúng chuẩn SWR mới không
+                if (parsed && parsed.timestamp && parsed.data) {
+                    const ageMs = Date.now() - parsed.timestamp;
+                    const maxAgeMs = revalidate * 1000;
+
+                    // Nếu quá hạn (Stale), kích hoạt fetch ngầm để cập nhật cho lần sau
+                    if (ageMs > maxAgeMs) {
+                        // Không dùng await ở đây! Cứ để nó chạy ngầm.
+                        fetchFreshData().catch(err => console.error("SWR Background Update Failed", err));
+                    }
+                    
+                    // Luôn luôn trả về data ngay lập tức (dù cũ hay mới)
+                    return parsed.data;
+                }
+            }
+        } catch (err) {
+            console.error(`[Redis Get Error] ${url}`, err);
+        }
+    }
+
+    // 2. Nếu chưa từng lưu Cache (lần truy cập đầu tiên), bắt buộc phải chờ fetch
+    return fetchFreshData();
 });
 
 /**
