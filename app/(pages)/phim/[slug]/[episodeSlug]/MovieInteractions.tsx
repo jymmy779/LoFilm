@@ -40,6 +40,7 @@ export default function MovieInteractions({ movieSlug, user }: MovieInteractions
                         .select('type')
                         .eq('movie_slug', movieSlug)
                         .eq('user_id', user.id)
+                        .limit(1)
                         .maybeSingle(); 
 
                     if (interactionRes) {
@@ -54,7 +55,7 @@ export default function MovieInteractions({ movieSlug, user }: MovieInteractions
         };
 
         fetchData();
-    }, [movieSlug, supabase]);
+    }, [movieSlug, supabase, user]);
 
     const handleInteraction = async (type: 'like' | 'dislike') => {
         if (!user) {
@@ -82,7 +83,10 @@ export default function MovieInteractions({ movieSlug, user }: MovieInteractions
             if (prevInteraction === type) {
                 await supabase.from('movie_interactions').delete().eq('movie_slug', movieSlug).eq('user_id', user.id);
             } else {
-                await supabase.from('movie_interactions').upsert({ movie_slug: movieSlug, user_id: user.id, type: type });
+                await supabase.from('movie_interactions').upsert(
+                    { movie_slug: movieSlug, user_id: user.id, type: type },
+                    { onConflict: 'movie_slug,user_id' }
+                );
             }
         } catch (err: any) {
             setUserInteraction(prevInteraction);
