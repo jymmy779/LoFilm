@@ -177,7 +177,7 @@ export default function Header() {
                             <Image
                                 width={150}
                                 height={80}
-                                className="h-[65px] w-auto object-contain"
+                                className="h-[50px] xl:h-[55px] 2xl:h-[65px] w-auto object-contain transition-all duration-300"
                                 src="/lofilm_logo.webp"
                                 alt="LoFilm - Xem Phim Online Chất Lượng Cao | Phim 4K Vietsub Miễn Phí"
                                 priority
@@ -189,8 +189,8 @@ export default function Header() {
                             <SearchBox />
                         </div>
 
-                        <nav className="flex items-center gap-4 2xl:gap-6">
-                            <TransitionLink href="/" className="text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 whitespace-nowrap">
+                        <nav className="flex items-center gap-3 xl:gap-4 2xl:gap-6">
+                            <TransitionLink href="/" className="text-[13px] 2xl:text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 whitespace-nowrap">
                                 Trang chủ
                             </TransitionLink>
 
@@ -216,7 +216,7 @@ export default function Header() {
                                 <TransitionLink
                                     key={item.label}
                                     href={item.href}
-                                    className="text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 whitespace-nowrap inline-flex items-start"
+                                    className="text-[13px] 2xl:text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 whitespace-nowrap inline-flex items-start"
                                 >
                                     <span>{item.label}</span>
                                     {item.isBeta && (
