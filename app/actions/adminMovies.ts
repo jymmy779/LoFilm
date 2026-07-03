@@ -1,17 +1,53 @@
 "use server";
 import { createClient } from "@/app/utils/supabase/server";
 import { revalidatePath } from "next/cache";
+import axios from "axios";
 
-export async function addExclusiveMovie(formData: FormData) {
-    let tmdbId = formData.get("tmdb_id") as string || "";
-    const slug = formData.get("slug") as string;
-    const type = formData.get("type") as string;
-    const linkM3u8 = formData.get("link_m3u8") as string;
-    const linkVtt = formData.get("link_vtt") as string;
-    const name = formData.get("episode_name") as string || "Full";
-    const episodeSlug = formData.get("episode_slug") as string || "tap-full";
-    const status = formData.get("status") as string || "published";
-    const langTag = formData.get("lang_tag") as string || "Vietsub Độc Quyền";
+// Parse textarea input "label|url" per line into SubtitleTrack array
+function parseSubtitleInput(raw: string | null): { lang: string; label: string; url: string }[] {
+    if (!raw || !raw.trim()) return [];
+    const LANG_MAP: Record<string, string> = {
+        'tiếng việt': 'vi', 'viet': 'vi', 'việt': 'vi', 'vietnamese': 'vi',
+        'english': 'en', 'anh': 'en', 'tiếng anh': 'en',
+        'hàn': 'ko', 'korean': 'ko', 'tiếng hàn': 'ko', 'hàn quốc': 'ko',
+        'trung': 'zh', 'chinese': 'zh', 'tiếng trung': 'zh', 'zh': 'zh',
+        'japanese': 'ja', 'nhật': 'ja', 'tiếng nhật': 'ja',
+        'thai': 'th', 'thái': 'th', 'tiếng thái': 'th',
+        'french': 'fr', 'pháp': 'fr',
+        'spanish': 'es', 'tây ban nha': 'es',
+    };
+    return raw.split('\n')
+        .map(line => line.trim())
+        .filter(line => line.includes('|'))
+        .map(line => {
+            const pipeIdx = line.indexOf('|');
+            const label = line.slice(0, pipeIdx).trim();
+            const url = line.slice(pipeIdx + 1).trim();
+            if (!label || !url) return null;
+            const lang = LANG_MAP[label.toLowerCase()] || label.slice(0, 2).toLowerCase();
+            return { lang, label, url };
+        })
+        .filter(Boolean) as { lang: string; label: string; url: string }[];
+}
+
+const AXIOS_OPTIONS = {
+    timeout: 15000,
+    headers: {
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'application/json'
+    }
+};
+
+export async function addExclusiveMovie(data: Record<string, string>) {
+    let tmdbId = data.tmdb_id || "";
+    const slug = data.slug;
+    const type = data.type;
+    const linkM3u8 = data.link_m3u8;
+    const linkVtt = data.link_vtt;
+    const name = data.episode_name || "Full";
+    const episodeSlug = data.episode_slug || "tap-full";
+    const status = data.status || "draft";
+    const langTag = data.lang_tag || "Vietsub Độc Quyền";
 
     if (!slug || (type === "single" && !linkM3u8)) {
         return { error: "Vui lòng nhập đủ các trường bắt buộc" };
@@ -23,57 +59,65 @@ export async function addExclusiveMovie(formData: FormData) {
     let posterUrl = "";
     let year = new Date().getFullYear();
 
-    // Nếu không nhập TMDB ID, phải đảm bảo phim đã có trên PhimAPI
-    if (!tmdbId.trim()) {
-        try {
-            const check = await fetch(`https://phimapi.com/v1/api/phim/${slug.toLowerCase().trim()}`);
-            const checkData = await check.json();
-            if (!checkData || !checkData.status) {
-                return { error: "Phim chưa có trên PhimAPI. Bắt buộc phải nhập TMDB ID để lấy thông tin phim!" };
-            }
-            if (checkData.movie?.tmdb?.id) {
+    // LUÔN ƯU TIÊN KIỂM TRA PHIMAPI TRƯỚC (Vì TMDB hay bị block ở VN)
+    let fetchedFromPhimApi = false;
+    try {
+        const check = await axios.get(`https://phimapi.com/phim/${slug.toLowerCase().trim()}`, AXIOS_OPTIONS);
+        const checkData = check.data;
+        if (checkData && checkData.status && checkData.movie) {
+            fetchedFromPhimApi = true;
+            if (!tmdbId.trim() && checkData.movie.tmdb?.id) {
                 tmdbId = checkData.movie.tmdb.id;
             }
-            movieName = checkData.movie?.name || "";
-            originName = checkData.movie?.origin_name || "";
-            thumbUrl = checkData.movie?.thumb_url || "";
-            posterUrl = checkData.movie?.poster_url || "";
-            year = checkData.movie?.year || new Date().getFullYear();
-        } catch (error) {
-            return { error: "Lỗi kiểm tra PhimAPI. Vui lòng nhập TMDB ID." };
+            movieName = checkData.movie.name || "";
+            originName = checkData.movie.origin_name || "";
+            thumbUrl = checkData.movie.thumb_url || "";
+            posterUrl = checkData.movie.poster_url || "";
+            year = checkData.movie.year || new Date().getFullYear();
         }
-    } else {
-        // Có TMDB ID thì gọi API TMDB để lấy data (nếu phim chưa có trên PhimAPI)
+    } catch (error: any) {
+        console.error("Lỗi kiểm tra PhimAPI", error.message);
+    }
+
+    // Nếu PhimAPI không có (phim mới ra rạp chưa bị leak) VÀ người dùng có nhập TMDB ID
+    if (!fetchedFromPhimApi) {
+        if (!tmdbId.trim()) {
+            return { error: "Phim chưa có trên PhimAPI. Bắt buộc phải nhập TMDB ID để hệ thống lấy dữ liệu!" };
+        }
+        
         try {
             const tmdbType = type === "single" ? "movie" : "tv";
             const apiKey = "fb7bb23f03b6994dafc674c074d01761"; 
             const [resVi, resEn] = await Promise.all([
-                fetch(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId.trim()}?api_key=${apiKey}&language=vi-VN`),
-                fetch(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId.trim()}?api_key=${apiKey}&language=en-US`)
+                axios.get(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId.trim()}?api_key=${apiKey}&language=vi-VN`, AXIOS_OPTIONS).catch(() => null),
+                axios.get(`https://api.themoviedb.org/3/${tmdbType}/${tmdbId.trim()}?api_key=${apiKey}&language=en-US`, AXIOS_OPTIONS).catch(() => null)
             ]);
             
-            const dataVi = resVi.ok ? await resVi.json() : null;
-            const dataEn = resEn.ok ? await resEn.json() : null;
+            const dataVi = resVi ? resVi.data : null;
+            const dataEn = resEn ? resEn.data : null;
             
             if (dataVi || dataEn) {
-                const data = dataVi || dataEn;
+                const dataObj = dataVi || dataEn;
                 const enData = dataEn || dataVi;
                 
-                movieName = data.title || data.name || "";
-                originName = enData.title || enData.name || data.original_title || data.original_name || "";
+                movieName = dataObj.title || dataObj.name || "";
+                originName = enData.title || enData.name || dataObj.original_title || dataObj.original_name || "";
                 
-                const pPath = enData.poster_path || data.poster_path || "";
-                const bPath = enData.backdrop_path || data.backdrop_path || pPath;
+                const pPath = enData.poster_path || dataObj.poster_path || "";
+                const bPath = enData.backdrop_path || dataObj.backdrop_path || pPath;
                 posterUrl = pPath ? `https://image.tmdb.org/t/p/w500${pPath}` : "";
                 thumbUrl = bPath ? `https://image.tmdb.org/t/p/w780${bPath}` : "";
                 
-                const releaseDate = data.release_date || data.first_air_date || "";
+                const releaseDate = dataObj.release_date || dataObj.first_air_date || "";
                 if (releaseDate) {
                     year = parseInt(releaseDate.split('-')[0]);
                 }
+            } else {
+                return { error: "Không tìm thấy phim trên TMDB với ID này!" };
             }
-        } catch (e) {
-            console.error("Lỗi lấy data TMDB", e);
+        } catch (e: any) {
+            console.error("Lỗi lấy data TMDB", e.message);
+            return { error: "Lỗi kết nối đến TMDB (có thể do nhà mạng chặn). Hãy thử lại hoặc dùng slug của PhimAPI." };
         }
     }
 
@@ -101,14 +145,16 @@ export async function addExclusiveMovie(formData: FormData) {
 
     if (type === "single") {
         // Tự động thêm 1 tập cho phim lẻ
+        const subtitleInput = data.subtitle_tracks;
+        const subtitles = parseSubtitleInput(subtitleInput);
         const { error: episodeError } = await supabase.from('exclusive_episodes').insert([
-            { movie_id: movie.id, name, slug: episodeSlug, link_m3u8: linkM3u8, link_vtt: linkVtt, order: 1 }
+            { movie_id: movie.id, name, slug: episodeSlug, link_m3u8: linkM3u8, link_vtt: linkVtt || null, subtitles: subtitles.length > 0 ? subtitles : [], order: 1 }
         ]);
         if (episodeError) return { error: episodeError.message };
     } else {
         // Nếu là phim bộ, kiểm tra xem có nhập bulk_links ngay từ đầu không
-        const bulkLinks = formData.get("bulk_links") as string;
-        const bulkVttLinks = formData.get("bulk_vtt_links") as string;
+        const bulkLinks = data.bulk_links;
+        const bulkVttLinks = data.bulk_vtt_links;
         
         if (bulkLinks && bulkLinks.trim().length > 0) {
             const rawM3u8 = bulkLinks.split('\n').map(l => l.trim());
@@ -144,7 +190,7 @@ export async function addExclusiveMovie(formData: FormData) {
         }
     }
 
-    revalidatePath("/admin/doc-quyen");
+    revalidatePath("/admin", "layout");
     return { success: true };
 }
 
@@ -152,31 +198,32 @@ export async function deleteExclusiveMovie(id: string) {
     const supabase = await createClient();
     const { error } = await supabase.from("exclusive_movies").delete().eq("id", id);
     if (error) return { error: error.message };
-    revalidatePath("/admin/doc-quyen");
+    revalidatePath("/admin", "layout");
     return { success: true };
 }
 
-export async function updateExclusiveMovie(id: string, formData: FormData) {
-    let tmdbId = formData.get("tmdb_id") as string || "";
-    const slug = formData.get("slug") as string;
-    const type = formData.get("type") as string;
-    const status = formData.get("status") as string;
-    const langTag = formData.get("lang_tag") as string || "Vietsub Độc Quyền";
+export async function updateExclusiveMovie(id: string, data: Record<string, string>) {
+    let tmdbId = data.tmdb_id || "";
+    const slug = data.slug;
+    const type = data.type;
+    const status = data.status;
+    const langTag = data.lang_tag || "Vietsub Độc Quyền";
 
     if (!slug) return { error: "Thiếu trường Slug" };
 
     if (!tmdbId.trim()) {
         try {
-            const check = await fetch(`https://phimapi.com/v1/api/phim/${slug.toLowerCase().trim()}`);
-            const checkData = await check.json();
+            const check = await axios.get(`https://phimapi.com/phim/${slug.toLowerCase().trim()}`, AXIOS_OPTIONS);
+            const checkData = check.data;
             if (!checkData || !checkData.status) {
                 return { error: "Phim chưa có trên PhimAPI. Bắt buộc phải nhập TMDB ID!" };
             }
             if (checkData.movie?.tmdb?.id) {
                 tmdbId = checkData.movie.tmdb.id;
             }
-        } catch (error) {
-            return { error: "Lỗi kiểm tra PhimAPI. Vui lòng nhập TMDB ID." };
+        } catch (error: any) {
+            console.error("Lỗi kiểm tra PhimAPI", error.message);
+            return { error: "Lỗi kiểm tra PhimAPI (timeout). Vui lòng nhập TMDB ID." };
         }
     }
 
@@ -193,7 +240,7 @@ export async function updateExclusiveMovie(id: string, formData: FormData) {
         .eq("id", id);
 
     if (error) return { error: `Lỗi cập nhật phim: ${error.message}` };
-    revalidatePath("/admin/doc-quyen");
+    revalidatePath("/admin", "layout");
     return { success: true };
 }
 
@@ -231,63 +278,110 @@ export async function bulkAddExclusiveEpisodes(movieId: string, startEpisode: nu
         }
     }
 
-    const { error } = await supabase.from('exclusive_episodes').insert(episodesToInsert);
+    try {
+        const { error } = await supabase.from('exclusive_episodes').insert(episodesToInsert);
+        if (error) return { error: `Lỗi thêm hàng loạt: ${error.message}` };
+    } catch (e: any) {
+        return { error: `Lỗi kết nối cơ sở dữ liệu: ${e.message}. Vui lòng thử lại sau vài giây.` };
+    }
 
-    if (error) return { error: `Lỗi thêm hàng loạt: ${error.message}` };
-    revalidatePath("/admin/doc-quyen");
+    revalidatePath("/admin", "layout");
     return { success: true };
 }
 
-export async function addEpisode(movieId: string, formData: FormData) {
-    const name = formData.get("name") as string;
-    const slug = formData.get("slug") as string;
-    const linkM3u8 = formData.get("link_m3u8") as string;
-    const linkVtt = formData.get("link_vtt") as string;
-    const order = parseInt(formData.get("order") as string || "1");
+export async function addEpisode(movieId: string, data: Record<string, string>) {
+    const name = data.name;
+    const slug = data.slug;
+    const linkM3u8 = data.link_m3u8;
+    const linkVtt = data.link_vtt;
+    const order = parseInt(data.order || "1");
+    const subtitleTracks = data.subtitle_tracks;
 
     if (!name || !slug || !linkM3u8) return { error: "Thiếu trường bắt buộc" };
 
-    const supabase = await createClient();
-    const { error } = await supabase
-        .from("exclusive_episodes")
-        .insert({
-            movie_id: movieId,
-            server_name: "Vietsub",
-            name,
-            slug: slug.toLowerCase().trim(),
-            link_m3u8: linkM3u8.trim(),
-            link_vtt: linkVtt ? linkVtt.trim() : null,
-            order
-        });
+    try {
+        const supabase = await createClient();
+        console.log("DB connecting for addEpisode...");
+        
+        let insertError = null;
+        for (let attempt = 0; attempt < 3; attempt++) {
+            const { error, data: insertedData } = await supabase
+                .from("exclusive_episodes")
+                .insert({
+                    movie_id: movieId,
+                    server_name: "Vietsub",
+                    name,
+                    slug: slug.toLowerCase().trim(),
+                    link_m3u8: linkM3u8.trim(),
+                    link_vtt: linkVtt ? linkVtt.trim() : null,
+                    subtitles: parseSubtitleInput(subtitleTracks),
+                    order
+                }).select();
+                
+            if (!error) {
+                console.log("DB Insert success on attempt", attempt + 1);
+                insertError = null;
+                break;
+            }
+            insertError = error;
+            console.warn(`DB Insert attempt ${attempt + 1} failed:`, error.message);
+            if (attempt < 2) await new Promise(r => setTimeout(r, 2000)); // wait 2s before retry
+        }
 
-    if (error) return { error: error.message };
-    revalidatePath("/admin/doc-quyen");
+        if (insertError) return { error: typeof insertError.message === 'string' ? insertError.message : "Lỗi không xác định khi lưu vào DB" };
+    } catch (e: any) {
+        console.error("DB Insert Exception:", e);
+        return { error: `Lỗi kết nối DB: ${e.message}. DB đang khởi động, vui lòng thử lại sau vài giây.` };
+    }
+
+    revalidatePath("/admin", "layout");
     return { success: true };
 }
 
-export async function updateEpisode(id: string, formData: FormData) {
-    const name = formData.get("name") as string;
-    const slug = formData.get("slug") as string;
-    const linkM3u8 = formData.get("link_m3u8") as string;
-    const linkVtt = formData.get("link_vtt") as string;
-    const order = parseInt(formData.get("order") as string || "1");
+export async function updateEpisode(id: string, data: Record<string, string>) {
+    const name = data.name;
+    const slug = data.slug;
+    const linkM3u8 = data.link_m3u8;
+    const linkVtt = data.link_vtt;
+    const order = parseInt(data.order || "1");
+    const subtitleTracks = data.subtitle_tracks;
 
     if (!name || !slug || !linkM3u8) return { error: "Thiếu trường bắt buộc" };
 
-    const supabase = await createClient();
-    const { error } = await supabase
-        .from("exclusive_episodes")
-        .update({
-            name,
-            slug: slug.toLowerCase().trim(),
-            link_m3u8: linkM3u8.trim(),
-            link_vtt: linkVtt ? linkVtt.trim() : null,
-            order
-        })
-        .eq("id", id);
+    try {
+        const supabase = await createClient();
+        console.log("DB connecting for updateEpisode...");
 
-    if (error) return { error: error.message };
-    revalidatePath("/admin/doc-quyen");
+        let updateError = null;
+        for (let attempt = 0; attempt < 3; attempt++) {
+            const { error } = await supabase
+                .from("exclusive_episodes")
+                .update({
+                    name,
+                    slug: slug.toLowerCase().trim(),
+                    link_m3u8: linkM3u8.trim(),
+                    link_vtt: linkVtt ? linkVtt.trim() : null,
+                    subtitles: parseSubtitleInput(subtitleTracks),
+                    order
+                })
+                .eq("id", id);
+                
+            if (!error) {
+                console.log("DB Update success on attempt", attempt + 1);
+                updateError = null;
+                break;
+            }
+            updateError = error;
+            console.warn(`DB Update attempt ${attempt + 1} failed:`, error.message);
+            if (attempt < 2) await new Promise(r => setTimeout(r, 2000));
+        }
+
+        if (updateError) return { error: typeof updateError.message === 'string' ? updateError.message : "Lỗi không xác định khi lưu vào DB" };
+    } catch (e: any) {
+        return { error: `Lỗi kết nối DB: ${e.message}. Vui lòng thử lại sau vài giây.` };
+    }
+
+    revalidatePath("/admin", "layout");
     return { success: true };
 }
 
@@ -295,7 +389,7 @@ export async function deleteEpisode(id: string) {
     const supabase = await createClient();
     const { error } = await supabase.from("exclusive_episodes").delete().eq("id", id);
     if (error) return { error: error.message };
-    revalidatePath("/admin/doc-quyen");
+    revalidatePath("/admin", "layout");
     return { success: true };
 }
 

@@ -9,8 +9,10 @@ import {
   Play,
   Heart,
   Bookmark,
-  Share2
+  Share2,
+  Subtitles
 } from "lucide-react";
+import { SubtitleTrack } from "@/app/types/movie";
 
 interface PlayerControlsProps {
   isExpanded: boolean;
@@ -30,6 +32,12 @@ interface PlayerControlsProps {
   onServerChange: (index: number) => void;
   onReport?: () => void;
   onShare?: () => void;
+  // Subtitle props
+  subtitles?: SubtitleTrack[];
+  subtitleSlot1: string | null;
+  subtitleSlot2: string | null;
+  onSubtitleSlot1Change: (lang: string | null) => void;
+  onSubtitleSlot2Change: (lang: string | null) => void;
 }
 
 const PlayerControls = ({
@@ -47,9 +55,16 @@ const PlayerControls = ({
   activeServer,
   onServerChange,
   onReport,
-  onShare
+  onShare,
+  subtitles = [],
+  subtitleSlot1,
+  subtitleSlot2,
+  onSubtitleSlot1Change,
+  onSubtitleSlot2Change,
 }: PlayerControlsProps) => {
   const [showServers, setShowServers] = useState(false);
+  const [showSubtitles, setShowSubtitles] = useState(false);
+  const showSubtitleUI = subtitles.length >= 1;
 
   return (
     <div className={`w-full bg-[#0d192b]/50 border border-white/10 p-3 md:p-4 mt-4 transition-all duration-500 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-xl'}`}>
@@ -96,6 +111,8 @@ const PlayerControls = ({
             </div>
           </div>
         )}
+
+
 
         {/* Chuyển tập (Toggle) */}
         <div

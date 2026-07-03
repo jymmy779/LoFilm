@@ -264,8 +264,8 @@ export default function RootLayout({
           </PageTransitionProvider>
         </AuthProvider>
 
+        <ClientToaster />
         <HideOnAdmin>
-          <ClientToaster />
           <ScrollToTop />
           <FloatingMessageButton />
           <GoogleAnalytics gaId="G-FCV3H66SFX" />

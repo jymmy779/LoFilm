@@ -39,7 +39,8 @@ export async function getMovieDetail(slug: string): Promise<MovieDetailResponse 
                     filename: ep.slug,
                     link_embed: "",
                     link_m3u8: ep.link_m3u8,
-                    link_vtt: ep.link_vtt
+                    link_vtt: ep.link_vtt,
+                    subtitles: ep.subtitles || []
                 }))
             };
 

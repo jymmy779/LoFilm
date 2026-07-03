@@ -40,6 +40,13 @@ export interface Movie {
     view?: number;
 }
 
+// Subtitle track for bilingual support
+export interface SubtitleTrack {
+    lang: string;    // "vi", "en", "ko", "zh"
+    label: string;   // "Tiếng Việt", "English", "한국어", "中文"
+    url: string;     // https://r2.../file.vtt
+}
+
 // Episode data from API
 export interface EpisodeItem {
     name: string;
@@ -47,6 +54,8 @@ export interface EpisodeItem {
     filename: string;
     link_embed: string;
     link_m3u8: string;
+    link_vtt?: string;           // backward compat — single VTT
+    subtitles?: SubtitleTrack[]; // multi-track for bilingual
 }
 
 export interface EpisodeServer {

@@ -12,6 +12,7 @@ import "plyr/dist/plyr.css";
 import Container from "@/app/components/Container";
 import PlayerControls from "./PlayerControls";
 import EpisodeList from "./EpisodeList";
+import DualSubtitleMenu from "./DualSubtitleMenu";
 import Sidebar from "./Sidebar";
 import MovieHeader from "./MovieHeader";
 import MovieInfo from "./MovieInfo";
@@ -28,6 +29,9 @@ import { MdReplay10, MdForward10 } from "react-icons/md";
 import { renderToStaticMarkup } from "react-dom/server";
 import { createPortal } from "react-dom";
 import { createClient } from "@/app/utils/supabase/client";
+import { SubtitleTrack } from "@/app/types/movie";
+import { useSubtitleManager } from "./hooks/useSubtitleManager";
+import { useVttOverlay } from "./hooks/useVttOverlay";
 
 interface WatchClientProps {
     slug: string;
@@ -51,6 +55,7 @@ interface WatchClientProps {
         name: string;
         link_m3u8: string;
         link_vtt?: string;
+        subtitles?: SubtitleTrack[];
     };
     episodes: Array<{
         server_name: string;
@@ -129,11 +134,11 @@ export default function WatchClient({
     const [showEndOverlay, setShowEndOverlay] = useState(false);
     const showEndOverlayRef = useRef(false);
     const [plyrContainer, setPlyrContainer] = useState<HTMLElement | null>(null);
+    const [subtitlePortalNode, setSubtitlePortalNode] = useState<HTMLElement | null>(null);
     const [showEpisodeOverlay, setShowEpisodeOverlay] = useState(false);
     const [isChangingEpisode, setIsChangingEpisode] = useState(false);
     const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
     const [isIframeLoading, setIsIframeLoading] = useState(false);
-
 
     useEffect(() => { showEndOverlayRef.current = showEndOverlay; }, [showEndOverlay]);
     const showEpisodeOverlayRef = useRef(showEpisodeOverlay);
@@ -164,6 +169,19 @@ export default function WatchClient({
     const fallbackTimeRef = useRef<number>(0);
     const seekTargetRef = useRef<number | null>(null);
     const seekTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+    // Subtitle management (must be after videoRef)
+    const episodeSubtitles = episode.subtitles || [];
+    const hasCustomSubtitles = episodeSubtitles.length > 0;
+    const {
+        slot1, slot2,
+        slot1Url, slot2Url,
+        setSlot1, setSlot2,
+    } = useSubtitleManager(episodeSubtitles);
+
+    // Parse + sync VTT for both overlays
+    const subtitle1Text = useVttOverlay(hasCustomSubtitles ? slot1Url : null, videoRef);
+    const subtitle2Text = useVttOverlay(hasCustomSubtitles ? slot2Url : null, videoRef);
 
     const isEmbedServer = useMemo(() => {
         const server = processedEpisodes[activeServerIndex];
@@ -516,6 +534,25 @@ export default function WatchClient({
                 const container = player.elements.container;
                 setPlyrContainer(container);
                 if (container) {
+                    const controls = container.querySelector('.plyr__controls');
+                    if (controls && hasCustomSubtitles) {
+                        // Avoid duplicates if ready fires multiple times
+                        if (!controls.querySelector('.plyr__control--custom-subtitle')) {
+                            const portalContainer = document.createElement('div');
+                            portalContainer.className = "plyr__control--custom-subtitle flex items-center";
+                            const settingsBtn = controls.querySelector('.plyr__menu'); // settings menu container
+                            const fullscreenBtn = controls.querySelector('button[data-plyr="fullscreen"]');
+                            const targetBtn = settingsBtn || fullscreenBtn;
+                            
+                            if (targetBtn) {
+                                controls.insertBefore(portalContainer, targetBtn);
+                            } else {
+                                controls.appendChild(portalContainer);
+                            }
+                            setSubtitlePortalNode(portalContainer);
+                        }
+                    }
+
                     container.addEventListener('touchstart', (e: TouchEvent) => {
                         if (window.innerWidth < 1024 || window.matchMedia('(pointer: coarse)').matches) {
                             const target = e.target as HTMLElement;
@@ -686,7 +723,8 @@ export default function WatchClient({
                 hlsRef.current = hls;
                 
                 hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    if (episode.link_vtt && videoRef.current) {
+                    // Only inject native track if no custom subtitles (backward compat)
+                    if (!hasCustomSubtitles && episode.link_vtt && videoRef.current) {
                         const existingTracks = videoRef.current.querySelectorAll('track');
                         existingTracks.forEach(t => t.remove());
 
@@ -721,8 +759,9 @@ export default function WatchClient({
             } else if (videoRef.current) {
                 videoRef.current.src = videoSrc;
                 videoRef.current.onerror = () => setHasError(true);
-                
-                if (episode.link_vtt) {
+
+                // Only inject native track if no custom subtitles (backward compat)
+                if (!hasCustomSubtitles && episode.link_vtt) {
                     const existingTracks = videoRef.current.querySelectorAll('track');
                     existingTracks.forEach(t => t.remove());
 
@@ -1198,6 +1237,23 @@ export default function WatchClient({
 
                 </div>
 
+                    {/* Dual Subtitles — Custom Overlay using Native Plyr CSS */}
+                    {portalTarget && !isEmbedServer && (subtitle1Text || subtitle2Text) && createPortal(
+                        <div className="plyr__captions" dir="auto" style={{ pointerEvents: 'none', display: 'block' }}>
+                            {subtitle1Text && (
+                                <span className="plyr__caption" style={{ display: 'inline-block', width: '100%' }}>
+                                    {subtitle1Text}
+                                </span>
+                            )}
+                            {subtitle2Text && (
+                                <span className="plyr__caption" style={{ display: 'inline-block', width: '100%', fontSize: '0.85em', color: '#f59e0b', marginTop: subtitle1Text ? '4px' : '0' }}>
+                                    {subtitle2Text}
+                                </span>
+                            )}
+                        </div>,
+                        portalTarget
+                    )}
+
                 <div className="relative z-20">
                     <PlayerControls
                         isExpanded={isExpanded}
@@ -1215,6 +1271,11 @@ export default function WatchClient({
                         onServerChange={handleServerChange}
                         onReport={() => setShowReportModal(true)}
                         onShare={() => setShowShareModal(true)}
+                        subtitles={episodeSubtitles}
+                        subtitleSlot1={slot1}
+                        subtitleSlot2={slot2}
+                        onSubtitleSlot1Change={setSlot1}
+                        onSubtitleSlot2Change={setSlot2}
                     />
                 </div>
             </div>
@@ -1226,6 +1287,17 @@ export default function WatchClient({
                 <Container className="wc-main">
                     <div className="flex flex-col xl:flex-row gap-8">
                         <div className="flex-1">
+            {subtitlePortalNode && hasCustomSubtitles && createPortal(
+                <DualSubtitleMenu 
+                    subtitles={episodeSubtitles}
+                    subtitleSlot1={slot1}
+                    subtitleSlot2={slot2}
+                    onSubtitleSlot1Change={setSlot1}
+                    onSubtitleSlot2Change={setSlot2}
+                />,
+                subtitlePortalNode
+            )}
+
                             <div className="flex flex-col gap-6 p-5 md:p-10 bg-white/[0.03] border border-white/10 rounded-3xl">
                                 <MovieInfo slug={slug} movie={movie} episode={episode} />
                                 <EpisodeList

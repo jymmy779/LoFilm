@@ -294,6 +294,7 @@ export default async function WatchPage({ params }: Props) {
                 name: currentEpisode.name,
                 link_m3u8: currentEpisode.link_m3u8,
                 link_vtt: currentEpisode.link_vtt,
+                subtitles: currentEpisode.subtitles || [],
             }}
             episodes={episodes}
             suggestedMovies={suggestedMovies}

@@ -103,9 +103,7 @@ async function getExclusiveMoviesForHero(): Promise<Movie[]> {
             .limit(3);
 
         if (!data || data.length === 0) return [];
-        
-        const apiKey = "fb7bb23f03b6994dafc674c074d01761"; // TMDB API Key chung của dự án
-        
+
         return await Promise.all(data.map(async (m: any) => {
             let movieObj: any = {
                 _id: m.id,
@@ -123,15 +121,42 @@ async function getExclusiveMoviesForHero(): Promise<Movie[]> {
                 quality: "FHD",
             };
 
+            // Ưu tiên 1: Lấy data từ PhimAPI (api thứ 3) — tránh bị nhà mạng VN block TMDB
+            try {
+                const phimApiRes = await fetch(`https://phimapi.com/phim/${m.slug}`, { signal: AbortSignal.timeout(5000) });
+                if (phimApiRes.ok) {
+                    const phimApiData = await phimApiRes.json();
+                    const detail = phimApiData?.movie;
+                    if (detail) {
+                        movieObj.content = detail.content || "";
+                        // Dùng ảnh W1280 cho Hero Slider nếu có
+                        const thumbPath = detail.thumb_url || "";
+                        const posterPath = detail.poster_url || "";
+                        if (thumbPath) movieObj.thumb_url = thumbPath.startsWith("http") ? thumbPath : `https://phimimg.com/${thumbPath}`;
+                        if (posterPath) movieObj.poster_url = posterPath.startsWith("http") ? posterPath : `https://phimimg.com/${posterPath}`;
+                        movieObj.category = detail.category || [];
+                        movieObj.actor = detail.actor || [];
+                        movieObj.director = detail.director || [];
+                        movieObj.tmdb = detail.tmdb || {};
+                        if (detail.time) movieObj.time = detail.time;
+                        if (detail.episode_total) movieObj.episode_total = detail.episode_total;
+                        return movieObj as Movie; // Đã có đủ data, không cần fetch TMDB
+                    }
+                }
+            } catch {
+                // PhimAPI không có hoặc timeout → fallthrough sang TMDB
+            }
+
+            // Ưu tiên 2: Fallback sang TMDB nếu phim chưa có trên PhimAPI
             if (m.tmdb_id) {
                 try {
+                    const apiKey = "fb7bb23f03b6994dafc674c074d01761";
                     const tmdbType = m.type === "single" ? "movie" : "tv";
-                    const resVi = await fetch(`https://api.themoviedb.org/3/${tmdbType}/${m.tmdb_id}?api_key=${apiKey}&language=vi-VN&append_to_response=credits`);
-                    
+                    const resVi = await fetch(`https://api.themoviedb.org/3/${tmdbType}/${m.tmdb_id}?api_key=${apiKey}&language=vi-VN&append_to_response=credits`, { signal: AbortSignal.timeout(5000) });
+
                     if (resVi.ok) {
                         const tmdb = await resVi.json();
                         movieObj.content = tmdb.overview || "";
-                        // Dùng ảnh siêu nét W1280 cho Hero Slider
                         movieObj.thumb_url = `https://image.tmdb.org/t/p/w1280${tmdb.backdrop_path || tmdb.poster_path}`;
                         movieObj.poster_url = `https://image.tmdb.org/t/p/w500${tmdb.poster_path}`;
                         movieObj.category = tmdb.genres?.map((g: any) => ({ name: g.name })) || [];
@@ -141,10 +166,13 @@ async function getExclusiveMoviesForHero(): Promise<Movie[]> {
                         if (tmdb.runtime) movieObj.time = `${tmdb.runtime} phút`;
                         if (tmdb.number_of_episodes) movieObj.episode_total = tmdb.number_of_episodes.toString();
                     }
-                } catch (e) {
-                    console.error("Lỗi lấy TMDB cho hero slider:", e);
+                } catch (e: any) {
+                    if (e.code !== 'ENOTFOUND' && e.code !== 'ECONNRESET' && e.name !== 'TimeoutError') {
+                        console.error(`[TMDB] Lỗi lấy thông tin phim độc quyền ${m.slug}:`, e.message);
+                    }
                 }
             }
+
             return movieObj as Movie;
         }));
     } catch (e) {
@@ -152,6 +180,7 @@ async function getExclusiveMoviesForHero(): Promise<Movie[]> {
         return [];
     }
 }
+
 
 const URLS = {
     hero: "https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?limit=60",

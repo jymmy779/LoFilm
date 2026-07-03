@@ -8,15 +8,29 @@ import { getSiteSettings } from "@/app/actions/adminSettings";
 export default async function AdminPage() {
     const supabase = await createClient();
     
-    // Lấy dữ liệu phim độc quyền (Lưu ý: Nếu bảng chưa được tạo, Supabase sẽ trả về lỗi, 
-    // ta nên bắt lỗi hoặc truyền mảng rỗng để không crash trang)
-    const { data: movies, error } = await supabase
-        .from('exclusive_movies')
-        .select(`
-            *,
-            exclusive_episodes (*)
-        `)
-        .order('created_at', { ascending: false });
+    // Cơ chế Retry tự động cho Supabase Cold Start (để tránh lỗi fetch failed do timeout)
+    let movies: any = [];
+    let error: any = null;
+    
+    for (let attempt = 0; attempt < 3; attempt++) {
+        const { data, error: sbError } = await supabase
+            .from('exclusive_movies')
+            .select(`
+                *,
+                exclusive_episodes (*)
+            `)
+            .order('created_at', { ascending: false });
+
+        if (!sbError) {
+            movies = data;
+            error = null;
+            break;
+        }
+        
+        error = sbError;
+        console.warn(`[Dashboard] Lỗi lấy phim (thử lần ${attempt + 1}):`, sbError.message);
+        if (attempt < 2) await new Promise(r => setTimeout(r, 2000));
+    }
 
     const settings = await getSiteSettings();
 

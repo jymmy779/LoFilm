@@ -4,12 +4,24 @@ import { revalidatePath } from "next/cache";
 
 export async function getSiteSettings() {
     const supabase = await createClient();
-    const { data, error } = await supabase.from("site_settings").select("*");
+    
+    let data = null;
+    let error = null;
+    for (let attempt = 0; attempt < 3; attempt++) {
+        const res = await supabase.from("site_settings").select("*");
+        if (!res.error) {
+            data = res.data;
+            error = null;
+            break;
+        }
+        error = res.error;
+        if (attempt < 2) await new Promise(r => setTimeout(r, 2000));
+    }
     
     if (error || !data) return { maintenance_mode: false, active_event: "none" };
 
     const settings: any = {};
-    data.forEach(item => {
+    data.forEach((item: any) => {
         settings[item.key] = item.value;
     });
 
