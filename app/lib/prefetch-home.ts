@@ -95,10 +95,14 @@ async function mapHero(payload: unknown): Promise<Movie[]> {
  */
 async function getExclusiveMoviesForHero(): Promise<Movie[]> {
     try {
+        // Chỉ lấy phim đăng trong vòng 3 ngày gần nhất
+        const threeDaysAgo = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000);
+        
         const { data } = await supabase
             .from('exclusive_movies')
             .select('*')
             .eq('status', 'published')
+            .gte('created_at', threeDaysAgo.toISOString())
             .order('created_at', { ascending: false })
             .limit(3);
 
