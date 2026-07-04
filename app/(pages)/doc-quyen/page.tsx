@@ -26,6 +26,7 @@ async function getExclusiveMovies() {
         const apiKey = "fb7bb23f03b6994dafc674c074d01761";
         
         const promises = exclusiveMovies.map(async (ex) => {
+            const publishedCount = (ex.exclusive_episodes || []).filter((ep: any) => ep.status === 'published' || !ep.status).length;
             try {
                 const tmdbType = ex.type === "single" ? "movie" : "tv";
                 const fetchOptions = { signal: AbortSignal.timeout(5000) };
@@ -33,8 +34,6 @@ async function getExclusiveMovies() {
                     fetch(`https://api.themoviedb.org/3/${tmdbType}/${ex.tmdb_id}?api_key=${apiKey}&language=vi-VN`, fetchOptions),
                     fetch(`https://api.themoviedb.org/3/${tmdbType}/${ex.tmdb_id}?api_key=${apiKey}&language=en-US`, fetchOptions)
                 ]);
-
-                const publishedCount = (ex.exclusive_episodes || []).filter((ep: any) => ep.status === 'published' || !ep.status).length;
                 
                 if (resVi.ok && resEn.ok) {
                     const data = await resVi.json();
