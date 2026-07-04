@@ -34,6 +34,8 @@ async function getExclusiveMovies() {
                     fetch(`https://api.themoviedb.org/3/${tmdbType}/${ex.tmdb_id}?api_key=${apiKey}&language=en-US`, fetchOptions)
                 ]);
 
+                const publishedCount = (ex.exclusive_episodes || []).filter((ep: any) => ep.status === 'published' || !ep.status).length;
+                
                 if (resVi.ok && resEn.ok) {
                     const data = await resVi.json();
                     const dataEn = await resEn.json();
@@ -46,7 +48,7 @@ async function getExclusiveMovies() {
                         thumb_url: `https://image.tmdb.org/t/p/w780${dataEn.backdrop_path || data.backdrop_path || dataEn.poster_path || data.poster_path}`,
                         year: data.release_date ? parseInt(data.release_date.split('-')[0]) : data.first_air_date ? parseInt(data.first_air_date.split('-')[0]) : new Date().getFullYear(),
                         time: data.runtime ? `${data.runtime} phút` : "Đang cập nhật",
-                        episode_current: ex.type === "single" ? "Full" : `Tập ${ex.exclusive_episodes?.length || 0}`,
+                        episode_current: ex.type === "single" ? "Full" : `Tập ${publishedCount}`,
                         quality: "HD",
                         lang: ex.lang_tag || "Vietsub Độc Quyền",
                         type: ex.type,
@@ -65,7 +67,7 @@ async function getExclusiveMovies() {
                     thumb_url: `/poster-placeholder.jpg`,
                     year: new Date().getFullYear(),
                     time: "Đang cập nhật",
-                    episode_current: ex.type === "single" ? "Full" : `Tập ${ex.exclusive_episodes?.length || 0}`,
+                    episode_current: ex.type === "single" ? "Full" : `Tập ${publishedCount}`,
                     quality: "HD",
                     lang: ex.lang_tag || "Vietsub Độc Quyền",
                     type: ex.type,

@@ -10,9 +10,11 @@ import { createPortal } from "react-dom";
 interface MessageModalProps {
     isOpen: boolean;
     onClose: () => void;
+    contact_telegram?: string;
+    contact_threads?: string;
 }
 
-export default function MessageModal({ isOpen, onClose }: MessageModalProps) {
+export default function MessageModal({ isOpen, onClose, contact_telegram, contact_threads }: MessageModalProps) {
     const [mounted, setMounted] = useState(false);
     const [shouldRender, setShouldRender] = useState(isOpen);
     const [isClosing, setIsClosing] = useState(false);
@@ -86,35 +88,39 @@ export default function MessageModal({ isOpen, onClose }: MessageModalProps) {
                     </div>
 
                     <div className="space-y-2.5 md:space-y-3 mt-4 md:mt-6">
-                        <a 
-                            href="https://t.me/ponpornsec"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl md:rounded-2xl bg-white/5 hover:bg-[#229ED9]/10 border border-white/5 hover:border-[#229ED9]/30 group transition-all"
-                        >
-                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#229ED9] flex items-center justify-center shrink-0">
-                                <FaTelegramPlane className="text-white -ml-0.5 md:-ml-1 w-5 h-5 md:w-6 md:h-6" />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-sm md:text-base font-semibold text-white/90 group-hover:text-white transition-colors">Telegram</span>
-                                <span className="text-[11px] md:text-xs text-white/40">Nhắn lẹ cho admin qua Tele</span>
-                            </div>
-                        </a>
+                        {(contact_telegram || !contact_threads) && (
+                            <a 
+                                href={contact_telegram || "https://t.me/ponpornsec"}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl md:rounded-2xl bg-white/5 hover:bg-[#229ED9]/10 border border-white/5 hover:border-[#229ED9]/30 group transition-all"
+                            >
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-[#229ED9] flex items-center justify-center shrink-0">
+                                    <FaTelegramPlane className="text-white -ml-0.5 md:-ml-1 w-5 h-5 md:w-6 md:h-6" />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-sm md:text-base font-semibold text-white/90 group-hover:text-white transition-colors">Telegram</span>
+                                    <span className="text-[11px] md:text-xs text-white/40">Nhắn lẹ cho admin qua Tele</span>
+                                </div>
+                            </a>
+                        )}
                         
-                        <a 
-                            href="https://www.threads.com/@lofilm_adm"
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl md:rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 group transition-all"
-                        >
-                            <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-black border border-white/20 flex items-center justify-center shrink-0">
-                                <FaThreads className="text-white w-5 h-5 md:w-6 md:h-6" />
-                            </div>
-                            <div className="flex flex-col">
-                                <span className="text-sm md:text-base font-semibold text-white/90 group-hover:text-white transition-colors">Threads</span>
-                                <span className="text-[11px] md:text-xs text-white/40">Thả nhẹ 1 chiếc bình luận</span>
-                            </div>
-                        </a>
+                        {(contact_threads || !contact_telegram) && (
+                            <a 
+                                href={contact_threads || "https://www.threads.com/@lofilm_adm"}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="flex items-center gap-3 md:gap-4 p-3 md:p-4 rounded-xl md:rounded-2xl bg-white/5 hover:bg-white/10 border border-white/5 hover:border-white/20 group transition-all"
+                            >
+                                <div className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-black border border-white/20 flex items-center justify-center shrink-0">
+                                    <FaThreads className="text-white w-5 h-5 md:w-6 md:h-6" />
+                                </div>
+                                <div className="flex flex-col">
+                                    <span className="text-sm md:text-base font-semibold text-white/90 group-hover:text-white transition-colors">Threads</span>
+                                    <span className="text-[11px] md:text-xs text-white/40">Thả nhẹ 1 chiếc bình luận</span>
+                                </div>
+                            </a>
+                        )}
 
                         <Link
                             href="/lien-he"

@@ -133,11 +133,13 @@ import { AuthProvider } from "./components/Auth/AuthContext";
 import ContinueWatchingPopup from "./components/Common/ContinueWatchingPopup";
 import HideOnAdmin from "./components/Common/HideOnAdmin";
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const settings = await getSiteSettings();
+
   return (
     <html lang="vi" suppressHydrationWarning>
       <head>
@@ -267,7 +269,7 @@ export default function RootLayout({
         <ClientToaster />
         <HideOnAdmin>
           <ScrollToTop />
-          <FloatingMessageButton />
+          <FloatingMessageButton contact_telegram={settings?.contact_telegram} contact_threads={settings?.contact_threads} />
           <GoogleAnalytics gaId="G-FCV3H66SFX" />
           {/* Adsterra Social Bar - 4 hours cooldown */}
           <AdsterraSocialBar />

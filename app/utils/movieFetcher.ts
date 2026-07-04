@@ -4,7 +4,7 @@ import { MovieDetailResponse } from "@/app/types/movie";
 
 const API_BASE = "https://phimapi.com";
 
-export async function getMovieDetail(slug: string): Promise<MovieDetailResponse | null> {
+export async function getMovieDetail(slug: string, isPreview: boolean = false): Promise<MovieDetailResponse | null> {
     try {
         const supabase = await createClient();
         
@@ -28,9 +28,12 @@ export async function getMovieDetail(slug: string): Promise<MovieDetailResponse 
         const localViewCount = viewRes.status === 'fulfilled' && viewRes.value.data ? viewRes.value.data.view_count : 0;
 
         // KỊCH BẢN 1: TỒN TẠI BẢN ĐỘC QUYỀN (Có thể merge hoặc đứng độc lập)
-        if (exclusiveMovie && exclusiveMovie.status === 'published') {
+        if (exclusiveMovie && (exclusiveMovie.status === 'published' || isPreview)) {
             // 1. Sắp xếp các tập độc quyền
-            const sortedEpisodes = exclusiveMovie.exclusive_episodes.sort((a: any, b: any) => a.order - b.order);
+            const publishedEpisodes = isPreview 
+                ? exclusiveMovie.exclusive_episodes 
+                : exclusiveMovie.exclusive_episodes.filter((ep: any) => ep.status === 'published' || !ep.status);
+            const sortedEpisodes = publishedEpisodes.sort((a: any, b: any) => a.order - b.order);
             const exclusiveServer = {
                 server_name: exclusiveMovie.lang_tag || "Song Ngữ Độc Quyền",
                 server_data: sortedEpisodes.map((ep: any) => ({
@@ -84,7 +87,7 @@ export async function getMovieDetail(slug: string): Promise<MovieDetailResponse 
                         chieurap: false,
                         trailer_url: finalTrailerUrl,
                         time: phimApiData?.movie?.time || (data.runtime ? `${data.runtime} phút` : "Đang cập nhật"),
-                        episode_current: phimApiData?.movie?.episode_current || (exclusiveMovie.type === "single" ? "Full" : `Tập ${exclusiveMovie.exclusive_episodes?.length || 0}`),
+                        episode_current: phimApiData?.movie?.episode_current || (exclusiveMovie.type === "single" ? "Full" : `Tập ${publishedEpisodes.length}`),
                         episode_total: phimApiData?.movie?.episode_total || (data.number_of_episodes ? data.number_of_episodes.toString() : "1"),
                         quality: phimApiData?.movie?.quality || "HD",
                         lang: exclusiveMovie.lang_tag || "Vietsub Độc Quyền",

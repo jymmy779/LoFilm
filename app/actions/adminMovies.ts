@@ -191,6 +191,7 @@ export async function addExclusiveMovie(data: Record<string, string>) {
     }
 
     revalidatePath("/admin", "layout");
+    revalidatePath("/", "layout");
     return { success: true };
 }
 
@@ -199,6 +200,7 @@ export async function deleteExclusiveMovie(id: string) {
     const { error } = await supabase.from("exclusive_movies").delete().eq("id", id);
     if (error) return { error: error.message };
     revalidatePath("/admin", "layout");
+    revalidatePath("/", "layout");
     return { success: true };
 }
 
@@ -241,10 +243,11 @@ export async function updateExclusiveMovie(id: string, data: Record<string, stri
 
     if (error) return { error: `Lỗi cập nhật phim: ${error.message}` };
     revalidatePath("/admin", "layout");
+    revalidatePath("/", "layout");
     return { success: true };
 }
 
-export async function bulkAddExclusiveEpisodes(movieId: string, startEpisode: number, linksText: string, vttLinksText: string) {
+export async function bulkAddExclusiveEpisodes(movieId: string, startEpisode: number, linksText: string, vttLinksText: string, status: string = "published") {
     if (!linksText.trim()) return { error: "Danh sách link trống" };
     
     const rawM3u8 = linksText.split('\n').map(l => l.trim());
@@ -272,7 +275,8 @@ export async function bulkAddExclusiveEpisodes(movieId: string, startEpisode: nu
                 slug: `tap-${epNumStr}`,
                 link_m3u8: rawM3u8[i],
                 link_vtt: (rawVtt[i] && rawVtt[i].length > 0) ? rawVtt[i] : null,
-                order: epNum
+                order: epNum,
+                status
             });
             epOffset++;
         }
@@ -286,6 +290,7 @@ export async function bulkAddExclusiveEpisodes(movieId: string, startEpisode: nu
     }
 
     revalidatePath("/admin", "layout");
+    revalidatePath("/", "layout");
     return { success: true };
 }
 
@@ -296,6 +301,7 @@ export async function addEpisode(movieId: string, data: Record<string, string>) 
     const linkVtt = data.link_vtt;
     const order = parseInt(data.order || "1");
     const subtitleTracks = data.subtitle_tracks;
+    const status = data.status || "published";
 
     if (!name || !slug || !linkM3u8) return { error: "Thiếu trường bắt buộc" };
 
@@ -315,7 +321,8 @@ export async function addEpisode(movieId: string, data: Record<string, string>) 
                     link_m3u8: linkM3u8.trim(),
                     link_vtt: linkVtt ? linkVtt.trim() : null,
                     subtitles: parseSubtitleInput(subtitleTracks),
-                    order
+                    order,
+                    status
                 }).select();
                 
             if (!error) {
@@ -335,6 +342,7 @@ export async function addEpisode(movieId: string, data: Record<string, string>) 
     }
 
     revalidatePath("/admin", "layout");
+    revalidatePath("/", "layout");
     return { success: true };
 }
 
@@ -345,6 +353,7 @@ export async function updateEpisode(id: string, data: Record<string, string>) {
     const linkVtt = data.link_vtt;
     const order = parseInt(data.order || "1");
     const subtitleTracks = data.subtitle_tracks;
+    const status = data.status || "published";
 
     if (!name || !slug || !linkM3u8) return { error: "Thiếu trường bắt buộc" };
 
@@ -362,7 +371,8 @@ export async function updateEpisode(id: string, data: Record<string, string>) {
                     link_m3u8: linkM3u8.trim(),
                     link_vtt: linkVtt ? linkVtt.trim() : null,
                     subtitles: parseSubtitleInput(subtitleTracks),
-                    order
+                    order,
+                    status
                 })
                 .eq("id", id);
                 
@@ -382,6 +392,7 @@ export async function updateEpisode(id: string, data: Record<string, string>) {
     }
 
     revalidatePath("/admin", "layout");
+    revalidatePath("/", "layout");
     return { success: true };
 }
 
@@ -390,6 +401,7 @@ export async function deleteEpisode(id: string) {
     const { error } = await supabase.from("exclusive_episodes").delete().eq("id", id);
     if (error) return { error: error.message };
     revalidatePath("/admin", "layout");
+    revalidatePath("/", "layout");
     return { success: true };
 }
 

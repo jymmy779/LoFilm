@@ -3,12 +3,14 @@ import { useState, useTransition, useEffect } from "react";
 import { deleteExclusiveMovie } from "@/app/actions/adminMovies";
 import { updateSiteSetting } from "@/app/actions/adminSettings";
 import Link from "next/link";
+import toast from "react-hot-toast";
 
 export default function AdminDashboard({ initialMovies, initialSettings }: { initialMovies: any[], initialSettings: any }) {
     const [movies, setMovies] = useState(initialMovies);
     const [settings, setSettings] = useState(initialSettings);
     const [activeTab, setActiveTab] = useState<"movies" | "settings">("movies");
     const [isPending, startTransition] = useTransition();
+    const [hasChanges, setHasChanges] = useState(false);
 
     useEffect(() => {
         setMovies(initialMovies);
@@ -16,12 +18,32 @@ export default function AdminDashboard({ initialMovies, initialSettings }: { ini
 
     useEffect(() => {
         setSettings(initialSettings);
+        setHasChanges(false);
     }, [initialSettings]);
 
-    const saveSettings = (key: string, value: any) => {
+    const handleChangeSetting = (key: string, value: any) => {
         setSettings({ ...settings, [key]: value });
+        setHasChanges(true);
+    };
+
+    const saveAllSettings = () => {
         startTransition(async () => {
-            await updateSiteSetting(key, value);
+            const keysToSave = Object.keys(settings);
+            let hasError = false;
+            
+            for (const key of keysToSave) {
+                if (settings[key] !== initialSettings[key]) {
+                    const res = await updateSiteSetting(key, settings[key]);
+                    if (res?.error) hasError = true;
+                }
+            }
+            
+            if (hasError) {
+                toast.error("Có lỗi xảy ra khi lưu một số cài đặt!");
+            } else {
+                toast.success("Đã lưu tất cả cấu hình thành công!");
+                setHasChanges(false);
+            }
         });
     };
 
@@ -56,7 +78,19 @@ export default function AdminDashboard({ initialMovies, initialSettings }: { ini
             {/* Settings Tab */}
             {activeTab === "settings" && (
                 <div className="bg-[#0d1b2e] rounded-lg p-6 border border-white/5 max-w-2xl">
-                    <h3 className="text-xl mb-6 font-semibold">Cấu hình chung</h3>
+                    <div className="flex items-center justify-between mb-6">
+                        <h3 className="text-xl font-semibold">Cấu hình chung</h3>
+                        {hasChanges && (
+                            <button
+                                onClick={saveAllSettings}
+                                disabled={isPending}
+                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm animate-fade-in"
+                            >
+                                {isPending ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>}
+                                Lưu thay đổi
+                            </button>
+                        )}
+                    </div>
                     
                     <div className="mb-6 flex items-center justify-between p-4 bg-[#152740] rounded-lg">
                         <div>
@@ -65,27 +99,56 @@ export default function AdminDashboard({ initialMovies, initialSettings }: { ini
                         </div>
                         <button 
                             disabled={isPending}
-                            onClick={() => saveSettings('maintenance_mode', !settings.maintenance_mode)}
+                            onClick={() => handleChangeSetting('maintenance_mode', !settings.maintenance_mode)}
                             className={`w-14 h-7 rounded-full transition-colors relative ${settings.maintenance_mode ? 'bg-red-500' : 'bg-gray-600'}`}
                         >
                             <span className={`absolute top-1/2 -translate-y-1/2 w-5 h-5 bg-white rounded-full transition-all ${settings.maintenance_mode ? 'right-1' : 'left-1'}`}></span>
                         </button>
                     </div>
 
-                    <div className="p-4 bg-[#152740] rounded-lg">
+                    <div className="p-4 bg-[#152740] rounded-lg mb-6">
                         <div className="mb-3">
                             <div className="font-medium text-lg">Sự kiện Đặc biệt (Hiệu ứng)</div>
                             <div className="text-sm text-gray-400">Kích hoạt các hiệu ứng đặc biệt trên toàn trang web.</div>
                         </div>
                         <select 
                             value={settings.active_event || 'none'}
-                            onChange={(e) => saveSettings('active_event', e.target.value)}
+                            onChange={(e) => handleChangeSetting('active_event', e.target.value)}
                             disabled={isPending}
                             className="w-full bg-[#0a1628] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="none">Không có sự kiện (Mặc định)</option>
                             <option value="reunification">Giải phóng Miền Nam 30/4</option>
                         </select>
+                    </div>
+
+                    <h3 className="text-xl mb-6 font-semibold border-t border-white/10 pt-6">Thông tin liên hệ & Mạng xã hội</h3>
+                    
+                    <div className="space-y-4">
+                        {[
+                            { key: 'contact_telegram', label: 'Telegram URL', icon: 'fa-telegram', color: 'text-[#0088cc]' },
+                            { key: 'contact_telegram_name', label: 'Telegram Name (hiển thị)', icon: 'fa-telegram', color: 'text-[#0088cc]' },
+                            { key: 'contact_discord', label: 'Discord URL', icon: 'fa-discord', color: 'text-[#5865F2]' },
+                            { key: 'contact_facebook', label: 'Facebook URL', icon: 'fa-facebook', color: 'text-[#1877F2]' },
+                            { key: 'contact_twitter', label: 'X (Twitter) URL', icon: 'fa-x-twitter', color: 'text-white' },
+                            { key: 'contact_threads', label: 'Threads URL', icon: 'fa-threads', color: 'text-white' },
+                            { key: 'contact_youtube', label: 'YouTube URL', icon: 'fa-youtube', color: 'text-[#FF0000]' },
+                        ].map((field) => (
+                            <div key={field.key} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#152740] rounded-lg gap-4">
+                                <div className="flex items-center gap-3 w-1/3">
+                                    <i className={`fa-brands ${field.icon} text-2xl ${field.color}`}></i>
+                                    <div className="font-medium">{field.label}</div>
+                                </div>
+                                <input
+                                    type="text"
+                                    value={settings[field.key] || ''}
+                                    placeholder={`Nhập ${field.label}...`}
+                                    onChange={(e) => handleChangeSetting(field.key, e.target.value)}
+                                    disabled={isPending}
+                                    className="flex-1 bg-[#0a1628] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/10"
+                                />
+                            </div>
+                        ))}
                     </div>
                 </div>
             )}
@@ -131,7 +194,7 @@ export default function AdminDashboard({ initialMovies, initialSettings }: { ini
                                                     {movie.status === 'published' ? 'Công khai' : 'Nháp'}
                                                 </span>
                                             </td>
-                                            <td className="p-4">{movie.type === 'single' ? '-' : (movie.exclusive_episodes?.length || 0)}</td>
+                                            <td className="p-4">{movie.type === 'single' ? '-' : `${movie.exclusive_episodes?.filter((ep: any) => ep.status === 'published' || !ep.status).length || 0} / ${movie.exclusive_episodes?.length || 0}`}</td>
                                             <td className="p-4 flex gap-3 justify-end items-center">
                                                 <Link href={`/admin/movies/${movie.id}`} className="text-blue-400 bg-blue-400/10 hover:bg-blue-400/20 px-3 py-1.5 rounded transition flex items-center gap-2" title="Quản lý & Sửa phim">
                                                     <i className="fa-solid fa-pen-to-square"></i> Sửa / Quản lý tập

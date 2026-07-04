@@ -94,11 +94,12 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
         const formData = new FormData(form);
         const links = formData.get("bulk_links") as string;
         const vttLinks = formData.get("bulk_vtt_links") as string;
+        const status = formData.get("status") as string || "published";
         const startEpisode = (episodes.length || 0) + 1;
 
         startTransition(async () => {
             try {
-                const res = await bulkAddExclusiveEpisodes(movie.id, startEpisode, links, vttLinks);
+                const res = await bulkAddExclusiveEpisodes(movie.id, startEpisode, links, vttLinks, status);
                 if (res.error) toast.error(res.error);
                 else {
                     toast.success("Đã thêm hàng loạt thành công!");
@@ -128,11 +129,16 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
     return (
         <div className="bg-[#0a1628] min-h-screen text-white">
             <header className="bg-[#0d1b2e] border-b border-white/10 sticky top-0 z-10">
-                <div className="container mx-auto px-4 h-16 flex items-center gap-4">
-                    <Link href="/admin/dashboard" className="text-gray-400 hover:text-white transition flex items-center gap-2">
-                        <i className="fa-solid fa-arrow-left"></i> Danh sách phim
+                <div className="container mx-auto px-4 h-16 flex items-center justify-between">
+                    <div className="flex items-center gap-4">
+                        <Link href="/admin/dashboard" className="text-gray-400 hover:text-white transition flex items-center gap-2">
+                            <i className="fa-solid fa-arrow-left"></i> Danh sách phim
+                        </Link>
+                        <span className="text-white font-medium border-l border-white/20 pl-4">Quản lý Phim: {movie.slug}</span>
+                    </div>
+                    <Link href={`/phim/${movie.slug}?preview=true`} target="_blank" className="bg-blue-600/20 text-blue-400 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg transition font-medium text-sm flex items-center gap-2">
+                        <i className="fa-solid fa-eye"></i> Xem trước trang khách
                     </Link>
-                    <span className="text-white font-medium border-l border-white/20 pl-4">Quản lý Phim: {movie.slug}</span>
                 </div>
             </header>
 
@@ -234,10 +240,16 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                                 {ep.subtitles && ep.subtitles.length > 1 && (
                                                     <span className="bg-amber-500/20 text-amber-400 px-1.5 py-0.5 text-[10px] rounded uppercase font-bold tracking-wider">Song ngữ</span>
                                                 )}
+                                                <span className={`px-1.5 py-0.5 text-[10px] rounded uppercase font-bold tracking-wider ${ep.status === 'draft' ? 'bg-gray-500/20 text-gray-400' : 'bg-green-500/20 text-green-400'}`}>
+                                                    {ep.status === 'draft' ? 'Nháp' : 'Công khai'}
+                                                </span>
                                             </div>
                                             <div className="text-xs text-gray-400 mt-1 line-clamp-1 truncate" title={ep.link_m3u8}>{ep.link_m3u8}</div>
                                         </div>
-                                        <div className="flex gap-1 shrink-0">
+                                        <div className="flex gap-1 shrink-0 items-center">
+                                            <Link href={`/phim/${movie.slug}/${ep.slug}?preview=true`} target="_blank" className="text-green-400 p-1.5 hover:bg-white/10 rounded transition inline-flex" title="Xem trước tập này">
+                                                <i className="fa-solid fa-eye text-sm"></i>
+                                            </Link>
                                             <button onClick={() => { setEditingEpisode(ep); setEpisodeTab("single"); }} className="text-blue-400 p-1.5 hover:bg-white/10 rounded transition" title="Sửa"><i className="fa-solid fa-pen text-sm"></i></button>
                                             <button onClick={() => handleDeleteEpisode(ep.id)} disabled={isPending} className="text-red-400 p-1.5 hover:bg-white/10 rounded transition" title="Xóa"><i className="fa-solid fa-trash text-sm"></i></button>
                                         </div>
@@ -292,7 +304,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-[1fr_120px] gap-5 items-start">
+                                <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_140px] gap-5 items-start">
                                     <div>
                                         <label className="text-gray-400 text-sm mb-1.5 block">Link M3U8 (Video Streaming)</label>
                                         <input name="link_m3u8" type="url" defaultValue={editingEpisode?.link_m3u8 || ""} required className="w-full bg-[#152740] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono" placeholder="https://pub-xxxx.r2.dev/.../index.m3u8" />
@@ -300,6 +312,13 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                     <div>
                                         <label className="text-gray-400 text-sm mb-1.5 block">Thứ tự sắp xếp</label>
                                         <input name="order" type="number" defaultValue={editingEpisode?.order || episodes.length + 1} required className="w-full bg-[#152740] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-center" />
+                                    </div>
+                                    <div>
+                                        <label className="text-gray-400 text-sm mb-1.5 block">Trạng thái</label>
+                                        <select name="status" defaultValue={editingEpisode?.status || "published"} className="w-full bg-[#152740] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                            <option value="draft">Bản nháp</option>
+                                            <option value="published">Công khai</option>
+                                        </select>
                                     </div>
                                 </div>
 
@@ -351,6 +370,13 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                         </label>
                                         <textarea name="bulk_vtt_links" rows={12} className="w-full bg-[#152740] text-white rounded-lg p-4 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 whitespace-nowrap overflow-x-auto custom-scrollbar" placeholder="https://sub1.vtt&#10;https://sub2.vtt&#10;&#10;(Bỏ trống dòng nếu tập đó ko có)"></textarea>
                                     </div>
+                                </div>
+                                <div>
+                                    <label className="text-gray-400 text-sm mb-1.5 block">Trạng thái mặc định</label>
+                                    <select name="status" defaultValue="published" className="w-48 bg-[#152740] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                        <option value="draft">Bản nháp</option>
+                                        <option value="published">Công khai</option>
+                                    </select>
                                 </div>
                                 <div className="flex justify-end mt-4 pt-4 border-t border-white/5">
                                     <button type="submit" disabled={isPending} className="bg-green-600 hover:bg-green-700 px-8 py-2.5 rounded-lg font-medium transition text-white shadow-lg shadow-green-900/20">

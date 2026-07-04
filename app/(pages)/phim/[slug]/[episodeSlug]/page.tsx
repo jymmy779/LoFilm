@@ -29,6 +29,7 @@ interface Props {
         slug: string;
         episodeSlug: string;
     }>;
+    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 import { getMovieDetail } from "@/app/utils/movieFetcher";
@@ -118,12 +119,24 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     };
 }
 
-export default async function WatchPage({ params }: Props) {
+import { cookies } from "next/headers";
+
+export default async function WatchPage({ params, searchParams }: Props) {
     const { slug, episodeSlug } = await params;
+    const { preview } = await searchParams;
+    let isPreview = false;
+    
+    if (preview === "true") {
+        const cookieStore = await cookies();
+        const adminToken = cookieStore.get("lofilm_admin_token")?.value;
+        if (adminToken === process.env.ADMIN_PASSWORD) {
+            isPreview = true;
+        }
+    }
 
     let data: any = null;
     try {
-        data = await getMovieDetail(slug);
+        data = await getMovieDetail(slug, isPreview);
     } catch (error) {
         console.error("Fetch movie error:", error);
         return (

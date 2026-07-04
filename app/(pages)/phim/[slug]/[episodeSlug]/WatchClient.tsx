@@ -919,13 +919,23 @@ export default function WatchClient({
                     <style jsx global>{`
                         .hide-large-play .plyr__control--overlaid { display: none !important; }
                         .plyr { z-index: auto !important; aspect-ratio: 16/9; width: 100%; border-radius: inherit; touch-action: pan-y; will-change: transform, opacity; }
-                        .plyr__controls { z-index: 100 !important; background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5)) !important; }
+                        .plyr__controls { z-index: 100 !important; background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5)) !important; transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease !important; transition-delay: 0s !important; }
                         .hide-large-play .plyr__controls { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
+                        
+                        /* Thêm delay 1.5s trước khi ẩn controls (Chuẩn YouTube/Netflix) */
+                        .plyr--hide-controls .plyr__controls {
+                            opacity: 0 !important;
+                            visibility: hidden !important;
+                            pointer-events: none !important;
+                            transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease !important;
+                            transition-delay: 1.5s !important;
+                        }
                         
                         /* Đồng bộ Movie Info và Episode List với Plyr Controls */
                         .watch-top-overlay {
                             /* Khi ẩn đi: mượt và chậm hơn để tạo cảm giác cao cấp */
                             transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                            transition-delay: 0s !important;
                         }
 
                         .plyr--hide-controls .watch-top-overlay {
@@ -933,15 +943,17 @@ export default function WatchClient({
                             pointer-events: none !important;
                             /* Loại bỏ dịch chuyển, chỉ giữ lại fade */
                             transform: translateY(0) !important;
+                            transition-delay: 1.5s !important;
                         }
 
                         /* Đảm bảo luôn hiện và phản hồi nhanh khi controls hiện */
-                        .watch-top-overlay {
+                        .plyr:not(.plyr--hide-controls) .watch-top-overlay {
                             opacity: 1 !important;
                             transform: translateY(0) !important;
                             pointer-events: auto !important;
                             /* Khi hiện lên: phản hồi nhanh và hỗ trợ hover mượt */
                             transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease !important;
+                            transition-delay: 0s !important;
                         }
                         
                         /* Optimize Layout when in Fullscreen: Hide everything else to free up GPU for orientation change */

@@ -4,7 +4,12 @@ import React, { useState } from "react";
 import { MessageCircle } from "lucide-react";
 import MessageModal from "@/app/components/Modals/MessageModal";
 
-export default function FloatingMessageButton() {
+interface Props {
+    contact_telegram?: string;
+    contact_threads?: string;
+}
+
+export default function FloatingMessageButton({ contact_telegram, contact_threads }: Props) {
     const [showMessageModal, setShowMessageModal] = useState(false);
 
     return (
@@ -26,7 +31,9 @@ export default function FloatingMessageButton() {
 
             <MessageModal 
                 isOpen={showMessageModal} 
-                onClose={() => setShowMessageModal(false)} 
+                onClose={() => setShowMessageModal(false)}
+                contact_telegram={contact_telegram}
+                contact_threads={contact_threads}
             />
         </>
     );
