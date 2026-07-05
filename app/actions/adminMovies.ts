@@ -44,6 +44,7 @@ export async function addExclusiveMovie(data: Record<string, string>) {
     const type = data.type;
     const linkM3u8 = data.link_m3u8;
     const linkVtt = data.link_vtt;
+    const linkEmbed = data.link_embed || "";
     const name = data.episode_name || "Full";
     const episodeSlug = data.episode_slug || "tap-full";
     const status = data.status || "draft";
@@ -148,7 +149,7 @@ export async function addExclusiveMovie(data: Record<string, string>) {
         const subtitleInput = data.subtitle_tracks;
         const subtitles = parseSubtitleInput(subtitleInput);
         const { error: episodeError } = await supabase.from('exclusive_episodes').insert([
-            { movie_id: movie.id, name, slug: episodeSlug, link_m3u8: linkM3u8, link_vtt: linkVtt || null, subtitles: subtitles.length > 0 ? subtitles : [], order: 1 }
+            { movie_id: movie.id, name, slug: episodeSlug, link_m3u8: linkM3u8, link_vtt: linkVtt || null, link_embed: linkEmbed || null, subtitles: subtitles.length > 0 ? subtitles : [], order: 1 }
         ]);
         if (episodeError) return { error: episodeError.message };
     } else {
@@ -159,6 +160,7 @@ export async function addExclusiveMovie(data: Record<string, string>) {
         if (bulkLinks && bulkLinks.trim().length > 0) {
             const rawM3u8 = bulkLinks.split('\n').map(l => l.trim());
             const rawVtt = bulkVttLinks ? bulkVttLinks.split('\n').map(l => l.trim()) : [];
+            const rawEmbed = data.bulk_embed_links ? data.bulk_embed_links.split('\n').map(l => l.trim()) : [];
             
             const episodeInserts = [];
             let epIndex = 0;
@@ -171,6 +173,7 @@ export async function addExclusiveMovie(data: Record<string, string>) {
                         slug: `tap-${epNumStr}`,
                         link_m3u8: rawM3u8[i],
                         link_vtt: (rawVtt[i] && rawVtt[i].length > 0) ? rawVtt[i] : null,
+                        link_embed: (rawEmbed[i] && rawEmbed[i].length > 0) ? rawEmbed[i] : null,
                         order: epIndex + 1
                     });
                     epIndex++;
@@ -181,10 +184,10 @@ export async function addExclusiveMovie(data: Record<string, string>) {
                 const { error: bulkError } = await supabase.from('exclusive_episodes').insert(episodeInserts);
                 if (bulkError) return { error: bulkError.message };
             }
-        } else if (linkM3u8) {
+        } else if (linkM3u8 || linkEmbed) {
             // Nếu không nhập bulk list nhưng có nhập link M3U8 đơn -> Tự động thêm Tập 01
             const { error: epError } = await supabase.from('exclusive_episodes').insert([
-                { movie_id: movie.id, name: "Tập 01", slug: "tap-01", link_m3u8: linkM3u8, link_vtt: linkVtt, order: 1 }
+                { movie_id: movie.id, name: "Tập 01", slug: "tap-01", link_m3u8: linkM3u8, link_vtt: linkVtt, link_embed: linkEmbed || null, order: 1 }
             ]);
             if (epError) return { error: epError.message };
         }
@@ -247,25 +250,27 @@ export async function updateExclusiveMovie(id: string, data: Record<string, stri
     return { success: true };
 }
 
-export async function bulkAddExclusiveEpisodes(movieId: string, startEpisode: number, linksText: string, vttLinksText: string, status: string = "published") {
-    if (!linksText.trim()) return { error: "Danh sách link trống" };
+export async function bulkAddExclusiveEpisodes(movieId: string, startEpisode: number, linksText: string, vttLinksText: string, embedLinksText: string = "", status: string = "published") {
+    if (!linksText.trim() && !embedLinksText.trim()) return { error: "Danh sách link trống" };
     
     const rawM3u8 = linksText.split('\n').map(l => l.trim());
     const rawVtt = vttLinksText ? vttLinksText.split('\n').map(l => l.trim()) : [];
+    const rawEmbed = embedLinksText ? embedLinksText.split('\n').map(l => l.trim()) : [];
     
     let validCount = 0;
-    for (let i = 0; i < rawM3u8.length; i++) {
-        if (rawM3u8[i].length > 0) validCount++;
+    const maxLen = Math.max(rawM3u8.length, rawEmbed.length);
+    for (let i = 0; i < maxLen; i++) {
+        if ((rawM3u8[i] && rawM3u8[i].length > 0) || (rawEmbed[i] && rawEmbed[i].length > 0)) validCount++;
     }
-    if (validCount === 0) return { error: "Không tìm thấy link m3u8 hợp lệ" };
+    if (validCount === 0) return { error: "Không tìm thấy link hợp lệ" };
 
     const supabase = await createClient();
     
     const episodesToInsert = [];
     let epOffset = 0;
     
-    for (let i = 0; i < rawM3u8.length; i++) {
-        if (rawM3u8[i].length > 0) {
+    for (let i = 0; i < maxLen; i++) {
+        if ((rawM3u8[i] && rawM3u8[i].length > 0) || (rawEmbed[i] && rawEmbed[i].length > 0)) {
             const epNum = startEpisode + epOffset;
             const epNumStr = String(epNum).padStart(2, '0');
             episodesToInsert.push({
@@ -273,8 +278,9 @@ export async function bulkAddExclusiveEpisodes(movieId: string, startEpisode: nu
                 server_name: "Vietsub",
                 name: `Tập ${epNumStr}`,
                 slug: `tap-${epNumStr}`,
-                link_m3u8: rawM3u8[i],
+                link_m3u8: rawM3u8[i] || "",
                 link_vtt: (rawVtt[i] && rawVtt[i].length > 0) ? rawVtt[i] : null,
+                link_embed: (rawEmbed[i] && rawEmbed[i].length > 0) ? rawEmbed[i] : null,
                 order: epNum,
                 status
             });
@@ -299,11 +305,12 @@ export async function addEpisode(movieId: string, data: Record<string, string>) 
     const slug = data.slug;
     const linkM3u8 = data.link_m3u8;
     const linkVtt = data.link_vtt;
+    const linkEmbed = data.link_embed;
     const order = parseInt(data.order || "1");
     const subtitleTracks = data.subtitle_tracks;
     const status = data.status || "published";
 
-    if (!name || !slug || !linkM3u8) return { error: "Thiếu trường bắt buộc" };
+    if (!name || !slug || (!linkM3u8 && !linkEmbed)) return { error: "Thiếu trường bắt buộc" };
 
     try {
         const supabase = await createClient();
@@ -318,8 +325,9 @@ export async function addEpisode(movieId: string, data: Record<string, string>) 
                     server_name: "Vietsub",
                     name,
                     slug: slug.toLowerCase().trim(),
-                    link_m3u8: linkM3u8.trim(),
+                    link_m3u8: linkM3u8 ? linkM3u8.trim() : "",
                     link_vtt: linkVtt ? linkVtt.trim() : null,
+                    link_embed: linkEmbed ? linkEmbed.trim() : null,
                     subtitles: parseSubtitleInput(subtitleTracks),
                     order,
                     status
@@ -351,11 +359,12 @@ export async function updateEpisode(id: string, data: Record<string, string>) {
     const slug = data.slug;
     const linkM3u8 = data.link_m3u8;
     const linkVtt = data.link_vtt;
+    const linkEmbed = data.link_embed;
     const order = parseInt(data.order || "1");
     const subtitleTracks = data.subtitle_tracks;
     const status = data.status || "published";
 
-    if (!name || !slug || !linkM3u8) return { error: "Thiếu trường bắt buộc" };
+    if (!name || !slug || (!linkM3u8 && !linkEmbed)) return { error: "Thiếu trường bắt buộc" };
 
     try {
         const supabase = await createClient();
@@ -368,8 +377,9 @@ export async function updateEpisode(id: string, data: Record<string, string>) {
                 .update({
                     name,
                     slug: slug.toLowerCase().trim(),
-                    link_m3u8: linkM3u8.trim(),
+                    link_m3u8: linkM3u8 ? linkM3u8.trim() : "",
                     link_vtt: linkVtt ? linkVtt.trim() : null,
+                    link_embed: linkEmbed ? linkEmbed.trim() : null,
                     subtitles: parseSubtitleInput(subtitleTracks),
                     order,
                     status

@@ -23,6 +23,9 @@ export default function NewMoviePage() {
     const [phimApiStatus, setPhimApiStatus] = useState<"checking" | "found" | "not_found" | "idle">("idle");
     const [phimApiData, setPhimApiData] = useState<any>(null);
 
+    // Link Type State
+    const [linkType, setLinkType] = useState<"m3u8" | "embed" | "both">("m3u8");
+
     useEffect(() => {
         if (!slug.trim()) {
             setPhimApiStatus("idle");
@@ -163,22 +166,53 @@ export default function NewMoviePage() {
                             <div className="border border-white/10 rounded-xl p-5 md:p-6 mt-2 bg-[#152740]/50">
                                 <h4 className="font-semibold mb-4 text-sm text-gray-300 uppercase tracking-wider">Thông tin Video (Phim Lẻ)</h4>
                                 
-                                <div className="mb-5">
-                                    <label className="text-gray-400 text-sm mb-1.5 block">Link M3U8 (Bắt buộc)</label>
-                                    <input name="link_m3u8" type="url" required className="w-full bg-[#0a1628] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://pub-xxxx.r2.dev/phim-xxx/index.m3u8" />
+                                <div className="bg-[#0a1628]/50 p-3 rounded-lg border border-white/5 mb-5">
+                                    <label className="text-gray-300 text-sm font-medium mb-2 block">Nguồn Video (Server phát)</label>
+                                    <div className="flex flex-wrap gap-4 text-sm">
+                                        <label className="flex items-center gap-2 cursor-pointer hover:text-white text-gray-400 transition">
+                                            <input type="radio" name="linkTypeGroup" value="m3u8" checked={linkType === 'm3u8'} onChange={() => setLinkType('m3u8')} className="accent-blue-500 w-4 h-4" />
+                                            Chỉ M3U8 (R2/B2)
+                                        </label>
+                                        <label className="flex items-center gap-2 cursor-pointer hover:text-white text-gray-400 transition">
+                                            <input type="radio" name="linkTypeGroup" value="embed" checked={linkType === 'embed'} onChange={() => setLinkType('embed')} className="accent-blue-500 w-4 h-4" />
+                                            Chỉ Embed (Loadvid)
+                                        </label>
+                                        <label className="flex items-center gap-2 cursor-pointer hover:text-white text-gray-400 transition">
+                                            <input type="radio" name="linkTypeGroup" value="both" checked={linkType === 'both'} onChange={() => setLinkType('both')} className="accent-blue-500 w-4 h-4" />
+                                            Dùng cả hai
+                                        </label>
+                                    </div>
                                 </div>
-                                <div>
-                                    <label className="text-gray-400 text-sm mb-1.5 block">
-                                        Phụ đề (Song Ngữ) — <span className="text-gray-500 italic">Tùy chọn</span>
-                                    </label>
-                                    <textarea
-                                        name="subtitle_tracks"
-                                        rows={4}
-                                        className="w-full bg-[#0a1628] text-white rounded-lg p-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-600"
-                                        placeholder={`Tiếng Việt|https://r2.../film-vi.vtt\nEnglish|https://r2.../film-en.vtt\n\n(Mỗi dòng: Tên Ngôn ngữ|URL)`}
-                                    />
-                                    <p className="text-xs text-gray-500 mt-2">⚠️ Nếu chỉ có 1 dòng = Vietsub thường. Từ 2 dòng trở lên = Player sẽ có menu thả xuống chọn 2 phụ đề.</p>
+
+                                <div className={`grid grid-cols-1 ${linkType === 'both' ? 'md:grid-cols-2' : ''} gap-5 mb-5`}>
+                                    {(linkType === 'm3u8' || linkType === 'both') && (
+                                        <div>
+                                            <label className="text-gray-400 text-sm mb-1.5 block">Link M3U8 (Video Streaming - R2/B2)</label>
+                                            <input name="link_m3u8" type="url" className="w-full bg-[#0a1628] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://pub-xxxx.r2.dev/phim-xxx/index.m3u8" />
+                                        </div>
+                                    )}
+                                    {(linkType === 'embed' || linkType === 'both') && (
+                                        <div>
+                                            <label className="text-gray-400 text-sm mb-1.5 block">Link Embed (Dự phòng - Loadvid)</label>
+                                            <input name="link_embed" type="url" className="w-full bg-[#0a1628] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://cdn.loadvid.com/..." />
+                                        </div>
+                                    )}
                                 </div>
+
+                                {linkType !== 'embed' && (
+                                    <div>
+                                        <label className="text-gray-400 text-sm mb-1.5 block">
+                                            Phụ đề (Song Ngữ) — <span className="text-gray-500 italic">Tùy chọn</span>
+                                        </label>
+                                        <textarea
+                                            name="subtitle_tracks"
+                                            rows={4}
+                                            className="w-full bg-[#0a1628] text-white rounded-lg p-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-600"
+                                            placeholder={`Tiếng Việt|https://r2.../film-vi.vtt\nEnglish|https://r2.../film-en.vtt\n\n(Mỗi dòng: Tên Ngôn ngữ|URL)`}
+                                        />
+                                        <p className="text-xs text-gray-500 mt-2">⚠️ Subtitle chỉ áp dụng khi xem bằng link M3U8.</p>
+                                    </div>
+                                )}
                             </div>
                         )}
                         

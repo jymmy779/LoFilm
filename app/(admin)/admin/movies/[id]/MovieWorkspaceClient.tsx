@@ -1,5 +1,5 @@
 "use client";
-import { useState, useTransition } from "react";
+import { useState, useEffect, useTransition } from "react";
 import { updateExclusiveMovie, addEpisode, updateEpisode, deleteEpisode, bulkAddExclusiveEpisodes } from "@/app/actions/adminMovies";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
@@ -20,6 +20,18 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
     // Episodes State
     const [editingEpisode, setEditingEpisode] = useState<any>(null);
     const [episodeTab, setEpisodeTab] = useState<"single" | "bulk">("single");
+    const [linkType, setLinkType] = useState<"m3u8" | "embed" | "both">("m3u8");
+    const [bulkLinkType, setBulkLinkType] = useState<"m3u8" | "embed" | "both">("m3u8");
+
+    useEffect(() => {
+        if (editingEpisode) {
+            if (editingEpisode.link_m3u8 && editingEpisode.link_embed) setLinkType("both");
+            else if (editingEpisode.link_embed && !editingEpisode.link_m3u8) setLinkType("embed");
+            else setLinkType("m3u8");
+        } else {
+            setLinkType("m3u8");
+        }
+    }, [editingEpisode]);
 
     // Sort episodes
     const episodes = [...(movie.exclusive_episodes || [])].sort((a: any, b: any) => a.order - b.order);
@@ -94,12 +106,13 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
         const formData = new FormData(form);
         const links = formData.get("bulk_links") as string;
         const vttLinks = formData.get("bulk_vtt_links") as string;
+        const embedLinks = formData.get("bulk_embed_links") as string;
         const status = formData.get("status") as string || "published";
         const startEpisode = (episodes.length || 0) + 1;
 
         startTransition(async () => {
             try {
-                const res = await bulkAddExclusiveEpisodes(movie.id, startEpisode, links, vttLinks, status);
+                const res = await bulkAddExclusiveEpisodes(movie.id, startEpisode, links, vttLinks, embedLinks, status);
                 if (res.error) toast.error(res.error);
                 else {
                     toast.success("Đã thêm hàng loạt thành công!");
@@ -288,7 +301,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
 
                         {episodeTab === 'single' ? (
                             <form onSubmit={handleSaveEpisode} className="flex flex-col gap-5">
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
                                     <div>
                                         <label className="text-gray-400 text-sm mb-1.5 block">Tên {movie.type === 'single' ? 'Video' : 'tập'}</label>
                                         <input name="name" type="text" defaultValue={editingEpisode?.name || ""} required className="w-full bg-[#152740] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Tập 1" onChange={(e) => {
@@ -304,11 +317,41 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                     </div>
                                 </div>
 
-                                <div className="grid grid-cols-1 md:grid-cols-[1fr_120px_140px] gap-5 items-start">
-                                    <div>
-                                        <label className="text-gray-400 text-sm mb-1.5 block">Link M3U8 (Video Streaming)</label>
-                                        <input name="link_m3u8" type="url" defaultValue={editingEpisode?.link_m3u8 || ""} required className="w-full bg-[#152740] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono" placeholder="https://pub-xxxx.r2.dev/.../index.m3u8" />
+                                {/* Link Type Selector */}
+                                <div className="bg-[#152740]/50 p-3 rounded-lg border border-white/5 mb-2">
+                                    <label className="text-gray-300 text-sm font-medium mb-2 block">Nguồn Video (Server phát)</label>
+                                    <div className="flex flex-wrap gap-4 text-sm">
+                                        <label className="flex items-center gap-2 cursor-pointer hover:text-white text-gray-400 transition">
+                                            <input type="radio" name="linkTypeGroup" value="m3u8" checked={linkType === 'm3u8'} onChange={() => setLinkType('m3u8')} className="accent-blue-500 w-4 h-4" />
+                                            Chỉ M3U8 (R2/B2)
+                                        </label>
+                                        <label className="flex items-center gap-2 cursor-pointer hover:text-white text-gray-400 transition">
+                                            <input type="radio" name="linkTypeGroup" value="embed" checked={linkType === 'embed'} onChange={() => setLinkType('embed')} className="accent-blue-500 w-4 h-4" />
+                                            Chỉ Embed (Loadvid)
+                                        </label>
+                                        <label className="flex items-center gap-2 cursor-pointer hover:text-white text-gray-400 transition">
+                                            <input type="radio" name="linkTypeGroup" value="both" checked={linkType === 'both'} onChange={() => setLinkType('both')} className="accent-blue-500 w-4 h-4" />
+                                            Dùng cả hai (Song song)
+                                        </label>
                                     </div>
+                                </div>
+
+                                <div className={`grid grid-cols-1 ${linkType === 'both' ? 'md:grid-cols-2' : ''} gap-5 mb-5`}>
+                                    {(linkType === 'm3u8' || linkType === 'both') && (
+                                        <div>
+                                            <label className="text-gray-400 text-sm mb-1.5 block">Link M3U8 (Video Streaming - R2/B2)</label>
+                                            <input name="link_m3u8" type="url" defaultValue={editingEpisode?.link_m3u8 || ""} className="w-full bg-[#152740] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono" placeholder="https://pub-xxxx.r2.dev/.../index.m3u8" />
+                                        </div>
+                                    )}
+                                    {(linkType === 'embed' || linkType === 'both') && (
+                                        <div>
+                                            <label className="text-gray-400 text-sm mb-1.5 block">Link Embed (Dự phòng - Loadvid)</label>
+                                            <input name="link_embed" type="url" defaultValue={editingEpisode?.link_embed || ""} className="w-full bg-[#152740] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono" placeholder="https://cdn.loadvid.com/..." />
+                                        </div>
+                                    )}
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-5 items-start">
                                     <div>
                                         <label className="text-gray-400 text-sm mb-1.5 block">Thứ tự sắp xếp</label>
                                         <input name="order" type="number" defaultValue={editingEpisode?.order || episodes.length + 1} required className="w-full bg-[#152740] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-center" />
@@ -322,27 +365,29 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                     </div>
                                 </div>
 
-                                <div className="bg-[#152740]/50 border border-white/5 p-4 rounded-xl mt-2">
-                                    <div className="flex justify-between items-end mb-2">
-                                        <label className="text-gray-300 font-medium block">
-                                            Phụ đề (Song Ngữ)
-                                        </label>
-                                        <span className="text-xs text-amber-400/80 bg-amber-400/10 px-2 py-1 rounded"><i className="fa-solid fa-circle-info mr-1"></i>Mỗi dòng: Tên|URL</span>
+                                {linkType !== 'embed' && (
+                                    <div className="bg-[#152740]/50 border border-white/5 p-4 rounded-xl mt-2">
+                                        <div className="flex justify-between items-end mb-2">
+                                            <label className="text-gray-300 font-medium block">
+                                                Phụ đề (Song Ngữ)
+                                            </label>
+                                            <span className="text-xs text-amber-400/80 bg-amber-400/10 px-2 py-1 rounded"><i className="fa-solid fa-circle-info mr-1"></i>Mỗi dòng: Tên|URL</span>
+                                        </div>
+                                        <textarea
+                                            name="subtitle_tracks"
+                                            rows={6}
+                                            defaultValue={(editingEpisode?.subtitles || [])
+                                                .map((s: any) => `${s.label}|${s.url}`)
+                                                .join('\n')}
+                                            className="w-full bg-[#0a1628] text-white rounded-lg p-4 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder:text-gray-600 leading-relaxed custom-scrollbar"
+                                            placeholder={`Tiếng Việt|https://r2.../film-vi.vtt\nEnglish|https://r2.../film-en.vtt\n中文|https://r2.../film-zh.vtt`}
+                                        />
+                                        <p className="text-xs text-gray-500 mt-2 flex items-center gap-1.5">
+                                            <i className="fa-solid fa-lightbulb text-amber-500/70"></i>
+                                            <span>Gõ từng ngôn ngữ xuống dòng. Subtitle chỉ áp dụng khi xem bằng link M3U8.</span>
+                                        </p>
                                     </div>
-                                    <textarea
-                                        name="subtitle_tracks"
-                                        rows={6}
-                                        defaultValue={(editingEpisode?.subtitles || [])
-                                            .map((s: any) => `${s.label}|${s.url}`)
-                                            .join('\n')}
-                                        className="w-full bg-[#0a1628] text-white rounded-lg p-4 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder:text-gray-600 leading-relaxed custom-scrollbar"
-                                        placeholder={`Tiếng Việt|https://r2.../film-vi.vtt\nEnglish|https://r2.../film-en.vtt\n中文|https://r2.../film-zh.vtt`}
-                                    />
-                                    <p className="text-xs text-gray-500 mt-2 flex items-center gap-1.5">
-                                        <i className="fa-solid fa-lightbulb text-amber-500/70"></i>
-                                        <span>Gõ từng ngôn ngữ xuống dòng. Hệ thống sẽ tự tạo menu dropdown trong Player cho người dùng.</span>
-                                    </p>
-                                </div>
+                                )}
 
                                 <div className="flex gap-3 justify-end mt-4 pt-4 border-t border-white/5">
                                     {editingEpisode && (
@@ -358,18 +403,47 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                 <div className="bg-blue-500/10 border border-blue-500/20 p-4 rounded-lg text-sm text-blue-200/80 mb-2">
                                     Chế độ Bulk giúp bạn thêm nhanh hàng chục tập phim cùng lúc. Tên tập và Slug sẽ được tự động tạo theo thứ tự (Tập 1, Tập 2...).
                                 </div>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                                    <div>
-                                        <label className="text-gray-400 text-sm mb-1.5 block">Danh sách M3U8 (Mỗi link 1 dòng)</label>
-                                        <textarea name="bulk_links" rows={12} required className="w-full bg-[#152740] text-white rounded-lg p-4 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 whitespace-nowrap overflow-x-auto custom-scrollbar" placeholder="https://link1.m3u8&#10;https://link2.m3u8"></textarea>
-                                    </div>
-                                    <div>
-                                        <label className="text-gray-400 text-sm mb-1.5 block flex justify-between">
-                                            Danh sách VTT tương ứng
-                                            <span className="text-xs text-gray-500 font-normal italic">(Chỉ hỗ trợ 1 VTT/tập)</span>
+                                
+                                <div className="bg-[#152740]/50 p-3 rounded-lg border border-white/5 mb-2">
+                                    <label className="text-gray-300 text-sm font-medium mb-2 block">Nguồn Video (Hàng loạt)</label>
+                                    <div className="flex flex-wrap gap-4 text-sm">
+                                        <label className="flex items-center gap-2 cursor-pointer hover:text-white text-gray-400 transition">
+                                            <input type="radio" name="bulkLinkTypeGroup" value="m3u8" checked={bulkLinkType === 'm3u8'} onChange={() => setBulkLinkType('m3u8')} className="accent-blue-500 w-4 h-4" />
+                                            Chỉ M3U8 (R2/B2)
                                         </label>
-                                        <textarea name="bulk_vtt_links" rows={12} className="w-full bg-[#152740] text-white rounded-lg p-4 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 whitespace-nowrap overflow-x-auto custom-scrollbar" placeholder="https://sub1.vtt&#10;https://sub2.vtt&#10;&#10;(Bỏ trống dòng nếu tập đó ko có)"></textarea>
+                                        <label className="flex items-center gap-2 cursor-pointer hover:text-white text-gray-400 transition">
+                                            <input type="radio" name="bulkLinkTypeGroup" value="embed" checked={bulkLinkType === 'embed'} onChange={() => setBulkLinkType('embed')} className="accent-blue-500 w-4 h-4" />
+                                            Chỉ Embed (Loadvid)
+                                        </label>
+                                        <label className="flex items-center gap-2 cursor-pointer hover:text-white text-gray-400 transition">
+                                            <input type="radio" name="bulkLinkTypeGroup" value="both" checked={bulkLinkType === 'both'} onChange={() => setBulkLinkType('both')} className="accent-blue-500 w-4 h-4" />
+                                            Dùng cả hai
+                                        </label>
                                     </div>
+                                </div>
+
+                                <div className={`grid grid-cols-1 ${bulkLinkType === 'both' ? 'md:grid-cols-3' : 'md:grid-cols-2'} gap-5`}>
+                                    {(bulkLinkType === 'm3u8' || bulkLinkType === 'both') && (
+                                        <div>
+                                            <label className="text-gray-400 text-sm mb-1.5 block">Danh sách M3U8 (Mỗi link 1 dòng)</label>
+                                            <textarea name="bulk_links" rows={12} className="w-full bg-[#152740] text-white rounded-lg p-4 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 whitespace-nowrap overflow-x-auto custom-scrollbar" placeholder="https://link1.m3u8&#10;https://link2.m3u8"></textarea>
+                                        </div>
+                                    )}
+                                    {(bulkLinkType === 'embed' || bulkLinkType === 'both') && (
+                                        <div>
+                                            <label className="text-gray-400 text-sm mb-1.5 block">Danh sách Embed Loadvid</label>
+                                            <textarea name="bulk_embed_links" rows={12} className="w-full bg-[#152740] text-white rounded-lg p-4 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 whitespace-nowrap overflow-x-auto custom-scrollbar" placeholder="https://cdn.loadvid.com...&#10;https://cdn.loadvid.com..."></textarea>
+                                        </div>
+                                    )}
+                                    {bulkLinkType !== 'embed' && (
+                                        <div>
+                                            <label className="text-gray-400 text-sm mb-1.5 block flex justify-between">
+                                                Danh sách VTT tương ứng
+                                                <span className="text-xs text-gray-500 font-normal italic">(Chỉ hỗ trợ 1 VTT/tập)</span>
+                                            </label>
+                                            <textarea name="bulk_vtt_links" rows={12} className="w-full bg-[#152740] text-white rounded-lg p-4 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 whitespace-nowrap overflow-x-auto custom-scrollbar" placeholder="https://sub1.vtt&#10;https://sub2.vtt&#10;&#10;(Bỏ trống dòng nếu tập đó ko có)"></textarea>
+                                        </div>
+                                    )}
                                 </div>
                                 <div>
                                     <label className="text-gray-400 text-sm mb-1.5 block">Trạng thái mặc định</label>

@@ -36,21 +36,37 @@ export async function getMovieDetail(slug: string, isPreview: boolean = false): 
             const sortedEpisodes = publishedEpisodes.sort((a: any, b: any) => a.order - b.order);
             const exclusiveServer = {
                 server_name: exclusiveMovie.lang_tag || "Song Ngữ Độc Quyền",
-                server_data: sortedEpisodes.map((ep: any) => ({
+                server_data: sortedEpisodes.filter((ep: any) => ep.link_m3u8).map((ep: any) => ({
                     name: ep.name,
                     slug: ep.slug,
                     filename: ep.slug,
-                    link_embed: "",
-                    link_m3u8: ep.link_m3u8,
+                    link_embed: ep.link_embed || "",
+                    link_m3u8: ep.link_m3u8 || "",
+                    link_vtt: ep.link_vtt,
+                    subtitles: ep.subtitles || []
+                }))
+            };
+
+            const exclusiveEmbedServer = {
+                server_name: (exclusiveMovie.lang_tag || "Song Ngữ Độc Quyền") + " - Dự Phòng",
+                server_data: sortedEpisodes.filter((ep: any) => ep.link_embed).map((ep: any) => ({
+                    name: ep.name,
+                    slug: ep.slug,
+                    filename: ep.slug,
+                    link_embed: ep.link_embed || "",
+                    link_m3u8: ep.link_m3u8 || "",
                     link_vtt: ep.link_vtt,
                     subtitles: ep.subtitles || []
                 }))
             };
 
             // 2. GỘP SERVER: Nếu phim tồn tại trên PhimAPI, Độc quyền ưu tiên nằm trên cùng
-            let finalEpisodes = [exclusiveServer];
+            let finalEpisodes = [];
+            if (exclusiveServer.server_data.length > 0) finalEpisodes.push(exclusiveServer);
+            if (exclusiveEmbedServer.server_data.length > 0) finalEpisodes.push(exclusiveEmbedServer);
+
             if (phimApiData && phimApiData.episodes) {
-                finalEpisodes = [exclusiveServer, ...phimApiData.episodes];
+                finalEpisodes = [...finalEpisodes, ...phimApiData.episodes];
             }
 
             // 3. Xây dựng Movie Object
