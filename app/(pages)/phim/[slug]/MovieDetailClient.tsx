@@ -231,8 +231,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                         fill
                         priority
                         sizes="100vw"
-                        onLoad={() => setIsThumbLoaded(true)}
-                        className={`object-cover object-top transition-opacity duration-800 transform-gpu ${isThumbLoaded ? 'opacity-100' : 'opacity-0'}`}
+                        className="object-cover object-top transform-gpu"
                     />
                     <div className="absolute inset-0 bg-black/40" />
                     <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,0,0,0.35)_0.8px,transparent_0.8px)] [background-size:3px_3px] opacity-30 z-10 pointer-events-none" />
