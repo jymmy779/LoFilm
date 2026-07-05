@@ -16,6 +16,8 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
     const [slug, setSlug] = useState(movie.slug);
     const [status, setStatus] = useState(movie.status);
     const [langTag, setLangTag] = useState(movie.lang_tag || "Vietsub Độc Quyền");
+    const [isStarred, setIsStarred] = useState(false);
+    const [expiresDays, setExpiresDays] = useState("3");
 
     // Episodes State
     const [editingEpisode, setEditingEpisode] = useState<any>(null);
@@ -48,7 +50,9 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
             type: type,
             slug: slug,
             status: status,
-            lang_tag: langTag
+            lang_tag: langTag,
+            is_starred: isStarred ? "true" : "false",
+            expires_in_days: expiresDays
         };
         
         startTransition(async () => {
@@ -202,7 +206,34 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                     <option value="published">Công khai</option>
                                 </select>
                             </div>
-                            <div className="flex items-end">
+                            
+                            <div className="col-span-1 md:col-span-6 bg-[#152740]/50 border border-amber-500/30 rounded p-4 mt-2">
+                                <label className="flex items-center gap-3 cursor-pointer group w-fit">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={isStarred} 
+                                        onChange={(e) => setIsStarred(e.target.checked)} 
+                                        className="w-4 h-4 accent-amber-500" 
+                                    />
+                                    <span className="font-semibold text-amber-400 text-sm">⭐ Đánh dấu ưu tiên lên Hero Slider (Ghi đè nếu đã có)</span>
+                                </label>
+
+                                {isStarred && (
+                                    <div className="mt-3 ml-7 flex items-center gap-3">
+                                        <label className="text-gray-400 text-xs">Số ngày hiển thị:</label>
+                                        <input 
+                                            type="number" 
+                                            min="0"
+                                            value={expiresDays} 
+                                            onChange={(e) => setExpiresDays(e.target.value)} 
+                                            className="w-24 bg-[#0a1628] text-white rounded p-1.5 text-sm focus:ring-1 focus:ring-amber-500 border border-white/5" 
+                                            placeholder="Vô hạn" 
+                                        />
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="flex items-end col-span-1 md:col-span-6">
                                 <button type="submit" disabled={isPending} className="w-full bg-blue-600 hover:bg-blue-700 py-2 rounded text-sm transition font-medium">
                                     {isPending ? "Đang lưu..." : "Lưu thay đổi"}
                                 </button>

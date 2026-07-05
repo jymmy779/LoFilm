@@ -76,19 +76,19 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
                     <Swiper
                         modules={[Navigation]}
                         slidesPerView={2}
-                        spaceBetween={10}
+                        spaceBetween={8}
                         navigation={{
                             nextEl: `.sw-next-${navId}`,
                             prevEl: `.sw-prev-${navId}`,
                         }}
                         breakpoints={{
                             // Cấu hình responsive cho số lượng slide...
-                            640: { slidesPerView: 3, spaceBetween: 13 },
-                            768: { slidesPerView: 4, spaceBetween: 13 },
-                            1024: { slidesPerView: 5, spaceBetween: 13 },
-                            1200: { slidesPerView: 6, spaceBetween: 13 },
-                            1400: { slidesPerView: 7, spaceBetween: 15 },
-                            1536: { slidesPerView: 8, spaceBetween: 15 }
+                            640: { slidesPerView: 3, spaceBetween: 10 },
+                            768: { slidesPerView: 4, spaceBetween: 10 },
+                            1024: { slidesPerView: 5, spaceBetween: 10 },
+                            1200: { slidesPerView: 6, spaceBetween: 10 },
+                            1400: { slidesPerView: 7, spaceBetween: 12 },
+                            1536: { slidesPerView: 8, spaceBetween: 12 }
                         }}
                         className="swiper-carousel"
                     >

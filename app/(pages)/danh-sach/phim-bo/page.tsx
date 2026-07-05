@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 import SeriesClient from "./SeriesClient";
 import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
+import { fetchCatalogData } from "@/app/utils/serverFetch";
 
 export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
@@ -11,10 +12,16 @@ export const metadata: Metadata = {
     keywords: ["phim bo", "phim bo moi", "phim bo hay", "phim bo vietsub", "phim bo trung quoc", "phim bo han quoc", "phim bo au my", "xem phim bo online", "lofilm phim bo"],
 };
 
-export default function SeriesPage() {
+export default async function SeriesPage() {
+    const initialData = await fetchCatalogData(
+        "https://phimapi.com/v1/api/danh-sach/phim-bo",
+        1,
+        32
+    );
+
     return (
         <Suspense fallback={<CatalogSkeleton />}>
-            <SeriesClient />
+            <SeriesClient initialData={initialData} />
         </Suspense>
     );
 }

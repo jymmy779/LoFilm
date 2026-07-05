@@ -69,13 +69,13 @@ function WideMovieRow({
                     <Swiper
                         modules={[Navigation]}
                         slidesPerView={1.2}
-                        spaceBetween={10}
+                        spaceBetween={8}
                         breakpoints={{
-                            480: { slidesPerView: 1.5, spaceBetween: 12 },
-                            640: { slidesPerView: 2.1, spaceBetween: 14 },
-                            1024: { slidesPerView: 2.6, spaceBetween: 16 },
-                            1440: { slidesPerView: 3.2, spaceBetween: 20 },
-                            1600: { slidesPerView: 3.6, spaceBetween: 20 }
+                            480: { slidesPerView: 1.5, spaceBetween: 10 },
+                            640: { slidesPerView: 2.1, spaceBetween: 12 },
+                            1024: { slidesPerView: 2.6, spaceBetween: 14 },
+                            1440: { slidesPerView: 3.2, spaceBetween: 16 },
+                            1600: { slidesPerView: 3.6, spaceBetween: 16 }
                         }}
                         navigation={{
                             nextEl: `.sw-next-${navId}`,

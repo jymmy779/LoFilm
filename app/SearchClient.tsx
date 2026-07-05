@@ -11,16 +11,18 @@ import { globalCache } from "@/app/utils/globalCache";
 import CatalogLayout from "@/app/components/MovieCatalog/CatalogLayout";
 import { Film, AlertCircle, RotateCcw, Trash2 } from "lucide-react";
 
-export default function SearchClient() {
+import { CatalogInitialData } from "@/app/utils/serverFetch";
+
+export default function SearchClient({ initialData }: { initialData?: CatalogInitialData }) {
 // ... existing search client wrapper ...
     return (
         <Suspense fallback={<div className="min-h-screen bg-[#0f1115]" />}>
-            <SearchContent />
+            <SearchContent initialData={initialData} />
         </Suspense>
     );
 }
 
-function SearchContent() {
+function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
     const router = useRouter();
     const searchParams = useSearchParams();
 
@@ -37,15 +39,15 @@ function SearchContent() {
 
     const initialPage = Number(searchParams.get("page")) || 1;
     const [isFilterOpen, setIsFilterOpen] = useState(searchParams.get("filter") === "open");
-    const [movies, setMovies] = useState<Movie[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+    const [movies, setMovies] = useState<Movie[]>(initialData?.movies || []);
+    const [isLoading, setIsLoading] = useState(!initialData);
     const [isPageLoading, setIsPageLoading] = useState(false);
     const [isError, setIsError] = useState(false);
     const [currentPage, setCurrentPage] = useState(initialPage);
-    const [totalPages, setTotalPages] = useState(1);
+    const [totalPages, setTotalPages] = useState(initialData?.totalPages || 1);
 
-    const [categories, setCategories] = useState<MenuItem[]>([]);
-    const [countries, setCountries] = useState<MenuItem[]>([]);
+    const [categories, setCategories] = useState<MenuItem[]>(initialData?.categories || []);
+    const [countries, setCountries] = useState<MenuItem[]>(initialData?.countries || []);
     const [activeFilters, setActiveFilters] = useState<FilterState>(initialFilters);
 
     const updateUrl = (page: number, filters: FilterState, isOpen: boolean) => {
@@ -91,6 +93,13 @@ function SearchContent() {
         const fetchMovies = async () => {
             if (!keyword) {
                 setIsLoading(false);
+                return;
+            }
+
+            // If we have initialData and this is the first load (or the active filters/page match the initial params), use it
+            if (initialData && currentPage === initialPage && JSON.stringify(activeFilters) === JSON.stringify(initialFilters)) {
+                setIsLoading(false);
+                setIsPageLoading(false);
                 return;
             }
 

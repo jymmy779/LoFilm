@@ -137,15 +137,15 @@ function RandomMovieRow() {
             <div className="mb-6">
                 <Swiper
                     onSwiper={setMoodSwiper}
-                    spaceBetween={10}
+                    spaceBetween={8}
                     slidesPerView={2.5}
                     slidesOffsetBefore={4}
                     slidesOffsetAfter={4}
                     breakpoints={{
-                        640: { slidesPerView: 3.3, spaceBetween: 12 },
-                        768: { slidesPerView: 4.2, spaceBetween: 14 },
-                        1280: { slidesPerView: 5.2, spaceBetween: 16 },
-                        1480: { slidesPerView: 6.2, spaceBetween: 16 },
+                        640: { slidesPerView: 3.3, spaceBetween: 10 },
+                        768: { slidesPerView: 4.2, spaceBetween: 12 },
+                        1280: { slidesPerView: 5.2, spaceBetween: 14 },
+                        1480: { slidesPerView: 6.2, spaceBetween: 14 },
                     }}
                     className="rounded-xl overflow-visible"
                 >
@@ -175,14 +175,14 @@ function RandomMovieRow() {
                 {isLoading ? (
                     <div className="w-full">
                         <Swiper
-                            spaceBetween={10}
+                            spaceBetween={8}
                             slidesPerView={2.5}
                             breakpoints={{
-                                640: { slidesPerView: 3.5, spaceBetween: 12 },
-                                768: { slidesPerView: 4.5, spaceBetween: 14 },
-                                1024: { slidesPerView: 6.5, spaceBetween: 14 },
-                                1280: { slidesPerView: 8.5, spaceBetween: 16 },
-                                1536: { slidesPerView: 10.5, spaceBetween: 16 },
+                                640: { slidesPerView: 3.5, spaceBetween: 10 },
+                                768: { slidesPerView: 4.5, spaceBetween: 10 },
+                                1024: { slidesPerView: 6.5, spaceBetween: 10 },
+                                1280: { slidesPerView: 8.5, spaceBetween: 12 },
+                                1536: { slidesPerView: 10.5, spaceBetween: 12 },
                             }}
                         >
                             {[...Array(12)].map((_, i) => (
@@ -195,14 +195,14 @@ function RandomMovieRow() {
                 ) : movies.length > 0 ? (
                     <div>
                         <Swiper
-                            spaceBetween={10}
+                            spaceBetween={8}
                             slidesPerView={2.5}
                             breakpoints={{
-                                640: { slidesPerView: 3.5, spaceBetween: 12 },
-                                768: { slidesPerView: 4.5, spaceBetween: 14 },
-                                1024: { slidesPerView: 6.5, spaceBetween: 14 },
-                                1280: { slidesPerView: 8.5, spaceBetween: 16 },
-                                1536: { slidesPerView: 10.5, spaceBetween: 16 },
+                                640: { slidesPerView: 3.5, spaceBetween: 10 },
+                                768: { slidesPerView: 4.5, spaceBetween: 10 },
+                                1024: { slidesPerView: 6.5, spaceBetween: 10 },
+                                1280: { slidesPerView: 8.5, spaceBetween: 12 },
+                                1536: { slidesPerView: 10.5, spaceBetween: 12 },
                             }}
                             className="rounded-xl overflow-visible"
                         >

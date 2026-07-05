@@ -93,7 +93,9 @@ export default function LazyRow({
             }}
         >
             {shouldRender ? (
-                children
+                <div className="animate-fade-in w-full h-full">
+                    {children}
+                </div>
             ) : (
                 !noSkeleton && (
                     skeleton ? skeleton : (

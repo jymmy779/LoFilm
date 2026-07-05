@@ -2,7 +2,9 @@
 
 import MovieCatalogClient from "@/app/components/MovieCatalog/MovieCatalogClient";
 
-export default function MovieListClient() {
+import { CatalogInitialData } from "@/app/utils/serverFetch";
+
+export default function MovieListClient({ initialData }: { initialData?: CatalogInitialData }) {
     return (
         <MovieCatalogClient
             title="Danh sách Phim Lẻ"
@@ -10,6 +12,7 @@ export default function MovieListClient() {
             itemsPerPage={32}
             hideSidebar={true}
             defaultType="single"
+            initialData={initialData}
         />
     );
 }

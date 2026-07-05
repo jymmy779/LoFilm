@@ -93,19 +93,20 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
             <div className="row-content relative group/slider">
                 <Swiper
                     modules={[Navigation]}
-                    spaceBetween={10}
-                    slidesPerView={2}
+                    spaceBetween={8}
                     navigation={{
                         nextEl: `.sw-next-${navId}`,
                         prevEl: `.sw-prev-${navId}`,
                     }}
                     breakpoints={{
-                        640: { slidesPerView: 3, spaceBetween: 13 },
-                        768: { slidesPerView: 4, spaceBetween: 13 },
-                        1024: { slidesPerView: 5, spaceBetween: 13 },
-                        1200: { slidesPerView: 6, spaceBetween: 13 },
-                        1400: { slidesPerView: 7, spaceBetween: 15 },
-                        1536: { slidesPerView: 8, spaceBetween: 15 }
+                        0: { slidesPerView: 2, spaceBetween: 8 },
+                        480: { slidesPerView: 2.5, spaceBetween: 10 },
+                        640: { slidesPerView: 3, spaceBetween: 10 },
+                        768: { slidesPerView: 4, spaceBetween: 10 },
+                        1024: { slidesPerView: 5, spaceBetween: 10 },
+                        1200: { slidesPerView: 6, spaceBetween: 10 },
+                        1400: { slidesPerView: 7, spaceBetween: 12 },
+                        1536: { slidesPerView: 8, spaceBetween: 12 }
                     }}
                     className="swiper-carousel"
                 >

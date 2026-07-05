@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import CategoryClient from "./CategoryClient";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
+import { fetchCatalogData } from "@/app/utils/serverFetch";
 
 export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
@@ -57,9 +58,15 @@ export default async function CategoryPage({ params }: Props) {
         console.error("Lỗi fetch tên thể loại:", err);
     }
 
+    const initialData = await fetchCatalogData(
+        `https://phimapi.com/v1/api/the-loai/${slug}`,
+        1,
+        48
+    );
+
     return (
         <Suspense fallback={<CatalogSkeleton />}>
-            <CategoryClient slug={slug} title={`Danh sách phim ${categoryName}`} />
+            <CategoryClient slug={slug} title={`Danh sách phim ${categoryName}`} initialData={initialData} />
         </Suspense>
     );
 }

@@ -152,7 +152,7 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
                                         </div>
 
                                         <div className="flex flex-wrap items-center gap-3">
-                                            <div className="md:px-2 px-1.5 py-0.5 flex items-center justify-center bg-[#f5a623] text-[#0a1628] text-[10px] md:text-xs font-bold rounded shadow-[0_2px_10px_rgba(245,166,35,0.3)]">
+                                            <div className="md:px-2 px-1.5 py-0.5 flex items-center justify-center bg-[#f5a623] text-[#0a1628] text-[10px] md:text-xs font-bold rounded shadow-[0_2px_10px_rgba(245,166,35,0.3)] border border-transparent leading-none">
                                                 ★ {(movie.tmdb?.vote_average || 8.0).toFixed(1)}
                                             </div>
                                             <div className="md:px-2 px-1.5 py-0.5 flex items-center justify-center bg-white/20 text-white/90 text-[10px] md:text-xs font-bold rounded border border-white/20 leading-none">
@@ -219,11 +219,11 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
                     <Swiper
                         onSwiper={setThumbsSwiper}
                         loop={false}
-                        spaceBetween={20}
+                        spaceBetween={14}
                         slidesPerView={"auto"}
                         watchSlidesProgress={true}
                         breakpoints={{
-                            1024: { slidesPerView: 10, spaceBetween: 20 }
+                            1024: { slidesPerView: 10, spaceBetween: 16 }
                         }}
                         freeMode={false}
                         modules={[Navigation, Thumbs]}

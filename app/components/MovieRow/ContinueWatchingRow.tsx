@@ -261,10 +261,10 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                     <Swiper
                         modules={[Navigation]}
                         slidesPerView={"auto"}
-                        spaceBetween={12}
+                        spaceBetween={8}
                         breakpoints={{
-                            1280: { spaceBetween: 20 },
-                            767: { spaceBetween: 16 },
+                            1280: { spaceBetween: 16 },
+                            767: { spaceBetween: 12 },
                         }}
                         navigation={{
                             nextEl: '.btn-next-continue',

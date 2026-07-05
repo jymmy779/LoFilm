@@ -3,6 +3,7 @@ import { Suspense } from "react";
 import CountryClient from "./CountryClient";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
+import { fetchCatalogData } from "@/app/utils/serverFetch";
 
 export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
@@ -57,9 +58,15 @@ export default async function CountryPage({ params }: Props) {
         console.error("Lỗi fetch tên quốc gia:", err);
     }
 
+    const initialData = await fetchCatalogData(
+        `https://phimapi.com/v1/api/quoc-gia/${slug}`,
+        1,
+        48
+    );
+
     return (
         <Suspense fallback={<CatalogSkeleton />}>
-            <CountryClient slug={slug} title={`Danh sách phim ${countryName}`} />
+            <CountryClient slug={slug} title={`Danh sách phim ${countryName}`} initialData={initialData} />
         </Suspense>
     );
 }

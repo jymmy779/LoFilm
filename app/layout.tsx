@@ -128,10 +128,9 @@ import AuthListener from "./components/Auth/AuthListener";
 import NetworkMonitor from "./components/Network/NetworkMonitor";
 import WakeUpMonitor from "./components/Common/WakeUpMonitor";
 import ScrollToTop from "./components/Common/ScrollToTop";
-import FloatingMessageButton from "./components/Common/FloatingMessageButton";
 import { AuthProvider } from "./components/Auth/AuthContext";
-import ContinueWatchingPopup from "./components/Common/ContinueWatchingPopup";
 import HideOnAdmin from "./components/Common/HideOnAdmin";
+import DesktopSidebar from "./components/Sidebar/DesktopSidebar";
 
 export default async function RootLayout({
   children,
@@ -240,7 +239,7 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.variable} ${montserrat.variable} bg-[#0f1115] text-white font-sans`} suppressHydrationWarning>
+      <body className={`${inter.variable} ${montserrat.variable} bg-[#0a1628] text-white font-sans`} suppressHydrationWarning>
 
         <NetworkMonitor />
         <WakeUpMonitor />
@@ -251,16 +250,18 @@ export default async function RootLayout({
           <PageTransitionProvider>
             <div className="min-h-screen flex flex-col">
               <HideOnAdmin>
+                <DesktopSidebar />
                 <Suspense fallback={<div className="h-[64px] bg-[#0d1b2e] w-full fixed top-0 left-0 z-50 border-b border-white/10" />}>
                   <Header />
                 </Suspense>
               </HideOnAdmin>
-              <main className="flex-1 min-h-[70vh] md:min-h-[80vh] flex flex-col bg-[#0a1628]">
+              <main className="flex-1 min-h-[70vh] md:min-h-[80vh] flex flex-col xl:ml-[100px] transition-all">
                 {children}
               </main>
               <HideOnAdmin>
-                <Footer />
-                <ContinueWatchingPopup />
+                <div className="xl:ml-[100px] transition-all">
+                  <Footer />
+                </div>
               </HideOnAdmin>
             </div>
           </PageTransitionProvider>
@@ -269,7 +270,6 @@ export default async function RootLayout({
         <ClientToaster />
         <HideOnAdmin>
           <ScrollToTop />
-          <FloatingMessageButton contact_telegram={settings?.contact_telegram} contact_threads={settings?.contact_threads} />
           <GoogleAnalytics gaId="G-FCV3H66SFX" />
           {/* Adsterra Social Bar - 4 hours cooldown */}
           <AdsterraSocialBar />

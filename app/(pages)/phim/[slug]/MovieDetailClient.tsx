@@ -211,7 +211,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
     return (
         <main className="min-h-screen pb-20 animate-fade-in">
             {/* Background Cover */}
-            <div className="relative w-full h-[40vh] md:h-[50vh] xl:h-[80vh] overflow-hidden transform-gpu">
+            <div className="relative w-full h-[40vh] md:h-[50vh] xl:h-[80vh] overflow-hidden transform-gpu xl:-ml-[100px] xl:w-[calc(100%+100px)]">
                 <div className="absolute inset-0 scale-105 will-change-transform">
                     {/* Instant blurred placeholder - priority must be TRUE for 0s loading */}
                     <SmartImage

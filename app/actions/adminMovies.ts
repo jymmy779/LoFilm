@@ -2,6 +2,7 @@
 import { createClient } from "@/app/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import axios from "axios";
+import { addStarredMovie } from "./adminStarred";
 
 // Parse textarea input "label|url" per line into SubtitleTrack array
 function parseSubtitleInput(raw: string | null): { lang: string; label: string; url: string }[] {
@@ -193,6 +194,24 @@ export async function addExclusiveMovie(data: Record<string, string>) {
         }
     }
 
+    if (data.is_starred === 'on' || data.is_starred === 'true') {
+        const expiresDays = data.expires_in_days ? parseInt(data.expires_in_days) : null;
+        let finalThumb = thumbUrl;
+        let finalPoster = posterUrl;
+        
+        // Nếu ảnh lấy từ PhimAPI (chỉ có path) thì thêm host
+        if (finalThumb && !finalThumb.startsWith('http')) finalThumb = `https://phimimg.com/${finalThumb}`;
+        if (finalPoster && !finalPoster.startsWith('http')) finalPoster = `https://phimimg.com/${finalPoster}`;
+        
+        await addStarredMovie(
+            movie.slug,
+            movieName,
+            finalThumb,
+            finalPoster,
+            expiresDays
+        );
+    }
+
     revalidatePath("/admin", "layout");
     revalidatePath("/", "layout");
     return { success: true };
@@ -245,6 +264,27 @@ export async function updateExclusiveMovie(id: string, data: Record<string, stri
         .eq("id", id);
 
     if (error) return { error: `Lỗi cập nhật phim: ${error.message}` };
+
+    if (data.is_starred === 'on' || data.is_starred === 'true') {
+        const { data: movie } = await supabase.from("exclusive_movies").select("*").eq("id", id).single();
+        if (movie) {
+            const expiresDays = data.expires_in_days ? parseInt(data.expires_in_days) : null;
+            let finalThumb = movie.thumb_url;
+            let finalPoster = movie.poster_url;
+            
+            if (finalThumb && !finalThumb.startsWith('http')) finalThumb = `https://phimimg.com/${finalThumb}`;
+            if (finalPoster && !finalPoster.startsWith('http')) finalPoster = `https://phimimg.com/${finalPoster}`;
+            
+            await addStarredMovie(
+                movie.slug,
+                movie.name,
+                finalThumb,
+                finalPoster,
+                expiresDays
+            );
+        }
+    }
+
     revalidatePath("/admin", "layout");
     revalidatePath("/", "layout");
     return { success: true };

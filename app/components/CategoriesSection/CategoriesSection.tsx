@@ -1,95 +1,128 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
-import axios from "axios";
 import Container from "@/app/components/Container";
-import Skeleton from "@/app/components/Skeleton/Skeleton";
-import type { HomeCategory } from "@/app/types/home-prefetch";
+import Image from "next/image";
+import { Swiper, SwiperSlide } from "swiper/react";
+import { Navigation, FreeMode } from "swiper/modules";
+import type { Swiper as SwiperType } from "swiper";
+import { mockTopics } from "@/app/(pages)/chu-de/TopicsClient";
+import SwiperNavButtons from "@/app/components/Common/SwiperNavButtons";
 
-// Các màu gradient giống với màn hình tham khảo
-const gradientVariants = [
-    "from-[#6a5af9] to-[#d66efd]", // Âm nhạc (Tím - Hồng)
-    "from-[#439e80] to-[#b3a88a]", // Bí ẩn (Xanh ngọc - Nâu nhạt)
-    "from-[#9d7bb0] to-[#de8594]", // Chiến tranh (Tím nhạt - Hồng đất)
-    "from-[#cd6c54] to-[#c26d70]", // Chính kịch (Cam đất - Hồng đậm)
-    "from-[#4d86b9] to-[#b17b8f]", // Cổ trang (Xanh lam dương - Tím nhạt)
-    "from-[#d6a152] to-[#c76558]", // Gia đình (Vàng đất - Đỏ gạch)
-    "from-[#cc6b8c] to-[#d5776d]", // Hài hước (Hồng - Cam đào)
-    "from-[#7faa8a] to-[#c27a72]", // Hành động (Xanh rêu - Đỏ nhạt)
-];
+import "swiper/css";
+import "swiper/css/navigation";
+import "swiper/css/free-mode";
+import { ChevronRight } from "lucide-react";
 
-interface CategoriesSectionProps {
-    initialCategories?: HomeCategory[];
-}
-
-export default function CategoriesSection({ initialCategories }: CategoriesSectionProps) {
-    const [categories, setCategories] = useState<HomeCategory[]>(() => initialCategories ?? []);
+export default function CategoriesSection() {
+    const swiperRef = useRef<SwiperType>(null);
+    const [isBeginning, setIsBeginning] = useState(true);
+    const [isEnd, setIsEnd] = useState(false);
+    const [mounted, setMounted] = useState(false);
 
     useEffect(() => {
-        if ((initialCategories?.length ?? 0) > 0) return;
+        setMounted(true);
+    }, []);
 
-        axios.get(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/the-loai")}&revalidate=86400`)
-            .then(res => {
-                const sortedCategories = (res.data as HomeCategory[]).sort((a, b) =>
-                    a.name.localeCompare(b.name, "vi")
-                );
-                setCategories(sortedCategories);
-            })
-            .catch(err => console.error("Lỗi fetch the-loai:", err));
-    }, [initialCategories?.length]);
-
-    // Hiển thị skeleton loading nếu chưa tải xong
-    if (categories.length === 0) {
+    if (!mounted) {
         return (
-            <Container as="section" className="relative z-30 -mt-[80px] md:-mt-[140px] mb-10">
-                <Skeleton className="w-[250px] h-8 mb-6" rounded="lg" />
-                <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-4">
-                    {[...Array(8)].map((_, i) => (
-                        <Skeleton key={i} className="w-full h-[120px]" rounded="xl" />
+            <Container as="section" className="relative z-30 -mt-[90px] md:-mt-[120px] pointer-events-none mb-10">
+                <div className="h-8 w-[250px] bg-white/10 rounded-lg animate-pulse mb-6"></div>
+                <div className="flex gap-2 sm:gap-3 lg:gap-[14px] overflow-hidden">
+                    {[...Array(5)].map((_, i) => (
+                        <div key={i} className="w-[200px] lg:w-[320px] h-[100px] lg:h-[160px] bg-white/5 rounded-xl animate-pulse shrink-0"></div>
                     ))}
                 </div>
             </Container>
         );
     }
 
-    // Lấy đúng 8 danh mục đầu tiên
-    const displayCategories = categories.slice(0, 8);
-
     return (
         <Container as="section" className="relative z-30 -mt-[90px] md:-mt-[120px] pointer-events-none">
-            <h2 className=" text-xl lg:text-2xl font-bold text-white mb-6">Bạn đang quan tâm gì?</h2>
+            {/* Header Section */}
+            <div className="flex items-center justify-between mb-4 pointer-events-auto">
+                <h2 className="text-xl lg:text-2xl font-bold text-white tracking-tight">Bạn Đang Quan Tâm Gì?</h2>
+            </div>
 
-            {/* Grid layout cho 8 danh mục */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 xl:grid-cols-8 gap-4 pointer-events-auto">
-                {displayCategories.map((cat, index) => {
-                    const gradientClass = gradientVariants[index % gradientVariants.length];
+            {/* Swiper Slider */}
+            <div className="relative pointer-events-auto -mx-4 px-4 sm:mx-0 sm:px-0 group/slider">
+                <Swiper
+                    modules={[Navigation, FreeMode]}
+                    onBeforeInit={(swiper) => {
+                        swiperRef.current = swiper;
+                    }}
+                    onSlideChange={(swiper) => {
+                        setIsBeginning(swiper.isBeginning);
+                        setIsEnd(swiper.isEnd);
+                    }}
+                    navigation={{
+                        nextEl: '.btn-next-categories',
+                        prevEl: '.btn-prev-categories',
+                    }}
+                    freeMode={true}
+                    spaceBetween={8}
+                    slidesPerView="auto"
+                    breakpoints={{
+                        0: { spaceBetween: 8 },
+                        640: { spaceBetween: 12 },
+                        1024: { spaceBetween: 14 },
+                    }}
+                    className="!pb-6 !pt-2"
+                >
+                    {mockTopics.map((topic) => {
+                        const Icon = topic.icon;
+                        return (
+                            <SwiperSlide key={topic.id} className="!w-[200px] md:!w-[240px] lg:!w-[280px]">
+                                <TransitionLink
+                                    href={topic.href}
+                                    className={`relative overflow-hidden rounded-[16px] md:rounded-[20px] h-[110px] md:h-[130px] lg:h-[150px] bg-gradient-to-br ${topic.bgColor} group cursor-pointer shadow-lg hover:shadow-2xl transition-all duration-300 hover:-translate-y-1 block border border-white/5`}
+                                >
+                                    {/* Nửa bên trái: Thông tin */}
+                                    <div className="absolute inset-0 z-10 p-3 md:p-4 flex flex-col justify-between h-full w-[65%]">
+                                        <div className={`w-7 h-7 md:w-8 md:h-8 rounded-lg bg-black/20 border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform backdrop-blur-sm shadow-sm`}>
+                                            <Icon size={16} strokeWidth={2.5} className="text-white/90" />
+                                        </div>
+                                        <div className="mt-auto">
+                                            <h2 className="text-white font-bold text-sm md:text-base lg:text-lg leading-tight line-clamp-1 mb-1 drop-shadow-md">
+                                                {topic.title}
+                                            </h2>
+                                            <div className="flex items-center text-[9px] md:text-[10px] font-bold text-white/70 tracking-wider group-hover:text-white transition-colors">
+                                                XEM NGAY <ChevronRight size={12} className="ml-0.5" />
+                                            </div>
+                                        </div>
+                                    </div>
 
-                    return (
-                        <TransitionLink
-                            key={cat.slug}
-                            href={`/the-loai/${cat.slug}`}
-                            className="block w-full h-[120px] rounded-xl p-5 relative overflow-hidden group transition-all duration-300 hover:-translate-y-2 hover:shadow-[0_10px_20px_rgba(0,0,0,0.4)]"
-                        >
-                            {/* Gradient nền có hover */}
-                            <div className={`absolute inset-0 bg-gradient-to-br ${gradientClass} opacity-85 group-hover:opacity-100 transition-opacity duration-300`} />
+                                    {/* Nửa bên phải: Hình ảnh có hiệu ứng Fade */}
+                                    <div className="absolute right-0 top-0 h-full w-[75%]">
+                                        <div
+                                            className="relative w-full h-full opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500"
+                                            style={{
+                                                WebkitMaskImage: "linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%)",
+                                                maskImage: "linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%)"
+                                            }}
+                                        >
+                                            <Image
+                                                src={`https://wsrv.nl/?url=${encodeURIComponent(topic.imageUrl)}&w=400&q=80&output=webp`}
+                                                alt={topic.title}
+                                                fill
+                                                sizes="(max-width: 768px) 50vw, 300px"
+                                                className="object-cover"
+                                                priority
+                                            />
+                                        </div>
+                                    </div>
+                                </TransitionLink>
+                            </SwiperSlide>
+                        );
+                    })}
+                </Swiper>
 
-                            {/* Thêm một lớp đen mờ gradient từ dưới lên để chữ hiển thị rõ hơn */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/40 to-transparent opacity-60" />
-
-                            {/* Nội dung thẻ */}
-                            <div className="relative z-10 w-full h-full flex flex-col justify-end">
-                                <h3 className="text-lg font-bold text-white mb-1 drop-shadow-md leading-tight group-hover:text-[#f5a623] transition-colors">
-                                    {cat.name}
-                                </h3>
-                                <p className="text-xs text-white/70 font-medium flex items-center gap-1 group-hover:text-white transition-colors">
-                                    Xem chủ đề
-                                    <span className="text-[14px] leading-none mb-[2px]">›</span>
-                                </p>
-                            </div>
-                        </TransitionLink>
-                    );
-                })}
+                <SwiperNavButtons
+                    prevClassName="btn-prev-categories"
+                    nextClassName="btn-next-categories"
+                    className="!top-1/2 !-translate-y-[calc(50%+8px)]"
+                />
             </div>
         </Container>
     );

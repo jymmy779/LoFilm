@@ -26,6 +26,10 @@ export default function NewMoviePage() {
     // Link Type State
     const [linkType, setLinkType] = useState<"m3u8" | "embed" | "both">("m3u8");
 
+    // Starred State
+    const [isStarred, setIsStarred] = useState(false);
+    const [expiresDays, setExpiresDays] = useState("3");
+
     useEffect(() => {
         if (!slug.trim()) {
             setPhimApiStatus("idle");
@@ -160,6 +164,46 @@ export default function NewMoviePage() {
                                     <option value="Thuyết Minh Độc Quyền">Thuyết Minh Độc Quyền</option>
                                 </select>
                             </div>
+                        </div>
+
+                        {/* Starred UI */}
+                        <div className="bg-[#152740]/50 border border-amber-500/30 rounded-xl p-5 md:p-6 mt-2">
+                            <label className="flex items-center gap-3 cursor-pointer group w-fit">
+                                <div className="relative flex items-center justify-center w-6 h-6">
+                                    <input 
+                                        type="checkbox" 
+                                        name="is_starred" 
+                                        checked={isStarred} 
+                                        onChange={(e) => setIsStarred(e.target.checked)} 
+                                        className="appearance-none w-6 h-6 border-2 border-amber-500/50 rounded bg-transparent checked:bg-amber-500 transition-colors peer cursor-pointer" 
+                                    />
+                                    <i className="fa-solid fa-check absolute text-[#0a1628] text-xs opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"></i>
+                                </div>
+                                <div className="flex-1">
+                                    <span className="font-semibold text-amber-400 group-hover:text-amber-300 transition">⭐ Đánh dấu ưu tiên lên Hero Slider</span>
+                                    <p className="text-sm text-gray-400 mt-0.5">Phim sẽ được đặt lên vị trí đầu tiên ngoài trang chủ</p>
+                                </div>
+                            </label>
+
+                            {isStarred && (
+                                <div className="mt-4 ml-9 flex flex-col md:flex-row gap-4 items-start md:items-center">
+                                    <div className="flex-1 max-w-xs">
+                                        <label className="text-gray-400 text-sm mb-1.5 block">Thời gian hiển thị (Số ngày)</label>
+                                        <input 
+                                            name="expires_in_days" 
+                                            type="number" 
+                                            min="0"
+                                            value={expiresDays} 
+                                            onChange={(e) => setExpiresDays(e.target.value)} 
+                                            className="w-full bg-[#0a1628] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-amber-500 border border-white/5" 
+                                            placeholder="Để trống hoặc 0 nếu không giới hạn" 
+                                        />
+                                    </div>
+                                    <p className="text-xs text-gray-400 md:w-1/2 mt-2 md:mt-6">
+                                        Sau <span className="text-amber-400 font-bold">{expiresDays || 'vô hạn'}</span> ngày, hệ thống sẽ tự động gỡ phim khỏi Hero Slider.
+                                    </p>
+                                </div>
+                            )}
                         </div>
 
                         {type === 'single' && (
