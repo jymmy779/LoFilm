@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 import MovieListClient from "./MovieListClient";
 import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
+import { fetchCatalogData } from "@/app/utils/serverFetch";
 
 export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
@@ -11,10 +12,16 @@ export const metadata: Metadata = {
     keywords: ["phim le", "phim le moi", "phim le hay", "phim le vietsub", "phim le chieu rap", "xem phim le online", "phim le 4k", "lofilm phim le"],
 };
 
-export default function MovieListPage() {
+export default async function MovieListPage() {
+    const initialData = await fetchCatalogData(
+        "https://phimapi.com/v1/api/danh-sach/phim-le",
+        1,
+        32
+    );
+
     return (
         <Suspense fallback={<CatalogSkeleton />}>
-            <MovieListClient />
+            <MovieListClient initialData={initialData} />
         </Suspense>
     );
 }

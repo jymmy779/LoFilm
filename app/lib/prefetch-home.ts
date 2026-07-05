@@ -91,6 +91,65 @@ async function mapHero(payload: unknown): Promise<Movie[]> {
 }
 
 /**
+ * Lấy danh sách phim đánh dấu sao cho Hero Slider
+ */
+async function getStarredMoviesForHero(): Promise<Movie[]> {
+    try {
+        const { data } = await supabase
+            .from('starred_movies')
+            .select('*')
+            .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
+            .order('priority', { ascending: true })
+            .order('created_at', { ascending: false })
+            .limit(8);
+
+        if (!data || data.length === 0) return [];
+
+        return await Promise.all(data.map(async (m: any) => {
+            let movieObj: any = {
+                _id: m.id,
+                name: m.name,
+                origin_name: m.name, // Dự phòng
+                slug: m.slug,
+                type: "single", // Mặc định, sẽ bị ghi đè khi fetch
+                thumb_url: m.thumb_url,
+                poster_url: m.poster_url,
+                year: new Date().getFullYear(),
+                is_copyright: false,
+                sub_docquyen: false,
+                lang: "Vietsub",
+                episode_current: "Tập mới",
+                quality: "FHD",
+            };
+
+            // Fetch thông tin chi tiết từ PhimAPI
+            try {
+                const phimApiRes = await fetch(`https://phimapi.com/phim/${m.slug}`, { signal: AbortSignal.timeout(5000) });
+                if (phimApiRes.ok) {
+                    const phimApiData = await phimApiRes.json();
+                    const detail = phimApiData?.movie;
+                    if (detail) {
+                        return {
+                            ...movieObj,
+                            ...detail, // Ghi đè bằng data chuẩn
+                            thumb_url: m.thumb_url, // Vẫn giữ ảnh do mình lưu lúc star (nếu muốn) hoặc dùng ảnh API
+                            poster_url: m.poster_url,
+                        } as Movie;
+                    }
+                }
+            } catch {
+                // Ignore
+            }
+
+            return movieObj as Movie;
+        }));
+    } catch (e) {
+        console.error("Lỗi lấy phim đánh dấu sao cho Hero:", e);
+        return [];
+    }
+}
+
+/**
  * Lấy danh sách phim Độc quyền mới nhất cho Hero Slider
  */
 async function getExclusiveMoviesForHero(): Promise<Movie[]> {
@@ -386,19 +445,33 @@ async function fetchAndCacheBundle(
     const heroMovies = await mapHero(heroRaw);
 
     // Thực hiện enrichment cho các section quan trọng nhất & Fetch Độc Quyền
-    const [enrichedHero, enrichedTv, enrichedAnime, exclusiveHeroMovies] = await Promise.all([
+    const [enrichedHero, enrichedTv, enrichedAnime, exclusiveHeroMovies, starredHeroMovies] = await Promise.all([
         enrichMovies(heroMovies),
         enrichMovies(featuredTvMovies),
         enrichMovies(featuredAnimeMovies),
-        getExclusiveMoviesForHero() // Lấy 3 phim độc quyền mới nhất
+        getExclusiveMoviesForHero(), // Lấy 3 phim độc quyền mới nhất
+        getStarredMoviesForHero() // Lấy phim được admin đánh dấu
     ]);
 
-    // Trộn 3 phim độc quyền lên đầu danh sách Hero Slider
+    // Trộn phim: Đánh dấu sao -> Độc quyền -> Phim mới cập nhật
     let finalHero = [...enrichedHero];
+    
+    // Thêm độc quyền
     if (exclusiveHeroMovies && exclusiveHeroMovies.length > 0) {
-        // Bỏ bớt các phim đuôi của API để giữ nguyên số lượng = 8
-        finalHero = [...exclusiveHeroMovies, ...finalHero.slice(0, 8 - exclusiveHeroMovies.length)];
+        finalHero = [...exclusiveHeroMovies, ...finalHero];
     }
+    
+    // Thêm đánh dấu sao (ưu tiên cao nhất)
+    if (starredHeroMovies && starredHeroMovies.length > 0) {
+        // Lọc bỏ phim trùng lặp (nếu đã có trong độc quyền hoặc mới cập nhật)
+        const starredSlugs = new Set(starredHeroMovies.map(m => m.slug));
+        finalHero = finalHero.filter(m => !starredSlugs.has(m.slug));
+        
+        finalHero = [...starredHeroMovies, ...finalHero];
+    }
+    
+    // Giữ nguyên số lượng = 8
+    finalHero = finalHero.slice(0, 8);
 
     const result: HomePrefetch = {
         hero: finalHero,

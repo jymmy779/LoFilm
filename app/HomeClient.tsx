@@ -45,10 +45,12 @@ export default function HomeClient({ prefetched, activeEvent }: { prefetched: Ho
 
     return (
         <>
-            <HeroSlider initialMovies={prefetched.hero} />
+            <div className="xl:-ml-[100px] xl:w-[calc(100%+100px)]">
+                <HeroSlider initialMovies={prefetched.hero} />
+            </div>
 
             <div className="flex flex-col gap-6 md:gap-[50px] pb-20">
-                <CategoriesSection initialCategories={prefetched.categories} />
+                <CategoriesSection />
 
                 {isEventPeriod && (
                     <LazyRow id="event-row" estimatedHeight="600px" skeleton={<ReunificationEventSkeleton />}>

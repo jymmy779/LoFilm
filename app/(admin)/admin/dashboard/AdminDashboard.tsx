@@ -4,11 +4,12 @@ import { deleteExclusiveMovie } from "@/app/actions/adminMovies";
 import { updateSiteSetting } from "@/app/actions/adminSettings";
 import Link from "next/link";
 import toast from "react-hot-toast";
+import HeroSliderTab from "./HeroSliderTab";
 
-export default function AdminDashboard({ initialMovies, initialSettings }: { initialMovies: any[], initialSettings: any }) {
+export default function AdminDashboard({ initialMovies, initialSettings, initialStarredMovies }: { initialMovies: any[], initialSettings: any, initialStarredMovies?: any[] }) {
     const [movies, setMovies] = useState(initialMovies);
     const [settings, setSettings] = useState(initialSettings);
-    const [activeTab, setActiveTab] = useState<"movies" | "settings">("movies");
+    const [activeTab, setActiveTab] = useState<"movies" | "settings" | "hero">("movies");
     const [isPending, startTransition] = useTransition();
     const [hasChanges, setHasChanges] = useState(false);
 
@@ -73,7 +74,18 @@ export default function AdminDashboard({ initialMovies, initialSettings }: { ini
                 >
                     <i className="fa-solid fa-cog mr-2"></i> Cấu hình Website
                 </button>
+                <button 
+                    onClick={() => setActiveTab("hero")}
+                    className={`pb-2 px-2 font-medium transition ${activeTab === 'hero' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-white'}`}
+                >
+                    <i className="fa-solid fa-star mr-2"></i> Hero Slider
+                </button>
             </div>
+
+            {/* Hero Slider Tab */}
+            {activeTab === "hero" && (
+                <HeroSliderTab initialStarredMovies={initialStarredMovies || []} />
+            )}
 
             {/* Settings Tab */}
             {activeTab === "settings" && (

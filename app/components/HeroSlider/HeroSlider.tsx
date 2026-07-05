@@ -124,7 +124,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
             </Swiper>
 
             {/* === COMBINED CONTENT & THUMBS OVERLAY === */}
-            <Container className="absolute inset-x-0 bottom-0 z-30 pb-16 pointer-events-none left-1/2 -translate-x-1/2">
+            <Container className="absolute inset-x-0 bottom-0 z-30 pb-16 pointer-events-none left-1/2 -translate-x-1/2 xl:pl-[100px]">
                 <div className="relative top-[-65px] md:top-[-150px] flex flex-col min-[700px]:flex-row items-center min-[700px]:items-end justify-center min-[700px]:justify-between w-full gap-4 lg:gap-8 xl:gap-12">
 
                     {/* Content (Left side on Desktop, Top on Mobile) */}
@@ -240,7 +240,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                         <Swiper
                             modules={[FreeMode, Thumbs]}
                             onSwiper={setThumbsSwiper}
-                            spaceBetween={10}
+                            spaceBetween={8}
                             slidesPerView={8}
                             breakpoints={{
                                 640: { slidesPerView: 7.5 },

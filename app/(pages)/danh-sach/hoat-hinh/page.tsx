@@ -2,6 +2,7 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 import AnimeClient from "./AnimeClient";
 import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
+import { fetchCatalogData } from "@/app/utils/serverFetch";
 
 export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
@@ -19,10 +20,22 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     };
 }
 
-export default function AnimePage() {
+export default async function AnimePage({ searchParams }: { searchParams: Promise<{ [key: string]: string | string[] | undefined }> }) {
+    const params = await searchParams;
+    const isAnime = params.country === 'nhat-ban';
+    
+    const initialData = await fetchCatalogData(
+        "https://phimapi.com/v1/api/danh-sach/hoat-hinh",
+        1,
+        32,
+        {
+            country: isAnime ? 'nhat-ban' : undefined
+        }
+    );
+
     return (
         <Suspense fallback={<CatalogSkeleton />}>
-            <AnimeClient />
+            <AnimeClient initialData={initialData} />
         </Suspense>
     );
 }

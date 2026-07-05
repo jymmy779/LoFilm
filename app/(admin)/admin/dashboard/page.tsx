@@ -4,6 +4,7 @@ import Link from "next/link";
 import { logoutAdmin } from "@/app/actions/adminAuth";
 
 import { getSiteSettings } from "@/app/actions/adminSettings";
+import { getStarredMovies } from "@/app/actions/adminStarred";
 
 export default async function AdminPage() {
     const supabase = await createClient();
@@ -33,6 +34,8 @@ export default async function AdminPage() {
     }
 
     const settings = await getSiteSettings();
+    const starredRes = await getStarredMovies();
+    const starredMovies = starredRes.data || [];
 
     return (
         <div className="bg-[#0a1628] min-h-screen text-white">
@@ -62,7 +65,7 @@ export default async function AdminPage() {
                         <em>Vui lòng chắc chắn rằng bạn đã chạy đoạn mã SQL tạo bảng trong Supabase Dashboard.</em>
                     </div>
                 ) : null}
-                <AdminDashboard initialMovies={movies || []} initialSettings={settings} />
+                <AdminDashboard initialMovies={movies || []} initialSettings={settings} initialStarredMovies={starredMovies} />
             </main>
         </div>
     );

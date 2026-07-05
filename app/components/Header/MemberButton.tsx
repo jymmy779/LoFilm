@@ -8,6 +8,7 @@ import Image from "next/image";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "react-hot-toast";
 import LogoutModal from "@/app/components/Modals/LogoutModal";
+import LoginPromptModal from "@/app/components/Modals/LoginPromptModal";
 import ComingSoonModal from "@/app/components/Modals/ComingSoonModal";
 import { Crown } from "lucide-react";
 import Skeleton from "@/app/components/Skeleton/Skeleton";
@@ -23,6 +24,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
     const [showMenu, setShowMenu] = useState(false);
     const [showLogoutModal, setShowLogoutModal] = useState(false);
     const [showPremiumModal, setShowPremiumModal] = useState(false);
+    const [showLoginPrompt, setShowLoginPrompt] = useState(false);
     const supabase = createClient();
     const router = useRouter();
     const pathname = usePathname();
@@ -91,17 +93,19 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
 
     if (!user) {
         return (
-            <TransitionLink
-                href="/dang-nhap"
-                onClick={() => { if (pathname !== "/dang-nhap") onClick?.(); }}
-                className="flex items-center cursor-pointer gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-gradient-to-r from-[#FED877] to-[#F5A623] text-[#0A1628] font-bold text-xs md:text-sm hover:-translate-y-0.5 active:scale-95 transition-all duration-300 whitespace-nowrap shrink-0 overflow-hidden relative group/btn"
-            >
-                <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 skew-x-[-20deg]" />
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="14" height="14" fill="currentColor" className="relative z-10">
-                    <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7c0-98.5-79.8-178.3-178.3-178.3H178.3z" />
-                </svg>
-                <span className="relative z-10">Thành viên</span>
-            </TransitionLink>
+            <>
+                <button
+                    onClick={() => setShowLoginPrompt(true)}
+                    className="flex items-center cursor-pointer gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-gradient-to-r from-[#FED877] to-[#F5A623] text-[#0A1628] font-bold text-xs md:text-sm hover:-translate-y-0.5 active:scale-95 transition-all duration-300 whitespace-nowrap shrink-0 overflow-hidden relative group/btn"
+                >
+                    <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 skew-x-[-20deg]" />
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="14" height="14" fill="currentColor" className="relative z-10">
+                        <path d="M224 256A128 128 0 1 0 224 0a128 128 0 1 0 0 256zm-45.7 48C79.8 304 0 383.8 0 482.3C0 498.7 13.3 512 29.7 512H418.3c16.4 0 29.7-13.3 29.7-29.7c0-98.5-79.8-178.3-178.3-178.3H178.3z" />
+                    </svg>
+                    <span className="relative z-10">Thành viên</span>
+                </button>
+                <LoginPromptModal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} />
+            </>
         );
     }
 
@@ -210,57 +214,56 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
 
             {/* Member Dropdown Menu */}
             <div
-                className={`absolute right-0 mt-3 w-48 bg-[#0d1b2e] border border-white/10 rounded-2xl p-2 z-[100] overflow-hidden transition-all duration-200 origin-top-right ${
-                    showMenu
-                    ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
-                    : "opacity-0 translate-y-2 scale-[0.98] pointer-events-none"
-                }`}
+                className={`absolute right-0 mt-3 w-48 bg-[#0d1b2e] border border-white/10 rounded-2xl p-2 z-[100] overflow-hidden transition-all duration-200 origin-top-right ${showMenu
+                        ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
+                        : "opacity-0 translate-y-2 scale-[0.98] pointer-events-none"
+                    }`}
             >
-                        <div className="px-3 py-2 border-b border-white/5 mb-1">
-                            <p className="text-[10px] text-white/40 tracking-widest uppercase">Thành viên</p>
-                            <p className="text-sm font-bold text-white/90 truncate mt-1">{displayName}</p>
-                            <button
-                                onClick={() => {
-                                    setShowMenu(false);
-                                    setShowPremiumModal(true);
-                                }}
-                                className="mt-2 flex items-center gap-2 px-2.5 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg text-[10px] font-bold text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer w-full"
-                            >
-                                <Crown size={12} className="animate-pulse" />
-                                Nâng cấp Premium
-                            </button>
-                        </div>
+                <div className="px-3 py-2 border-b border-white/5 mb-1">
+                    <p className="text-[10px] text-white/40 tracking-widest uppercase">Thành viên</p>
+                    <p className="text-sm font-bold text-white/90 truncate mt-1">{displayName}</p>
+                    <button
+                        onClick={() => {
+                            setShowMenu(false);
+                            setShowPremiumModal(true);
+                        }}
+                        className="mt-2 flex items-center gap-2 px-2.5 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg text-[10px] font-bold text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer w-full"
+                    >
+                        <Crown size={12} className="animate-pulse" />
+                        Nâng cấp Premium
+                    </button>
+                </div>
 
-                        <TransitionLink
-                            href="/trang-ca-nhan"
-                            onClick={() => { if (pathname !== "/trang-ca-nhan") { setShowMenu(false); onClick?.(); } }}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer"
-                        >
-                            <User size={16} className="text-white/40" />
-                            Trang cá nhân
-                        </TransitionLink>
+                <TransitionLink
+                    href="/trang-ca-nhan"
+                    onClick={() => { if (pathname !== "/trang-ca-nhan") { setShowMenu(false); onClick?.(); } }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer"
+                >
+                    <User size={16} className="text-white/40" />
+                    Trang cá nhân
+                </TransitionLink>
 
-                        <TransitionLink
-                            href="/trang-ca-nhan?tab=settings"
-                            onClick={() => { if (pathname !== "/trang-ca-nhan?tab=settings") { setShowMenu(false); onClick?.(); } }}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer"
-                        >
-                            <Settings size={16} className="text-white/40" />
-                            Cài đặt
-                        </TransitionLink>
+                <TransitionLink
+                    href="/trang-ca-nhan?tab=settings"
+                    onClick={() => { if (pathname !== "/trang-ca-nhan?tab=settings") { setShowMenu(false); onClick?.(); } }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-white/70 hover:text-white hover:bg-white/5 rounded-xl transition-all cursor-pointer"
+                >
+                    <Settings size={16} className="text-white/40" />
+                    Cài đặt
+                </TransitionLink>
 
-                        <div className="h-[1px] bg-white/5 my-1 mx-2" />
+                <div className="h-[1px] bg-white/5 my-1 mx-2" />
 
-                        <button
-                            onClick={() => {
-                                setShowMenu(false);
-                                setShowLogoutModal(true);
-                            }}
-                            className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-all cursor-pointer"
-                        >
-                            <LogOut size={16} />
-                            Đăng xuất
-                        </button>
+                <button
+                    onClick={() => {
+                        setShowMenu(false);
+                        setShowLogoutModal(true);
+                    }}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-xs text-red-400 hover:text-red-300 hover:bg-red-500/10 rounded-xl transition-all cursor-pointer"
+                >
+                    <LogOut size={16} />
+                    Đăng xuất
+                </button>
             </div>
             <LogoutModal
                 isOpen={showLogoutModal}

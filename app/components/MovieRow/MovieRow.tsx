@@ -67,12 +67,12 @@ function MovieRow({
                     <Swiper
                         modules={[Navigation]}
                         slidesPerView={"auto"}
-                        spaceBetween={8}
+                        spaceBetween={6}
                         breakpoints={
                             {
-                                1280: { spaceBetween: 16 },
-                                767: { spaceBetween: 14 },
-                                576: { spaceBetween: 12 },
+                                1280: { spaceBetween: 12 },
+                                767: { spaceBetween: 10 },
+                                576: { spaceBetween: 8 },
                             }
                         }
                         navigation={{

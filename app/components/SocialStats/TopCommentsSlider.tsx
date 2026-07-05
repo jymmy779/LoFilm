@@ -73,15 +73,15 @@ export default function TopCommentsSlider() {
                 <Swiper
                     modules={[Navigation, Autoplay]}
                     slidesPerView={"auto"}
-                    spaceBetween={12}
+                    spaceBetween={8}
                     autoplay={{
                         delay: 4000,
                         disableOnInteraction: true,
                         pauseOnMouseEnter: true
                     }}
                     breakpoints={{
-                        640: { spaceBetween: 16 },
-                        1024: { spaceBetween: 20 },
+                        640: { spaceBetween: 12 },
+                        1024: { spaceBetween: 16 },
                     }}
                     navigation={{
                         nextEl: ".btn-next-top-comments",

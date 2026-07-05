@@ -27,37 +27,12 @@ export default function TransitionLink({
   href,
   onClick,
   children,
-  transition = true, // Mặc định là true
+  transition = true,
   ...rest
 }: TransitionLinkProps) {
-  const { navigateWithTransition } = usePageTransition();
-
-  const handleClick = useCallback(
-    (e: MouseEvent<HTMLAnchorElement>) => {
-      // Nếu có onClick prop từ bên ngoài (ví dụ AdTrigger), gọi nó trước
-      if (onClick) onClick(e);
-
-      // Nếu transition bị tắt hoặc phím tắt (Ctrl, Meta...) được nhấn, để trình duyệt xử lý tự nhiên
-      if (
-        transition === false ||
-        e.defaultPrevented ||
-        e.metaKey ||
-        e.ctrlKey ||
-        e.shiftKey ||
-        e.altKey
-      ) {
-        return;
-      }
-
-      // Ngăn chặn Link mặc định của Next.js và chạy qua logic Transition của mình
-      e.preventDefault();
-      navigateWithTransition(href.toString());
-    },
-    [href, onClick, transition, navigateWithTransition]
-  );
-
+  // Trả về Link Next.js nguyên bản để tận dụng startTransition và prefetching giúp chuyển trang tức thì (ấn phát ăn ngay)
   return (
-    <Link href={href} onClick={handleClick} {...rest}>
+    <Link href={href} onClick={onClick} {...rest}>
       {children}
     </Link>
   );
