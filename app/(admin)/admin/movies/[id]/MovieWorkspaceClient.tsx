@@ -80,7 +80,6 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
             try {
                 if (editingEpisode) {
                     const res = await updateEpisode(editingEpisode.id, data);
-                    console.log("updateEpisode res:", res);
                     if (res.error) toast.error(res.error);
                     else {
                         toast.success("Đã cập nhật tập thành công!");
@@ -90,7 +89,6 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                     }
                 } else {
                     const res = await addEpisode(movie.id, data);
-                    console.log("addEpisode res:", res);
                     if (res.error) toast.error(res.error);
                     else {
                         toast.success("Đã thêm tập mới thành công!");

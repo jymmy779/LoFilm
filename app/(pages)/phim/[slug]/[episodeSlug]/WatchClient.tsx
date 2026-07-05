@@ -457,7 +457,6 @@ export default function WatchClient({
 
             if (!error) {
                 sessionStorage.setItem(sessionKey, 'true');
-                console.log("Recorded view successfully");
             } else {
                 console.error("RPC View Error:", error.message);
             }

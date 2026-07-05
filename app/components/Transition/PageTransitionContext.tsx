@@ -7,6 +7,7 @@ import {
   useState,
   useRef,
   useEffect,
+  useMemo,
 } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { toast } from "react-hot-toast";
@@ -14,13 +15,10 @@ import { toast } from "react-hot-toast";
 interface PageTransitionContextType {
   /** Trigger a transition then navigate to the given href */
   navigateWithTransition: (href: string, isHard?: boolean) => void;
-  /** Current transition phase: idle → exiting → entering → idle */
-  phase: "idle" | "exiting" | "entering";
 }
 
 const PageTransitionContext = createContext<PageTransitionContextType>({
   navigateWithTransition: () => { },
-  phase: "idle",
 });
 
 export function usePageTransition() {
@@ -168,8 +166,10 @@ export function PageTransitionProvider({
     [router]
   );
 
+  const contextValue = useMemo(() => ({ navigateWithTransition }), [navigateWithTransition]);
+
   return (
-    <PageTransitionContext.Provider value={{ navigateWithTransition, phase }}>
+    <PageTransitionContext.Provider value={contextValue}>
       {children}
       {/* Navigation Progress Bar (YouTube Style) */}
       <div className="fixed top-0 left-0 w-full h-[3px] z-[10000] pointer-events-none">

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useEffect } from "react";
+import { useState, useMemo, useEffect, useCallback } from "react";
 
 import axios from "axios";
 import Image from "next/image";
@@ -45,6 +45,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
     const [activeTab, setActiveTab] = useState('Tập phim');
     const [activeServerIndex, setActiveServerIndex] = useState(0);
     const [isChangingEpisode, setIsChangingEpisode] = useState(false);
+    const handleEpisodeClick = useCallback(() => setIsChangingEpisode(true), []);
     const [suggestedMoviesState, setSuggestedMoviesState] = useState<Movie[]>(suggestedMovies);
     const filteredSuggestions = useMemo(() => filterDuplicateMovies(suggestedMoviesState), [suggestedMoviesState]);
     const [weeklyMovies, setWeeklyMovies] = useState<Movie[]>(() => globalCache.getRaw<Movie[]>("top_weekly_detail") || []);
@@ -495,7 +496,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                         episodes={episodes}
                                         activeServer={activeServerIndex}
                                         onServerChange={setActiveServerIndex}
-                                        onEpisodeClick={() => setIsChangingEpisode(true)}
+                                        onEpisodeClick={handleEpisodeClick}
                                         showServers={episodes.length > 1}
                                     />
                                 )}

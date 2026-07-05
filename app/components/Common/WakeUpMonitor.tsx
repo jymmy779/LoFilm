@@ -20,8 +20,6 @@ export default function WakeUpMonitor() {
 
         // Nếu người dùng quay lại sau hơn 15 phút
         if (timeSinceLastActive > REFRESH_THRESHOLD) {
-          console.log(`[WakeUpMonitor] User returned after ${Math.round(timeSinceLastActive / 1000 / 60)} mins. Refreshing data...`);
-          
           // Sử dụng router.refresh() để Next.js lấy lại dữ liệu Server Components 
           // mà không làm trắng trang (flicker)
           router.refresh();
@@ -41,7 +39,6 @@ export default function WakeUpMonitor() {
     // Lắng nghe sự kiện quay lại từ Back/Forward Cache (Mobile hay dùng cái này)
     const handlePageShow = (event: PageTransitionEvent) => {
       if (event.persisted) {
-        console.log("[WakeUpMonitor] Page restored from bfcache. Refreshing...");
         router.refresh();
       }
     };

@@ -3,7 +3,8 @@ import MoviePreviewWrapper from "./MoviePreviewWrapper";
 import SmartImage from "@/app/components/Common/SmartImage";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
-import { getEpisodeStatus, getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
+import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
+import { MovieQualityBadge, MovieEpisodeBadge } from "@/app/components/Common/MovieBadge";
 
 interface WideMovieCardProps {
     movie: Movie;
@@ -67,12 +68,8 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
                             <div className="tag-small px-1.5 py-0.5 bg-[#1a2035]/80 rounded text-[9px] md:text-[10px] text-white/50 font-medium leading-none flex items-center justify-center">
                                 {movie.year || "2024"}
                             </div>
-                            <div className="tag-small px-1.5 py-0.5 bg-[#1a2035]/80 rounded text-[9px] md:text-[10px] text-white/50 font-medium leading-none flex items-center justify-center">
-                                {getEpisodeStatus(movie)}
-                            </div>
-                            <div className="tag-small px-1.5 py-0.5 bg-[#1a2035]/80 rounded text-[9px] md:text-[10px] text-white/50 font-medium leading-none flex items-center justify-center">
-                                {movie.quality || "HD"}
-                            </div>
+                            <MovieEpisodeBadge movie={movie} className="tag-small px-1.5 py-0.5 bg-[#1a2035]/80 rounded text-[9px] md:text-[10px] text-white/50 font-medium leading-none flex items-center justify-center" />
+                            <MovieQualityBadge movie={movie} className="tag-small px-1.5 py-0.5 bg-[#1a2035]/80 rounded text-[9px] md:text-[10px] text-white/50 font-medium leading-none flex items-center justify-center" />
                         </div>
                     </div>
                 </div>

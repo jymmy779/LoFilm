@@ -40,7 +40,6 @@ export default function ReunificationLoader() {
 
         // Dự phòng: tối đa 10s nếu có tài nguyên nào đó bị kẹt (cho sự kiện cần lâu hơn tí)
         const safety = window.setTimeout(() => {
-            console.log("[ReunificationLoader] Safety timeout reached. Forcing hide.");
             startFadeOut();
         }, 10000);
 

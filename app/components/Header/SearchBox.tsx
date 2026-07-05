@@ -2,8 +2,8 @@ import { useState, useEffect, Suspense, useRef, memo } from "react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
-import nProgress from "nprogress";
 import { Movie } from "@/app/types/movie";
+import { usePageTransition } from "@/app/components/Transition/PageTransitionContext";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
@@ -26,6 +26,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
     const searchParams = useSearchParams();
     const pathname = usePathname();
     const router = useRouter();
+    const { navigateWithTransition } = usePageTransition();
     const searchFromUrl = searchParams.get("search") || "";
     const [searchQuery, setSearchQuery] = useState(searchFromUrl);
     const [results, setResults] = useState<Movie[]>([]);
@@ -132,8 +133,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
             setIsFocused(false);
             setShowResults(false);
             inputRef.current?.blur();
-            nProgress.start();
-            router.push(`/?search=${encodeURIComponent(query)}`);
+            navigateWithTransition(`/?search=${encodeURIComponent(query)}`);
         }
     };
 
@@ -158,7 +158,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                 if (activeIndex >= 0) {
                     // Navigate to the selected movie
                     const selectedMovie = results[activeIndex];
-                    router.push(`/phim/${selectedMovie.slug}`);
+                    navigateWithTransition(`/phim/${selectedMovie.slug}`);
                     setShowResults(false);
                     setIsFocused(false);
                 } else {
