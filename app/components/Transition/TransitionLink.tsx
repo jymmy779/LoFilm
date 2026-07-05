@@ -30,9 +30,34 @@ export default function TransitionLink({
   transition = true,
   ...rest
 }: TransitionLinkProps) {
-  // Trả về Link Next.js nguyên bản để tận dụng startTransition và prefetching giúp chuyển trang tức thì (ấn phát ăn ngay)
+  const { navigateWithTransition } = usePageTransition();
+
+  const handleClick = useCallback(
+    (e: MouseEvent<HTMLAnchorElement>) => {
+      if (onClick) onClick(e);
+
+      // Cho phép Next.js xử lý mặc định nếu user muốn mở tab mới (Ctrl+Click)
+      if (
+        !transition ||
+        e.ctrlKey ||
+        e.metaKey ||
+        e.shiftKey ||
+        e.altKey ||
+        (rest.target && rest.target !== "_self")
+      ) {
+        return;
+      }
+
+      // Ngăn Next.js nhảy trang ngay lập tức
+      e.preventDefault();
+      // Kích hoạt thanh Progress Bar rồi mới điều hướng
+      navigateWithTransition(href.toString());
+    },
+    [href, onClick, transition, navigateWithTransition, rest.target]
+  );
+
   return (
-    <Link href={href} onClick={onClick} {...rest}>
+    <Link href={href} onClick={handleClick} {...rest}>
       {children}
     </Link>
   );

@@ -61,7 +61,7 @@ export default function MobileBottomSheet({ isOpen, onClose, categories, countri
     const quickLinks = [
         { icon: Home, label: "Trang chủ", href: "/" },
         { icon: SlidersHorizontal, label: "Lọc phim", href: "/danh-sach/phim-moi" },
-        { icon: CalendarDays, label: "Lịch chiếu", action: () => toast.success("Tính năng Lịch chiếu đang được phát triển!", { icon: "🚧" }) },
+        { icon: CalendarDays, label: "Lịch chiếu", href: "/danh-sach/phim-chieu-rap" },
         {
             icon: User, label: "Tài khoản", action: () => {
                 if (user) {
@@ -84,7 +84,7 @@ export default function MobileBottomSheet({ isOpen, onClose, categories, countri
 
             {/* Bottom Sheet */}
             <div
-                className={`fixed bottom-0 left-0 w-full z-[120] bg-[#111e31] rounded-t-3xl overflow-hidden flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.5)] transform transition-transform duration-300 ease-out max-h-[85vh] h-[85vh] ${isOpen ? "translate-y-0" : "translate-y-full"
+                className={`fixed bottom-0 left-0 w-full z-[120] bg-[#111e31] rounded-t-3xl overflow-hidden flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.5)] transform transition-transform duration-300 ease-out max-h-[85vh] ${isOpen ? "translate-y-0" : "translate-y-full"
                     }`}
             >
                 {/* Drag Handle & Header */}
@@ -110,7 +110,7 @@ export default function MobileBottomSheet({ isOpen, onClose, categories, countri
                 </div>
 
                 {/* Content Area */}
-                <div className="p-5 overflow-y-auto custom-scrollbar flex-1 pb-32 relative">
+                <div className="p-5 flex-1 pb-10 overflow-auto relative">
 
                     {/* --- MAIN VIEW --- */}
                     {activeView === 'main' && (

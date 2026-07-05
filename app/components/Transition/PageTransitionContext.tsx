@@ -171,9 +171,21 @@ export function PageTransitionProvider({
   return (
     <PageTransitionContext.Provider value={{ navigateWithTransition, phase }}>
       {children}
-      
-      {/* INSTANT SPINNER OVERLAY REMOVED FOR APP-LIKE FEEL */}
-
+      {/* Navigation Progress Bar (YouTube Style) */}
+      <div className="fixed top-0 left-0 w-full h-[3px] z-[10000] pointer-events-none">
+        <div 
+            className="absolute top-0 left-0 h-full bg-[#fbbf24] shadow-[0_0_10px_#fbbf24] rounded-r-full"
+            style={{ 
+                width: phase === 'idle' ? '0%' : phase === 'exiting' ? '85%' : '100%',
+                transition: phase === 'exiting' 
+                    ? 'width 8s cubic-bezier(0.1, 0.8, 0.2, 1), opacity 0.3s' 
+                    : phase === 'entering' 
+                        ? 'width 0.2s ease-out, opacity 0.3s ease-out 0.2s' 
+                        : 'none',
+                opacity: phase === 'idle' ? 0 : 1
+            }} 
+        />
+      </div>
       <style jsx global>{`
         @keyframes spin-fast {
           from { transform: rotate(0deg); }
