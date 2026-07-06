@@ -8,6 +8,7 @@ import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import MoviePreviewWrapper from "./MoviePreviewWrapper";
 import { MovieQualityBadge, MovieLangBadge, MovieEpisodeBadge, MovieExclusiveBadge } from "@/app/components/Common/MovieBadge";
+import { useBaitStore } from "@/app/store/useBaitStore";
 
 interface MoviePosterCardProps {
     movie: Movie;
@@ -21,6 +22,7 @@ interface MoviePosterCardProps {
 
 function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZone }: MoviePosterCardProps) {
     const moviePath = `/phim/${movie.slug}`;
+    const setBaitMovie = useBaitStore(state => state.setBaitMovie);
 
     // Chuẩn bị dữ liệu hiển thị cho Popup
     const description = movie.content ? cleanContent(decodeHtml(movie.content)) : "Đang cập nhật nội dung cho bộ phim này...";
@@ -41,6 +43,8 @@ function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZon
             <TransitionLink
                 href={moviePath}
                 className="block h-full"
+                onClick={() => setBaitMovie(movie)}
+                onMouseEnter={() => setBaitMovie(movie)}
             >
                 <div className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-[#0a1628]">
                     {/* Poster Image */}

@@ -61,26 +61,13 @@ export async function generateMetadata({
     };
 }
 
-import { cookies } from "next/headers";
-
 export default async function MoviePage({
     params,
-    searchParams,
 }: {
     params: Promise<{ slug: string }>;
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
     const { slug } = await params;
-    const { preview } = await searchParams;
-    let isPreview = false;
-    
-    if (preview === "true") {
-        const cookieStore = await cookies();
-        const adminToken = cookieStore.get("lofilm_admin_token")?.value;
-        if (adminToken === process.env.ADMIN_PASSWORD) {
-            isPreview = true;
-        }
-    }
+    const isPreview = false; // Luôn false ở SSR tĩnh. Preview sẽ xử lý sau ở Client nếu cần.
     
     // Fetch movie detail - Chạy cực nhanh nhờ cơ chế Cache-First Redis mới (<50ms)
     const detail = await getMovieDetail(slug, isPreview);

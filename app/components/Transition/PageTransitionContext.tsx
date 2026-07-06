@@ -4,16 +4,13 @@ import {
   createContext,
   useContext,
   useCallback,
-  useState,
-  useRef,
-  useEffect,
   useMemo,
 } from "react";
-import { useRouter, usePathname } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
 interface PageTransitionContextType {
-  /** Trigger a transition then navigate to the given href */
+  /** Trigger navigation to the given href immediately */
   navigateWithTransition: (href: string, isHard?: boolean) => void;
 }
 
@@ -25,107 +22,15 @@ export function usePageTransition() {
   return useContext(PageTransitionContext);
 }
 
-// Duration in ms for entering phase
-const ENTER_DURATION = 400;
-
 export function PageTransitionProvider({
   children,
 }: {
   children: React.ReactNode;
 }) {
   const router = useRouter();
-  const pathname = usePathname();
-  const [phase, setPhase] = useState<"idle" | "exiting" | "entering">("idle");
-  const prevPathname = useRef(pathname);
-  const targetHrefRef = useRef<string | null>(null);
-
-  // 1. Detect standard pathname changes (for normal link clicks or page changes)
-  useEffect(() => {
-    if (pathname !== prevPathname.current) {
-      prevPathname.current = pathname;
-      targetHrefRef.current = null; // Clear target ref
-      
-      // Navigation finished, show entering animation briefly
-      requestAnimationFrame(() => {
-        setPhase("entering");
-      });
-      
-      const timer = setTimeout(() => {
-        requestAnimationFrame(() => {
-          setPhase("idle");
-        });
-      }, ENTER_DURATION);
-      
-      return () => clearTimeout(timer);
-    }
-  }, [pathname]);
-
-  // 2. Detect query-only or same-page transitions (e.g. search pages or filter page changes)
-  useEffect(() => {
-    if (phase !== "exiting" || !targetHrefRef.current) return;
-
-    let intervalId: NodeJS.Timeout;
-    let timeoutId: NodeJS.Timeout;
-
-    const checkUrl = () => {
-      if (!targetHrefRef.current) return;
-      try {
-        const currentUrl = new URL(window.location.href);
-        const targetUrl = new URL(targetHrefRef.current, window.location.origin);
-        
-        if (
-          currentUrl.pathname === targetUrl.pathname &&
-          currentUrl.search === targetUrl.search
-        ) {
-          targetHrefRef.current = null;
-          clearInterval(intervalId);
-          clearTimeout(timeoutId);
-          
-          requestAnimationFrame(() => {
-            setPhase("entering");
-          });
-        }
-      } catch {
-        targetHrefRef.current = null;
-        clearInterval(intervalId);
-        clearTimeout(timeoutId);
-        requestAnimationFrame(() => {
-          setPhase("idle");
-        });
-      }
-    };
-
-    intervalId = setInterval(checkUrl, 50);
-
-    timeoutId = setTimeout(() => {
-      targetHrefRef.current = null;
-      clearInterval(intervalId);
-      requestAnimationFrame(() => {
-        setPhase("idle");
-      });
-    }, 2500);
-
-    return () => {
-      clearInterval(intervalId);
-      clearTimeout(timeoutId);
-    };
-  }, [phase]);
-
-  // 3. Handle entering -> idle transition automatically
-  useEffect(() => {
-    if (phase === "entering") {
-      const timer = setTimeout(() => {
-        requestAnimationFrame(() => {
-          setPhase("idle");
-        });
-      }, ENTER_DURATION);
-      return () => clearTimeout(timer);
-    }
-  }, [phase]);
 
   const navigateWithTransition = useCallback(
     (href: string, isHard: boolean = false) => {
-      // NEW: Check for internet connection
       if (typeof window !== "undefined" && !navigator.onLine) {
         toast.error("Không có kết nối mạng. Vui lòng kiểm tra lại đường truyền!", {
           id: "offline-error",
@@ -134,32 +39,12 @@ export function PageTransitionProvider({
         return;
       }
 
-      // Check if same page
-      if (typeof window !== "undefined" && !isHard) {
-        try {
-          const target = new URL(href, window.location.origin);
-          const current = new URL(window.location.href);
-          if (target.pathname === current.pathname && target.search === current.search) {
-            return;
-          }
-        } catch { /* invalid href */ }
+      if (isHard && typeof window !== "undefined") {
+        window.location.href = href;
+        return;
       }
-
-      // Store target URL to track same-page query changes (e.g. search page search term changes)
-      targetHrefRef.current = href;
-
-      // PHASE 1: TRIGGER EXITING IMMEDIATELY (INSTANT FEEDBACK)
-      setPhase("exiting");
-
-      // PHASE 2: PERFORM NAVIGATION after a tiny delay to ensure the spinner is rendered
-      // Next.js router.push can sometimes be blocking on the main thread
-      setTimeout(() => {
-        if (isHard && typeof window !== "undefined") {
-          window.location.href = href;
-          return;
-        }
-        router.push(href);
-      }, 0);
+      
+      router.push(href);
     },
     [router]
   );
@@ -169,37 +54,6 @@ export function PageTransitionProvider({
   return (
     <PageTransitionContext.Provider value={contextValue}>
       {children}
-      {/* Navigation Progress Bar (Minimalist Style) */}
-      <div className="fixed top-0 left-0 w-full h-[3px] z-[10000] pointer-events-none">
-        <div 
-            className="absolute top-0 left-0 h-full w-full bg-[#f5a623] origin-left"
-            style={{ 
-                transform: phase === 'idle' ? 'scaleX(0)' : phase === 'exiting' ? 'scaleX(0.85)' : 'scaleX(1)',
-                transition: phase === 'exiting' 
-                    ? 'transform 8s cubic-bezier(0.1, 0.8, 0.2, 1), opacity 0.3s' 
-                    : phase === 'entering' 
-                        ? 'transform 0.2s ease-out, opacity 0.3s ease-out 0.2s' 
-                        : 'none',
-                opacity: phase === 'idle' ? 0 : 1
-            }} 
-        />
-      </div>
-      <style jsx global>{`
-        @keyframes spin-fast {
-          from { transform: rotate(0deg); }
-          to { transform: rotate(360deg); }
-        }
-        @keyframes pulse-fast {
-          0%, 100% { transform: scale(1); opacity: 0.3; }
-          50% { transform: scale(1.15); opacity: 0.6; }
-        }
-        .animate-spin-fast {
-          animation: spin-fast 0.7s linear infinite;
-        }
-        .animate-pulse-fast {
-          animation: pulse-fast 1.2s ease-in-out infinite;
-        }
-      `}</style>
     </PageTransitionContext.Provider>
   );
 }
