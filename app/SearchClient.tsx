@@ -98,6 +98,8 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
 
             // If we have initialData and this is the first load (or the active filters/page match the initial params), use it
             if (initialData && currentPage === initialPage && JSON.stringify(activeFilters) === JSON.stringify(initialFilters)) {
+                setMovies(initialData.movies || []);
+                setTotalPages(initialData.totalPages || 1);
                 setIsLoading(false);
                 setIsPageLoading(false);
                 return;
