@@ -262,44 +262,10 @@ const URLS = {
     phimNgan: "https://phimapi.com/v1/api/the-loai/phim-ngan?limit=60",
 } as const;
 
-const NOMINATED_SLUGS = [
-    "bai-hoc-dang-doi",
-    "ke-thu-hoang-gia-cua-toi",
-    "tieng-yeu-nay-anh-dich-duoc-khong",
-    "huyen-thoai-linh-bep-anh-nuoi-thang-cap-thanh-huyen-thoai",
-    "dieu-nhan-choi-mat",
-    "chu-tich-tap-su",
-    "phu-nhan-dai-quan-the-ky-21",
-    "nha-nghi-bb-tuyet-voi-cua-jae-seok",
-    "khi-anh-chay-ve-phia-em",
-    "dua-hau-lap-lanh",
-    "thanh-tra-bi-mat-kiem-toan-tinh-yeu",
-    "biet-doi-sieu-kho",
-    "kho-do-danh",
-    "truc-ngoc",
-    "con-trai-ban-me",
-    "bac-si-dao-hoang",
-    "vu-lam-linh",
-    "cong-anh-ma-chay",
-    "nu-hoang-nuoc-mat",
-    "mac-ly",
-    "tuoi-hai-lam-tuoi-hai-mot",
-    "duoi-tan-cay-co-ngoi-nha-mai-do",
-    "mua-ruc-ro-cua-em-mua-em-ruc-ro",
-    "hom-nay-lai-ban-het",
-    "vung-trom-khong-the-giau",
-    "bu-nhin-bong-dem",
-    "gia-nghiep",
-    "chiec-bat-lua-va-vay-cong-chua",
-    "hen-ho-chon-cong-so-2025",
-    "nguoi-nhen-giang-ho"
-];
-
 async function mapNominated(): Promise<Movie[]> {
     const NOMINATED_KEY = "home:nominated";
-    const NOMINATED_TTL = 86400; // 24 giờ — danh sách đề cử hiếm khi thay đổi
+    const NOMINATED_TTL = 86400; // 24 giờ
 
-    // 1. Thử lấy từ Redis cache riêng trước
     if (redis) {
         try {
             const cached = await redis.get(NOMINATED_KEY);
@@ -311,16 +277,63 @@ async function mapNominated(): Promise<Movie[]> {
         }
     }
 
-    // 2. Cache miss → fetch từng slug
+    // Lấy cấu hình từ DB
+    const { data: configData } = await supabase.from('site_settings').select('value').eq('key', 'editor_choices').maybeSingle();
+    let config = configData?.value;
+    
+    if (!config) {
+        const NOMINATED_SLUGS = [
+            "bai-hoc-dang-doi", "ke-thu-hoang-gia-cua-toi", "tieng-yeu-nay-anh-dich-duoc-khong",
+            "huyen-thoai-linh-bep-anh-nuoi-thang-cap-thanh-huyen-thoai", "dieu-nhan-choi-mat",
+            "chu-tich-tap-su", "phu-nhan-dai-quan-the-ky-21", "nha-nghi-bb-tuyet-voi-cua-jae-seok",
+            "khi-anh-chay-ve-phia-em", "dua-hau-lap-lanh", "thanh-tra-bi-mat-kiem-toan-tinh-yeu",
+            "biet-doi-sieu-kho", "kho-do-danh", "truc-ngoc", "con-trai-ban-me", "bac-si-dao-hoang",
+            "vu-lam-linh", "cong-anh-ma-chay", "nu-hoang-nuoc-mat", "mac-ly", "tuoi-hai-lam-tuoi-hai-mot",
+            "duoi-tan-cay-co-ngoi-nha-mai-do", "mua-ruc-ro-cua-em-mua-em-ruc-ro", "hom-nay-lai-ban-het",
+            "vung-trom-khong-the-giau", "bu-nhin-bong-dem", "gia-nghiep", "chiec-bat-lua-va-vay-cong-chua",
+            "hen-ho-chon-cong-so-2025", "nguoi-nhen-giang-ho"
+        ];
+        config = { mode: "manual", autoCount: 30, movies: NOMINATED_SLUGS.map(s => ({ slug: s })) };
+    }
+
+    let slugsToFetch: string[] = [];
+
+    if (config.mode === 'auto') {
+        const { data: topViews } = await supabase.from('movie_views').select('movie_slug').order('view_count', { ascending: false }).limit(config.autoCount || 10);
+        if (topViews) {
+            slugsToFetch = topViews.map(v => v.movie_slug);
+        }
+    } else {
+        slugsToFetch = (config.movies || []).map((m: any) => m.slug);
+    }
+
     const movies = await Promise.all(
-        NOMINATED_SLUGS.map(async (slug) => {
+        slugsToFetch.map(async (slug) => {
             try {
+                // Thử fetch Độc Quyền trước
+                const { data: exclusive } = await supabase.from('exclusive_movies').select('*').eq('slug', slug).single();
+                if (exclusive && exclusive.status === 'published') {
+                    return {
+                        _id: exclusive.id,
+                        id: exclusive.id,
+                        name: exclusive.name || "",
+                        origin_name: exclusive.origin_name || "",
+                        slug: exclusive.slug,
+                        type: exclusive.type,
+                        thumb_url: exclusive.thumb_url?.startsWith('http') ? exclusive.thumb_url : `https://phimimg.com/${exclusive.thumb_url}`,
+                        poster_url: exclusive.poster_url?.startsWith('http') ? exclusive.poster_url : `https://phimimg.com/${exclusive.poster_url}`,
+                        year: exclusive.year || new Date().getFullYear(),
+                        lang: exclusive.lang_tag || "Vietsub",
+                        quality: "FHD",
+                        episode_current: "Tập mới"
+                    } as unknown as Movie;
+                }
+
                 const res = await fetchPhimJson(`https://phimapi.com/phim/${slug}`, true);
                 const movie = (res as any)?.movie;
                 if (!movie) return null;
                 return {
                     ...movie,
-                    // Đảm bảo có các field quan trọng
                     content: movie.content,
                     category: movie.category,
                     tmdb: movie.tmdb
@@ -330,6 +343,7 @@ async function mapNominated(): Promise<Movie[]> {
             }
         })
     );
+    
     const result = movies.filter(Boolean) as Movie[];
 
     // 3. Lưu cache riêng 24h

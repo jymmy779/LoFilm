@@ -5,11 +5,12 @@ import { updateSiteSetting } from "@/app/actions/adminSettings";
 import Link from "next/link";
 import toast from "react-hot-toast";
 import HeroSliderTab from "./HeroSliderTab";
+import EditorChoicesTab from "./EditorChoicesTab";
 
 export default function AdminDashboard({ initialMovies, initialSettings, initialStarredMovies }: { initialMovies: any[], initialSettings: any, initialStarredMovies?: any[] }) {
     const [movies, setMovies] = useState(initialMovies);
     const [settings, setSettings] = useState(initialSettings);
-    const [activeTab, setActiveTab] = useState<"movies" | "settings" | "hero">("movies");
+    const [activeTab, setActiveTab] = useState<"movies" | "settings" | "hero" | "editor">("movies");
     const [isPending, startTransition] = useTransition();
     const [hasChanges, setHasChanges] = useState(false);
 
@@ -61,7 +62,7 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
     return (
         <div>
             {/* Tabs */}
-            <div className="flex gap-4 mb-6 border-b border-white/10 pb-2">
+            <div className="flex flex-wrap gap-4 mb-6 border-b border-white/10 pb-2">
                 <button 
                     onClick={() => setActiveTab("movies")}
                     className={`pb-2 px-2 font-medium transition ${activeTab === 'movies' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-white'}`}
@@ -80,7 +81,18 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                 >
                     <i className="fa-solid fa-star mr-2"></i> Hero Slider
                 </button>
+                <button 
+                    onClick={() => setActiveTab("editor")}
+                    className={`pb-2 px-2 font-medium transition ${activeTab === 'editor' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-white'}`}
+                >
+                    <i className="fa-solid fa-award mr-2"></i> Editor's Choices
+                </button>
             </div>
+
+            {/* Editor Choices Tab */}
+            {activeTab === "editor" && (
+                <EditorChoicesTab initialConfig={initialSettings?.editor_choices || { mode: "manual", autoCount: 30, movies: [] }} />
+            )}
 
             {/* Hero Slider Tab */}
             {activeTab === "hero" && (
