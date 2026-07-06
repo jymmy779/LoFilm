@@ -61,14 +61,11 @@ export function PageTransitionProvider({
   }, [pathname]);
 
   // 2. Detect query-only or same-page transitions (e.g. search pages or filter page changes)
-  // We use a polling mechanism when in "exiting" phase to detect when the URL changes,
-  // since query-only updates in Next.js might not trigger a layout re-render in production.
   useEffect(() => {
     if (phase !== "exiting" || !targetHrefRef.current) return;
 
     let intervalId: NodeJS.Timeout;
     let timeoutId: NodeJS.Timeout;
-    let idleTimer: NodeJS.Timeout;
 
     const checkUrl = () => {
       if (!targetHrefRef.current) return;
@@ -80,7 +77,6 @@ export function PageTransitionProvider({
           currentUrl.pathname === targetUrl.pathname &&
           currentUrl.search === targetUrl.search
         ) {
-          // Found match! Clear target and transition
           targetHrefRef.current = null;
           clearInterval(intervalId);
           clearTimeout(timeoutId);
@@ -88,15 +84,8 @@ export function PageTransitionProvider({
           requestAnimationFrame(() => {
             setPhase("entering");
           });
-          
-          idleTimer = setTimeout(() => {
-            requestAnimationFrame(() => {
-              setPhase("idle");
-            });
-          }, ENTER_DURATION);
         }
       } catch {
-        // Fallback if URL is invalid
         targetHrefRef.current = null;
         clearInterval(intervalId);
         clearTimeout(timeoutId);
@@ -106,10 +95,8 @@ export function PageTransitionProvider({
       }
     };
 
-    // Poll every 50ms
     intervalId = setInterval(checkUrl, 50);
 
-    // Safety timeout: if navigation is stuck for more than 2.5s, force idle phase so user is not blocked
     timeoutId = setTimeout(() => {
       targetHrefRef.current = null;
       clearInterval(intervalId);
@@ -121,8 +108,19 @@ export function PageTransitionProvider({
     return () => {
       clearInterval(intervalId);
       clearTimeout(timeoutId);
-      if (idleTimer) clearTimeout(idleTimer);
     };
+  }, [phase]);
+
+  // 3. Handle entering -> idle transition automatically
+  useEffect(() => {
+    if (phase === "entering") {
+      const timer = setTimeout(() => {
+        requestAnimationFrame(() => {
+          setPhase("idle");
+        });
+      }, ENTER_DURATION);
+      return () => clearTimeout(timer);
+    }
   }, [phase]);
 
   const navigateWithTransition = useCallback(
@@ -171,16 +169,16 @@ export function PageTransitionProvider({
   return (
     <PageTransitionContext.Provider value={contextValue}>
       {children}
-      {/* Navigation Progress Bar (YouTube Style) */}
+      {/* Navigation Progress Bar (Minimalist Style) */}
       <div className="fixed top-0 left-0 w-full h-[3px] z-[10000] pointer-events-none">
         <div 
-            className="absolute top-0 left-0 h-full bg-[#fbbf24] shadow-[0_0_10px_#fbbf24] rounded-r-full"
+            className="absolute top-0 left-0 h-full w-full bg-[#f5a623] origin-left"
             style={{ 
-                width: phase === 'idle' ? '0%' : phase === 'exiting' ? '85%' : '100%',
+                transform: phase === 'idle' ? 'scaleX(0)' : phase === 'exiting' ? 'scaleX(0.85)' : 'scaleX(1)',
                 transition: phase === 'exiting' 
-                    ? 'width 8s cubic-bezier(0.1, 0.8, 0.2, 1), opacity 0.3s' 
+                    ? 'transform 8s cubic-bezier(0.1, 0.8, 0.2, 1), opacity 0.3s' 
                     : phase === 'entering' 
-                        ? 'width 0.2s ease-out, opacity 0.3s ease-out 0.2s' 
+                        ? 'transform 0.2s ease-out, opacity 0.3s ease-out 0.2s' 
                         : 'none',
                 opacity: phase === 'idle' ? 0 : 1
             }} 
