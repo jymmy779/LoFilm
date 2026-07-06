@@ -11,7 +11,13 @@ import { createClient } from "@supabase/supabase-js";
 // Client Supabase an toàn cho Background jobs (không dính tới cookies Next.js)
 const supabase = createClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    process.env.NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY || process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+        auth: { persistSession: false },
+        global: {
+            fetch: (url, options) => fetch(url, { ...options, cache: 'no-store' })
+        }
+    }
 );
 
 const REVALIDATE_SEC = 60; // Đồng bộ 60 giây toàn hệ thống
@@ -278,10 +284,17 @@ async function mapNominated(): Promise<Movie[]> {
     }
 
     // Lấy cấu hình từ DB
-    const { data: configData } = await supabase.from('site_settings').select('value').eq('key', 'editor_choices').maybeSingle();
+    const { data: configData, error: configError } = await supabase.from('site_settings').select('value').eq('key', 'editor_choices').maybeSingle();
+    
+    if (configError) {
+        console.error("[mapNominated] Lỗi truy vấn DB site_settings:", configError);
+    }
+    
     let config = configData?.value;
+    console.log("[mapNominated] configData retrieved:", !!configData);
     
     if (!config) {
+        console.log("[mapNominated] Dùng danh sách MẶC ĐỊNH vì không có config trong DB.");
         const NOMINATED_SLUGS = [
             "bai-hoc-dang-doi", "ke-thu-hoang-gia-cua-toi", "tieng-yeu-nay-anh-dich-duoc-khong",
             "huyen-thoai-linh-bep-anh-nuoi-thang-cap-thanh-huyen-thoai", "dieu-nhan-choi-mat",

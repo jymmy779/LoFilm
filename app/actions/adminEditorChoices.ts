@@ -49,12 +49,19 @@ export async function updateEditorChoicesConfig(config: any) {
 
     // Clear cache để trang chủ cập nhật ngay
     try {
-        const { Redis } = await import('@upstash/redis');
-        const redis = new Redis({
-            url: process.env.UPSTASH_REDIS_REST_URL!,
-            token: process.env.UPSTASH_REDIS_REST_TOKEN!,
-        });
-        await redis.del("home:nominated");
+        if (process.env.REDIS_URL) {
+            const Redis = (await import('ioredis')).default;
+            const redis = new Redis(process.env.REDIS_URL);
+            await redis.del("home:nominated", "home:prefetch:bundle", "home:prefetch:bundle:stale", "home:prefetch:bundle:emergency");
+            redis.quit();
+        } else {
+            const { Redis } = await import('@upstash/redis');
+            const redis = new Redis({
+                url: process.env.UPSTASH_REDIS_REST_URL!,
+                token: process.env.UPSTASH_REDIS_REST_TOKEN!,
+            });
+            await redis.del("home:nominated", "home:prefetch:bundle", "home:prefetch:bundle:stale", "home:prefetch:bundle:emergency");
+        }
     } catch (e) {
         console.error("Lỗi xóa cache nominated:", e);
     }
