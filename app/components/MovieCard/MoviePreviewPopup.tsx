@@ -39,7 +39,7 @@ export default function MoviePreviewPopup({
             movie.episode_current.toLowerCase().includes("tập") || 
             movie.episode_current.includes("/")
         )) ||
-        (movie.episode_total && parseInt(movie.episode_total) > 1);
+        (movie.episode_total && parseInt(String(movie.episode_total)) > 1);
 
     const [playUrl, setPlayUrl] = useState(`/phim/${movie.slug}/${isMultiEp ? 'tap-01' : 'tap-full'}`);
     const [isLoadingPlayUrl, setIsLoadingPlayUrl] = useState(true);
