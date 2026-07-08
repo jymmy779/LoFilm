@@ -18,8 +18,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title = title.charAt(0).toUpperCase() + title.slice(1);
 
     try {
-        const categories = await fetchWithRedis("https://phimapi.com/the-loai", { revalidate: 60 });
-        const category = Array.isArray(categories) ? categories.find((cat: any) => cat.slug === slug) : null;
+        const res = await fetchWithRedis("https://phimapi.com/the-loai", { revalidate: 60 });
+        const categories = (res as any)?.data?.items || (Array.isArray(res) ? res : []);
+        const category = categories.find((cat: any) => cat.slug === slug);
         if (category) title = category.name;
     } catch (err) {
         console.error("Lỗi fetch metadata thể loại:", err);
@@ -51,8 +52,9 @@ export default async function CategoryPage({ params }: Props) {
     categoryName = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
 
     try {
-        const categories = await fetchWithRedis("https://phimapi.com/the-loai", { revalidate: 60 });
-        const category = Array.isArray(categories) ? categories.find((cat: any) => cat.slug === slug) : null;
+        const res = await fetchWithRedis("https://phimapi.com/the-loai", { revalidate: 60 });
+        const categories = (res as any)?.data?.items || (Array.isArray(res) ? res : []);
+        const category = categories.find((cat: any) => cat.slug === slug);
         if (category) categoryName = category.name;
     } catch (err) {
         console.error("Lỗi fetch tên thể loại:", err);

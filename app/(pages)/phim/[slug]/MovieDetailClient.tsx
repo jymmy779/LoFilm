@@ -26,7 +26,7 @@ import { fetchTotalEpisodesFromTMDB } from "@/app/utils/tmdbUtils";
 import Skeleton from "@/app/components/Skeleton/Skeleton";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import dynamic from "next/dynamic";
-import { TMDBActor, fetchActorsFromTMDB } from "@/app/utils/tmdbUtils";
+import { TMDBActor } from "@/app/utils/tmdbUtils";
 import { globalCache } from "@/app/utils/globalCache";
 import EpisodeList from "./[episodeSlug]/EpisodeList";
 const CommentSection = dynamic(() => import("@/app/components/Comments/CommentSection"), {
@@ -156,38 +156,39 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
         }
     }, []);
 
-    // Effect to fetch TMDB Actors images
+    // Effect to fetch Actors images
     useEffect(() => {
         const getActors = async () => {
-            if (!movie.tmdb?.id) return;
+            if (!movie.slug) return;
 
             setIsLoadingActors(true);
             try {
-                // Determine type: Prioritize TMDB's own classification if available
-                let type: "movie" | "tv" = movie.tmdb?.type === "tv" ? "tv" : "movie";
-
-                // Fallback to PhimAPI classification ONLY if TMDB type is missing
-                if (!movie.tmdb?.type) {
-                    const isSeries = movie.type === "series" || movie.type === "tvshows";
-                    const isMultiEpisode = (episodes?.[0]?.server_data?.length || 0) > 1 ||
-                        (parseInt(String(movie.episode_total || "0")) > 1);
-
-                    type = (isSeries || (movie.type === "hoathinh" && isMultiEpisode)) ? "tv" : "movie";
-                }
-
-                const actors = await fetchActorsFromTMDB(movie.tmdb.id, type);
-                if (actors.length > 0) {
-                    setTmdbActors(actors);
+                const res = await fetch(`https://phimapi.com/v1/api/phim/${movie.slug}/peoples`);
+                const data = await res.json();
+                
+                if (data.success || data.status === "success") {
+                    const peoples = data.data?.peoples;
+                    if (peoples && Array.isArray(peoples)) {
+                        const mappedActors = peoples.map((actor: any) => ({
+                            id: actor.tmdb_people_id || Math.random(),
+                            name: actor.name,
+                            profile_path: actor.profile_path,
+                            character: actor.character
+                        }));
+                        if (mappedActors.length > 0) {
+                            setTmdbActors(mappedActors);
+                        }
+                    }
                 }
             } catch (error) {
-                console.error("Failed to fetch actors images:", error);
+                console.error("Failed to fetch actors images from PhimAPI:", error);
             } finally {
                 setIsLoadingActors(false);
             }
         };
 
         getActors();
-    }, [movie.tmdb?.id, movie.type]);
+    }, [movie.slug]);
 
     // Build tabs dynamically based on available data
     const tabs = useMemo(() => {

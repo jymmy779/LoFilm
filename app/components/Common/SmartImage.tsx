@@ -30,14 +30,24 @@ const SmartImage = forwardRef<HTMLImageElement, SmartImageProps>(
         useEffect(() => {
             setCurrentSrc(src);
             setHasError(false);
-
-            // Check if already loaded from cache before React attached onLoad
-            if (localRef.current?.complete) {
-                setIsLoaded(true);
-            } else {
-                setIsLoaded(false);
-            }
+            setIsLoaded(false);
         }, [src]);
+
+        useEffect(() => {
+            // Check if already loaded from cache before React attached onLoad
+            // This needs to run whenever currentSrc changes (e.g. fallback to rawSrc)
+            if (localRef.current?.complete) {
+                // Sometimes complete is true for a 0x0 image before src is set, but Next.js usually handles this.
+                // We double check naturalWidth to ensure it's actually loaded if possible, 
+                // but localRef.current.complete is usually enough for cached images.
+                if (localRef.current.naturalWidth > 0 || localRef.current.naturalHeight > 0) {
+                    setIsLoaded(true);
+                } else if (localRef.current.src && localRef.current.src !== window.location.href) {
+                     // It's complete but naturalWidth is 0? Might be a broken image or just cached 1x1.
+                     setIsLoaded(true);
+                }
+            }
+        }, [currentSrc]);
 
         const handleError = () => {
             if (!hasError) {

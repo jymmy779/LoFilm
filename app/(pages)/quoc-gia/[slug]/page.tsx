@@ -18,8 +18,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title = title.charAt(0).toUpperCase() + title.slice(1);
 
     try {
-        const countries = await fetchWithRedis("https://phimapi.com/quoc-gia", { revalidate: 60 });
-        const country = Array.isArray(countries) ? countries.find((item: any) => item.slug === slug) : null;
+        const res = await fetchWithRedis("https://phimapi.com/quoc-gia", { revalidate: 60 });
+        const countries = (res as any)?.data?.items || (Array.isArray(res) ? res : []);
+        const country = countries.find((item: any) => item.slug === slug);
         if (country) title = country.name;
     } catch (err) {
         console.error("Lỗi fetch metadata quốc gia:", err);
@@ -51,8 +52,9 @@ export default async function CountryPage({ params }: Props) {
     countryName = countryName.charAt(0).toUpperCase() + countryName.slice(1);
 
     try {
-        const countries = await fetchWithRedis("https://phimapi.com/quoc-gia", { revalidate: 60 });
-        const country = Array.isArray(countries) ? countries.find((item: any) => item.slug === slug) : null;
+        const res = await fetchWithRedis("https://phimapi.com/quoc-gia", { revalidate: 60 });
+        const countries = (res as any)?.data?.items || (Array.isArray(res) ? res : []);
+        const country = countries.find((item: any) => item.slug === slug);
         if (country) countryName = country.name;
     } catch (err) {
         console.error("Lỗi fetch tên quốc gia:", err);

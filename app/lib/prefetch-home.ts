@@ -42,8 +42,15 @@ function parseV3HeroItems(payload: unknown): Movie[] {
 }
 
 function parseCategories(payload: unknown): HomeCategory[] {
-    if (!Array.isArray(payload)) return [];
-    const list = payload as HomeCategory[];
+    let list: HomeCategory[] = [];
+    if (Array.isArray(payload)) {
+        list = payload;
+    } else {
+        const p = payload as { data?: { items?: HomeCategory[] } };
+        if (p?.data?.items && Array.isArray(p.data.items)) {
+            list = p.data.items;
+        }
+    }
     return [...list].sort((a, b) => a.name.localeCompare(b.name, "vi"));
 }
 
