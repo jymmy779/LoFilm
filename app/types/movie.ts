@@ -9,7 +9,7 @@ export interface Movie {
     content?: string;
     time?: string;
     episode_current?: string;
-    episode_total?: string;
+    episode_total?: string | number; // API kkphim có thể trả về string hoặc number
     quality?: string;
     lang?: string;
     status?: string;

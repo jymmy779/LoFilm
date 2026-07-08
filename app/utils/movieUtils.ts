@@ -49,7 +49,7 @@ export function getEpisodeStatus(movie: Movie): string {
 
     const matchNum = movie.episode_current?.match(/\d+/);
     if (matchNum) {
-        const total = movie.episode_total || "??";
+        const total = movie.episode_total != null ? String(movie.episode_total) : "??";
         // Nếu số tập hiện tại khớp với tổng số tập thì coi như Full
         if (total !== "??" && matchNum[0] === total.match(/\d+/)?.[0]) {
             return "Full";
@@ -74,7 +74,7 @@ export function isMovieCompleted(movie: Movie): boolean {
 
     // Check if numeric current >= total
     const curNumMatch = cur.match(/\d+/);
-    const totNumMatch = (movie.episode_total || "").match(/\d+/);
+    const totNumMatch = String(movie.episode_total ?? "").match(/\d+/);
 
     if (curNumMatch && totNumMatch) {
         const curNum = parseInt(curNumMatch[0]);
@@ -89,19 +89,27 @@ export const TRANSPARENT_GIF = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQ
 
 /**
  * Build full image URL from potentially relative path.
+ * API kkphim có thể trả về relative path (vd: upload/vod/.../img.jpg)
+ * hoặc full URL (https://img.phimapi.com/...) — hàm này normalize về full URL.
  * NOTE: `options` param is accepted for call-site readability but is IGNORED here.
  * Actual resizing/quality optimization is handled by the custom imageLoader (wsrv.nl proxy)
  * which is automatically invoked by Next.js <Image> component.
- * If used with native <img>, the image will NOT be optimized — use <SmartImage> or <Image> instead.
  */
 export function getImageUrl(url: string | undefined, _options?: { width?: number; quality?: number }): string {
     if (!url) return TRANSPARENT_GIF;
 
-    // Chuẩn hóa URL gốc (Trim trắng tránh lỗi)
     const trimmedUrl = url.trim();
-    return trimmedUrl.startsWith("http") 
-        ? trimmedUrl 
-        : `https://phimimg.com/${trimmedUrl.startsWith('/') ? trimmedUrl.slice(1) : trimmedUrl}`;
+
+    // Đổi img.phimapi.com → phimimg.com (CDN ổn định hơn)
+    if (trimmedUrl.includes("img.phimapi.com")) {
+        return trimmedUrl.replace("img.phimapi.com", "phimimg.com");
+    }
+
+    // Nếu là URL đầy đủ, trả về nguyên
+    if (trimmedUrl.startsWith("http")) return trimmedUrl;
+
+    // Relative path (vd: upload/vod/.../img.jpg) → prepend domain
+    return `https://phimimg.com/${trimmedUrl.startsWith('/') ? trimmedUrl.slice(1) : trimmedUrl}`;
 }
 
 /**
@@ -109,7 +117,12 @@ export function getImageUrl(url: string | undefined, _options?: { width?: number
  */
 export function getRawImageUrl(url: string | undefined): string {
     if (!url) return TRANSPARENT_GIF;
-    const trimmedUrl = url.trim();
+    let trimmedUrl = url.trim();
+
+    if (trimmedUrl.includes("img.phimapi.com")) {
+        trimmedUrl = trimmedUrl.replace("img.phimapi.com", "phimimg.com");
+    }
+
     return trimmedUrl.startsWith("http") ? trimmedUrl : `https://phimimg.com/${trimmedUrl.startsWith('/') ? trimmedUrl.slice(1) : trimmedUrl}`;
 }
 

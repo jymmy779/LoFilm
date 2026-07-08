@@ -17,7 +17,7 @@ interface MovieRowCardProps {
 
 function MovieRowCard({ movie, priority = false, adZone = "movie_row", onClick }: MovieRowCardProps) {
     const imgUrl = getImageUrl(movie.thumb_url, { width: 300, quality: 75 });
-
+    console.log(imgUrl);
     return (
         <MoviePreviewWrapper
             movie={movie}

@@ -95,7 +95,8 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
             const realEpisodesCount = episodesList.length;
 
             // Lấy số từ episode_total (ví dụ "169" từ "Tập 169" hoặc "169")
-            const totNum = parseInt(movie.episode_total?.match(/\d+/)?.[0] || "0");
+            // episode_total có thể là number (sau update API kkphim), dùng String() để an toàn
+            const totNum = parseInt(String(movie.episode_total ?? "").match(/\d+/)?.[0] || "0");
 
             // Nếu số tập thực tế có sẵn lớn hơn episode_total hiển thị, 
             // hoặc episode_total không phải là số hợp lệ

@@ -262,7 +262,8 @@ export default function WatchClient({
     useEffect(() => {
         const correctMainMovie = async () => {
             const curNum = parseInt(movie.episode_current?.match(/\d+/)?.[0] || "0");
-            const totNum = parseInt(movie.episode_total?.match(/\d+/)?.[0] || "1000");
+            // episode_total có thể là number (sau update API kkphim), dùng String() để an toàn
+            const totNum = parseInt(String(movie.episode_total ?? "").match(/\d+/)?.[0] || "1000");
 
             if (curNum > totNum && movie.tmdb?.id && movie.tmdb.type === "tv") {
                 const tmdbTotal = await fetchTotalEpisodesFromTMDB(movie.tmdb.id);
