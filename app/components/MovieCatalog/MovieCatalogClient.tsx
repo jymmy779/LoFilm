@@ -47,7 +47,9 @@ export default function MovieCatalogClient({
         : "Danh sách phim";
         
     // 1. Better Fallback: Search in categories/countries list for the real name if slug is present
-    const foundItem = categories.find(c => c.slug === slug) || countries.find(c => c.slug === slug);
+    const safeCategories = Array.isArray(categories) ? categories : [];
+    const safeCountries = Array.isArray(countries) ? countries : [];
+    const foundItem = safeCategories.find(c => c.slug === slug) || safeCountries.find(c => c.slug === slug);
     const realName = foundItem?.name || fallbackTitle;
     
     // 2. Determine the raw title

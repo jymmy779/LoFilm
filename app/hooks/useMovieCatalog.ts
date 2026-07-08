@@ -137,8 +137,15 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                     axios.get<MenuItem[]>("https://phimapi.com/the-loai"),
                     axios.get<MenuItem[]>("https://phimapi.com/quoc-gia")
                 ]);
-                setCategories(catRes.data);
-                setCountries(countRes.data);
+                const extractArray = (data: any) => {
+                    if (Array.isArray(data)) return data;
+                    if (data?.items && Array.isArray(data.items)) return data.items;
+                    if (data?.data?.items && Array.isArray(data.data.items)) return data.data.items;
+                    if (data?.data && Array.isArray(data.data)) return data.data;
+                    return [];
+                };
+                setCategories(extractArray(catRes.data));
+                setCountries(extractArray(countRes.data));
             } catch (err) {
                 console.error("Lỗi fetch dữ liệu bộ lọc:", err);
             }
