@@ -287,7 +287,7 @@ export default function AuthContent() {
         <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 items-start">
           {/* Main Auth Form Area */}
           <div className="flex-grow w-full flex justify-center">
-            <div className="w-full max-w-md bg-[#14233e]/60 border border-white/10 rounded-[32px] p-6 md:p-10 relative overflow-hidden">
+            <div className="w-full max-w-md bg-[#0F1115]/60 border border-white/10 rounded-[32px] p-6 md:p-10 relative overflow-hidden">
               {/* Header Tabs */}
               <div className="flex justify-center mb-8 relative">
                 <div className="flex bg-white/5 p-1 rounded-2xl w-full border border-white/10">

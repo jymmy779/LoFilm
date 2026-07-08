@@ -70,7 +70,7 @@ export default function ReunificationLoader() {
                 }
                 .reunification-loader {
                     @apply lofilm-loader-overlay;
-                    background: #050a14;
+                    background: #0F1115;
                 }
                 .loader-bg-glow {
                     position: absolute;
@@ -141,7 +141,7 @@ export default function ReunificationLoader() {
                     left: 0;
                     width: 60px;
                     height: 20px;
-                    background: #233123;
+                    background: #0F1115;
                     border-radius: 4px;
                     border: 2px solid #0d120d;
                 }
@@ -151,7 +151,7 @@ export default function ReunificationLoader() {
                     left: 20px;
                     width: 30px;
                     height: 12px;
-                    background: #233123;
+                    background: #0F1115;
                     border-radius: 6px 6px 0 0;
                     border: 2px solid #0d120d;
                 }
@@ -161,7 +161,7 @@ export default function ReunificationLoader() {
                     left: 48px;
                     width: 35px;
                     height: 4px;
-                    background: #233123;
+                    background: #0F1115;
                     border-radius: 0 4px 4px 0;
                     border: 2px solid #0d120d;
                 }

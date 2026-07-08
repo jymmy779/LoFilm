@@ -80,7 +80,7 @@ export default function OverviewTab({ user, displayName, setShowPremiumModal }: 
           Chi tiết tài khoản
         </h3>
         <div className="space-y-6">
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 bg-[#111b33]/50 rounded-2xl border border-white/5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 bg-[#0F1115]/50 rounded-2xl border border-white/5">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40 italic text-[10px]">UID</div>
               <div className="flex-1 min-w-0">
@@ -101,7 +101,7 @@ export default function OverviewTab({ user, displayName, setShowPremiumModal }: 
             </button>
           </div>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 bg-[#111b33]/50 rounded-2xl border border-white/5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-4 bg-[#0F1115]/50 rounded-2xl border border-white/5">
             <div className="flex items-center gap-4">
               <div className="w-10 h-10 rounded-xl bg-white/5 flex items-center justify-center text-white/40"><Mail size={18} /></div>
               <div>

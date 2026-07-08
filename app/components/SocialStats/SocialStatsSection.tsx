@@ -18,7 +18,7 @@ export default function SocialStatsSection() {
                 <SwiperNavButtons
                     prevClassName="btn-prev-top-comments"
                     nextClassName="btn-next-top-comments"
-                    className="!w-8 !h-8 md:!w-10 md:!h-10 !top-1/2 md:!top-[182px] !-translate-y-1/2 !bg-[#050a14] !text-white/40 !border-white/10 hover:!text-white hover:!border-white/20 !absolute !z-50"
+                    className="!w-8 !h-8 md:!w-10 md:!h-10 !top-1/2 md:!top-[182px] !-translate-y-1/2 !bg-[#0F1115] !text-white/40 !border-white/10 hover:!text-white hover:!border-white/20 !absolute !z-50"
                 />
             </div>
         </Container>

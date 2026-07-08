@@ -88,7 +88,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
             <div className="flex flex-col items-center ">
                 <div className="flex items-center gap-6 mb-6">
                     <button className="flex flex-col items-center gap-2 group cursor-pointer">
-                        <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-amber-400 group-hover:bg-amber-400 group-hover:text-[#0a1628] transition-all">
+                        <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-amber-400 group-hover:bg-amber-400 group-hover:text-[#0F1115] transition-all">
                             <Star size={20} fill="currentColor" />
                         </div>
                         <span className="text-[12px] text-white/60 font-medium">Đánh giá</span>

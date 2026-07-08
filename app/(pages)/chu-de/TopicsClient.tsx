@@ -109,7 +109,7 @@ export default function TopicsClient() {
     }
 
     return (
-        <div className="w-full min-h-screen bg-[#0a1628] pt-[120px] pb-20">
+        <div className="w-full min-h-screen bg-[#0F1115] pt-[120px] pb-20">
             <div className="max-w-[1200px] mx-auto px-4 xl:px-0">
                 <div className="flex flex-col items-center mb-10 mt-6">
                     <h1 className="text-3xl md:text-4xl font-bold text-white mb-3 text-center">Chủ Đề Phim</h1>

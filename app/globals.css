@@ -6,7 +6,16 @@
   --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
   --animate-shimmer: shimmer 2.5s linear infinite;
   --gpu-accelerate: translateZ(0);
-  /* Ép sử dụng GPU */
+  /* Color palette - Dark theme based on #0F1115 */
+  --bg-primary: #0F1115;
+  --bg-secondary: #0F1115;
+  --bg-tertiary: #0F1115;
+  --bg-elevated: #0F1115;
+  --bg-card: #0F1115;
+  --bg-tag: #0F1115;
+  --gradient-from: #0F1115;
+  --gradient-via: #0F1115;
+  --gradient-to: #0F1115;
 }
 
 /* Fix layout shift when scrollbar appears */
@@ -52,7 +61,7 @@ textarea,
 }
 
 body {
-  @apply bg-gradient-to-br from-[#121d33] via-[#0a1628] to-[#050a14] text-white min-h-screen;
+  @apply bg-gradient-to-br from-[#0F1115] via-[#0F1115] to-[#0F1115] text-white min-h-screen;
 }
 
 @keyframes pulse-glow {
@@ -113,9 +122,11 @@ body {
     opacity: 0;
     transform: scale(0.7) translateY(20px);
   }
+
   70% {
     transform: scale(1.05) translateY(-5px);
   }
+
   100% {
     opacity: 1;
     transform: scale(1) translateY(0);
@@ -127,6 +138,7 @@ body {
     opacity: 0;
     transform: translateX(-20px);
   }
+
   100% {
     opacity: 1;
     transform: translateX(0);
@@ -137,6 +149,7 @@ body {
   0% {
     opacity: 1;
   }
+
   100% {
     opacity: 0;
   }
@@ -147,6 +160,7 @@ body {
     opacity: 1;
     transform: scale(1) translateY(0);
   }
+
   100% {
     opacity: 0;
     transform: scale(0.7) translateY(20px);
@@ -165,6 +179,7 @@ body {
   0% {
     opacity: 0;
   }
+
   100% {
     opacity: 1;
   }
@@ -195,6 +210,7 @@ body {
     opacity: 0;
     transform: translateX(40px);
   }
+
   100% {
     opacity: 1;
     transform: translateX(0);
@@ -206,9 +222,26 @@ body {
 }
 
 @keyframes bell-shake {
-  0%, 100% { transform: rotate(0) scale(1); }
-  10%, 30%, 50%, 70%, 90% { transform: rotate(-10deg) scale(1.1); }
-  20%, 40%, 60%, 80% { transform: rotate(10deg) scale(1.1); }
+
+  0%,
+  100% {
+    transform: rotate(0) scale(1);
+  }
+
+  10%,
+  30%,
+  50%,
+  70%,
+  90% {
+    transform: rotate(-10deg) scale(1.1);
+  }
+
+  20%,
+  40%,
+  60%,
+  80% {
+    transform: rotate(10deg) scale(1.1);
+  }
 }
 
 .animate-bell-shake {
@@ -218,9 +251,12 @@ body {
 
 /* Giảm độ phức tạp animation trên mobile để tránh drop frame */
 @media (max-width: 768px) {
-  .animate-fade-in, .animate-reveal-right {
+
+  .animate-fade-in,
+  .animate-reveal-right {
     animation-duration: 0.4s;
   }
+
   .animate-scale-in {
     animation-duration: 0.3s;
   }
@@ -576,24 +612,25 @@ body.theater-mode footer:hover {
 }
 
 ::-webkit-scrollbar-track {
-  background: #0a1628;
+  background: #0F1115;
 }
 
 ::-webkit-scrollbar-thumb {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 20px;
-  border: 2px solid #0a1628;
+  border: 2px solid #0F1115;
   transition: all 0.3s;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(251, 191, 36, 0.5); /* amber-400 */
+  background: rgba(251, 191, 36, 0.5);
+  /* amber-400 */
 }
 
 /* Firefox */
 * {
   scrollbar-width: thin;
-  scrollbar-color: rgba(255, 255, 255, 0.1) #0a1628;
+  scrollbar-color: rgba(255, 255, 255, 0.1) #0F1115;
 }
 
 /* Custom Scrollbar Utility */
@@ -628,7 +665,8 @@ body.theater-mode footer:hover {
   top: 0;
   left: 0;
   width: 100%;
-  height: 100dvh; /* Fix cho iOS Toolbar */
+  height: 100dvh;
+  /* Fix cho iOS Toolbar */
   z-index: 9999;
   display: flex;
   flex-direction: column;
@@ -637,7 +675,8 @@ body.theater-mode footer:hover {
   overflow: hidden;
   transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.8s;
   will-change: opacity;
-  touch-action: none; /* Chặn cuộn trên iOS */
+  touch-action: none;
+  /* Chặn cuộn trên iOS */
   overscroll-behavior: none;
 }
 
@@ -678,7 +717,7 @@ body.theater-mode footer:hover {
 
 /* Initial Loader Details */
 .lofilm-loader-overlay {
-  background: #0a1628;
+  background: #0F1115;
 }
 
 .lofilm-loader-content {
@@ -733,7 +772,7 @@ body.theater-mode footer:hover {
 
 /* Reunification Loader Specifics (30/04 - 01/05 Event) */
 .reunification-loader {
-  background: #0a1628;
+  background: #0F1115;
 }
 
 .loader-bg-glow {
@@ -846,7 +885,7 @@ body.theater-mode footer:hover {
   left: 0;
   width: 60px;
   height: 20px;
-  background: #233123;
+  background: #0F1115;
   border-radius: 4px;
   border: 2px solid #0d120d;
 }
@@ -866,7 +905,7 @@ body.theater-mode footer:hover {
   left: 20px;
   width: 30px;
   height: 12px;
-  background: #233123;
+  background: #0F1115;
   border-radius: 6px 6px 0 0;
   border: 2px solid #0d120d;
 }
@@ -888,7 +927,7 @@ body.theater-mode footer:hover {
   left: 48px;
   width: 35px;
   height: 4px;
-  background: #233123;
+  background: #0F1115;
   border-radius: 0 4px 4px 0;
   border: 2px solid #0d120d;
 }
@@ -972,7 +1011,7 @@ body.theater-mode footer:hover {
   height: auto;
   display: block;
   margin: 0 auto;
-  filter: brightness(0.75) drop-shadow(0 10px 30px rgba(0,0,0,0.8));
+  filter: brightness(0.75) drop-shadow(0 10px 30px rgba(0, 0, 0, 0.8));
 }
 
 @media (min-width: 768px) {
@@ -983,59 +1022,72 @@ body.theater-mode footer:hover {
 
 /* --- Netflix Style Captions for Plyr --- */
 :root {
-    --plyr-captions-background: transparent;
-    --plyr-captions-text-color: #ffffff;
+  --plyr-captions-background: transparent;
+  --plyr-captions-text-color: #ffffff;
 }
 
 .plyr__captions,
 .plyr:not(.plyr--hide-controls) .plyr__controls:not(:empty)~.plyr__captions {
-    transform: translateY(-40px) !important;
+  transform: translateY(-40px) !important;
 }
 
 .plyr__captions .plyr__caption {
-    font-family: "Netflix Sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-    background-color: transparent !important;
-    text-shadow: 
-        0px 0px 7px rgba(0, 0, 0, 0.75),
-        0px 0px 7px rgba(0, 0, 0, 0.75),
-        0px 0px 7px rgba(0, 0, 0, 0.75),
-        0px 2px 4px rgba(0, 0, 0, 0.8) !important;
-    font-size: 32px !important;
-    line-height: normal !important;
-    padding: 4px 8px !important;
-    font-weight: 500 !important;
+  font-family: "Netflix Sans", "Helvetica Neue", Helvetica, Arial, sans-serif !important;
+  background-color: transparent !important;
+  text-shadow:
+    0px 0px 7px rgba(0, 0, 0, 0.75),
+    0px 0px 7px rgba(0, 0, 0, 0.75),
+    0px 0px 7px rgba(0, 0, 0, 0.75),
+    0px 2px 4px rgba(0, 0, 0, 0.8) !important;
+  font-size: 32px !important;
+  line-height: normal !important;
+  padding: 4px 8px !important;
+  font-weight: 500 !important;
 }
 
 /* Responsive font size và vị trí cho các màn hình nhỏ */
 @media (max-width: 1024px) {
-    .plyr__captions .plyr__caption { font-size: 28px !important; }
-    .plyr__captions,
-    .plyr:not(.plyr--hide-controls) .plyr__controls:not(:empty)~.plyr__captions { 
-        transform: translateY(-15px) !important; 
-    }
+  .plyr__captions .plyr__caption {
+    font-size: 28px !important;
+  }
+
+  .plyr__captions,
+  .plyr:not(.plyr--hide-controls) .plyr__controls:not(:empty)~.plyr__captions {
+    transform: translateY(-15px) !important;
+  }
 }
 
 @media (max-width: 768px) {
-    .plyr__captions .plyr__caption { font-size: 22px !important; }
-    .plyr__captions,
-    .plyr:not(.plyr--hide-controls) .plyr__controls:not(:empty)~.plyr__captions { 
-        transform: translateY(-20px) !important; 
-    }
+  .plyr__captions .plyr__caption {
+    font-size: 22px !important;
+  }
+
+  .plyr__captions,
+  .plyr:not(.plyr--hide-controls) .plyr__controls:not(:empty)~.plyr__captions {
+    transform: translateY(-20px) !important;
+  }
 }
 
 @media (max-width: 480px) {
-    .plyr__captions .plyr__caption { font-size: 16px !important; }
-    .plyr__captions,
-    .plyr:not(.plyr--hide-controls) .plyr__controls:not(:empty)~.plyr__captions { 
-        transform: translateY(0px) !important; 
-    }
+  .plyr__captions .plyr__caption {
+    font-size: 16px !important;
+  }
+
+  .plyr__captions,
+  .plyr:not(.plyr--hide-controls) .plyr__controls:not(:empty)~.plyr__captions {
+    transform: translateY(0px) !important;
+  }
 }
 
 /* Fix riêng cho Mobile khi xoay ngang (Landscape) */
 @media (max-height: 500px) and (orientation: landscape) {
-    .plyr__captions .plyr__caption { font-size: 20px !important; }
-    .plyr__captions,
-    .plyr:not(.plyr--hide-controls) .plyr__controls:not(:empty)~.plyr__captions { 
-        transform: translateY(10px) !important; /* Kéo sub xuống hẳn dưới đáy do chiều cao màn hình ngang rất hẹp */
-    }
+  .plyr__captions .plyr__caption {
+    font-size: 20px !important;
+  }
+
+  .plyr__captions,
+  .plyr:not(.plyr--hide-controls) .plyr__controls:not(:empty)~.plyr__captions {
+    transform: translateY(10px) !important;
+    /* Kéo sub xuống hẳn dưới đáy do chiều cao màn hình ngang rất hẹp */
+  }
 }

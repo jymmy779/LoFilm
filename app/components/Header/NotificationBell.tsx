@@ -225,13 +225,13 @@ export default function NotificationBell() {
 
                 {hasNew && (
                     <span
-                        className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-[#0d1b2e] animate-pop-in"
+                        className="absolute top-1.5 right-1.5 w-2 h-2 bg-red-500 rounded-full border border-[#0F1115] animate-pop-in"
                     />
                 )}
             </button>
 
             <div
-                className={`absolute right-[-10px] md:right-0 mt-3 w-[280px] sm:w-[320px] md:w-[360px] lg:w-[420px] xl:w-[460px] bg-[#111e31] border border-white/10 rounded-2xl overflow-hidden z-[100] transition-all duration-200 origin-top-right shadow-xl ${
+                className={`absolute right-[-10px] md:right-0 mt-3 w-[280px] sm:w-[320px] md:w-[360px] lg:w-[420px] xl:w-[460px] bg-[#0F1115] border border-white/10 rounded-2xl overflow-hidden z-[100] transition-all duration-200 origin-top-right shadow-xl ${
                     isOpen
                     ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
                     : "opacity-0 translate-y-2 scale-[0.98] pointer-events-none"
@@ -298,7 +298,7 @@ export default function NotificationBell() {
                                                 </div>
                                             )}
                                             {notif.type !== 'system' && notif.actor_avatar && (
-                                                <div className="absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 bg-[#111e31] rounded-full flex items-center justify-center border border-white/10">
+                                                <div className="absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 bg-[#0F1115] rounded-full flex items-center justify-center border border-white/10">
                                                     <div className="scale-75 md:scale-90 lg:scale-100">
                                                         {renderIcon(notif.type)}
                                                     </div>

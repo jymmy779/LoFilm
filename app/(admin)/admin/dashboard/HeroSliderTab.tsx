@@ -156,7 +156,7 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
     return (
         <div className="space-y-8">
             {/* Search Section */}
-            <div className="bg-[#0d1b2e] rounded-lg p-6 border border-white/5">
+            <div className="bg-[#0F1115] rounded-lg p-6 border border-white/5">
                 <h3 className="text-xl font-semibold mb-4">Tìm và đánh dấu phim mới</h3>
                 <form onSubmit={handleSearch} className="flex gap-2 mb-6">
                     <input
@@ -164,12 +164,12 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
                         value={searchKeyword}
                         onChange={(e) => setSearchKeyword(e.target.value)}
                         placeholder="Nhập tên phim cần tìm (VD: Mai, Đào Phở...)"
-                        className="flex-1 bg-[#152740] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-amber-500 border border-white/10"
+                        className="flex-1 bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-amber-500 border border-white/10"
                     />
                     <button
                         type="submit"
                         disabled={isSearching}
-                        className="bg-amber-500 hover:bg-amber-600 text-[#0a1628] px-6 py-2 rounded font-bold transition-colors disabled:opacity-50"
+                        className="bg-amber-500 hover:bg-amber-600 text-[#0F1115] px-6 py-2 rounded font-bold transition-colors disabled:opacity-50"
                     >
                         {isSearching ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-search"></i>}
                         Tìm kiếm
@@ -179,7 +179,7 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
                 {searchResults.length > 0 && (
                     <div className="space-y-3">
                         {searchResults.map((movie: any) => (
-                            <div key={movie.slug} className="bg-[#152740] rounded-lg border border-white/10 p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                            <div key={movie.slug} className="bg-[#0F1115] rounded-lg border border-white/10 p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                                 <div>
                                     <h4 className="font-bold text-lg text-white mb-1">{movie.name}</h4>
                                     <p className="text-sm text-gray-400 mb-2">{movie.origin_name} ({movie.year})</p>
@@ -207,7 +207,7 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
                                 <button
                                     onClick={() => handleStarMovie(movie)}
                                     disabled={isPending}
-                                    className="bg-amber-500 hover:bg-amber-600 text-[#0a1628] px-4 py-2 rounded font-bold transition-colors w-full md:w-auto shrink-0 flex items-center justify-center gap-2 disabled:opacity-50"
+                                    className="bg-amber-500 hover:bg-amber-600 text-[#0F1115] px-4 py-2 rounded font-bold transition-colors w-full md:w-auto shrink-0 flex items-center justify-center gap-2 disabled:opacity-50"
                                 >
                                     <i className="fa-solid fa-star"></i> Đánh dấu
                                 </button>
@@ -218,20 +218,20 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
             </div>
 
             {/* List Section */}
-            <div className="bg-[#0d1b2e] rounded-lg p-6 border border-white/5">
+            <div className="bg-[#0F1115] rounded-lg p-6 border border-white/5">
                 <div className="flex justify-between items-end mb-4">
                     <h3 className="text-xl font-semibold">Phim đang được ưu tiên ({starredMovies.length}/8)</h3>
                     <p className="text-sm text-white/50">Phim hết hạn sẽ tự động biến mất</p>
                 </div>
                 
                 {starredMovies.length === 0 ? (
-                    <div className="text-center py-10 text-white/50 bg-[#152740] rounded-lg">
+                    <div className="text-center py-10 text-white/50 bg-[#0F1115] rounded-lg">
                         Chưa có phim nào được đánh dấu.
                     </div>
                 ) : (
                     <div className="space-y-3">
                         {starredMovies.map((movie) => (
-                            <div key={movie.id} className="flex items-center gap-4 bg-[#152740] p-3 rounded-lg border border-white/5">
+                            <div key={movie.id} className="flex items-center gap-4 bg-[#0F1115] p-3 rounded-lg border border-white/5">
 
                                 <div className="flex-1 min-w-0">
                                     <p className="font-medium truncate text-amber-400">{movie.name}</p>

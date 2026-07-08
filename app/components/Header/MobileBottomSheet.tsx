@@ -84,7 +84,7 @@ export default function MobileBottomSheet({ isOpen, onClose, categories, countri
 
             {/* Bottom Sheet */}
             <div
-                className={`fixed bottom-0 left-0 w-full z-[120] bg-[#111e31] rounded-t-3xl overflow-hidden flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.5)] transform transition-transform duration-300 ease-out max-h-[85vh] ${isOpen ? "translate-y-0" : "translate-y-full"
+                className={`fixed bottom-0 left-0 w-full z-[120] bg-[#0F1115] rounded-t-3xl overflow-hidden flex flex-col shadow-[0_-10px_40px_rgba(0,0,0,0.5)] transform transition-transform duration-300 ease-out max-h-[85vh] ${isOpen ? "translate-y-0" : "translate-y-full"
                     }`}
             >
                 {/* Drag Handle & Header */}

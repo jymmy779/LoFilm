@@ -105,7 +105,7 @@ export default function MovieInteractions({ movieSlug, user }: MovieInteractions
 
     return (
         <div className="flex items-center gap-3">
-            <div className="flex bg-[#111b33] p-1 rounded-2xl border border-white/5">
+            <div className="flex bg-[#0F1115] p-1 rounded-2xl border border-white/5">
                 <button
                     onClick={() => handleInteraction('like')}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all cursor-pointer ${userInteraction === 'like'

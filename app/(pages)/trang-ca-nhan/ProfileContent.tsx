@@ -459,7 +459,7 @@ export default function ProfileContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#111b33] to-[#0d162b] pt-30 md:pt-40 pb-16 md:pb-20 px-4">
+    <div className="min-h-screen bg-gradient-to-b from-[#0F1115] to-[#0F1115] pt-30 md:pt-40 pb-16 md:pb-20 px-4">
       <div className="max-w-[1440px] mx-auto">
         {/* Page Header */}
         <div className="mb-10 md:mb-12 w-full">
@@ -474,13 +474,13 @@ export default function ProfileContent() {
           <div className="flex-1 flex flex-col lg:flex-row items-start gap-6 md:gap-8 w-full">
             {/* Sidebar Navigation */}
             <div className="w-full lg:w-72 shrink-0">
-              <div className="bg-[#16213e] border border-white/5 rounded-3xl md:rounded-[32px] p-5 md:p-6 sticky lg:top-32 overflow-hidden group">
+              <div className="bg-[#12151C] border border-white/5 rounded-3xl md:rounded-[32px] p-5 md:p-6 sticky lg:top-32 overflow-hidden group">
                 {/* User Profile Summary */}
                 <div className="text-center mb-6 md:mb-8 relative">
                   <div className="relative inline-block group/avatar">
-                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black text-3xl md:text-4xl font-bold border-4 border-[#111b33] relative z-10 overflow-hidden">
+                    <div className="w-20 h-20 md:w-24 md:h-24 rounded-full bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-black text-3xl md:text-4xl font-bold border-4 border-[#0F1115] relative z-10 overflow-hidden">
                       {isUpdatingAvatar ? (
-                        <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-[#111b33]/80 rounded-full z-[15]">
+                        <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-[#0F1115]/80 rounded-full z-[15]">
                           <div className="w-8 h-8 border-2 border-amber-400/20 border-t-amber-400 rounded-full animate-spin" />
                         </div>
                       ) : user?.user_metadata?.avatar_url ? (
@@ -496,7 +496,7 @@ export default function ProfileContent() {
                       )}
                     </div>
 
-                    <label className="absolute bottom-0 right-0 p-2 bg-white text-black rounded-full border-2 border-[#111b33] z-20 opacity-0 group-hover/avatar:opacity-100 translate-y-2 group-hover/avatar:translate-y-0 transition-all cursor-pointer hover:bg-amber-400">
+                    <label className="absolute bottom-0 right-0 p-2 bg-white text-black rounded-full border-2 border-[#0F1115] z-20 opacity-0 group-hover/avatar:opacity-100 translate-y-2 group-hover/avatar:translate-y-0 transition-all cursor-pointer hover:bg-amber-400">
                       <Camera size={14} />
                       <input
                         type="file"
@@ -553,7 +553,7 @@ export default function ProfileContent() {
             {/* Main Content Area */}
             <div className="flex-1 min-h-[400px] lg:min-h-[600px] lg:w-auto w-full">
               <div
-                className="bg-[#16213e] border border-white/5 rounded-3xl md:rounded-[40px] p-6 relative overflow-hidden"
+                className="bg-[#12151C] border border-white/5 rounded-3xl md:rounded-[40px] p-6 relative overflow-hidden"
               >
                 <div className="max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
                   {activeTab === 'overview' && (

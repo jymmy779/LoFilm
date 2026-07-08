@@ -5,7 +5,7 @@ export default function WideMovieCardSkeleton() {
     return (
         <div className="flex flex-col h-full">
             {/* Top Thumbnail (aspect 21/9) */}
-            <div className="relative w-full aspect-[21/9] overflow-hidden rounded-xl bg-[#0a1628]">
+            <div className="relative w-full aspect-[21/9] overflow-hidden rounded-xl bg-[#0F1115]">
                 <Skeleton className="absolute inset-0" rounded="none" />
             </div>
 

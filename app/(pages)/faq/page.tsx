@@ -34,8 +34,8 @@ export default function FAQ() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#111b33] to-[#0d162b] text-white/80 pt-32 pb-20 md:pt-40 md:pb-32 px-4 shadow-inner">
-      <div className="max-w-4xl mx-auto bg-[#16213e] border border-white/5 rounded-2xl md:rounded-[32px] p-6 md:p-12 shadow-2xl">
+    <div className="min-h-screen bg-gradient-to-b from-[#0F1115] to-[#0F1115] text-white/80 pt-32 pb-20 md:pt-40 md:pb-32 px-4 shadow-inner">
+      <div className="max-w-4xl mx-auto bg-[#12151C] border border-white/5 rounded-2xl md:rounded-[32px] p-6 md:p-12 shadow-2xl">
         <h1 className="text-xl md:text-2xl font-bold text-white mb-6 md:mb-8 border-b border-white/5 pb-4 md:pb-6 uppercase tracking-wider italic">Câu hỏi thường gặp (FAQ)</h1>
 
         <div className="space-y-4 md:space-y-6">

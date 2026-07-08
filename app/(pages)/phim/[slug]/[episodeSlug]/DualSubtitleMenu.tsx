@@ -59,7 +59,7 @@ export default function DualSubtitleMenu({
                 <div
                     onClick={(e) => e.stopPropagation()}
                     onMouseDown={(e) => e.stopPropagation()}
-                    className="absolute bottom-full right-0 mb-1.5 sm:mb-2 lg:mb-3 w-[180px] sm:w-[220px] lg:w-[300px] max-h-[120px] sm:max-h-[200px] lg:max-h-[300px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full bg-[#0F111A] rounded-lg sm:rounded-xl p-2 sm:p-2.5 lg:p-4 z-[9999] flex flex-col gap-1.5 sm:gap-2 lg:gap-4 pointer-events-auto"
+                    className="absolute bottom-full right-0 mb-1.5 sm:mb-2 lg:mb-3 w-[180px] sm:w-[220px] lg:w-[300px] max-h-[120px] sm:max-h-[200px] lg:max-h-[300px] overflow-y-auto [&::-webkit-scrollbar]:w-1.5 [&::-webkit-scrollbar-thumb]:bg-white/20 [&::-webkit-scrollbar-track]:bg-transparent [&::-webkit-scrollbar-thumb]:rounded-full bg-[#0F1115] rounded-lg sm:rounded-xl p-2 sm:p-2.5 lg:p-4 z-[9999] flex flex-col gap-1.5 sm:gap-2 lg:gap-4 pointer-events-auto"
                 >
                     {/* Slot 1 */}
                     <div>

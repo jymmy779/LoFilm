@@ -38,8 +38,8 @@ export default async function AdminPage() {
     const starredMovies = starredRes.data || [];
 
     return (
-        <div className="bg-[#0a1628] min-h-screen text-white">
-            <header className="bg-[#0d1b2e] border-b border-white/10 sticky top-0 z-10">
+        <div className="bg-[#0F1115] min-h-screen text-white">
+            <header className="bg-[#0F1115] border-b border-white/10 sticky top-0 z-10">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <Link href="/">

@@ -7,7 +7,7 @@ import { AlertTriangle, RefreshCcw, List, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import Hls from "hls.js";
-import "plyr/dist/plyr.css";
+import Artplayer from "artplayer";
 
 import Container from "@/app/components/Container";
 import PlayerControls from "./PlayerControls";
@@ -133,8 +133,10 @@ export default function WatchClient({
 
     const [showEndOverlay, setShowEndOverlay] = useState(false);
     const showEndOverlayRef = useRef(false);
-    const [plyrContainer, setPlyrContainer] = useState<HTMLElement | null>(null);
+    const [artContainer, setArtContainer] = useState<HTMLElement | null>(null);
     const [subtitlePortalNode, setSubtitlePortalNode] = useState<HTMLElement | null>(null);
+    const artContainerRef = useRef<HTMLDivElement>(null);
+    const [isArtReady, setIsArtReady] = useState(false);
     const [showEpisodeOverlay, setShowEpisodeOverlay] = useState(false);
     const [isChangingEpisode, setIsChangingEpisode] = useState(false);
     const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
@@ -165,7 +167,7 @@ export default function WatchClient({
     }, [containerNode]);
     const videoRef = useRef<HTMLVideoElement>(null);
     const hlsRef = useRef<Hls | null>(null);
-    const plyrRef = useRef<any>(null);
+    const artRef = useRef<Artplayer | null>(null);
     const fallbackTimeRef = useRef<number>(0);
     const seekTargetRef = useRef<number | null>(null);
     const seekTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -470,29 +472,11 @@ export default function WatchClient({
         if (isEmbedServer) return;
 
         let isMounted = true;
-        const video = videoRef.current;
-        if (!video) return;
-
-        const defaultOptions: Plyr.Options = {
-            captions: { active: true, update: true, language: 'vi' },
-            controls: [
-                'play-large', 'progress', 'play', 'rewind', 'fast-forward',
-                'current-time', 'duration', 'mute', 'volume', 'captions',
-                'pip', 'airplay', 'fullscreen'
-            ],
-            i18n: { restart: '', rewind: '', play: '', pause: '', forward: '', fastForward: '', mute: '', unmute: '', settings: '', enterFullscreen: '', exitFullscreen: '' },
-            displayDuration: true,
-            fullscreen: { enabled: true, fallback: true, iosNative: true },
-            storage: { enabled: false },
-            tooltips: { controls: false, seek: true },
-            seekTime: 10,
-            loop: { active: false },
-            clickToPlay: typeof window !== 'undefined' ? !window.matchMedia('(pointer: coarse)').matches : true,
-            hideControls: true,
-        };
+        const container = artContainerRef.current;
+        if (!container) return;
 
         const initTimeout = setTimeout(async () => {
-            if (!isMounted || !videoRef.current) return;
+            if (!isMounted || !container) return;
             let startFrom = fallbackTimeRef.current;
             const isFallbackResume = startFrom > 0;
             if (startFrom === 0 && !hasResumed) {
@@ -525,125 +509,137 @@ export default function WatchClient({
                 }
             }
 
-            const PlyrLib = (await import('plyr') as any).default;
-            if (!isMounted || !videoRef.current) return;
-            const player = new PlyrLib(videoRef.current, defaultOptions);
-            plyrRef.current = player;
+            if (!isMounted) return;
 
-            player.on('ready', () => {
-                const container = player.elements.container;
-                setPlyrContainer(container);
-                if (container) {
-                    const controls = container.querySelector('.plyr__controls');
-                    if (controls && hasCustomSubtitles) {
-                        // Avoid duplicates if ready fires multiple times
-                        if (!controls.querySelector('.plyr__control--custom-subtitle')) {
-                            const portalContainer = document.createElement('div');
-                            portalContainer.className = "plyr__control--custom-subtitle flex items-center";
-                            const settingsBtn = controls.querySelector('.plyr__menu'); // settings menu container
-                            const fullscreenBtn = controls.querySelector('button[data-plyr="fullscreen"]');
-                            const targetBtn = settingsBtn || fullscreenBtn;
+            const art = new Artplayer({
+                container: container,
+                url: videoSrc,
+                theme: '#f59e0b',
+                volume: 1,
+                isLive: false,
+                muted: false,
+                autoplay: true,
+                pip: true,
+                autoSize: false,
+                autoMini: false,
+                setting: true,
+                loop: false,
+                flip: true,
+                playbackRate: true,
+                aspectRatio: true,
+                fullscreen: true,
+                fullscreenWeb: false,
+                subtitleOffset: true,
+                miniProgressBar: true,
+                mutex: true,
+                backdrop: true,
+                playsInline: true,
+                autoPlayback: true,
+                airplay: true,
+                hotkey: false,
+                poster: getImageUrl(movie.thumb_url, { width: 1280, quality: 85 }),
+                icons: {
+                    state: '<img width="90" height="90" src="/images/state.svg">',
+                },
+                customType: {
+                    m3u8: function (video, url, art) {
+                        if (Hls.isSupported()) {
+                            if (art.hls) (art.hls as Hls).destroy();
+                            const hls = new Hls({
+                                startPosition: startFrom > 0 ? startFrom : -1,
+                                enableWorker: true,
+                            });
+                            hls.loadSource(url);
+                            hls.attachMedia(video);
+                            art.hls = hls;
+                            hlsRef.current = hls;
                             
-                            if (targetBtn) {
-                                controls.insertBefore(portalContainer, targetBtn);
-                            } else {
-                                controls.appendChild(portalContainer);
-                            }
-                            setSubtitlePortalNode(portalContainer);
-                        }
-                    }
+                            hls.on(Hls.Events.MANIFEST_PARSED, () => {
+                                if (!hasCustomSubtitles && episode.link_vtt) {
+                                    const existingTracks = video.querySelectorAll('track');
+                                    existingTracks.forEach(t => t.remove());
 
-                    container.addEventListener('touchstart', (e: TouchEvent) => {
-                        if (window.innerWidth < 1024 || window.matchMedia('(pointer: coarse)').matches) {
-                            const target = e.target as HTMLElement;
-                            if (
-                                showEpisodeOverlayRef.current ||
-                                target.closest('[id="episode-list-container"]') ||
-                                target.closest('.z-\\[210\\]') ||
-                                target.closest('.z-\\[150\\]') ||
-                                target.closest('.z-\\[200\\]') ||
-                                target.closest('.watch-top-overlay')
-                            ) return;
-                            const touch = e.touches[0];
-                            const rect = container.getBoundingClientRect();
-                            const relativeY = touch.clientY - rect.top;
-                            if (relativeY < 50) { e.stopPropagation(); return; }
-                            const isControl = target.closest('.plyr__controls') || target.closest('.plyr__control--overlaid') || target.closest('.plyr__control') || target.closest('.watch-top-overlay');
-                            if (!isControl) {
-                                if (player.elements.container?.classList.contains('plyr--hide-controls') === false) {
-                                    e.preventDefault();
-                                    player.togglePlay();
+                                    const track = document.createElement('track');
+                                    track.kind = 'captions';
+                                    track.label = 'Vietnamese';
+                                    track.srclang = 'vi';
+                                    track.src = episode.link_vtt;
+                                    track.default = true;
+                                    video.appendChild(track);
                                 }
-                            }
+                            });
+
+                            hls.on(Hls.Events.ERROR, (event, data) => {
+                                if (data.fatal) {
+                                    setHasError(true);
+                                    switch (data.type) {
+                                        case Hls.ErrorTypes.NETWORK_ERROR:
+                                            hls.startLoad();
+                                            break;
+                                        case Hls.ErrorTypes.MEDIA_ERROR:
+                                            hls.recoverMediaError();
+                                            break;
+                                    }
+                                }
+                            });
+                        } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+                            video.src = url;
                         }
-                    }, { capture: true, passive: false });
-                    const muteButton = container.querySelector('button[data-plyr="mute"]');
-                    if (muteButton) {
-                        muteButton.addEventListener('click', (e: Event) => {
-                            if (window.innerWidth < 768) { e.stopImmediatePropagation(); e.preventDefault(); }
-                        }, { capture: true });
                     }
-                    const rewindBtn = container.querySelector('button[data-plyr="rewind"]');
-                    const forwardBtn = container.querySelector('button[data-plyr="fast-forward"]');
-                    if (rewindBtn) rewindBtn.innerHTML = renderToStaticMarkup(<MdReplay10 size={24} style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.3))' }} />);
-                    if (forwardBtn) forwardBtn.innerHTML = renderToStaticMarkup(<MdForward10 size={24} style={{ filter: 'drop-shadow(0 0 2px rgba(0,0,0,0.3))' }} />);
+                },
+                controls: [
+                    {
+                        position: 'right',
+                        html: '<div id="custom-subtitle-portal-target" class="flex items-center"></div>',
+                        index: 10,
+                    }
+                ]
+            });
+
+            artRef.current = art;
+            videoRef.current = art.video;
+            setIsArtReady(true); // Triggers re-render for Subtitles
+
+            art.on('ready', () => {
+                setArtContainer(art.template.$player);
+                const portalNode = art.template.$player.querySelector('#custom-subtitle-portal-target') as HTMLElement;
+                if (portalNode) {
+                    setSubtitlePortalNode(portalNode);
+                }
+
+                if (startFrom > 0 && (!hasResumed || isFallbackResume)) {
+                    if (isFallbackResume) {
+                        toast.success(`Đang tự động kết nối máy chủ dự phòng...`, { icon: '🔄', duration: 2500 });
+                        fallbackTimeRef.current = 0;
+                    } else {
+                        toast.success(`Đã khôi phục vị trí xem cũ: ${Math.floor(startFrom / 60)} phút`, { icon: '🕒', duration: 2500 });
+                    }
+                    if (!hasResumed) setHasResumed(true);
                 }
             });
 
-            player.on('play', () => {
+            art.on('play', () => {
                 if (showEndOverlayRef.current) {
-                    setTimeout(() => { if (plyrRef.current && showEndOverlayRef.current) plyrRef.current.pause(); }, 10);
+                    setTimeout(() => { if (artRef.current && showEndOverlayRef.current) artRef.current.pause(); }, 10);
                 }
             });
 
-            player.on('pause', () => {
-                if (plyrRef.current) {
-                    saveProgress(plyrRef.current.currentTime, plyrRef.current.duration, true);
+            art.on('pause', () => {
+                if (artRef.current) {
+                    saveProgress(artRef.current.currentTime, artRef.current.duration, true);
                 }
             });
 
-            player.on('playing', () => { setHasStartedPlaying(true); setHasError(false); });
+            art.on('playing', () => { setHasStartedPlaying(true); setHasError(false); });
 
-            player.on('enterfullscreen', () => {
-                const orientation = window.screen?.orientation as any;
-                if (orientation && orientation.lock) {
-                    orientation.lock('landscape').catch(() => {});
-                }
-            });
+            art.on('video:timeupdate', () => {
+                if (!artRef.current) return;
+                const currentTime = artRef.current.currentTime;
+                const duration = artRef.current.duration;
+                const player = artRef.current.video;
 
-            player.on('exitfullscreen', () => {
-                const orientation = window.screen?.orientation as any;
-                if (orientation && orientation.unlock) {
-                    orientation.unlock();
-                }
-            });
-
-            if (startFrom > 0 && (!hasResumed || isFallbackResume)) {
-                player.once('ready', () => {
-                    if (player.currentTime < startFrom - 5 || isFallbackResume) {
-                        player.currentTime = startFrom;
-                        if (isFallbackResume) {
-                            toast.success(`Đang tự động kết nối máy chủ dự phòng...`, { icon: '🔄', duration: 2500 });
-                            setTimeout(() => player.play().catch(() => {}), 500);
-                            fallbackTimeRef.current = 0;
-                        } else {
-                            toast.success(`Đã khôi phục vị trí xem cũ: ${Math.floor(startFrom / 60)} phút`, { icon: '🕒', duration: 2500 });
-                        }
-                    }
-                });
-                if (!hasResumed) setHasResumed(true);
-            }
-
-            player.on('timeupdate', () => {
-                const currentTime = player.currentTime;
-                const duration = player.duration;
-                const remaining = duration - currentTime;
-
-                // LOGIC TÍNH VIEW MỚI (LINH HOẠT HƠN)
-                if (!hasRecordedView.current && !player.paused && player.playing) {
+                if (!hasRecordedView.current && !player.paused) {
                     const now = Date.now();
-
-                    // Tính thời gian xem tích lũy (duration based)
                     if (lastUpdateTimestamp.current > 0) {
                         const delta = (now - lastUpdateTimestamp.current) / 1000;
                         if (delta > 0 && delta < 2) {
@@ -652,7 +648,6 @@ export default function WatchClient({
                     }
                     lastUpdateTimestamp.current = now;
 
-                    // ĐIỀU KIỆN CỘNG VIEW: Chuẩn Netflix (Xem ít nhất 2 phút)
                     if (watchTimeAccumulator.current >= 120 || currentTime >= 120) {
                         hasRecordedView.current = true;
                         recordViewToSupabase();
@@ -660,27 +655,24 @@ export default function WatchClient({
                 }
 
                 saveProgress(currentTime, duration);
-                if (isSeries && nextEpisode && remaining <= 120 && player.duration > 0) {
-                    // Pre-calculation logic if needed
-                }
             });
 
-            // Dọn dẹp đoạn code bắt sự kiện tua vì chúng ta đã giải quyết tận gốc ở lớp mạng (Network)
-
-
-            player.on('seeked', () => {
-                if (player.duration > 0 && player.currentTime >= player.duration - 0.5) {
+            art.on('video:seeked', () => {
+                if (!artRef.current) return;
+                const duration = artRef.current.duration;
+                const currentTime = artRef.current.currentTime;
+                if (duration > 0 && currentTime >= duration - 0.5) {
                     if (isSeries && nextEpisode && autoNextRef.current) {
                         setTimeout(() => {
-                            if (plyrRef.current) plyrRef.current.pause();
+                            if (artRef.current) artRef.current.pause();
                         }, 10);
                         setIsChangingEpisode(true);
                         router.push(`/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`);
                     } else if (!showEndOverlayRef.current) {
                         setTimeout(() => {
-                            if (plyrRef.current) {
-                                plyrRef.current.pause();
-                                plyrRef.current.currentTime = plyrRef.current.duration - 0.1;
+                            if (artRef.current) {
+                                artRef.current.pause();
+                                artRef.current.currentTime = duration - 0.1;
                             }
                         }, 10);
                         setShowEndOverlay(true);
@@ -688,101 +680,30 @@ export default function WatchClient({
                 }
             });
 
-            player.on('ended', () => {
+            art.on('video:ended', () => {
                 if (isSeries && nextEpisode && autoNextRef.current) {
                     setIsChangingEpisode(true);
                     router.push(`/phim/${slug}/${getFriendlyEpisodeSlug(nextEpisode.slug)}`);
                 } else if (!showEndOverlayRef.current) {
                     setTimeout(() => {
-                        if (plyrRef.current) {
-                            plyrRef.current.pause();
-                            plyrRef.current.currentTime = plyrRef.current.duration - 0.1;
+                        if (artRef.current) {
+                            artRef.current.pause();
+                            artRef.current.currentTime = artRef.current.duration - 0.1;
                         }
                     }, 10);
                     setShowEndOverlay(true);
                 }
             });
 
-            if (Hls.isSupported() && (videoSrc.includes('.m3u8'))) {
-                const hls = new Hls({
-                    capLevelToPlayerSize: true,
-                    autoStartLoad: true,
-                    startLevel: -1,
-                    startPosition: startFrom > 0 ? startFrom : -1,
-                    // Tối ưu bộ đệm (buffering) chống giật lag
-                    maxBufferLength: 120, // Tăng lên 120s
-                    maxMaxBufferLength: 600,
-                    maxBufferSize: 100 * 1000 * 1000, 
-                    fragLoadingTimeOut: 60000, // Tăng timeout mạng yếu
-                    manifestLoadingTimeOut: 60000,
-                    levelLoadingTimeOut: 60000,
-                    enableWorker: true, // Chạy trên luồng phụ
-                });
-                hls.loadSource(videoSrc);
-                hls.attachMedia(videoRef.current);
-                hlsRef.current = hls;
-                
-                hls.on(Hls.Events.MANIFEST_PARSED, () => {
-                    // Only inject native track if no custom subtitles (backward compat)
-                    if (!hasCustomSubtitles && episode.link_vtt && videoRef.current) {
-                        const existingTracks = videoRef.current.querySelectorAll('track');
-                        existingTracks.forEach(t => t.remove());
-
-                        const track = document.createElement('track');
-                        track.kind = 'captions';
-                        track.label = 'Vietnamese';
-                        track.srclang = 'vi';
-                        track.src = episode.link_vtt;
-                        track.default = true;
-                        videoRef.current.appendChild(track);
-                    }
-                });
-
-                hls.on(Hls.Events.ERROR, (event, data) => {
-                    if (data.fatal) {
-                        setHasError(true);
-                        switch (data.type) {
-                            case Hls.ErrorTypes.NETWORK_ERROR:
-                                console.warn("Fatal network error in video player. Retrying to load source...", data.details);
-                                hls.startLoad();
-                                break;
-                            case Hls.ErrorTypes.MEDIA_ERROR:
-                                console.warn("Fatal media error in video player. Attempting recovery...");
-                                hls.recoverMediaError();
-                                break;
-                            default:
-                                console.error("Fatal unrecoverable error in Hls player.", data);
-                                break;
-                        }
-                    }
-                });
-            } else if (videoRef.current) {
-                videoRef.current.src = videoSrc;
-                videoRef.current.onerror = () => setHasError(true);
-
-                // Only inject native track if no custom subtitles (backward compat)
-                if (!hasCustomSubtitles && episode.link_vtt) {
-                    const existingTracks = videoRef.current.querySelectorAll('track');
-                    existingTracks.forEach(t => t.remove());
-
-                    const track = document.createElement('track');
-                    track.kind = 'captions';
-                    track.label = 'Vietnamese';
-                    track.srclang = 'vi';
-                    track.src = episode.link_vtt;
-                    track.default = true;
-                    videoRef.current.appendChild(track);
-                }
-            }
         }, 100);
 
         return () => {
             isMounted = false;
             clearTimeout(initTimeout);
-            if (plyrRef.current) {
-                try { plyrRef.current.destroy(); } catch (e) { }
-                plyrRef.current = null;
-                setPlyrContainer(null);
+            if (artRef.current) {
+                try { artRef.current.destroy(true); } catch (e) { }
+                artRef.current = null;
+                setArtContainer(null);
             }
             if (hlsRef.current) {
                 try { hlsRef.current.destroy(); } catch (e) { }
@@ -792,64 +713,37 @@ export default function WatchClient({
     }, [videoSrc, nextEpisode, slug, isEmbedServer]);
 
     useEffect(() => {
+        // Đăng ký hotkey qua window với capture:true để ưu tiên cao nhất,
+        // đảm bảo Space và các phím khác hoạt động kể cả khi ArtPlayer đang focused.
         const handleKeyDown = (e: KeyboardEvent) => {
             const target = e.target as HTMLElement;
-            // Không bắt phím khi đang gõ vào input hoặc comment
             if (['INPUT', 'TEXTAREA', 'SELECT'].includes(target.tagName) || target.isContentEditable) return;
 
-            const player = plyrRef.current;
+            const player = artRef.current;
             if (!player) return;
 
-            const key = e.key;
             const code = e.code;
 
             switch (code) {
                 case 'Space':
                 case 'KeyK':
                     e.preventDefault();
-                    player.togglePlay();
+                    e.stopPropagation();
+                    player.toggle();
                     break;
                 case 'ArrowRight':
-                case 'KeyL': { // YouTube style forward
+                case 'KeyL':
                     e.preventDefault();
-                    const current = seekTargetRef.current !== null ? seekTargetRef.current : player.currentTime;
-                    const target = Math.min(player.duration || 0, current + 10);
-                    seekTargetRef.current = target;
-                    player.currentTime = target;
-                    
-                    const seekInput = player.elements.inputs?.seek;
-                    if (seekInput && player.duration) {
-                        seekInput.value = ((target / player.duration) * 100).toString();
-                        seekInput.style.setProperty('--value', `${(target / player.duration) * 100}%`);
-                    }
-                    if (player.elements.container) player.elements.container.classList.remove('plyr--hide-controls');
-                    
-                    if (seekTimeoutRef.current) clearTimeout(seekTimeoutRef.current);
-                    seekTimeoutRef.current = setTimeout(() => { seekTargetRef.current = null; }, 1000);
+                    player.forward = 10;
                     break;
-                }
                 case 'ArrowLeft':
-                case 'KeyJ': { // YouTube style rewind
+                case 'KeyJ':
                     e.preventDefault();
-                    const current = seekTargetRef.current !== null ? seekTargetRef.current : player.currentTime;
-                    const target = Math.max(0, current - 10);
-                    seekTargetRef.current = target;
-                    player.currentTime = target;
-                    
-                    const seekInput = player.elements.inputs?.seek;
-                    if (seekInput && player.duration) {
-                        seekInput.value = ((target / player.duration) * 100).toString();
-                        seekInput.style.setProperty('--value', `${(target / player.duration) * 100}%`);
-                    }
-                    if (player.elements.container) player.elements.container.classList.remove('plyr--hide-controls');
-                    
-                    if (seekTimeoutRef.current) clearTimeout(seekTimeoutRef.current);
-                    seekTimeoutRef.current = setTimeout(() => { seekTargetRef.current = null; }, 1000);
+                    player.backward = 10;
                     break;
-                }
                 case 'KeyF':
                     e.preventDefault();
-                    player.fullscreen.toggle();
+                    player.fullscreen = !player.fullscreen;
                     break;
                 case 'KeyM':
                     e.preventDefault();
@@ -866,7 +760,6 @@ export default function WatchClient({
             }
         };
 
-        // Sử dụng { capture: true } để chiếm quyền ưu tiên phím tắt, tránh bị các thành phần khác chặn mất
         window.addEventListener('keydown', handleKeyDown, { capture: true });
         return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
     }, []);
@@ -906,7 +799,7 @@ export default function WatchClient({
 
     if (!movie || !episode) return null;
 
-    const portalTarget = isEmbedServer ? containerNode : plyrContainer;
+    const portalTarget = isEmbedServer ? containerNode : artContainer;
 
     return (
         <div className={`pt-35 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} transition-all duration-500 animate-fade-in ${isFullscreen ? 'video-fullscreen-active' : ''} xl:-ml-[100px] xl:w-[calc(100%+100px)] xl:pl-[100px] relative`}>
@@ -920,132 +813,46 @@ export default function WatchClient({
             <div className={`transition-all duration-500 ease-in-out relative ${isExpanded ? 'w-full' : 'max-w-[1900px] mx-auto px-5 lg:px-12'} ${isFullscreen ? '!max-w-none !p-0 !m-0 !fixed !inset-0 !z-[9999]' : ''}`}>
                 <div ref={containerCallbackRef} key={`${activeServerIndex}-${episodeSlug}`} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreen ? '!rounded-none !border-0 !h-screen' : ''}`}>
                     <style jsx global>{`
-                        .hide-large-play .plyr__control--overlaid { display: none !important; }
-                        .plyr { z-index: auto !important; aspect-ratio: 16/9; width: 100%; border-radius: inherit; touch-action: pan-y; will-change: transform, opacity; }
-                        .plyr__controls { z-index: 100 !important; background: linear-gradient(rgba(0, 0, 0, 0), rgba(0, 0, 0, 0.5)) !important; transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease !important; transition-delay: 0s !important; }
-                        .hide-large-play .plyr__controls { opacity: 0 !important; visibility: hidden !important; pointer-events: none !important; }
-                        
-                        /* Thêm delay 1.5s trước khi ẩn controls (Chuẩn YouTube/Netflix) */
-                        .plyr--hide-controls .plyr__controls {
-                            opacity: 0 !important;
-                            visibility: hidden !important;
-                            pointer-events: none !important;
-                            transition: opacity 0.3s ease, visibility 0.3s ease, transform 0.3s ease !important;
-                            transition-delay: 1.5s !important;
+                        /* CSS tuỳ chỉnh cho ArtPlayer Overlay */
+                        .art-video-player .art-bottom {
+                            z-index: 50 !important;
                         }
-                        
-                        /* Đồng bộ Movie Info và Episode List với Plyr Controls */
+                        .art-video-player .art-layer {
+                            z-index: 40 !important;
+                        }
                         .watch-top-overlay {
-                            /* Khi ẩn đi: mượt và chậm hơn để tạo cảm giác cao cấp */
                             transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
                             transition-delay: 0s !important;
                         }
-
-                        .plyr--hide-controls .watch-top-overlay {
+                        /* Khi ArtPlayer ẩn thanh điều khiển thì ẩn luôn lớp phủ Top */
+                        .art-hide-cursor .watch-top-overlay {
                             opacity: 0 !important;
                             pointer-events: none !important;
-                            /* Loại bỏ dịch chuyển, chỉ giữ lại fade */
-                            transform: translateY(0) !important;
-                            transition-delay: 1.5s !important;
+                            transform: translateY(-10px) !important;
+                            transition-delay: 0.5s !important;
                         }
-
-                        /* Đảm bảo luôn hiện và phản hồi nhanh khi controls hiện */
-                        .plyr:not(.plyr--hide-controls) .watch-top-overlay {
+                        .art-video-player:not(.art-hide-cursor) .watch-top-overlay {
                             opacity: 1 !important;
                             transform: translateY(0) !important;
                             pointer-events: auto !important;
-                            /* Khi hiện lên: phản hồi nhanh và hỗ trợ hover mượt */
-                            transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), background-color 0.3s ease, border-color 0.3s ease !important;
+                            transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
                             transition-delay: 0s !important;
                         }
                         
-                        /* Optimize Layout when in Fullscreen: Hide everything else to free up GPU for orientation change */
+                        /* Fix fullscreen layout */
                         .video-fullscreen-active > *:not(.relative) {
                             display: none !important;
                         }
-                        
-                        .plyr--fullscreen-active {
-                            background: #000 !important;
-                        }
 
-                        .plyr__time--current,
-                        .plyr__time--duration {
-                            display: block !important;
-                        }
-                        
-                        .plyr__time + .plyr__time::before {
-                            margin-right: 4px !important;
-                        }
-
-                        @media (max-width: 767px) {
-                            .plyr__control {
-                                padding: 5px !important;
-                            }
-                            .plyr__control svg {
-                                width: 14px !important;
-                                height: 14px !important;
-                            }
-
-                            .plyr__volume {
-                                position: relative !important;
-                                min-width: 32px !important;
-                            }
-                            .plyr__volume input {
-                                position: absolute !important;
-                                bottom: calc(100% + 15px) !important;
-                                left: 50% !important;
-                                transform: translateX(-50%) !important;
-                                width: 100px !important;
-                                background: rgba(10, 22, 40, 0.95) !important;
-                                border: 1px solid rgba(255, 255, 255, 0.1) !important;
-                                padding: 12px 10px !important;
-                                border-radius: 12px !important;
-                                opacity: 0 !important;
-                                pointer-events: none !important;
-                                transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-                                z-index: 100 !important;
-                                box-shadow: 0 10px 25px rgba(0,0,0,0.5) !important;
-                            }
-                            .plyr__volume:focus-within input,
-                            .plyr__volume:active input {
-                                opacity: 1 !important;
-                                pointer-events: auto !important;
-                                bottom: calc(100% + 10px) !important;
-                            }
-                        }
-
-                        .plyr__control[data-plyr="rewind"],
-                        .plyr__control[data-plyr="fast-forward"] {
-                            display: flex !important;
-                            align-items: center !important;
-                            justify-content: center !important;
-                            padding: 0 !important;
-                            margin: 0 6px !important; /* Tạo thêm khoảng cách */
-                        }
-
-                        .plyr__control[data-plyr="rewind"] svg,
-                        .plyr__control[data-plyr="fast-forward"] svg {
-                            width: 24px !important;
-                            height: 24px !important;
-                        }
-
-                        @media (max-width: 767px) {
-                            .plyr__control[data-plyr="rewind"],
-                            .plyr__control[data-plyr="fast-forward"] {
-                                margin: 0 2px !important;
-                            }
-                            .plyr__control[data-plyr="rewind"] svg,
-                            .plyr__control[data-plyr="fast-forward"] svg {
-                                width: 18px !important;
-                                height: 18px !important;
-                            }
+                        /* Ẩn thông báo Play/Pause mặc định của ArtPlayer */
+                        .art-video-player .art-notice {
+                            display: none !important;
                         }
                     `}</style>
                     
-                    {/* HLS Video Container (Không xoá khỏi DOM để tránh lỗi NotFoundError của React, chỉ ẩn đi) */}
+                    {/* HLS Video Container */}
                     <div className={`w-full h-full absolute inset-0 z-0 ${isEmbedServer ? 'hidden' : 'block'}`}>
-                        <video ref={videoRef} crossOrigin="anonymous" className="w-full h-full object-contain" playsInline loop={false} poster={getImageUrl(movie.thumb_url, { width: 1280, quality: 85 })}>
-                        </video>
+                        <div ref={artContainerRef} className="w-full h-full"></div>
                     </div>
 
                     {/* Iframe Embed */}
@@ -1058,7 +865,7 @@ export default function WatchClient({
                                 className="w-full h-full border-0 absolute inset-0 z-[5]"
                             />
                             {isIframeLoading && (
-                                <div className="absolute inset-0 z-[200] bg-[#0a1628] flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300">
+                                <div className="absolute inset-0 z-[200] bg-[#0F1115] flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300">
                                     <div className="relative mb-4 md:mb-6">
                                         <div className="md:w-16 md:h-16 w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
                                         <div className="absolute inset-0 flex items-center justify-center">
@@ -1137,7 +944,7 @@ export default function WatchClient({
                                 onDoubleClick={(e) => e.stopPropagation()}
                                 onMouseDown={(e) => e.stopPropagation()}
                                 onMouseUp={(e) => e.stopPropagation()}
-                                className={`absolute top-0 right-0 h-full w-[200px] sm:w-[260px] md:w-[360px] bg-[#0F111A] border-l border-white/5 transition-transform duration-500 ease-out flex flex-col select-none outline-none [backface-visibility:hidden] [will-change:transform] [-webkit-tap-highlight-color:transparent] ${showEpisodeOverlay ? 'translate-x-0' : 'translate-x-full'}`}>
+                                className={`absolute top-0 right-0 h-full w-[200px] sm:w-[260px] md:w-[360px] bg-[#0F1115] border-l border-white/5 transition-transform duration-500 ease-out flex flex-col select-none outline-none [backface-visibility:hidden] [will-change:transform] [-webkit-tap-highlight-color:transparent] ${showEpisodeOverlay ? 'translate-x-0' : 'translate-x-full'}`}>
                                 {/* Header */}
                                 <div className="p-2 sm:p-3 lg:p-5 border-b gap-10 border-white/5 flex items-center justify-between bg-white/[0.02]">
                                     <div className="flex flex-col gap-0.5">
@@ -1222,9 +1029,9 @@ export default function WatchClient({
                                     onClick={() => {
                                         setShowEndOverlay(false);
                                         showEndOverlayRef.current = false;
-                                        if (plyrRef.current) {
-                                            plyrRef.current.currentTime = 0;
-                                            plyrRef.current.play();
+                                        if (artRef.current) {
+                                            artRef.current.seek = 0;
+                                            artRef.current.play();
                                         }
                                     }}
                                     className={`group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-all duration-500 ${showEndOverlay ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
@@ -1252,16 +1059,16 @@ export default function WatchClient({
 
                 </div>
 
-                    {/* Dual Subtitles — Custom Overlay using Native Plyr CSS */}
+                    {/* Dual Subtitles — Custom Overlay using Native Artplayer CSS or custom CSS */}
                     {portalTarget && !isEmbedServer && (subtitle1Text || subtitle2Text) && createPortal(
-                        <div className="plyr__captions" dir="auto" style={{ pointerEvents: 'none', display: 'block' }}>
+                        <div className="art-subtitle" dir="auto" style={{ pointerEvents: 'none', display: 'block', position: 'absolute', bottom: '60px', left: 0, width: '100%', textAlign: 'center', zIndex: 30 }}>
                             {subtitle1Text && (
-                                <span className="plyr__caption" style={{ display: 'inline-block', width: '100%' }}>
+                                <span className="art-subtitle-track" style={{ display: 'inline-block', width: '100%', textShadow: '0 1px 2px #000, 0 1px 2px #000' }}>
                                     {subtitle1Text}
                                 </span>
                             )}
                             {subtitle2Text && (
-                                <span className="plyr__caption" style={{ display: 'inline-block', width: '100%', fontSize: '0.85em', color: '#f59e0b', marginTop: subtitle1Text ? '4px' : '0' }}>
+                                <span className="art-subtitle-track" style={{ display: 'inline-block', width: '100%', fontSize: '0.85em', color: '#f59e0b', marginTop: subtitle1Text ? '4px' : '0', textShadow: '0 1px 2px #000, 0 1px 2px #000' }}>
                                     {subtitle2Text}
                                 </span>
                             )}

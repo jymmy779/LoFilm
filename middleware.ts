@@ -114,10 +114,13 @@ export async function middleware(request: NextRequest) {
   const hasAuthCookie = request.cookies.getAll().some(c => c.name.startsWith('sb-'));
   const isProtectedRoute = pathname.startsWith('/trang-ca-nhan') || pathname.startsWith('/history');
 
-  // Chỉ gọi getUser() khi thực sự cần (route bảo vệ hoặc có cookie tiềm năng)
+  // Dùng getSession() thay vì getUser() để tránh gọi mạng ra Supabase server.
+  // getUser() gọi network để xác thực token → dễ bị timeout/fetch failed → redirect sai về login.
+  // getSession() đọc thẳng từ cookie trong request → nhanh, không lỗi mạng.
   // Lưu ý: isPublicRoute đã được handle ở trên nên ở đây chỉ còn các route khác
   if (hasAuthCookie || isProtectedRoute) {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { session } } = await supabase.auth.getSession()
+    const user = session?.user ?? null;
     
     // Bắt buộc đăng nhập với các route bảo vệ
     if (isProtectedRoute && !user) {

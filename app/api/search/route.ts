@@ -14,12 +14,15 @@ export async function GET(request: NextRequest) {
         const supabase = await createClient();
 
         // 1. Tìm trong Supabase (Phim độc quyền)
-        // Lấy tất cả và filter bằng JS để xử lý triệt để chữ hoa/thường tiếng Việt (ví dụ: Đ và đ)
+        // Sử dụng .ilike để tìm kiếm mờ (không phân biệt hoa thường) trực tiếp trên database
+        // Đỡ phải tải toàn bộ data về RAM của server
         const supabasePromise = supabase
             .from("exclusive_movies")
             .select("*")
             .eq("status", "published")
-            .order('created_at', { ascending: false });
+            .or(`name.ilike.%${keyword}%,origin_name.ilike.%${keyword}%`)
+            .order('created_at', { ascending: false })
+            .limit(limit);
 
         // 2. Tìm trên PhimAPI (Truyền toàn bộ params gốc để hỗ trợ page, sort)
         // Chuyển keyword sang không dấu vì CSDL của PhimAPI bị lỗi encoding NFD với tiếng Việt có dấu
@@ -35,14 +38,7 @@ export async function GET(request: NextRequest) {
         // 3. Format dữ liệu từ Supabase cho giống PhimAPI
         let exclusiveItems: any[] = [];
         if (supabaseRes.data) {
-            const kw = keyword.toLowerCase();
-            const filteredMovies = supabaseRes.data.filter(movie => {
-                const name = movie.name?.toLowerCase() || "";
-                const originName = movie.origin_name?.toLowerCase() || "";
-                return name.includes(kw) || originName.includes(kw);
-            });
-
-            exclusiveItems = filteredMovies.map(movie => ({
+            exclusiveItems = supabaseRes.data.map(movie => ({
                 _id: movie.id,
                 name: movie.name || "Phim Độc Quyền",
                 slug: movie.slug,

@@ -101,7 +101,7 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
 
             {/* Settings Tab */}
             {activeTab === "settings" && (
-                <div className="bg-[#0d1b2e] rounded-lg p-6 border border-white/5 max-w-2xl">
+                <div className="bg-[#0F1115] rounded-lg p-6 border border-white/5 max-w-2xl">
                     <div className="flex items-center justify-between mb-6">
                         <h3 className="text-xl font-semibold">Cấu hình chung</h3>
                         {hasChanges && (
@@ -116,7 +116,7 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                         )}
                     </div>
                     
-                    <div className="mb-6 flex items-center justify-between p-4 bg-[#152740] rounded-lg">
+                    <div className="mb-6 flex items-center justify-between p-4 bg-[#0F1115] rounded-lg">
                         <div>
                             <div className="font-medium text-lg">Chế độ Bảo trì</div>
                             <div className="text-sm text-gray-400">Đóng website tạm thời, chuyển tất cả traffic về trang /maintenance</div>
@@ -130,7 +130,7 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                         </button>
                     </div>
 
-                    <div className="p-4 bg-[#152740] rounded-lg mb-6">
+                    <div className="p-4 bg-[#0F1115] rounded-lg mb-6">
                         <div className="mb-3">
                             <div className="font-medium text-lg">Sự kiện Đặc biệt (Hiệu ứng)</div>
                             <div className="text-sm text-gray-400">Kích hoạt các hiệu ứng đặc biệt trên toàn trang web.</div>
@@ -139,7 +139,7 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                             value={settings.active_event || 'none'}
                             onChange={(e) => handleChangeSetting('active_event', e.target.value)}
                             disabled={isPending}
-                            className="w-full bg-[#0a1628] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
                         >
                             <option value="none">Không có sự kiện (Mặc định)</option>
                             <option value="reunification">Giải phóng Miền Nam 30/4</option>
@@ -158,7 +158,7 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                             { key: 'contact_threads', label: 'Threads URL', icon: 'fa-threads', color: 'text-white' },
                             { key: 'contact_youtube', label: 'YouTube URL', icon: 'fa-youtube', color: 'text-[#FF0000]' },
                         ].map((field) => (
-                            <div key={field.key} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#152740] rounded-lg gap-4">
+                            <div key={field.key} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 bg-[#0F1115] rounded-lg gap-4">
                                 <div className="flex items-center gap-3 w-1/3">
                                     <i className={`fa-brands ${field.icon} text-2xl ${field.color}`}></i>
                                     <div className="font-medium">{field.label}</div>
@@ -169,7 +169,7 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                                     placeholder={`Nhập ${field.label}...`}
                                     onChange={(e) => handleChangeSetting(field.key, e.target.value)}
                                     disabled={isPending}
-                                    className="flex-1 bg-[#0a1628] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/10"
+                                    className="flex-1 bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/10"
                                 />
                             </div>
                         ))}
@@ -191,13 +191,13 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                     </div>
                     
                     {movies.length === 0 ? (
-                        <div className="text-gray-400 text-center py-10 bg-[#0d1b2e] rounded-lg border border-white/5">
+                        <div className="text-gray-400 text-center py-10 bg-[#0F1115] rounded-lg border border-white/5">
                             Chưa có phim độc quyền nào.
                         </div>
                     ) : (
                         <div className="overflow-x-auto">
-                            <table className="w-full text-left bg-[#0d1b2e] rounded-lg overflow-hidden whitespace-nowrap">
-                                <thead className="bg-[#152740]">
+                            <table className="w-full text-left bg-[#0F1115] rounded-lg overflow-hidden whitespace-nowrap">
+                                <thead className="bg-[#0F1115]">
                                     <tr>
                                         <th className="p-4">Slug</th>
                                         <th className="p-4">TMDB ID</th>

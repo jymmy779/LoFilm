@@ -46,7 +46,7 @@ function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZon
                 onClick={() => setBaitMovie(movie)}
                 onMouseEnter={() => setBaitMovie(movie)}
             >
-                <div className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-[#0a1628]">
+                <div className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-[#0F1115]">
                     {/* Poster Image */}
                     <SmartImage
                         src={getImageUrl(movie.poster_url, { width: 400, quality: 80 })}

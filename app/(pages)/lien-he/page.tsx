@@ -14,7 +14,7 @@ import ContactForm from './ContactForm';
 
 export default function ContactPage() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#111b33] to-[#0d162b] text-white/80 pt-32 pb-20 md:pt-40 md:pb-32 px-4 relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-b from-[#0F1115] to-[#0F1115] text-white/80 pt-32 pb-20 md:pt-40 md:pb-32 px-4 relative overflow-hidden">
       <div className="max-w-6xl mx-auto">
         <div className="text-center mb-8 md:mb-12">
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 md:mb-3 tracking-tighter uppercase italic">Liên hệ với chúng tôi</h1>
@@ -26,7 +26,7 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           {/* Contact Info Cards */}
           <div className="lg:col-span-1 space-y-4 md:space-y-6">
-            <div className="bg-[#16213e] border border-white/5 p-6 md:p-8 rounded-2xl md:rounded-[32px] hover:border-amber-400/20 transition-all group shadow-xl">
+            <div className="bg-[#12151C] border border-white/5 p-6 md:p-8 rounded-2xl md:rounded-[32px] hover:border-amber-400/20 transition-all group shadow-xl">
               <div className="w-10 h-10 bg-amber-400/10 rounded-xl flex items-center justify-center text-amber-400 mb-4 group-hover:scale-110 transition-transform">
                 <Mail size={18} />
               </div>
@@ -35,7 +35,7 @@ export default function ContactPage() {
               <a href="mailto:contactlofilm@gmail.com" className="text-amber-400 font-bold text-xs md:text-sm hover:underline break-all">contactlofilm@gmail.com</a>
             </div>
 
-            <div className="bg-[#16213e] border border-white/5 p-6 md:p-8 rounded-2xl md:rounded-[32px] hover:border-blue-400/20 transition-all group shadow-xl">
+            <div className="bg-[#12151C] border border-white/5 p-6 md:p-8 rounded-2xl md:rounded-[32px] hover:border-blue-400/20 transition-all group shadow-xl">
               <div className="w-10 h-10 bg-blue-400/10 rounded-xl flex items-center justify-center text-blue-400 mb-4 group-hover:scale-110 transition-transform">
                 <Send size={18} />
               </div>
@@ -44,7 +44,7 @@ export default function ContactPage() {
               <a href="https://t.me/+5S1xkPn1SCAxZWZl" target='blank' className="text-blue-400 font-bold text-xs md:text-sm hover:underline">@LoFilmSupport</a>
             </div>
 
-            <div className="bg-[#16213e] border border-white/5 p-6 md:p-8 rounded-2xl md:rounded-[32px] hover:border-purple-400/20 transition-all group shadow-xl">
+            <div className="bg-[#12151C] border border-white/5 p-6 md:p-8 rounded-2xl md:rounded-[32px] hover:border-purple-400/20 transition-all group shadow-xl">
               <div className="w-10 h-10 bg-purple-400/10 rounded-xl flex items-center justify-center text-purple-400 mb-4 group-hover:scale-110 transition-transform">
                 < Globe size={18} />
               </div>

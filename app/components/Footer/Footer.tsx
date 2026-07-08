@@ -6,7 +6,7 @@ export default async function Footer() {
     const settings = await getSiteSettings();
 
     return (
-        <footer className="relative w-full border-t border-white/10 bg-[#0F111A] mt-10 overflow-hidden pb-6 transition-all duration-300">
+        <footer className="relative w-full border-t border-white/10 bg-[#0F1115] mt-10 overflow-hidden pb-6 transition-all duration-300">
             <div className="absolute top-0 right-0 w-[600px] h-[600px] pointer-events-none opacity-[0.08] bg-gradient-to-bl from-orange-500/40 via-yellow-500/20 to-transparent rounded-full translate-x-1/2 -translate-y-1/2"></div>
             <div className="absolute bottom-0 left-0 w-[400px] h-[400px] pointer-events-none opacity-[0.05] bg-gradient-to-tr from-blue-500/30 to-transparent rounded-full -translate-x-1/2 translate-y-1/2"></div>
 

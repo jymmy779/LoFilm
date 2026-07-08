@@ -126,7 +126,7 @@ export default function ReportModal({ isOpen, onClose, movieName, episodeName }:
 
       {/* Modal Content */}
       <div
-        className={`relative w-full max-w-lg bg-[#14233e] border border-white/10 rounded-3xl overflow-hidden ${isClosing ? 'animate-pop-out' : 'animate-pop-in'}`}
+        className={`relative w-full max-w-lg bg-[#0F1115] border border-white/10 rounded-3xl overflow-hidden ${isClosing ? 'animate-pop-out' : 'animate-pop-in'}`}
       >
         <div className="p-6 md:p-8">
           {/* Header */}

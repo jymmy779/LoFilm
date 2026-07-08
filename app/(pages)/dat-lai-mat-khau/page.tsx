@@ -76,7 +76,7 @@ export default function ResetPasswordPage() {
   // Giao diện Loading lúc đang kiểm tra quyền truy cập
   if (isChecking) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-[#0a1628] px-4">
+      <div className="min-h-screen flex items-center justify-center bg-[#0F1115] px-4">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-amber-400/20 border-t-amber-400 rounded-full animate-spin" />
           <p className="text-white/40 text-sm animate-pulse italic">Đang xác thực quyền truy cập...</p>
@@ -86,7 +86,7 @@ export default function ResetPasswordPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-[#0a1628] px-4">
+    <div className="min-h-screen flex items-center justify-center bg-[#0F1115] px-4">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-amber-500/5 rounded-full blur-[120px]" />
@@ -94,7 +94,7 @@ export default function ResetPasswordPage() {
       </div>
 
       <div
-        className="w-full max-w-md bg-[#14233e]/60 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl animate-fade-in"
+        className="w-full max-w-md bg-[#0F1115]/60 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl animate-fade-in"
       >
         <div className="text-center mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Đặt lại mật khẩu</h1>

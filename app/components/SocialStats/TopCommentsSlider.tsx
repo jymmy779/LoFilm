@@ -93,7 +93,7 @@ export default function TopCommentsSlider() {
                         // Skeleton slides during loading
                         [...Array(5)].map((_, i) => (
                             <SwiperSlide key={i} className="!w-[280px] sm:!w-[320px] md:!w-[360px] !h-auto">
-                                <div className="relative h-[220px] bg-[#0c1322]/40 rounded-xl overflow-hidden border border-white/5 p-4 pt-6 flex flex-col">
+                                <div className="relative h-[220px] bg-[#0F1115]/40 rounded-xl overflow-hidden border border-white/5 p-4 pt-6 flex flex-col">
                                     <div className="flex justify-between gap-3 mb-3">
                                         <div className="flex items-center gap-3">
                                             <Skeleton className="w-10 h-10" rounded="full" />
@@ -120,7 +120,7 @@ export default function TopCommentsSlider() {
                     ) : (
                         comments.map((comment) => (
                             <SwiperSlide key={comment.id} className="!w-[280px] sm:!w-[320px] md:!w-[360px] !h-auto">
-                                <div className="relative h-[190px] sm:h-[220px] bg-[#0c1322] rounded-xl overflow-hidden border border-white/5 hover:border-white/10 transition-all duration-300 group/comment flex flex-col">
+                                <div className="relative h-[190px] sm:h-[220px] bg-[#0F1115] rounded-xl overflow-hidden border border-white/5 hover:border-white/10 transition-all duration-300 group/comment flex flex-col">
                                     {/* Unblurred backdrop movie poster occupying the top 2/3, smoothly fading into the solid card base */}
                                     {comment.movie.backdrop && (
                                         <div className="absolute inset-x-0 top-0 h-[67%] overflow-hidden pointer-events-none select-none z-0">
@@ -130,7 +130,7 @@ export default function TopCommentsSlider() {
                                                 className="w-full h-full object-cover opacity-50"
                                             />
                                             {/* Linear gradient fade from transparent to solid card background color */}
-                                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0c1322]/35 to-[#0c1322]" />
+                                            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-[#0F1115]/35 to-[#0F1115]" />
                                         </div>
                                     )}
 

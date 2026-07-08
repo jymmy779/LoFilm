@@ -42,7 +42,7 @@ export const viewport: Viewport = {
   maximumScale: 5, // Cho phép zoom để cải thiện accessibility
   userScalable: true,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#0a1628' },
+    { media: '(prefers-color-scheme: light)', color: '#0F1115' },
     { media: '(prefers-color-scheme: dark)', color: '#000000' },
   ],
   viewportFit: 'cover',
@@ -239,7 +239,7 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.variable} ${montserrat.variable} bg-[#0a1628] text-white font-sans`} suppressHydrationWarning>
+      <body className={`${inter.variable} ${montserrat.variable} bg-[#0F1115] text-white font-sans`} suppressHydrationWarning>
 
         <NetworkMonitor />
         <WakeUpMonitor />
@@ -251,7 +251,7 @@ export default async function RootLayout({
             <div className="min-h-screen flex flex-col">
               <HideOnAdmin>
                 <DesktopSidebar />
-                <Suspense fallback={<div className="h-[64px] bg-[#0d1b2e] w-full fixed top-0 left-0 z-50 border-b border-white/10" />}>
+                <Suspense fallback={<div className="h-[64px] bg-[#0F1115] w-full fixed top-0 left-0 z-50 border-b border-white/10" />}>
                   <Header />
                 </Suspense>
               </HideOnAdmin>

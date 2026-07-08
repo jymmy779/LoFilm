@@ -160,7 +160,7 @@ export default function TrendingList() {
 
                     {/* Modal Content container matching CommonModal styling */}
                     <div
-                        className={`relative w-[95%] max-w-[340px] sm:max-w-[380px] md:max-w-[420px] bg-[#111e31] border border-white/10 rounded-2xl p-3 sm:p-4 md:p-5 shadow-2xl z-10 overflow-y-hidden max-h-[95vh] ${isClosing ? 'animate-pop-out' : 'animate-pop-in'
+                        className={`relative w-[95%] max-w-[340px] sm:max-w-[380px] md:max-w-[420px] bg-[#0F1115] border border-white/10 rounded-2xl p-3 sm:p-4 md:p-5 shadow-2xl z-10 overflow-y-hidden max-h-[95vh] ${isClosing ? 'animate-pop-out' : 'animate-pop-in'
                             }`}
                     >
                         {/* Header */}

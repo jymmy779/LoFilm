@@ -12,8 +12,8 @@ export const metadata: Metadata = {
 
 export default function AboutContact() {
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#111b33] to-[#0d162b] text-white/80 pt-32 pb-20 md:pt-40 md:pb-32 px-4">
-      <div className="max-w-4xl mx-auto bg-[#16213e] border border-white/5 rounded-2xl md:rounded-[32px] overflow-hidden shadow-2xl">
+    <div className="min-h-screen bg-gradient-to-b from-[#0F1115] to-[#0F1115] text-white/80 pt-32 pb-20 md:pt-40 md:pb-32 px-4">
+      <div className="max-w-4xl mx-auto bg-[#12151C] border border-white/5 rounded-2xl md:rounded-[32px] overflow-hidden shadow-2xl">
         <div className="bg-amber-400 p-6 md:p-12 text-black">
           <h1 className="text-2xl md:text-3xl font-extrabold mb-2 md:mb-3 italic tracking-tighter">LoFilm.</h1>
           <p className="text-[10px] md:text-sm font-medium opacity-60 leading-relaxed uppercase tracking-[0.12em] md:tracking-[0.15em]">Khám phá thế giới điện ảnh không giới hạn</p>

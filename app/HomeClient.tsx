@@ -34,7 +34,7 @@ export default function HomeClient({ prefetched, activeEvent }: { prefetched: Ho
                 icon: '🎬',
                 style: {
                     borderRadius: '16px',
-                    background: '#14233e',
+                    background: '#0F1115',
                     color: '#fff',
                     border: '1px solid rgba(251, 191, 36, 0.2)'
                 }

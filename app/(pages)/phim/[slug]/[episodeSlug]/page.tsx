@@ -140,7 +140,7 @@ export default async function WatchPage({ params, searchParams }: Props) {
     } catch (error) {
         console.error("Fetch movie error:", error);
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#0a1628] text-white p-6 relative overflow-hidden">
+            <div className="min-h-screen flex items-center justify-center bg-[#0F1115] text-white p-6 relative overflow-hidden">
                 {/* Minimal Background Decor - No Blur for Performance */}
                 <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-500/5 rounded-full pointer-events-none" />
                 <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full pointer-events-none" />
@@ -162,7 +162,7 @@ export default async function WatchPage({ params, searchParams }: Props) {
                         <div className="flex flex-col gap-4">
                             <a 
                                 href="" 
-                                className="w-full py-4 bg-amber-500 text-[#0a1628] font-black rounded-2xl hover:bg-amber-400 active:scale-95 transition-all duration-300 text-center"
+                                className="w-full py-4 bg-amber-500 text-[#0F1115] font-black rounded-2xl hover:bg-amber-400 active:scale-95 transition-all duration-300 text-center"
                             >
                                 THỬ TẢI LẠI TRANG
                             </a>
@@ -183,7 +183,7 @@ export default async function WatchPage({ params, searchParams }: Props) {
 
     if (!data || !data.movie) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#0a1628] text-white">
+            <div className="min-h-screen flex items-center justify-center bg-[#0F1115] text-white">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold mb-4 uppercase tracking-wider italic">PHIM KHÔNG TỒN TẠI</h1>
                     <a href="/" className="text-amber-400 hover:underline">Về trang chủ</a>
@@ -237,7 +237,7 @@ export default async function WatchPage({ params, searchParams }: Props) {
 
     if (!movie || !currentEpisode) {
         return (
-            <div className="min-h-screen flex items-center justify-center bg-[#0a1628] text-white">
+            <div className="min-h-screen flex items-center justify-center bg-[#0F1115] text-white">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold mb-4">Không tìm thấy phim hoặc tập phim</h1>
                     <a href="/" className="text-amber-400 hover:underline">Về trang chủ</a>

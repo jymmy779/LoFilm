@@ -10,7 +10,7 @@ export default function ClientToaster() {
       reverseOrder={false}
       toastOptions={{
         style: {
-          background: '#14233e',
+          background: '#0F1115',
           color: '#fff',
           border: '1px solid rgba(255, 255, 254, 0.1)',
           borderRadius: '16px',

@@ -60,17 +60,16 @@ export default function DropdownMenu({
             </button>
 
             {/* Dropdown panel */}
-            <div 
-                className={`absolute top-full left-0 z-50 pt-[8px] transition-all duration-200 origin-top-left ${
-                    open 
-                    ? "opacity-100 translate-y-0 pointer-events-auto" 
+            <div
+                className={`absolute top-full left-0 z-50 pt-[8px] transition-all duration-200 origin-top-left ${open
+                    ? "opacity-100 translate-y-0 pointer-events-auto"
                     : "opacity-0 translate-y-2 pointer-events-none"
-                }`}
+                    }`}
             >
                 {/* Invisible bridge — covers the mt gap so onMouseLeave doesn't fire */}
                 <div className="absolute top-0 left-0 w-full h-[8px]" />
-                
-                <div className="min-w-[580px] rounded-[8px] bg-[#0d1e35] border-t-2 border-[#f5a623] border border-white/5">
+
+                <div className="min-w-[580px] rounded-[8px] bg-[#12151C] border-t-2 border-[#f5a623] border border-white/5">
                     <div className="grid grid-cols-4 gap-x-4 gap-y-3 p-5">
                         {cols.map((col, colIdx) => (
                             <div key={colIdx} className="flex flex-col gap-3">

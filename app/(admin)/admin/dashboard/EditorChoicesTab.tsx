@@ -78,7 +78,7 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
 
     return (
         <div className="space-y-8">
-            <div className="bg-[#0d1b2e] rounded-lg p-6 border border-white/5">
+            <div className="bg-[#0F1115] rounded-lg p-6 border border-white/5">
                 <div className="flex items-center justify-between mb-6">
                     <h3 className="text-xl font-semibold">Cấu hình Editor's Choices</h3>
                     <button
@@ -91,7 +91,7 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
                     </button>
                 </div>
 
-                <div className="flex flex-col md:flex-row gap-6 mb-8 p-4 bg-[#152740] rounded-lg border border-white/10">
+                <div className="flex flex-col md:flex-row gap-6 mb-8 p-4 bg-[#0F1115] rounded-lg border border-white/10">
                     <label className="flex items-center gap-3 cursor-pointer">
                         <input
                             type="radio"
@@ -115,7 +115,7 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
                 </div>
 
                 {config.mode === 'auto' && (
-                    <div className="p-4 bg-[#152740] rounded-lg border border-white/10 flex items-center gap-4">
+                    <div className="p-4 bg-[#0F1115] rounded-lg border border-white/10 flex items-center gap-4">
                         <label className="font-medium">Số lượng phim muốn hiển thị:</label>
                         <input
                             type="number"
@@ -123,7 +123,7 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
                             max="50"
                             value={config.autoCount}
                             onChange={(e) => setConfig({ ...config, autoCount: parseInt(e.target.value) || 10 })}
-                            className="bg-[#0a1628] text-white rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/10 w-24 text-center"
+                            className="bg-[#0F1115] text-white rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/10 w-24 text-center"
                         />
                         <span className="text-sm text-gray-400">Hệ thống sẽ lấy danh sách từ bảng movie_views</span>
                     </div>
@@ -133,7 +133,7 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
             {config.mode === 'manual' && (
                 <>
                     {/* Search Section */}
-                    <div className="bg-[#0d1b2e] rounded-lg p-6 border border-white/5">
+                    <div className="bg-[#0F1115] rounded-lg p-6 border border-white/5">
                         <h3 className="text-lg font-semibold mb-4">Tìm và thêm phim</h3>
                         <form onSubmit={handleSearch} className="flex gap-2 mb-6">
                             <input
@@ -141,7 +141,7 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
                                 value={searchKeyword}
                                 onChange={(e) => setSearchKeyword(e.target.value)}
                                 placeholder="Nhập tên phim cần tìm..."
-                                className="flex-1 bg-[#152740] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/10"
+                                className="flex-1 bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/10"
                             />
                             <button
                                 type="submit"
@@ -156,7 +156,7 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
                         {searchResults.length > 0 && (
                             <div className="space-y-3">
                                 {searchResults.map((movie: any) => (
-                                    <div key={movie.slug} className="bg-[#152740] rounded-lg border border-white/10 p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                                    <div key={movie.slug} className="bg-[#0F1115] rounded-lg border border-white/10 p-4 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
                                         <div>
                                             <h4 className="font-bold text-lg text-white mb-1">{movie.name}</h4>
                                             <p className="text-sm text-gray-400 mb-2">{movie.origin_name} ({movie.year})</p>
@@ -179,19 +179,19 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
                     </div>
 
                     {/* List Section */}
-                    <div className="bg-[#0d1b2e] rounded-lg p-6 border border-white/5">
+                    <div className="bg-[#0F1115] rounded-lg p-6 border border-white/5">
                         <div className="flex justify-between items-end mb-4">
                             <h3 className="text-lg font-semibold">Danh sách đã chọn ({config.movies.length})</h3>
                         </div>
                         
                         {config.movies.length === 0 ? (
-                            <div className="text-center py-10 text-white/50 bg-[#152740] rounded-lg">
+                            <div className="text-center py-10 text-white/50 bg-[#0F1115] rounded-lg">
                                 Chưa có phim nào trong danh sách.
                             </div>
                         ) : (
                             <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                                 {config.movies.map((movie: any, index: number) => (
-                                    <div key={movie.slug} className="flex items-center gap-4 bg-[#152740] p-3 rounded-lg border border-white/5">
+                                    <div key={movie.slug} className="flex items-center gap-4 bg-[#0F1115] p-3 rounded-lg border border-white/5">
                                         <div className="text-gray-500 font-mono w-6 text-center">{index + 1}</div>
                                         <div className="flex-1 min-w-0">
                                             <p className="font-medium truncate text-blue-400">{movie.name}</p>

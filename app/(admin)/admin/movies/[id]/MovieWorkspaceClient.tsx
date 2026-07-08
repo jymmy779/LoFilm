@@ -142,8 +142,8 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
     };
 
     return (
-        <div className="bg-[#0a1628] min-h-screen text-white">
-            <header className="bg-[#0d1b2e] border-b border-white/10 sticky top-0 z-10">
+        <div className="bg-[#0F1115] min-h-screen text-white">
+            <header className="bg-[#0F1115] border-b border-white/10 sticky top-0 z-10">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <Link href="/admin/dashboard" className="text-gray-400 hover:text-white transition flex items-center gap-2">
@@ -160,7 +160,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
             <main className="container mx-auto px-4 py-6">
 
                 {/* --- MOVIE INFO SECTION --- */}
-                <div className="bg-[#0d1b2e] p-6 rounded-xl border border-white/10 shadow-lg mb-6">
+                <div className="bg-[#0F1115] p-6 rounded-xl border border-white/10 shadow-lg mb-6">
                     <div className="flex justify-between items-center mb-4 border-b border-white/5 pb-3">
                         <h2 className="text-xl font-bold flex items-center gap-2">
                             <i className="fa-solid fa-film text-blue-400"></i> Thông tin chung
@@ -175,22 +175,22 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                         <form onSubmit={handleSaveMovie} className="grid grid-cols-1 md:grid-cols-6 gap-4">
                             <div>
                                 <label className="text-gray-400 text-xs mb-1 block">TMDB ID</label>
-                                <input value={tmdbId} onChange={e => setTmdbId(e.target.value)} className="w-full bg-[#152740] rounded p-2 text-sm focus:ring-1 focus:ring-blue-500" />
+                                <input value={tmdbId} onChange={e => setTmdbId(e.target.value)} className="w-full bg-[#0F1115] rounded p-2 text-sm focus:ring-1 focus:ring-blue-500" />
                             </div>
                             <div>
                                 <label className="text-gray-400 text-xs mb-1 block">Slug</label>
-                                <input value={slug} onChange={e => setSlug(e.target.value)} className="w-full bg-[#152740] rounded p-2 text-sm focus:ring-1 focus:ring-blue-500" />
+                                <input value={slug} onChange={e => setSlug(e.target.value)} className="w-full bg-[#0F1115] rounded p-2 text-sm focus:ring-1 focus:ring-blue-500" />
                             </div>
                             <div>
                                 <label className="text-gray-400 text-xs mb-1 block">Loại</label>
-                                <select value={type} onChange={e => setType(e.target.value as any)} className="w-full bg-[#152740] rounded p-2 text-sm">
+                                <select value={type} onChange={e => setType(e.target.value as any)} className="w-full bg-[#0F1115] rounded p-2 text-sm">
                                     <option value="single">Phim Lẻ</option>
                                     <option value="series">Phim Bộ</option>
                                 </select>
                             </div>
                             <div>
                                 <label className="text-gray-400 text-xs mb-1 block">Ngôn ngữ</label>
-                                <select value={langTag} onChange={e => setLangTag(e.target.value)} className="w-full bg-[#152740] rounded p-2 text-sm">
+                                <select value={langTag} onChange={e => setLangTag(e.target.value)} className="w-full bg-[#0F1115] rounded p-2 text-sm">
                                     <option value="Vietsub Độc Quyền">Vietsub Độc Quyền</option>
                                     <option value="Song Ngữ Độc Quyền">Song Ngữ Độc Quyền</option>
                                     <option value="Lồng Tiếng Độc Quyền">Lồng Tiếng Độc Quyền</option>
@@ -199,13 +199,13 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                             </div>
                             <div>
                                 <label className="text-gray-400 text-xs mb-1 block">Trạng thái</label>
-                                <select value={status} onChange={e => setStatus(e.target.value)} className="w-full bg-[#152740] rounded p-2 text-sm">
+                                <select value={status} onChange={e => setStatus(e.target.value)} className="w-full bg-[#0F1115] rounded p-2 text-sm">
                                     <option value="draft">Bản nháp</option>
                                     <option value="published">Công khai</option>
                                 </select>
                             </div>
                             
-                            <div className="col-span-1 md:col-span-6 bg-[#152740]/50 border border-amber-500/30 rounded p-4 mt-2">
+                            <div className="col-span-1 md:col-span-6 bg-[#0F1115]/50 border border-amber-500/30 rounded p-4 mt-2">
                                 <label className="flex items-center gap-3 cursor-pointer group w-fit">
                                     <input 
                                         type="checkbox" 
@@ -224,7 +224,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                             min="0"
                                             value={expiresDays} 
                                             onChange={(e) => setExpiresDays(e.target.value)} 
-                                            className="w-24 bg-[#0a1628] text-white rounded p-1.5 text-sm focus:ring-1 focus:ring-amber-500 border border-white/5" 
+                                            className="w-24 bg-[#0F1115] text-white rounded p-1.5 text-sm focus:ring-1 focus:ring-amber-500 border border-white/5" 
                                             placeholder="Vô hạn" 
                                         />
                                     </div>
@@ -259,7 +259,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                 <div className="flex flex-col lg:flex-row gap-6 items-start">
 
                     {/* LEFT COLUMN: EPISODES LIST */}
-                    <div className="w-full lg:w-1/3 bg-[#0d1b2e] p-6 rounded-xl border border-white/10 shadow-lg shrink-0">
+                    <div className="w-full lg:w-1/3 bg-[#0F1115] p-6 rounded-xl border border-white/10 shadow-lg shrink-0">
                         <div className="flex justify-between items-center mb-4 border-b border-white/5 pb-3">
                             <h2 className="text-lg font-bold flex items-center gap-2">
                                 <i className="fa-solid fa-list text-amber-400"></i> Danh sách tập ({episodes.length})
@@ -274,7 +274,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
 
                         <div className="flex flex-col gap-2 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                             {episodes.map((ep: any) => (
-                                <div key={ep.id} className={`p-3 rounded-lg border transition-all ${editingEpisode?.id === ep.id ? 'bg-blue-900/30 border-blue-500/50 shadow-inner' : 'bg-[#152740] border-transparent hover:border-white/10'}`}>
+                                <div key={ep.id} className={`p-3 rounded-lg border transition-all ${editingEpisode?.id === ep.id ? 'bg-blue-900/30 border-blue-500/50 shadow-inner' : 'bg-[#0F1115] border-transparent hover:border-white/10'}`}>
                                     <div className="flex justify-between items-start">
                                         <div className="flex-1 overflow-hidden pr-2">
                                             <div className="font-medium text-sm flex items-center gap-2">
@@ -307,7 +307,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                     </div>
 
                     {/* RIGHT COLUMN: WORKSPACE FORM */}
-                    <div className="w-full lg:w-2/3 bg-[#0d1b2e] p-6 rounded-xl border border-white/10 shadow-lg">
+                    <div className="w-full lg:w-2/3 bg-[#0F1115] p-6 rounded-xl border border-white/10 shadow-lg">
                         <div className="flex gap-6 mb-6 border-b border-white/10 pb-3">
                             <button
                                 onClick={() => setEpisodeTab("single")}
@@ -333,7 +333,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-5 mb-4">
                                     <div>
                                         <label className="text-gray-400 text-sm mb-1.5 block">Tên {movie.type === 'single' ? 'Video' : 'tập'}</label>
-                                        <input name="name" type="text" defaultValue={editingEpisode?.name || ""} required className="w-full bg-[#152740] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Tập 1" onChange={(e) => {
+                                        <input name="name" type="text" defaultValue={editingEpisode?.name || ""} required className="w-full bg-[#0F1115] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="Tập 1" onChange={(e) => {
                                             if (!editingEpisode) {
                                                 const slugInput = e.target.form?.elements.namedItem("slug") as HTMLInputElement;
                                                 if (slugInput) slugInput.value = generateSlug(e.target.value);
@@ -342,12 +342,12 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                     </div>
                                     <div>
                                         <label className="text-gray-400 text-sm mb-1.5 block">Slug</label>
-                                        <input name="slug" type="text" defaultValue={editingEpisode?.slug || ""} required className="w-full bg-[#152740] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="tap-1" />
+                                        <input name="slug" type="text" defaultValue={editingEpisode?.slug || ""} required className="w-full bg-[#0F1115] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500" placeholder="tap-1" />
                                     </div>
                                 </div>
 
                                 {/* Link Type Selector */}
-                                <div className="bg-[#152740]/50 p-3 rounded-lg border border-white/5 mb-2">
+                                <div className="bg-[#0F1115]/50 p-3 rounded-lg border border-white/5 mb-2">
                                     <label className="text-gray-300 text-sm font-medium mb-2 block">Nguồn Video (Server phát)</label>
                                     <div className="flex flex-wrap gap-4 text-sm">
                                         <label className="flex items-center gap-2 cursor-pointer hover:text-white text-gray-400 transition">
@@ -369,13 +369,13 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                     {(linkType === 'm3u8' || linkType === 'both') && (
                                         <div>
                                             <label className="text-gray-400 text-sm mb-1.5 block">Link M3U8 (Video Streaming - R2/B2)</label>
-                                            <input name="link_m3u8" type="url" defaultValue={editingEpisode?.link_m3u8 || ""} className="w-full bg-[#152740] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono" placeholder="https://pub-xxxx.r2.dev/.../index.m3u8" />
+                                            <input name="link_m3u8" type="url" defaultValue={editingEpisode?.link_m3u8 || ""} className="w-full bg-[#0F1115] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono" placeholder="https://pub-xxxx.r2.dev/.../index.m3u8" />
                                         </div>
                                     )}
                                     {(linkType === 'embed' || linkType === 'both') && (
                                         <div>
                                             <label className="text-gray-400 text-sm mb-1.5 block">Link Embed (Dự phòng - Loadvid)</label>
-                                            <input name="link_embed" type="url" defaultValue={editingEpisode?.link_embed || ""} className="w-full bg-[#152740] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono" placeholder="https://cdn.loadvid.com/..." />
+                                            <input name="link_embed" type="url" defaultValue={editingEpisode?.link_embed || ""} className="w-full bg-[#0F1115] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 font-mono" placeholder="https://cdn.loadvid.com/..." />
                                         </div>
                                     )}
                                 </div>
@@ -383,11 +383,11 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                 <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-5 items-start">
                                     <div>
                                         <label className="text-gray-400 text-sm mb-1.5 block">Thứ tự sắp xếp</label>
-                                        <input name="order" type="number" defaultValue={editingEpisode?.order || episodes.length + 1} required className="w-full bg-[#152740] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-center" />
+                                        <input name="order" type="number" defaultValue={editingEpisode?.order || episodes.length + 1} required className="w-full bg-[#0F1115] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500 text-center" />
                                     </div>
                                     <div>
                                         <label className="text-gray-400 text-sm mb-1.5 block">Trạng thái</label>
-                                        <select name="status" defaultValue={editingEpisode?.status || "published"} className="w-full bg-[#152740] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                        <select name="status" defaultValue={editingEpisode?.status || "published"} className="w-full bg-[#0F1115] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
                                             <option value="draft">Bản nháp</option>
                                             <option value="published">Công khai</option>
                                         </select>
@@ -395,7 +395,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                 </div>
 
                                 {linkType !== 'embed' && (
-                                    <div className="bg-[#152740]/50 border border-white/5 p-4 rounded-xl mt-2">
+                                    <div className="bg-[#0F1115]/50 border border-white/5 p-4 rounded-xl mt-2">
                                         <div className="flex justify-between items-end mb-2">
                                             <label className="text-gray-300 font-medium block">
                                                 Phụ đề (Song Ngữ)
@@ -408,7 +408,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                             defaultValue={(editingEpisode?.subtitles || [])
                                                 .map((s: any) => `${s.label}|${s.url}`)
                                                 .join('\n')}
-                                            className="w-full bg-[#0a1628] text-white rounded-lg p-4 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder:text-gray-600 leading-relaxed custom-scrollbar"
+                                            className="w-full bg-[#0F1115] text-white rounded-lg p-4 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 placeholder:text-gray-600 leading-relaxed custom-scrollbar"
                                             placeholder={`Tiếng Việt|https://r2.../film-vi.vtt\nEnglish|https://r2.../film-en.vtt\n中文|https://r2.../film-zh.vtt`}
                                         />
                                         <p className="text-xs text-gray-500 mt-2 flex items-center gap-1.5">
@@ -433,7 +433,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                     Chế độ Bulk giúp bạn thêm nhanh hàng chục tập phim cùng lúc. Tên tập và Slug sẽ được tự động tạo theo thứ tự (Tập 1, Tập 2...).
                                 </div>
                                 
-                                <div className="bg-[#152740]/50 p-3 rounded-lg border border-white/5 mb-2">
+                                <div className="bg-[#0F1115]/50 p-3 rounded-lg border border-white/5 mb-2">
                                     <label className="text-gray-300 text-sm font-medium mb-2 block">Nguồn Video (Hàng loạt)</label>
                                     <div className="flex flex-wrap gap-4 text-sm">
                                         <label className="flex items-center gap-2 cursor-pointer hover:text-white text-gray-400 transition">
@@ -455,13 +455,13 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                     {(bulkLinkType === 'm3u8' || bulkLinkType === 'both') && (
                                         <div>
                                             <label className="text-gray-400 text-sm mb-1.5 block">Danh sách M3U8 (Mỗi link 1 dòng)</label>
-                                            <textarea name="bulk_links" rows={12} className="w-full bg-[#152740] text-white rounded-lg p-4 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 whitespace-nowrap overflow-x-auto custom-scrollbar" placeholder="https://link1.m3u8&#10;https://link2.m3u8"></textarea>
+                                            <textarea name="bulk_links" rows={12} className="w-full bg-[#0F1115] text-white rounded-lg p-4 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 whitespace-nowrap overflow-x-auto custom-scrollbar" placeholder="https://link1.m3u8&#10;https://link2.m3u8"></textarea>
                                         </div>
                                     )}
                                     {(bulkLinkType === 'embed' || bulkLinkType === 'both') && (
                                         <div>
                                             <label className="text-gray-400 text-sm mb-1.5 block">Danh sách Embed Loadvid</label>
-                                            <textarea name="bulk_embed_links" rows={12} className="w-full bg-[#152740] text-white rounded-lg p-4 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 whitespace-nowrap overflow-x-auto custom-scrollbar" placeholder="https://cdn.loadvid.com...&#10;https://cdn.loadvid.com..."></textarea>
+                                            <textarea name="bulk_embed_links" rows={12} className="w-full bg-[#0F1115] text-white rounded-lg p-4 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 whitespace-nowrap overflow-x-auto custom-scrollbar" placeholder="https://cdn.loadvid.com...&#10;https://cdn.loadvid.com..."></textarea>
                                         </div>
                                     )}
                                     {bulkLinkType !== 'embed' && (
@@ -470,13 +470,13 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                                 Danh sách VTT tương ứng
                                                 <span className="text-xs text-gray-500 font-normal italic">(Chỉ hỗ trợ 1 VTT/tập)</span>
                                             </label>
-                                            <textarea name="bulk_vtt_links" rows={12} className="w-full bg-[#152740] text-white rounded-lg p-4 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 whitespace-nowrap overflow-x-auto custom-scrollbar" placeholder="https://sub1.vtt&#10;https://sub2.vtt&#10;&#10;(Bỏ trống dòng nếu tập đó ko có)"></textarea>
+                                            <textarea name="bulk_vtt_links" rows={12} className="w-full bg-[#0F1115] text-white rounded-lg p-4 text-sm font-mono focus:outline-none focus:ring-1 focus:ring-blue-500 whitespace-nowrap overflow-x-auto custom-scrollbar" placeholder="https://sub1.vtt&#10;https://sub2.vtt&#10;&#10;(Bỏ trống dòng nếu tập đó ko có)"></textarea>
                                         </div>
                                     )}
                                 </div>
                                 <div>
                                     <label className="text-gray-400 text-sm mb-1.5 block">Trạng thái mặc định</label>
-                                    <select name="status" defaultValue="published" className="w-48 bg-[#152740] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
+                                    <select name="status" defaultValue="published" className="w-48 bg-[#0F1115] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-blue-500">
                                         <option value="draft">Bản nháp</option>
                                         <option value="published">Công khai</option>
                                     </select>

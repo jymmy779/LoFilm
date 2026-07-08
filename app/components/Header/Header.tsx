@@ -35,7 +35,7 @@ export default function Header() {
 
     useEffect(() => {
         const handleScroll = () => {
-            setIsScrolled(window.scrollY > 100);
+            setIsScrolled(window.scrollY > 10);
         };
 
         const handleResize = () => {
@@ -92,126 +92,124 @@ export default function Header() {
         { href: "/danh-sach/phim-le", label: "Phim lẻ" },
     ];
 
-    const segments = pathname.split('/').filter(Boolean);
-    const isMovieDetail = segments.length === 2 && segments[0] === "phim";
-    const isTransparentPage = (pathname === "/" && !hasSearchQuery) || isMovieDetail;
-    const isSolid = !isTransparentPage;
-    const showBackground = isSolid || isScrolled || isMenuOpen;
+    const showBackground = isScrolled || isMenuOpen;
 
     return (
-        <header className={`w-full fixed top-0 left-0 z-[100] py-2 xl:px-5 [@supports(-webkit-touch-callout:none)]:pt-[max(env(safe-area-inset-top),12px)] ${isMenuOpen ? "" : "transition-all duration-300"} border-b ${showBackground ? "bg-[#0d1b2e] border-white/10" : "bg-transparent border-transparent"}`}>
-            <div className="flex items-center justify-between h-[54px] md:h-[64px] w-full max-w-[1900px] mx-auto px-4 xl:px-0 gap-4 md:gap-8">
-                <div className="flex xl:hidden items-center justify-between w-full h-full gap-3">
-                    <div className="relative flex-1 h-full flex items-center">
-                        {!isSearchActive ? (
-                            <div className="flex items-center gap-2 animate-fade-in shrink-0">
-                                <button
-                                    onClick={() => setIsMenuOpen(true)}
-                                    className="p-1.5 -ml-1.5 text-white/80 hover:text-white transition-colors"
-                                    aria-label="Mở menu"
-                                >
-                                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                                        <line x1="3" y1="12" x2="21" y2="12"></line>
-                                        <line x1="3" y1="6" x2="21" y2="6"></line>
-                                        <line x1="3" y1="18" x2="21" y2="18"></line>
-                                    </svg>
-                                </button>
-                                <TransitionLink href="/" className="shrink-0">
-                                    <Image
-                                        width={140}
-                                        height={70}
-                                        className="h-[50px] md:h-[65px] w-auto object-contain"
-                                        src="/lofilm_logo.webp"
-                                        alt="LoFilm - Xem Phim Online Chất Lượng Cao | Phim 4K Vietsub Miễn Phí"
-                                        priority
-                                        unoptimized
-                                        sizes="(max-width: 768px) 140px, 140px"
-                                    />
-                                </TransitionLink>
-                            </div>
-                        ) : (
-                            <div className="flex-1 animate-reveal-left">
-                                <SearchBox autoFocus={true} />
-                            </div>
-                        )}
-                    </div>
-
-                    <div className="flex items-center gap-1">
-                        <NotificationBell />
-                        <button
-                            onClick={() => {
-                                setIsSearchActive(!isSearchActive);
-                                setIsMenuOpen(false);
-                            }}
-                            className="p-2 cursor-pointer text-white/60 hover:text-white transition-colors shrink-0 flex items-center justify-center w-10 h-10"
-                            aria-label={isSearchActive ? "Đóng tìm kiếm" : "Mở tìm kiếm"}
-                        >
-                            <div className="relative w-10 h-10 flex items-center justify-center">
-                                {/* Search Icon */}
-                                <div className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSearchActive ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"}`}>
-                                    <svg viewBox="0 0 512 512" width="20" height="20" fill="currentColor">
-                                        <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
-                                    </svg>
+        <>
+            <header className={`w-full fixed top-0 left-0 z-[100] py-2 xl:px-5 [@supports(-webkit-touch-callout:none)]:pt-[max(env(safe-area-inset-top),12px)] border-none ${isMenuOpen ? "" : "transition-all duration-300"} border-b ${showBackground ? "bg-[#0F1115]/90 backdrop-blur-md" : "bg-transparent border-transparent"}`}>
+                <div className="flex items-center justify-between h-[54px] md:h-[64px] w-full max-w-[1900px] mx-auto px-4 xl:px-0 gap-4 md:gap-8">
+                    <div className="flex xl:hidden items-center justify-between w-full h-full gap-3">
+                        <div className="relative flex-1 h-full flex items-center">
+                            {!isSearchActive ? (
+                                <div className="flex items-center gap-2 animate-fade-in shrink-0">
+                                    <button
+                                        onClick={() => setIsMenuOpen(true)}
+                                        className="p-1.5 -ml-1.5 text-white/80 hover:text-white transition-colors"
+                                        aria-label="Mở menu"
+                                    >
+                                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                            <line x1="3" y1="12" x2="21" y2="12"></line>
+                                            <line x1="3" y1="6" x2="21" y2="6"></line>
+                                            <line x1="3" y1="18" x2="21" y2="18"></line>
+                                        </svg>
+                                    </button>
+                                    <TransitionLink href="/" className="shrink-0">
+                                        <Image
+                                            width={140}
+                                            height={70}
+                                            className="h-[50px] md:h-[65px] w-auto object-contain"
+                                            src="/lofilm_logo.webp"
+                                            alt="LoFilm - Xem Phim Online Chất Lượng Cao | Phim 4K Vietsub Miễn Phí"
+                                            priority
+                                            unoptimized
+                                            sizes="(max-width: 768px) 140px, 140px"
+                                        />
+                                    </TransitionLink>
                                 </div>
-                                {/* Close Icon */}
-                                <div className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSearchActive ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"}`}>
-                                    <X size={22} strokeWidth={2.5} />
+                            ) : (
+                                <div className="flex-1 animate-reveal-left">
+                                    <SearchBox autoFocus={true} />
                                 </div>
-                            </div>
-                        </button>
-                    </div>
-                </div>
-
-                <div className="hidden xl:flex items-center justify-between w-full h-full">
-                    <div className="flex items-center gap-8 flex-1">
-                        <TransitionLink href="/" className="shrink-0">
-                            <Image
-                                width={150}
-                                height={80}
-                                className="h-[50px] xl:h-[55px] 2xl:h-[65px] w-auto object-contain transition-all duration-300"
-                                src="/lofilm_logo.webp"
-                                alt="LoFilm - Xem Phim Online Chất Lượng Cao"
-                                priority
-                                unoptimized
-                            />
-                        </TransitionLink>
-
-                        <div className="md:ml-4 w-full max-w-[320px]">
-                            <SearchBox />
+                            )}
                         </div>
 
-                        <nav className="flex items-center gap-3 xl:gap-4 2xl:gap-6">
-                            {navLinks.map((item) => (
-                                <TransitionLink key={item.href} href={item.href} className="text-[13px] 2xl:text-sm font-medium text-white/80 hover:text-amber-400 transition-colors duration-150 whitespace-nowrap">
-                                    {item.label}
-                                </TransitionLink>
-                            ))}
-
-                            <DropdownMenu
-                                id="categories"
-                                label="Thể loại"
-                                items={categories}
-                                hrefPrefix="/the-loai"
-                                {...dropdownProps}
-                            />
-                            <DropdownMenu
-                                id="countries"
-                                label="Quốc gia"
-                                items={countries}
-                                hrefPrefix="/quoc-gia"
-                                {...dropdownProps}
-                            />
-
-
-                        </nav>
+                        <div className="flex items-center gap-1">
+                            <NotificationBell />
+                            <button
+                                onClick={() => {
+                                    setIsSearchActive(!isSearchActive);
+                                    setIsMenuOpen(false);
+                                }}
+                                className="p-2 cursor-pointer text-white/60 hover:text-white transition-colors shrink-0 flex items-center justify-center w-10 h-10"
+                                aria-label={isSearchActive ? "Đóng tìm kiếm" : "Mở tìm kiếm"}
+                            >
+                                <div className="relative w-10 h-10 flex items-center justify-center">
+                                    {/* Search Icon */}
+                                    <div className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSearchActive ? "opacity-0 rotate-90 scale-50" : "opacity-100 rotate-0 scale-100"}`}>
+                                        <svg viewBox="0 0 512 512" width="20" height="20" fill="currentColor">
+                                            <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
+                                        </svg>
+                                    </div>
+                                    {/* Close Icon */}
+                                    <div className={`absolute inset-0 flex items-center justify-center transition-all duration-300 ${isSearchActive ? "opacity-100 rotate-0 scale-100" : "opacity-0 -rotate-90 scale-50"}`}>
+                                        <X size={22} strokeWidth={2.5} />
+                                    </div>
+                                </div>
+                            </button>
+                        </div>
                     </div>
 
-                    <div className="flex items-center gap-2 xl:gap-4 shrink-0">
-                        <NotificationBell />
-                        <MemberButton />
+                    <div className="hidden xl:flex items-center justify-between w-full h-full">
+                        <div className="flex items-center gap-8 flex-1">
+                            <TransitionLink href="/" className="shrink-0">
+                                <Image
+                                    width={150}
+                                    height={80}
+                                    className="h-[50px] xl:h-[55px] 2xl:h-[65px] w-auto object-contain transition-all duration-300"
+                                    src="/lofilm_logo.webp"
+                                    alt="LoFilm - Xem Phim Online Chất Lượng Cao"
+                                    priority
+                                    unoptimized
+                                />
+                            </TransitionLink>
+
+                            <div className="md:ml-4 w-full max-w-[320px]">
+                                <SearchBox />
+                            </div>
+
+                            <nav className="flex items-center gap-3 xl:gap-4 2xl:gap-6">
+                                {navLinks.map((item) => (
+                                    <TransitionLink key={item.href} href={item.href} className="text-[13px] 2xl:text-sm font-medium text-white/80 hover:text-amber-400 transition-colors duration-150 whitespace-nowrap">
+                                        {item.label}
+                                    </TransitionLink>
+                                ))}
+
+                                <DropdownMenu
+                                    id="categories"
+                                    label="Thể loại"
+                                    items={categories}
+                                    hrefPrefix="/the-loai"
+                                    {...dropdownProps}
+                                />
+                                <DropdownMenu
+                                    id="countries"
+                                    label="Quốc gia"
+                                    items={countries}
+                                    hrefPrefix="/quoc-gia"
+                                    {...dropdownProps}
+                                />
+
+
+                            </nav>
+                        </div>
+
+                        <div className="flex items-center gap-2 xl:gap-4 shrink-0">
+                            <NotificationBell />
+                            <MemberButton />
+                        </div>
                     </div>
                 </div>
-            </div>
+            </header>
 
             {/* Mobile Bottom Sheet Menu */}
             <MobileBottomSheet
@@ -222,7 +220,7 @@ export default function Header() {
             />
 
             {/* Mobile Bottom Navigation Pill (Chỉ hiện trên màn hình < xl) */}
-            <div className="xl:hidden fixed bottom-5 md:bottom-8 left-1/2 -translate-x-1/2 z-[90] w-[92%] sm:w-[85%] max-w-[300px] h-[60px] bg-[#111e31] border border-white/10 rounded-full shadow-[0_16px_40px_rgba(0,0,0,0.6)] flex items-center justify-between px-2">
+            <div className="xl:hidden fixed bottom-5 md:bottom-8 left-1/2 -translate-x-1/2 z-[90] w-[92%] sm:w-[85%] max-w-[300px] h-[60px] bg-[#0F1115] border border-white/10 rounded-full shadow-[0_16px_40px_rgba(0,0,0,0.6)] flex items-center justify-between px-2">
                 <TransitionLink href="/" className={`relative w-[64px] h-[48px] rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors z-10 ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'text-amber-400' : 'text-white/50 hover:text-amber-400'}`}>
                     {pathname === '/' && !hasSearchQuery && !isMenuOpen && (
                         <div className="absolute inset-0 bg-amber-400/10 rounded-full z-[-1]" />
@@ -276,6 +274,6 @@ export default function Header() {
                 </button>
             </div>
             <LoginPromptModal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} />
-        </header>
+        </>
     );
 }

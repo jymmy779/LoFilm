@@ -6,17 +6,17 @@ import Container from "@/app/components/Container";
 
 export default function HeroSliderSkeleton() {
     return (
-        <section className="w-full relative h-[500px] md:h-[700px] lg:h-[850px] overflow-hidden bg-[#0a1628]">
+        <section className="w-full relative h-[500px] md:h-[700px] lg:h-[850px] overflow-hidden bg-[#0F1115]">
             {/* Background shimmer */}
             <div className="absolute inset-0">
                 <Skeleton className="w-full h-full" rounded="none" />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0A1628] via-[#0A1628]/60 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#0F1115] via-[#0F1115]/60 to-transparent" />
             </div>
 
             {/* Combined Content & Thumbs Overlay Match */}
             <Container className="absolute inset-x-0 bottom-0 z-30 pb-16 pointer-events-none left-1/2 -translate-x-1/2">
                 <div className="relative top-[-65px] md:top-[-150px] flex flex-col min-[700px]:flex-row items-center min-[700px]:items-end justify-center min-[700px]:justify-between w-full gap-4 lg:gap-8 xl:gap-12">
-                    
+
                     {/* Content (Left) */}
                     <div className="w-full max-w-[300px] md:max-w-md xl:max-w-2xl text-center min-[700px]:text-left">
                         <div className="space-y-6">

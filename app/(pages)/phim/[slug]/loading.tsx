@@ -14,7 +14,7 @@ export default function MovieDetailLoading() {
     if (!baitMovie) {
         return (
             <main className="min-h-screen pb-20 animate-fade-in">
-                <div className="relative w-full h-[40vh] md:h-[50vh] xl:h-[80vh] bg-[#0d192b]" />
+                <div className="relative w-full h-[40vh] md:h-[50vh] xl:h-[80vh] bg-[#0F1115]" />
                 <Container className="lg:-mt-32 -mt-45 p-[20px] lg:-mt-48 relative z-30">
                     <div className="flex flex-col xl:flex-row gap-6 md:gap-8">
                         <div className="w-full xl:w-[440px] shrink-0">
@@ -61,9 +61,9 @@ export default function MovieDetailLoading() {
                     <div className="absolute inset-0 bg-black/40" />
                     <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,0,0,0.35)_0.8px,transparent_0.8px)] [background-size:3px_3px] opacity-30 z-10 pointer-events-none" />
                 </div>
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,#0a1628_100%)] z-10 opacity-85" />
-                <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-[#0a1628] via-[#0a1628]/20 to-transparent z-10" />
-                <div className="absolute inset-x-0 top-0 h-[15%] bg-gradient-to-b from-[#0a1628]/40 to-transparent z-10" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,#0F1115_100%)] z-10 opacity-85" />
+                <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-[#0F1115] via-[#0F1115]/20 to-transparent z-10" />
+                <div className="absolute inset-x-0 top-0 h-[15%] bg-gradient-to-b from-[#0F1115]/40 to-transparent z-10" />
             </div>
 
             {/* Main Content Container - Fake */}
@@ -72,7 +72,7 @@ export default function MovieDetailLoading() {
                     
                     {/* DC SIDE - Movie Info Column */}
                     <div className="dc-side w-full xl:w-[440px] shrink-0">
-                        <div className="ds-info p-[20px] lg:p-[40px] bg-[#0d192b]/50 border border-white/5 rounded-3xl relative transform-gpu will-change-[filter]">
+                        <div className="ds-info p-[20px] lg:p-[40px] bg-[#0F1115]/50 border border-white/5 rounded-3xl relative transform-gpu will-change-[filter]">
                             
                             <div className="v-thumb-l xl:block flex justify-center mb-6">
                                 <div className="v-thumbnail relative w-[120px] h-[180px] lg:w-[160px] lg:h-[240px] rounded-2xl overflow-hidden transform-gpu">
@@ -121,7 +121,7 @@ export default function MovieDetailLoading() {
 
                     {/* Right Column - Tabs Content Skeleton */}
                     <div className="dc-side w-full flex-1 shrink-0">
-                        <div className="ds-info p-[20px] lg:p-[40px] bg-[#0d192b]/50 border border-white/5 rounded-3xl relative transform-gpu">
+                        <div className="ds-info p-[20px] lg:p-[40px] bg-[#0F1115]/50 border border-white/5 rounded-3xl relative transform-gpu">
                             <div className="flex items-center gap-6 mb-10">
                                 <Skeleton className="w-40 h-14" rounded="full" />
                                 <div className="flex gap-3">

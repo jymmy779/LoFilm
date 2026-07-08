@@ -112,7 +112,7 @@ export default function ShareModal({ isOpen, onClose, movieName, shareUrl }: Sha
 
             {/* Modal Content */}
             <div 
-                className={`relative w-full max-w-lg bg-[#14233e] border border-white/10 rounded-3xl overflow-hidden ${isClosing ? 'animate-pop-out' : 'animate-pop-in'}`}
+                className={`relative w-full max-w-lg bg-[#0F1115] border border-white/10 rounded-3xl overflow-hidden ${isClosing ? 'animate-pop-out' : 'animate-pop-in'}`}
             >
                 <div className="p-5 md:p-6 lg:p-8">
                     {/* Header */}
@@ -190,7 +190,7 @@ export default function ShareModal({ isOpen, onClose, movieName, shareUrl }: Sha
                         {/* Copy Link Section */}
                         <div className="space-y-2.5 md:space-y-3">
                             <label className="text-[13px] md:text-sm font-medium text-white">Sao chép liên kết</label>
-                            <div className="flex items-center gap-2 bg-[#0a1628] border border-white/10 rounded-xl p-1 md:p-1.5 pl-3 md:pl-4 transition-colors">
+                            <div className="flex items-center gap-2 bg-[#0F1115] border border-white/10 rounded-xl p-1 md:p-1.5 pl-3 md:pl-4 transition-colors">
                                 <input 
                                     type="text" 
                                     value={shareUrl}

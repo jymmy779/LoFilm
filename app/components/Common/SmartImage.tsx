@@ -25,6 +25,16 @@ const SmartImage = forwardRef<HTMLImageElement, SmartImageProps>(
             } else if (ref) {
                 ref.current = node;
             }
+
+            // Ngay khi ref gắn vào DOM, kiểm tra xem ảnh đã load từ cache chưa.
+            // Dùng requestAnimationFrame để chắc chắn browser đã render xong.
+            if (node) {
+                requestAnimationFrame(() => {
+                    if (node.complete && (node.naturalWidth > 0 || node.naturalHeight > 0)) {
+                        setIsLoaded(true);
+                    }
+                });
+            }
         }, [ref]);
 
         useEffect(() => {
@@ -34,19 +44,15 @@ const SmartImage = forwardRef<HTMLImageElement, SmartImageProps>(
         }, [src]);
 
         useEffect(() => {
-            // Check if already loaded from cache before React attached onLoad
-            // This needs to run whenever currentSrc changes (e.g. fallback to rawSrc)
-            if (localRef.current?.complete) {
-                // Sometimes complete is true for a 0x0 image before src is set, but Next.js usually handles this.
-                // We double check naturalWidth to ensure it's actually loaded if possible, 
-                // but localRef.current.complete is usually enough for cached images.
-                if (localRef.current.naturalWidth > 0 || localRef.current.naturalHeight > 0) {
+            // Fallback cuối: nếu sau 1.5s ảnh vẫn chưa hiện (do bất kỳ lý do gì),
+            // tự động hiện lên để tránh bị kẹt opacity-0 mãi mãi.
+            const timer = setTimeout(() => {
+                if (localRef.current?.complete) {
                     setIsLoaded(true);
-                } else if (localRef.current.src && localRef.current.src !== window.location.href) {
-                     // It's complete but naturalWidth is 0? Might be a broken image or just cached 1x1.
-                     setIsLoaded(true);
                 }
-            }
+            }, 1500);
+
+            return () => clearTimeout(timer);
         }, [currentSrc]);
 
         const handleError = () => {

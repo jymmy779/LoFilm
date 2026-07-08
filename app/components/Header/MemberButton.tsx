@@ -96,7 +96,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
             <>
                 <button
                     onClick={() => setShowLoginPrompt(true)}
-                    className="flex items-center cursor-pointer gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-gradient-to-r from-[#FED877] to-[#F5A623] text-[#0A1628] font-bold text-xs md:text-sm hover:-translate-y-0.5 active:scale-95 transition-all duration-300 whitespace-nowrap shrink-0 overflow-hidden relative group/btn"
+                    className="flex items-center cursor-pointer gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-gradient-to-r from-[#FED877] to-[#F5A623] text-[#0F1115] font-bold text-xs md:text-sm hover:-translate-y-0.5 active:scale-95 transition-all duration-300 whitespace-nowrap shrink-0 overflow-hidden relative group/btn"
                 >
                     <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 skew-x-[-20deg]" />
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="14" height="14" fill="currentColor" className="relative z-10">
@@ -214,9 +214,9 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
 
             {/* Member Dropdown Menu */}
             <div
-                className={`absolute right-0 mt-3 w-48 bg-[#0d1b2e] border border-white/10 rounded-2xl p-2 z-[100] overflow-hidden transition-all duration-200 origin-top-right ${showMenu
-                        ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
-                        : "opacity-0 translate-y-2 scale-[0.98] pointer-events-none"
+                className={`absolute right-0 mt-3 w-48 bg-[#12151C] border border-white/10 rounded-2xl p-2 z-[100] overflow-hidden transition-all duration-200 origin-top-right ${showMenu
+                    ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
+                    : "opacity-0 translate-y-2 scale-[0.98] pointer-events-none"
                     }`}
             >
                 <div className="px-3 py-2 border-b border-white/5 mb-1">

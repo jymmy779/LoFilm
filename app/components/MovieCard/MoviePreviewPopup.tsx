@@ -33,10 +33,10 @@ export default function MoviePreviewPopup({
 
 
     // Default fallback logic before fetching exact slug
-    const isMultiEp = 
-        ["series", "hoathinh", "tvshows"].includes(movie.type || "") || 
+    const isMultiEp =
+        ["series", "hoathinh", "tvshows"].includes(movie.type || "") ||
         (movie.episode_current && (
-            movie.episode_current.toLowerCase().includes("tập") || 
+            movie.episode_current.toLowerCase().includes("tập") ||
             movie.episode_current.includes("/")
         )) ||
         (movie.episode_total && parseInt(String(movie.episode_total)) > 1);
@@ -116,9 +116,9 @@ export default function MoviePreviewPopup({
                 left: position.left
             }}
         >
-            <div className="bg-[#111319]/98 rounded-2xl overflow-hidden border border-white/5">
+            <div className="bg-[#12151C]/98 rounded-2xl overflow-hidden border border-white/5">
                 {/* Image Container with CSS Masking & Angled Gradient matching Rophim */}
-                <div className="relative aspect-video w-full bg-[#1c1f26] overflow-hidden [mask-image:linear-gradient(to_top,transparent_0,black_30px)] [-webkit-mask-image:linear-gradient(to_top,transparent_0,black_30px)]">
+                <div className="relative aspect-video w-full bg-[#12151C] overflow-hidden [mask-image:linear-gradient(to_top,transparent_0,black_30px)] [-webkit-mask-image:linear-gradient(to_top,transparent_0,black_30px)]">
                     {/* Layer 1: Blurred Poster Placeholder (Instant) */}
                     {posterUrl && (
                         <Image
@@ -146,7 +146,7 @@ export default function MoviePreviewPopup({
                         />
                     )}
 
-                    {/* Overlay chéo (Angled Gradient) 20 độ theo màu của LoFilm (#111319) */}
+                    {/* Overlay chéo (Angled Gradient) 20 độ theo màu của LoFilm (#0F1115) */}
                     <div className="absolute inset-0 pointer-events-none bg-[linear-gradient(20deg,rgba(17,19,25,0.6)_0%,rgba(17,19,25,0)_100%)]" />
                 </div>
 

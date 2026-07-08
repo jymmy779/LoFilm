@@ -19,8 +19,8 @@ export default function FeaturedSliderSkeleton() {
             <div className="relative mb-42 group">
                 <Swiper slidesPerView={1} className="featured-section-slider rounded-[30px] overflow-hidden">
                     <SwiperSlide>
-                        <div className="relative w-full aspect-[21/9] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5] min-h-[500px] bg-[#0a1628]">
-                            <div className="absolute inset-0 bg-gradient-to-t xl:bg-gradient-to-r from-[#0a1628] via-[#0a1628] via-[30%] to-transparent z-10" />
+                        <div className="relative w-full aspect-[21/9] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5] min-h-[500px] bg-[#0F1115]">
+                            <div className="absolute inset-0 bg-gradient-to-t xl:bg-gradient-to-r from-[#0F1115] via-[#0F1115] via-[30%] to-transparent z-10" />
                             <div className="absolute inset-0 z-20 w-full xl:w-[60%] flex items-end xl:items-center px-5 md:px-10 text-left">
                                 <div className="lg:max-w-lg xl:max-w-2xl w-full space-y-6">
                                     <div className="space-y-3">

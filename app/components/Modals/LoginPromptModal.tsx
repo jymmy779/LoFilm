@@ -66,7 +66,7 @@ export default function LoginPromptModal({ isOpen, onClose }: LoginPromptModalPr
                 style={{ animationDuration: '0.3s' }}
             />
             <div
-                className={`relative w-[90%] max-w-[320px] md:max-w-xs bg-[#111e31] border border-white/10 rounded-2xl p-5 md:p-6 overflow-hidden ${isClosing ? 'animate-pop-out' : 'animate-pop-in'
+                className={`relative w-[90%] max-w-[320px] md:max-w-xs bg-[#0F1115] border border-white/10 rounded-2xl p-5 md:p-6 overflow-hidden ${isClosing ? 'animate-pop-out' : 'animate-pop-in'
                     }`}
             >
                 <div className="flex flex-col items-center text-center">
@@ -94,7 +94,7 @@ export default function LoginPromptModal({ isOpen, onClose }: LoginPromptModalPr
                         </button>
                         <button
                             onClick={handleLogin}
-                            className="flex-1 text-nowrap px-3 md:px-4 py-2.5 md:py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-[10px] md:text-xs font-bold text-[#0A1628] transition-all tracking-wider flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer hover:from-amber-300 hover:to-amber-400"
+                            className="flex-1 text-nowrap px-3 md:px-4 py-2.5 md:py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-[10px] md:text-xs font-bold text-[#0F1115] transition-all tracking-wider flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer hover:from-amber-300 hover:to-amber-400"
                         >
                             <LogIn size={14} />
                             Đăng nhập ngay

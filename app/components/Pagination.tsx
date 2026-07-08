@@ -64,7 +64,7 @@ export default function Pagination({ currentPage, totalPages, onPageChange }: Pa
                         key={`page-${page}`}
                         onClick={() => onPageChange(Number(page))}
                         className={`min-w-[36px] h-9 px-2 rounded border transition-all duration-300 text-xs md:text-sm font-bold cursor-pointer focus:outline-none ${currentPage === page
-                            ? "bg-gradient-to-tr from-[#f5a623] to-[#ffcc33] border-transparent text-[#0a1628] shadow-lg shadow-[#f5a623]/20"
+                            ? "bg-gradient-to-tr from-[#f5a623] to-[#ffcc33] border-transparent text-[#0F1115] shadow-lg shadow-[#f5a623]/20"
                             : "bg-white/5 border-white/10 text-white hover:bg-white/10"
                             }`}
                     >

@@ -122,7 +122,7 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                                 >
                                     <TransitionLink
                                         href={`/phim/${movie.slug}`}
-                                        className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-4 bg-[#0a1628] transition-[box-shadow] duration-500 ease-out transform-gpu cursor-pointer"
+                                        className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-4 bg-[#0F1115] transition-[box-shadow] duration-500 ease-out transform-gpu cursor-pointer"
                                         style={{
                                             WebkitClipPath: isEven ? CLIP_PATH_EVEN : CLIP_PATH_ODD,
                                             clipPath: isEven ? CLIP_PATH_EVEN : CLIP_PATH_ODD
@@ -145,7 +145,7 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
 
                                         {/* Play Icon Highlight */}
                                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 bg-black/30 z-10">
-                                            <div className="w-10 h-10 rounded-full bg-[#f5a623] text-[#0a1628] flex items-center justify-center shadow-lg transform scale-90 group-hover/item:scale-100 transition-transform duration-300">
+                                            <div className="w-10 h-10 rounded-full bg-[#f5a623] text-[#0F1115] flex items-center justify-center shadow-lg transform scale-90 group-hover/item:scale-100 transition-transform duration-300">
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 ml-0.5">
                                                     <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.54-2.33 2.77-1.613l11.74 6.813a1.614 1.614 0 010 2.825L7.27 20.493c-1.23.717-2.77-.187-2.77-1.613V5.653z" clipRule="evenodd" />
                                                 </svg>
@@ -190,19 +190,19 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                                                 {decodeHtml(movie.origin_name)}
                                             </p>
                                             <div className="info-line flex flex-nowrap items-center gap-1.5 mt-1">
-                                                <div className="tag-small px-1.5 py-0.5 bg-[#1a2035]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-bold leading-none whitespace-nowrap">
+                                                <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-bold leading-none whitespace-nowrap">
                                                     {(() => {
                                                         const epMatch = movie.episode_current?.match(/\d+/);
                                                         return epMatch ? `T${epMatch[0]}` : (movie.quality || "HD");
                                                     })()}
                                                 </div>
-                                                <div className="tag-small px-1.5 py-0.5 bg-[#1a2035]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none whitespace-nowrap">
+                                                <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none whitespace-nowrap">
                                                     {(() => {
                                                         const phanMatch = movie.name?.match(/Phần\s+(\d+)/i) || movie.origin_name?.match(/Season\s+(\d+)/i);
                                                         return phanMatch ? `Phần ${phanMatch[1]}` : (movie.year || "2024");
                                                     })()}
                                                 </div>
-                                                <div className="tag-small px-1.5 py-0.5 bg-[#1a2035]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none whitespace-nowrap">
+                                                <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none whitespace-nowrap">
                                                     {getEpisodeStatus(movie)}
                                                 </div>
                                             </div>

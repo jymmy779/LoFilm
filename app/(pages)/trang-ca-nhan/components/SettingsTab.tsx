@@ -76,7 +76,7 @@ export default function SettingsTab({
                 type="text"
                 value={newName}
                 onChange={(e) => setNewName(e.target.value)}
-                className="flex-1 bg-[#111b33] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-amber-400/50"
+                className="flex-1 bg-[#0F1115] border border-white/10 rounded-xl px-4 py-2 text-sm text-white focus:outline-none focus:border-amber-400/50"
                 placeholder="Nhập tên mới..."
               />
               <div className="flex gap-2 justify-end">
@@ -124,7 +124,7 @@ export default function SettingsTab({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="Mật khẩu mới (ít nhất 6 ký tự)"
-                  className="w-full bg-[#111b33] border border-white/10 rounded-xl px-4 py-2 pr-10 text-sm text-white focus:outline-none focus:border-amber-400/50"
+                  className="w-full bg-[#0F1115] border border-white/10 rounded-xl px-4 py-2 pr-10 text-sm text-white focus:outline-none focus:border-amber-400/50"
                 />
                 <button
                   type="button"
@@ -140,7 +140,7 @@ export default function SettingsTab({
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   placeholder="Xác nhận mật khẩu mới"
-                  className="w-full bg-[#111b33] border border-white/10 rounded-xl px-4 py-2 pr-10 text-sm text-white focus:outline-none focus:border-amber-400/50"
+                  className="w-full bg-[#0F1115] border border-white/10 rounded-xl px-4 py-2 pr-10 text-sm text-white focus:outline-none focus:border-amber-400/50"
                 />
                 <button
                   type="button"

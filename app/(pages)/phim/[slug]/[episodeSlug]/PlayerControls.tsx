@@ -67,7 +67,7 @@ const PlayerControls = ({
   const showSubtitleUI = subtitles.length >= 1;
 
   return (
-    <div className={`w-full bg-[#0d192b]/50 border border-white/10 p-3 md:p-4 mt-4 transition-all duration-500 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-xl'}`}>
+    <div className={`w-full bg-[#0F1115]/50 border border-white/10 p-3 md:p-4 mt-4 transition-all duration-500 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-xl'}`}>
       <div className="flex flex-wrap items-center gap-4 md:gap-6 max-w-[1900px] mx-auto px-5 lg:px-12">
 
         {/* Đổi Server - Chỉ hiện nếu có nhiều hơn 1 server */}

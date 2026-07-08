@@ -169,7 +169,7 @@
   right: 0;
   min-width: 150px;
   z-index: 100;
-  background: #1a1c1e;
+  background: #0F1115;
   border: 1px solid rgba(255, 255, 255, 0.1);
   border-radius: 12px;
   padding: 4px;
@@ -350,7 +350,7 @@
 }
 
 .modal-content {
-  background: #1a1c1e; /* Solid background */
+  background: #0F1115; /* Solid background */
   border: 1px solid #333; /* Simple border */
   border-radius: 12px; /* Standard radius */
   padding: 2rem;

@@ -106,7 +106,7 @@ export default function GenreList() {
 
                     {/* Modal Content container matching CommonModal styling */}
                     <div
-                        className={`relative w-[95%] max-w-[340px] sm:max-w-[400px] md:max-w-[440px] lg:max-w-[480px] bg-[#111e31] border border-white/10 rounded-2xl p-4 sm:p-5 md:p-6 shadow-2xl z-10 overflow-y-auto max-h-[90vh] custom-scrollbar ${
+                        className={`relative w-[95%] max-w-[340px] sm:max-w-[400px] md:max-w-[440px] lg:max-w-[480px] bg-[#0F1115] border border-white/10 rounded-2xl p-4 sm:p-5 md:p-6 shadow-2xl z-10 overflow-y-auto max-h-[90vh] custom-scrollbar ${
                             isClosing ? 'animate-pop-out' : 'animate-pop-in'
                         }`}
                     >

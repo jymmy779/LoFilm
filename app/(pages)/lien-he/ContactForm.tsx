@@ -57,7 +57,7 @@ export default function ContactForm() {
     };
 
     return (
-        <div className="lg:col-span-2 bg-[#16213e] border border-white/5 p-6 md:p-12 rounded-3xl md:rounded-[40px] shadow-2xl relative overflow-hidden">
+        <div className="lg:col-span-2 bg-[#12151C] border border-white/5 p-6 md:p-12 rounded-3xl md:rounded-[40px] shadow-2xl relative overflow-hidden">
             <div className="mb-6 md:mb-10">
                 <h2 className="text-lg md:text-xl font-bold text-white mb-2 uppercase tracking-widest">Gửi lời nhắn</h2>
                 <p className="text-white/20 text-[10px] md:text-xs italic">Điền đầy đủ thông tin bên dưới để chúng tôi có thể liên hệ lại sớm nhất.</p>
@@ -93,16 +93,16 @@ export default function ContactForm() {
 
                 <div className="space-y-1.5 md:space-y-2">
                     <label className="text-[10px] font-bold text-white/40 uppercase tracking-widest pl-1">Chủ đề</label>
-                    <select 
+                    <select
                         name="subject"
                         value={formData.subject}
                         onChange={handleChange}
                         className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-xs md:text-sm text-white focus:outline-none focus:border-amber-400/30 transition-all appearance-none cursor-pointer"
                     >
-                        <option value="Báo lỗi phim" className="bg-[#111b33]">Báo lỗi phim</option>
-                        <option value="Yêu cầu phim mới" className="bg-[#111b33]">Yêu cầu phim mới</option>
-                        <option value="Ý kiến đóng góp" className="bg-[#111b33]">Ý kiến đóng góp</option>
-                        <option value="Hợp tác/Quảng cáo" className="bg-[#111b33]">Hợp tác/Quảng cáo</option>
+                        <option value="Báo lỗi phim" className="bg-[#0F1115]">Báo lỗi phim</option>
+                        <option value="Yêu cầu phim mới" className="bg-[#0F1115]">Yêu cầu phim mới</option>
+                        <option value="Ý kiến đóng góp" className="bg-[#0F1115]">Ý kiến đóng góp</option>
+                        <option value="Hợp tác/Quảng cáo" className="bg-[#0F1115]">Hợp tác/Quảng cáo</option>
                     </select>
                 </div>
 

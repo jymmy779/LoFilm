@@ -24,10 +24,10 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
         >
             <TransitionLink
                 href={`/phim/${movie.slug}`}
-                className="block w-full h-full flex flex-col group/link"
+                className="block w-full bg-[#12151C] h-full flex flex-col group/link"
             >
                 {/* Top Thumbnail (aspect 21/9) */}
-                <div className="relative w-full aspect-[21/9] overflow-hidden rounded-xl bg-[#0a1628]">
+                <div className="relative w-full aspect-[21/9] overflow-hidden rounded-xl bg-[#12151C]">
                     <SmartImage
                         src={thumbUrl}
                         rawSrc={getRawImageUrl(movie.thumb_url)}
@@ -42,7 +42,7 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
                 {/* Bottom Info Section */}
                 <div className="px-3 md:px-4 pb-3 md:pb-4 flex gap-3 relative z-20">
                     {/* Poster overlapping the thumbnail (-mt-6 for mobile, -mt-8 for desktop which is ~20% of the poster height) */}
-                    <div className="hidden md:block w-20 shrink-0 aspect-[2/3] rounded-lg overflow-hidden border-2 border-[#1a2035] bg-[#0a1628] md:-mt-8 relative z-30 transition-transform duration-300 group-hover/link:-translate-y-1">
+                    <div className="hidden md:block w-20 shrink-0 aspect-[2/3] rounded-lg overflow-hidden border-2 border-[#12151C] bg-[#12151C] md:-mt-8 relative z-30 transition-transform duration-300 group-hover/link:-translate-y-1">
                         <SmartImage
                             src={posterUrl}
                             rawSrc={getRawImageUrl(movie.poster_url)}
@@ -65,11 +65,11 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
 
                         {/* Badges: year, episode, quality */}
                         <div className="hidden md:flex flex-wrap gap-1.5 items-center">
-                            <div className="tag-small px-1.5 py-0.5 bg-[#1a2035]/80 rounded text-[9px] md:text-[10px] text-white/50 font-medium leading-none flex items-center justify-center">
+                            <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9px] md:text-[10px] text-white/50 font-medium leading-none flex items-center justify-center">
                                 {movie.year || "2024"}
                             </div>
-                            <MovieEpisodeBadge movie={movie} className="tag-small px-1.5 py-0.5 bg-[#1a2035]/80 rounded text-[9px] md:text-[10px] text-white/50 font-medium leading-none flex items-center justify-center" />
-                            <MovieQualityBadge movie={movie} className="tag-small px-1.5 py-0.5 bg-[#1a2035]/80 rounded text-[9px] md:text-[10px] text-white/50 font-medium leading-none flex items-center justify-center" />
+                            <MovieEpisodeBadge movie={movie} className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9px] md:text-[10px] text-white/50 font-medium leading-none flex items-center justify-center" />
+                            <MovieQualityBadge movie={movie} className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9px] md:text-[10px] text-white/50 font-medium leading-none flex items-center justify-center" />
                         </div>
                     </div>
                 </div>

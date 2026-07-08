@@ -3,7 +3,7 @@ import Skeleton from "@/app/components/Skeleton/Skeleton";
 
 export default function Loading() {
   return (
-    <main className="pt-35 pb-12 min-h-screen bg-[#0a1628]">
+    <main className="pt-35 pb-12 min-h-screen bg-[#0F1115]">
       {/* Movie Header Skeleton */}
       <Container className="max-w-[1900px] mx-auto px-5 lg:px-12 mb-6">
         <div className="flex items-center gap-3">
@@ -40,7 +40,7 @@ export default function Loading() {
                     </div>
                     <Skeleton className="h-10 w-24" rounded="xl" />
                 </div>
-                <div className="bg-[#0d192b]/50 p-6 rounded-2xl border border-white/5">
+                <div className="bg-[#0F1115]/50 p-6 rounded-2xl border border-white/5">
                     <Skeleton className="h-8 w-1/3 mb-4" />
                     <Skeleton className="h-20 w-full" />
                 </div>
@@ -48,7 +48,7 @@ export default function Loading() {
 
             {/* Right Sidebar */}
             <div className="w-full lg:w-[400px] shrink-0">
-                <div className="bg-[#0d192b]/50 p-6 rounded-2xl border border-white/5">
+                <div className="bg-[#0F1115]/50 p-6 rounded-2xl border border-white/5">
                     <Skeleton className="h-6 w-full mb-6" />
                     <div className="grid grid-cols-4 gap-3">
                         {[...Array(12)].map((_, i) => (

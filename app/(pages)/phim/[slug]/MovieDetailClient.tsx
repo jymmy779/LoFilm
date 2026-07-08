@@ -240,9 +240,9 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                     <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,0,0,0.35)_0.8px,transparent_0.8px)] [background-size:3px_3px] opacity-30 z-10 pointer-events-none" />
                 </div>
                 {/* Balanced Spotlight: Soft natural darkness on sides, bright center */}
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,#0a1628_100%)] z-10 opacity-85" />
-                <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-[#0a1628] via-[#0a1628]/20 to-transparent z-10" />
-                <div className="absolute inset-x-0 top-0 h-[15%] bg-gradient-to-b from-[#0a1628]/40 to-transparent z-10" />
+                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,#0F1115_100%)] z-10 opacity-85" />
+                <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-[#0F1115] via-[#0F1115]/20 to-transparent z-10" />
+                <div className="absolute inset-x-0 top-0 h-[15%] bg-gradient-to-b from-[#0F1115]/40 to-transparent z-10" />
             </div>
 
             {/* Main Content Container */}
@@ -251,7 +251,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
 
                     {/* DC SIDE - Movie Info Column */}
                     <div className="dc-side w-full xl:w-[440px] shrink-0">
-                        <div className="ds-info p-[20px] lg:p-[40px] bg-[#0d192b]/50 border border-white/5 rounded-3xl relative transform-gpu will-change-[filter]">
+                        <div className="ds-info p-[20px] lg:p-[40px] bg-[#0F1115]/50 border border-white/5 rounded-3xl relative transform-gpu will-change-[filter]">
 
                             <div className="v-thumb-l xl:block flex justify-center mb-6">
                                 <div className="v-thumbnail relative w-[120px] h-[180px] lg:w-[160px] lg:h-[240px] rounded-2xl overflow-hidden transform-gpu">
@@ -347,7 +347,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
 
                         {/* Top phim tuần này - Added as requested */}
                         {!isLoadingWeekly && weeklyMovies.length > 0 && (
-                            <div className="hidden xl:block child-box child-top mt-6 bg-[#0d192b]/50 border border-white/5 rounded-3xl overflow-hidden relative transform-gpu">
+                            <div className="hidden xl:block child-box child-top mt-6 bg-[#0F1115]/50 border border-white/5 rounded-3xl overflow-hidden relative transform-gpu">
                                 <div className="child-header flex items-center gap-3 px-6 py-5 border-b border-white/5 bg-white/5">
                                     <div className="inc-icon">
                                         <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 25" fill="none">
@@ -423,13 +423,13 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
 
                     {/* Right Column - Tabs Content */}
                     <div className="dc-side w-full flex-1 shrink-0">
-                        <div className="ds-info p-[20px] lg:p-[40px] bg-[#0d192b]/50 border border-white/5 rounded-3xl relative transform-gpu will-change-[filter]">
+                        <div className="ds-info p-[20px] lg:p-[40px] bg-[#0F1115]/50 border border-white/5 rounded-3xl relative transform-gpu will-change-[filter]">
                             {/* DM Bar: Watch Now & Rating */}
                             <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
                                 <div className="flex flex-wrap items-center gap-3">
                                     <TransitionLink
                                         href={`/phim/${movie.slug}/${getFriendlyEpisodeSlug(firstServerEpisodes[0]?.slug || 'tap-01')}`}
-                                        className="group flex items-center gap-3 bg-gradient-to-r from-[#f5a623] to-[#ffcc33] hover:from-[#ffcc33] hover:to-[#f5a623] text-[#0a1628] py-2 px-6 md:py-4 md:px-8 rounded-full font-bold transition-all transform cursor-pointer shadow-[0_0_20px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.6)]"
+                                        className="group flex items-center gap-3 bg-gradient-to-r from-[#f5a623] to-[#ffcc33] hover:from-[#ffcc33] hover:to-[#f5a623] text-[#0F1115] py-2 px-6 md:py-4 md:px-8 rounded-full font-bold transition-all transform cursor-pointer shadow-[0_0_20px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.6)]"
                                     >
                                         <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
                                             <i className="fa-solid fa-play text-sm ml-0.5"></i>

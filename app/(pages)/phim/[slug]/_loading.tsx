@@ -3,10 +3,10 @@ import Skeleton from "@/app/components/Skeleton/Skeleton";
 
 export default function Loading() {
   return (
-    <main className="min-h-screen pb-20 bg-[#0a1628]">
+    <main className="min-h-screen pb-20 bg-[#0F1115]">
       {/* Skeleton Banner Area */}
       <div className="relative w-full h-[40vh] md:h-[50vh] xl:h-[80vh] bg-white/5 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a1628] to-transparent z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0F1115] to-transparent z-10" />
       </div>
 
       {/* Skeleton Content Area */}
@@ -15,7 +15,7 @@ export default function Loading() {
           
           {/* Left Column Skeleton (Poster & Side info) */}
           <div className="w-full xl:w-[440px] shrink-0">
-            <div className="p-[20px] lg:p-[40px] bg-[#0d192b]/50 border border-white/5 rounded-3xl">
+            <div className="p-[20px] lg:p-[40px] bg-[#0F1115]/50 border border-white/5 rounded-3xl">
               <div className="flex justify-center xl:block mb-6">
                 <Skeleton className="w-[120px] h-[180px] lg:w-[160px] lg:h-[240px]" rounded="2xl" />
               </div>
@@ -37,7 +37,7 @@ export default function Loading() {
 
           {/* Right Column Skeleton (Buttons & Tabs) */}
           <div className="w-full flex-1">
-            <div className="p-[20px] lg:p-[40px] bg-[#0d192b]/50 border border-white/5 rounded-3xl">
+            <div className="p-[20px] lg:p-[40px] bg-[#0F1115]/50 border border-white/5 rounded-3xl">
               <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
                 <div className="flex gap-4">
                   <Skeleton className="h-14 w-40" rounded="full" />

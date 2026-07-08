@@ -59,7 +59,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                 const items: Movie[] = res.data.items || [];
                 const filtered = filterDuplicateMovies(items);
                 const first8 = filtered.slice(0, 8);
-                
+
                 cachedHeroMovies = first8;
                 hasFetchedHeroOnce = true;
                 setMovies(first8);
@@ -112,10 +112,10 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                     {/* Loại bỏ radial-gradient để ảnh tự nhiên hơn */}
 
                                     {/* Additional subtle fades for text readability (Netflix-inspired Scrims) */}
-                                    <div className="absolute inset-x-0 top-0 h-25 md:h-32 bg-gradient-to-b from-[#0A1628]/90 via-[#0A1628]/40 to-transparent z-20 pointer-events-none" />
-                                    <div className="absolute inset-x-0 bottom-0 md:h-1/3 h-2/3 bg-gradient-to-t from-[#0A1628] via-[#0A1628]/40 to-transparent z-20 pointer-events-none" />
-                                    <div className="absolute inset-y-0 left-0 w-1 md:w-1/2 bg-gradient-to-r from-[#0A1628]/95 via-[#0A1628]/40 to-transparent z-20 pointer-events-none" />
-                                    <div className="absolute inset-y-0 right-0 w-1 md:w-1/3 bg-gradient-to-l from-[#0A1628]/80 via-[#0A1628]/20 to-transparent z-20 pointer-events-none" />
+                                    <div className="absolute inset-x-0 top-0 h-25 md:h-32 bg-gradient-to-b from-[#0F1115]/90 via-[#0F1115]/40 to-transparent z-20 pointer-events-none" />
+                                    <div className="absolute inset-x-0 bottom-0 md:h-1/3 h-2/3 bg-gradient-to-t from-[#0F1115] via-[#0F1115]/40 to-transparent z-20 pointer-events-none" />
+                                    <div className="absolute inset-y-0 left-0 w-1 md:w-1/2 bg-gradient-to-r from-[#0F1115]/95 via-[#0F1115]/40 to-transparent z-20 pointer-events-none" />
+                                    <div className="absolute inset-y-0 right-0 w-1 md:w-1/3 bg-gradient-to-l from-[#0F1115]/80 via-[#0F1115]/20 to-transparent z-20 pointer-events-none" />
                                 </div>
                             </>
                         )}
@@ -209,7 +209,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                 <div className="flex min-[700px]:flex hidden items-center justify-center min-[700px]:justify-start gap-8 pt-4">
                                     <TransitionLink
                                         href={`/phim/${currentMovie.slug}`}
-                                        className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-15 lg:h-15 rounded-full bg-gradient-to-tr from-[#f5a623] to-[#ffcc33] text-[#0a1628] ring-4 ring-[#f5a623]/20 shadow-[0_4px_15px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.8)] hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer"
+                                        className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-15 lg:h-15 rounded-full bg-gradient-to-tr from-[#f5a623] to-[#ffcc33] text-[#0F1115] ring-4 ring-[#f5a623]/20 shadow-[0_4px_15px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.8)] hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="20" height="20" fill="currentColor" className="ml-1 relative z-10">
                                             <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z" />
@@ -253,7 +253,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                         >
                             {movies.map((movie, index) => (
                                 <SwiperSlide key={movie._id}>
-                                    <div className="relative cursor-pointer rounded-full min-[700px]:rounded overflow-hidden aspect-square min-[700px]:aspect-video border-2 border-white/20 hover:border-white/40 [.swiper-slide-thumb-active_&]:border-[#f5a623] transition-all duration-300 opacity-60 hover:opacity-90 [.swiper-slide-thumb-active_&]:opacity-100 bg-[#14233e]/40">
+                                    <div className="relative cursor-pointer rounded-full min-[700px]:rounded overflow-hidden aspect-square min-[700px]:aspect-video border-2 border-white/20 hover:border-white/40 [.swiper-slide-thumb-active_&]:border-[#f5a623] transition-all duration-300 opacity-60 hover:opacity-90 [.swiper-slide-thumb-active_&]:opacity-100 bg-[#0F1115]/40">
                                         <SmartImage
                                             src={getImageUrl(movie.thumb_url, { width: 100, quality: 60 })}
                                             rawSrc={getRawImageUrl(movie.thumb_url)}

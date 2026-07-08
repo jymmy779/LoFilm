@@ -115,7 +115,7 @@ export default function CommonModal({
         style={{ animationDuration: '0.3s' }}
       />
       <div 
-        className={`relative w-[90%] max-w-[320px] md:max-w-xs bg-[#111e31] border border-white/10 rounded-2xl p-5 md:p-6 overflow-hidden ${
+        className={`relative w-[90%] max-w-[320px] md:max-w-xs bg-[#0F1115] border border-white/10 rounded-2xl p-5 md:p-6 overflow-hidden ${
           isClosing ? 'animate-pop-out' : 'animate-pop-in'
         }`}
       >
