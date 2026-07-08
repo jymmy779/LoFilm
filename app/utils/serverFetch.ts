@@ -63,12 +63,19 @@ export async function fetchCatalogData(
             pageTitle = moviesData.data?.titlePage || "";
         }
 
+        const parseList = (data: any): MenuItem[] => {
+            if (Array.isArray(data)) return data;
+            if (data?.data?.items && Array.isArray(data.data.items)) return data.data.items;
+            if (data?.items && Array.isArray(data.items)) return data.items;
+            return [];
+        };
+
         return {
             movies: items,
             totalPages: Math.ceil(totalItems / limit) || 1,
             pageTitle,
-            categories: Array.isArray(categoriesData) ? categoriesData : [],
-            countries: Array.isArray(countriesData) ? countriesData : [],
+            categories: parseList(categoriesData),
+            countries: parseList(countriesData),
         };
     } catch (error) {
         console.error("Server fetch error:", error);
@@ -128,12 +135,19 @@ export async function fetchSearchData(
             totalItems = searchData.data?.params?.pagination?.totalItems || 0;
         }
 
+        const parseList = (data: any): MenuItem[] => {
+            if (Array.isArray(data)) return data;
+            if (data?.data?.items && Array.isArray(data.data.items)) return data.data.items;
+            if (data?.items && Array.isArray(data.items)) return data.items;
+            return [];
+        };
+
         return {
             movies: items,
             totalPages: Math.ceil(totalItems / limit) || 1,
             pageTitle: `Tìm kiếm: ${keyword}`,
-            categories: Array.isArray(categoriesData) ? categoriesData : [],
-            countries: Array.isArray(countriesData) ? countriesData : [],
+            categories: parseList(categoriesData),
+            countries: parseList(countriesData),
         };
     } catch (error) {
         console.error("Server search error:", error);

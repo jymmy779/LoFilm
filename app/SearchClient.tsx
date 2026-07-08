@@ -70,21 +70,6 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
         updateUrl(newPage, activeFilters, isFilterOpen);
     };
 
-    useEffect(() => {
-        const fetchFilters = async () => {
-            try {
-                const [catRes, countRes] = await Promise.all([
-                    axios.get<MenuItem[]>("https://phimapi.com/the-loai"),
-                    axios.get<MenuItem[]>("https://phimapi.com/quoc-gia")
-                ]);
-                setCategories(catRes.data);
-                setCountries(countRes.data);
-            } catch (err) {
-                console.error("Lỗi fetch dữ liệu bộ lọc:", err);
-            }
-        };
-        fetchFilters();
-    }, []);
 
     useEffect(() => {
         let isMounted = true;
