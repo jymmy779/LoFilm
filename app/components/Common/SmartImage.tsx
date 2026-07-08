@@ -67,10 +67,6 @@ const SmartImage = forwardRef<HTMLImageElement, SmartImageProps>(
                     setIsLoaded(true);
                     if (props.onLoad) props.onLoad(e);
                 }}
-                onLoadingComplete={(img) => {
-                    setIsLoaded(true);
-                    if ((props as any).onLoadingComplete) (props as any).onLoadingComplete(img);
-                }}
                 className={`${baseClass} ${isLoaded ? 'animate-fade-in-simple opacity-100' : 'opacity-0'}`}
                 unoptimized={hasError} // Disable optimization for raw/fallback to avoid further proxy issues
             />

@@ -170,7 +170,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                 if (!movie.tmdb?.type) {
                     const isSeries = movie.type === "series" || movie.type === "tvshows";
                     const isMultiEpisode = (episodes?.[0]?.server_data?.length || 0) > 1 ||
-                        (parseInt(movie.episode_total || "0") > 1);
+                        (parseInt(String(movie.episode_total || "0")) > 1);
 
                     type = (isSeries || (movie.type === "hoathinh" && isMultiEpisode)) ? "tv" : "movie";
                 }
