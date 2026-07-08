@@ -180,7 +180,7 @@ export default function ReunificationLoader() {
 
                 <div className="loader-center">
                     <div className="flag-badge">
-                        <img src="/vn-flag-full.gif" alt="Vietnam Flag" className="w-full h-auto" />
+                        <img src="/images/vn-flag-full.gif" alt="Vietnam Flag" className="w-full h-auto" />
                     </div>
                     <div className="lofilm-loader-text !mb-0">
                         LoFilm

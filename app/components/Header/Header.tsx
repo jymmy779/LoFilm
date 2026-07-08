@@ -118,7 +118,7 @@ export default function Header() {
                                             width={140}
                                             height={70}
                                             className="h-[50px] md:h-[65px] w-auto object-contain"
-                                            src="/lofilm_logo.webp"
+                                            src="/images/lofilm_logo.webp"
                                             alt="LoFilm - Xem Phim Online Chất Lượng Cao | Phim 4K Vietsub Miễn Phí"
                                             priority
                                             unoptimized
@@ -166,7 +166,7 @@ export default function Header() {
                                     width={150}
                                     height={80}
                                     className="h-[50px] xl:h-[55px] 2xl:h-[65px] w-auto object-contain transition-all duration-300"
-                                    src="/lofilm_logo.webp"
+                                    src="/images/lofilm_logo.webp"
                                     alt="LoFilm - Xem Phim Online Chất Lượng Cao"
                                     priority
                                     unoptimized

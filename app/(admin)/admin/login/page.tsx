@@ -29,7 +29,7 @@ export default function AdminLogin() {
         <div className="min-h-screen flex flex-col items-center justify-center bg-[#0F1115]">
             <div className="bg-[#0F1115] p-8 rounded-lg w-full max-w-md border border-white/10 shadow-2xl">
                 <div className="flex justify-center mb-6">
-                    <img src="/lofilm_logo.webp" alt="LoFilm Logo" className="h-12" />
+                    <img src="/images/lofilm_logo.webp" alt="LoFilm Logo" className="h-12" />
                 </div>
                 <h1 className="text-2xl font-bold text-white mb-6 text-center">Đăng Nhập Quản Trị</h1>
                 {error && <div className="bg-red-500/10 border border-red-500/50 text-red-500 p-3 rounded mb-4 text-sm text-center">{error}</div>}

@@ -8,7 +8,7 @@ import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
 import { decodeHtml } from "@/app/utils/textUtils";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
-import ReunificationEventSkeleton from "./SpecialSections/ReunificationEventSkeleton";
+import ReunificationEventSkeleton from "./ReunificationEventSkeleton";
 
 export default function ReunificationEvent() {
     const [isMounted, setIsMounted] = useState(false);
@@ -73,7 +73,7 @@ export default function ReunificationEvent() {
                         </div>
                     </div>
                     <div className="w-10 md:w-20 lg:w-30 absolute top-0 md:top-[-20px] lg:top-[-30px] right-0">
-                        <img src="/vn-flag-full.gif" alt="" />
+                        <img src="/images/vn-flag-full.gif" alt="" />
                     </div>
                 </div>
 

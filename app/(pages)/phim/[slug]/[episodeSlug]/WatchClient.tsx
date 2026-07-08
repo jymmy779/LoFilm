@@ -32,6 +32,9 @@ import { createClient } from "@/app/utils/supabase/client";
 import { SubtitleTrack } from "@/app/types/movie";
 import { useSubtitleManager } from "./hooks/useSubtitleManager";
 import { useVttOverlay } from "./hooks/useVttOverlay";
+import { useFavorites } from "./hooks/useFavorites";
+import { useWatchlist } from "./hooks/useWatchlist";
+import { useWatchProgress } from "./hooks/useWatchProgress";
 
 interface WatchClientProps {
     slug: string;
@@ -128,9 +131,6 @@ export default function WatchClient({
     useEffect(() => { autoNextRef.current = isAutoNext; }, [isAutoNext]);
 
     const [hasResumed, setHasResumed] = useState(false);
-    const [isFavorited, setIsFavorited] = useState(false);
-    const [isInWatchlist, setIsInWatchlist] = useState(false);
-
     const [showEndOverlay, setShowEndOverlay] = useState(false);
     const showEndOverlayRef = useRef(false);
     const [artContainer, setArtContainer] = useState<HTMLElement | null>(null);
@@ -145,10 +145,6 @@ export default function WatchClient({
     useEffect(() => { showEndOverlayRef.current = showEndOverlay; }, [showEndOverlay]);
     const showEpisodeOverlayRef = useRef(showEpisodeOverlay);
     useEffect(() => { showEpisodeOverlayRef.current = showEpisodeOverlay; }, [showEpisodeOverlay]);
-
-    const watchTimeAccumulator = useRef(0);
-    const hasRecordedView = useRef(false);
-    const lastUpdateTimestamp = useRef(0);
 
     const supabase = createClient();
 
@@ -286,187 +282,36 @@ export default function WatchClient({
         localStorage.setItem('lofilm-auto-next', String(newValue));
     }, [isAutoNext]);
 
+    const { isFavorited, toggleFavorite } = useFavorites(
+        slug,
+        movie.name,
+        movie.poster_url,
+        movie.thumb_url
+    );
+
+    const { isInWatchlist, toggleWatchlist } = useWatchlist(
+        user,
+        slug,
+        movie.name,
+        movie.poster_url,
+        movie.thumb_url
+    );
+
+    const { saveProgress, handleTimeUpdate } = useWatchProgress(
+        user,
+        slug,
+        episodeSlug,
+        movie,
+        episode
+    );
+
+    // Refs to keep callback references stable inside the Artplayer player initialization closure
+    const saveProgressRef = useRef(saveProgress);
+    const handleTimeUpdateRef = useRef(handleTimeUpdate);
     useEffect(() => {
-        const checkStatus = async () => {
-
-            if (user) {
-                const { data: favData } = await supabase
-                    .from('favorites')
-                    .select('id')
-                    .eq('user_id', user.id)
-                    .eq('movie_slug', slug)
-                    .maybeSingle();
-                if (favData) setIsFavorited(true);
-
-                const { data: watchData } = await supabase
-                    .from('watchlist')
-                    .select('id')
-                    .eq('user_id', user.id)
-                    .eq('movie_slug', slug)
-                    .maybeSingle();
-                if (watchData) setIsInWatchlist(true);
-            }
-        };
-        checkStatus();
-    }, [slug, supabase, user]);
-
-    const toggleFavorite = useCallback(async () => {
-        if (!user) {
-            toast.error("Vui lòng đăng nhập để lưu phim yêu thích!");
-            return;
-        }
-        const prevStatus = isFavorited;
-        setIsFavorited(!isFavorited);
-        try {
-            if (prevStatus) {
-                const { error } = await supabase.from('favorites').delete().eq('movie_slug', slug).eq('user_id', user.id);
-                if (error) throw error;
-                toast.success("Đã xóa khỏi danh sách yêu thích");
-            } else {
-                const { error } = await supabase.from('favorites').insert({
-                    user_id: user.id,
-                    movie_slug: slug,
-                    movie_name: movie.name,
-                    movie_poster: movie.thumb_url || movie.poster_url
-                });
-                if (error) throw error;
-                toast.success("Đã thêm vào danh sách yêu thích");
-            }
-        } catch (err: any) {
-            setIsFavorited(prevStatus);
-            toast.error("Lỗi: " + err.message);
-        }
-    }, [user, isFavorited, slug, movie, supabase]);
-
-    const toggleWatchlist = useCallback(async () => {
-        if (!user) {
-            toast.error("Vui lòng đăng nhập để thêm vào danh sách xem sau!");
-            return;
-        }
-        const prevStatus = isInWatchlist;
-        setIsInWatchlist(!isInWatchlist);
-        try {
-            if (prevStatus) {
-                const { error } = await supabase.from('watchlist').delete().eq('movie_slug', slug).eq('user_id', user.id);
-                if (error) throw error;
-                toast.success("Đã xóa khỏi danh sách xem sau");
-            } else {
-                const { error } = await supabase.from('watchlist').insert({
-                    user_id: user.id,
-                    movie_slug: slug,
-                    movie_name: movie.name,
-                    movie_poster: movie.thumb_url || movie.poster_url
-                });
-                if (error) throw error;
-                toast.success("Đã thêm vào danh sách xem sau");
-            }
-        } catch (err: any) {
-            setIsInWatchlist(prevStatus);
-            toast.error("Lỗi: " + err.message);
-        }
-    }, [user, isInWatchlist, slug, movie, supabase]);
-
-    const lastSavedTime = useRef(0);
-    const lastSavedTimeDB = useRef(0);
-    const saveProgress = useCallback(async (currentTime: number, duration: number, forceDbSync = false) => {
-        const currentUser = userRef.current;
-        if (!currentTime || duration <= 0) return;
-
-        const timeDiff = Math.abs(currentTime - lastSavedTime.current);
-        const dbTimeDiff = Math.abs(currentTime - lastSavedTimeDB.current);
-
-        // 1. Lưu LocalStorage mỗi 10s (rất nhẹ, không tốn tài nguyên)
-        if (timeDiff >= 10) {
-            lastSavedTime.current = currentTime;
-            try {
-                const HISTORY_KEY = currentUser ? `lofilm-watch-history-${currentUser.id}` : 'lofilm-guest-watch-history';
-                const historyStr = localStorage.getItem(HISTORY_KEY);
-                let history = historyStr ? JSON.parse(historyStr) : {};
-
-                const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-                const now = Date.now();
-                Object.keys(history).forEach(key => {
-                    if (now - history[key].updated_at > SEVEN_DAYS_MS) {
-                        delete history[key];
-                    }
-                });
-
-                history[`${slug}/${episodeSlug}`] = {
-                    movie_slug: slug,
-                    episode_slug: episodeSlug,
-                    movie_name: movie.name,
-                    movie_poster: movie.thumb_url || movie.poster_url,
-                    episode_name: episode.name,
-                    watched_seconds: Math.floor(currentTime),
-                    duration: Math.floor(duration),
-                    updated_at: now
-                };
-
-                const keys = Object.keys(history);
-                if (keys.length > 40) {
-                    const oldestKey = keys.sort((a, b) => history[a].updated_at - history[b].updated_at)[0];
-                    delete history[oldestKey];
-                }
-
-                localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-            } catch (e) {
-                console.error("Error saving progress to localStorage:", e);
-            }
-        }
-
-        // 2. Lưu Database Supabase mỗi 60s HOẶC khi bị ép (pause, close) để chống quá tải DB
-        if (currentUser && (dbTimeDiff >= 60 || forceDbSync)) {
-            lastSavedTimeDB.current = currentTime;
-            await supabase.from('watch_history').upsert({
-                user_id: currentUser.id,
-                movie_slug: slug,
-                movie_name: movie.name,
-                movie_poster: movie.thumb_url || movie.poster_url,
-                episode_name: episode.name,
-                episode_slug: episodeSlug,
-                watched_seconds: Math.floor(currentTime),
-                duration: Math.floor(duration),
-                updated_at: new Date().toISOString()
-            }, { onConflict: 'user_id,movie_slug,episode_slug' });
-        }
-    }, [slug, episodeSlug, movie, episode, supabase]);
-
-    const recordViewToSupabase = useCallback(async () => {
-        const sessionKey = `viewed_${slug}`;
-        if (typeof window !== 'undefined' && sessionStorage.getItem(sessionKey)) return;
-
-        try {
-            let deviceId = localStorage.getItem("lofilm_device_id");
-            if (!deviceId) {
-                deviceId = "dev-" + Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
-                localStorage.setItem("lofilm_device_id", deviceId);
-            }
-
-            let ip = "unknown";
-            try {
-                const ipRes = await fetch('https://api.ipify.org?format=json');
-                if (ipRes.ok) {
-                    const ipData = await ipRes.json();
-                    ip = ipData.ip;
-                }
-            } catch (e) { }
-
-            const { error } = await supabase.rpc('record_movie_view', {
-                p_movie_slug: slug,
-                p_ip: ip,
-                p_user_id: userRef.current?.id || null,
-                p_device_id: deviceId
-            });
-
-            if (!error) {
-                sessionStorage.setItem(sessionKey, 'true');
-            } else {
-                console.error("RPC View Error:", error.message);
-            }
-        } catch (err) {
-            console.error("System error recording view:", err);
-        }
-    }, [slug, supabase]);
+        saveProgressRef.current = saveProgress;
+        handleTimeUpdateRef.current = handleTimeUpdate;
+    }, [saveProgress, handleTimeUpdate]);
 
     useEffect(() => {
         if (isEmbedServer) return;
@@ -626,7 +471,7 @@ export default function WatchClient({
 
             art.on('pause', () => {
                 if (artRef.current) {
-                    saveProgress(artRef.current.currentTime, artRef.current.duration, true);
+                    saveProgressRef.current(artRef.current.currentTime, artRef.current.duration, true);
                 }
             });
 
@@ -634,27 +479,7 @@ export default function WatchClient({
 
             art.on('video:timeupdate', () => {
                 if (!artRef.current) return;
-                const currentTime = artRef.current.currentTime;
-                const duration = artRef.current.duration;
-                const player = artRef.current.video;
-
-                if (!hasRecordedView.current && !player.paused) {
-                    const now = Date.now();
-                    if (lastUpdateTimestamp.current > 0) {
-                        const delta = (now - lastUpdateTimestamp.current) / 1000;
-                        if (delta > 0 && delta < 2) {
-                            watchTimeAccumulator.current += delta;
-                        }
-                    }
-                    lastUpdateTimestamp.current = now;
-
-                    if (watchTimeAccumulator.current >= 120 || currentTime >= 120) {
-                        hasRecordedView.current = true;
-                        recordViewToSupabase();
-                    }
-                }
-
-                saveProgress(currentTime, duration);
+                handleTimeUpdateRef.current(artRef.current.currentTime, artRef.current.duration, artRef.current.video.paused);
             });
 
             art.on('video:seeked', () => {

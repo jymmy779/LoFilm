@@ -27,7 +27,7 @@ import CommonModal from "@/app/components/Modals/CommonModal";
 type TabType = 'overview' | 'history' | 'favorites' | 'watchlist' | 'settings';
 
 import Sidebar from "@/app/components/Sidebar/Sidebar";
-import CatalogHeader from "@/app/components/CatalogHeader";
+import CatalogHeader from "@/app/components/MovieCatalog/CatalogHeader";
 import OverviewTab from "./components/OverviewTab";
 import HistoryTab from "./components/HistoryTab";
 import FavoritesTab from "./components/FavoritesTab";

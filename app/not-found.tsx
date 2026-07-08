@@ -12,7 +12,7 @@ export default function NotFound() {
             <div className="not-found-content">
                 <div className="not-found-image-container">
                     <Image 
-                        src="/404_lofilm.png" 
+                        src="/images/404_lofilm.png" 
                         alt="404 LoFilm" 
                         width={200} 
                         height={130} 

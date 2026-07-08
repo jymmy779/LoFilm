@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 
 import { usePageTransition } from "@/app/components/Transition/PageTransitionContext";
-import CatalogHeader from "../../components/CatalogHeader";
+import CatalogHeader from "../../components/MovieCatalog/CatalogHeader";
 import Container from "../../components/Container";
 import Link from "next/link";
 import { checkEmailExists } from "@/app/actions/authActions";

@@ -85,7 +85,7 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: '/favicon.ico',
-    apple: '/lofilm_logo.webp',
+    apple: '/images/lofilm_logo.webp',
   },
   robots: {
     index: true,
@@ -106,7 +106,7 @@ export const metadata: Metadata = {
     locale: "vi_VN",
     type: "website",
     images: [{
-      url: "https://www.munos.store/lofilm_logo.webp",
+      url: "https://www.munos.store/images/lofilm_logo.webp",
       width: 1200,
       height: 630,
       alt: "LoFilm - Xem Phim Online Chất Lượng Cao",
@@ -116,7 +116,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'LoFilm - Xem Phim Online Chất Lượng Cao',
     description: 'Xem phim LoFilm miễn phí, chất lượng 4K, Vietsub. Kho phim mới cập nhật mỗi ngày.',
-    images: ['https://www.munos.store/lofilm_logo.webp'],
+    images: ['https://www.munos.store/images/lofilm_logo.webp'],
   },
   alternates: {
     canonical: 'https://www.munos.store',
@@ -182,7 +182,7 @@ export default async function RootLayout({
               "@type": "Organization",
               "name": "LoFilm",
               "url": "https://www.munos.store",
-              "logo": "https://www.munos.store/lofilm_logo.webp",
+              "logo": "https://www.munos.store/images/lofilm_logo.webp",
               "sameAs": [
                 "https://t.me/ponpornsec",
                 "https://t.me/+5S1xkPn1SCAxZWZl"

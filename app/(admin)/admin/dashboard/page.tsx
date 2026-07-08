@@ -43,7 +43,7 @@ export default async function AdminPage() {
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <Link href="/">
-                            <img src="/lofilm_logo.webp" alt="LoFilm Logo" className="h-8" />
+                            <img src="/images/lofilm_logo.webp" alt="LoFilm Logo" className="h-8" />
                         </Link>
                         <span className="text-gray-400 font-medium border-l border-white/20 pl-4">Admin Dashboard</span>
                     </div>

@@ -4,9 +4,9 @@ import Container from "@/app/components/Container";
 import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
 import MovieCardSkeleton from "@/app/components/MovieCard/MovieCardSkeleton";
 import { Movie } from "@/app/types/movie";
-import Pagination from "@/app/components/Pagination";
-import CatalogHeader from "@/app/components/CatalogHeader";
-import MovieFilter, { FilterState } from "@/app/components/MovieFilter";
+import Pagination from "@/app/components/Common/Pagination";
+import CatalogHeader from "@/app/components/MovieCatalog/CatalogHeader";
+import MovieFilter, { FilterState } from "@/app/components/MovieCatalog/MovieFilter";
 import { MenuItem } from "@/app/components/Header/types";
 
 import Sidebar from "@/app/components/Sidebar/Sidebar";

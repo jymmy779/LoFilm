@@ -19,7 +19,7 @@ import TopMovieRowSkeleton from "./components/TopMovieRow/TopMovieRowSkeleton";
 import FeaturedSliderSkeleton from "./components/FeaturedSlider/FeaturedSliderSkeleton";
 import RandomMovieRowSkeleton from "./components/MovieRow/RandomMovieRowSkeleton";
 import WideMovieRowSkeleton from "./components/MovieRow/WideMovieRowSkeleton";
-import ReunificationEvent from "./components/ReunificationEvent";
+import ReunificationEvent from "./components/SpecialSections/ReunificationEvent";
 import ReunificationEventSkeleton from "./components/SpecialSections/ReunificationEventSkeleton";
 import SocialStatsSection from "./components/SocialStats/SocialStatsSection";
 

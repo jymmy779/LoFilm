@@ -277,7 +277,7 @@ export default async function WatchPage({ params, searchParams }: Props) {
             "url": "https://www.munos.store",
             "logo": {
                 "@type": "ImageObject",
-                "url": "https://www.munos.store/lofilm_logo.webp"
+                "url": "https://www.munos.store/images/lofilm_logo.webp"
             }
         }
     };

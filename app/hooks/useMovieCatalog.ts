@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { Movie } from "@/app/types/movie";
-import { FilterState } from "@/app/components/MovieFilter";
+import { FilterState } from "@/app/components/MovieCatalog/MovieFilter";
 import { MenuItem } from "@/app/components/Header/types";
 import { CatalogInitialData } from "@/app/utils/serverFetch";
 import { globalCache } from "@/app/utils/globalCache";

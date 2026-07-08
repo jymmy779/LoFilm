@@ -27,7 +27,7 @@ export default async function Footer() {
                         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-5 sm:gap-8">
                             <TransitionLink href="/" className="shrink-0 transition-transform hover:scale-105">
                                 <Image
-                                    src="/lofilm_logo.webp"
+                                    src="/images/lofilm_logo.webp"
                                     alt="LoFilm - Xem phim online chất lượng cao"
                                     width={140}
                                     height={70}
@@ -136,7 +136,7 @@ export default async function Footer() {
                     <div className="col-span-1 lg:col-span-4 hidden lg:flex items-center justify-end select-none pointer-events-none relative">
                         <div className="w-[350px] aspect-square opacity-[0.009] hover:opacity-[0.05] transition-opacity duration-1000 relative">
                             <Image
-                                src="/lofilm_logo.webp"
+                                src="/images/lofilm_logo.webp"
                                 fill
                                 alt='LoFilm Cinematic'
                                 loading='eager'
