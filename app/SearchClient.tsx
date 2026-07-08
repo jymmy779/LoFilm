@@ -68,6 +68,7 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
     const handlePageChange = (newPage: number) => {
         setCurrentPage(newPage);
         updateUrl(newPage, activeFilters, isFilterOpen);
+        window.scrollTo({ top: 0, behavior: "instant" });
     };
 
 
@@ -167,17 +168,8 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
 
         fetchMovies();
         
-        // Optimize scroll: small delay to let React render skeletons/content first.
-        // Use 'instant' instead of 'smooth' to prevent stuttering/lag on mobile/desktop.
-        const scrollTimeout = setTimeout(() => {
-            requestAnimationFrame(() => {
-                window.scrollTo({ top: 0, behavior: "instant" });
-            });
-        }, 100);
-
         return () => { 
             isMounted = false; 
-            clearTimeout(scrollTimeout);
         };
     }, [keyword, currentPage, activeFilters]);
 
@@ -185,6 +177,7 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
         setActiveFilters(filters);
         setCurrentPage(1);
         updateUrl(1, filters, isFilterOpen);
+        window.scrollTo({ top: 0, behavior: "instant" });
     };
 
     const handleToggleFilter = (isOpen: boolean) => {
