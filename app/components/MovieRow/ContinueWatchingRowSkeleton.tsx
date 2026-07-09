@@ -6,7 +6,7 @@ import "swiper/css";
 
 export default function ContinueWatchingRowSkeleton() {
     return (
-        <Container as="section" className="relative z-30 mb-8 md:mb-12 lg:mb-16 mt-8">
+        <Container as="section" className="relative z-30">
             <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-white/[0.02] p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 overflow-hidden">
                 {/* Header */}
                 <div className="w-full xl:w-[260px] xl:flex-shrink-0 flex xl:flex-col justify-between xl:justify-center gap-4">

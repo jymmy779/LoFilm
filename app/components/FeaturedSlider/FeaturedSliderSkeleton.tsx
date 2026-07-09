@@ -16,7 +16,7 @@ export default function FeaturedSliderSkeleton() {
                 </div>
             </div>
 
-            <div className="relative mb-42 group">
+            <div className="relative mb-20 xl:mb-30 group">
                 <Swiper slidesPerView={1} className="featured-section-slider rounded-[30px] overflow-hidden">
                     <SwiperSlide>
                         <div className="relative w-full aspect-[21/9] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5] min-h-[500px] bg-[#0F1115]">

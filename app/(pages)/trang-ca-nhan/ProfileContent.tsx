@@ -459,7 +459,7 @@ export default function ProfileContent() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-[#0F1115] to-[#0F1115] pt-27pb-16 md:pb-20 px-4">
+    <div className="min-h-screen bg-gradient-to-b from-[#0F1115] to-[#0F1115] pt-27 pb-16 md:pb-20 px-4">
       <div className="max-w-[1440px] mx-auto">
         {/* Page Header */}
         <div className="mb-10 md:mb-12 w-full">
