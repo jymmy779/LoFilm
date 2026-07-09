@@ -45,7 +45,7 @@ export default function DropdownMenu({
             onMouseEnter={onEnter}
             onMouseLeave={onLeave}
         >
-            <button className="flex items-center gap-1 text-[13px] 2xl:text-sm font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 cursor-pointer whitespace-nowrap">
+            <button className="flex items-center gap-1 text-md font-medium text-white/80 hover:text-[#f5a623] transition-colors duration-150 cursor-pointer whitespace-nowrap">
                 <span>{label}</span>
                 <svg
                     xmlns="http://www.w3.org/2000/svg"
@@ -69,15 +69,19 @@ export default function DropdownMenu({
                 {/* Invisible bridge — covers the mt gap so onMouseLeave doesn't fire */}
                 <div className="absolute top-0 left-0 w-full h-[8px]" />
 
-                <div className="min-w-[580px] rounded-[8px] bg-[#12151C] border-t-2 border-[#f5a623] border border-white/5">
-                    <div className="grid grid-cols-4 gap-x-4 gap-y-3 p-5">
+                <div className={`rounded-[8px] bg-[#12151C] border-t-2 border-[#f5a623] border border-white/5 ${columns === 1 ? "min-w-[160px]" : "min-w-[580px]"
+                    }`}>
+                    <div
+                        className="grid gap-x-4 gap-y-3 p-5"
+                        style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+                    >
                         {cols.map((col, colIdx) => (
                             <div key={colIdx} className="flex flex-col gap-3">
                                 {col.map((item) => (
                                     <TransitionLink
                                         key={item._id}
                                         href={`${hrefPrefix}/${item.slug}`}
-                                        className="text-sm text-white/70 hover:text-[#f5a623] hover:translate-x-1 transition-all duration-150 whitespace-nowrap block"
+                                        className="text-md text-white/70 hover:text-[#f5a623] hover:translate-x-1 transition-all duration-150 whitespace-nowrap block"
                                     >
                                         {item.name}
                                     </TransitionLink>

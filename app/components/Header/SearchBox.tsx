@@ -185,7 +185,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                     placeholder="Tìm kiếm phim..."
                     autoFocus={autoFocus}
                     aria-label="Tìm kiếm phim"
-                    className="bg-transparent outline-none text-[13px] 2xl:text-base text-white w-full placeholder:text-white/30"
+                    className="bg-transparent outline-none text-[13px] lg:text-base text-white w-full placeholder:text-white/30"
                     value={searchQuery}
                     onChange={(e) => {
                         setSearchQuery(e.target.value);
@@ -213,7 +213,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                                     setResults([]);
                                     setShowResults(false);
                                 }}
-                                className="shrink-0 text-white/40 cursor-pointer hover:text-white transition-colors p-1"
+                                className="shrink-0 text-white/40 cursor-pointer hover:text-white transition-colors flex items-center"
                                 aria-label="Xóa tìm kiếm"
                             >
                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="16" height="16" fill="currentColor">
@@ -227,76 +227,75 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
 
             {/* Live Search Results Dropdown */}
             <div
-                className={`absolute top-full left-0 right-0 mt-2 md:mt-3 bg-[#0F1115] border border-white/10 rounded-xl md:rounded-2xl overflow-hidden z-[100] md:min-w-[400px] transition-all duration-200 origin-top ${
-                    showResults && isFocused && searchQuery.trim().length >= 2 && results.length > 0
+                className={`absolute top-full left-0 right-0 mt-2 md:mt-3 bg-[#0F1115] border border-white/10 rounded-xl md:rounded-2xl overflow-hidden z-[100] md:min-w-[400px] transition-all duration-200 origin-top ${showResults && isFocused && searchQuery.trim().length >= 2 && results.length > 0
                     ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
                     : "opacity-0 translate-y-2 scale-[0.98] pointer-events-none"
-                }`}
+                    }`}
             >
-                        <div className="p-3 md:p-4">
-                            <div className="text-[9.5px] md:text-[10px] font-bold uppercase tracking-widest text-[#f5a623] mb-3 md:mb-4 flex items-center gap-1.5 md:gap-2">
-                                <span className="w-1 h-2.5 md:h-3 bg-[#f5a623] rounded-full" />
-                                Kết quả tìm kiếm
-                            </div>
+                <div className="p-3 md:p-4">
+                    <div className="text-[9.5px] md:text-[10px] font-bold uppercase tracking-widest text-[#f5a623] mb-3 md:mb-4 flex items-center gap-1.5 md:gap-2">
+                        <span className="w-1 h-2.5 md:h-3 bg-[#f5a623] rounded-full" />
+                        Kết quả tìm kiếm
+                    </div>
 
-                            <div className="space-y-1 overflow-y-auto max-h-[60vh] md:max-h-[70vh] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pr-1">
-                                {results.length > 0 ? (
-                                    results.map((movie: Movie, index: number) => (
-                                        <div key={movie._id}>
-                                            <TransitionLink
-                                                href={`/phim/${movie.slug}`}
-                                                className={`group flex gap-2.5 md:gap-3 p-1.5 md:p-2 rounded-xl transition-all duration-300 ${activeIndex === index ? 'bg-white/10 ring-1 ring-[#f5a623]/30' : 'hover:bg-white/5'}`}
-                                                onMouseEnter={() => setActiveIndex(index)}
-                                            >
-                                                <div className="w-10 h-14 md:w-12 md:h-16 shrink-0 rounded-lg overflow-hidden relative border border-white/5 bg-white/5">
-                                                    <SmartImage
-                                                        src={getImageUrl(movie.poster_url || movie.thumb_url || "", { width: 100, quality: 75 })}
-                                                        rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url || "")}
-                                                        alt={movie.name}
-                                                        fill
-                                                        sizes="48px"
-                                                        priority={results.indexOf(movie) < 3}
-                                                        className="object-cover group-hover:scale-110 transition-transform duration-500"
-                                                    />
-                                                </div>
-                                                <div className="flex flex-col justify-center min-w-0">
-                                                    <h4 className={`text-[12px] md:text-[13px] font-bold transition-colors truncate leading-tight ${activeIndex === index ? 'text-[#f5a623]' : 'text-white/90 group-hover:text-[#f5a623]'}`}>
-                                                        {movie.name}
-                                                    </h4>
-                                                    <p className="text-[10px] md:text-[11px] text-white/40 truncate mt-0.5">
-                                                        {movie.origin_name}
-                                                    </p>
-                                                    <div className="flex gap-1.5 md:gap-2 mt-1 md:mt-1.5 items-center">
-                                                        <span className="text-[8px] md:text-[9px] px-1 md:px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-white/60 font-medium tracking-wide">
-                                                            {movie.year || '2025'}
-                                                        </span>
-                                                        <span className="text-[8px] md:text-[9px] px-1 md:px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-500/80 font-bold uppercase">
-                                                            {movie.quality || 'FHD'}
-                                                        </span>
-                                                        <span className="text-[8px] md:text-[9px] px-1 md:px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-white/60 font-medium">
-                                                            {movie.episode_current || 'Full'}
-                                                        </span>
-                                                    </div>
-                                                </div>
-                                            </TransitionLink>
+                    <div className="space-y-1 overflow-y-auto max-h-[60vh] md:max-h-[70vh] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pr-1">
+                        {results.length > 0 ? (
+                            results.map((movie: Movie, index: number) => (
+                                <div key={movie._id}>
+                                    <TransitionLink
+                                        href={`/phim/${movie.slug}`}
+                                        className={`group flex gap-2.5 md:gap-3 p-1.5 md:p-2 rounded-xl transition-all duration-300 ${activeIndex === index ? 'bg-white/10 ring-1 ring-[#f5a623]/30' : 'hover:bg-white/5'}`}
+                                        onMouseEnter={() => setActiveIndex(index)}
+                                    >
+                                        <div className="w-10 h-14 md:w-12 md:h-16 shrink-0 rounded-lg overflow-hidden relative border border-white/5 bg-white/5">
+                                            <SmartImage
+                                                src={getImageUrl(movie.poster_url || movie.thumb_url || "", { width: 100, quality: 75 })}
+                                                rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url || "")}
+                                                alt={movie.name}
+                                                fill
+                                                sizes="48px"
+                                                priority={results.indexOf(movie) < 3}
+                                                className="object-cover group-hover:scale-110 transition-transform duration-500"
+                                            />
                                         </div>
-                                    ))
-                                ) : null}
-                            </div>
-                        </div>
+                                        <div className="flex flex-col justify-center min-w-0">
+                                            <h4 className={`text-[12px] md:text-[13px] font-bold transition-colors truncate leading-tight ${activeIndex === index ? 'text-[#f5a623]' : 'text-white/90 group-hover:text-[#f5a623]'}`}>
+                                                {movie.name}
+                                            </h4>
+                                            <p className="text-[10px] md:text-[11px] text-white/40 truncate mt-0.5">
+                                                {movie.origin_name}
+                                            </p>
+                                            <div className="flex gap-1.5 md:gap-2 mt-1 md:mt-1.5 items-center">
+                                                <span className="text-[8px] md:text-[9px] px-1 md:px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-white/60 font-medium tracking-wide">
+                                                    {movie.year || '2025'}
+                                                </span>
+                                                <span className="text-[8px] md:text-[9px] px-1 md:px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-500/80 font-bold uppercase">
+                                                    {movie.quality || 'FHD'}
+                                                </span>
+                                                <span className="text-[8px] md:text-[9px] px-1 md:px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-white/60 font-medium">
+                                                    {movie.episode_current || 'Full'}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </TransitionLink>
+                                </div>
+                            ))
+                        ) : null}
+                    </div>
+                </div>
 
-                        {results.length > 0 && (
-                            <TransitionLink
-                                href={`/?search=${encodeURIComponent(searchQuery.trim())}`}
-                                onClick={() => {
-                                    setIsFocused(false);
-                                    setShowResults(false);
-                                }}
-                                className="w-full py-2.5 md:py-3 bg-white/5 hover:bg-amber-500 hover:text-black transition-all duration-300 cursor-pointer text-[13px] md:text-[14px] font-medium text-[#f5a623] border-t border-white/5 block text-center"
-                            >
-                                Xem tất cả kết quả
-                            </TransitionLink>
-                        )}
+                {results.length > 0 && (
+                    <TransitionLink
+                        href={`/?search=${encodeURIComponent(searchQuery.trim())}`}
+                        onClick={() => {
+                            setIsFocused(false);
+                            setShowResults(false);
+                        }}
+                        className="w-full py-2.5 md:py-3 bg-white/5 hover:bg-amber-500 hover:text-black transition-all duration-300 cursor-pointer text-[13px] md:text-[14px] font-medium text-[#f5a623] border-t border-white/5 block text-center"
+                    >
+                        Xem tất cả kết quả
+                    </TransitionLink>
+                )}
             </div>
         </div>
     );

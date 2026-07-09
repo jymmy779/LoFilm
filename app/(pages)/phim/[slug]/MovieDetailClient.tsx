@@ -203,6 +203,16 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
     // Get first server episodes
     const firstServerEpisodes = episodes?.[0]?.server_data || [];
 
+    const isTrailerOnly = useMemo(() => {
+        return (movie.episode_current || '').toLowerCase().includes('trailer') || 
+               (movie.quality || '').toLowerCase().includes('trailer');
+    }, [movie.episode_current, movie.quality]);
+
+    const watchEpisodeSlug = useMemo(() => {
+        if (isTrailerOnly) return 'trailer';
+        return getFriendlyEpisodeSlug(firstServerEpisodes[0]?.slug || 'tap-01');
+    }, [isTrailerOnly, firstServerEpisodes]);
+
     // Status text
     // Status logic: Check both API status and common sense (episode count)
     const isCompleted = isMovieCompleted(movie);
@@ -428,7 +438,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                             <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
                                 <div className="flex flex-wrap items-center gap-3">
                                     <TransitionLink
-                                        href={`/phim/${movie.slug}/${getFriendlyEpisodeSlug(firstServerEpisodes[0]?.slug || 'tap-01')}`}
+                                        href={`/phim/${movie.slug}/${watchEpisodeSlug}`}
                                         className="group flex items-center gap-3 bg-gradient-to-r from-[#f5a623] to-[#ffcc33] hover:from-[#ffcc33] hover:to-[#f5a623] text-[#0F1115] py-2 px-6 md:py-4 md:px-8 rounded-full font-bold transition-all transform cursor-pointer shadow-[0_0_20px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.6)]"
                                     >
                                         <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">

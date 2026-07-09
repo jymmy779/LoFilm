@@ -9,6 +9,20 @@ import { useRouter } from "next/navigation";
 import Hls from "hls.js";
 import Artplayer from "artplayer";
 
+// Helper to extract YouTube video ID from various URL formats
+const getYouTubeId = (url: string): string | null => {
+    if (!url) return null;
+    const patterns = [
+        /(?:youtube\.com\/watch\?v=|youtu\.be\/|youtube\.com\/embed\/)([a-zA-Z0-9_-]{11})/,
+        /^([a-zA-Z0-9_-]{11})$/
+    ];
+    for (const pattern of patterns) {
+        const match = url.match(pattern);
+        if (match) return match[1];
+    }
+    return null;
+};
+
 import Container from "@/app/components/Container";
 import PlayerControls from "./PlayerControls";
 import EpisodeList from "./EpisodeList";
@@ -53,6 +67,7 @@ interface WatchClientProps {
             type?: string;
             vote_average?: number;
         };
+        trailer_url?: string;
     };
     episode: {
         name: string;
@@ -261,6 +276,41 @@ export default function WatchClient({
         return found?.link_embed || null;
     }, [isEmbedServer, processedEpisodes, activeServerIndex, currentEpisodeSlug]);
 
+    const isTrailerEpisode = useMemo(() => {
+        const epName = (currentEpisode.name || '').toLowerCase();
+        return epName === 'trailer' || epName.includes('trailer') || currentEpisodeSlug.includes('trailer');
+    }, [currentEpisode.name, currentEpisodeSlug]);
+
+    // Check if the episode's source is a YouTube link
+    const episodeYouTubeId = useMemo(() => {
+        const fromEpisodeSrc = getYouTubeId(videoSrc || '');
+        if (fromEpisodeSrc) return fromEpisodeSrc;
+        return getYouTubeId(embedSrc || '');
+    }, [videoSrc, embedSrc]);
+
+    // The active trailer ID to show in the player
+    const activeTrailerId = useMemo(() => {
+        // If the episode source itself is a YouTube link, use it
+        if (episodeYouTubeId) return episodeYouTubeId;
+
+        // Kiểm tra xem phim có "đang là trailer" không (dựa trên episode_current)
+        const isMovieCurrentlyTrailer = (movie.episode_current || '').toLowerCase().includes('trailer') ||
+            (movie.quality || '').toLowerCase().includes('trailer');
+
+        // Nếu tập phim là trailer, HOẶC bản thân phim đang ở trạng thái trailer -> dùng link trailer của phim
+        if (isTrailerEpisode || isMovieCurrentlyTrailer) return getYouTubeId(movie.trailer_url || '');
+
+        // Otherwise, it's a normal episode, do not show trailer
+        return null;
+    }, [episodeYouTubeId, isTrailerEpisode, movie.trailer_url, movie.episode_current, movie.quality]);
+
+    const isTrailerMode = !!activeTrailerId;
+
+    const trailerEmbedSrc = useMemo(() => {
+        if (!activeTrailerId) return null;
+        return `https://www.youtube.com/embed/${activeTrailerId}?autoplay=1&rel=0&modestbranding=1&controls=1`;
+    }, [activeTrailerId]);
+
     useEffect(() => {
         if (embedSrc) setIsIframeLoading(true);
     }, [embedSrc]);
@@ -316,7 +366,7 @@ export default function WatchClient({
                 (document as any).webkitExitFullscreen?.bind(document) ||
                 (document as any).mozCancelFullScreen?.bind(document) ||
                 (document as any).msExitFullscreen?.bind(document);
-            if (exitFn) exitFn().catch?.(() => {});
+            if (exitFn) exitFn().catch?.(() => { });
         } else if (isCSSFullscreenRef.current) {
             // Exit CSS fallback fullscreen
             setIsCSSFullscreen(false);
@@ -419,7 +469,7 @@ export default function WatchClient({
     }, [nextEpisode, selectEpisode]);
 
     useEffect(() => {
-        if (isEmbedServer) return;
+        if (isEmbedServer || isTrailerMode) return;
 
         let isMounted = true;
         const container = artContainerRef.current;
@@ -926,7 +976,7 @@ export default function WatchClient({
     const portalTarget = isEmbedServer ? containerNode : artContainer;
 
     return (
-        <div className={`pt-35 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} transition-all duration-500 animate-fade-in ${isFullscreenActive ? 'video-fullscreen-active' : ''} xl:-ml-[100px] xl:w-[calc(100%+100px)] xl:pl-[100px] relative`}>
+        <div className={`pt-27 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} transition-all duration-500 animate-fade-in ${isFullscreenActive ? 'video-fullscreen-active' : ''} xl:-ml-[100px] xl:w-[calc(100%+100px)] xl:pl-[100px] relative`}>
 
             {/* Background removed as requested by user */}
 
@@ -1155,8 +1205,18 @@ export default function WatchClient({
                         </>
                     )}
 
+                    {/* YouTube Trailer Embed */}
+                    {isTrailerMode && trailerEmbedSrc && (
+                        <iframe
+                            src={trailerEmbedSrc}
+                            allowFullScreen
+                            allow="autoplay; encrypted-media"
+                            className="w-full h-full border-0 absolute inset-0 z-[5]"
+                        />
+                    )}
+
                     {/* Iframe Embed */}
-                    {isEmbedServer && embedSrc && (
+                    {!isTrailerMode && isEmbedServer && embedSrc && (
                         <>
                             <iframe
                                 src={embedSrc}

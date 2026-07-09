@@ -16,7 +16,7 @@ async function getSuggestedMovies(movie: any): Promise<any[]> {
         const data = await fetchWithRedis(`${API_BASE}/v1/api/the-loai/${firstCategory}?page=1&limit=10`, {
             next: { revalidate: 30 },
         });
-        
+
         const items = data?.data?.items || [];
         return items.filter((m: any) => m.slug !== movie.slug).slice(0, 10);
     } catch {
@@ -43,18 +43,18 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 
     const { movie, episodes } = data;
-    
+
     // Tìm tập phim hiện tại
     let currentEpisodeName = "";
     if (episodes && episodes.length > 0) {
         const cleanTargetSlug = episodeSlug.replace(/^tap-/, "").toLowerCase();
         const allEpisodes = episodes.flatMap((server: any) => server.server_data);
-        
+
         const episode = allEpisodes.find((ep: any) => {
             const epSlug = ep.slug.toLowerCase();
             const epCleanSlug = epSlug.replace(/^tap-/, "");
             return (
-                epSlug === episodeSlug || 
+                epSlug === episodeSlug ||
                 epSlug === cleanTargetSlug ||
                 epCleanSlug === cleanTargetSlug ||
                 (episodeSlug === "tap-full" && epSlug === "full") ||
@@ -64,7 +64,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
                 epCleanSlug.replace(/^0+/, "") === cleanTargetSlug.replace(/^0+/, "")
             );
         });
-        
+
         if (episode) {
             currentEpisodeName = ` - Tập ${episode.name}`;
         }
@@ -125,7 +125,7 @@ export default async function WatchPage({ params, searchParams }: Props) {
     const { slug, episodeSlug } = await params;
     const { preview } = await searchParams;
     let isPreview = false;
-    
+
     if (preview === "true") {
         const cookieStore = await cookies();
         const adminToken = cookieStore.get("lofilm_admin_token")?.value;
@@ -150,24 +150,24 @@ export default async function WatchPage({ params, searchParams }: Props) {
                         <div className="w-24 h-24 bg-white/5 border border-white/10 rounded-3xl flex items-center justify-center mx-auto mb-8 rotate-12 hover:rotate-0 transition-transform duration-500">
                             <AlertTriangle size={48} className="text-amber-500" />
                         </div>
-                        
+
                         <h1 className="text-2xl md:text-3xl font-black mb-4 uppercase tracking-[0.2em] font-montserrat">
                             Mất Kết Nối
                         </h1>
-                        
+
                         <p className="text-white/40 text-sm md:text-base mb-10 leading-relaxed font-medium">
                             Đường truyền đang gặp sự cố hoặc máy chủ phim không phản hồi. Hãy thử tải lại hoặc quay về trang chủ nhé!
                         </p>
 
                         <div className="flex flex-col gap-4">
-                            <a 
-                                href="" 
+                            <a
+                                href=""
                                 className="w-full py-4 bg-amber-500 text-[#0F1115] font-black rounded-2xl hover:bg-amber-400 active:scale-95 transition-all duration-300 text-center"
                             >
                                 THỬ TẢI LẠI TRANG
                             </a>
-                            <a 
-                                href="/" 
+                            <a
+                                href="/"
                                 className="w-full py-4 bg-white/5 border border-white/10 text-white font-bold rounded-2xl hover:bg-white/10 transition-all duration-300 uppercase tracking-widest text-xs text-center"
                             >
                                 Về trang chủ
@@ -213,9 +213,9 @@ export default async function WatchPage({ params, searchParams }: Props) {
                 const found = server.server_data.find((ep: any) => {
                     const epSlug = ep.slug.toLowerCase();
                     const epCleanSlug = epSlug.replace(/^tap-/, "");
-                    
+
                     return (
-                        epSlug === episodeSlug || 
+                        epSlug === episodeSlug ||
                         epSlug === cleanTargetSlug ||
                         epCleanSlug === cleanTargetSlug ||
                         (episodeSlug === "tap-full" && epSlug === "full") ||
@@ -233,6 +233,16 @@ export default async function WatchPage({ params, searchParams }: Props) {
                 }
             }
         }
+    }
+
+    // Fallback 2: Nếu hoàn toàn không có tập phim nào từ API, nhưng có trailer_url
+    if (!currentEpisode && movie.trailer_url) {
+        currentEpisode = {
+            name: "Trailer",
+            link_m3u8: "",
+            link_vtt: "",
+            subtitles: []
+        };
     }
 
     if (!movie || !currentEpisode) {
@@ -284,34 +294,35 @@ export default async function WatchPage({ params, searchParams }: Props) {
 
     return (
         <>
-        <script
-            type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(videoJsonLd) }}
-        />
-        <WatchClient 
-            key={slug}
-            slug={slug} 
-            episodeSlug={episodeSlug} 
-            movie={{
-                name: movie.name,
-                origin_name: movie.origin_name,
-                thumb_url: movie.thumb_url,
-                poster_url: movie.poster_url,
-                content: movie.content,
-                quality: movie.quality,
-                episode_current: movie.episode_current,
-                actors: movie.actor || [],
-                tmdb: movie.tmdb,
-            }}
-            episode={{
-                name: currentEpisode.name,
-                link_m3u8: currentEpisode.link_m3u8,
-                link_vtt: currentEpisode.link_vtt,
-                subtitles: currentEpisode.subtitles || [],
-            }}
-            episodes={episodes}
-            suggestedMovies={suggestedMovies}
-        />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(videoJsonLd) }}
+            />
+            <WatchClient
+                key={slug}
+                slug={slug}
+                episodeSlug={episodeSlug}
+                movie={{
+                    name: movie.name,
+                    origin_name: movie.origin_name,
+                    thumb_url: movie.thumb_url,
+                    poster_url: movie.poster_url,
+                    content: movie.content,
+                    quality: movie.quality,
+                    episode_current: movie.episode_current,
+                    actors: movie.actor || [],
+                    tmdb: movie.tmdb,
+                    trailer_url: movie.trailer_url || '',
+                }}
+                episode={{
+                    name: currentEpisode.name,
+                    link_m3u8: currentEpisode.link_m3u8,
+                    link_vtt: currentEpisode.link_vtt,
+                    subtitles: currentEpisode.subtitles || [],
+                }}
+                episodes={episodes}
+                suggestedMovies={suggestedMovies}
+            />
         </>
     );
 }

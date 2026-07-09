@@ -96,7 +96,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
             <>
                 <button
                     onClick={() => setShowLoginPrompt(true)}
-                    className="flex items-center cursor-pointer gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-gradient-to-r from-[#FED877] to-[#F5A623] text-[#0F1115] font-bold text-xs md:text-sm hover:-translate-y-0.5 active:scale-95 transition-all duration-300 whitespace-nowrap shrink-0 overflow-hidden relative group/btn"
+                    className="flex items-center cursor-pointer gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-gradient-to-r from-[#FED877] to-[#F5A623] text-[#0F1115] font-bold hover:-translate-y-0.5 active:scale-95 transition-all duration-300 whitespace-nowrap shrink-0 overflow-hidden relative group/btn"
                 >
                     <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 skew-x-[-20deg]" />
                     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="14" height="14" fill="currentColor" className="relative z-10">
@@ -207,7 +207,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                         displayName.charAt(0).toUpperCase()
                     )}
                 </div>
-                <span className="hidden md:block text-xs font-semibold text-white/80 max-w-[100px] truncate pr-2">
+                <span className="hidden md:block text-base font-semibold text-white/80 max-w-fit truncate pr-2">
                     {displayName}
                 </span>
             </button>

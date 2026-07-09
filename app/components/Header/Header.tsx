@@ -92,6 +92,12 @@ export default function Header() {
         { href: "/danh-sach/phim-le", label: "Phim lẻ" },
     ];
 
+    const extraCategories: MenuItem[] = [
+        { _id: "hoat-hinh", name: "Hoạt hình", slug: "hoat-hinh" },
+        { _id: "tv-shows", name: "TV Shows", slug: "tv-shows" },
+        { _id: "phim-chieu-rap", name: "Phim chiếu rạp", slug: "phim-chieu-rap" },
+    ];
+
     const showBackground = isScrolled || isMenuOpen;
 
     return (
@@ -160,7 +166,7 @@ export default function Header() {
                     </div>
 
                     <div className="hidden xl:flex items-center justify-between w-full h-full">
-                        <div className="flex items-center gap-8 flex-1">
+                        <div className="flex items-center gap-2 flex-1">
                             <TransitionLink href="/" className="shrink-0">
                                 <Image
                                     width={150}
@@ -177,9 +183,9 @@ export default function Header() {
                                 <SearchBox />
                             </div>
 
-                            <nav className="flex items-center gap-3 xl:gap-4 2xl:gap-6">
+                            <nav className="flex items-center gap-8">
                                 {navLinks.map((item) => (
-                                    <TransitionLink key={item.href} href={item.href} className="text-[13px] 2xl:text-sm font-medium text-white/80 hover:text-amber-400 transition-colors duration-150 whitespace-nowrap">
+                                    <TransitionLink key={item.href} href={item.href} className=" font-medium text-white/80 hover:text-amber-400 transition-colors duration-150 whitespace-nowrap">
                                         {item.label}
                                     </TransitionLink>
                                 ))}
@@ -198,7 +204,14 @@ export default function Header() {
                                     hrefPrefix="/quoc-gia"
                                     {...dropdownProps}
                                 />
-
+                                <DropdownMenu
+                                    id="extra"
+                                    label="Thêm"
+                                    items={extraCategories}
+                                    hrefPrefix="/danh-sach"
+                                    columns={1}
+                                    {...dropdownProps}
+                                />
 
                             </nav>
                         </div>

@@ -5,7 +5,7 @@ import Skeleton from "@/app/components/Skeleton/Skeleton";
 
 export default function ProfileSkeleton() {
     return (
-        <div className="min-h-screen bg-[#0F1115] pt-30 md:pt-40 pb-16 md:pb-20 px-4">
+        <div className="min-h-screen bg-[#0F1115] pt-27pb-16 md:pb-20 px-4">
             <div className="max-w-[1440px] mx-auto">
                 {/* Header Skeleton */}
                 <div className="mb-6">

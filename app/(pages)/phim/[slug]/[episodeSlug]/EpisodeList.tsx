@@ -184,12 +184,17 @@ const EpisodeList = ({
           className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 pt-2 animate-fade-in"
         >
           {displayedEpisodes.map((ep, i) => {
-            const isActive = getFriendlyEpisodeSlug(ep.slug) === currentEpisode;
+            // Nếu slug rỗng mà tên tập là Trailer → dùng "trailer" làm slug
+            const rawName = ep.name || "";
+            const displayName = rawName.replace(/Tập\s*/i, "").trim();
+            const isTrailerEp = !displayName || /^0+$/.test(displayName) || displayName.toLowerCase() === "trailer";
+            const resolvedSlug = ep.slug ? getFriendlyEpisodeSlug(ep.slug) : (isTrailerEp ? "trailer" : "");
+            const isActive = resolvedSlug === currentEpisode;
 
             return (
               <TransitionLink
                 key={i}
-                href={`/phim/${slug}/${getFriendlyEpisodeSlug(ep.slug)}`}
+                href={`/phim/${slug}/${resolvedSlug}`}
                 transition={!isActive}
                 onClick={() => {
                   if (!isActive) onEpisodeClick?.();
@@ -200,7 +205,7 @@ const EpisodeList = ({
                     e.preventDefault();
                     e.stopPropagation();
                     onEpisodeClick?.();
-                    onEpisodeSelect(getFriendlyEpisodeSlug(ep.slug));
+                    onEpisodeSelect(resolvedSlug);
                   }
                 }}
                 className={`
@@ -211,14 +216,7 @@ const EpisodeList = ({
                   }
                 `}
               >
-                {(() => {
-                  const rawName = ep.name || "";
-                  const displayName = rawName.replace(/Tập\s*/i, "").trim();
-                  if (!displayName || /^0+$/.test(displayName) || displayName.toLowerCase() === "trailer") {
-                    return "Trailer";
-                  }
-                  return displayName.replace(/^0+(?=\d)/, "");
-                })()}
+                {isTrailerEp ? "Trailer" : displayName.replace(/^0+(?=\d)/, "")}
               </TransitionLink>
             );
           })}

@@ -4,7 +4,7 @@ import Skeleton from "@/app/components/Skeleton/Skeleton";
 
 export default function CatalogSkeleton({ hideSidebar = false }: { hideSidebar?: boolean }) {
     return (
-        <main className="pt-30 md:pt-40 pb-12 min-h-screen">
+        <main className="pt-27pb-12 min-h-screen">
             <Container>
                 <div className="catalog-page">
                     {/* Header */}
