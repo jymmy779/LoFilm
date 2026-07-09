@@ -143,8 +143,20 @@ export default function WatchClient({
     const [artContainer, setArtContainer] = useState<HTMLElement | null>(null);
     const [subtitlePortalNode, setSubtitlePortalNode] = useState<HTMLElement | null>(null);
     const artContainerRef = useRef<HTMLDivElement>(null);
-    const [tapIndicator, setTapIndicator] = useState<'left' | 'right' | null>(null);
-    const tapIndicatorTimerRef = useRef<NodeJS.Timeout | null>(null);
+    const [tapState, setTapState] = useState<{
+        side: 'left' | 'right' | null;
+        accumulated: number;
+        ripples: Array<{ id: number; x: number; y: number }>;
+    }>({
+        side: null,
+        accumulated: 0,
+        ripples: []
+    });
+
+    const accumulatedSecondsRef = useRef<number>(0);
+    const activeSideRef = useRef<'left' | 'right' | null>(null);
+    const lastSeekTapTimeRef = useRef<number>(0);
+    const resetTimeoutRef = useRef<NodeJS.Timeout | null>(null);
     const [isArtReady, setIsArtReady] = useState(false);
     const [showEpisodeOverlay, setShowEpisodeOverlay] = useState(false);
     const [isChangingEpisode, setIsChangingEpisode] = useState(false);
@@ -677,14 +689,13 @@ export default function WatchClient({
         return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
     }, []);
 
-    // 🌟 Double-tap gesture for mobile/tablet: left 1/3 → backward 10s, right 1/3 → forward 10s, middle → toggle play/pause
+    // 🌟 Double-tap gesture for mobile/tablet: left 40% → backward seek (with accumulation), right 40% → forward seek (with accumulation)
     useEffect(() => {
         const container = artContainerRef.current;
         if (!container || isEmbedServer) return;
 
         let lastTapTime = 0;
         let lastTapX = 0;
-        let tapTimeout: NodeJS.Timeout | null = null;
 
         const handleTouchStart = (e: TouchEvent) => {
             if (e.touches.length !== 1) return;
@@ -692,35 +703,74 @@ export default function WatchClient({
             const now = Date.now();
             const touch = e.touches[0];
             const tapX = touch.clientX;
-            const dt = now - lastTapTime;
+            const rect = container.getBoundingClientRect();
+            const x = tapX - rect.left;
+            const y = touch.clientY - rect.top;
+            const ratio = x / rect.width;
 
-            if (dt < 300 && Math.abs(tapX - lastTapX) < 30) {
-                // Double-tap confirmed
+            // Define seek zones (left 40% and right 40%). The remaining 20% in the middle is neutral.
+            const side: 'left' | 'right' | null = ratio < 0.4 ? 'left' : ratio > 0.6 ? 'right' : null;
+            const player = artRef.current;
+            if (!player) return;
+
+            if (!side) {
+                // Middle zone tap
+                lastTapTime = now;
+                lastTapX = tapX;
+                return;
+            }
+
+            const isDoubleTap = (now - lastTapTime < 300) && (Math.abs(tapX - lastTapX) < 40);
+            const isContinuation = activeSideRef.current === side && (now - lastSeekTapTimeRef.current < 800);
+
+            if (isDoubleTap || isContinuation) {
                 e.preventDefault();
                 e.stopPropagation();
 
-                if (tapTimeout) {
-                    clearTimeout(tapTimeout);
-                    tapTimeout = null;
+                let newAccumulated = 10;
+                if (isContinuation) {
+                    newAccumulated = accumulatedSecondsRef.current + 10;
                 }
 
-                const rect = container.getBoundingClientRect();
-                const ratio = (tapX - rect.left) / rect.width;
-                const player = artRef.current;
-                if (!player) return;
-
-                if (ratio < 1 / 3) {
+                // Perform seek
+                if (side === 'left') {
                     player.backward = 10;
-                    setTapIndicator('left');
-                } else if (ratio > 2 / 3) {
-                    player.forward = 10;
-                    setTapIndicator('right');
                 } else {
-                    player.toggle();
+                    player.forward = 10;
                 }
 
+                accumulatedSecondsRef.current = newAccumulated;
+                activeSideRef.current = side;
+                lastSeekTapTimeRef.current = now;
+
+                // Reset standard double tap detection
                 lastTapTime = 0;
                 lastTapX = 0;
+
+                // Generate a unique ripple ID
+                const rippleId = now + Math.random();
+
+                setTapState(prev => ({
+                    side,
+                    accumulated: newAccumulated,
+                    ripples: [...prev.ripples, { id: rippleId, x, y }]
+                }));
+
+                // Auto-remove ripple after animation finishes (800ms)
+                setTimeout(() => {
+                    setTapState(prev => ({
+                        ...prev,
+                        ripples: prev.ripples.filter(r => r.id !== rippleId)
+                    }));
+                }, 800);
+
+                // Reset seek accumulator and active side after 800ms of inactivity
+                if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
+                resetTimeoutRef.current = setTimeout(() => {
+                    setTapState(prev => ({ ...prev, side: null, accumulated: 0 }));
+                    accumulatedSecondsRef.current = 0;
+                    activeSideRef.current = null;
+                }, 800);
             } else {
                 lastTapTime = now;
                 lastTapX = tapX;
@@ -728,7 +778,10 @@ export default function WatchClient({
         };
 
         container.addEventListener('touchstart', handleTouchStart, { passive: false });
-        return () => container.removeEventListener('touchstart', handleTouchStart);
+        return () => {
+            container.removeEventListener('touchstart', handleTouchStart);
+            if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
+        };
     }, [isEmbedServer]);
 
     const [isFullscreen, setIsFullscreen] = useState(false);
@@ -786,18 +839,7 @@ export default function WatchClient({
         };
     }, [isFullscreen]);
 
-    // Auto-clear tap indicator after 600ms
-    useEffect(() => {
-        if (tapIndicator) {
-            if (tapIndicatorTimerRef.current) clearTimeout(tapIndicatorTimerRef.current);
-            tapIndicatorTimerRef.current = setTimeout(() => {
-                setTapIndicator(null);
-            }, 600);
-        }
-        return () => {
-            if (tapIndicatorTimerRef.current) clearTimeout(tapIndicatorTimerRef.current);
-        };
-    }, [tapIndicator]);
+
 
     // Listen for custom fullscreen toggle event from ArtPlayer
     useEffect(() => {
@@ -908,6 +950,84 @@ export default function WatchClient({
                             padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left) !important;
                             box-sizing: border-box !important;
                         }
+
+                        /* === CUSTOM DOUBLE-TAP RIPPLE & BUBBLE ANIMATIONS === */
+                        @keyframes ripple-expand {
+                            0% {
+                                width: 0px;
+                                height: 0px;
+                                opacity: 0.55;
+                            }
+                            100% {
+                                width: 600px;
+                                height: 600px;
+                                opacity: 0;
+                            }
+                        }
+                        .animate-ripple-expand {
+                            animation: ripple-expand 0.75s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+                        }
+
+                        @keyframes bubble-pop-in {
+                            0% {
+                                transform: translate(-50%, -50%) scale(0.65);
+                                opacity: 0;
+                            }
+                            60% {
+                                transform: translate(-50%, -50%) scale(1.08);
+                                opacity: 1;
+                            }
+                            100% {
+                                transform: translate(-50%, -50%) scale(1);
+                                opacity: 1;
+                            }
+                        }
+                        .animate-bubble-pop-in {
+                            animation: bubble-pop-in 0.35s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+                        }
+
+                        @keyframes arrow-flash-right {
+                            0% { opacity: 0.15; transform: translateX(-3px); }
+                            50% { opacity: 1; transform: translateX(3px); }
+                            100% { opacity: 0.15; transform: translateX(-3px); }
+                        }
+                        .arrow-right-1 {
+                            animation: arrow-flash-right 0.6s infinite;
+                            animation-delay: 0s;
+                        }
+                        .arrow-right-2 {
+                            animation: arrow-flash-right 0.6s infinite;
+                            animation-delay: 0.12s;
+                        }
+                        .arrow-right-3 {
+                            animation: arrow-flash-right 0.6s infinite;
+                            animation-delay: 0.24s;
+                        }
+
+                        @keyframes arrow-flash-left {
+                            0% { opacity: 0.15; transform: translateX(3px); }
+                            50% { opacity: 1; transform: translateX(-3px); }
+                            100% { opacity: 0.15; transform: translateX(3px); }
+                        }
+                        .arrow-left-1 {
+                            animation: arrow-flash-left 0.6s infinite;
+                            animation-delay: 0.24s;
+                        }
+                        .arrow-left-2 {
+                            animation: arrow-flash-left 0.6s infinite;
+                            animation-delay: 0.12s;
+                        }
+                        .arrow-left-3 {
+                            animation: arrow-flash-left 0.6s infinite;
+                            animation-delay: 0s;
+                        }
+
+                        .side-overlay-left {
+                            background: radial-gradient(circle at 0% 50%, rgba(255, 255, 255, 0.08) 0%, transparent 75%);
+                        }
+                        .side-overlay-right {
+                            background: radial-gradient(circle at 100% 50%, rgba(255, 255, 255, 0.08) 0%, transparent 75%);
+                        }
                     `}</style>
 
                     {/* HLS Video Container */}
@@ -918,33 +1038,65 @@ export default function WatchClient({
                     {/* Double-tap visual indicators (mobile/tablet) */}
                     {!isEmbedServer && (
                         <>
-                            {/* Left indicator: backward 10s */}
-                            <div
-                                className="absolute left-0 top-0 w-[30%] h-full z-20 pointer-events-none transition-opacity duration-150"
-                                style={{ opacity: tapIndicator === 'left' ? 1 : 0 }}
-                            >
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110px] h-[110px] flex flex-col items-center justify-center">
-                                    <div className="flex items-center gap-0 mb-1">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polyline points="15 18 9 12 15 6" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" /></svg>
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polyline points="15 18 9 12 15 6" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" /></svg>
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polyline points="15 18 9 12 15 6" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" /></svg>
-                                    </div>
-                                    <div className="text-white text-xs font-semibold tracking-wide" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.6)', fontFamily: '-apple-system, sans-serif' }}>-10 giây</div>
-                                </div>
+                            {/* Tap ripples container */}
+                            <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
+                                {tapState.ripples.map(ripple => (
+                                    <div
+                                        key={ripple.id}
+                                        className="absolute rounded-full bg-white/20 animate-ripple-expand pointer-events-none"
+                                        style={{
+                                            left: ripple.x,
+                                            top: ripple.y,
+                                            transform: 'translate(-50%, -50%)',
+                                        }}
+                                    />
+                                ))}
                             </div>
-                            {/* Right indicator: forward 10s */}
+
+                            {/* Left double-tap region (40% width) */}
                             <div
-                                className="absolute right-0 top-0 w-[30%] h-full z-20 pointer-events-none transition-opacity duration-150"
-                                style={{ opacity: tapIndicator === 'right' ? 1 : 0 }}
+                                className="absolute left-0 top-0 w-[40%] h-full z-20 pointer-events-none transition-opacity duration-300"
+                                style={{ opacity: tapState.side === 'left' ? 1 : 0 }}
                             >
-                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110px] h-[110px] flex flex-col items-center justify-center">
-                                    <div className="flex items-center gap-0 mb-1">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polyline points="9 18 15 12 9 6" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" /></svg>
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polyline points="9 18 15 12 9 6" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" /></svg>
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polyline points="9 18 15 12 9 6" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" /></svg>
+                                {/* Radial highlight */}
+                                <div className="absolute inset-0 side-overlay-left pointer-events-none" />
+
+                                {/* Seek Indicator Overlay */}
+                                {tapState.side === 'left' && (
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center animate-bubble-pop-in pointer-events-none">
+                                        <div className="flex items-center gap-0.5 mb-1.5 justify-center">
+                                            <svg className="arrow-left-1" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="15 18 9 12 15 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
+                                            <svg className="arrow-left-2" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="15 18 9 12 15 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
+                                            <svg className="arrow-left-3" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="15 18 9 12 15 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
+                                        </div>
+                                        <div className="text-white text-xs font-semibold tracking-wide" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.6)', fontFamily: '-apple-system, sans-serif' }}>
+                                            -{tapState.accumulated} giây
+                                        </div>
                                     </div>
-                                    <div className="text-white text-xs font-semibold tracking-wide" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.6)', fontFamily: '-apple-system, sans-serif' }}>+10 giây</div>
-                                </div>
+                                )}
+                            </div>
+
+                            {/* Right double-tap region (40% width) */}
+                            <div
+                                className="absolute right-0 top-0 w-[40%] h-full z-20 pointer-events-none transition-opacity duration-300"
+                                style={{ opacity: tapState.side === 'right' ? 1 : 0 }}
+                            >
+                                {/* Radial highlight */}
+                                <div className="absolute inset-0 side-overlay-right pointer-events-none" />
+
+                                {/* Seek Indicator Overlay */}
+                                {tapState.side === 'right' && (
+                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center animate-bubble-pop-in pointer-events-none">
+                                        <div className="flex items-center gap-0.5 mb-1.5 justify-center">
+                                            <svg className="arrow-right-1" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="9 18 15 12 9 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
+                                            <svg className="arrow-right-2" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="9 18 15 12 9 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
+                                            <svg className="arrow-right-3" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="9 18 15 12 9 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
+                                        </div>
+                                        <div className="text-white text-xs font-semibold tracking-wide" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.6)', fontFamily: '-apple-system, sans-serif' }}>
+                                            +{tapState.accumulated} giây
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         </>
                     )}
