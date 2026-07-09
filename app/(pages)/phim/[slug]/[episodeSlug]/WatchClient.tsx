@@ -518,8 +518,8 @@ export default function WatchClient({
                     },
                     {
                         position: 'right',
-                        html: '<div id="custom-fullscreen-btn" class="art-control art-control-fullscreen"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 1024 1024"><path d="M625.778 256H768v142.222h113.778v-256h-256ZM256 398.222V256h142.222V142.222h-256v256Zm512 227.556V768H625.778v113.778h256v-256ZM398.222 768H256V625.778H142.222v256h256Z"></path></svg></div>',
-                        index: 11,
+                        html: '<div id="custom-fullscreen-btn" class="art-control art-control-fullscreen hint--rounded hint--top" data-index="70" aria-label="Fullscreen"><i class="art-icon art-icon-fullscreenOn" style="display: inline-flex;"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" class="icon" viewBox="0 0 1024 1024"><path d="M625.778 256H768v142.222h113.778v-256h-256ZM256 398.222V256h142.222V142.222h-256v256Zm512 227.556V768H625.778v113.778h256v-256ZM398.222 768H256V625.778H142.222v256h256Z"></path></svg></i><i class="art-icon art-icon-fullscreenOff" style="display: none;"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" class="icon" viewBox="0 0 1024 1024"><path d="M768 298.667h170.667V384h-256V128H768ZM341.333 384h-256v-85.333H256V128h85.333ZM768 725.333V896h-85.333V640h256v85.333ZM341.333 640v256H256V725.333H85.333V640Z"></path></svg></i></div>',
+                        index: 41,
                         click: function () {
                             const event = new CustomEvent('art-fullscreen-toggle');
                             window.dispatchEvent(event);
@@ -798,6 +798,19 @@ export default function WatchClient({
 
                         .art-video-player .art-notice {
                             display: none !important;
+                        }
+
+                        /* Khi fullscreen + idle (controls ẩn) → ẩn luôn bottom bar (progress) */
+                        .video-fullscreen-active .art-video-player.art-hide-cursor .art-bottom {
+                            opacity: 0 !important;
+                            transform: translateY(100%) !important;
+                            transition: opacity 0.3s ease, transform 0.3s ease !important;
+                        }
+                        /* Khi fullscreen + active controls → hiện lại bottom bar */
+                        .video-fullscreen-active .art-video-player:not(.art-hide-cursor) .art-bottom {
+                            opacity: 1 !important;
+                            transform: translateY(0) !important;
+                            transition: opacity 0.25s ease, transform 0.25s ease !important;
                         }
                     `}</style>
 
