@@ -143,6 +143,8 @@ export default function WatchClient({
     const [artContainer, setArtContainer] = useState<HTMLElement | null>(null);
     const [subtitlePortalNode, setSubtitlePortalNode] = useState<HTMLElement | null>(null);
     const artContainerRef = useRef<HTMLDivElement>(null);
+    const [tapIndicator, setTapIndicator] = useState<'left' | 'right' | null>(null);
+    const tapIndicatorTimerRef = useRef<NodeJS.Timeout | null>(null);
     const [isArtReady, setIsArtReady] = useState(false);
     const [showEpisodeOverlay, setShowEpisodeOverlay] = useState(false);
     const [isChangingEpisode, setIsChangingEpisode] = useState(false);
@@ -433,7 +435,7 @@ export default function WatchClient({
                 fullscreen: false,
                 fullscreenWeb: false,
                 subtitleOffset: true,
-                miniProgressBar: true,
+                miniProgressBar: false,
                 mutex: true,
                 backdrop: true,
                 playsInline: true,
@@ -674,6 +676,60 @@ export default function WatchClient({
         return () => window.removeEventListener('keydown', handleKeyDown, { capture: true });
     }, []);
 
+    // 🌟 Double-tap gesture for mobile/tablet: left 1/3 → backward 10s, right 1/3 → forward 10s, middle → toggle play/pause
+    useEffect(() => {
+        const container = artContainerRef.current;
+        if (!container || isEmbedServer) return;
+
+        let lastTapTime = 0;
+        let lastTapX = 0;
+        let tapTimeout: NodeJS.Timeout | null = null;
+
+        const handleTouchStart = (e: TouchEvent) => {
+            if (e.touches.length !== 1) return;
+
+            const now = Date.now();
+            const touch = e.touches[0];
+            const tapX = touch.clientX;
+            const dt = now - lastTapTime;
+
+            if (dt < 300 && Math.abs(tapX - lastTapX) < 30) {
+                // Double-tap confirmed
+                e.preventDefault();
+                e.stopPropagation();
+
+                if (tapTimeout) {
+                    clearTimeout(tapTimeout);
+                    tapTimeout = null;
+                }
+
+                const rect = container.getBoundingClientRect();
+                const ratio = (tapX - rect.left) / rect.width;
+                const player = artRef.current;
+                if (!player) return;
+
+                if (ratio < 1 / 3) {
+                    player.backward = 10;
+                    setTapIndicator('left');
+                } else if (ratio > 2 / 3) {
+                    player.forward = 10;
+                    setTapIndicator('right');
+                } else {
+                    player.toggle();
+                }
+
+                lastTapTime = 0;
+                lastTapX = 0;
+            } else {
+                lastTapTime = now;
+                lastTapX = tapX;
+            }
+        };
+
+        container.addEventListener('touchstart', handleTouchStart, { passive: false });
+        return () => container.removeEventListener('touchstart', handleTouchStart);
+    }, [isEmbedServer]);
+
     const [isFullscreen, setIsFullscreen] = useState(false);
 
     useEffect(() => {
@@ -729,6 +785,19 @@ export default function WatchClient({
         };
     }, [isFullscreen]);
 
+    // Auto-clear tap indicator after 600ms
+    useEffect(() => {
+        if (tapIndicator) {
+            if (tapIndicatorTimerRef.current) clearTimeout(tapIndicatorTimerRef.current);
+            tapIndicatorTimerRef.current = setTimeout(() => {
+                setTapIndicator(null);
+            }, 600);
+        }
+        return () => {
+            if (tapIndicatorTimerRef.current) clearTimeout(tapIndicatorTimerRef.current);
+        };
+    }, [tapIndicator]);
+
     // Listen for custom fullscreen toggle event from ArtPlayer
     useEffect(() => {
         const handler = () => toggleFullscreen();
@@ -782,14 +851,15 @@ export default function WatchClient({
                             opacity: 0 !important;
                             pointer-events: none !important;
                             transform: translateY(-10px) !important;
-                            transition-delay: 0.5s !important;
+                            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                            transition-delay: 0s !important;
                         }
                         .art-video-player:not(.art-hide-cursor) .watch-top-overlay {
                             opacity: 1 !important;
                             transform: translateY(0) !important;
                             pointer-events: auto !important;
-                            transition: opacity 0.2s ease, transform 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
-                            transition-delay: 0s !important;
+                            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+                            transition-delay: 0.15s !important;
                         }
                         
                         .video-fullscreen-active > *:not(.relative) {
@@ -800,17 +870,30 @@ export default function WatchClient({
                             display: none !important;
                         }
 
-                        /* Khi fullscreen + idle (controls ẩn) → ẩn luôn bottom bar (progress) */
-                        .video-fullscreen-active .art-video-player.art-hide-cursor .art-bottom {
-                            opacity: 0 !important;
-                            transform: translateY(100%) !important;
-                            transition: opacity 0.3s ease, transform 0.3s ease !important;
+                        /* === FADE MƯỢT CHO TOÀN BỘ CONTROLS NHƯ NETFLIX/YOUTUBE === */
+                        /** Chỉ set transition duration - Artplayer tự xử lý show/hide + fade với transition: all sẵn có */
+                        .art-video-player {
+                            --art-transition-duration: 0.35s !important;
                         }
-                        /* Khi fullscreen + active controls → hiện lại bottom bar */
-                        .video-fullscreen-active .art-video-player:not(.art-hide-cursor) .art-bottom {
-                            opacity: 1 !important;
-                            transform: translateY(0) !important;
-                            transition: opacity 0.25s ease, transform 0.25s ease !important;
+
+                        /* Ẩn nút tua 10s trên mobile dọc (portrait), giữ nguyên khi xoay ngang và desktop/tablet */
+                        @media (max-width: 768px) and (orientation: portrait) {
+                            .art-control[data-index="11"],
+                            .art-control[data-index="12"] {
+                                display: none !important;
+                                width: 0 !important;
+                                min-width: 0 !important;
+                                padding: 0 !important;
+                                margin: 0 !important;
+                                overflow: hidden !important;
+                                flex: 0 0 0 !important;
+                            }
+                        }
+
+                        /* Safe-area cho fullscreen: đẩy video vào giữa tránh camera/notch che trên Android */
+                        .video-fullscreen-active .art-video-player {
+                            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left) !important;
+                            box-sizing: border-box !important;
                         }
                     `}</style>
 
@@ -818,6 +901,40 @@ export default function WatchClient({
                     <div className={`w-full h-full absolute inset-0 z-0 ${isEmbedServer ? 'hidden' : 'block'}`}>
                         <div ref={artContainerRef} className="w-full h-full"></div>
                     </div>
+
+                    {/* Double-tap visual indicators (mobile/tablet) */}
+                    {!isEmbedServer && (
+                        <>
+                            {/* Left indicator: backward 10s */}
+                            <div
+                                className="absolute left-0 top-0 w-[30%] h-full z-20 pointer-events-none transition-opacity duration-150"
+                                style={{ opacity: tapIndicator === 'left' ? 1 : 0 }}
+                            >
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110px] h-[110px] flex flex-col items-center justify-center">
+                                    <div className="flex items-center gap-0 mb-1">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polyline points="15 18 9 12 15 6" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" /></svg>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polyline points="15 18 9 12 15 6" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" /></svg>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polyline points="15 18 9 12 15 6" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" /></svg>
+                                    </div>
+                                    <div className="text-white text-xs font-semibold tracking-wide" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.6)', fontFamily: '-apple-system, sans-serif' }}>-10 giây</div>
+                                </div>
+                            </div>
+                            {/* Right indicator: forward 10s */}
+                            <div
+                                className="absolute right-0 top-0 w-[30%] h-full z-20 pointer-events-none transition-opacity duration-150"
+                                style={{ opacity: tapIndicator === 'right' ? 1 : 0 }}
+                            >
+                                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[110px] h-[110px] flex flex-col items-center justify-center">
+                                    <div className="flex items-center gap-0 mb-1">
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polyline points="9 18 15 12 9 6" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" /></svg>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polyline points="9 18 15 12 9 6" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" /></svg>
+                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><polyline points="9 18 15 12 9 6" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round" /></svg>
+                                    </div>
+                                    <div className="text-white text-xs font-semibold tracking-wide" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.6)', fontFamily: '-apple-system, sans-serif' }}>+10 giây</div>
+                                </div>
+                            </div>
+                        </>
+                    )}
 
                     {/* Iframe Embed */}
                     {isEmbedServer && embedSrc && (
