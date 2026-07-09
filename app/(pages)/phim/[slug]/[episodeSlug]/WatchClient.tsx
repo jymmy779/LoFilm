@@ -451,7 +451,7 @@ export default function WatchClient({
                 mutex: true,
                 backdrop: true,
                 playsInline: true,
-                autoPlayback: true,
+                autoPlayback: false,
                 airplay: true,
                 hotkey: false,
                 lock: true,
@@ -510,6 +510,12 @@ export default function WatchClient({
                             });
                         } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
                             video.src = url;
+                            if (startFrom > 0) {
+                                const onLoadedMetadata = () => {
+                                    video.currentTime = startFrom;
+                                };
+                                video.addEventListener('loadedmetadata', onLoadedMetadata, { once: true });
+                            }
                         }
                     }
                 },
@@ -877,8 +883,8 @@ export default function WatchClient({
                 <MovieHeader slug={slug} movieName={movie.name} episodeName={currentEpisode.name} />
             </div>
 
-            <div ref={fullscreenWrapperRef} className={`transition-all duration-500 ease-in-out relative ${isExpanded ? 'w-full' : 'max-w-[1900px] mx-auto px-5 lg:px-12'} ${isFullscreen ? '!max-w-none !p-0 !m-0 !fixed !inset-0 !z-[9999]' : ''}`}>
-                <div ref={containerCallbackRef} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreen ? '!rounded-none !border-0 !h-screen' : ''}`}>
+            <div ref={fullscreenWrapperRef} className={`transition-all duration-500 ease-in-out relative ${isExpanded ? 'w-full' : 'max-w-[1900px] mx-auto px-5 lg:px-12'} ${isFullscreen ? '!max-w-none !m-0 !fixed !inset-0 !z-[9999]' : ''}`} style={isFullscreen ? { padding: 'env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)', backgroundColor: '#000' } : undefined}>
+                <div ref={containerCallbackRef} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreen ? '!rounded-none !border-0 !h-full' : ''}`}>
                     <style jsx global>{`
                         .art-video-player .art-bottom {
                             z-index: 50 !important;
@@ -945,16 +951,7 @@ export default function WatchClient({
                             }
                         }
 
-                        /* Safe-area cho fullscreen: đẩy video vào giữa tránh camera/notch che trên Android */
-                        .video-fullscreen-active .art-video-player {
-                            padding: env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left) !important;
-                            box-sizing: border-box !important;
-                        }
-
-                        /* Đẩy nút ổ khóa ra khỏi vùng camera notch khi fullscreen landscape */
-                        .video-fullscreen-active .art-lock {
-                            left: max(16px, env(safe-area-inset-left)) !important;
-                        }
+                        /* Safe-area padding is now handled directly on the fullscreenWrapperRef below */
 
                         /* === CUSTOM DOUBLE-TAP RIPPLE & BUBBLE ANIMATIONS === */
                         @keyframes ripple-expand {
