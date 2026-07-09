@@ -165,7 +165,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
             try {
                 const res = await fetch(`https://phimapi.com/v1/api/phim/${movie.slug}/peoples`);
                 const data = await res.json();
-                
+
                 if (data.success || data.status === "success") {
                     const peoples = data.data?.peoples;
                     if (peoples && Array.isArray(peoples)) {
@@ -204,8 +204,8 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
     const firstServerEpisodes = episodes?.[0]?.server_data || [];
 
     const isTrailerOnly = useMemo(() => {
-        return (movie.episode_current || '').toLowerCase().includes('trailer') || 
-               (movie.quality || '').toLowerCase().includes('trailer');
+        return (movie.episode_current || '').toLowerCase().includes('trailer') ||
+            (movie.quality || '').toLowerCase().includes('trailer');
     }, [movie.episode_current, movie.quality]);
 
     const watchEpisodeSlug = useMemo(() => {
@@ -619,7 +619,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                 {/* Suggestions Tab */}
                                 {activeTab === 'Đề xuất' && (
                                     filteredSuggestions.length > 0 ? (
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-4 lg:gap-6">
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-x-2 gap-y-8 md:gap-x-3 md:gap-y-10">
                                             {filteredSuggestions.map((m) => (
                                                 <div key={m._id} className="transform hover:scale-[1.02] transition-transform">
                                                     <MoviePosterCard movie={m} />
@@ -627,7 +627,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                             ))}
                                         </div>
                                     ) : (
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-4 lg:gap-6">
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-x-2 gap-y-8 md:gap-x-3 md:gap-y-10">
                                             {[...Array(6)].map((_, i) => (
                                                 <div key={i} className="space-y-3">
                                                     <Skeleton className="aspect-[2/3]" rounded="2xl" />

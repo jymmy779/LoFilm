@@ -100,15 +100,16 @@ export function getImageUrl(url: string | undefined, _options?: { width?: number
 
     const trimmedUrl = url.trim();
 
-    // Đổi img.phimapi.com → phimimg.com (CDN ổn định hơn)
-    if (trimmedUrl.includes("img.phimapi.com")) {
-        return trimmedUrl.replace("img.phimapi.com", "phimimg.com");
+    // Nếu URL có chứa /upload/, lấy từ /upload/ trở đi và ép dùng phimimg.com
+    const uploadIndex = trimmedUrl.indexOf('/upload/');
+    if (uploadIndex !== -1) {
+        return `https://phimimg.com${trimmedUrl.slice(uploadIndex)}`;
     }
 
     // Nếu là URL đầy đủ, trả về nguyên
     if (trimmedUrl.startsWith("http")) return trimmedUrl;
 
-    // Relative path (vd: upload/vod/.../img.jpg) → prepend domain
+    // Relative path → prepend domain
     return `https://phimimg.com/${trimmedUrl.startsWith('/') ? trimmedUrl.slice(1) : trimmedUrl}`;
 }
 
@@ -117,13 +118,17 @@ export function getImageUrl(url: string | undefined, _options?: { width?: number
  */
 export function getRawImageUrl(url: string | undefined): string {
     if (!url) return TRANSPARENT_GIF;
-    let trimmedUrl = url.trim();
+    
+    const trimmedUrl = url.trim();
 
-    if (trimmedUrl.includes("img.phimapi.com")) {
-        trimmedUrl = trimmedUrl.replace("img.phimapi.com", "phimimg.com");
+    const uploadIndex = trimmedUrl.indexOf('/upload/');
+    if (uploadIndex !== -1) {
+        return `https://phimimg.com${trimmedUrl.slice(uploadIndex)}`;
     }
 
-    return trimmedUrl.startsWith("http") ? trimmedUrl : `https://phimimg.com/${trimmedUrl.startsWith('/') ? trimmedUrl.slice(1) : trimmedUrl}`;
+    if (trimmedUrl.startsWith("http")) return trimmedUrl;
+
+    return `https://phimimg.com/${trimmedUrl.startsWith('/') ? trimmedUrl.slice(1) : trimmedUrl}`;
 }
 
 /**
