@@ -931,6 +931,10 @@ export default function WatchClient({
     useEffect(() => {
         if (isFullscreenActive) {
             document.documentElement.classList.add('fullscreen-scrollbar-fix');
+            if (isIOSFullscreen) {
+                 document.body.style.overflow = 'hidden';
+                 document.body.classList.add('ios-fullscreen-active');
+            }
             // iOS không support orientation.lock → skip (dùng CSS rotate thay thế)
             if (!isIOSDevice()) {
                 const orientation = (screen as any).orientation;
@@ -940,6 +944,8 @@ export default function WatchClient({
             }
         } else {
             document.documentElement.classList.remove('fullscreen-scrollbar-fix');
+            document.body.style.overflow = '';
+            document.body.classList.remove('ios-fullscreen-active');
             if (!isIOSDevice()) {
                 const orientation = (screen as any).orientation;
                 if (orientation && typeof orientation.unlock === 'function') {
@@ -949,6 +955,8 @@ export default function WatchClient({
         }
         return () => {
             document.documentElement.classList.remove('fullscreen-scrollbar-fix');
+            document.body.style.overflow = '';
+            document.body.classList.remove('ios-fullscreen-active');
             if (!isIOSDevice()) {
                 const orientation = (screen as any).orientation;
                 if (orientation && typeof orientation.unlock === 'function') {
@@ -956,7 +964,7 @@ export default function WatchClient({
                 }
             }
         };
-    }, [isFullscreenActive]);
+    }, [isFullscreenActive, isIOSFullscreen]);
 
     // Handle Escape key để thoát CSS fullscreen / iOS fullscreen
     useEffect(() => {
@@ -1040,6 +1048,17 @@ export default function WatchClient({
                         /* Ẩn các element xung quanh khi fullscreen (cả native và CSS fallback) */
                         .video-fullscreen-active > *:not(.relative) {
                             display: none !important;
+                        }
+                        
+                        /* Thêm style cho iOS fullscreen active trên body */
+                        body.ios-fullscreen-active > header,
+                        body.ios-fullscreen-active > footer,
+                        body.ios-fullscreen-active > div:not([class*="video-fullscreen-active"]) {
+                            display: none !important;
+                        }
+                        
+                        body.ios-fullscreen-active main {
+                           z-index: 9999;
                         }
 
                         .art-video-player .art-notice {
