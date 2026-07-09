@@ -876,7 +876,19 @@ export default function WatchClient({
                             --art-transition-duration: 0.35s !important;
                         }
 
-                        /* Ẩn nút tua 10s trên mobile dọc (portrait), giữ nguyên khi xoay ngang và desktop/tablet */
+                        /* Trên mobile/tablet, dịch cụm controls trái vào trong để nút play không bị tràn ra ngoài mép progress bar */
+                        @media (max-width: 1024px) {
+                            .art-controls-left {
+                                padding-left: 8px !important;
+                            }
+                        }
+                        @media (max-width: 640px) {
+                            .art-controls-left {
+                                padding-left: 4px !important;
+                            }
+                        }
+
+                        /* Ẩn nút tua 10s trên mobile dọc (portrait) */
                         @media (max-width: 768px) and (orientation: portrait) {
                             .art-control[data-index="11"],
                             .art-control[data-index="12"] {
