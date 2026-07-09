@@ -44,24 +44,20 @@ export default function AboutContact() {
               </div>
             </div>
 
-            <div className="bg-white/5 p-5 md:p-6 rounded-2xl border border-white/5 hover:border-blue-500/20 transition-all group">
-              <h3 className="text-sm md:text-base font-bold text-blue-400 mb-3 md:mb-4 flex items-center gap-3">
+            <div className="bg-white/5 p-5 md:p-6 rounded-2xl border border-white/5 hover:border-[#0088cc]/30 transition-all group">
+              <h3 className="text-sm md:text-base font-bold text-[#0088cc] mb-3 md:mb-4 flex items-center gap-3">
                 <svg className="w-4 h-4 md:w-5 md:h-5 group-hover:rotate-12 transition-transform" viewBox="0 0 24 24" fill="currentColor">
-                  <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                  <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.18-.08-.05-.19-.02-.27 0-.11.03-1.84 1.18-5.2 3.45-.49.34-.94.5-1.35.49-.45-.01-1.3-.25-1.93-.46-.77-.25-1.38-.38-1.33-.8.02-.22.33-.44.92-.68 3.58-1.56 5.97-2.59 7.17-3.09 3.42-1.42 4.14-1.67 4.61-1.68.1 0 .32.02.46.12.12.09.15.22.16.32.01.07.01.16 0 .2z" />
                 </svg>
                 Mạng xã hội
               </h3>
               <p className="mb-3 md:mb-4 text-[10px] md:text-xs opacity-50">Theo dõi thông tin cập nhật phim mới nhất tại các kênh:</p>
-              <div className="flex gap-2 md:gap-3">
-                <a href="#" className="p-2 bg-white/5 rounded-lg text-white/60 hover:bg-blue-600 hover:text-white transition-all">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
-                  </svg>
+              <div className="flex flex-wrap items-center gap-3">
+                <a href="https://t.me/chanuary" target="_blank" rel="noopener noreferrer" title="Telegram" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-[#0088cc] hover:bg-white/10 hover:border-white/20 transition-all">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm4.64 6.8c-.15 1.58-.8 5.42-1.13 7.19-.14.75-.42 1-.68 1.03-.58.05-1.02-.38-1.58-.75-.88-.58-1.38-.94-2.23-1.5-.99-.65-.35-1.01.22-1.59.15-.15 2.71-2.48 2.76-2.69.01-.03.01-.14-.07-.18-.08-.05-.19-.02-.27 0-.11.03-1.84 1.18-5.2 3.45-.49.34-.94.5-1.35.49-.45-.01-1.3-.25-1.93-.46-.77-.25-1.38-.38-1.33-.8.02-.22.33-.44.92-.68 3.58-1.56 5.97-2.59 7.17-3.09 3.42-1.42 4.14-1.67 4.61-1.68.1 0 .32.02.46.12.12.09.15.22.16.32.01.07.01.16 0 .2z" /></svg>
                 </a>
-                <a href="#" className="p-2 bg-white/5 rounded-lg text-white/60 hover:bg-white hover:text-black transition-all">
-                  <svg className="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
-                    <path d="M12 .297c-6.63 0-12 5.373-12 12 0 5.303 3.438 9.8 8.205 11.385.6.113.82-.258.82-.577 0-.285-.01-1.04-.015-2.04-3.338.724-4.042-1.61-4.042-1.61C4.422 18.07 3.633 17.7 3.633 17.7c-1.087-.744.084-.729.084-.729 1.205.084 1.838 1.236 1.838 1.236 1.07 1.835 2.809 1.305 3.495.998.108-.776.417-1.305.76-1.605-2.665-.3-5.466-1.332-5.466-5.93 0-1.31.465-2.38 1.235-3.22-.135-.303-.54-1.523.105-3.176 0 0 1.005-.322 3.3 1.23.96-.267 1.98-.399 3-.405 1.02.006 2.04.138 3 .405 2.28-1.552 3.285-1.23 3.285-1.23.645 1.653.24 2.873.12 3.176.765.84 1.23 1.91 1.23 3.22 0 4.61-2.805 5.625-5.475 5.92.42.36.81 1.096.81 2.22 0 1.606-.015 2.896-.015 3.286 0 .315.21.69.825.57C20.565 22.092 24 17.592 24 12.297c0-6.627-5.373-12-12-12" />
-                  </svg>
+                <a href="https://www.threads.com/@lofilm_adm" target="_blank" rel="noopener noreferrer" title="Threads" className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-white/50 hover:text-white hover:bg-white/10 hover:border-white/20 transition-all">
+                  <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M14.12 10.38c-.37-.73-1.06-1.3-1.92-1.54v-.03c1.07-.38 1.83-1.39 1.83-2.58 0-1.47-1.19-2.73-2.83-2.73H7.07v10.9h4.13c1.64 0 2.92-1.26 2.92-2.73 0-1-.53-1.87-1.38-2.34-.14-.07-.3-.12-.46-.15-.05.41-.12.82-.24 1.22.25.07.48.21.66.41.34.38.5.89.44 1.41-.06.52-.33 1-.74 1.34-.41.34-.95.53-1.5.53H8.78V4.83h2.42c.87 0 1.58.71 1.58 1.58s-.71 1.58-1.58 1.58h-.94v1.24h.94c.64 0 1.25.26 1.7.71.45.45.71 1.06.71 1.7s-.26 1.25-.71 1.7c-.45.45-1.06.71-1.7.71h-.94v1.24h.94c1.23 0 2.29-.93 2.45-2.14.03-.19.04-.38.04-.58 0-.48-.09-.94-.27-1.37zM12 0C5.37 0 0 5.37 0 12s5.37 12 12 12 12-5.37 12-12S18.63 0 12 0zm0 22.5A10.5 10.5 0 011.5 12 10.5 10.5 0 0112 1.5 10.5 10.5 0 0122.5 12 10.5 10.5 0 0112 22.5z" /></svg>
                 </a>
               </div>
             </div>

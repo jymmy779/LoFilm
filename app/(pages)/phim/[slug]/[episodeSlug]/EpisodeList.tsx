@@ -16,11 +16,14 @@ interface EpisodeListProps {
       filename: string;
       link_embed: string;
       link_m3u8: string;
+      link_vtt?: string;
+      subtitles?: any[];
     }>;
   }>;
   activeServer?: number;
   onServerChange?: (index: number) => void;
   onEpisodeClick?: () => void;
+  onEpisodeSelect?: (epSlug: string) => void;
   showServers?: boolean;
 }
 
@@ -31,6 +34,7 @@ const EpisodeList = ({
   activeServer = 0,
   onServerChange,
   onEpisodeClick,
+  onEpisodeSelect,
   showServers = true
 }: EpisodeListProps) => {
   const [isCollapsed, setIsCollapsed] = useState(false);
@@ -106,7 +110,7 @@ const EpisodeList = ({
     if (matchedRangeIndex !== -1 && matchedRangeIndex !== activeRangeIndex) {
       setActiveRangeIndex(matchedRangeIndex);
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentEpisode, episodeRanges, episodeData]);
 
   return (
@@ -189,6 +193,15 @@ const EpisodeList = ({
                 transition={!isActive}
                 onClick={() => {
                   if (!isActive) onEpisodeClick?.();
+                }}
+                onMouseDown={(e: React.MouseEvent) => {
+                  // If onEpisodeSelect is available, use client-side navigation to preserve fullscreen
+                  if (onEpisodeSelect && !isActive) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onEpisodeClick?.();
+                    onEpisodeSelect(getFriendlyEpisodeSlug(ep.slug));
+                  }
                 }}
                 className={`
                   py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border
