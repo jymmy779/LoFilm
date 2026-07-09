@@ -951,6 +951,11 @@ export default function WatchClient({
                             box-sizing: border-box !important;
                         }
 
+                        /* Đẩy nút ổ khóa ra khỏi vùng camera notch khi fullscreen landscape */
+                        .video-fullscreen-active .art-lock {
+                            left: max(16px, env(safe-area-inset-left)) !important;
+                        }
+
                         /* === CUSTOM DOUBLE-TAP RIPPLE & BUBBLE ANIMATIONS === */
                         @keyframes ripple-expand {
                             0% {
