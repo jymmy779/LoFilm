@@ -61,7 +61,7 @@ const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
               <span>{rating}</span>
             </div>
             <div className="px-1.5 py-0.5 bg-white/10 rounded flex items-center justify-center text-white/70 text-[9px] font-medium  tracking-wider">{movie.quality}</div>
-            <div className="px-1.5 py-0.5 bg-amber-500/10 flex items-center justify-center rounded text-amber-400 text-[9px] tracking-tight font-medium ">{episode.name}</div>
+            <div className="px-1.5 py-0.5 bg-amber-500/10 flex items-center justify-center rounded text-amber-400 text-[9px] tracking-tight font-medium ">{episode.name || "Trailer"}</div>
           </div>
         </div>
       </div>

@@ -300,10 +300,43 @@ export default function WatchClient({
     const toggleFullscreen = useCallback(() => {
         const wrapper = fullscreenWrapperRef.current;
         if (!wrapper) return;
-        if (document.fullscreenElement) {
-            document.exitFullscreen().catch(() => { });
+
+        // Check nếu đang ở native fullscreen (tất cả prefix)
+        const isNativeFullscreen = !!(
+            document.fullscreenElement ||
+            (document as any).webkitFullscreenElement ||
+            (document as any).mozFullScreenElement ||
+            (document as any).msFullscreenElement
+        );
+
+        if (isNativeFullscreen) {
+            // Exit native fullscreen
+            const exitFn =
+                document.exitFullscreen?.bind(document) ||
+                (document as any).webkitExitFullscreen?.bind(document) ||
+                (document as any).mozCancelFullScreen?.bind(document) ||
+                (document as any).msExitFullscreen?.bind(document);
+            if (exitFn) exitFn().catch?.(() => {});
+        } else if (isCSSFullscreenRef.current) {
+            // Exit CSS fallback fullscreen
+            setIsCSSFullscreen(false);
         } else {
-            wrapper.requestFullscreen().catch(() => { });
+            // Thử native fullscreen với đầy đủ prefix
+            const requestFn =
+                wrapper.requestFullscreen?.bind(wrapper) ||
+                (wrapper as any).webkitRequestFullscreen?.bind(wrapper) ||
+                (wrapper as any).mozRequestFullScreen?.bind(wrapper) ||
+                (wrapper as any).msRequestFullscreen?.bind(wrapper);
+
+            if (requestFn) {
+                Promise.resolve(requestFn()).catch(() => {
+                    // Native API bị block (Telegram, Threads WebView) → fallback sang CSS fullscreen
+                    setIsCSSFullscreen(true);
+                });
+            } else {
+                // API hoàn toàn không có → dùng CSS fullscreen
+                setIsCSSFullscreen(true);
+            }
         }
     }, []);
 
@@ -791,6 +824,12 @@ export default function WatchClient({
     }, [isEmbedServer]);
 
     const [isFullscreen, setIsFullscreen] = useState(false);
+    // CSS fallback fullscreen cho WebView (Telegram, Threads) không hỗ trợ native Fullscreen API
+    const [isCSSFullscreen, setIsCSSFullscreen] = useState(false);
+    const isCSSFullscreenRef = useRef(false);
+    useEffect(() => { isCSSFullscreenRef.current = isCSSFullscreen; }, [isCSSFullscreen]);
+    // State tổng hợp — dùng cái này thay vì isFullscreen trong toàn bộ JSX
+    const isFullscreenActive = isFullscreen || isCSSFullscreen;
 
     useEffect(() => {
         const handleFullscreenChange = () => {
@@ -801,6 +840,8 @@ export default function WatchClient({
                 (document as any).msFullscreenElement
             );
             setIsFullscreen(isFs);
+            // Khi native fullscreen được exit (ví dụ user nhấn Esc trên Chrome), tắt luôn CSS fallback nếu có
+            if (!isFs) setIsCSSFullscreen(false);
         };
 
         document.addEventListener('fullscreenchange', handleFullscreenChange);
@@ -823,7 +864,7 @@ export default function WatchClient({
     }, [isTheaterMode]);
 
     useEffect(() => {
-        if (isFullscreen) {
+        if (isFullscreenActive) {
             document.documentElement.classList.add('fullscreen-scrollbar-fix');
             const orientation = (screen as any).orientation;
             if (orientation && typeof orientation.lock === 'function') {
@@ -843,7 +884,17 @@ export default function WatchClient({
                 orientation.unlock();
             }
         };
-    }, [isFullscreen]);
+    }, [isFullscreenActive]);
+
+    // Handle Escape key để thoát CSS fullscreen (WebView không có native Esc behavior)
+    useEffect(() => {
+        if (!isCSSFullscreen) return;
+        const onKeyDown = (e: KeyboardEvent) => {
+            if (e.key === 'Escape') setIsCSSFullscreen(false);
+        };
+        window.addEventListener('keydown', onKeyDown);
+        return () => window.removeEventListener('keydown', onKeyDown);
+    }, [isCSSFullscreen]);
 
 
 
@@ -875,16 +926,16 @@ export default function WatchClient({
     const portalTarget = isEmbedServer ? containerNode : artContainer;
 
     return (
-        <div className={`pt-35 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} transition-all duration-500 animate-fade-in ${isFullscreen ? 'video-fullscreen-active' : ''} xl:-ml-[100px] xl:w-[calc(100%+100px)] xl:pl-[100px] relative`}>
+        <div className={`pt-35 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} transition-all duration-500 animate-fade-in ${isFullscreenActive ? 'video-fullscreen-active' : ''} xl:-ml-[100px] xl:w-[calc(100%+100px)] xl:pl-[100px] relative`}>
 
             {/* Background removed as requested by user */}
 
-            <div className={`transition-all duration-500 ease-in-out ${!isTheaterMode && !isFullscreen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
+            <div className={`transition-all duration-500 ease-in-out ${!isTheaterMode && !isFullscreenActive ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
                 <MovieHeader slug={slug} movieName={movie.name} episodeName={currentEpisode.name} />
             </div>
 
-            <div ref={fullscreenWrapperRef} className={`transition-all duration-500 ease-in-out relative ${isExpanded ? 'w-full' : 'max-w-[1900px] mx-auto px-5 lg:px-12'} ${isFullscreen ? '!max-w-none !m-0 !fixed !inset-0 !z-[9999]' : ''}`} style={isFullscreen ? { padding: 'env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)', backgroundColor: '#000' } : undefined}>
-                <div ref={containerCallbackRef} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreen ? '!rounded-none !border-0 !h-full' : ''}`}>
+            <div ref={fullscreenWrapperRef} className={`transition-all duration-500 ease-in-out relative ${isExpanded ? 'w-full' : 'max-w-[1900px] mx-auto px-5 lg:px-12'} ${isFullscreenActive ? '!max-w-none !m-0 !fixed !inset-0 !z-[9999]' : ''}`} style={isFullscreenActive ? { padding: 'env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)', backgroundColor: '#000' } : undefined}>
+                <div ref={containerCallbackRef} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreenActive ? '!rounded-none !border-0 !h-full' : ''}`}>
                     <style jsx global>{`
                         .art-video-player .art-bottom {
                             z-index: 50 !important;
@@ -911,6 +962,7 @@ export default function WatchClient({
                             transition-delay: 0.15s !important;
                         }
                         
+                        /* Ẩn các element xung quanh khi fullscreen (cả native và CSS fallback) */
                         .video-fullscreen-active > *:not(.relative) {
                             display: none !important;
                         }
