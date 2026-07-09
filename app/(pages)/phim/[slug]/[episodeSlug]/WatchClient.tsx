@@ -9,6 +9,12 @@ import { useRouter } from "next/navigation";
 import Hls from "hls.js";
 import Artplayer from "artplayer";
 
+// Detect iOS Safari — không support requestFullscreen() trên div element
+const isIOSDevice = () =>
+    typeof navigator !== 'undefined' &&
+    /iPad|iPhone|iPod/.test(navigator.userAgent) &&
+    !(window as any).MSStream;
+
 // Helper to extract YouTube video ID from various URL formats
 const getYouTubeId = (url: string): string | null => {
     if (!url) return null;
@@ -351,6 +357,13 @@ export default function WatchClient({
         const wrapper = fullscreenWrapperRef.current;
         if (!wrapper) return;
 
+        // ─── iOS Safari: không support requestFullscreen() trên div ───
+        // Dùng CSS rotate(90deg) trick để giả lập landscape fullscreen
+        if (isIOSDevice()) {
+            setIsIOSFullscreen(prev => !prev);
+            return;
+        }
+
         // Check nếu đang ở native fullscreen (tất cả prefix)
         const isNativeFullscreen = !!(
             document.fullscreenElement ||
@@ -535,7 +548,7 @@ export default function WatchClient({
                 backdrop: true,
                 playsInline: true,
                 autoPlayback: false,
-                airplay: true,
+                airplay: false,
                 hotkey: false,
                 lock: true,
                 ...({ tooltips: false } as any),
@@ -878,8 +891,10 @@ export default function WatchClient({
     const [isCSSFullscreen, setIsCSSFullscreen] = useState(false);
     const isCSSFullscreenRef = useRef(false);
     useEffect(() => { isCSSFullscreenRef.current = isCSSFullscreen; }, [isCSSFullscreen]);
+    // iOS fullscreen: dùng CSS rotate(90deg) trick thay vì native API (không support trên div)
+    const [isIOSFullscreen, setIsIOSFullscreen] = useState(false);
     // State tổng hợp — dùng cái này thay vì isFullscreen trong toàn bộ JSX
-    const isFullscreenActive = isFullscreen || isCSSFullscreen;
+    const isFullscreenActive = isFullscreen || isCSSFullscreen || isIOSFullscreen;
 
     useEffect(() => {
         const handleFullscreenChange = () => {
@@ -916,35 +931,45 @@ export default function WatchClient({
     useEffect(() => {
         if (isFullscreenActive) {
             document.documentElement.classList.add('fullscreen-scrollbar-fix');
-            const orientation = (screen as any).orientation;
-            if (orientation && typeof orientation.lock === 'function') {
-                orientation.lock('landscape').catch(() => { });
+            // iOS không support orientation.lock → skip (dùng CSS rotate thay thế)
+            if (!isIOSDevice()) {
+                const orientation = (screen as any).orientation;
+                if (orientation && typeof orientation.lock === 'function') {
+                    orientation.lock('landscape').catch(() => { });
+                }
             }
         } else {
             document.documentElement.classList.remove('fullscreen-scrollbar-fix');
-            const orientation = (screen as any).orientation;
-            if (orientation && typeof orientation.unlock === 'function') {
-                orientation.unlock();
+            if (!isIOSDevice()) {
+                const orientation = (screen as any).orientation;
+                if (orientation && typeof orientation.unlock === 'function') {
+                    orientation.unlock();
+                }
             }
         }
         return () => {
             document.documentElement.classList.remove('fullscreen-scrollbar-fix');
-            const orientation = (screen as any).orientation;
-            if (orientation && typeof orientation.unlock === 'function') {
-                orientation.unlock();
+            if (!isIOSDevice()) {
+                const orientation = (screen as any).orientation;
+                if (orientation && typeof orientation.unlock === 'function') {
+                    orientation.unlock();
+                }
             }
         };
     }, [isFullscreenActive]);
 
-    // Handle Escape key để thoát CSS fullscreen (WebView không có native Esc behavior)
+    // Handle Escape key để thoát CSS fullscreen / iOS fullscreen
     useEffect(() => {
-        if (!isCSSFullscreen) return;
+        if (!isCSSFullscreen && !isIOSFullscreen) return;
         const onKeyDown = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') setIsCSSFullscreen(false);
+            if (e.key === 'Escape') {
+                setIsCSSFullscreen(false);
+                setIsIOSFullscreen(false);
+            }
         };
         window.addEventListener('keydown', onKeyDown);
         return () => window.removeEventListener('keydown', onKeyDown);
-    }, [isCSSFullscreen]);
+    }, [isCSSFullscreen, isIOSFullscreen]);
 
 
 
@@ -984,7 +1009,7 @@ export default function WatchClient({
                 <MovieHeader slug={slug} movieName={movie.name} episodeName={currentEpisode.name} />
             </div>
 
-            <div ref={fullscreenWrapperRef} className={`transition-all duration-500 ease-in-out relative ${isExpanded ? 'w-full' : 'max-w-[1900px] mx-auto px-5 lg:px-12'} ${isFullscreenActive ? '!max-w-none !m-0 !fixed !inset-0 !z-[9999]' : ''}`} style={isFullscreenActive ? { padding: 'env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)', backgroundColor: '#000' } : undefined}>
+            <div ref={fullscreenWrapperRef} className={`transition-all duration-500 ease-in-out relative ${isExpanded ? 'w-full' : 'max-w-[1900px] mx-auto px-5 lg:px-12'} ${isIOSFullscreen ? 'ios-fullscreen-wrapper' : isFullscreenActive ? '!max-w-none !m-0 !fixed !inset-0 !z-[9999]' : ''}`} style={isIOSFullscreen ? { backgroundColor: '#000' } : isFullscreenActive ? { padding: 'env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)', backgroundColor: '#000' } : undefined}>
                 <div ref={containerCallbackRef} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreenActive ? '!rounded-none !border-0 !h-full' : ''}`}>
                     <style jsx global>{`
                         .art-video-player .art-bottom {
@@ -1054,6 +1079,27 @@ export default function WatchClient({
                         }
 
                         /* Safe-area padding is now handled directly on the fullscreenWrapperRef below */
+
+                        /* === iOS FULLSCREEN: CSS rotate(90deg) landscape trick === */
+                        .ios-fullscreen-wrapper {
+                            position: fixed !important;
+                            top: 50% !important;
+                            left: 50% !important;
+                            width: 100dvh !important;
+                            height: 100dvw !important;
+                            max-width: none !important;
+                            margin: 0 !important;
+                            padding: 0 !important;
+                            transform: translate(-50%, -50%) rotate(90deg) !important;
+                            transform-origin: center center !important;
+                            z-index: 9999 !important;
+                            background: #000 !important;
+                            transition: none !important;
+                        }
+                        /* Khi iOS fullscreen active, ẩn toàn bộ UI xung quanh */
+                        .video-fullscreen-active .ios-fullscreen-wrapper ~ * {
+                            display: none !important;
+                        }
 
                         /* === CUSTOM DOUBLE-TAP RIPPLE & BUBBLE ANIMATIONS === */
                         @keyframes ripple-expand {
