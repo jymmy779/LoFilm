@@ -90,7 +90,7 @@ export default function WatchClient({
                 ...server,
                 server_name: `${server.server_name} - VIP`
             });
-            
+
             // Server Dự Phòng (Sử dụng Iframe Embed)
             if (server.server_data.some(ep => ep.link_embed)) {
                 list.push({
@@ -382,9 +382,17 @@ export default function WatchClient({
                 autoPlayback: true,
                 airplay: true,
                 hotkey: false,
+                lock: true,
                 poster: getImageUrl(movie.thumb_url, { width: 1280, quality: 85 }),
                 icons: {
-                    state: '<img width="90" height="90" src="/images/state.svg">',
+                    loading: '<img src="/images/ploading.gif">',
+                    state: '<img width="150" height="150" src="/images/state.svg">',
+                    indicator: '<img width="16" height="16" src="/images/indicator.svg">',
+                    play: '<img style="width: 40px; height: 40px;" class="sm:w-16 sm:h-16" src="https://sf-static.onflixcdn.pics/images/svg/1760902371_play-circle-svgrepo-com.svg">',
+                    pause: '<img style="width: 40px; height: 40px;" class="sm:w-16 sm:h-16" src="https://sf-static.onflixcdn.pics/images/svg/1760902631_pause-circle-svgrepo-com.svg">',
+                    fullscreen: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" class="icon" viewBox="0 0 1024 1024"><path d="M625.778 256H768v142.222h113.778v-256h-256ZM256 398.222V256h142.222V142.222h-256v256Zm512 227.556V768H625.778v113.778h256v-256ZM398.222 768H256V625.778H142.222v256h256Z"></path></svg>',
+                    fullscreenExit: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" class="icon" viewBox="0 0 1024 1024"><path d="M768 298.667h170.667V384h-256V128H768ZM341.333 384h-256v-85.333H256V128h85.333ZM768 725.333V896h-85.333V640h256v85.333ZM341.333 640v256H256V725.333H85.333V640Z"></path></svg>',
+                    setting: '<div style="position:relative;display:flex;align-items:center;justify-content:center;width:32px;height:32px;cursor:pointer;"><img src="https://sf-static.onflixcdn.pics/images/svg/1773141205_setting_flix.svg?v=2" style="width:24px;height:24px;object-fit:contain;opacity:0.85;transition:opacity 0.15s;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0.85\'"></div>',
                 },
                 customType: {
                     m3u8: function (video, url, art) {
@@ -398,7 +406,7 @@ export default function WatchClient({
                             hls.attachMedia(video);
                             art.hls = hls;
                             hlsRef.current = hls;
-                            
+
                             hls.on(Hls.Events.MANIFEST_PARSED, () => {
                                 if (!hasCustomSubtitles && episode.link_vtt) {
                                     const existingTracks = video.querySelectorAll('track');
@@ -433,6 +441,18 @@ export default function WatchClient({
                     }
                 },
                 controls: [
+                    {
+                        position: 'left',
+                        html: '<div class="art-control-skip desktop-skip-btn"><img class="w-5 h-5 sm:w-6 sm:h-6" src="https://sf-static.onflixcdn.pics/images/svg/1756189000_-10.svg"></div>',
+                        index: 11,
+                        click: function () { this.forward = -10; }
+                    },
+                    {
+                        position: 'left',
+                        html: '<div class="art-control-skip desktop-skip-btn"><img class="w-5 h-5 sm:w-6 sm:h-6" src="https://sf-static.onflixcdn.pics/images/svg/1756189026_+10.svg"></div>',
+                        index: 12,
+                        click: function () { this.forward = 10; }
+                    },
                     {
                         position: 'right',
                         html: '<div id="custom-subtitle-portal-target" class="flex items-center"></div>',
@@ -592,6 +612,30 @@ export default function WatchClient({
     const [isFullscreen, setIsFullscreen] = useState(false);
 
     useEffect(() => {
+        const handleFullscreenChange = () => {
+            const isFs = !!(
+                document.fullscreenElement ||
+                (document as any).webkitFullscreenElement ||
+                (document as any).mozFullScreenElement ||
+                (document as any).msFullscreenElement
+            );
+            setIsFullscreen(isFs);
+        };
+
+        document.addEventListener('fullscreenchange', handleFullscreenChange);
+        document.addEventListener('webkitfullscreenchange', handleFullscreenChange);
+        document.addEventListener('mozfullscreenchange', handleFullscreenChange);
+        document.addEventListener('MSFullscreenChange', handleFullscreenChange);
+
+        return () => {
+            document.removeEventListener('fullscreenchange', handleFullscreenChange);
+            document.removeEventListener('webkitfullscreenchange', handleFullscreenChange);
+            document.removeEventListener('mozfullscreenchange', handleFullscreenChange);
+            document.removeEventListener('MSFullscreenChange', handleFullscreenChange);
+        };
+    }, []);
+
+    useEffect(() => {
         if (isTheaterMode) document.body.classList.add('theater-mode');
         else document.body.classList.remove('theater-mode');
         return () => document.body.classList.remove('theater-mode');
@@ -600,10 +644,26 @@ export default function WatchClient({
     useEffect(() => {
         if (isFullscreen) {
             document.documentElement.classList.add('fullscreen-scrollbar-fix');
+            // Auto-rotate to landscape on mobile/tablet
+            const orientation = (screen as any).orientation;
+            if (orientation && typeof orientation.lock === 'function') {
+                orientation.lock('landscape').catch(() => { });
+            }
         } else {
             document.documentElement.classList.remove('fullscreen-scrollbar-fix');
+            // Unlock orientation when exiting fullscreen
+            const orientation = (screen as any).orientation;
+            if (orientation && typeof orientation.unlock === 'function') {
+                orientation.unlock();
+            }
         }
-        return () => document.documentElement.classList.remove('fullscreen-scrollbar-fix');
+        return () => {
+            document.documentElement.classList.remove('fullscreen-scrollbar-fix');
+            const orientation = (screen as any).orientation;
+            if (orientation && typeof orientation.unlock === 'function') {
+                orientation.unlock();
+            }
+        };
     }, [isFullscreen]);
 
     useEffect(() => {
@@ -628,7 +688,7 @@ export default function WatchClient({
 
     return (
         <div className={`pt-35 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} transition-all duration-500 animate-fade-in ${isFullscreen ? 'video-fullscreen-active' : ''} xl:-ml-[100px] xl:w-[calc(100%+100px)] xl:pl-[100px] relative`}>
-            
+
             {/* Background removed as requested by user */}
 
             <div className={`transition-all duration-500 ease-in-out ${!isTheaterMode && !isFullscreen ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
@@ -674,7 +734,7 @@ export default function WatchClient({
                             display: none !important;
                         }
                     `}</style>
-                    
+
                     {/* HLS Video Container */}
                     <div className={`w-full h-full absolute inset-0 z-0 ${isEmbedServer ? 'hidden' : 'block'}`}>
                         <div ref={artContainerRef} className="w-full h-full"></div>
@@ -683,7 +743,7 @@ export default function WatchClient({
                     {/* Iframe Embed */}
                     {isEmbedServer && embedSrc && (
                         <>
-                            <iframe 
+                            <iframe
                                 src={embedSrc}
                                 allowFullScreen
                                 onLoad={() => setIsIframeLoading(false)}
@@ -884,22 +944,22 @@ export default function WatchClient({
 
                 </div>
 
-                    {/* Dual Subtitles — Custom Overlay using Native Artplayer CSS or custom CSS */}
-                    {portalTarget && !isEmbedServer && (subtitle1Text || subtitle2Text) && createPortal(
-                        <div className="art-subtitle" dir="auto" style={{ pointerEvents: 'none', display: 'block', position: 'absolute', bottom: '60px', left: 0, width: '100%', textAlign: 'center', zIndex: 30 }}>
-                            {subtitle1Text && (
-                                <span className="art-subtitle-track" style={{ display: 'inline-block', width: '100%', textShadow: '0 1px 2px #000, 0 1px 2px #000' }}>
-                                    {subtitle1Text}
-                                </span>
-                            )}
-                            {subtitle2Text && (
-                                <span className="art-subtitle-track" style={{ display: 'inline-block', width: '100%', fontSize: '0.85em', color: '#f59e0b', marginTop: subtitle1Text ? '4px' : '0', textShadow: '0 1px 2px #000, 0 1px 2px #000' }}>
-                                    {subtitle2Text}
-                                </span>
-                            )}
-                        </div>,
-                        portalTarget
-                    )}
+                {/* Dual Subtitles — Custom Overlay using Native Artplayer CSS or custom CSS */}
+                {portalTarget && !isEmbedServer && (subtitle1Text || subtitle2Text) && createPortal(
+                    <div className="art-subtitle" dir="auto" style={{ pointerEvents: 'none', display: 'block', position: 'absolute', bottom: '60px', left: 0, width: '100%', textAlign: 'center', zIndex: 30 }}>
+                        {subtitle1Text && (
+                            <span className="art-subtitle-track" style={{ display: 'inline-block', width: '100%', textShadow: '0 1px 2px #000, 0 1px 2px #000' }}>
+                                {subtitle1Text}
+                            </span>
+                        )}
+                        {subtitle2Text && (
+                            <span className="art-subtitle-track" style={{ display: 'inline-block', width: '100%', fontSize: '0.85em', color: '#f59e0b', marginTop: subtitle1Text ? '4px' : '0', textShadow: '0 1px 2px #000, 0 1px 2px #000' }}>
+                                {subtitle2Text}
+                            </span>
+                        )}
+                    </div>,
+                    portalTarget
+                )}
 
                 <div className="relative z-20">
                     <PlayerControls
@@ -934,16 +994,16 @@ export default function WatchClient({
                 <Container className="wc-main">
                     <div className="flex flex-col xl:flex-row gap-8">
                         <div className="flex-1">
-            {subtitlePortalNode && hasCustomSubtitles && createPortal(
-                <DualSubtitleMenu 
-                    subtitles={episodeSubtitles}
-                    subtitleSlot1={slot1}
-                    subtitleSlot2={slot2}
-                    onSubtitleSlot1Change={setSlot1}
-                    onSubtitleSlot2Change={setSlot2}
-                />,
-                subtitlePortalNode
-            )}
+                            {subtitlePortalNode && hasCustomSubtitles && createPortal(
+                                <DualSubtitleMenu
+                                    subtitles={episodeSubtitles}
+                                    subtitleSlot1={slot1}
+                                    subtitleSlot2={slot2}
+                                    onSubtitleSlot1Change={setSlot1}
+                                    onSubtitleSlot2Change={setSlot2}
+                                />,
+                                subtitlePortalNode
+                            )}
 
                             <div className="flex flex-col gap-6 p-5 md:p-10 bg-white/[0.03] border border-white/10 rounded-3xl">
                                 <MovieInfo slug={slug} movie={movie} episode={episode} />
@@ -968,11 +1028,11 @@ export default function WatchClient({
             </div>
 
             <ReportModal isOpen={showReportModal} onClose={() => setShowReportModal(false)} movieName={movie.name} episodeName={episode.name} />
-            <ShareModal 
-                isOpen={showShareModal} 
-                onClose={() => setShowShareModal(false)} 
-                movieName={movie.name} 
-                shareUrl={typeof window !== "undefined" ? `${window.location.origin}/phim/${slug}/${episodeSlug}${user ? `?ref=${user.id}` : ''}` : ''} 
+            <ShareModal
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                movieName={movie.name}
+                shareUrl={typeof window !== "undefined" ? `${window.location.origin}/phim/${slug}/${episodeSlug}${user ? `?ref=${user.id}` : ''}` : ''}
             />
         </div>
     );
