@@ -443,6 +443,7 @@ export default function WatchClient({
                 airplay: true,
                 hotkey: false,
                 lock: true,
+                ...({ tooltips: false } as any),
                 poster: getImageUrl(movie.thumb_url, { width: 1280, quality: 85 }),
                 icons: {
                     loading: '<img src="/images/ploading.gif">',
