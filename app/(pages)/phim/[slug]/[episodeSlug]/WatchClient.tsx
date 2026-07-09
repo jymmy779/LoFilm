@@ -548,7 +548,7 @@ export default function WatchClient({
                 backdrop: true,
                 playsInline: true,
                 autoPlayback: false,
-                airplay: false,
+                airplay: true,
                 hotkey: false,
                 lock: true,
                 ...({ tooltips: false } as any),
@@ -636,7 +636,7 @@ export default function WatchClient({
                     {
                         position: 'right',
                         html: '<div id="custom-fullscreen-btn" class="art-control art-control-fullscreen hint--rounded hint--top" data-index="70" aria-label="Fullscreen"><i class="art-icon art-icon-fullscreenOn" style="display: inline-flex;"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" class="icon" viewBox="0 0 1024 1024"><path d="M625.778 256H768v142.222h113.778v-256h-256ZM256 398.222V256h142.222V142.222h-256v256Zm512 227.556V768H625.778v113.778h256v-256ZM398.222 768H256V625.778H142.222v256h256Z"></path></svg></i><i class="art-icon art-icon-fullscreenOff" style="display: none;"><svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" class="icon" viewBox="0 0 1024 1024"><path d="M768 298.667h170.667V384h-256V128H768ZM341.333 384h-256v-85.333H256V128h85.333ZM768 725.333V896h-85.333V640h256v85.333ZM341.333 640v256H256V725.333H85.333V640Z"></path></svg></i></div>',
-                        index: 41,
+                        index: 70,
                         click: function () {
                             const event = new CustomEvent('art-fullscreen-toggle');
                             window.dispatchEvent(event);
