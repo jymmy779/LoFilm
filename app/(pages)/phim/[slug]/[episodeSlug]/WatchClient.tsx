@@ -818,32 +818,26 @@ export default function WatchClient({
             const player = artRef.current;
             if (!player) return;
 
-            // Near bottom controls bar (bottom 15%)? Let Artplayer handle it entirely.
-            if (y / rect.height > 0.85) {
-                return;
-            }
-
             if (!side) {
-                // Middle zone: let Artplayer handle normally (play/pause toggle + controls wake)
+                // Middle zone tap
                 lastTapTime = now;
                 lastTapX = tapX;
                 return;
             }
 
-            // Side zone detection
             const isDoubleTap = (now - lastTapTime < 300) && (Math.abs(tapX - lastTapX) < 40);
             const isContinuation = activeSideRef.current === side && (now - lastSeekTapTimeRef.current < 800);
 
             if (isDoubleTap || isContinuation) {
-                // Double-tap/continuation: fully own the touch — prevent Artplayer from receiving it,
-                // so controls stay hidden and we only seek.
                 e.preventDefault();
+                e.stopPropagation();
 
                 let newAccumulated = 10;
                 if (isContinuation) {
                     newAccumulated = accumulatedSecondsRef.current + 10;
                 }
 
+                // Perform seek
                 if (side === 'left') {
                     player.backward = 10;
                 } else {
@@ -882,17 +876,9 @@ export default function WatchClient({
                     accumulatedSecondsRef.current = 0;
                     activeSideRef.current = null;
                 }, 800);
-
             } else {
-                // Single tap in side zone: wake controls IMMEDIATELY and let Artplayer
-                // also receive the click (play/pause toggle).
                 lastTapTime = now;
                 lastTapX = tapX;
-
-                const playerEl = player.template?.$player as HTMLElement | undefined;
-                if (playerEl) {
-                    playerEl.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, cancelable: true }));
-                }
             }
         };
 
@@ -902,6 +888,7 @@ export default function WatchClient({
             if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
         };
     }, [isEmbedServer]);
+
     const [isFullscreen, setIsFullscreen] = useState(false);
     // CSS fallback fullscreen cho WebView (Telegram, Threads) không hỗ trợ native Fullscreen API
     const [isCSSFullscreen, setIsCSSFullscreen] = useState(false);
