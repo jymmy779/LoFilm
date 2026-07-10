@@ -36,7 +36,7 @@ export default function FavoritesTab({ favorites, isFavoritesLoading, onDeleteIt
       </div>
 
       {isFavoritesLoading ? (
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
           {[...Array(8)].map((_, i) => (
             <div key={i}>
               <Skeleton className="aspect-[2/3] mb-3" rounded="2xl" />
@@ -48,7 +48,7 @@ export default function FavoritesTab({ favorites, isFavoritesLoading, onDeleteIt
           ))}
         </div>
       ) : favorites.length > 0 ? (
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
           {favorites.map((item) => (
             <div
               key={item.id}

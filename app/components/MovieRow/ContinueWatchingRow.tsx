@@ -276,8 +276,8 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                 <div className="w-full xl:w-[calc(100%-292px)] relative group/slider">
                     <Swiper
                         modules={[Navigation]}
-                        slidesPerView={"auto"}
-                        spaceBetween={6}
+                        slidesPerView={2}
+                        spaceBetween={8}
                         breakpoints={{
                             1280: { spaceBetween: 12 },
                             767: { spaceBetween: 10 },

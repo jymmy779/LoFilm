@@ -801,7 +801,6 @@ export default function WatchClient({
 
         let lastTapTime = 0;
         let lastTapX = 0;
-        let singleTapTimeout: ReturnType<typeof setTimeout> | null = null;
 
         const handleTouchStart = (e: TouchEvent) => {
             if (e.touches.length !== 1) return;
@@ -819,6 +818,11 @@ export default function WatchClient({
             const player = artRef.current;
             if (!player) return;
 
+            // Near bottom controls bar (bottom 15%)? Let Artplayer handle it entirely.
+            if (y / rect.height > 0.85) {
+                return;
+            }
+
             if (!side) {
                 // Middle zone: let Artplayer handle normally (play/pause toggle + controls wake)
                 lastTapTime = now;
@@ -826,26 +830,20 @@ export default function WatchClient({
                 return;
             }
 
-            // Side zone: we fully own this touch — suppress browser's auto-generated click
-            // so Artplayer never receives it and controls don't wake up unexpectedly.
-            e.preventDefault();
-
+            // Side zone detection
             const isDoubleTap = (now - lastTapTime < 300) && (Math.abs(tapX - lastTapX) < 40);
             const isContinuation = activeSideRef.current === side && (now - lastSeekTapTimeRef.current < 800);
 
             if (isDoubleTap || isContinuation) {
-                // Cancel any pending single-tap wake-up
-                if (singleTapTimeout) {
-                    clearTimeout(singleTapTimeout);
-                    singleTapTimeout = null;
-                }
+                // Double-tap/continuation: fully own the touch — prevent Artplayer from receiving it,
+                // so controls stay hidden and we only seek.
+                e.preventDefault();
 
                 let newAccumulated = 10;
                 if (isContinuation) {
                     newAccumulated = accumulatedSecondsRef.current + 10;
                 }
 
-                // Perform seek (controls stay hidden — no click event reaches Artplayer)
                 if (side === 'left') {
                     player.backward = 10;
                 } else {
@@ -886,21 +884,15 @@ export default function WatchClient({
                 }, 800);
 
             } else {
-                // First tap in side zone — record it and wait 300ms for a potential second tap.
-                // If no second tap arrives, manually wake up controls (same as a normal single tap).
+                // Single tap in side zone: wake controls IMMEDIATELY and let Artplayer
+                // also receive the click (play/pause toggle).
                 lastTapTime = now;
                 lastTapX = tapX;
 
-                if (singleTapTimeout) clearTimeout(singleTapTimeout);
-                singleTapTimeout = setTimeout(() => {
-                    singleTapTimeout = null;
-                    // Wake controls by dispatching a mousemove — Artplayer listens to this
-                    // to show controls and reset its hide-cursor timer.
-                    const playerEl = player.template?.$player as HTMLElement | undefined;
-                    if (playerEl) {
-                        playerEl.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, cancelable: true }));
-                    }
-                }, 300);
+                const playerEl = player.template?.$player as HTMLElement | undefined;
+                if (playerEl) {
+                    playerEl.dispatchEvent(new MouseEvent('mousemove', { bubbles: true, cancelable: true }));
+                }
             }
         };
 
@@ -908,7 +900,6 @@ export default function WatchClient({
         return () => {
             container.removeEventListener('touchstart', handleTouchStart);
             if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
-            if (singleTapTimeout) clearTimeout(singleTapTimeout);
         };
     }, [isEmbedServer]);
     const [isFullscreen, setIsFullscreen] = useState(false);

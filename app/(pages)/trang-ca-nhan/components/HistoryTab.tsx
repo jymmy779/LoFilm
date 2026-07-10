@@ -36,7 +36,7 @@ export default function HistoryTab({ watchHistory, isHistoryLoading, onDeleteIte
       </div>
 
       {isHistoryLoading ? (
-        <div className="grid grid-cols-4 gap-2">
+        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
           {[...Array(8)].map((_, i) => (
             <div key={i}>
               <Skeleton className="aspect-[2/3] mb-3" rounded="2xl" />
@@ -49,7 +49,7 @@ export default function HistoryTab({ watchHistory, isHistoryLoading, onDeleteIte
         </div>
       ) : watchHistory.length > 0 ? (
         <div
-          className="grid grid-cols-4  gap-2"
+          className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2"
         >
           {watchHistory.map((item) => {
             const progress = (item.watched_seconds / item.duration) * 100;
