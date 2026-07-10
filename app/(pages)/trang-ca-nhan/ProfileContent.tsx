@@ -124,6 +124,21 @@ export default function ProfileContent() {
           new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
         );
 
+        // Group by movie_slug: chỉ giữ 1 item/phim (item mới nhất), tránh spam tập phim bộ
+        const groupedMap = new Map<string, any>();
+        combinedHistory.forEach(item => {
+          const key = item.movie_slug;
+          const existing = groupedMap.get(key);
+          if (!existing || new Date(item.updated_at).getTime() > new Date(existing.updated_at).getTime()) {
+            groupedMap.set(key, item);
+          }
+        });
+        combinedHistory = Array.from(groupedMap.values());
+        // Sắp xếp lại sau khi gom nhóm
+        combinedHistory.sort((a, b) =>
+          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        );
+
         setWatchHistory(combinedHistory);
         setIsHistoryLoading(false);
       };
@@ -555,7 +570,7 @@ export default function ProfileContent() {
               <div
                 className="bg-[#12151C] border border-white/5 rounded-3xl md:rounded-[40px] p-6 relative overflow-hidden"
               >
-                <div className="max-h-[70vh] overflow-y-auto pr-2 custom-scrollbar">
+                <div className="max-h-[70vh] overflow-y-auto custom-scrollbar">
                   {activeTab === 'overview' && (
                     <OverviewTab
                       user={user}

@@ -47,7 +47,7 @@ export const useWatchProgress = (
                     const ipData = await ipRes.json();
                     ip = ipData.ip;
                 }
-            } catch (e) {}
+            } catch (e) { }
 
             const { error } = await supabase.rpc("record_movie_view", {
                 p_movie_slug: slug,
@@ -94,7 +94,7 @@ export const useWatchProgress = (
                         movie_slug: slug,
                         episode_slug: episodeSlug,
                         movie_name: movie.name,
-                        movie_poster: movie.thumb_url || movie.poster_url,
+                        movie_poster: movie.poster_url || movie.thumb_url,
                         episode_name: episode.name,
                         watched_seconds: Math.floor(currentTime),
                         duration: Math.floor(duration),
@@ -121,7 +121,7 @@ export const useWatchProgress = (
                         user_id: currentUser.id,
                         movie_slug: slug,
                         movie_name: movie.name,
-                        movie_poster: movie.thumb_url || movie.poster_url,
+                        movie_poster: movie.poster_url || movie.thumb_url,
                         episode_name: episode.name,
                         episode_slug: episodeSlug,
                         watched_seconds: Math.floor(currentTime),

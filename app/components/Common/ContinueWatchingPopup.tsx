@@ -35,16 +35,16 @@ export default function ContinueWatchingPopup() {
         const timer = setTimeout(async () => {
             try {
                 let localMovies: WatchHistoryItem[] = [];
-                
+
                 // 1. Read from LocalStorage based on user context
                 const HISTORY_KEY = user ? `lofilm-watch-history-${user.id}` : 'lofilm-guest-watch-history';
                 const historyStr = localStorage.getItem(HISTORY_KEY);
-                
+
                 if (historyStr) {
                     const history: Record<string, WatchHistoryItem> = JSON.parse(historyStr);
                     localMovies = Object.values(history);
                 }
-                
+
                 // 2. Fetch from Supabase for cross-device synchronization if logged in
                 if (user) {
                     const { data } = await supabase
@@ -53,7 +53,7 @@ export default function ContinueWatchingPopup() {
                         .eq('user_id', user.id)
                         .order('updated_at', { ascending: false })
                         .limit(10);
-                        
+
                     if (data && data.length > 0) {
                         const dbMovies = data.map(d => ({
                             movie_slug: d.movie_slug,
@@ -79,18 +79,19 @@ export default function ContinueWatchingPopup() {
                 }
 
                 // Filter for unfinished movies, sort by updated_at
-                const unfinishedMovies = localMovies.filter(m => 
-                    m.duration > 0 && 
-                    m.watched_seconds > 30 && 
-                    (m.watched_seconds / m.duration) < 0.90
-                ).sort((a, b) => b.updated_at - a.updated_at);
+                const unfinishedMovies = localMovies.filter(m => {
+                    if (m.duration <= 0) return false;
+                    const progress = (m.watched_seconds / m.duration) * 100;
+                    const isFinished = progress >= 85;
+                    return !isFinished;
+                }).sort((a, b) => b.updated_at - a.updated_at);
 
                 const mostRecent = unfinishedMovies.length > 0 ? unfinishedMovies[0] : null;
 
                 if (!mostRecent) return;
 
                 setRecentMovie(mostRecent);
-                
+
                 // Delay a tiny bit to allow the component to mount in the hidden state before transitioning
                 setTimeout(() => {
                     setIsVisible(true);
@@ -114,7 +115,7 @@ export default function ContinueWatchingPopup() {
     if (!recentMovie || isDismissed || pathname === '/dang-nhap' || pathname === '/dat-lai-mat-khau' || pathname.includes('/phim/')) return null;
 
     const progressPercent = Math.min(100, Math.max(0, (recentMovie.watched_seconds / recentMovie.duration) * 100));
-    
+
     // Format mm:ss
     const formatTime = (seconds: number) => {
         const m = Math.floor(seconds / 60);
@@ -137,12 +138,12 @@ export default function ContinueWatchingPopup() {
             bottom-8 left-4 right-4 
             /* Tablet/Desktop: Bottom Left */
             md:bottom-8 md:left-8 md:right-auto md:w-[460px] xl:w-[520px]
-            ${isVisible 
-                ? "translate-y-0 md:translate-x-0 opacity-100" 
+            ${isVisible
+                ? "translate-y-0 md:translate-x-0 opacity-100"
                 : "translate-y-[150%] md:translate-y-0 md:-translate-x-[150%] opacity-0 pointer-events-none"
             }
         `}>
-            <TransitionLink 
+            <TransitionLink
                 href={`/phim/${recentMovie.movie_slug}/${recentMovie.episode_slug}`}
                 onClick={() => {
                     setIsVisible(false);
@@ -151,7 +152,7 @@ export default function ContinueWatchingPopup() {
                 className="relative flex items-stretch gap-4 md:gap-5 xl:gap-6 p-3 md:p-4 xl:p-5 pr-4 md:pr-6 xl:pr-8 bg-[#12223a] border border-white/10 rounded-xl shadow-[0_10px_40px_rgba(0,0,0,0.8)] hover:bg-[#172a48] transition-colors group overflow-hidden"
             >
                 {/* Close Button */}
-                <button 
+                <button
                     onClick={handleDismiss}
                     className="absolute cursor-pointer top-2 right-2 w-7 h-7 flex items-center justify-center rounded-full bg-black/40 text-white/50 hover:text-white hover:bg-black/80 transition-colors z-10"
                     aria-label="Đóng thông báo"
@@ -161,7 +162,7 @@ export default function ContinueWatchingPopup() {
 
                 {/* Poster Thumbnail */}
                 <div className="relative w-[100px] h-[65px] md:w-[120px] md:h-[78px] xl:w-[140px] xl:h-[91px] rounded-lg overflow-hidden shrink-0 border border-white/5 bg-black/50">
-                    <SmartImage 
+                    <SmartImage
                         src={getImageUrl(recentMovie.movie_poster, { width: 300, quality: 80 })}
                         rawSrc={getRawImageUrl(recentMovie.movie_poster)}
                         alt={recentMovie.movie_name}
@@ -197,7 +198,7 @@ export default function ContinueWatchingPopup() {
 
                 {/* Progress Bar Absolute Bottom */}
                 <div className="absolute bottom-0 left-0 right-0 h-1 bg-black/40">
-                    <div 
+                    <div
                         className="h-full bg-amber-500 rounded-r-full transition-all duration-1000 ease-out"
                         style={{ width: isVisible ? `${progressPercent}%` : '0%' }}
                     />

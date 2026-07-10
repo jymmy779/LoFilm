@@ -46,7 +46,7 @@ export const useWatchlist = (user: any, movieSlug: string, movieName: string, mo
                     user_id: user.id,
                     movie_slug: movieSlug,
                     movie_name: movieName,
-                    movie_poster: movieThumb || moviePoster
+                    movie_poster: moviePoster || movieThumb
                 });
                 if (error) throw error;
                 toast.success("Đã thêm vào danh sách xem sau");

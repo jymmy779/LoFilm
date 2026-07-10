@@ -1,4 +1,6 @@
-import { Heart, Trash2, X } from "lucide-react";
+"use client";
+import { useState } from "react";
+import { Heart, Play, Trash2, X } from "lucide-react";
 import Image from "next/image";
 
 import TransitionLink from "@/app/components/Transition/TransitionLink";
@@ -13,6 +15,8 @@ interface FavoritesTabProps {
 }
 
 export default function FavoritesTab({ favorites, isFavoritesLoading, onDeleteItem, onClearAll }: FavoritesTabProps) {
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+  const markLoaded = (id: string) => setLoadedImages(prev => new Set(prev).add(id));
   return (
     <div className="space-y-8 min-h-[400px]">
       <div className="flex items-center flex-col justify-between border-b border-white/5 pb-6">
@@ -28,25 +32,23 @@ export default function FavoritesTab({ favorites, isFavoritesLoading, onDeleteIt
             </button>
           )}
         </div>
-        <p className="text-white/40 text-xs">{favorites.length} tác phẩm tâm đắc</p>
+        <p className="text-white/40 text-xs w-full">{favorites.length} tác phẩm tâm đắc</p>
       </div>
 
       {isFavoritesLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden">
-              <Skeleton className="aspect-video" rounded="none" />
-              <div className="p-4 space-y-3">
-                <Skeleton className="w-3/4 h-4" />
-                <Skeleton className="w-1/2 h-3" />
+        <div className="grid grid-cols-4 gap-2">
+          {[...Array(8)].map((_, i) => (
+            <div key={i}>
+              <Skeleton className="aspect-[2/3] mb-3" rounded="2xl" />
+              <div className="space-y-0.5">
+                <Skeleton className="w-3/4 h-3" />
+                <Skeleton className="w-1/2 h-2 opacity-50" />
               </div>
             </div>
           ))}
         </div>
       ) : favorites.length > 0 ? (
-        <div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
-        >
+        <div className="grid grid-cols-4 gap-2">
           {favorites.map((item) => (
             <div
               key={item.id}
@@ -54,26 +56,27 @@ export default function FavoritesTab({ favorites, isFavoritesLoading, onDeleteIt
             >
               <TransitionLink
                 href={`/phim/${item.movie_slug}`}
-                className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden cursor-pointer hover:border-rose-500/30 transition-all block"
+                className="block cursor-pointer"
               >
-                <div className="relative aspect-video overflow-hidden">
+                <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-[#0F1115]">
                   <Image
                     src={getImageUrl(item.movie_poster, { width: 400, quality: 70 })}
                     alt={item.movie_name}
                     fill
-                    sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                    className="object-cover object-top transition-transform duration-700 group-hover:scale-110"
+                    sizes="25vw"
+                    className={`object-cover object-top transition-all duration-500 group-hover:scale-110 ${loadedImages.has(item.id) ? 'opacity-100' : 'opacity-0'}`}
+                    onLoad={() => markLoaded(item.id)}
                   />
                   <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
                     <div className="w-12 h-12 rounded-full bg-rose-500 flex items-center justify-center text-white transition-all duration-300">
-                      <Heart size={24} className="fill-current" />
+                      <Play size={24} className="fill-current ml-1" />
                     </div>
                   </div>
                 </div>
-                <div className="p-4">
-                  <h4 className="text-white font-bold text-sm line-clamp-1 group-hover:text-rose-400 transition-colors">{item.movie_name}</h4>
-                  <p className="text-[10px] text-white/20 mt-2">
-                    Đã lưu vào {new Date(item.created_at).toLocaleDateString('vi-VN')}
+                <div className="space-y-0.5">
+                  <h4 className="text-white font-bold text-xs line-clamp-1 group-hover:text-rose-400 transition-colors">{item.movie_name}</h4>
+                  <p className="text-[10px] text-white/40 tracking-widest">
+                    {new Date(item.created_at).toLocaleDateString('vi-VN')}
                   </p>
                 </div>
               </TransitionLink>
@@ -84,7 +87,7 @@ export default function FavoritesTab({ favorites, isFavoritesLoading, onDeleteIt
                   e.stopPropagation();
                   onDeleteItem?.(item.id);
                 }}
-                className="absolute top-3 right-3 p-1.5 bg-black/60 hover:bg-red-500 text-white rounded-lg transition-all opacity-100 z-30 cursor-pointer border border-white/10"
+                className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-red-500 text-white rounded-lg transition-all opacity-100 z-30 cursor-pointer border border-white/10"
                 title="Xóa khỏi yêu thích"
               >
                 <X size={14} />

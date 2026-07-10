@@ -193,12 +193,28 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                 new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
             );
 
-            // 4. Lọc phim chưa xem hết (<90%) và giới hạn 20 phim
-            const finalHistory = combinedHistory.filter(item => {
+            // 4. Lọc chỉ bỏ phim đã xem hết (< 85%), giới hạn 20 phim
+            let finalHistory = combinedHistory.filter(item => {
                 if (!item.duration) return true;
                 const progress = (item.watched_seconds / item.duration) * 100;
-                return progress < 90;
+                const isFinished = progress >= 85;
+                return !isFinished;
             }).slice(0, 20);
+
+            // Group by movie_slug: chỉ giữ 1 item/phim (item mới nhất), tránh spam tập phim bộ
+            const groupedMap = new Map<string, any>();
+            finalHistory.forEach(item => {
+                const key = item.movie_slug;
+                const existing = groupedMap.get(key);
+                if (!existing || new Date(item.updated_at).getTime() > new Date(existing.updated_at).getTime()) {
+                    groupedMap.set(key, item);
+                }
+            });
+            finalHistory = Array.from(groupedMap.values());
+            // Sắp xếp lại sau khi gom nhóm
+            finalHistory.sort((a, b) =>
+                new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+            );
 
             setHistory(finalHistory);
             cachedHistory = finalHistory;
@@ -261,10 +277,11 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                     <Swiper
                         modules={[Navigation]}
                         slidesPerView={"auto"}
-                        spaceBetween={8}
+                        spaceBetween={6}
                         breakpoints={{
-                            1280: { spaceBetween: 16 },
-                            767: { spaceBetween: 12 },
+                            1280: { spaceBetween: 12 },
+                            767: { spaceBetween: 10 },
+                            576: { spaceBetween: 8 },
                         }}
                         navigation={{
                             nextEl: '.btn-next-continue',
@@ -274,16 +291,16 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                     >
                         {history.map((item, index) => {
                             const progress = (item.watched_seconds / item.duration) * 100;
-                            const isFinished = progress > 90;
+                            const isFinished = progress >= 85;
                             const isPriority = index < 4;
 
                             return (
-                                <SwiperSlide key={item.id} className="!w-[220px] sm:!w-[260px] md:!w-[300px]">
+                                <SwiperSlide key={item.id} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
                                     <TransitionLink
                                         href={`/phim/${item.movie_slug}/${item.episode_slug}`}
                                         className="block group/item relative"
                                     >
-                                        <div className="relative aspect-video rounded-xl overflow-hidden bg-white/5 mb-3 border border-white/5">
+                                        <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-[#0F1115]">
                                             <SmartImage
                                                 src={getImageUrl(item.movie_poster, { width: 320, quality: 75 })}
                                                 rawSrc={getRawImageUrl(item.movie_poster)}
@@ -291,33 +308,15 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                                                 fill
                                                 priority={false}
                                                 loading="lazy"
-                                                sizes="(max-width: 768px) 220px, (max-width: 1024px) 260px, 300px"
-                                                className="object-cover  object-top transition-transform duration-700 group-hover/item:scale-110"
+                                                sizes="(max-width: 768px) 160px, (max-width: 1024px) 180px, 200px"
+                                                className="object-cover object-top transition-transform duration-700 group-hover/item:scale-110"
                                             />
 
-                                            {/* Progress Bar Overlay */}
-                                            <div className="absolute inset-x-0 bottom-0 h-1 bg-white/10 overflow-hidden">
-                                                <div
-                                                    className={`h-full bg-amber-400 transition-all duration-300 ${isFinished ? 'opacity-50' : 'opacity-100'}`}
-                                                    style={{ width: `${progress}%` }}
-                                                />
-                                            </div>
-
-                                            {/* Labels */}
+                                            {/* Play overlay on hover */}
                                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/item:opacity-100 transition-opacity flex items-center justify-center">
                                                 <div className="w-12 h-12 rounded-full bg-amber-400 flex items-center justify-center text-black border border-amber-500/20 transform scale-75 group-hover/item:scale-100 transition-transform">
                                                     <Play size={24} fill="black" />
                                                 </div>
-                                            </div>
-
-                                            {item.episode_name && (
-                                                <div className="absolute top-2 left-2 px-2 py-0.5 bg-black/60 rounded text-[10px] font-bold text-white border border-white/10">
-                                                    {item.episode_name}
-                                                </div>
-                                            )}
-
-                                            <div className="absolute bottom-3 right-3 text-[9px] font-mono text-white/80 bg-black/40 px-1.5 py-0.5 rounded">
-                                                {Math.floor(item.watched_seconds / 60)}:{String(Math.floor(item.watched_seconds % 60)).padStart(2, '0')}
                                             </div>
 
                                             {/* Quick Delete Button */}
@@ -331,12 +330,16 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                                             </button>
                                         </div>
 
-                                        <div className="px-1">
-                                            <h3 className="text-white font-medium text-sm line-clamp-1 group-hover/item:text-amber-400 transition-colors">
+                                        <div className="space-y-0.5">
+                                            <h3 className="text-white font-bold text-xs line-clamp-1 group-hover/item:text-amber-400 transition-colors">
                                                 {item.movie_name}
                                             </h3>
-                                            <p className="text-white/40 text-[10px] mt-0.5">
-                                                {isFinished ? 'Đã xem gần hết' : `Còn lại ${Math.floor((item.duration - item.watched_seconds) / 60)} phút`}
+                                            <p className="text-white/40 text-[10px]">
+                                                {item.episode_name ? (
+                                                    <>{item.episode_name} · {Math.floor(item.watched_seconds / 60)}ph</>
+                                                ) : (
+                                                    `${Math.floor(item.watched_seconds / 60)}ph`
+                                                )}
                                             </p>
                                         </div>
                                     </TransitionLink>

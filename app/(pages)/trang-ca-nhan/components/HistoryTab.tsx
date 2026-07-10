@@ -1,3 +1,5 @@
+"use client";
+import { useState } from "react";
 import { History, Play, Trash2, X } from "lucide-react";
 import Image from "next/image";
 
@@ -13,6 +15,8 @@ interface HistoryTabProps {
 }
 
 export default function HistoryTab({ watchHistory, isHistoryLoading, onDeleteItem, onClearAll }: HistoryTabProps) {
+  const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
+  const markLoaded = (id: string) => setLoadedImages(prev => new Set(prev).add(id));
   return (
     <div className="space-y-8 min-h-[400px]">
       <div className="flex items-center flex-col justify-between border-b border-white/5 pb-6">
@@ -32,23 +36,20 @@ export default function HistoryTab({ watchHistory, isHistoryLoading, onDeleteIte
       </div>
 
       {isHistoryLoading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <div key={i} className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden">
-              <Skeleton className="aspect-video" rounded="none" />
-              <div className="p-4 space-y-3">
-                <Skeleton className="w-3/4 h-4" />
-                <div className="flex justify-between items-center pt-1">
-                  <Skeleton className="w-1/3 h-3" />
-                  <Skeleton className="w-1/4 h-3" />
-                </div>
+        <div className="grid grid-cols-4 gap-2">
+          {[...Array(8)].map((_, i) => (
+            <div key={i}>
+              <Skeleton className="aspect-[2/3] mb-3" rounded="2xl" />
+              <div className="space-y-0.5">
+                <Skeleton className="w-3/4 h-3" />
+                <Skeleton className="w-1/2 h-2 opacity-50" />
               </div>
             </div>
           ))}
         </div>
       ) : watchHistory.length > 0 ? (
         <div
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"
+          className="grid grid-cols-4  gap-2"
         >
           {watchHistory.map((item) => {
             const progress = (item.watched_seconds / item.duration) * 100;
@@ -59,40 +60,32 @@ export default function HistoryTab({ watchHistory, isHistoryLoading, onDeleteIte
               >
                 <TransitionLink
                   href={`/phim/${item.movie_slug}/${item.episode_slug}`}
-                  className="bg-white/5 border border-white/5 rounded-2xl overflow-hidden cursor-pointer hover:border-amber-400/30 transition-all block"
+                  className="block cursor-pointer"
                 >
-                  <div className="relative aspect-video overflow-hidden">
+                  <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-[#0F1115]">
                     <Image
                       src={getImageUrl(item.movie_poster, { width: 400, quality: 70 })}
                       alt={item.movie_name}
                       fill
-                      sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                      className="object-cover object-top transition-transform duration-700 group-hover:scale-110"
+                      sizes="25vw"
+                      className={`object-cover object-top transition-all duration-500 group-hover:scale-110 ${loadedImages.has(item.id) ? 'opacity-100' : 'opacity-0'}`}
+                      onLoad={() => markLoaded(item.id)}
                     />
                     <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center z-10">
                       <div className="w-12 h-12 rounded-full bg-amber-400 flex items-center justify-center text-black transition-all duration-300">
                         <Play size={24} className="fill-current ml-1" />
                       </div>
                     </div>
-                    <div className="absolute bottom-0 inset-x-0 h-1 bg-white/10 z-20">
-                      <div className="h-full bg-amber-400" style={{ width: `${progress}%` }} />
-                    </div>
-                    {item.episode_name && (
-                      <div className="absolute top-3 left-3 px-2 py-1 bg-black/60 rounded-lg text-[10px] font-bold text-white border border-white/10 whitespace-nowrap overflow-hidden text-ellipsis max-w-[120px] z-20">
-                        {item.episode_name}
-                      </div>
-                    )}
                   </div>
-                  <div className="p-4">
-                    <h4 className="text-white font-bold text-sm line-clamp-1 group-hover:text-amber-400 transition-colors">{item.movie_name}</h4>
-                    <div className="flex items-center justify-between mt-2">
-                      <span className="text-[10px] text-white/40 tracking-widest">
-                        Đã xem {Math.floor(item.watched_seconds / 60)} phút
-                      </span>
-                      <span className="text-[10px] text-white/20">
-                        {new Date(item.updated_at).toLocaleDateString('vi-VN')}
-                      </span>
-                    </div>
+                  <div className="space-y-0.5">
+                    <h4 className="text-white font-bold text-xs line-clamp-1 group-hover:text-amber-400 transition-colors">{item.movie_name}</h4>
+                    <p className="text-[10px] text-white/40 tracking-widest">
+                      {item.episode_name ? (
+                        <>{item.episode_name} · {Math.floor(item.watched_seconds / 60)}ph</>
+                      ) : (
+                        `${Math.floor(item.watched_seconds / 60)}ph`
+                      )}
+                    </p>
                   </div>
                 </TransitionLink>
 
@@ -102,7 +95,7 @@ export default function HistoryTab({ watchHistory, isHistoryLoading, onDeleteIte
                     e.stopPropagation();
                     onDeleteItem?.(item.id);
                   }}
-                  className="absolute top-3 right-3 p-1.5 bg-black/60 hover:bg-red-500 text-white rounded-lg transition-all opacity-100 z-30 cursor-pointer border border-white/10"
+                  className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-red-500 text-white rounded-lg transition-all opacity-100 z-30 cursor-pointer border border-white/10"
                   title="Xóa khỏi lịch sử"
                 >
                   <X size={14} />

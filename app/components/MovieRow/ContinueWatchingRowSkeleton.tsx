@@ -21,18 +21,19 @@ export default function ContinueWatchingRowSkeleton() {
                 <div className="w-full xl:w-[calc(100%-292px)]">
                     <Swiper
                         slidesPerView={"auto"}
-                        spaceBetween={12}
+                        spaceBetween={6}
                         breakpoints={{
-                            1280: { spaceBetween: 20 },
-                            767: { spaceBetween: 16 },
+                            1280: { spaceBetween: 12 },
+                            767: { spaceBetween: 10 },
+                            576: { spaceBetween: 8 },
                         }}
                     >
-                        {[...Array(4)].map((_, i) => (
-                            <SwiperSlide key={i} className="!w-[220px] sm:!w-[260px] md:!w-[300px]">
-                                <Skeleton className="aspect-video mb-3" rounded="xl" />
-                                <div className="space-y-2 px-1">
-                                    <Skeleton className="w-3/4 h-4" />
-                                    <Skeleton className="w-1/2 h-3 opacity-50" />
+                        {[...Array(5)].map((_, i) => (
+                            <SwiperSlide key={i} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
+                                <Skeleton className="aspect-[2/3] mb-3" rounded="2xl" />
+                                <div className="space-y-0.5">
+                                    <Skeleton className="w-3/4 h-3" />
+                                    <Skeleton className="w-1/2 h-2 opacity-50" />
                                 </div>
                             </SwiperSlide>
                         ))}
