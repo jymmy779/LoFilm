@@ -100,28 +100,30 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                         localStorage.setItem(HISTORY_KEY, JSON.stringify(localHistory));
                     }
                 }
-            } else {
-                // Delete from Supabase
-                const { error } = await supabase.from('watch_history').delete().eq('id', id);
+            } else if (user) {
+                // Delete from Supabase - xóa tất cả entries của movie (không chỉ 1 tập)
+                const { error } = await supabase.from('watch_history').delete().eq('user_id', user.id).eq('movie_slug', item.movie_slug);
                 if (error) throw error;
 
-                // Also attempt local cleanup
+                // Also attempt local cleanup - xóa tất cả entries của movie trong localStorage
                 try {
-                    const HISTORY_KEY = user ? `lofilm-watch-history-${user.id}` : 'lofilm-guest-watch-history';
+                    const HISTORY_KEY = `lofilm-watch-history-${user.id}`;
                     const localDataStr = localStorage.getItem(HISTORY_KEY);
                     if (localDataStr) {
                         const localHistory = JSON.parse(localDataStr);
-                        const key = `${item.movie_slug}/${item.episode_slug}`;
-                        if (localHistory[key]) {
-                            delete localHistory[key];
-                            localStorage.setItem(HISTORY_KEY, JSON.stringify(localHistory));
-                        }
+                        Object.keys(localHistory).forEach(key => {
+                            if (key.startsWith(`${item.movie_slug}/`)) {
+                                delete localHistory[key];
+                            }
+                        });
+                        localStorage.setItem(HISTORY_KEY, JSON.stringify(localHistory));
                     }
                 } catch (e) { }
             }
 
             setHistory(prev => {
-                const newHistory = prev.filter(h => h.id !== id);
+                // Filter out ALL items with same movie_slug (không chỉ 1 id)
+                const newHistory = prev.filter(h => h.movie_slug !== item.movie_slug);
                 cachedHistory = newHistory;
                 return newHistory;
             });

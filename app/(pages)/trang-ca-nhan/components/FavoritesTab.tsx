@@ -75,9 +75,6 @@ export default function FavoritesTab({ favorites, isFavoritesLoading, onDeleteIt
                 </div>
                 <div className="space-y-0.5">
                   <h4 className="text-white font-bold text-xs line-clamp-1 group-hover:text-rose-400 transition-colors">{item.movie_name}</h4>
-                  <p className="text-[10px] text-white/40 tracking-widest">
-                    {new Date(item.created_at).toLocaleDateString('vi-VN')}
-                  </p>
                 </div>
               </TransitionLink>
 

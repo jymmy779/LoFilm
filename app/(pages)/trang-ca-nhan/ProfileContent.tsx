@@ -213,31 +213,36 @@ export default function ProfileContent() {
             const localDataStr = localStorage.getItem(HISTORY_KEY);
             if (localDataStr) {
               const history = JSON.parse(localDataStr);
-              const key = `${itemToDelete.movie_slug}/${itemToDelete.episode_slug}`;
-              if (history[key]) {
-                delete history[key];
-                localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-              }
+              // Xóa tất cả entries của movie này
+              Object.keys(history).forEach(key => {
+                if (key.startsWith(`${itemToDelete.movie_slug}/`)) {
+                  delete history[key];
+                }
+              });
+              localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
             }
-            setWatchHistory(prev => prev.filter(item => item.id !== id));
+            setWatchHistory(prev => prev.filter(item => item.movie_slug !== itemToDelete.movie_slug));
             toast.success("Đã xóa khỏi lịch sử máy");
           } catch (e) {
             console.error("Error deleting local item:", e);
           }
         } else {
-          const { error } = await supabase.from('watch_history').delete().eq('id', id);
+          // Xóa tất cả entries của movie trong Supabase
+          const { error } = await supabase.from('watch_history').delete().eq('user_id', user.id).eq('movie_slug', itemToDelete.movie_slug);
           if (!error) {
-            setWatchHistory(prev => prev.filter(item => item.id !== id));
+            setWatchHistory(prev => prev.filter(item => item.movie_slug !== itemToDelete.movie_slug));
             try {
               const HISTORY_KEY = `lofilm-watch-history-${user.id}`;
               const localDataStr = localStorage.getItem(HISTORY_KEY);
               if (localDataStr) {
                 const history = JSON.parse(localDataStr);
-                const key = `${itemToDelete.movie_slug}/${itemToDelete.episode_slug}`;
-                if (history[key]) {
-                  delete history[key];
-                  localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
-                }
+                // Xóa tất cả entries của movie này trong localStorage
+                Object.keys(history).forEach(key => {
+                  if (key.startsWith(`${itemToDelete.movie_slug}/`)) {
+                    delete history[key];
+                  }
+                });
+                localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
               }
             } catch (e) { }
             toast.success("Đã xóa khỏi lịch sử");

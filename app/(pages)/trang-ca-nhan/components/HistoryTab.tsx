@@ -52,14 +52,13 @@ export default function HistoryTab({ watchHistory, isHistoryLoading, onDeleteIte
           className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2"
         >
           {watchHistory.map((item) => {
-            const progress = (item.watched_seconds / item.duration) * 100;
             return (
               <div
                 key={item.id}
                 className="relative group block"
               >
                 <TransitionLink
-                  href={`/phim/${item.movie_slug}/${item.episode_slug}`}
+                  href={`/phim/${item.movie_slug}`}
                   className="block cursor-pointer"
                 >
                   <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-[#0F1115]">
@@ -79,13 +78,6 @@ export default function HistoryTab({ watchHistory, isHistoryLoading, onDeleteIte
                   </div>
                   <div className="space-y-0.5">
                     <h4 className="text-white font-bold text-xs line-clamp-1 group-hover:text-amber-400 transition-colors">{item.movie_name}</h4>
-                    <p className="text-[10px] text-white/40 tracking-widest">
-                      {item.episode_name ? (
-                        <>{item.episode_name} · {Math.floor(item.watched_seconds / 60)}ph</>
-                      ) : (
-                        `${Math.floor(item.watched_seconds / 60)}ph`
-                      )}
-                    </p>
                   </div>
                 </TransitionLink>
 
