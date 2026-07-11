@@ -8,9 +8,10 @@ import { useRouter } from "next/navigation";
 interface LoginPromptModalProps {
     isOpen: boolean;
     onClose: () => void;
+    onLogin?: () => void;
 }
 
-export default function LoginPromptModal({ isOpen, onClose }: LoginPromptModalProps) {
+export default function LoginPromptModal({ isOpen, onClose, onLogin }: LoginPromptModalProps) {
     const router = useRouter();
     const [mounted, setMounted] = useState(false);
 
@@ -53,6 +54,7 @@ export default function LoginPromptModal({ isOpen, onClose }: LoginPromptModalPr
 
     const handleLogin = () => {
         onClose();
+        onLogin?.();
         router.push("/dang-nhap");
     };
 

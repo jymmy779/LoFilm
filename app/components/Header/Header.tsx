@@ -232,62 +232,60 @@ export default function Header() {
                 countries={countries}
             />
 
-            {/* Mobile Bottom Navigation Pill (Chỉ hiện trên màn hình < xl, ẩn ở trang auth) */}
-            {pathname !== '/dang-nhap' && pathname !== '/dat-lai-mat-khau' && (
-                <div className="xl:hidden fixed bottom-5 md:bottom-8 left-1/2 -translate-x-1/2 z-[90] w-[92%] sm:w-[85%] max-w-[300px] h-[60px] bg-[#0F1115] border border-white/10 rounded-full shadow-[0_16px_40px_rgba(0,0,0,0.6)] flex items-center justify-between px-2">
-                    <TransitionLink href="/" className={`relative w-[64px] h-[48px] rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors z-10 ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'text-amber-400' : 'text-white/50 hover:text-amber-400'}`}>
-                        {pathname === '/' && !hasSearchQuery && !isMenuOpen && (
-                            <div className="absolute inset-0 bg-amber-400/10 rounded-full z-[-1]" />
-                        )}
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
-                        <span className="text-[9px] font-bold tracking-wide">Trang chủ</span>
-                    </TransitionLink>
+            {/* Mobile Bottom Navigation Pill (Chỉ hiện trên màn hình < xl) */}
+            <div className="xl:hidden fixed bottom-5 md:bottom-8 left-1/2 -translate-x-1/2 z-[90] w-[92%] sm:w-[85%] max-w-[300px] h-[60px] bg-[#0F1115] border border-white/10 rounded-full shadow-[0_16px_40px_rgba(0,0,0,0.6)] flex items-center justify-between px-2">
+                <TransitionLink href="/" className={`relative w-[64px] h-[48px] rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors z-10 ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'text-amber-400' : 'text-white/50 hover:text-amber-400'}`}>
+                    {pathname === '/' && !hasSearchQuery && !isMenuOpen && (
+                        <div className="absolute inset-0 bg-amber-400/10 rounded-full z-[-1]" />
+                    )}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                    <span className="text-[9px] font-bold tracking-wide">Trang chủ</span>
+                </TransitionLink>
 
-                    <TransitionLink href="/danh-sach/phim-moi" className={`relative w-[64px] h-[48px] rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer z-10 ${pathname.startsWith('/danh-sach/') || pathname.startsWith('/the-loai/') || pathname.startsWith('/quoc-gia/') || hasSearchQuery ? 'text-amber-400' : 'text-white/50 hover:text-amber-400'}`}>
-                        {(pathname.startsWith('/danh-sach/') || pathname.startsWith('/the-loai/') || pathname.startsWith('/quoc-gia/') || hasSearchQuery) && (
-                            <div className="absolute inset-0 bg-amber-400/10 rounded-full z-[-1]" />
-                        )}
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" /></svg>
-                        <span className="text-[9px] font-bold tracking-wide">Khám phá</span>
-                    </TransitionLink>
+                <TransitionLink href="/danh-sach/phim-moi" className={`relative w-[64px] h-[48px] rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer z-10 ${pathname.startsWith('/danh-sach/') || pathname.startsWith('/the-loai/') || pathname.startsWith('/quoc-gia/') || hasSearchQuery ? 'text-amber-400' : 'text-white/50 hover:text-amber-400'}`}>
+                    {(pathname.startsWith('/danh-sach/') || pathname.startsWith('/the-loai/') || pathname.startsWith('/quoc-gia/') || hasSearchQuery) && (
+                        <div className="absolute inset-0 bg-amber-400/10 rounded-full z-[-1]" />
+                    )}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" /></svg>
+                    <span className="text-[9px] font-bold tracking-wide">Khám phá</span>
+                </TransitionLink>
 
-                    <button
-                        onClick={() => {
-                            if (user) {
-                                router.push("/trang-ca-nhan?tab=history");
-                            } else {
-                                setLoginPromptSource("history");
-                                setShowLoginPrompt(true);
-                            }
-                        }}
-                        className={`relative w-[64px] h-[48px] rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer z-10 ${pathname === '/trang-ca-nhan' && searchParams.get('tab') === 'history' ? 'text-amber-400' : 'text-white/50 hover:text-amber-400'}`}
-                    >
-                        {pathname === '/trang-ca-nhan' && searchParams.get('tab') === 'history' && (
-                            <div className="absolute inset-0 bg-amber-400/10 rounded-full z-[-1]" />
-                        )}
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" /></svg>
-                        <span className="text-[9px] font-bold tracking-wide">Lịch sử</span>
-                    </button>
+                <button
+                    onClick={() => {
+                        if (user) {
+                            router.push("/trang-ca-nhan?tab=history");
+                        } else {
+                            setLoginPromptSource("history");
+                            setShowLoginPrompt(true);
+                        }
+                    }}
+                    className={`relative w-[64px] h-[48px] rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer z-10 ${pathname === '/trang-ca-nhan' && searchParams.get('tab') === 'history' ? 'text-amber-400' : 'text-white/50 hover:text-amber-400'}`}
+                >
+                    {pathname === '/trang-ca-nhan' && searchParams.get('tab') === 'history' && (
+                        <div className="absolute inset-0 bg-amber-400/10 rounded-full z-[-1]" />
+                    )}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" /></svg>
+                    <span className="text-[9px] font-bold tracking-wide">Lịch sử</span>
+                </button>
 
-                    <button
-                        onClick={() => {
-                            if (user) {
-                                router.push("/trang-ca-nhan");
-                            } else {
-                                setLoginPromptSource("account");
-                                setShowLoginPrompt(true);
-                            }
-                        }}
-                        className={`relative w-[64px] h-[48px] rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer z-10 ${pathname === '/trang-ca-nhan' && searchParams.get('tab') !== 'history' && !isMenuOpen ? 'text-amber-400' : 'text-white/50 hover:text-amber-400'}`}
-                    >
-                        {pathname === '/trang-ca-nhan' && searchParams.get('tab') !== 'history' && !isMenuOpen && (
-                            <div className="absolute inset-0 bg-amber-400/10 rounded-full z-[-1]" />
-                        )}
-                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                        <span className="text-[9px] font-bold tracking-wide">Tài khoản</span>
-                    </button>
-                </div>
-            )}
+                <button
+                    onClick={() => {
+                        if (user) {
+                            router.push("/trang-ca-nhan");
+                        } else {
+                            setLoginPromptSource("account");
+                            setShowLoginPrompt(true);
+                        }
+                    }}
+                    className={`relative w-[64px] h-[48px] rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer z-10 ${pathname === '/trang-ca-nhan' && searchParams.get('tab') !== 'history' && !isMenuOpen ? 'text-amber-400' : 'text-white/50 hover:text-amber-400'}`}
+                >
+                    {pathname === '/trang-ca-nhan' && searchParams.get('tab') !== 'history' && !isMenuOpen && (
+                        <div className="absolute inset-0 bg-amber-400/10 rounded-full z-[-1]" />
+                    )}
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                    <span className="text-[9px] font-bold tracking-wide">Tài khoản</span>
+                </button>
+            </div>
             <LoginPromptModal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} />
         </>
     );

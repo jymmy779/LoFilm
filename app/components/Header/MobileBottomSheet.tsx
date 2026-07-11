@@ -242,7 +242,7 @@ export default function MobileBottomSheet({ isOpen, onClose, categories, countri
 
                 </div>
             </div>
-            <LoginPromptModal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} />
+            <LoginPromptModal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} onLogin={() => onClose()} />
         </>
     );
 }
