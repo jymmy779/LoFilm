@@ -279,9 +279,11 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                         slidesPerView={2}
                         spaceBetween={8}
                         breakpoints={{
-                            1280: { spaceBetween: 12 },
-                            767: { spaceBetween: 10 },
-                            576: { spaceBetween: 8 },
+                            640: { slidesPerView: 3.5, spaceBetween: 10 },
+                            768: { slidesPerView: 4.5, spaceBetween: 10 },
+                            1024: { slidesPerView: 4.5, spaceBetween: 12 },
+                            1280: { slidesPerView: 5.5, spaceBetween: 14 },
+                            1536: { slidesPerView: 6.5, spaceBetween: 14 },
                         }}
                         navigation={{
                             nextEl: '.btn-next-continue',
@@ -295,7 +297,7 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                             const isPriority = index < 4;
 
                             return (
-                                <SwiperSlide key={item.id} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
+                                <SwiperSlide key={item.id}>
                                     <TransitionLink
                                         href={`/phim/${item.movie_slug}/${item.episode_slug}`}
                                         className="block group/item relative"
