@@ -9,6 +9,7 @@ import { Star, ChevronDown, User } from "lucide-react";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
 import { fetchActorsFromTMDB, TMDBActor } from "@/app/utils/tmdbUtils";
+import { getR2ActorUrl } from "@/app/utils/r2ImageUrl";
 import { useEffect } from "react";
 
 interface SidebarProps {
@@ -184,6 +185,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                                 <div className="w-16 h-16 rounded-full bg-white/5 border border-white/5 group-hover:border-amber-400 flex items-center justify-center overflow-hidden transition-all relative">
                                     {actor.profile_path ? (
                                         <SmartImage
+                                            r2Src={getR2ActorUrl(actor.id)}
                                             src={getImageUrl(`https://image.tmdb.org/t/p/w200${actor.profile_path}`, { width: 100, quality: 75 })}
                                             rawSrc={`https://image.tmdb.org/t/p/w200${actor.profile_path}`}
                                             alt={actor.name}

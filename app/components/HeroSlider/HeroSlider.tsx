@@ -15,6 +15,7 @@ import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
 import { getImageUrl, getRawImageUrl, filterDuplicateMovies } from "@/app/utils/movieUtils";
+import { getR2MovieThumbUrl, getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 import Container from "@/app/components/Container";
 import Skeleton from "@/app/components/Skeleton/Skeleton";
 import FavoriteButton from "@/app/components/Common/FavoriteButton";
@@ -94,6 +95,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                             <>
                                 <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] lg:overflow-hidden [transform:translateZ(0)]">
                                     <SmartImage
+                                        r2Src={getR2MovieThumbUrl(movie.slug)}
                                         src={getImageUrl(movie.thumb_url, { width: 1920, quality: 85 })}
                                         rawSrc={getRawImageUrl(movie.thumb_url)}
                                         alt={movie.name}
@@ -255,6 +257,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                 <SwiperSlide key={movie._id}>
                                     <div className="relative cursor-pointer rounded-full min-[700px]:rounded overflow-hidden aspect-square min-[700px]:aspect-video border-2 border-white/20 hover:border-white/40 [.swiper-slide-thumb-active_&]:border-[#f5a623] transition-all duration-300 opacity-60 hover:opacity-90 [.swiper-slide-thumb-active_&]:opacity-100 bg-[#0F1115]/40">
                                         <SmartImage
+                                            r2Src={getR2MoviePosterUrl(movie.slug)}
                                             src={getImageUrl(movie.thumb_url, { width: 100, quality: 60 })}
                                             rawSrc={getRawImageUrl(movie.thumb_url)}
                                             alt={movie.name}

@@ -34,6 +34,9 @@ const nextConfig: NextConfig = {
             { protocol: "https", hostname: "phimapi.com" },
             { protocol: "https", hostname: "img.phimapi.com" },
             { protocol: "https", hostname: "images.unsplash.com" },
+            { protocol: "https", hostname: "image.tmdb.org" },
+            // Cloudflare R2 – self-hosted images
+            { protocol: "https", hostname: "pub-2a7f4f3fc8d74800bc2deccab434bd65.r2.dev" },
         ],
     },
     async headers() {

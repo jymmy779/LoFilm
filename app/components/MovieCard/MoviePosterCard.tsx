@@ -6,6 +6,7 @@ import SmartImage from "@/app/components/Common/SmartImage";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
+import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 import MoviePreviewWrapper from "./MoviePreviewWrapper";
 import { MovieQualityBadge, MovieLangBadge, MovieEpisodeBadge, MovieExclusiveBadge } from "@/app/components/Common/MovieBadge";
 import { useBaitStore } from "@/app/store/useBaitStore";
@@ -49,6 +50,7 @@ function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZon
                 <div className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-[#0F1115]">
                     {/* Poster Image */}
                     <SmartImage
+                        r2Src={getR2MoviePosterUrl(movie.slug)}
                         src={getImageUrl(movie.poster_url, { width: 400, quality: 80 })}
                         rawSrc={getRawImageUrl(movie.poster_url)}
                         alt={movie.name}

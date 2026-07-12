@@ -4,6 +4,7 @@ import SmartImage from "@/app/components/Common/SmartImage";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
+import { getR2MovieThumbUrl, getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 import { MovieQualityBadge, MovieEpisodeBadge } from "@/app/components/Common/MovieBadge";
 
 interface WideMovieCardProps {
@@ -29,6 +30,7 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
                 {/* Top Thumbnail (aspect 21/9) */}
                 <div className="relative w-full aspect-[21/9] overflow-hidden rounded-xl bg-[#12151C]">
                     <SmartImage
+                        r2Src={getR2MovieThumbUrl(movie.slug)}
                         src={thumbUrl}
                         rawSrc={getRawImageUrl(movie.thumb_url)}
                         alt={movie.name}
@@ -44,6 +46,7 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
                     {/* Poster overlapping the thumbnail (-mt-6 for mobile, -mt-8 for desktop which is ~20% of the poster height) */}
                     <div className="hidden md:block w-20 shrink-0 aspect-[2/3] rounded-lg overflow-hidden border-2 border-[#12151C] bg-[#12151C] md:-mt-8 relative z-30 transition-transform duration-300 group-hover/link:-translate-y-1">
                         <SmartImage
+                            r2Src={getR2MoviePosterUrl(movie.slug)}
                             src={posterUrl}
                             rawSrc={getRawImageUrl(movie.poster_url)}
                             alt={movie.name}

@@ -4,10 +4,21 @@ export default function imageLoader({ src, width, quality }: { src: string, widt
     return src;
   }
 
-  // 2. Xử lý URL gốc (đã được movieUtils chuẩn hóa nhưng vẫn kiểm tra lại cho an toàn)
+  // 2. Nếu là R2 URL của mình -> serve thẳng, không cần proxy
+  // R2 đã là WebP rồi, Cloudflare CDN đã tối ưu sẵn
+  const r2PublicUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || '';
+  if (r2PublicUrl && src.startsWith(r2PublicUrl)) {
+    return src;
+  }
+  // Fallback thêm: check domain r2.dev chung (trường hợp env chưa set)
+  if (src.includes('.r2.dev/') || src.includes('r2.cloudflarestorage.com')) {
+    return src;
+  }
+
+  // 3. Xử lý URL nguồn ngoài -> proxy qua wsrv.nl để convert + resize
   let originUrl = src;
 
-  // Nếu lỡ có proxy cũ bọc ngoài, gỡ ra (vẫn giữ logic này để tương thích ngược nếu cần)
+  // Nếu lỡ có proxy cũ bọc ngoài, gỡ ra
   if (src.includes('?url=')) {
     try {
       const urlObj = new URL(src);
@@ -23,12 +34,7 @@ export default function imageLoader({ src, width, quality }: { src: string, widt
     originUrl = `https://phimimg.com/${originUrl.startsWith('/') ? originUrl.slice(1) : originUrl}`;
   }
 
-  // 3. Tối ưu hóa tham số wsrv.nl
-  // - finalQuality: Cân bằng giữa độ nét và dung lượng
+  // 4. Tối ưu hóa tham số wsrv.nl
   const finalQuality = quality || (width < 640 ? 75 : 82);
-  
-  // - maxage=7d: Cache mạnh trên CDN 7 ngày
-  // - compress: Sử dụng thuật toán nén tối ưu
-  // - il: Tải ảnh lũy tiến (progressive)
   return `https://wsrv.nl/?url=${encodeURIComponent(originUrl)}&w=${width}&q=${finalQuality}&output=webp&il&maxage=7d`;
 }

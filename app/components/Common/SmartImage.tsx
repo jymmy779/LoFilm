@@ -4,16 +4,21 @@ import Image, { ImageProps } from "next/image";
 interface SmartImageProps extends Omit<ImageProps, "onError"> {
     fallbackSrc?: string;
     rawSrc?: string;
+    /** R2 self-hosted WebP URL – ưu tiên cao nhất, nhanh nhất */
+    r2Src?: string;
 }
 
 /**
- * A smarter Image component that handles proxy failures by falling back to the raw URL
- * or a placeholder image if necessary.
+ * A smarter Image component with 3-tier fallback:
+ * 1. r2Src  – R2 CDN (self-hosted WebP, fastest, most stable)
+ * 2. src    – wsrv.nl proxy (convert on-the-fly, fallback khi R2 chưa có)
+ * 3. rawSrc – URL gốc từ nguồn (last resort)
  */
 const SmartImage = forwardRef<HTMLImageElement, SmartImageProps>(
-    ({ src, rawSrc, fallbackSrc, alt, ...props }, ref) => {
-        const [currentSrc, setCurrentSrc] = useState<any>(src);
-        const [hasError, setHasError] = useState(false);
+    ({ src, rawSrc, r2Src, fallbackSrc, alt, ...props }, ref) => {
+        // Khởi tạo: ưu tiên r2Src nếu có
+        const [currentSrc, setCurrentSrc] = useState<any>(() => r2Src || src);
+        const [fallbackLevel, setFallbackLevel] = useState(0); // 0=r2, 1=wsrv, 2=raw
         const [isLoaded, setIsLoaded] = useState(false);
 
         const localRef = React.useRef<HTMLImageElement | null>(null);
@@ -26,8 +31,6 @@ const SmartImage = forwardRef<HTMLImageElement, SmartImageProps>(
                 ref.current = node;
             }
 
-            // Ngay khi ref gắn vào DOM, kiểm tra xem ảnh đã load từ cache chưa.
-            // Dùng requestAnimationFrame để chắc chắn browser đã render xong.
             if (node) {
                 requestAnimationFrame(() => {
                     if (node.complete && (node.naturalWidth > 0 || node.naturalHeight > 0)) {
@@ -37,15 +40,15 @@ const SmartImage = forwardRef<HTMLImageElement, SmartImageProps>(
             }
         }, [ref]);
 
+        // Reset khi src hoặc r2Src thay đổi
         useEffect(() => {
-            setCurrentSrc(src);
-            setHasError(false);
+            setCurrentSrc(r2Src || src);
+            setFallbackLevel(0);
             setIsLoaded(false);
-        }, [src]);
+        }, [src, r2Src]);
 
         useEffect(() => {
-            // Fallback cuối: nếu sau 1.5s ảnh vẫn chưa hiện (do bất kỳ lý do gì),
-            // tự động hiện lên để tránh bị kẹt opacity-0 mãi mãi.
+            // Fallback cuối: nếu sau 1.5s ảnh vẫn chưa hiện, tự động hiện lên
             const timer = setTimeout(() => {
                 if (localRef.current?.complete) {
                     setIsLoaded(true);
@@ -56,21 +59,28 @@ const SmartImage = forwardRef<HTMLImageElement, SmartImageProps>(
         }, [currentSrc]);
 
         const handleError = () => {
-            if (!hasError) {
-                if (rawSrc && currentSrc !== rawSrc) {
-                    // Try the raw URL if proxy fails
-                    setCurrentSrc(rawSrc);
-                    setHasError(true);
-                } else if (fallbackSrc && currentSrc !== fallbackSrc) {
-                    // Try global fallback
-                    setCurrentSrc(fallbackSrc);
-                    setHasError(true);
-                }
+            // Tầng 0 (r2Src) → thử tầng 1 (wsrv.nl/src)
+            if (fallbackLevel === 0 && r2Src && currentSrc === r2Src && src) {
+                setCurrentSrc(src);
+                setFallbackLevel(1);
+                return;
+            }
+            // Tầng 1 (wsrv.nl) → thử tầng 2 (rawSrc)
+            if (fallbackLevel <= 1 && rawSrc && currentSrc !== rawSrc) {
+                setCurrentSrc(rawSrc);
+                setFallbackLevel(2);
+                return;
+            }
+            // Tầng 2 → fallbackSrc nếu có
+            if (fallbackSrc && currentSrc !== fallbackSrc) {
+                setCurrentSrc(fallbackSrc);
+                setFallbackLevel(3);
             }
         };
 
-        // Pass the transition classes directly to Image
         const baseClass = props.className || "";
+        // Disable Next.js optimization khi đã xuống fallback raw/r2 (không cần proxy thêm)
+        const shouldUnoptimize = fallbackLevel >= 2;
 
         return (
             <Image
@@ -84,7 +94,7 @@ const SmartImage = forwardRef<HTMLImageElement, SmartImageProps>(
                     if (props.onLoad) props.onLoad(e);
                 }}
                 className={`${baseClass} ${isLoaded ? 'animate-fade-in-simple opacity-100' : 'opacity-0'}`}
-                unoptimized={hasError} // Disable optimization for raw/fallback to avoid further proxy issues
+                unoptimized={shouldUnoptimize}
             />
         );
     }
@@ -93,3 +103,4 @@ const SmartImage = forwardRef<HTMLImageElement, SmartImageProps>(
 SmartImage.displayName = "SmartImage";
 
 export default memo(SmartImage);
+
