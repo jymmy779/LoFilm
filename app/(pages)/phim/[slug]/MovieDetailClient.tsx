@@ -605,7 +605,17 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                 {/* Actors Tab */}
                                 {activeTab === 'Diễn viên' && (
                                     <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                                        {tmdbActors.length > 0 ? (
+                                        {isLoadingActors ? (
+                                            Array.from({ length: 6 }).map((_, idx) => (
+                                                <div key={idx} className="group w-full">
+                                                    <div className="aspect-[3/4] bg-white/5 rounded-2xl mb-3 overflow-hidden relative">
+                                                        <Skeleton className="absolute inset-0" rounded="none" />
+                                                    </div>
+                                                    <div className="w-2/3 h-3 bg-white/10 rounded mx-auto mb-1.5" />
+                                                    <div className="w-1/2 h-2.5 bg-white/5 rounded mx-auto" />
+                                                </div>
+                                            ))
+                                        ) : tmdbActors.length > 0 ? (
                                             tmdbActors.map((actor) => (
                                                 <div key={actor.id} className="group w-full cursor-pointer">
                                                     <div className="aspect-[3/4] bg-white/5 rounded-2xl mb-3 flex items-center justify-center group-hover:border-[#f5a623]/30 transition-all overflow-hidden relative">
@@ -631,14 +641,11 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                                 </div>
                                             ))
                                         ) : movie.actor && movie.actor.length > 0 ? (
-                                            // Fallback to name-only if TMDB fails or loading
+                                            // Fallback to name-only if TMDB fails after loading
                                             movie.actor.map((actor, idx) => (
                                                 <div key={idx} className="group cursor-pointer">
                                                     <div className="aspect-[3/4] bg-white/5 rounded-2xl mb-3 flex items-center justify-center border border-white/5 group-hover:border-[#f5a623]/30 transition-all overflow-hidden relative">
                                                         <i className="fa-solid fa-user text-3xl text-white/10 group-hover:text-[#f5a623]/30 transition-colors"></i>
-                                                        {isLoadingActors && (
-                                                            <Skeleton className="absolute inset-0" rounded="none" />
-                                                        )}
                                                     </div>
                                                     <div className="text-center">
                                                         <div className="text-xs font-bold text-gray-400 group-hover:text-white transition-colors truncate px-1">

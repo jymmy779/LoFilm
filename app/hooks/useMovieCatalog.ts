@@ -28,7 +28,11 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
         type: searchParams.get("type") || defaultType || "",
         year: searchParams.get("year") || "",
         sort: searchParams.get("sort") || "update",
-        rating: searchParams.get("rating") || ""
+        rating: searchParams.get("rating") || "",
+        status: searchParams.get("status") || "",
+        lang: searchParams.get("lang") || "",
+        sortType: searchParams.get("sort_type") || "desc",
+        letter: searchParams.get("letter") || ""
     };
     const initialPage = Number(searchParams.get("page")) || 1;
     const initialFilterOpen = searchParams.get("filter") === "open";
@@ -41,6 +45,10 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
         !initialFilters.category &&
         !initialFilters.country &&
         !initialFilters.year &&
+        !initialFilters.status &&
+        !initialFilters.lang &&
+        !initialFilters.letter &&
+        initialFilters.sortType === "desc" &&
         (!defaultType || initialFilters.type === defaultType)
     );
 
@@ -85,6 +93,10 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
         if (filters.year) params.set("year", filters.year);
         if (filters.sort !== "update") params.set("sort", filters.sort);
         if (filters.rating) params.set("rating", filters.rating);
+        if (filters.status) params.set("status", filters.status);
+        if (filters.lang) params.set("lang", filters.lang);
+        if (filters.sortType && filters.sortType !== "desc") params.set("sort_type", filters.sortType);
+        if (filters.letter) params.set("letter", filters.letter);
         if (isOpen) params.set("filter", "open");
 
         router.push(`?${params.toString()}`, { scroll: false });
@@ -198,7 +210,7 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
             try {
                 // 1. Unified Search Strategy (Priority-based endpoint selection)
                 // PhimAPI/KKPhim specialized endpoints actually support secondary filters better than generic list endpoints.
-                const { category, country, year, type, sort } = activeFilters;
+                const { category, country, year, type, sort, sortType, status, lang, letter } = activeFilters;
                 let apiUrl = "";
                 const params = new URLSearchParams();
                 
@@ -244,7 +256,7 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                         "year": "year"
                     };
                     params.set("sort_field", sortMap[sort] || "modified.time");
-                    params.set("sort_type", "desc");
+                    params.set("sort_type", sortType || "desc");
                 }
 
                 // 3. Special Case: Handle redirects if we are on a slug-specific page 
@@ -291,13 +303,62 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                 }
 
                 // 4. Secondary Client-side Filter
-                if (activeFilters.type && items.length > 0) {
-                    const targetType = activeFilters.type;
-                    items = items.filter(movie => {
-                        if (targetType === "single") return movie.type === "single";
-                        if (targetType === "series") return movie.type === "series" || movie.type === "hoathinh" || movie.type === "tvshows";
-                        return true;
-                    });
+                if (items.length > 0) {
+                    // Filter by Type
+                    if (activeFilters.type) {
+                        const targetType = activeFilters.type;
+                        items = items.filter(movie => {
+                            if (targetType === "single") return movie.type === "single";
+                            if (targetType === "series") return movie.type === "series" || movie.type === "hoathinh" || movie.type === "tvshows";
+                            return true;
+                        });
+                    }
+
+                    // Filter by Status
+                    if (status) {
+                        items = items.filter(movie => {
+                            const isCompleted = movie.episode_current?.toLowerCase().includes("hoàn tất") || 
+                                                movie.episode_current?.toLowerCase().includes("full") || 
+                                                movie.status === "completed";
+                            if (status === "completed") return isCompleted;
+                            if (status === "ongoing") return !isCompleted;
+                            return true;
+                        });
+                    }
+
+                    // Filter by Language
+                    if (lang) {
+                        items = items.filter(movie => {
+                            const mLang = (movie.lang || "").toLowerCase();
+                            const mLangKeys = (movie as any).lang_key || [];
+                            
+                            if (lang === "vietsub") {
+                                return mLang.includes("vietsub") || mLangKeys.includes("vs");
+                            }
+                            if (lang === "thuyetminh") {
+                                return mLang.includes("thuyết minh") || mLangKeys.includes("tm");
+                            }
+                            if (lang === "longtieng") {
+                                return mLang.includes("lồng tiếng") || mLangKeys.includes("lt");
+                            }
+                            return true;
+                        });
+                    }
+
+                    // Filter by Letter (A-Z)
+                    if (letter && letter !== "all") {
+                        const targetLetter = letter.toUpperCase();
+                        const removeAccentsLocal = (str: string) => {
+                            return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D");
+                        };
+                        items = items.filter(movie => {
+                            const firstChar = removeAccentsLocal(movie.name || "").trim().charAt(0).toUpperCase();
+                            if (targetLetter === "#") {
+                                return !/^[A-Z]$/.test(firstChar);
+                            }
+                            return firstChar === targetLetter;
+                        });
+                    }
                 }
 
                 if (isMounted) {

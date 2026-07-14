@@ -34,7 +34,11 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
         type: searchParams.get("type") || "",
         year: searchParams.get("year") || "",
         sort: searchParams.get("sort") || "modified.time",
-        rating: searchParams.get("rating") || ""
+        rating: searchParams.get("rating") || "",
+        status: searchParams.get("status") || "",
+        lang: searchParams.get("lang") || "",
+        sortType: searchParams.get("sort_type") || "desc",
+        letter: searchParams.get("letter") || ""
     };
 
     const initialPage = Number(searchParams.get("page")) || 1;
@@ -60,6 +64,10 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
         if (filters.year) params.set("year", filters.year);
         if (filters.sort !== "modified.time") params.set("sort", filters.sort);
         if (filters.rating) params.set("rating", filters.rating);
+        if (filters.status) params.set("status", filters.status);
+        if (filters.lang) params.set("lang", filters.lang);
+        if (filters.sortType && filters.sortType !== "desc") params.set("sort_type", filters.sortType);
+        if (filters.letter) params.set("letter", filters.letter);
         if (isOpen) params.set("filter", "open");
 
         router.push(`?${params.toString()}`, { scroll: false });
@@ -120,7 +128,7 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
                 if (activeFilters.sort === "year") sortField = "year";
                 if (activeFilters.sort === "_id") sortField = "_id";
                 params.set("sort_field", sortField);
-                params.set("sort_type", "desc");
+                params.set("sort_type", activeFilters.sortType || "desc");
 
                 const apiUrl = `/api/search?${params.toString()}`;
                 const res = await axios.get(apiUrl);
@@ -128,9 +136,70 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
                 if (!isMounted) return;
 
                 if (res.data?.status === "success" || res.data?.status === true) {
-                    const items = res.data.data?.items || [];
+                    let items = res.data.data?.items || [];
                     const totalItems = res.data.data?.params?.pagination?.totalItems || 0;
                     const calculatedTotalPages = Math.ceil(totalItems / 48) || 1;
+                    
+                    // Client-side filtering
+                    if (items.length > 0) {
+                        // Filter by Type
+                        if (activeFilters.type) {
+                            const targetType = activeFilters.type;
+                            items = items.filter((movie: Movie) => {
+                                if (targetType === "single") return movie.type === "single";
+                                if (targetType === "series") return movie.type === "series" || movie.type === "hoathinh" || movie.type === "tvshows";
+                                return true;
+                            });
+                        }
+
+                        // Filter by Status
+                        if (activeFilters.status) {
+                            const status = activeFilters.status;
+                            items = items.filter((movie: Movie) => {
+                                const isCompleted = movie.episode_current?.toLowerCase().includes("hoàn tất") || 
+                                                    movie.episode_current?.toLowerCase().includes("full") || 
+                                                    movie.status === "completed";
+                                if (status === "completed") return isCompleted;
+                                if (status === "ongoing") return !isCompleted;
+                                return true;
+                            });
+                        }
+
+                        // Filter by Language
+                        if (activeFilters.lang) {
+                            const lang = activeFilters.lang;
+                            items = items.filter((movie: Movie) => {
+                                const mLang = (movie.lang || "").toLowerCase();
+                                const mLangKeys = (movie as any).lang_key || [];
+                                
+                                if (lang === "vietsub") {
+                                    return mLang.includes("vietsub") || mLangKeys.includes("vs");
+                                }
+                                if (lang === "thuyetminh") {
+                                    return mLang.includes("thuyết minh") || mLangKeys.includes("tm");
+                                }
+                                if (lang === "longtieng") {
+                                    return mLang.includes("lồng tiếng") || mLangKeys.includes("lt");
+                                }
+                                return true;
+                            });
+                        }
+
+                        // Filter by Letter
+                        if (activeFilters.letter && activeFilters.letter !== "all") {
+                            const targetLetter = activeFilters.letter.toUpperCase();
+                            const removeAccentsLocal = (str: string) => {
+                                return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D");
+                            };
+                            items = items.filter((movie: Movie) => {
+                                const firstChar = removeAccentsLocal(movie.name || "").trim().charAt(0).toUpperCase();
+                                if (targetLetter === "#") {
+                                    return !/^[A-Z]$/.test(firstChar);
+                                }
+                                return firstChar === targetLetter;
+                            });
+                        }
+                    }
                     
                     if (isMounted) {
                         setMovies(items);
@@ -220,7 +289,7 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
                         <Film size={80} strokeWidth={1} className="mb-6 opacity-40" />
                         <p className="text-xl font-light">Không có nội dung cho phim: <span className="text-amber-500 font-medium italic">"{keyword}"</span></p>
                         <p className="text-sm mt-2 opacity-50 italic">Thử với từ khóa khác hoặc điều chỉnh bộ lọc xem?</p>
-                        {(activeFilters.category || activeFilters.country || activeFilters.year || activeFilters.type) && (
+                        {(activeFilters.category || activeFilters.country || activeFilters.year || activeFilters.type || activeFilters.status || activeFilters.lang || activeFilters.letter) && (
                             <button 
                                 onClick={() => handleFilterChange({
                                     category: "",
@@ -228,7 +297,11 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
                                     type: "",
                                     year: "",
                                     sort: "modified.time",
-                                    rating: ""
+                                    rating: "",
+                                    status: "",
+                                    lang: "",
+                                    sortType: "desc",
+                                    letter: "all"
                                 })}
                                 className="mt-8 flex items-center gap-2 px-6 py-3 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-500 rounded-full transition-all group"
                             >
