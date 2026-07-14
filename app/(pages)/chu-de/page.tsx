@@ -7,6 +7,8 @@ export const metadata: Metadata = {
     keywords: ["chủ đề phim", "bộ sưu tập phim", "phim hot", "phim hàn quốc", "lofilm"],
 };
 
+export const revalidate = 86400; // Cache 24 giờ cho trang chủ đề tĩnh
+
 export default function TopicsPage() {
     return (
         <TopicsClient />

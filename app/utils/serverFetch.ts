@@ -104,8 +104,44 @@ export async function fetchSearchData(
     }
 ): Promise<CatalogInitialData> {
     try {
+        // 1. Search in Supabase (Exclusive movies) on page 1
+        let exclusiveItems: any[] = [];
+        if (page === 1) {
+            try {
+                const { createClient } = await import("@/app/utils/supabase/server");
+                const supabase = await createClient();
+                const { data: supabaseData } = await supabase
+                    .from("exclusive_movies")
+                    .select("*")
+                    .eq("status", "published")
+                    .or(`name.ilike.%${keyword}%,origin_name.ilike.%${keyword}%`)
+                    .order('created_at', { ascending: false })
+                    .limit(limit);
+
+                if (supabaseData) {
+                    exclusiveItems = supabaseData.map(movie => ({
+                        _id: movie.id,
+                        name: movie.name || "Phim Độc Quyền",
+                        slug: movie.slug,
+                        origin_name: movie.origin_name || "",
+                        type: movie.type,
+                        thumb_url: movie.thumb_url || "",
+                        poster_url: movie.poster_url || "",
+                        year: movie.year || new Date().getFullYear(),
+                        is_copyright: true,
+                        sub_docquyen: true
+                    }));
+                }
+            } catch (err) {
+                console.error("Supabase server fetch search error:", err);
+            }
+        }
+
+        // 2. Search on PhimAPI with normalized keyword (accent-insensitive)
+        const apiKeyword = keyword.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
+
         const params = new URLSearchParams();
-        params.set("keyword", keyword);
+        params.set("keyword", apiKeyword);
         params.set("page", page.toString());
         params.set("limit", limit.toString());
         if (filters?.category) params.set("category", filters.category);
@@ -127,12 +163,22 @@ export async function fetchSearchData(
             fetchWithRedis("https://phimapi.com/quoc-gia", { revalidate: 86400 }), // 24 giờ
         ]);
 
-        let items: Movie[] = [];
+        let apiItems: any[] = [];
         let totalItems = 0;
 
         if (searchData?.status === "success" || searchData?.status === true) {
-            items = searchData.data?.items || [];
+            apiItems = searchData.data?.items || [];
             totalItems = searchData.data?.params?.pagination?.totalItems || 0;
+        }
+
+        // Merge exclusive movies and standard movies, avoiding duplicate slugs
+        const exclusiveSlugs = new Set(exclusiveItems.map(item => item.slug));
+        const filteredApiItems = apiItems.filter(item => !exclusiveSlugs.has(item.slug));
+        const finalMovies = [...exclusiveItems, ...filteredApiItems];
+
+        // Adjust total items count if exclusive items were added
+        if (page === 1) {
+            totalItems += exclusiveItems.length;
         }
 
         const parseList = (data: any): MenuItem[] => {
@@ -143,7 +189,7 @@ export async function fetchSearchData(
         };
 
         return {
-            movies: items,
+            movies: finalMovies,
             totalPages: Math.ceil(totalItems / limit) || 1,
             pageTitle: `Tìm kiếm: ${keyword}`,
             categories: parseList(categoriesData),

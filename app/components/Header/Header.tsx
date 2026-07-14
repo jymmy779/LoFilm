@@ -106,37 +106,34 @@ export default function Header() {
                 <div className="flex items-center justify-between h-[54px] md:h-[64px] w-full max-w-[1900px] mx-auto px-4 xl:px-0 gap-4 md:gap-8">
                     <div className="flex xl:hidden items-center justify-between w-full h-full gap-3">
                         <div className="relative flex-1 h-full flex items-center">
-                            {!isSearchActive ? (
-                                <div className="flex items-center gap-2 animate-fade-in shrink-0">
-                                    <button
-                                        onClick={() => setIsMenuOpen(true)}
-                                        className="p-1.5 -ml-1.5 text-white/80 hover:text-white transition-colors"
-                                        aria-label="Mở menu"
-                                    >
-                                        <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
-                                            <line x1="3" y1="12" x2="21" y2="12"></line>
-                                            <line x1="3" y1="6" x2="21" y2="6"></line>
-                                            <line x1="3" y1="18" x2="21" y2="18"></line>
-                                        </svg>
-                                    </button>
-                                    <TransitionLink href="/" className="shrink-0">
-                                        <Image
-                                            width={140}
-                                            height={70}
-                                            className="h-[50px] md:h-[65px] w-auto object-contain"
-                                            src="/images/lofilm_logo.webp"
-                                            alt="LoFilm - Xem Phim Online Chất Lượng Cao | Phim 4K Vietsub Miễn Phí"
-                                            priority
-                                            unoptimized
-                                            sizes="(max-width: 768px) 140px, 140px"
-                                        />
-                                    </TransitionLink>
-                                </div>
-                            ) : (
-                                <div className="flex-1 animate-reveal-left">
-                                    <SearchBox autoFocus={true} />
-                                </div>
-                            )}
+                            <div className={`items-center gap-2 shrink-0 ${isSearchActive ? "hidden" : "flex animate-fade-in"}`}>
+                                <button
+                                    onClick={() => setIsMenuOpen(true)}
+                                    className="p-1.5 -ml-1.5 text-white/80 hover:text-white transition-colors"
+                                    aria-label="Mở menu"
+                                >
+                                    <svg viewBox="0 0 24 24" width="24" height="24" stroke="currentColor" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round">
+                                        <line x1="3" y1="12" x2="21" y2="12"></line>
+                                        <line x1="3" y1="6" x2="21" y2="6"></line>
+                                        <line x1="3" y1="18" x2="21" y2="18"></line>
+                                    </svg>
+                                </button>
+                                <TransitionLink href="/" className="shrink-0">
+                                    <Image
+                                        width={140}
+                                        height={70}
+                                        className="h-[50px] md:h-[65px] w-auto object-contain"
+                                        src="/images/lofilm_logo.webp"
+                                        alt="LoFilm - Xem Phim Online Chất Lượng Cao | Phim 4K Vietsub Miễn Phí"
+                                        priority
+                                        unoptimized
+                                        sizes="(max-width: 768px) 140px, 140px"
+                                    />
+                                </TransitionLink>
+                            </div>
+                            <div className={`flex-1 ${isSearchActive ? "block animate-reveal-left" : "hidden"}`}>
+                                <SearchBox autoFocus={isSearchActive} />
+                            </div>
                         </div>
 
                         <div className="flex items-center gap-1">

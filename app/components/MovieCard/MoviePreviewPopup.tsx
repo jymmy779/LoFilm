@@ -6,6 +6,7 @@ import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
 import { getEpisodeStatus, getImageUrl, getFriendlyEpisodeSlug, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
+import { getR2MovieThumbUrl } from "@/app/utils/r2ImageUrl";
 
 export interface MoviePreviewPopupProps {
     movie: Movie;
@@ -135,6 +136,7 @@ export default function MoviePreviewPopup({
                     {/* Layer 2: Main Thumbnail (Fade-in) */}
                     {thumbUrl && (
                         <SmartImage
+                            r2Src={getR2MovieThumbUrl(movie.slug)}
                             src={thumbUrl}
                             rawSrc={getRawImageUrl(movie.thumb_url)}
                             alt={movie.name}

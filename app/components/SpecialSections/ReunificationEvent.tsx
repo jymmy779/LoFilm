@@ -7,6 +7,7 @@ import { Movie } from "@/app/types/movie";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
 import { decodeHtml } from "@/app/utils/textUtils";
+import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import ReunificationEventSkeleton from "./ReunificationEventSkeleton";
 
@@ -86,6 +87,7 @@ export default function ReunificationEvent() {
                         >
                             <TransitionLink href={`/phim/${movie.slug}`} className="relative w-full aspect-[2/3] rounded-2xl overflow-hidden border border-red-500/10 transition-all duration-500 bg-gray-200 block">
                                 <SmartImage
+                                    r2Src={getR2MoviePosterUrl(movie.slug)}
                                     src={getImageUrl(movie.poster_url, { width: 400 })}
                                     rawSrc={getRawImageUrl(movie.poster_url)}
                                     alt={movie.name}

@@ -315,8 +315,10 @@ async function fetchAllMovies() {
             page++;
             await sleep(300); // tránh spam API
         } catch (err) {
-            console.error(`  Lỗi trang ${page}: ${err.message}`);
-            break;
+            console.error(`  Lỗi trang ${page}: ${err.message}. Sẽ bỏ qua trang này và tiếp tục...`);
+            page++;
+            await sleep(1000);
+            continue;
         }
     }
 

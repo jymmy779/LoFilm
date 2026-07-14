@@ -15,6 +15,7 @@ import SmartImage from "@/app/components/Common/SmartImage";
 import Container from "@/app/components/Container";
 import MoviePreviewWrapper from "@/app/components/MovieCard/MoviePreviewWrapper";
 import SwiperNavButtons from "@/app/components/Common/SwiperNavButtons";
+import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 
 interface TopMovieRowProps {
     title: string;
@@ -131,6 +132,7 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                                         <div className="w-full h-full transition-transform duration-700 ease-out group-hover/item:scale-110">
                                             <div className="w-full h-full relative">
                                                 <SmartImage
+                                                    r2Src={getR2MoviePosterUrl(movie.slug)}
                                                     src={getImageUrl(movie.poster_url, { width: 250, quality: 75 })}
                                                     rawSrc={getRawImageUrl(movie.poster_url)}
                                                     alt={movie.name}

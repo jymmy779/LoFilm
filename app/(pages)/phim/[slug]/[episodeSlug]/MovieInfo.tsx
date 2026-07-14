@@ -6,6 +6,7 @@ import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { ChevronRight } from "lucide-react";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
+import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 
 interface MovieInfoProps {
   slug: string;
@@ -36,6 +37,7 @@ const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
       <div className="v-thumb-l flex justify-center flex-shrink-0">
         <div className="v-thumbnail relative w-[100px] h-[150px] rounded-xl overflow-hidden transform-gpu">
           <SmartImage
+            r2Src={getR2MoviePosterUrl(slug)}
             src={getImageUrl(movie.poster_url, { width: 200, quality: 75 })}
             rawSrc={getRawImageUrl(movie.poster_url)}
             alt={movie.name}

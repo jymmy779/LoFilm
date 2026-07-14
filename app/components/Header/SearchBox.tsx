@@ -7,6 +7,7 @@ import { usePageTransition } from "@/app/components/Transition/PageTransitionCon
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
+import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 
 interface SearchBoxProps {
     autoFocus?: boolean;
@@ -76,7 +77,8 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
     useEffect(() => {
         const controller = new AbortController();
         const query = searchQuery.trim();
-        const normalizedCacheKey = query.toLowerCase(); // Chống phân biệt hoa/thường cho cache
+        // Chuẩn hóa và loại bỏ dấu tiếng Việt để đồng nhất cache key khi gõ có/không dấu
+        const normalizedCacheKey = query.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
 
         const timer = setTimeout(async () => {
             if (query.length >= 2) {
@@ -249,6 +251,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                                     >
                                         <div className="w-10 h-14 md:w-12 md:h-16 shrink-0 rounded-lg overflow-hidden relative border border-white/5 bg-white/5">
                                             <SmartImage
+                                                r2Src={getR2MoviePosterUrl(movie.slug)}
                                                 src={getImageUrl(movie.poster_url || movie.thumb_url || "", { width: 100, quality: 75 })}
                                                 rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url || "")}
                                                 alt={movie.name}

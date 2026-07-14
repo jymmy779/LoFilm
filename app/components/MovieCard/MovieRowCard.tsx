@@ -6,6 +6,7 @@ import SmartImage from "@/app/components/Common/SmartImage";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
+import { getR2MovieThumbUrl } from "@/app/utils/r2ImageUrl";
 import MoviePreviewWrapper from "./MoviePreviewWrapper";
 
 interface MovieRowCardProps {
@@ -17,7 +18,6 @@ interface MovieRowCardProps {
 
 function MovieRowCard({ movie, priority = false, adZone = "movie_row", onClick }: MovieRowCardProps) {
     const imgUrl = getImageUrl(movie.thumb_url, { width: 300, quality: 75 });
-    console.log(imgUrl);
     return (
         <MoviePreviewWrapper
             movie={movie}
@@ -31,6 +31,7 @@ function MovieRowCard({ movie, priority = false, adZone = "movie_row", onClick }
             >
                 <div className="relative aspect-video rounded-xl overflow-hidden mb-3 transition-all bg-[#0F1115] border border-white/10">
                     <SmartImage
+                        r2Src={getR2MovieThumbUrl(movie.slug)}
                         src={imgUrl}
                         rawSrc={getRawImageUrl(movie.thumb_url)}
                         alt={movie.name}

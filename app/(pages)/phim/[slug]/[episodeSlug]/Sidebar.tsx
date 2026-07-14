@@ -9,7 +9,7 @@ import { Star, ChevronDown, User } from "lucide-react";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
 import { fetchActorsFromTMDB, TMDBActor } from "@/app/utils/tmdbUtils";
-import { getR2ActorUrl } from "@/app/utils/r2ImageUrl";
+import { getR2ActorUrl, getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 import { useEffect } from "react";
 
 interface SidebarProps {
@@ -29,7 +29,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
     const [tmdbActors, setTmdbActors] = useState<TMDBActor[]>([]);
     const [isLoadingActors, setIsLoadingActors] = useState(false);
 
-    // Fetch actors from TMDB
+    // Fetch actors from TMDB (Deferred by 1.5s to prioritize player and subtitles loading)
     useEffect(() => {
         const getActors = async () => {
             if (movie.tmdb?.id) {
@@ -47,7 +47,12 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                 }
             }
         };
-        getActors();
+
+        const timer = setTimeout(() => {
+            getActors();
+        }, 1500);
+
+        return () => clearTimeout(timer);
     }, [movie.tmdb?.id, movie.tmdb?.type]);
 
     // Điểm đánh giá từ TMDB
@@ -233,6 +238,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                         >
                             <div className="w-16 h-24 shrink-0 rounded-lg overflow-hidden relative bg-white/5">
                                 <SmartImage
+                                    r2Src={getR2MoviePosterUrl(movie.slug)}
                                     src={getImageUrl(movie.poster_url || "", { width: 200, quality: 75 })}
                                     rawSrc={getRawImageUrl(movie.poster_url || "")}
                                     alt={movie.title}

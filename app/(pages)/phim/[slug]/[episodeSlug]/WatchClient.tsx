@@ -40,6 +40,8 @@ import CommentSection from "@/app/components/Comments/CommentSection";
 import ReportModal from "@/app/components/Common/ReportModal";
 import ShareModal from "@/app/components/Movie/ShareModal";
 import { getImageUrl, getRawImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
+import LazyRow from "@/app/components/Common/LazyRow";
+import Skeleton from "@/app/components/Skeleton/Skeleton";
 
 import SmartImage from "@/app/components/Common/SmartImage";
 import { fetchTotalEpisodesFromTMDB } from "@/app/utils/tmdbUtils";
@@ -1512,7 +1514,13 @@ export default function WatchClient({
                                     onEpisodeSelect={selectEpisode}
                                 />
                                 <div className="mt-6 pt-6 border-t border-white/5">
-                                    <CommentSection movieSlug={`${slug}/${getFriendlyEpisodeSlug(currentEpisodeSlug)}`} />
+                                    <LazyRow
+                                        id={`comments-${slug}-${getFriendlyEpisodeSlug(currentEpisodeSlug)}`}
+                                        estimatedHeight="200px"
+                                        skeleton={<Skeleton className="h-40" rounded="2xl" />}
+                                    >
+                                        <CommentSection movieSlug={`${slug}/${getFriendlyEpisodeSlug(currentEpisodeSlug)}`} />
+                                    </LazyRow>
                                 </div>
                             </div>
                         </div>

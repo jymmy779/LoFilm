@@ -127,9 +127,10 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
         }, 500);
     };
 
-    // 4. Fetch Master Filters (Categories/Countries) — only if we don't have them from server
+    // 4. Fetch Master Filters (Categories/Countries) — Lazy loaded only when filter drawer is opened
     useEffect(() => {
         if (categories.length > 0 && countries.length > 0) return; // Already have from server
+        if (!isFilterOpen) return; // Lazy load only when user opens filters
 
         const fetchFilters = async () => {
             try {
@@ -151,7 +152,7 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
             }
         };
         fetchFilters();
-    }, []); // eslint-disable-line react-hooks/exhaust    // 5. Fetch Movies and Enrich Data
+    }, [isFilterOpen, categories.length, countries.length]);    // 5. Fetch Movies and Enrich Data
     useEffect(() => {
         // Generate a stable cache key based on the current context
         const cacheKey = `catalog_${baseApiUrl}_${currentPage}_${JSON.stringify(activeFilters)}_${slug || ''}`;

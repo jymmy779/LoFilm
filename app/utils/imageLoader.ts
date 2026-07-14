@@ -36,5 +36,5 @@ export default function imageLoader({ src, width, quality }: { src: string, widt
 
   // 4. Tối ưu hóa tham số wsrv.nl
   const finalQuality = quality || (width < 640 ? 75 : 82);
-  return `https://wsrv.nl/?url=${encodeURIComponent(originUrl)}&w=${width}&q=${finalQuality}&output=webp&il&maxage=7d`;
+  return `https://wsrv.nl/?url=${encodeURIComponent(originUrl)}&w=${width}&q=${finalQuality}&output=webp&il&maxage=1y`;
 }

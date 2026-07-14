@@ -10,6 +10,7 @@ import Container from "../Container";
 import SmartImage from "../Common/SmartImage";
 import axios from "axios";
 import { filterDuplicateMovies, getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
+import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 import Skeleton from "../Skeleton/Skeleton";
 
 const MOODS = [
@@ -218,6 +219,7 @@ function RandomMovieRow() {
                                         >
                                             <div className="relative aspect-[2/3]">
                                                 <SmartImage
+                                                    r2Src={getR2MoviePosterUrl(movie.slug)}
                                                     src={imgUrl}
                                                     rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url)}
                                                     alt={movie.name}

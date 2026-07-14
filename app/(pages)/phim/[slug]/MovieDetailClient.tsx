@@ -29,6 +29,8 @@ import dynamic from "next/dynamic";
 import { TMDBActor } from "@/app/utils/tmdbUtils";
 import { globalCache } from "@/app/utils/globalCache";
 import EpisodeList from "./[episodeSlug]/EpisodeList";
+import LazyRow from "@/app/components/Common/LazyRow";
+import { getR2ActorUrl, getR2MoviePosterUrl, getR2MovieThumbUrl } from "@/app/utils/r2ImageUrl";
 const CommentSection = dynamic(() => import("@/app/components/Comments/CommentSection"), {
     loading: () => <Skeleton className="h-40" rounded="2xl" />,
     ssr: false
@@ -53,16 +55,22 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
     const [tmdbActors, setTmdbActors] = useState<TMDBActor[]>([]);
     const [isLoadingActors, setIsLoadingActors] = useState(false);
     const [isThumbLoaded, setIsThumbLoaded] = useState(false);
+    const [hasFetchedSuggestions, setHasFetchedSuggestions] = useState(false);
+    const [hasFetchedActors, setHasFetchedActors] = useState(false);
 
     // Đảm bảo luôn cuộn lên đầu khi vào chi tiết phim
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
         setMovie(initialMovie); // Reset when prop changes
         setIsThumbLoaded(false); // Reset loading state when movie changes
+        setHasFetchedSuggestions(false);
+        setHasFetchedActors(false);
     }, [initialMovie.slug]);
 
-    // Client-side fetch suggested movies (dời từ server để giảm TTFB)
+    // Client-side fetch suggested movies (Lazy loaded when tab becomes active)
     useEffect(() => {
+        if (activeTab !== 'Đề xuất' || hasFetchedSuggestions) return;
+
         const fetchSuggestions = async () => {
             const firstCategory = initialMovie.category?.[0]?.slug;
             if (!firstCategory) return;
@@ -74,6 +82,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                 if (filtered.length > 0) {
                     setSuggestedMoviesState(filtered);
                 }
+                setHasFetchedSuggestions(true);
             } catch (err) {
                 console.error("Failed to fetch suggestions:", err);
             }
@@ -82,8 +91,10 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
         // Chỉ fetch nếu server không truyền sẵn
         if (suggestedMovies.length === 0) {
             fetchSuggestions();
+        } else {
+            setHasFetchedSuggestions(true);
         }
-    }, [initialMovie.slug, initialMovie.category]);
+    }, [activeTab, initialMovie.slug, initialMovie.category, suggestedMovies, hasFetchedSuggestions]);
 
     const CHUNK_SIZE = 100;
 
@@ -110,7 +121,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
         correctMainMovie();
     }, [movie.slug, episodes, movie.episode_total]);
 
-    // Effect to fetch Weekly Top movies
+    // Effect to fetch Weekly Top movies (Deferred & Desktop-only to limit requests on mobile/mount)
     useEffect(() => {
         const fetchTopWeekly = async () => {
             try {
@@ -148,19 +159,30 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
             }
         };
 
-        // Nếu đã có cache nhưng hết hạn thì vẫn fetch ngầm (SWR)
-        if (!globalCache.get("top_weekly_detail")) {
-            fetchTopWeekly();
-        } else {
+        const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1280;
+        if (!isDesktop) {
             setIsLoadingWeekly(false);
+            return;
         }
+
+        // Defer sidebar request by 1.5 seconds to prioritize main content loading
+        const timer = setTimeout(() => {
+            if (!globalCache.get("top_weekly_detail")) {
+                fetchTopWeekly();
+            } else {
+                setIsLoadingWeekly(false);
+            }
+        }, 1500);
+
+        return () => clearTimeout(timer);
     }, []);
 
-    // Effect to fetch Actors images
+    // Effect to fetch Actors images (Lazy loaded when tab becomes active)
     useEffect(() => {
-        const getActors = async () => {
-            if (!movie.slug) return;
+        if (activeTab !== 'Diễn viên' || hasFetchedActors) return;
+        if (!movie.slug) return;
 
+        const getActors = async () => {
             setIsLoadingActors(true);
             try {
                 const res = await fetch(`https://phimapi.com/v1/api/phim/${movie.slug}/peoples`);
@@ -180,6 +202,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                         }
                     }
                 }
+                setHasFetchedActors(true);
             } catch (error) {
                 console.error("Failed to fetch actors images from PhimAPI:", error);
             } finally {
@@ -188,7 +211,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
         };
 
         getActors();
-    }, [movie.slug]);
+    }, [activeTab, movie.slug, hasFetchedActors]);
 
     // Build tabs dynamically based on available data
     const tabs = useMemo(() => {
@@ -228,6 +251,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                 <div className="absolute inset-0 scale-105 will-change-transform">
                     {/* Instant blurred placeholder - priority must be TRUE for 0s loading */}
                     <SmartImage
+                        r2Src={getR2MoviePosterUrl(movie.slug)}
                         className="absolute blur-2xl inset-0 w-full h-full object-cover object-top"
                         src={getImageUrl(movie.poster_url, { width: 300, quality: 80 })}
                         rawSrc={getRawImageUrl(movie.poster_url)}
@@ -238,6 +262,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
 
                     {/* Main Background Thumb - Sharp image that fades in on top */}
                     <SmartImage
+                        r2Src={getR2MovieThumbUrl(movie.slug)}
                         src={getImageUrl(movie.thumb_url, { width: 1200, quality: 75 })}
                         rawSrc={getRawImageUrl(movie.thumb_url)}
                         alt=""
@@ -266,6 +291,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                             <div className="v-thumb-l xl:block flex justify-center mb-6">
                                 <div className="v-thumbnail relative w-[120px] h-[180px] lg:w-[160px] lg:h-[240px] rounded-2xl overflow-hidden transform-gpu">
                                     <SmartImage
+                                        r2Src={getR2MoviePosterUrl(movie.slug)}
                                         className="absolute inset-0 w-full h-full object-cover object-top"
                                         src={getImageUrl(movie.poster_url, { width: 300, quality: 80 })}
                                         rawSrc={getRawImageUrl(movie.poster_url)}
@@ -298,9 +324,9 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                 {movie.category && movie.category.length > 0 && (
                                     <div className="hl-tags flex flex-wrap gap-2">
                                         {movie.category.map((cat) => (
-                                            <a key={cat.slug} href={`/the-loai/${cat.slug}`} className="px-3 py-1 bg-white/5 text-white/50 rounded-full text-xs font-medium hover:bg-white/10 hover:text-white transition-all">
+                                            <TransitionLink key={cat.slug} href={`/the-loai/${cat.slug}`} className="px-3 py-1 bg-white/5 text-white/50 rounded-full text-xs font-medium hover:bg-white/10 hover:text-white transition-all">
                                                 {cat.name}
-                                            </a>
+                                            </TransitionLink>
                                         ))}
                                     </div>
                                 )}
@@ -335,7 +361,9 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                             <span className="text-white/40 font-medium font-bold uppercase tracking-wider">Quốc gia:</span>
                                             <div className="flex gap-2">
                                                 {movie.country.map((c) => (
-                                                    <a key={c.slug} href={`/quoc-gia/${c.slug}`} className="text-blue-400 font-medium hover:underline">{c.name}</a>
+                                                    <TransitionLink key={c.slug} href={`/quoc-gia/${c.slug}`} className="text-blue-400 font-medium hover:underline">
+                                                        {c.name}
+                                                    </TransitionLink>
                                                 ))}
                                             </div>
                                         </div>
@@ -573,8 +601,10 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                                 <div key={actor.id} className="group w-full cursor-pointer">
                                                     <div className="aspect-[3/4] bg-white/5 rounded-2xl mb-3 flex items-center justify-center group-hover:border-[#f5a623]/30 transition-all overflow-hidden relative">
                                                         {actor.profile_path ? (
-                                                            <Image
+                                                            <SmartImage
+                                                                r2Src={getR2ActorUrl(actor.id)}
                                                                 src={getImageUrl(`https://image.tmdb.org/t/p/w200${actor.profile_path}`, { width: 160, quality: 75 })}
+                                                                rawSrc={`https://image.tmdb.org/t/p/w200${actor.profile_path}`}
                                                                 alt={actor.name}
                                                                 fill
                                                                 className="object-cover transition-transform duration-500"
@@ -643,7 +673,13 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
 
                         {/* Phần bình luận */}
                         <div id="comment-section" className="mt-8 pt-8 border-t border-white/5">
-                            <CommentSection movieSlug={movie.slug} />
+                            <LazyRow
+                                id={`comments-${movie.slug}`}
+                                estimatedHeight="200px"
+                                skeleton={<Skeleton className="h-40" rounded="2xl" />}
+                            >
+                                <CommentSection movieSlug={movie.slug} />
+                            </LazyRow>
                         </div>
                     </div>
 
