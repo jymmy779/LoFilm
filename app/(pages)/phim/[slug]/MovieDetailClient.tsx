@@ -604,7 +604,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
 
                                 {/* Actors Tab */}
                                 {activeTab === 'Diễn viên' && (
-                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-4 lg:gap-5">
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
                                         {tmdbActors.length > 0 ? (
                                             tmdbActors.map((actor) => (
                                                 <div key={actor.id} className="group w-full cursor-pointer">
