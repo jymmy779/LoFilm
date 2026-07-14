@@ -553,7 +553,7 @@ export default function WatchClient({
                 backdrop: true,
                 playsInline: true,
                 autoPlayback: false,
-                airplay: true,
+                airplay: false,
                 hotkey: false,
                 lock: true,
                 ...({ tooltips: false } as any),
@@ -646,7 +646,16 @@ export default function WatchClient({
                             const event = new CustomEvent('art-fullscreen-toggle');
                             window.dispatchEvent(event);
                         }
-                    }
+                    },
+                    ...(nextEpisode ? [{
+                        position: 'right',
+                        html: '<div class="art-control art-control-next hint--rounded hint--top" data-index="15" aria-label="Tập tiếp theo"><div style="display: flex; align-items: center; justify-content: center; width: 30px; height: 30px;"><img src="https://sf-static.onflixcdn.pics/images/svg/1772478616_next-svgrepo-com_flix.svg" style="width: 22px; height: 22px;"></div></div>',
+                        index: 15,
+                        click: function () {
+                            const event = new CustomEvent('art-next-episode');
+                            window.dispatchEvent(event);
+                        }
+                    }] : [])
                 ]
             });
 
@@ -972,6 +981,12 @@ export default function WatchClient({
         window.addEventListener('art-fullscreen-toggle', handler);
         return () => window.removeEventListener('art-fullscreen-toggle', handler);
     }, [toggleFullscreen]);
+
+    useEffect(() => {
+        const handler = () => goToNextEpisode();
+        window.addEventListener('art-next-episode', handler);
+        return () => window.removeEventListener('art-next-episode', handler);
+    }, [goToNextEpisode]);
 
     useEffect(() => {
         if (showEpisodeOverlay) {

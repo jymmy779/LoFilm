@@ -191,18 +191,36 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                                             <p className="text-white/40 text-[10px] md:text-xs truncate font-medium">
                                                 {decodeHtml(movie.origin_name)}
                                             </p>
-                                            <div className="info-line flex flex-nowrap items-center gap-1.5 mt-1">
-                                                <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-bold leading-none whitespace-nowrap">
-                                                    {(() => {
-                                                        const epMatch = movie.episode_current?.match(/\d+/);
-                                                        return epMatch ? `T${epMatch[0]}` : (movie.quality || "HD");
-                                                    })()}
-                                                </div>
+                                            <div className="info-line flex flex-nowrap items-center gap-1 mt-1">
+                                                {(() => {
+                                                    const phanNameMatch = movie.name?.match(/Phần\s+(\d+)/i);
+                                                    if (phanNameMatch) return (
+                                                        <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-bold leading-none whitespace-nowrap">
+                                                            Phần {phanNameMatch[1]}
+                                                        </div>
+                                                    );
+                                                    const seasonMatch = movie.origin_name?.match(/Season\s+(\d+)/i);
+                                                    if (seasonMatch) return (
+                                                        <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-bold leading-none whitespace-nowrap">
+                                                            Phần {seasonMatch[1]}
+                                                        </div>
+                                                    );
+                                                    const slugPhanMatch = movie.slug?.match(/-phan-(\d+)/i);
+                                                    if (slugPhanMatch) return (
+                                                        <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-bold leading-none whitespace-nowrap">
+                                                            Phần {slugPhanMatch[1]}
+                                                        </div>
+                                                    );
+                                                    const slugSeasonMatch = movie.slug?.match(/-season-(\d+)/i);
+                                                    if (slugSeasonMatch) return (
+                                                        <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-bold leading-none whitespace-nowrap">
+                                                            Phần {slugSeasonMatch[1]}
+                                                        </div>
+                                                    );
+                                                    return null; // Ẩn tag nếu không có thông tin phần
+                                                })()}
                                                 <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none whitespace-nowrap">
-                                                    {(() => {
-                                                        const phanMatch = movie.name?.match(/Phần\s+(\d+)/i) || movie.origin_name?.match(/Season\s+(\d+)/i);
-                                                        return phanMatch ? `Phần ${phanMatch[1]}` : (movie.year || "2024");
-                                                    })()}
+                                                    {movie.year || "2024"}
                                                 </div>
                                                 <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none whitespace-nowrap">
                                                     {getEpisodeStatus(movie)}

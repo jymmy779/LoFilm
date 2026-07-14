@@ -39,9 +39,10 @@ interface MovieDetailClientProps {
     movie: Movie;
     episodes: EpisodeServer[];
     suggestedMovies: Movie[];
+    slug: string;
 }
 
-export default function MovieDetailClient({ movie: initialMovie, episodes, suggestedMovies }: MovieDetailClientProps) {
+export default function MovieDetailClient({ movie: initialMovie, episodes, suggestedMovies, slug }: MovieDetailClientProps) {
     const [movie, setMovie] = useState<Movie>(initialMovie);
     const [activeTab, setActiveTab] = useState('Tập phim');
     const [activeServerIndex, setActiveServerIndex] = useState(0);
@@ -540,7 +541,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                 {/* Episodes Tab */}
                                 {activeTab === 'Tập phim' && (
                                     <EpisodeList
-                                        slug={movie.slug}
+                                        slug={slug}
                                         movieName={movie.name}
                                         currentEpisode=""
                                         episodes={episodes}

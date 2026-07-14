@@ -1,9 +1,11 @@
 "use client";
 
-import React, { useState, useMemo, useEffect } from "react";
+import React, { useState, useMemo, useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
-import { Server, Search, ArrowUpDown } from "lucide-react";
+import { Server, Search, ArrowUpDown, ChevronDown } from "lucide-react";
 import { getFriendlyEpisodeSlug, parseEpNumber } from "@/app/utils/movieUtils";
+import axios from "axios";
 
 interface EpisodeListProps {
   slug: string;
@@ -28,6 +30,67 @@ interface EpisodeListProps {
   showServers?: boolean;
 }
 
+// Custom Part Dropdown component
+const PartDropdown = ({ parts, currentPart, baseSlug }: { parts: number[]; currentPart: number; baseSlug: string }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  const router = useRouter();
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (ref.current && !ref.current.contains(e.target as Node)) {
+        setIsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
+
+  return (
+    <div className="relative inline-flex" ref={ref}>
+      <button
+        onClick={() => setIsOpen(prev => !prev)}
+        className="flex items-center gap-1.5 bg-white/10 border border-white/10 rounded-xl px-4 py-2.5 text-xs md:text-sm font-bold text-white cursor-pointer focus:outline-none focus:border-amber-500/50 focus:bg-white/15 transition-all hover:bg-white/15 hover:border-white/20"
+      >
+        <span>Phần {currentPart}</span>
+        <span className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}>▾</span>
+      </button>
+
+      {isOpen && (
+        <>
+          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
+          <div className="absolute top-full left-0 mt-1.5 z-50 min-w-[120px] bg-[#1e2028] border border-white/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden animate-dropdown-in origin-top">
+            {parts.map((p, i) => {
+              const isSelected = p === currentPart;
+              return (
+                <button
+                  key={p}
+                  onClick={() => {
+                    setIsOpen(false);
+                    if (p !== currentPart) {
+                      router.push(`/phim/${baseSlug}-phan-${p}`, { scroll: false });
+                    }
+                  }}
+                  className={`
+                    w-full flex items-center px-4 py-2.5 text-xs md:text-sm font-semibold transition-all cursor-pointer
+                    ${isSelected
+                      ? "bg-amber-500/15 text-amber-400"
+                      : "text-gray-400 hover:bg-white/5 hover:text-white"
+                    }
+                    ${i !== 0 ? "border-t border-white/5" : ""}
+                  `}
+                >
+                  <span>Phần {p}</span>
+                </button>
+              );
+            })}
+          </div>
+        </>
+      )}
+    </div>
+  );
+};
+
 const EpisodeList = ({
   slug,
   movieName,
@@ -43,6 +106,72 @@ const EpisodeList = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const CHUNK_SIZE = 100;
+
+  // Parse part info from slug (e.g., "naruto-phan-2" → base="naruto", part=2)
+  const partInfo = useMemo(() => {
+    const match = slug.match(/^(.+?)(?:-phan-(\d+))$/i);
+    if (match) return { base: match[1], part: parseInt(match[2], 10) };
+    const seasonMatch = slug.match(/^(.+?)(?:-season-(\d+))$/i);
+    if (seasonMatch) return { base: seasonMatch[1], part: parseInt(seasonMatch[2], 10) };
+    return null;
+  }, [slug]);
+
+  const [availableParts, setAvailableParts] = useState<number[]>([]);
+  const [isLoadingParts, setIsLoadingParts] = useState(false);
+
+  // Check existence of nearby parts (cache in sessionStorage)
+  useEffect(() => {
+    if (!partInfo) return;
+
+    const { base, part } = partInfo;
+    const cacheKey = `parts_${base}`;
+
+    try {
+      const cached = sessionStorage.getItem(cacheKey);
+      if (cached) {
+        const parsed = JSON.parse(cached);
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed.includes(part)) {
+          setAvailableParts(parsed);
+          return;
+        }
+      }
+    } catch { /* ignore */ }
+
+    const partsToCheck: number[] = [];
+    for (let i = Math.max(1, part - 2); i <= part + 2; i++) {
+      if (i !== part) partsToCheck.push(i);
+    }
+
+    if (partsToCheck.length === 0) return;
+
+    setIsLoadingParts(true);
+
+    const fetchPart = async (p: number) => {
+      const partSlug = `${base}-phan-${p}`;
+      try {
+        const res = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/phim/${partSlug}`)}`);
+        const exists = !!(res.data?.status === "success" || res.data?.status === true);
+        return { part: p, exists };
+      } catch {
+        return { part: p, exists: false };
+      }
+    };
+
+    Promise.allSettled(partsToCheck.map(fetchPart)).then(results => {
+      const valid: number[] = [part]; // always include current part
+      results.forEach(r => {
+        if (r.status === 'fulfilled' && r.value.exists) {
+          valid.push(r.value.part);
+        }
+      });
+      setAvailableParts(valid);
+      try {
+        sessionStorage.setItem(cacheKey, JSON.stringify(valid));
+      } catch { /* ignore */ }
+    }).finally(() => {
+      setIsLoadingParts(false);
+    });
+  }, [partInfo]);
 
   if (!episodes || episodes.length === 0) return null;
 
@@ -230,6 +359,32 @@ const EpisodeList = ({
             <span className="">👉</span>
             <span>{movieName} - Tập {latestEpisode.name.replace(/Tập\s*/i, "").trim()}</span>
           </TransitionLink>
+        </div>
+      )}
+
+      {/* Part Selector - only show if slug has -phan-X suffix and other parts exist */}
+      {partInfo && !searchQuery.trim() && (
+        <div className="mb-4 pt-2">
+          {isLoadingParts ? (
+            <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 animate-pulse border border-white/5">
+              <div className="w-16 h-4 bg-white/10 rounded" />
+              <div className="w-4 h-4 bg-white/10 rounded" />
+            </div>
+          ) : availableParts.length > 1 ? (
+            <PartDropdown
+              parts={[...new Set([...availableParts, partInfo.part])].sort((a, b) => a - b)}
+              currentPart={partInfo.part}
+              baseSlug={partInfo.base}
+            />
+          ) : (
+            <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 border border-white/5">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400/60">
+                <rect x="2" y="4" width="20" height="16" rx="2" />
+                <path d="M12 2v20" />
+              </svg>
+              <span className="text-xs md:text-sm text-gray-400 font-semibold">Phần {partInfo.part}</span>
+            </div>
+          )}
         </div>
       )}
 

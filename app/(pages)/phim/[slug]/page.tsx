@@ -68,7 +68,7 @@ export default async function MoviePage({
 }) {
     const { slug } = await params;
     const isPreview = false; // Luôn false ở SSR tĩnh. Preview sẽ xử lý sau ở Client nếu cần.
-    
+
     // Fetch movie detail - Chạy cực nhanh nhờ cơ chế Cache-First Redis mới (<50ms)
     const detail = await getMovieDetail(slug, isPreview);
 
@@ -116,6 +116,7 @@ export default async function MoviePage({
                 movie={detail.movie}
                 episodes={detail.episodes}
                 suggestedMovies={[]}
+                slug={slug}
             />
         </>
     );
