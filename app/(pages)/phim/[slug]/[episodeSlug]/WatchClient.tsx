@@ -1506,6 +1506,7 @@ export default function WatchClient({
                                 <MovieInfo slug={slug} movie={movie} episode={currentEpisode} />
                                 <EpisodeList
                                     slug={slug}
+                                    movieName={movie.name}
                                     currentEpisode={currentEpisodeSlug}
                                     episodes={processedEpisodes}
                                     activeServer={activeServerIndex}

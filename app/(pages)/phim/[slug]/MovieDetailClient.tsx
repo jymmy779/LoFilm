@@ -541,6 +541,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                 {activeTab === 'Tập phim' && (
                                     <EpisodeList
                                         slug={movie.slug}
+                                        movieName={movie.name}
                                         currentEpisode=""
                                         episodes={episodes}
                                         activeServer={activeServerIndex}
