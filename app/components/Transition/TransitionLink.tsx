@@ -11,7 +11,7 @@ interface TransitionLinkProps extends NextLinkProps {
 
 export default function TransitionLink({
   transition = true,
-  prefetch = false, // Đổi sang false theo best practice cho trang web nhiều nội dung để tránh nghẽn mạng/server
+  prefetch = true, // Đổi sang false theo best practice cho trang web nhiều nội dung để tránh nghẽn mạng/server
   ...rest
 }: TransitionLinkProps) {
   // Trả về thẻ Link nguyên thủy nhất của Next.js với cờ prefetch=true
