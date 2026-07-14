@@ -40,9 +40,10 @@ interface MovieDetailClientProps {
     episodes: EpisodeServer[];
     suggestedMovies: Movie[];
     slug: string;
+    initialActors?: TMDBActor[];
 }
 
-export default function MovieDetailClient({ movie: initialMovie, episodes, suggestedMovies, slug }: MovieDetailClientProps) {
+export default function MovieDetailClient({ movie: initialMovie, episodes, suggestedMovies, slug, initialActors }: MovieDetailClientProps) {
     const [movie, setMovie] = useState<Movie>(initialMovie);
     const [activeTab, setActiveTab] = useState('Tập phim');
     const [activeServerIndex, setActiveServerIndex] = useState(0);
@@ -52,11 +53,11 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
     const filteredSuggestions = useMemo(() => filterDuplicateMovies(suggestedMoviesState), [suggestedMoviesState]);
     const [weeklyMovies, setWeeklyMovies] = useState<Movie[]>(() => globalCache.getRaw<Movie[]>("top_weekly_detail") || []);
     const [isLoadingWeekly, setIsLoadingWeekly] = useState(!globalCache.has("top_weekly_detail"));
-    const [tmdbActors, setTmdbActors] = useState<TMDBActor[]>([]);
+    const [tmdbActors, setTmdbActors] = useState<TMDBActor[]>(initialActors || []);
     const [isLoadingActors, setIsLoadingActors] = useState(false);
     const [isThumbLoaded, setIsThumbLoaded] = useState(false);
     const [hasFetchedSuggestions, setHasFetchedSuggestions] = useState(false);
-    const [hasFetchedActors, setHasFetchedActors] = useState(false);
+    const [hasFetchedActors, setHasFetchedActors] = useState(!!initialActors && initialActors.length > 0);
 
     // Đảm bảo luôn cuộn lên đầu khi vào chi tiết phim
     useEffect(() => {
@@ -64,8 +65,14 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
         setMovie(initialMovie); // Reset when prop changes
         setIsThumbLoaded(false); // Reset loading state when movie changes
         setHasFetchedSuggestions(false);
-        setHasFetchedActors(false);
-    }, [initialMovie.slug]);
+        if (!initialActors || initialActors.length === 0) {
+            setHasFetchedActors(false);
+            setTmdbActors([]);
+        } else {
+            setHasFetchedActors(true);
+            setTmdbActors(initialActors);
+        }
+    }, [initialMovie.slug, initialActors]);
 
     // Client-side fetch suggested movies (Lazy loaded when tab becomes active)
     useEffect(() => {
@@ -477,6 +484,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                 <div className="flex flex-wrap items-center gap-3">
                                     <TransitionLink
                                         href={`/phim/${movie.slug}/${watchEpisodeSlug}`}
+                                        prefetch={true}
                                         className="group flex items-center gap-3 bg-gradient-to-r from-[#f5a623] to-[#ffcc33] hover:from-[#ffcc33] hover:to-[#f5a623] text-[#0F1115] py-2 px-6 md:py-4 md:px-8 rounded-full font-bold transition-all transform cursor-pointer shadow-[0_0_20px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.6)]"
                                     >
                                         <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">

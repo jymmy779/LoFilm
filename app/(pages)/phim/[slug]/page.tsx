@@ -61,6 +61,8 @@ export async function generateMetadata({
     };
 }
 
+import { getServerActorsFromTMDB } from "@/app/utils/serverTmdbUtils";
+
 export default async function MoviePage({
     params,
 }: {
@@ -74,6 +76,32 @@ export default async function MoviePage({
 
     if (!detail) {
         notFound();
+    }
+
+    // SSR fetch actors to prevent skeleton flash
+    let initialActors: any[] = [];
+    if (detail.movie.tmdb?.id) {
+        const tmdbType = detail.movie.tmdb.type === 'tv' ? 'tv' : 'movie';
+        initialActors = await getServerActorsFromTMDB(detail.movie.tmdb.id.toString(), tmdbType);
+    } else {
+        try {
+            // Dùng fetch của Nextjs với cache cực lâu
+            const res = await fetch(`https://phimapi.com/v1/api/phim/${slug}/peoples`, { next: { revalidate: 2592000 } });
+            const data = await res.json();
+            if (data.success || data.status === "success") {
+                const peoples = data.data?.peoples;
+                if (peoples && Array.isArray(peoples)) {
+                    initialActors = peoples.map((actor: any) => ({
+                        id: actor.tmdb_people_id || Math.random(),
+                        name: actor.name,
+                        profile_path: actor.profile_path,
+                        character: actor.character
+                    }));
+                }
+            }
+        } catch (error) {
+            console.error("Error fetching peoples fallback:", error);
+        }
     }
 
 
@@ -117,6 +145,7 @@ export default async function MoviePage({
                 episodes={detail.episodes}
                 suggestedMovies={[]}
                 slug={slug}
+                initialActors={initialActors}
             />
         </>
     );

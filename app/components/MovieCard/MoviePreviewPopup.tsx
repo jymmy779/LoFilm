@@ -166,6 +166,7 @@ export default function MoviePreviewPopup({
                     <div className="flex items-center gap-2 pt-1">
                         <TransitionLink
                             href={playUrl}
+                            prefetch={true}
                             className="flex-[1.5] h-10 bg-gradient-to-r from-[#f5a623] to-[#fbd671] hover:brightness-110 text-black rounded-full flex items-center justify-center gap-2 font-bold text-xs transition-all pointer-events-auto cursor-pointer"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="10" height="10" fill="currentColor">
