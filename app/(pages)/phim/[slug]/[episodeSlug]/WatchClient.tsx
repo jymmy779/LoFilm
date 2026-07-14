@@ -1490,7 +1490,7 @@ export default function WatchClient({
             >
                 <Container className="wc-main">
                     <div className="flex flex-col xl:flex-row gap-8">
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                             {subtitlePortalNode && hasCustomSubtitles && createPortal(
                                 <DualSubtitleMenu
                                     subtitles={episodeSubtitles}
@@ -1524,7 +1524,7 @@ export default function WatchClient({
                                 </div>
                             </div>
                         </div>
-                        <div className="w-full xl:w-100">
+                        <div className="w-full xl:w-[400px] shrink-0">
                             <Sidebar movie={movie} suggestedMovies={filteredSuggestions} />
                         </div>
                     </div>

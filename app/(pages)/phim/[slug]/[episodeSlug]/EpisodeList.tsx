@@ -118,7 +118,7 @@ const EpisodeList = ({
       {/* Header with Servers and Toggle */}
       <div className="flex items-center justify-between gap-6 mb-0 pb-4">
         {showServers ? (
-          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide">
+          <div className="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-hide min-w-0 flex-1">
             {episodes.map((server, index) => (
               <button
                 key={index}

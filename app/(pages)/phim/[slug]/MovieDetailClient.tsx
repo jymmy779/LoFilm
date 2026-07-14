@@ -22,11 +22,10 @@ import {
     getYoutubeEmbedUrl
 } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
-import { fetchTotalEpisodesFromTMDB } from "@/app/utils/tmdbUtils";
+import { fetchTotalEpisodesFromTMDB, fetchActorsFromTMDB, TMDBActor } from "@/app/utils/tmdbUtils";
 import Skeleton from "@/app/components/Skeleton/Skeleton";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import dynamic from "next/dynamic";
-import { TMDBActor } from "@/app/utils/tmdbUtils";
 import { globalCache } from "@/app/utils/globalCache";
 import EpisodeList from "./[episodeSlug]/EpisodeList";
 import LazyRow from "@/app/components/Common/LazyRow";
@@ -185,33 +184,43 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
         const getActors = async () => {
             setIsLoadingActors(true);
             try {
-                const res = await fetch(`https://phimapi.com/v1/api/phim/${movie.slug}/peoples`);
-                const data = await res.json();
+                if (movie.tmdb?.id) {
+                    const actors = await fetchActorsFromTMDB(
+                        movie.tmdb.id,
+                        (movie.tmdb.type as 'movie' | 'tv') || 'movie'
+                    );
+                    if (actors.length > 0) {
+                        setTmdbActors(actors);
+                    }
+                } else {
+                    const res = await fetch(`https://phimapi.com/v1/api/phim/${movie.slug}/peoples`);
+                    const data = await res.json();
 
-                if (data.success || data.status === "success") {
-                    const peoples = data.data?.peoples;
-                    if (peoples && Array.isArray(peoples)) {
-                        const mappedActors = peoples.map((actor: any) => ({
-                            id: actor.tmdb_people_id || Math.random(),
-                            name: actor.name,
-                            profile_path: actor.profile_path,
-                            character: actor.character
-                        }));
-                        if (mappedActors.length > 0) {
-                            setTmdbActors(mappedActors);
+                    if (data.success || data.status === "success") {
+                        const peoples = data.data?.peoples;
+                        if (peoples && Array.isArray(peoples)) {
+                            const mappedActors = peoples.map((actor: any) => ({
+                                id: actor.tmdb_people_id || Math.random(),
+                                name: actor.name,
+                                profile_path: actor.profile_path,
+                                character: actor.character
+                            }));
+                            if (mappedActors.length > 0) {
+                                setTmdbActors(mappedActors);
+                            }
                         }
                     }
                 }
                 setHasFetchedActors(true);
             } catch (error) {
-                console.error("Failed to fetch actors images from PhimAPI:", error);
+                console.error("Failed to fetch actors images:", error);
             } finally {
                 setIsLoadingActors(false);
             }
         };
 
         getActors();
-    }, [activeTab, movie.slug, hasFetchedActors]);
+    }, [activeTab, movie.slug, movie.tmdb?.id, movie.tmdb?.type, hasFetchedActors]);
 
     // Build tabs dynamically based on available data
     const tabs = useMemo(() => {
