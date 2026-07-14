@@ -1,0 +1,39 @@
+name: Sync Images to R2
+
+on:
+  schedule:
+    # Chạy vào 20:00 UTC (tương đương 3:00 sáng giờ VN) mỗi ngày
+    - cron: '0 20 * * *'
+  # Cho phép kích hoạt chạy tay bằng nút "Run workflow" trên GitHub
+  workflow_dispatch:
+    inputs:
+      args:
+        description: 'Tham số bổ sung (vd: --new-only, --movies-only)'
+        required: false
+        default: '--new-only'
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci || npm install
+
+      - name: Run Sync Images Script
+        env:
+          R2_ACCOUNT_ID: ${{ secrets.R2_ACCOUNT_ID }}
+          R2_ACCESS_KEY_ID: ${{ secrets.R2_ACCESS_KEY_ID }}
+          R2_SECRET_ACCESS_KEY: ${{ secrets.R2_SECRET_ACCESS_KEY }}
+          R2_BUCKET_NAME: ${{ secrets.R2_BUCKET_NAME }}
+        # Mặc định chạy với tham số từ input (khi chạy tay) hoặc --new-only (khi chạy cron)
+        run: node scripts/sync-images.mjs ${{ github.event.inputs.args || '--new-only' }}
