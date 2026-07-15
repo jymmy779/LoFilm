@@ -60,7 +60,7 @@ export default function InitialLoader() {
             <div className="lofilm-loader-bar-fill"></div>
           </div>
           <div className="vn-copyright">
-            Hoàng Sa & Trường Sa là của Việt Nam
+            Thế giới phim ảnh trong tầm tay
           </div>
         </div>
       </div>
