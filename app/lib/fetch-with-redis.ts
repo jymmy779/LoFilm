@@ -56,8 +56,10 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
                             timestamp: Date.now(),
                             data: data
                         };
-                        // LƯU VĨNH VIỄN (không dùng setex nữa)
-                        await redis.set(cacheKey, JSON.stringify(payload));
+                        // Dùng setex với TTL = 3x revalidate để data tự hết hạn
+                        // Nếu SWR refresh fail thì data cũ vẫn tự xóa sau TTL
+                        const ttlSeconds = revalidate * 3;
+                        await redis.setex(cacheKey, ttlSeconds, JSON.stringify(payload));
                     } catch (err) {
                         console.error(`[Redis Set Error] ${url}`, err);
                     }
@@ -81,7 +83,7 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
             const cachedData = await redis.get(cacheKey);
             if (cachedData) {
                 const parsed = JSON.parse(cachedData);
-                
+
                 // Kiểm tra xem data có đúng chuẩn SWR mới không
                 if (parsed && parsed.timestamp && parsed.data) {
                     const ageMs = Date.now() - parsed.timestamp;
@@ -97,7 +99,7 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
                             console.error("SWR Update Failed", err);
                         }
                     }
-                    
+
                     // Luôn luôn trả về data ngay lập tức (dù cũ hay mới)
                     return parsed.data;
                 }
