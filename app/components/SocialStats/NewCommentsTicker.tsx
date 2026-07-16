@@ -16,6 +16,32 @@ interface TickerComment {
     isOwner?: boolean;
 }
 
+function TickerAvatar({ avatar, name }: { avatar: string | null; name: string }) {
+    const [imgError, setImgError] = useState(false);
+    const hasAvatar = avatar && !imgError;
+
+    return (
+        <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center overflow-hidden border border-white/10 shrink-0 relative">
+            {hasAvatar ? (
+                <img
+                    src={avatar!}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    onError={() => setImgError(true)}
+                />
+            ) : null}
+            <div
+                className="w-full h-full flex items-center justify-center bg-white/5 absolute inset-0"
+                style={{ display: hasAvatar ? 'none' : 'flex' }}
+            >
+                <span className="text-[10px] font-bold text-white/40">
+                    {name.charAt(0).toUpperCase()}
+                </span>
+            </div>
+        </div>
+    );
+}
+
 export default function NewCommentsTicker() {
     const [comments, setComments] = useState<TickerComment[]>(() => globalCache.getRaw<TickerComment[]>("social-new-comments") || []);
     const [loading, setLoading] = useState(() => !globalCache.has("social-new-comments"));
@@ -110,30 +136,7 @@ export default function NewCommentsTicker() {
                                 className="p-3 bg-white/[0.03] rounded-xl border border-white/5 hover:border-amber-500/40 hover:bg-white/[0.05] transition-all group/comment h-[75px] flex flex-col justify-center shrink-0 block cursor-pointer"
                             >
                                 <div className="flex items-center gap-2 mb-1 min-w-0">
-                                    <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center overflow-hidden border border-white/10 shrink-0 relative">
-                                        {comment.avatar ? (
-                                            <img
-                                                src={comment.avatar}
-                                                alt=""
-                                                className="w-full h-full object-cover"
-                                                onError={(e) => {
-                                                    e.currentTarget.style.display = 'none';
-                                                    const fallback = e.currentTarget.parentElement?.querySelector('.avatar-fallback');
-                                                    if (fallback) {
-                                                        (fallback as HTMLElement).style.display = 'flex';
-                                                    }
-                                                }}
-                                            />
-                                        ) : null}
-                                        <div
-                                            className="avatar-fallback w-full h-full flex items-center justify-center bg-white/5 absolute inset-0"
-                                            style={{ display: comment.avatar ? 'none' : 'flex' }}
-                                        >
-                                            <span className="text-[10px] font-bold text-white/40">
-                                                {comment.user.charAt(0).toUpperCase()}
-                                            </span>
-                                        </div>
-                                    </div>
+                                    <TickerAvatar avatar={comment.avatar} name={comment.user} />
                                     <div className="flex items-center gap-1.5 min-w-0 flex-1">
                                         <span className={`text-[11px] font-bold text-white/95 truncate max-w-[80px] group-hover/comment:text-white transition-colors ${comment.isOwner ? 'rgb-text' : ''}`}>
                                             {comment.user}

@@ -31,6 +31,30 @@ interface DisplayComment {
     replies: number;
 }
 
+function AvatarCell({ avatar, name }: { avatar: string | null; name: string }) {
+    const [imgError, setImgError] = useState(false);
+    const hasAvatar = avatar && !imgError;
+
+    return (
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 overflow-hidden relative">
+            {hasAvatar ? (
+                <img
+                    src={avatar!}
+                    alt=""
+                    className="w-full h-full object-cover"
+                    onError={() => setImgError(true)}
+                />
+            ) : null}
+            <div
+                className="w-full h-full flex items-center justify-center bg-white/5 absolute inset-0"
+                style={{ display: hasAvatar ? 'none' : 'flex' }}
+            >
+                <span className="text-[10px] sm:text-xs font-bold text-white/40">{name.charAt(0).toUpperCase()}</span>
+            </div>
+        </div>
+    );
+}
+
 export default function TopCommentsSlider() {
     const [comments, setComments] = useState<DisplayComment[]>(() => globalCache.getRaw<DisplayComment[]>("social-top-comments") || []);
     const [loading, setLoading] = useState(() => !globalCache.has("social-top-comments"));
@@ -138,28 +162,7 @@ export default function TopCommentsSlider() {
                                     <div className="relative p-3 sm:p-4 pt-4 sm:pt-6 flex flex-col h-full z-10 justify-between ">
                                         <div className="flex justify-between gap-3 mb-2 sm:mb-3">
                                             <div className="flex items-center gap-2 sm:gap-3">
-                                                <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 overflow-hidden relative">
-                                                    {comment.user.avatar ? (
-                                                        <img
-                                                            src={comment.user.avatar}
-                                                            alt=""
-                                                            className="w-full h-full object-cover"
-                                                            onError={(e) => {
-                                                                e.currentTarget.style.display = 'none';
-                                                                const fallback = e.currentTarget.parentElement?.querySelector('.avatar-fallback');
-                                                                if (fallback) {
-                                                                    (fallback as HTMLElement).style.display = 'flex';
-                                                                }
-                                                            }}
-                                                        />
-                                                    ) : null}
-                                                    <div
-                                                        className="avatar-fallback w-full h-full flex items-center justify-center bg-white/5 absolute inset-0"
-                                                        style={{ display: comment.user.avatar ? 'none' : 'flex' }}
-                                                    >
-                                                        <span className="text-[10px] sm:text-xs font-bold text-white/40">{comment.user.name.charAt(0).toUpperCase()}</span>
-                                                    </div>
-                                                </div>
+                                                <AvatarCell avatar={comment.user.avatar} name={comment.user.name} />
                                                 <div className="flex flex-col">
                                                     <span className={`font-bold text-xs sm:text-sm text-white/80 truncate max-w-[100px] sm:max-w-[120px] ${comment.user.isOwner ? 'rgb-text' : ''}`}>{comment.user.name}</span>
                                                 </div>

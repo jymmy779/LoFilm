@@ -389,6 +389,25 @@ export default function ProfileContent() {
 
       toast.success("Đã cập nhật ảnh đại diện!");
       setUser({ ...user, user_metadata: { ...user.user_metadata, avatar_url: publicUrl } });
+
+      // Cập nhật avatar trong tất cả bình luận cũ
+      supabase
+        .from('comments')
+        .update({ user_avatar: publicUrl })
+        .eq('user_id', user.id)
+        .then(({ error: updateError }) => {
+          if (updateError) console.error("Không thể cập nhật avatar trong bình luận cũ:", updateError);
+        });
+
+      // Cập nhật avatar trong tất cả thông báo cũ
+      supabase
+        .from('user_notifications')
+        .update({ actor_avatar: publicUrl })
+        .eq('user_id', user.id)
+        .then(({ error: notifError }) => {
+          if (notifError) console.error("Không thể cập nhật avatar trong thông báo cũ:", notifError);
+        });
+
       router.refresh();
     } catch (error: any) {
       toast.error(error.message);
