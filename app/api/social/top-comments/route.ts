@@ -3,6 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 import axios from 'axios';
 import { getImageUrl } from '@/app/utils/movieUtils';
 import { fetchWithRedis } from '@/app/lib/fetch-with-redis';
+import { OWNER_USER_ID } from '@/app/utils/owner-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -25,6 +26,7 @@ export async function GET() {
                 id,
                 user_name,
                 user_avatar,
+                user_id,
                 content,
                 movie_slug,
                 created_at,
@@ -97,11 +99,11 @@ export async function GET() {
 
                         movieMetaMap[slug] = {
                             title: movieData.name || "Phim",
-                            poster: rawPoster && !rawPoster.includes("data:") 
-                                ? `https://wsrv.nl/?url=${encodeURIComponent(rawPoster)}&w=120&q=75&output=webp` 
+                            poster: rawPoster && !rawPoster.includes("data:")
+                                ? `https://wsrv.nl/?url=${encodeURIComponent(rawPoster)}&w=120&q=75&output=webp`
                                 : rawPoster,
-                            backdrop: rawBackdrop && !rawBackdrop.includes("data:") 
-                                ? `https://wsrv.nl/?url=${encodeURIComponent(rawBackdrop)}&w=600&q=65&output=webp` 
+                            backdrop: rawBackdrop && !rawBackdrop.includes("data:")
+                                ? `https://wsrv.nl/?url=${encodeURIComponent(rawBackdrop)}&w=600&q=65&output=webp`
                                 : rawBackdrop,
                             isValid: true
                         };
@@ -133,8 +135,9 @@ export async function GET() {
                 return {
                     id: comment.id,
                     user: {
-                        name: comment.user_name || "Thành viên",
-                        avatar: userAvatar
+                        name: comment.user_name,
+                        avatar: userAvatar,
+                        isOwner: comment.user_id === OWNER_USER_ID
                     },
                     movie: {
                         slug: baseMovieSlug,
@@ -172,8 +175,9 @@ export async function GET() {
                 return {
                     id: `fallback-${c.id}`,
                     user: {
-                        name: c.user.name || "Thành viên",
-                        avatar: c.user.avatar
+                        name: c.user.name,
+                        avatar: c.user.avatar,
+                        isOwner: false
                     },
                     movie: {
                         slug: slug,

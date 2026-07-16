@@ -112,7 +112,7 @@ function CommentSection({ movieSlug }: CommentSectionProps) {
             .from('comments')
             .insert({
                 user_id: user.id,
-                user_name: user?.user_metadata?.full_name || "Thành viên",
+                user_name: user?.user_metadata?.full_name,
                 user_avatar: user?.user_metadata?.avatar_url || null,
                 movie_slug: movieSlug,
                 content: content,
@@ -135,7 +135,7 @@ function CommentSection({ movieSlug }: CommentSectionProps) {
     return (
         <div className="comment-section">
             <div className="mb-6">
-                 <MovieInteractions movieSlug={mainMovieSlug} user={user} />
+                <MovieInteractions movieSlug={mainMovieSlug} user={user} />
             </div>
 
             <h3 className="comment-label">
@@ -144,8 +144,8 @@ function CommentSection({ movieSlug }: CommentSectionProps) {
             </h3>
 
             {user ? (
-                <CommentInput 
-                    onSubmit={handleAddComment} 
+                <CommentInput
+                    onSubmit={handleAddComment}
                     hasCommented={comments.some(c => c.user_id === user.id)}
                     userCommentId={comments.find(c => c.user_id === user.id)?.id}
                 />

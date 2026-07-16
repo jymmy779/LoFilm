@@ -27,6 +27,7 @@ import CommonModal from "@/app/components/Modals/CommonModal";
 type TabType = 'overview' | 'history' | 'favorites' | 'watchlist' | 'settings';
 
 import Sidebar from "@/app/components/Sidebar/Sidebar";
+import { isOwner } from "@/app/utils/owner-utils";
 import CatalogHeader from "@/app/components/MovieCatalog/CatalogHeader";
 import OverviewTab from "./components/OverviewTab";
 import HistoryTab from "./components/HistoryTab";
@@ -545,7 +546,7 @@ export default function ProfileContent() {
                       />
                     </label>
                   </div>
-                  <h2 className="text-lg md:text-xl font-bold text-white mt-3 md:mt-4 truncate px-2">{displayName}</h2>
+                  <h2 className={`text-lg md:text-xl font-bold mt-3 md:mt-4 truncate px-2 ${isOwner(user?.id) ? 'rgb-text' : 'text-white'}`}>{displayName}</h2>
                   <p className="text-white/40 text-[10px] md:text-xs mt-0.5 md:mt-1 truncate px-2 tracking-widest">{user?.email}</p>
                 </div>
 

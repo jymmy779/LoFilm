@@ -13,6 +13,7 @@ interface TickerComment {
     content: string;
     movie: string;
     slug: string;
+    isOwner?: boolean;
 }
 
 export default function NewCommentsTicker() {
@@ -51,7 +52,7 @@ export default function NewCommentsTicker() {
     // Ticker animation loop
     useEffect(() => {
         if (comments.length === 0) return;
-        
+
         const interval = setInterval(() => {
             setIsTransitioning(true);
 
@@ -81,8 +82,8 @@ export default function NewCommentsTicker() {
                     // Beautiful Skeleton Loader to match exact ticker cards
                     <div className="flex flex-col gap-3">
                         {Array.from({ length: 4 }).map((_, index) => (
-                            <div 
-                                key={index} 
+                            <div
+                                key={index}
                                 className="p-3 bg-white/[0.03] rounded-xl border border-white/5 h-[75px] flex flex-col justify-center shrink-0 animate-pulse"
                             >
                                 <div className="flex items-center gap-2 mb-1.5">
@@ -111,10 +112,10 @@ export default function NewCommentsTicker() {
                                 <div className="flex items-center gap-2 mb-1 min-w-0">
                                     <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center overflow-hidden border border-white/10 shrink-0 relative">
                                         {comment.avatar ? (
-                                            <img 
-                                                src={comment.avatar} 
-                                                alt="" 
-                                                className="w-full h-full object-cover" 
+                                            <img
+                                                src={comment.avatar}
+                                                alt=""
+                                                className="w-full h-full object-cover"
                                                 onError={(e) => {
                                                     e.currentTarget.style.display = 'none';
                                                     const fallback = e.currentTarget.parentElement?.querySelector('.avatar-fallback');
@@ -124,7 +125,7 @@ export default function NewCommentsTicker() {
                                                 }}
                                             />
                                         ) : null}
-                                        <div 
+                                        <div
                                             className="avatar-fallback w-full h-full flex items-center justify-center bg-white/5 absolute inset-0"
                                             style={{ display: comment.avatar ? 'none' : 'flex' }}
                                         >
@@ -134,7 +135,7 @@ export default function NewCommentsTicker() {
                                         </div>
                                     </div>
                                     <div className="flex items-center gap-1.5 min-w-0 flex-1">
-                                        <span className="text-[11px] font-bold text-white/95 truncate max-w-[80px] group-hover/comment:text-white transition-colors">
+                                        <span className={`text-[11px] font-bold text-white/95 truncate max-w-[80px] group-hover/comment:text-white transition-colors ${comment.isOwner ? 'rgb-text' : ''}`}>
                                             {comment.user}
                                         </span>
                                         <span className="text-[11px] text-white/50 truncate flex-1 italic leading-tight group-hover/comment:text-white/80 transition-colors">

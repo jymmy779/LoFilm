@@ -17,6 +17,7 @@ interface DisplayComment {
     user: {
         name: string;
         avatar: string | null;
+        isOwner?: boolean;
     };
     movie: {
         slug: string;
@@ -160,7 +161,7 @@ export default function TopCommentsSlider() {
                                                     </div>
                                                 </div>
                                                 <div className="flex flex-col">
-                                                    <span className="font-bold text-xs sm:text-sm text-white/80 truncate max-w-[100px] sm:max-w-[120px]">{comment.user.name}</span>
+                                                    <span className={`font-bold text-xs sm:text-sm text-white/80 truncate max-w-[100px] sm:max-w-[120px] ${comment.user.isOwner ? 'rgb-text' : ''}`}>{comment.user.name}</span>
                                                 </div>
                                             </div>
 

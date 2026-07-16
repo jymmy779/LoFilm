@@ -10,6 +10,7 @@ import CommentInput from "./CommentInput";
 import { toast } from "react-hot-toast";
 import CommonModal from "@/app/components/Modals/CommonModal";
 import { reportCommentToTelegram } from "@/app/actions/reportActions";
+import { isOwner } from "@/app/utils/owner-utils";
 
 interface CommentItemProps {
     comment: any;
@@ -52,12 +53,12 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
         };
     }, [isMenuOpen]);
 
-    const displayName = comment.user_name || "Thành viên";
+    const displayName = comment.user_name;
     const avatarUrl = comment.user_avatar;
 
     const isDetailMoviePage = movieSlug && !movieSlug.includes('/');
     const commentHasEpisode = comment.movie_slug && comment.movie_slug.includes('/');
-    
+
     let episodeBadge = null;
     if (isDetailMoviePage && commentHasEpisode) {
         const rawEp = comment.movie_slug.split('/')[1];
@@ -140,7 +141,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                 if (comment.user_id && comment.user_id !== user.id) {
                     supabase.from('user_notifications').insert({
                         user_id: comment.user_id,
-                        actor_name: user?.user_metadata?.full_name || "Thành viên",
+                        actor_name: user?.user_metadata?.full_name,
                         actor_avatar: user?.user_metadata?.avatar_url || null,
                         type: type === 'up' ? 'like' : 'dislike',
                         comment_id: comment.id,
@@ -195,7 +196,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
             .from('comments')
             .insert({
                 user_id: user.id,
-                user_name: user?.user_metadata?.full_name || "Thành viên",
+                user_name: user?.user_metadata?.full_name,
                 user_avatar: user?.user_metadata?.avatar_url || null,
                 movie_slug: comment.movie_slug,
                 content: content,
@@ -228,7 +229,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
             if (comment.user_id && comment.user_id !== user.id) {
                 supabase.from('user_notifications').insert({
                     user_id: comment.user_id,
-                    actor_name: user?.user_metadata?.full_name || "Thành viên",
+                    actor_name: user?.user_metadata?.full_name,
                     actor_avatar: user?.user_metadata?.avatar_url || null,
                     type: 'reply',
                     comment_id: comment.id,
@@ -346,7 +347,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                 </div>
                 <div className="info">
                     <div className="comment-header flex items-center">
-                        <div className="user-name line-center">{displayName}</div>
+                        <div className={`user-name line-center ${isOwner(comment.user_id) ? 'rgb-text' : ''}`}>{displayName}</div>
                         {episodeBadge}
                         <div className="ch-logs">
                             <div className="c-time">{getTimeAgo(comment.created_at)}</div>

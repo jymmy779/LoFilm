@@ -12,6 +12,7 @@ import LoginPromptModal from "@/app/components/Modals/LoginPromptModal";
 import ComingSoonModal from "@/app/components/Modals/ComingSoonModal";
 import { Crown } from "lucide-react";
 import Skeleton from "@/app/components/Skeleton/Skeleton";
+import { isOwner } from "@/app/utils/owner-utils";
 
 interface MemberButtonProps {
     flatten?: boolean;
@@ -131,7 +132,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                                 displayName.charAt(0).toUpperCase()
                             )}
                         </div>
-                        <span className="text-xs font-bold text-white/90 pr-3">{displayName}</span>
+                        <span className={`text-xs font-bold pr-3 ${isOwner(user?.id) ? 'rgb-text' : 'text-white/90'}`}>{displayName}</span>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 mt-2 animate-fade-in" style={{ animationDelay: '0.1s' }}>
@@ -207,7 +208,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                         displayName.charAt(0).toUpperCase()
                     )}
                 </div>
-                <span className="hidden md:block text-base font-semibold text-white/80 max-w-fit truncate pr-2">
+                <span className={`hidden md:block text-base font-semibold max-w-fit truncate pr-2 ${isOwner(user?.id) ? 'rgb-text' : 'text-white/80'}`}>
                     {displayName}
                 </span>
             </button>
@@ -221,7 +222,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
             >
                 <div className="px-3 py-2 border-b border-white/5 mb-1">
                     <p className="text-[10px] text-white/40 tracking-widest uppercase">Thành viên</p>
-                    <p className="text-sm font-bold text-white/90 truncate mt-1">{displayName}</p>
+                    <p className={`text-sm font-bold truncate mt-1 ${isOwner(user?.id) ? 'rgb-text' : 'text-white/90'}`}>{displayName}</p>
                     <button
                         onClick={() => {
                             setShowMenu(false);

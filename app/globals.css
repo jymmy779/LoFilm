@@ -18,6 +18,67 @@
   --gradient-to: #0F1115;
 }
 
+/* RGB LED Text Animation - for special accounts */
+@keyframes rgbWave {
+  0% {
+    background-position: 0% 50%;
+  }
+
+  100% {
+    background-position: -100% 50%;
+  }
+}
+
+@keyframes rgbGlow {
+
+  0%,
+  100% {
+    filter: drop-shadow(0 0 6px rgba(255, 68, 102, 0.7)) drop-shadow(0 0 14px rgba(255, 68, 102, 0.4));
+  }
+
+  16% {
+    filter: drop-shadow(0 0 6px rgba(255, 136, 68, 0.7)) drop-shadow(0 0 14px rgba(255, 136, 68, 0.4));
+  }
+
+  33% {
+    filter: drop-shadow(0 0 6px rgba(255, 221, 68, 0.7)) drop-shadow(0 0 14px rgba(255, 221, 68, 0.4));
+  }
+
+  50% {
+    filter: drop-shadow(0 0 6px rgba(68, 255, 136, 0.7)) drop-shadow(0 0 14px rgba(68, 255, 136, 0.4));
+  }
+
+  66% {
+    filter: drop-shadow(0 0 6px rgba(68, 136, 255, 0.7)) drop-shadow(0 0 14px rgba(68, 136, 255, 0.4));
+  }
+
+  83% {
+    filter: drop-shadow(0 0 6px rgba(204, 102, 255, 0.7)) drop-shadow(0 0 14px rgba(204, 102, 255, 0.4));
+  }
+}
+
+.rgb-text {
+  background: linear-gradient(90deg,
+      #ff4466,
+      #ff8844,
+      #ffdd44,
+      #44ff88,
+      #4488ff,
+      #cc66ff,
+      #ff4466,
+      #ff8844,
+      #ffdd44,
+      #44ff88,
+      #4488ff,
+      #cc66ff,
+      #ff4466);
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: rgbWave 1s linear infinite, rgbGlow 3s ease-in-out infinite;
+}
+
 /* Fix layout shift when scrollbar appears */
 html {
   scrollbar-gutter: stable;

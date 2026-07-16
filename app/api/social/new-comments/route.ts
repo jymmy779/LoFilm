@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 import axios from 'axios';
 import { fetchWithRedis } from '@/app/lib/fetch-with-redis';
+import { OWNER_USER_ID } from '@/app/utils/owner-utils';
 
 export const dynamic = 'force-dynamic';
 
@@ -20,7 +21,7 @@ export async function GET() {
         // 1. Fetch 20 most recent comments
         const { data: rawComments, error } = await supabase
             .from("comments")
-            .select("id, user_name, user_avatar, content, movie_slug, created_at")
+            .select("id, user_name, user_avatar, user_id, content, movie_slug, created_at")
             .order("created_at", { ascending: false })
             .limit(20);
 
@@ -88,11 +89,12 @@ export async function GET() {
 
                 return {
                     id: comment.id,
-                    user: comment.user_name || "Thành viên",
+                    user: comment.user_name,
                     avatar: userAvatar,
                     content: comment.content || "",
                     movie: movieName,
-                    slug: baseMovieSlug
+                    slug: baseMovieSlug,
+                    isOwner: comment.user_id === OWNER_USER_ID
                 };
             })
             .filter((c) => c !== null);
@@ -117,11 +119,12 @@ export async function GET() {
 
                 return {
                     id: `fallback-${c.id}`,
-                    user: c.user || "Thành viên",
+                    user: c.user,
                     avatar: c.avatar,
                     content: c.content || "",
                     movie: c.movie,
-                    slug: slug
+                    slug: slug,
+                    isOwner: false
                 };
             });
             return NextResponse.json(fallbackComments, {
