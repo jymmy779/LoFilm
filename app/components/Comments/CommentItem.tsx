@@ -34,6 +34,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
     const [isDeleting, setIsDeleting] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [commentContent, setCommentContent] = useState(comment.content);
+    const [avatarError, setAvatarError] = useState(false);
     const supabase = createClient();
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -337,11 +338,18 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
         <div className={`comment-item-wrap ${isReply ? 'is-reply' : ''} ${isMenuOpen ? 'relative z-[100]' : ''}`}>
             <div className="d-item" id={`comment-${comment.id}`}>
                 <div className="user-avatar">
-                    {avatarUrl ? (
-                        <Image src={avatarUrl} alt={displayName} width={40} height={40} className="rounded-full object-cover" />
+                    {avatarUrl && !avatarError ? (
+                        <Image
+                            src={avatarUrl}
+                            alt={displayName}
+                            width={40}
+                            height={40}
+                            className="rounded-full object-cover"
+                            onError={() => setAvatarError(true)}
+                        />
                     ) : (
                         <div className="avatar-fallback">
-                            <i className="fa-solid fa-user"></i>
+                            <span className="text-sm font-bold">{displayName ? displayName.charAt(0).toUpperCase() : '?'}</span>
                         </div>
                     )}
                 </div>

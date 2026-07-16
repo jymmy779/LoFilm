@@ -36,7 +36,7 @@ function AvatarCell({ avatar, name }: { avatar: string | null; name: string }) {
     const hasAvatar = avatar && !imgError;
 
     return (
-        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full bg-white/5 flex items-center justify-center border border-white/10 overflow-hidden relative">
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center overflow-hidden relative">
             {hasAvatar ? (
                 <img
                     src={avatar!}
@@ -46,10 +46,10 @@ function AvatarCell({ avatar, name }: { avatar: string | null; name: string }) {
                 />
             ) : null}
             <div
-                className="w-full h-full flex items-center justify-center bg-white/5 absolute inset-0"
+                className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-400 to-orange-500 absolute inset-0"
                 style={{ display: hasAvatar ? 'none' : 'flex' }}
             >
-                <span className="text-[10px] sm:text-xs font-bold text-white/40">{name.charAt(0).toUpperCase()}</span>
+                <span className="text-[10px] sm:text-xs font-bold text-black">{name.charAt(0).toUpperCase()}</span>
             </div>
         </div>
     );

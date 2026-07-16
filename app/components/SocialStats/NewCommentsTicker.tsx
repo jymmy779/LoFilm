@@ -21,7 +21,7 @@ function TickerAvatar({ avatar, name }: { avatar: string | null; name: string })
     const hasAvatar = avatar && !imgError;
 
     return (
-        <div className="w-6 h-6 rounded-full bg-white/10 flex items-center justify-center overflow-hidden border border-white/10 shrink-0 relative">
+        <div className="w-6 h-6 rounded-full flex items-center justify-center overflow-hidden shrink-0 relative">
             {hasAvatar ? (
                 <img
                     src={avatar!}
@@ -31,10 +31,10 @@ function TickerAvatar({ avatar, name }: { avatar: string | null; name: string })
                 />
             ) : null}
             <div
-                className="w-full h-full flex items-center justify-center bg-white/5 absolute inset-0"
+                className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-400 to-orange-500 absolute inset-0"
                 style={{ display: hasAvatar ? 'none' : 'flex' }}
             >
-                <span className="text-[10px] font-bold text-white/40">
+                <span className="text-[10px] font-bold text-black">
                     {name.charAt(0).toUpperCase()}
                 </span>
             </div>

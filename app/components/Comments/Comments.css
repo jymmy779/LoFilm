@@ -336,8 +336,7 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85);
-  /* Solid dark instead of blur */
+  background: rgba(0, 0, 0, 0.85); /* Solid dark instead of blur */
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -351,12 +350,9 @@
 }
 
 .modal-content {
-  background: #0F1115;
-  /* Solid background */
-  border: 1px solid #333;
-  /* Simple border */
-  border-radius: 12px;
-  /* Standard radius */
+  background: #0F1115; /* Solid background */
+  border: 1px solid #333; /* Simple border */
+  border-radius: 12px; /* Standard radius */
   padding: 2rem;
   width: 100%;
   max-width: 400px;
@@ -412,8 +408,7 @@
 }
 
 .btn-confirm-delete {
-  background: #dc3545;
-  /* Standard danger color */
+  background: #dc3545; /* Standard danger color */
   color: white;
 }
 
@@ -422,44 +417,32 @@
 }
 
 @keyframes fadeIn {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
-  }
+  from { opacity: 0; }
+  to { opacity: 1; }
 }
 
 @keyframes fadeOut {
-  from {
-    opacity: 1;
-  }
-
-  to {
-    opacity: 0;
-  }
+  from { opacity: 1; }
+  to { opacity: 0; }
 }
 
 @keyframes slideUp {
-  from {
+  from { 
     opacity: 0;
     transform: translateY(20px);
   }
-
-  to {
+  to { 
     opacity: 1;
     transform: translateY(0);
   }
 }
 
 @keyframes slideDown {
-  from {
+  from { 
     opacity: 1;
     transform: translateY(0);
   }
-
-  to {
+  to { 
     opacity: 0;
     transform: translateY(20px);
   }
@@ -476,121 +459,52 @@
     margin-bottom: 1rem !important;
   }
 
-  /* Giảm padding của item chính */
-  .d-item {
-    padding: 0.6rem !important;
-    gap: 0.5rem !important;
-    border-radius: 0.75rem !important;
+  .comment-item {
+    padding: 0.75rem 0 !important;
+    gap: 0.75rem !important;
   }
 
-  /* Giảm avatar */
-  .user-avatar img,
-  .avatar-fallback {
-    width: 28px !important;
-    height: 28px !important;
+  .comment-item .avatar-wrap {
+    width: 32px !important;
+    height: 32px !important;
+    flex-shrink: 0;
   }
 
-  .user-name {
-    font-size: 0.78rem !important;
+  .comment-item .meta .name {
+    font-size: 0.8rem !important;
   }
 
-  .c-time {
-    font-size: 0.6rem !important;
+  .comment-item .meta .c-time {
+    font-size: 0.65rem !important;
   }
 
-  .text {
-    font-size: 0.78rem !important;
+  .comment-item .text {
+    font-size: 0.8rem !important;
     line-height: 1.4 !important;
   }
 
-  /* Giảm comment-bottom — action bar */
-  .comment-bottom {
-    gap: 0.5rem !important;
-  }
-
   /* Thu nhỏ các nút tương tác */
-  .group-react {
-    gap: 0 !important;
-    padding: 1px !important;
-  }
-
-  .item-up,
-  .item-down {
-    padding: 3px 7px !important;
-    font-size: 0.65rem !important;
-    gap: 3px !important;
-  }
-
-  .item-up svg,
-  .item-down svg {
-    width: 14px !important;
-    height: 14px !important;
-  }
-
-  .btn-comment,
-  .btn-menu {
-    padding: 3px 8px !important;
-    font-size: 0.65rem !important;
-  }
-
-  .btn-comment svg,
-  .btn-menu svg {
-    width: 0.85em !important;
-    height: 0.85em !important;
-  }
-
-  /* Dropdown menu nhỏ lại */
-  .v-dropdown-menu {
-    min-width: 130px !important;
-  }
-
-  .dropdown-item {
-    padding: 6px 10px !important;
+  .comment-item .item {
+    padding: 2px 6px !important;
     font-size: 0.7rem !important;
+  }
+
+  /* Ẩn chữ Trả lời/Thêm trên mobile để tiết kiệm diện tích */
+  .btn-comment span, 
+  .btn-menu span {
+    display: none !important; 
   }
 
   /* Thu nhỏ form nhập liệu */
   .comment-textarea {
-    padding: 0.65rem !important;
-    font-size: 0.82rem !important;
-    min-height: 70px !important;
-  }
-
-  .comment-form-container {
     padding: 0.75rem !important;
-    margin-bottom: 1.5rem !important;
-  }
-
-  .form-footer {
-    gap: 0.6rem !important;
-    margin-top: 0.6rem !important;
-    padding-top: 0.6rem !important;
-  }
-
-  .btn-submit {
-    padding: 6px 18px !important;
-    font-size: 0.78rem !important;
+    font-size: 0.85rem !important;
+    min-height: 80px !important;
   }
 
   /* Danh sách phản hồi (Replies) */
   .reply-list {
-    margin-left: 1rem !important;
-    padding-left: 0.6rem !important;
-    gap: 0.5rem !important;
-  }
-
-  .reply-list.has-replies {
-    margin-top: 0.5rem !important;
-    padding-left: 0.6rem !important;
-  }
-
-  .reply-actions {
-    margin-left: 1.5rem !important;
-  }
-
-  /* Auth prompt */
-  .auth-prompt {
-    padding: 1.2rem !important;
-    margin-bottom: 1.5rem !important;
+    margin-left: 1rem !important; 
+    padding-left: 0.75rem !important;
   }
 }
