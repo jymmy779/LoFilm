@@ -409,6 +409,24 @@ export default function ProfileContent() {
       toast.success("Cập nhật tên thành công!");
       setIsEditingName(false);
       setUser({ ...user, user_metadata: { ...user.user_metadata, full_name: newName } });
+
+      // Cập nhật tên trong tất cả bình luận cũ
+      supabase
+        .from('comments')
+        .update({ user_name: newName })
+        .eq('user_id', user.id)
+        .then(({ error: updateError }) => {
+          if (updateError) console.error("Không thể cập nhật tên trong bình luận cũ:", updateError);
+        });
+
+      // Cập nhật tên trong tất cả thông báo cũ
+      supabase
+        .from('user_notifications')
+        .update({ actor_name: newName })
+        .eq('user_id', user.id)
+        .then(({ error: notifError }) => {
+          if (notifError) console.error("Không thể cập nhật tên trong thông báo cũ:", notifError);
+        });
     }
     setIsUpdating(false);
   };
