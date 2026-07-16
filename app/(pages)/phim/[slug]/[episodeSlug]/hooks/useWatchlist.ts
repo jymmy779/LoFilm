@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/app/utils/supabase/client";
 import { toast } from "react-hot-toast";
+import { logActivity } from "@/app/utils/log-activity";
 
 export const useWatchlist = (user: any, movieSlug: string, movieName: string, moviePoster: string, movieThumb?: string) => {
     const [isInWatchlist, setIsInWatchlist] = useState(false);
@@ -17,7 +18,7 @@ export const useWatchlist = (user: any, movieSlug: string, movieName: string, mo
                     .eq('user_id', user.id)
                     .eq('movie_slug', movieSlug)
                     .maybeSingle();
-                
+
                 if (data) setIsInWatchlist(true);
                 else setIsInWatchlist(false);
             } catch (err) {
@@ -25,7 +26,7 @@ export const useWatchlist = (user: any, movieSlug: string, movieName: string, mo
             }
         };
         checkWatchlist();
-    }, [movieSlug, user?.id]); 
+    }, [movieSlug, user?.id]);
 
     const toggleWatchlist = async () => {
         if (!user) {
@@ -41,6 +42,7 @@ export const useWatchlist = (user: any, movieSlug: string, movieName: string, mo
                 const { error } = await supabase.from('watchlist').delete().eq('movie_slug', movieSlug).eq('user_id', user.id);
                 if (error) throw error;
                 toast.success("Đã xóa khỏi danh sách xem sau");
+                logActivity(user.id, "watchlist_remove", { movie_slug: movieSlug, movie_name: movieName });
             } else {
                 const { error } = await supabase.from('watchlist').insert({
                     user_id: user.id,
@@ -50,6 +52,7 @@ export const useWatchlist = (user: any, movieSlug: string, movieName: string, mo
                 });
                 if (error) throw error;
                 toast.success("Đã thêm vào danh sách xem sau");
+                logActivity(user.id, "watchlist_add", { movie_slug: movieSlug, movie_name: movieName });
             }
         } catch (err: any) {
             setIsInWatchlist(prevStatus);

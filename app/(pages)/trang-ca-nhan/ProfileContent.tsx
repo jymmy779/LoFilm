@@ -14,17 +14,19 @@ import {
   Bookmark,
   Plus,
   ArrowRight,
-  AlertCircle
+  AlertCircle,
+  Activity
 } from 'lucide-react';
 import { createClient } from "@/app/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
+import { logActivity } from "@/app/utils/log-activity";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
 import LogoutModal from "@/app/components/Modals/LogoutModal";
 import ComingSoonModal from "@/app/components/Modals/ComingSoonModal";
 import CommonModal from "@/app/components/Modals/CommonModal";
 
-type TabType = 'overview' | 'history' | 'favorites' | 'watchlist' | 'settings';
+type TabType = 'overview' | 'history' | 'favorites' | 'activities' | 'watchlist' | 'settings';
 
 import Sidebar from "@/app/components/Sidebar/Sidebar";
 import { isOwner } from "@/app/utils/owner-utils";
@@ -34,6 +36,7 @@ import HistoryTab from "./components/HistoryTab";
 import FavoritesTab from "./components/FavoritesTab";
 import WatchlistTab from "./components/WatchlistTab";
 import SettingsTab from "./components/SettingsTab";
+import ActivityTab from "./components/ActivityTab";
 
 import ProfileSkeleton from "./components/ProfileSkeleton";
 
@@ -56,7 +59,7 @@ export default function ProfileContent() {
 
   useEffect(() => {
     const tabParam = searchParams.get('tab');
-    if (tabParam && ['overview', 'history', 'favorites', 'watchlist', 'settings'].includes(tabParam)) {
+    if (tabParam && ['overview', 'history', 'favorites', 'activities', 'watchlist', 'settings'].includes(tabParam)) {
       setActiveTab(tabParam as TabType);
     }
   }, [searchParams]);
@@ -389,6 +392,7 @@ export default function ProfileContent() {
 
       toast.success("Đã cập nhật ảnh đại diện!");
       setUser({ ...user, user_metadata: { ...user.user_metadata, avatar_url: publicUrl } });
+      logActivity(user.id, "update_avatar", { avatar_url: publicUrl });
 
       // Cập nhật avatar trong tất cả bình luận cũ
       supabase
@@ -429,6 +433,7 @@ export default function ProfileContent() {
       toast.success("Cập nhật tên thành công!");
       setIsEditingName(false);
       setUser({ ...user, user_metadata: { ...user.user_metadata, full_name: newName } });
+      logActivity(user.id, "update_name", { old_name: user?.user_metadata?.full_name, new_name: newName });
 
       // Cập nhật tên trong tất cả bình luận cũ
       supabase
@@ -512,6 +517,7 @@ export default function ProfileContent() {
     { id: 'overview', label: 'Tổng quan', icon: User },
     { id: 'history', label: 'Lịch sử xem', icon: HistoryIcon },
     { id: 'favorites', label: 'Yêu thích', icon: Heart },
+    { id: 'activities', label: 'Hoạt động', icon: Activity },
     { id: 'watchlist', label: 'Xem sau', icon: Bookmark },
     { id: 'settings', label: 'Cài đặt', icon: Settings },
   ];
@@ -638,6 +644,10 @@ export default function ProfileContent() {
                       onDeleteItem={deleteFavoriteItem}
                       onClearAll={clearAllFavorites}
                     />
+                  )}
+
+                  {activeTab === 'activities' && (
+                    <ActivityTab user={user} />
                   )}
 
                   {activeTab === 'watchlist' && (

@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { createClient } from "@/app/utils/supabase/client";
 import { toast } from "react-hot-toast";
 import { useAuth } from "@/app/components/Auth/AuthContext";
+import { logActivity } from "@/app/utils/log-activity";
 
 export const useFavorites = (movieSlug: string, movieName: string, moviePoster: string, movieThumb?: string) => {
     const { user } = useAuth();
@@ -20,7 +21,7 @@ export const useFavorites = (movieSlug: string, movieName: string, moviePoster: 
                     .eq('user_id', user.id)
                     .eq('movie_slug', movieSlug)
                     .maybeSingle(); // maybeSingle() trả về null thay vì error 406 nếub không tìm thấy row
-                
+
                 if (data) setIsFavorited(true);
                 else setIsFavorited(false);
             } catch (err) {
@@ -28,7 +29,7 @@ export const useFavorites = (movieSlug: string, movieName: string, moviePoster: 
             }
         };
         checkFavorite();
-    }, [movieSlug, user?.id]); 
+    }, [movieSlug, user?.id]);
 
     const toggleFavorite = async () => {
         if (!user) {
@@ -44,6 +45,7 @@ export const useFavorites = (movieSlug: string, movieName: string, moviePoster: 
                 const { error } = await supabase.from('favorites').delete().eq('movie_slug', movieSlug).eq('user_id', user.id);
                 if (error) throw error;
                 toast.success("Đã xóa khỏi danh sách yêu thích");
+                logActivity(user.id, "favorite_remove", { movie_slug: movieSlug, movie_name: movieName });
             } else {
                 const { error } = await supabase.from('favorites').insert({
                     user_id: user.id,
@@ -53,6 +55,7 @@ export const useFavorites = (movieSlug: string, movieName: string, moviePoster: 
                 });
                 if (error) throw error;
                 toast.success("Đã thêm vào danh sách yêu thích");
+                logActivity(user.id, "favorite_add", { movie_slug: movieSlug, movie_name: movieName });
             }
         } catch (err: any) {
             setIsFavorited(prevStatus);

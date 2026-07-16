@@ -9,6 +9,7 @@ import Skeleton from "../Skeleton/Skeleton";
 import AuthPrompt from "./AuthPrompt";
 import { toast } from "react-hot-toast";
 import MovieInteractions from "../../(pages)/phim/[slug]/[episodeSlug]/MovieInteractions";
+import { logActivity } from "@/app/utils/log-activity";
 import "./Comments.css";
 
 interface CommentSectionProps {
@@ -129,6 +130,7 @@ function CommentSection({ movieSlug }: CommentSectionProps) {
         } else {
             setComments([data, ...comments]);
             toast.success("Đã gửi bình luận");
+            logActivity(user.id, "comment", { movie_slug: movieSlug, content: content.substring(0, 100) });
         }
     };
 

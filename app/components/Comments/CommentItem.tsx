@@ -11,6 +11,7 @@ import { toast } from "react-hot-toast";
 import CommonModal from "@/app/components/Modals/CommonModal";
 import { reportCommentToTelegram } from "@/app/actions/reportActions";
 import { isOwner } from "@/app/utils/owner-utils";
+import { logActivity } from "@/app/utils/log-activity";
 
 interface CommentItemProps {
     comment: any;
@@ -34,7 +35,6 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
     const [isDeleting, setIsDeleting] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [commentContent, setCommentContent] = useState(comment.content);
-    const [avatarError, setAvatarError] = useState(false);
     const supabase = createClient();
     const menuRef = useRef<HTMLDivElement>(null);
 
@@ -132,6 +132,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
             if (newType === null) {
                 await supabase.from('comment_reactions').delete().eq('comment_id', comment.id).eq('user_id', user.id);
             } else {
+                logActivity(user.id, type === 'up' ? 'like' : 'dislike', { comment_id: comment.id, movie_slug: comment.movie_slug });
                 await supabase.from('comment_reactions').upsert({
                     comment_id: comment.id,
                     user_id: user.id,
@@ -225,6 +226,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                 setShowReplyForm(false);
                 toast.success("Đã gửi trả lời");
             }
+            logActivity(user.id, "reply", { movie_slug: comment.movie_slug, content: content.substring(0, 100), parent_id: comment.id });
 
             // Add notification
             if (comment.user_id && comment.user_id !== user.id) {
@@ -338,15 +340,8 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
         <div className={`comment-item-wrap ${isReply ? 'is-reply' : ''} ${isMenuOpen ? 'relative z-[100]' : ''}`}>
             <div className="d-item" id={`comment-${comment.id}`}>
                 <div className="user-avatar">
-                    {avatarUrl && !avatarError ? (
-                        <Image
-                            src={avatarUrl}
-                            alt={displayName}
-                            width={40}
-                            height={40}
-                            className="rounded-full object-cover"
-                            onError={() => setAvatarError(true)}
-                        />
+                    {avatarUrl ? (
+                        <Image src={avatarUrl} alt={displayName} width={40} height={40} className="rounded-full object-cover" />
                     ) : (
                         <div className="avatar-fallback">
                             <span className="text-sm font-bold">{displayName ? displayName.charAt(0).toUpperCase() : '?'}</span>
