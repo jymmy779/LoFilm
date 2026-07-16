@@ -869,24 +869,24 @@ export default function WatchClient({
                 setTapState(prev => ({
                     side,
                     accumulated: newAccumulated,
-                    ripples: [...prev.ripples, { id: rippleId, x, y }]
+                    ripples: [...prev.ripples, { id: rippleId, x, y }].slice(-3)
                 }));
 
-                // Auto-remove ripple after animation finishes (800ms)
+                // Auto-remove ripple after animation finishes (500ms)
                 setTimeout(() => {
                     setTapState(prev => ({
                         ...prev,
                         ripples: prev.ripples.filter(r => r.id !== rippleId)
                     }));
-                }, 800);
+                }, 500);
 
-                // Reset seek accumulator and active side after 800ms of inactivity
+                // Reset seek accumulator and active side after 500ms of inactivity
                 if (resetTimeoutRef.current) clearTimeout(resetTimeoutRef.current);
                 resetTimeoutRef.current = setTimeout(() => {
                     setTapState(prev => ({ ...prev, side: null, accumulated: 0 }));
                     accumulatedSecondsRef.current = 0;
                     activeSideRef.current = null;
-                }, 800);
+                }, 500);
             } else {
                 lastTapTime = now;
                 lastTapX = tapX;
@@ -1105,13 +1105,14 @@ export default function WatchClient({
                                 opacity: 0.55;
                             }
                             100% {
-                                width: 600px;
-                                height: 600px;
+                                width: 250px;
+                                height: 250px;
                                 opacity: 0;
                             }
                         }
                         .animate-ripple-expand {
-                            animation: ripple-expand 0.75s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+                            animation: ripple-expand 0.5s cubic-bezier(0.1, 0.8, 0.3, 1) forwards;
+                            will-change: transform, opacity;
                         }
 
                         @keyframes bubble-pop-in {
@@ -1194,6 +1195,7 @@ export default function WatchClient({
                                             left: ripple.x,
                                             top: ripple.y,
                                             transform: 'translate(-50%, -50%)',
+                                            willChange: 'transform, opacity',
                                         }}
                                     />
                                 ))}
