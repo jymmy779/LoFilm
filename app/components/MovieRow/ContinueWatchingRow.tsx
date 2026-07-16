@@ -196,25 +196,39 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                 new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
             );
 
-            // 4. Lọc chỉ bỏ phim đã xem hết (< 85%), giới hạn 20 phim
-            let finalHistory = combinedHistory.filter(item => {
-                if (!item.duration) return true;
-                const progress = (item.watched_seconds / item.duration) * 100;
-                const isFinished = progress >= 85;
-                return !isFinished;
-            }).slice(0, 20);
+            // Helper: parse số thứ tự tập từ episode_slug hoặc episode_name
+            function getEpisodeNumber(item: any): number {
+                const slugMatch = item.episode_slug?.match(/(\d+)/);
+                if (slugMatch) return parseInt(slugMatch[1], 10);
+                const nameMatch = item.episode_name?.match(/(\d+)/);
+                if (nameMatch) return parseInt(nameMatch[1], 10);
+                return 0;
+            }
 
-            // Group by movie_slug: chỉ giữ 1 item/phim (item mới nhất), tránh spam tập phim bộ
+            // 4. Group by movie_slug TRƯỚC: giữ item có số tập cao nhất (không filter completed)
             const groupedMap = new Map<string, any>();
-            finalHistory.forEach(item => {
+            combinedHistory.forEach(item => {
                 const key = item.movie_slug;
                 const existing = groupedMap.get(key);
-                if (!existing || new Date(item.updated_at).getTime() > new Date(existing.updated_at).getTime()) {
+                if (!existing) {
                     groupedMap.set(key, item);
+                } else {
+                    const currentEpNum = getEpisodeNumber(item);
+                    const existingEpNum = getEpisodeNumber(existing);
+                    if (currentEpNum > existingEpNum) {
+                        groupedMap.set(key, item);
+                    } else if (currentEpNum === existingEpNum) {
+                        // Cùng số tập thì giữ cái mới hơn
+                        if (new Date(item.updated_at).getTime() > new Date(existing.updated_at).getTime()) {
+                            groupedMap.set(key, item);
+                        }
+                    }
                 }
             });
-            finalHistory = Array.from(groupedMap.values());
-            // Sắp xếp lại sau khi gom nhóm
+            let finalHistory = Array.from(groupedMap.values());
+
+            // 5. Giới hạn 20 phim, sắp xếp lại theo thời gian mới nhất
+            finalHistory = finalHistory.slice(0, 20);
             finalHistory.sort((a, b) =>
                 new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
             );
@@ -296,7 +310,7 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                     >
                         {history.map((item, index) => {
                             const progress = (item.watched_seconds / item.duration) * 100;
-                            const isFinished = progress >= 85;
+                            const isFinished = progress >= 90;
                             const isPriority = index < 4;
 
                             return (
