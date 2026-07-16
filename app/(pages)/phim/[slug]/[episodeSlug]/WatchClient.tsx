@@ -556,6 +556,7 @@ export default function WatchClient({
                 airplay: false,
                 hotkey: false,
                 lock: true,
+                gesture: false,
                 ...({ tooltips: false } as any),
                 poster: getImageUrl(movie.thumb_url, { width: 1280, quality: 85 }),
                 icons: {
@@ -824,8 +825,8 @@ export default function WatchClient({
             const y = touch.clientY - rect.top;
             const ratio = x / rect.width;
 
-            // Define seek zones (left 40% and right 40%). The remaining 20% in the middle is neutral.
-            const side: 'left' | 'right' | null = ratio < 0.4 ? 'left' : ratio > 0.6 ? 'right' : null;
+            // Define seek zones (left 30% and right 30%). The remaining 40% in the middle is neutral (play/pause).
+            const side: 'left' | 'right' | null = ratio < 0.30 ? 'left' : ratio > 0.70 ? 'right' : null;
             const player = artRef.current;
             if (!player) return;
 
@@ -1201,9 +1202,9 @@ export default function WatchClient({
                                 ))}
                             </div>
 
-                            {/* Left double-tap region (40% width) */}
+                            {/* Left double-tap region (30% width) */}
                             <div
-                                className="absolute left-0 top-0 w-[40%] h-full z-20 pointer-events-none transition-opacity duration-300"
+                                className="absolute left-0 top-0 w-[30%] h-full z-20 pointer-events-none transition-opacity duration-300"
                                 style={{ opacity: tapState.side === 'left' ? 1 : 0 }}
                             >
                                 {/* Radial highlight */}
@@ -1224,9 +1225,9 @@ export default function WatchClient({
                                 )}
                             </div>
 
-                            {/* Right double-tap region (40% width) */}
+                            {/* Right double-tap region (30% width) */}
                             <div
-                                className="absolute right-0 top-0 w-[40%] h-full z-20 pointer-events-none transition-opacity duration-300"
+                                className="absolute right-0 top-0 w-[30%] h-full z-20 pointer-events-none transition-opacity duration-300"
                                 style={{ opacity: tapState.side === 'right' ? 1 : 0 }}
                             >
                                 {/* Radial highlight */}
