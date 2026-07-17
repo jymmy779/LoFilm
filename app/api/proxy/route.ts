@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const revalidateParam = searchParams.get('revalidate');
-    const revalidate = revalidateParam ? parseInt(revalidateParam) : 300; // Tăng lên 5 phút mặc định
+    const revalidate = revalidateParam ? parseInt(revalidateParam) : 60; // Sync 60 giây với prefetch-home
 
     const data = await fetchWithRedis(targetUrl, { revalidate });
 
