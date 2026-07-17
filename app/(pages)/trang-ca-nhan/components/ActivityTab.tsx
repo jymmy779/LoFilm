@@ -9,13 +9,12 @@ import {
     ThumbsUp,
     ThumbsDown,
     Heart,
-    HeartOff,
     BookmarkPlus,
-    BookmarkMinus,
     Image,
     Edit3,
     Loader2,
     ExternalLink,
+    Share2,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -62,19 +61,24 @@ const ACTIVITY_CONFIG: Record<string, ActivityConfig> = {
         label: (meta) => `Đã thêm "${meta.movie_name || meta.movie_slug}" vào yêu thích`,
         getLink: (meta) => meta.movie_slug ? `/phim/${meta.movie_slug}` : null,
     },
-    favorite_remove: {
-        icon: <HeartOff size={16} className="text-red-400/60" />,
-        label: (meta) => `Đã bỏ yêu thích "${meta.movie_name || meta.movie_slug}"`,
-        getLink: (meta) => meta.movie_slug ? `/phim/${meta.movie_slug}` : null,
-    },
     watchlist_add: {
         icon: <BookmarkPlus size={16} />,
         label: (meta) => `Đã thêm "${meta.movie_name || meta.movie_slug}" vào danh sách xem sau`,
         getLink: (meta) => meta.movie_slug ? `/phim/${meta.movie_slug}` : null,
     },
-    watchlist_remove: {
-        icon: <BookmarkMinus size={16} />,
-        label: (meta) => `Đã bỏ "${meta.movie_name || meta.movie_slug}" khỏi danh sách xem sau`,
+    like_movie: {
+        icon: <ThumbsUp size={16} className="text-amber-400" />,
+        label: (meta) => `Đã thích phim "${meta.movie_name || meta.movie_slug}"`,
+        getLink: (meta) => meta.movie_slug ? `/phim/${meta.movie_slug}` : null,
+    },
+    dislike_movie: {
+        icon: <ThumbsDown size={16} className="text-red-400" />,
+        label: (meta) => `Đã không thích phim "${meta.movie_name || meta.movie_slug}"`,
+        getLink: (meta) => meta.movie_slug ? `/phim/${meta.movie_slug}` : null,
+    },
+    share_movie: {
+        icon: <Share2 size={16} className="text-blue-400" />,
+        label: (meta) => `Đã chia sẻ phim "${meta.movie_name || meta.movie_slug}"`,
         getLink: (meta) => meta.movie_slug ? `/phim/${meta.movie_slug}` : null,
     },
     update_avatar: {
@@ -163,8 +167,8 @@ export default function ActivityTab({ user }: ActivityTabProps) {
                         <div
                             key={activity.id}
                             className={`flex items-start gap-3 p-3 rounded-2xl bg-white/[0.02] border border-white/5 transition-colors ${href
-                                    ? "hover:bg-white/[0.06] cursor-pointer"
-                                    : "hover:bg-white/[0.04]"
+                                ? "hover:bg-white/[0.06] cursor-pointer"
+                                : "hover:bg-white/[0.04]"
                                 }`}
                         >
                             <div className="w-8 h-8 rounded-full bg-amber-400/10 flex items-center justify-center text-amber-400 shrink-0 mt-0.5">

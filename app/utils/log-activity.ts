@@ -7,9 +7,10 @@ export type ActivityType =
     | "like"
     | "dislike"
     | "favorite_add"
-    | "favorite_remove"
     | "watchlist_add"
-    | "watchlist_remove"
+    | "like_movie"
+    | "dislike_movie"
+    | "share_movie"
     | "update_avatar"
     | "update_name";
 

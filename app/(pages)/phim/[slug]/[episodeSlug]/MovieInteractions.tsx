@@ -5,6 +5,7 @@ import { ThumbsUp, ThumbsDown } from "lucide-react";
 import { createClient } from "@/app/utils/supabase/client";
 import { toast } from "react-hot-toast";
 import Skeleton from "@/app/components/Skeleton/Skeleton";
+import { logActivity } from "@/app/utils/log-activity";
 
 interface MovieInteractionsProps {
     movieSlug: string;
@@ -41,7 +42,7 @@ export default function MovieInteractions({ movieSlug, user }: MovieInteractions
                         .eq('movie_slug', movieSlug)
                         .eq('user_id', user.id)
                         .limit(1)
-                        .maybeSingle(); 
+                        .maybeSingle();
 
                     if (interactionRes) {
                         setUserInteraction(interactionRes.type as 'like' | 'dislike');
@@ -87,6 +88,7 @@ export default function MovieInteractions({ movieSlug, user }: MovieInteractions
                     { movie_slug: movieSlug, user_id: user.id, type: type },
                     { onConflict: 'movie_slug,user_id' }
                 );
+                logActivity(user.id, type === 'like' ? 'like_movie' : 'dislike_movie', { movie_slug: movieSlug });
             }
         } catch (err: any) {
             setUserInteraction(prevInteraction);
@@ -109,8 +111,8 @@ export default function MovieInteractions({ movieSlug, user }: MovieInteractions
                 <button
                     onClick={() => handleInteraction('like')}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all cursor-pointer ${userInteraction === 'like'
-                            ? "bg-amber-400 text-black font-bold"
-                            : "text-white/40 hover:text-white"
+                        ? "bg-amber-400 text-black font-bold"
+                        : "text-white/40 hover:text-white"
                         }`}
                 >
                     <ThumbsUp size={16} className={userInteraction === 'like' ? "fill-black" : ""} />
@@ -120,8 +122,8 @@ export default function MovieInteractions({ movieSlug, user }: MovieInteractions
                 <button
                     onClick={() => handleInteraction('dislike')}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all cursor-pointer ${userInteraction === 'dislike'
-                            ? "bg-red-500 text-white font-bold"
-                            : "text-white/40 hover:text-white border-l border-white/10"
+                        ? "bg-red-500 text-white font-bold"
+                        : "text-white/40 hover:text-white border-l border-white/10"
                         }`}
                 >
                     <ThumbsDown size={16} className={userInteraction === 'dislike' ? "fill-white" : ""} />

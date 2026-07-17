@@ -45,7 +45,6 @@ export const useFavorites = (movieSlug: string, movieName: string, moviePoster: 
                 const { error } = await supabase.from('favorites').delete().eq('movie_slug', movieSlug).eq('user_id', user.id);
                 if (error) throw error;
                 toast.success("Đã xóa khỏi danh sách yêu thích");
-                logActivity(user.id, "favorite_remove", { movie_slug: movieSlug, movie_name: movieName });
             } else {
                 const { error } = await supabase.from('favorites').insert({
                     user_id: user.id,

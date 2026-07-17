@@ -57,6 +57,7 @@ import { useVttOverlay } from "./hooks/useVttOverlay";
 import { useFavorites } from "./hooks/useFavorites";
 import { useWatchlist } from "./hooks/useWatchlist";
 import { useWatchProgress } from "./hooks/useWatchProgress";
+import { logActivity } from "@/app/utils/log-activity";
 
 interface WatchClientProps {
     slug: string;
@@ -1553,7 +1554,7 @@ export default function WatchClient({
             <ReportModal isOpen={showReportModal} onClose={() => setShowReportModal(false)} movieName={movie.name} episodeName={currentEpisode.name} />
             <ShareModal
                 isOpen={showShareModal}
-                onClose={() => setShowShareModal(false)}
+                onClose={() => { setShowShareModal(false); if (user) logActivity(user.id, "share_movie", { movie_slug: slug, movie_name: movie.name }); }}
                 movieName={movie.name}
                 shareUrl={typeof window !== "undefined" ? `${window.location.origin}/phim/${slug}/${currentEpisodeSlug}${user ? `?ref=${user.id}` : ''}` : ''}
             />

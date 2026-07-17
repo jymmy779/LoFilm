@@ -42,7 +42,6 @@ export const useWatchlist = (user: any, movieSlug: string, movieName: string, mo
                 const { error } = await supabase.from('watchlist').delete().eq('movie_slug', movieSlug).eq('user_id', user.id);
                 if (error) throw error;
                 toast.success("Đã xóa khỏi danh sách xem sau");
-                logActivity(user.id, "watchlist_remove", { movie_slug: movieSlug, movie_name: movieName });
             } else {
                 const { error } = await supabase.from('watchlist').insert({
                     user_id: user.id,
