@@ -29,9 +29,11 @@ interface HeroSliderProps {
 
 import HeroSliderSkeleton from "./HeroSliderSkeleton";
 
-// Global cache for HeroSlider
+// Global cache for HeroSlider with timestamp
 let cachedHeroMovies: Movie[] = [];
 let hasFetchedHeroOnce = false;
+let lastFetchTime = 0;
+const HERO_CACHE_TTL = 60 * 1000; // Cache tối đa 1 phút thay vì vô hạn
 
 export default function HeroSlider({ initialMovies }: HeroSliderProps) {
     const [movies, setMovies] = useState<Movie[]>(() => {
@@ -44,17 +46,21 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
 
 
     useEffect(() => {
-        // Nếu đã có dữ liệu từ server (initialMovies) hoặc đã cache, không cần fetch lại ở client
-        // để tránh việc dữ liệu mới từ API (không có content) ghi đè lên dữ liệu đã được enrich
-        if (hasFetchedHeroOnce && cachedHeroMovies.length > 0) return;
+        const now = Date.now();
 
-        if (initialMovies && initialMovies.length > 0) {
+        // Nếu cache còn mới (trong vòng 1 phút) thì không fetch lại
+        if (hasFetchedHeroOnce && cachedHeroMovies.length > 0 && (now - lastFetchTime) < HERO_CACHE_TTL) return;
+
+        // Nếu có initialMovies từ server và chưa từng fetch client, dùng initialMovies
+        if (initialMovies && initialMovies.length > 0 && !hasFetchedHeroOnce) {
             cachedHeroMovies = initialMovies;
             hasFetchedHeroOnce = true;
+            lastFetchTime = now;
             setMovies(initialMovies);
             return;
         }
 
+        // Fetch mới nếu cache cũ (quá 1 phút) hoặc không có dữ liệu
         axios.get(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?limit=40")}`)
             .then((res) => {
                 const items: Movie[] = res.data.items || [];
@@ -63,6 +69,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
 
                 cachedHeroMovies = first8;
                 hasFetchedHeroOnce = true;
+                lastFetchTime = Date.now();
                 setMovies(first8);
             })
             .catch((err) => {

@@ -21,8 +21,12 @@ export async function GET(request: NextRequest) {
 
     return NextResponse.json(data, {
       headers: {
-        // s-maxage for CDN/Vercel Edge, max-age=0 forces browser to always revalidate
-        'Cache-Control': `public, s-maxage=${revalidate}, stale-while-revalidate=5, max-age=0`,
+        // Không cho Cloudflare/edge cache proxy (dữ liệu luôn thay đổi)
+        'Cache-Control': 'no-cache, no-store, must-revalidate, proxy-revalidate',
+        'Pragma': 'no-cache',
+        'Expires': '0',
+        'CDN-Cache-Control': 'no-cache',
+        'Cloudflare-CDN-Cache-Control': 'no-cache',
       }
     });
   } catch (error: any) {

@@ -21,10 +21,9 @@ const supabase = createClient(
 );
 
 const REVALIDATE_SEC = 60; // Đồng bộ 60 giây toàn hệ thống
-const QUICK_REVALIDATE_SEC = 60;
 
-async function fetchPhimJson(url: string, quick: boolean = false): Promise<unknown> {
-    return await fetchWithRedis(url, { revalidate: quick ? QUICK_REVALIDATE_SEC : REVALIDATE_SEC });
+async function fetchPhimJson(url: string): Promise<unknown> {
+    return await fetchWithRedis(url, { revalidate: REVALIDATE_SEC });
 }
 
 function parseV1Items(payload: unknown): Movie[] {
@@ -71,7 +70,7 @@ function mapMovieRow(items: Movie[]): Movie[] {
  */
 async function fetchFeatured(url: string, limit: number = 10): Promise<Movie[]> {
     try {
-        const res = await fetchPhimJson(url, true);
+        const res = await fetchPhimJson(url);
         const items = parseV1Items(res);
         if (items.length === 0) return [];
 
@@ -87,7 +86,7 @@ async function fetchFeatured(url: string, limit: number = 10): Promise<Movie[]> 
  */
 async function fetchTop(url: string, limit: number = 30): Promise<Movie[]> {
     try {
-        const res = await fetchPhimJson(url, true);
+        const res = await fetchPhimJson(url);
         const items = parseV1Items(res);
         if (items.length === 0) return [];
 
@@ -169,7 +168,7 @@ async function getExclusiveMoviesForHero(): Promise<Movie[]> {
     try {
         // Chỉ lấy phim đăng trong vòng 3 ngày gần nhất
         const threeDaysAgo = new Date(Date.now() - 4 * 24 * 60 * 60 * 1000);
-        
+
         const { data } = await supabase
             .from('exclusive_movies')
             .select('*')
@@ -292,14 +291,14 @@ async function mapNominated(): Promise<Movie[]> {
 
     // Lấy cấu hình từ DB
     const { data: configData, error: configError } = await supabase.from('site_settings').select('value').eq('key', 'editor_choices').maybeSingle();
-    
+
     if (configError) {
         console.error("[mapNominated] Lỗi truy vấn DB site_settings:", configError);
     }
-    
+
     let config = configData?.value;
     console.log("[mapNominated] configData retrieved:", !!configData);
-    
+
     if (!config) {
         console.log("[mapNominated] Dùng danh sách MẶC ĐỊNH vì không có config trong DB.");
         const NOMINATED_SLUGS = [
@@ -349,7 +348,7 @@ async function mapNominated(): Promise<Movie[]> {
                     } as unknown as Movie;
                 }
 
-                const res = await fetchPhimJson(`https://phimapi.com/phim/${slug}`, true);
+                const res = await fetchPhimJson(`https://phimapi.com/phim/${slug}`);
                 const movie = (res as any)?.movie;
                 if (!movie) return null;
                 return {
@@ -363,7 +362,7 @@ async function mapNominated(): Promise<Movie[]> {
             }
         })
     );
-    
+
     const result = movies.filter(Boolean) as Movie[];
 
     // 3. Lưu cache riêng 24h
@@ -388,7 +387,7 @@ async function enrichMovies(movies: Movie[]): Promise<Movie[]> {
     return await Promise.all(
         movies.map(async (m) => {
             try {
-                const res = await fetchPhimJson(`https://phimapi.com/phim/${m.slug}`, true);
+                const res = await fetchPhimJson(`https://phimapi.com/phim/${m.slug}`);
                 const detail = (res as any)?.movie;
                 if (!detail) return m;
                 return {
@@ -409,10 +408,10 @@ async function enrichMovies(movies: Movie[]): Promise<Movie[]> {
 
 export async function prefetchHomePageData(): Promise<HomePrefetch> {
     const BUNDLE_KEY = "home:prefetch:bundle";
-    const STALE_KEY = "home:prefetch:bundle:stale"; 
+    const STALE_KEY = "home:prefetch:bundle:stale";
     const EMERGENCY_KEY = "home:prefetch:bundle:emergency"; // Bản dự phòng cuối cùng (24h)
-    const BUNDLE_TTL = 600;    // Cache chính: 10 phút
-    const STALE_TTL = 3600;    // Cache stale: 1 giờ
+    const BUNDLE_TTL = 60;     // Cache chính: 1 phút (giảm từ 10 phút)
+    const STALE_TTL = 300;     // Cache stale: 5 phút
     const EMERGENCY_TTL = 86400; // 24 giờ
 
     // 1. Thử lấy từ cache bundle chính trước
@@ -460,15 +459,19 @@ async function fetchAndCacheBundle(
         heroRaw,
         catRaw,
         hanRaw,
+        trungRaw,
+        auMyRaw,
         nominatedMovies,
         featuredTvMovies,
         featuredAnimeMovies,
         topLeMovies,
         topBoMovies,
     ] = await Promise.all([
-        fetchPhimJson(URLS.hero, true),
+        fetchPhimJson(URLS.hero),
         fetchPhimJson(URLS.categories),
-        fetchPhimJson(URLS.movieRowHan, true),
+        fetchPhimJson(URLS.movieRowHan),
+        fetchPhimJson(URLS.movieRowTrung),
+        fetchPhimJson(URLS.movieRowAuMy),
         mapNominated(),
         fetchFeatured(URLS.featuredTv, 10),
         fetchFeatured(URLS.featuredAnime, 10),
@@ -489,21 +492,21 @@ async function fetchAndCacheBundle(
 
     // Trộn phim: Đánh dấu sao -> Độc quyền -> Phim mới cập nhật
     let finalHero = [...enrichedHero];
-    
+
     // Thêm độc quyền
     if (exclusiveHeroMovies && exclusiveHeroMovies.length > 0) {
         finalHero = [...exclusiveHeroMovies, ...finalHero];
     }
-    
+
     // Thêm đánh dấu sao (ưu tiên cao nhất)
     if (starredHeroMovies && starredHeroMovies.length > 0) {
         // Lọc bỏ phim trùng lặp (nếu đã có trong độc quyền hoặc mới cập nhật)
         const starredSlugs = new Set(starredHeroMovies.map(m => m.slug));
         finalHero = finalHero.filter(m => !starredSlugs.has(m.slug));
-        
+
         finalHero = [...starredHeroMovies, ...finalHero];
     }
-    
+
     // Giữ nguyên số lượng = 8
     finalHero = finalHero.slice(0, 8);
 
@@ -511,12 +514,12 @@ async function fetchAndCacheBundle(
         hero: finalHero,
         categories: parseCategories(catRaw),
         movieRowHan: mapMovieRow(parseV1Items(hanRaw)),
+        movieRowTrung: mapMovieRow(parseV1Items(trungRaw)),
+        movieRowAuMy: mapMovieRow(parseV1Items(auMyRaw)),
         nominated: nominatedMovies,
         featuredTv: enrichedTv,
         featuredAnime: enrichedAnime,
         // Các dãy còn lại để rỗng để client tự fetch qua LazyRow, giảm tải TTFB cho server
-        movieRowTrung: [],
-        movieRowAuMy: [],
         posterChieuRap: [],
         posterPhimBo: [],
         topPhimLe: topLeMovies,
@@ -556,4 +559,3 @@ function refreshBundleInBackground(
         .then(() => console.log("[SWR] Home bundle refreshed in background"))
         .catch(err => console.error("[SWR] Background refresh failed:", err));
 }
-

@@ -19,7 +19,7 @@ interface UseMoviesOptions {
  * Key: apiUrl, Value: Movie[]
  */
 const movieCache: Record<string, { data: Movie[], timestamp: number }> = {};
-const STALE_TIME = 5 * 60 * 1000; // 5 phút
+const STALE_TIME = 60 * 1000; // 60 giây
 
 export function useMovies({
     apiUrl,
@@ -34,7 +34,7 @@ export function useMovies({
     const cachedMovies = cacheEntry?.data || [];
     const hasInitial = initialMovies.length > 0;
     const hasCache = cachedMovies.length > 0;
-    
+
     const seeded = hasInitial || hasCache;
     const [isLoading, setIsLoading] = useState(!seeded);
     const [error, setError] = useState<string | null>(null);
@@ -62,18 +62,18 @@ export function useMovies({
 
     const updateMovies = useCallback((newMovies: Movie[]) => {
         if (!isMounted.current) return;
-        
+
         const processed = processMovies(newMovies);
-        movieCache[apiUrl] = { 
-            data: processed, 
-            timestamp: Date.now() 
+        movieCache[apiUrl] = {
+            data: processed,
+            timestamp: Date.now()
         };
         setMovies(processed);
     }, [processMovies, apiUrl]);
 
     const fetchMovies = useCallback(async (retryCount = 0, backgroundFetch = false) => {
         if (!isMounted.current) return;
-        
+
         // Kiểm tra xem có cần fetch thực sự không (nếu là background fetch)
         if (backgroundFetch && movieCache[apiUrl]) {
             const now = Date.now();
@@ -83,21 +83,21 @@ export function useMovies({
                 return;
             }
         }
-        
+
         try {
             if (!backgroundFetch) {
                 setIsLoading(true);
             }
             const proxyUrl = `/api/proxy?url=${encodeURIComponent(apiUrl)}${revalidate ? `&revalidate=${revalidate}` : ""}`;
             const response = await axios.get(proxyUrl);
-            
+
             if (isMounted.current && (response.data?.status === "success" || response.data?.status === true) && response.data?.data?.items) {
                 let items: Movie[] = response.data.data.items;
-                
+
                 if (filterDuplicates) {
                     items = filterDuplicateMovies(items);
                 }
-                
+
                 if (limit) {
                     items = items.slice(0, limit);
                 }
@@ -124,7 +124,7 @@ export function useMovies({
 
     useEffect(() => {
         isMounted.current = true;
-        
+
         // 1. Cập nhật cache từ Server Props nếu có nhưng CHƯA có trong cache trình duyệt
         if (hasInitial && !movieCache[apiUrl]) {
             movieCache[apiUrl] = {
