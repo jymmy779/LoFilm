@@ -40,8 +40,7 @@
   flex-shrink: 0;
 }
 
-.avatar-fallback,
-.user-avatar img {
+.avatar-fallback {
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -55,7 +54,12 @@
 }
 
 .user-avatar img {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  display: flex;
   object-fit: cover;
+  overflow: hidden;
 }
 
 .info {
@@ -336,7 +340,8 @@
 .modal-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.85); /* Solid dark instead of blur */
+  background: rgba(0, 0, 0, 0.85);
+  /* Solid dark instead of blur */
   z-index: 9999;
   display: flex;
   align-items: center;
@@ -350,9 +355,12 @@
 }
 
 .modal-content {
-  background: #0F1115; /* Solid background */
-  border: 1px solid #333; /* Simple border */
-  border-radius: 12px; /* Standard radius */
+  background: #0F1115;
+  /* Solid background */
+  border: 1px solid #333;
+  /* Simple border */
+  border-radius: 12px;
+  /* Standard radius */
   padding: 2rem;
   width: 100%;
   max-width: 400px;
@@ -408,7 +416,8 @@
 }
 
 .btn-confirm-delete {
-  background: #dc3545; /* Standard danger color */
+  background: #dc3545;
+  /* Standard danger color */
   color: white;
 }
 
@@ -417,32 +426,44 @@
 }
 
 @keyframes fadeIn {
-  from { opacity: 0; }
-  to { opacity: 1; }
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
 }
 
 @keyframes fadeOut {
-  from { opacity: 1; }
-  to { opacity: 0; }
+  from {
+    opacity: 1;
+  }
+
+  to {
+    opacity: 0;
+  }
 }
 
 @keyframes slideUp {
-  from { 
+  from {
     opacity: 0;
     transform: translateY(20px);
   }
-  to { 
+
+  to {
     opacity: 1;
     transform: translateY(0);
   }
 }
 
 @keyframes slideDown {
-  from { 
+  from {
     opacity: 1;
     transform: translateY(0);
   }
-  to { 
+
+  to {
     opacity: 0;
     transform: translateY(20px);
   }
@@ -490,9 +511,9 @@
   }
 
   /* Ẩn chữ Trả lời/Thêm trên mobile để tiết kiệm diện tích */
-  .btn-comment span, 
+  .btn-comment span,
   .btn-menu span {
-    display: none !important; 
+    display: none !important;
   }
 
   /* Thu nhỏ form nhập liệu */
@@ -504,7 +525,7 @@
 
   /* Danh sách phản hồi (Replies) */
   .reply-list {
-    margin-left: 1rem !important; 
+    margin-left: 1rem !important;
     padding-left: 0.75rem !important;
   }
 }
