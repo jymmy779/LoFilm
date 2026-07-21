@@ -411,7 +411,7 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
     const STALE_KEY = "home:prefetch:bundle:stale";
     const EMERGENCY_KEY = "home:prefetch:bundle:emergency"; // Bản dự phòng cuối cùng (24h)
     const BUNDLE_TTL = 60;     // Cache chính: 1 phút (giảm từ 10 phút)
-    const STALE_TTL = 300;     // Cache stale: 5 phút
+    const STALE_TTL = 90;      // Cache stale: 90 giây
     const EMERGENCY_TTL = 86400; // 24 giờ
 
     // 1. Thử lấy từ cache bundle chính trước
@@ -423,12 +423,18 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
                 return JSON.parse(cached);
             }
 
-            // 2. Cache chính MISS → Kiểm tra bản stale (SWR Pattern)
+            // 2. Cache chính MISS → Fetch mới ngay (đồng bộ với fetchWithRedis pattern)
+            // Nếu STALE_KEY còn sống → dùng làm fallback nếu fetch lỗi, nhưng vẫn await fresh data
             const staleCached = await redis.get(STALE_KEY);
             if (staleCached) {
-                console.log("[Redis] Home bundle STALE HIT - Refreshing in background");
-                refreshBundleInBackground(BUNDLE_KEY, STALE_KEY, EMERGENCY_KEY, BUNDLE_TTL, STALE_TTL, EMERGENCY_TTL);
-                return JSON.parse(staleCached);
+                console.log("[Redis] Home bundle STALE HIT - Fetching fresh data (await)");
+                try {
+                    const freshBundle = await fetchAndCacheBundle(BUNDLE_KEY, STALE_KEY, EMERGENCY_KEY, BUNDLE_TTL, STALE_TTL, EMERGENCY_TTL);
+                    return freshBundle;
+                } catch (err) {
+                    console.error("[Redis] Fresh fetch failed, falling back to stale", err);
+                    return JSON.parse(staleCached);
+                }
             }
 
             // 3. Cả STALE cũng MISS (rất hiếm) → Kiểm tra EMERGENCY backup (24h)

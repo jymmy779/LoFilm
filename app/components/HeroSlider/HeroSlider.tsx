@@ -48,17 +48,22 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
     useEffect(() => {
         const now = Date.now();
 
-        // Nếu cache còn mới (trong vòng 1 phút) thì không fetch lại
-        if (hasFetchedHeroOnce && cachedHeroMovies.length > 0 && (now - lastFetchTime) < HERO_CACHE_TTL) return;
-
-        // Nếu có initialMovies từ server và chưa từng fetch client, dùng initialMovies
-        if (initialMovies && initialMovies.length > 0 && !hasFetchedHeroOnce) {
-            cachedHeroMovies = initialMovies;
-            hasFetchedHeroOnce = true;
-            lastFetchTime = now;
-            setMovies(initialMovies);
-            return;
+        // Nếu initialMovies mới từ server khác với cache -> ưu tiên server data (CÓ content)
+        if (initialMovies && initialMovies.length > 0) {
+            const serverFirstId = initialMovies[0]?._id;
+            const cachedFirstId = cachedHeroMovies[0]?._id;
+            
+            if (serverFirstId !== cachedFirstId || !hasFetchedHeroOnce) {
+                cachedHeroMovies = initialMovies;
+                hasFetchedHeroOnce = true;
+                lastFetchTime = now;
+                setMovies(initialMovies);
+                return;
+            }
         }
+
+        // Cache còn mới và đã có data thì không fetch lại
+        if (hasFetchedHeroOnce && cachedHeroMovies.length > 0 && (now - lastFetchTime) < HERO_CACHE_TTL) return;
 
         // Fetch mới nếu cache cũ (quá 1 phút) hoặc không có dữ liệu
         axios.get(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?limit=40")}`)
@@ -67,10 +72,18 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                 const filtered = filterDuplicateMovies(items);
                 const first8 = filtered.slice(0, 8);
 
-                cachedHeroMovies = first8;
+                // Merge content từ cache cũ (nếu slug trùng)
+                // vì API phim-moi-cap-nhat-v3 không trả về field `content`
+                const contentMap = new Map(cachedHeroMovies.map(m => [m.slug, m.content]));
+                const enriched = first8.map(m => ({
+                    ...m,
+                    content: m.content || contentMap.get(m.slug) || undefined
+                }));
+
+                cachedHeroMovies = enriched;
                 hasFetchedHeroOnce = true;
                 lastFetchTime = Date.now();
-                setMovies(first8);
+                setMovies(enriched);
             })
             .catch((err) => {
                 console.error("Lỗi fetch phim:", err);

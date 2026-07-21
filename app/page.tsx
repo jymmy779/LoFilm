@@ -4,7 +4,7 @@ import HomeClient from "./HomeClient";
 import SearchClient from "./SearchClient";
 import { prefetchHomePageData } from "./lib/prefetch-home";
 
-export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
+export const dynamic = "force-dynamic"; // Tắt Next.js ISR để luôn lấy data mới nhất từ Redis
 
 export async function generateMetadata({ searchParams }: { searchParams: Promise<any> }): Promise<Metadata> {
     const params = await searchParams;
