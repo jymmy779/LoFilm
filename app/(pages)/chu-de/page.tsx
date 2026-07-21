@@ -1,5 +1,7 @@
+import { Suspense } from "react";
 import { Metadata } from "next";
 import TopicsClient from "./TopicsClient";
+import TopicsSkeleton from "./TopicsSkeleton";
 import { getSiteSettings } from "@/app/actions/adminSettings";
 
 export const metadata: Metadata = {
@@ -10,9 +12,16 @@ export const metadata: Metadata = {
 
 export const revalidate = 86400; // Cache 24 giờ cho trang chủ đề tĩnh
 
-export default async function TopicsPage() {
-    const settings = await getSiteSettings();
+export default function TopicsPage() {
     return (
-        <TopicsClient initialTopics={settings.home_topics} />
+        <Suspense fallback={<TopicsSkeleton />}>
+            <TopicsData />
+        </Suspense>
     );
 }
+
+async function TopicsData() {
+    const settings = await getSiteSettings();
+    return <TopicsClient initialTopics={settings.home_topics} />;
+}
+

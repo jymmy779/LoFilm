@@ -11,16 +11,21 @@ export const metadata: Metadata = {
     description: "Khám phá danh sách các bộ phim chiếu rạp mới được cập nhật liên tục.",
 };
 
-export default async function TheaterMoviesPage() {
+export default function TheaterMoviesPage() {
+    return (
+        <Suspense fallback={<CatalogSkeleton />}>
+            <TheaterMoviesData />
+        </Suspense>
+    );
+}
+
+async function TheaterMoviesData() {
     const initialData = await fetchCatalogData(
         "https://phimapi.com/v1/api/danh-sach/phim-chieu-rap",
         1,
         32
     );
 
-    return (
-        <Suspense fallback={<CatalogSkeleton />}>
-            <TheatersClient initialData={initialData} />
-        </Suspense>
-    );
+    return <TheatersClient initialData={initialData} />;
 }
+

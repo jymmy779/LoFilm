@@ -1,0 +1,12 @@
+- [x] Fix `/danh-sach/phim-bo/page.tsx`
+- [x] Fix `/danh-sach/phim-moi/page.tsx`
+- [x] Fix `/danh-sach/hoat-hinh/page.tsx`
+- [x] Fix `/danh-sach/phim-le/page.tsx`
+- [x] Fix `/danh-sach/phim-chieu-rap/page.tsx`
+- [x] Fix `/danh-sach/tv-shows/page.tsx`
+- [x] Fix `/the-loai/[slug]/page.tsx`
+- [x] Fix `/quoc-gia/[slug]/page.tsx`
+- [x] Fix `/chu-de/page.tsx`
+- [x] Create `loading.tsx` for `/phim/[slug]/[episodeSlug]`
+- [x] Fix `/phim/[slug]/[episodeSlug]/page.tsx`
+- [/] Verify build and correctness

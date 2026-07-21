@@ -48,6 +48,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CategoryPage({ params }: Props) {
     const { slug } = await params;
     
+    return (
+        <Suspense fallback={<CatalogSkeleton />}>
+            <CategoryData slug={slug} />
+        </Suspense>
+    );
+}
+
+async function CategoryData({ slug }: { slug: string }) {
     let categoryName = slug.split("-").join(" ");
     categoryName = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
 
@@ -67,8 +75,7 @@ export default async function CategoryPage({ params }: Props) {
     );
 
     return (
-        <Suspense fallback={<CatalogSkeleton />}>
-            <CategoryClient slug={slug} title={`Danh sách phim ${categoryName}`} initialData={initialData} />
-        </Suspense>
+        <CategoryClient slug={slug} title={`Danh sách phim ${categoryName}`} initialData={initialData} />
     );
 }
+

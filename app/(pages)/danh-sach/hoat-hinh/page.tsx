@@ -24,6 +24,14 @@ export default async function AnimePage({ searchParams }: { searchParams: Promis
     const params = await searchParams;
     const isAnime = params.country === 'nhat-ban';
     
+    return (
+        <Suspense fallback={<CatalogSkeleton />}>
+            <AnimeData isAnime={isAnime} />
+        </Suspense>
+    );
+}
+
+async function AnimeData({ isAnime }: { isAnime: boolean }) {
     const initialData = await fetchCatalogData(
         "https://phimapi.com/v1/api/danh-sach/hoat-hinh",
         1,
@@ -33,9 +41,6 @@ export default async function AnimePage({ searchParams }: { searchParams: Promis
         }
     );
 
-    return (
-        <Suspense fallback={<CatalogSkeleton />}>
-            <AnimeClient initialData={initialData} />
-        </Suspense>
-    );
+    return <AnimeClient initialData={initialData} />;
 }
+

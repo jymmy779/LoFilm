@@ -3,6 +3,8 @@ import { Movie } from "@/app/types/movie";
 import { AlertTriangle } from "lucide-react";
 import { Metadata } from "next";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
+import { Suspense } from "react";
+import WatchLoading from "./loading";
 
 export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
@@ -123,7 +125,25 @@ import { cookies } from "next/headers";
 
 export default async function WatchPage({ params, searchParams }: Props) {
     const { slug, episodeSlug } = await params;
-    const { preview } = await searchParams;
+    const resolvedParams = await searchParams;
+    const preview = resolvedParams.preview;
+
+    return (
+        <Suspense fallback={<WatchLoading />}>
+            <WatchData slug={slug} episodeSlug={episodeSlug} preview={preview} />
+        </Suspense>
+    );
+}
+
+async function WatchData({
+    slug,
+    episodeSlug,
+    preview,
+}: {
+    slug: string;
+    episodeSlug: string;
+    preview: string | string[] | undefined;
+}) {
     let isPreview = false;
 
     if (preview === "true") {

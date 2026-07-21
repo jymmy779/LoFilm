@@ -1,7 +1,10 @@
 import { Metadata } from "next";
+import { Suspense } from "react";
 import { createClient } from "@/app/utils/supabase/server";
 import HomeClient from "./HomeClient";
 import SearchClient from "./SearchClient";
+import HomeSkeleton from "./HomeSkeleton";
+import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
 import { prefetchHomePageData } from "./lib/prefetch-home";
 
 export const dynamic = "force-dynamic"; // Tắt Next.js ISR để luôn lấy data mới nhất từ Redis
@@ -38,20 +41,38 @@ export default async function Home({
     const isSearch = !!resolvedParams.search;
 
     if (isSearch) {
-        const { fetchSearchData } = await import("@/app/utils/serverFetch");
-        const initialData = await fetchSearchData(
-            resolvedParams.search as string,
-            Number(resolvedParams.page) || 1,
-            48,
-            {
-                category: resolvedParams.cat as string,
-                country: resolvedParams.country as string,
-                year: resolvedParams.year as string,
-                sort: resolvedParams.sort as string
-            }
+        return (
+            <Suspense fallback={<CatalogSkeleton hideSidebar={true} />}>
+                <SearchData resolvedParams={resolvedParams} />
+            </Suspense>
         );
-        return <SearchClient initialData={initialData} />;
-    } const supabase = await createClient();
+    }
+
+    return (
+        <Suspense fallback={<HomeSkeleton />}>
+            <HomeData />
+        </Suspense>
+    );
+}
+
+async function SearchData({ resolvedParams }: { resolvedParams: any }) {
+    const { fetchSearchData } = await import("@/app/utils/serverFetch");
+    const initialData = await fetchSearchData(
+        resolvedParams.search as string,
+        Number(resolvedParams.page) || 1,
+        48,
+        {
+            category: resolvedParams.cat as string,
+            country: resolvedParams.country as string,
+            year: resolvedParams.year as string,
+            sort: resolvedParams.sort as string
+        }
+    );
+    return <SearchClient initialData={initialData} />;
+}
+
+async function HomeData() {
+    const supabase = await createClient();
     const [homePrefetch, { data: { session } }] = await Promise.all([
         prefetchHomePageData(),
         supabase.auth.getSession()

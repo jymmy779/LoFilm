@@ -12,16 +12,21 @@ export const metadata: Metadata = {
     keywords: ["phim bo", "phim bo moi", "phim bo hay", "phim bo vietsub", "phim bo trung quoc", "phim bo han quoc", "phim bo au my", "xem phim bo online", "lofilm phim bo"],
 };
 
-export default async function SeriesPage() {
+export default function SeriesPage() {
+    return (
+        <Suspense fallback={<CatalogSkeleton />}>
+            <SeriesData />
+        </Suspense>
+    );
+}
+
+async function SeriesData() {
     const initialData = await fetchCatalogData(
         "https://phimapi.com/v1/api/danh-sach/phim-bo",
         1,
         32
     );
 
-    return (
-        <Suspense fallback={<CatalogSkeleton />}>
-            <SeriesClient initialData={initialData} />
-        </Suspense>
-    );
+    return <SeriesClient initialData={initialData} />;
 }
+

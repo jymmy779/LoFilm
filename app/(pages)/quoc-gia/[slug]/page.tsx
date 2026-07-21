@@ -48,6 +48,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function CountryPage({ params }: Props) {
     const { slug } = await params;
     
+    return (
+        <Suspense fallback={<CatalogSkeleton />}>
+            <CountryData slug={slug} />
+        </Suspense>
+    );
+}
+
+async function CountryData({ slug }: { slug: string }) {
     let countryName = slug.split("-").join(" ");
     countryName = countryName.charAt(0).toUpperCase() + countryName.slice(1);
 
@@ -67,8 +75,7 @@ export default async function CountryPage({ params }: Props) {
     );
 
     return (
-        <Suspense fallback={<CatalogSkeleton />}>
-            <CountryClient slug={slug} title={`Danh sách phim ${countryName}`} initialData={initialData} />
-        </Suspense>
+        <CountryClient slug={slug} title={`Danh sách phim ${countryName}`} initialData={initialData} />
     );
 }
+

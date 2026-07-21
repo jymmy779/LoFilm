@@ -11,16 +11,21 @@ export const metadata: Metadata = {
     description: "Khám phá các chương trình truyền hình, TV shows hot nhất, cập nhật liên tục mỗi ngày trên LoFilm.",
 };
 
-export default async function TVShowsPage() {
+export default function TVShowsPage() {
+    return (
+        <Suspense fallback={<CatalogSkeleton />}>
+            <TVShowsData />
+        </Suspense>
+    );
+}
+
+async function TVShowsData() {
     const initialData = await fetchCatalogData(
         "https://phimapi.com/v1/api/danh-sach/tv-shows",
         1,
         32
     );
 
-    return (
-        <Suspense fallback={<CatalogSkeleton />}>
-            <TVShowsClient initialData={initialData} />
-        </Suspense>
-    );
+    return <TVShowsClient initialData={initialData} />;
 }
+

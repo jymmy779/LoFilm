@@ -12,16 +12,21 @@ export const metadata: Metadata = {
     keywords: ["phim moi", "phim moi nhat", "phim moi cap nhat", "phim hay 2026", "phim chieu rap moi", "lofilm phim moi", "xem phim moi online"],
 };
 
-export default async function NewMoviesPage() {
+export default function NewMoviesPage() {
+    return (
+        <Suspense fallback={<CatalogSkeleton hideSidebar={true} />}>
+            <NewMoviesData />
+        </Suspense>
+    );
+}
+
+async function NewMoviesData() {
     const initialData = await fetchCatalogData(
         "https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3",
         1,
         32
     );
 
-    return (
-        <Suspense fallback={<CatalogSkeleton hideSidebar={true} />}>
-            <NewMoviesClient initialData={initialData} />
-        </Suspense>
-    );
+    return <NewMoviesClient initialData={initialData} />;
 }
+

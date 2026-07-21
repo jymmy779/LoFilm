@@ -1,6 +1,11 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+// In-memory cache cho maintenance mode (tránh fetch Supabase mỗi request)
+// next: { revalidate } trong middleware KHÔNG hoạt động như Server Components
+let maintenanceCache: { value: boolean; expiresAt: number } | null = null;
+const MAINTENANCE_CACHE_TTL_MS = 60_000; // Cache 60 giây
+
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
@@ -22,28 +27,39 @@ export async function middleware(request: NextRequest) {
     }
   }
 
-  // 1. Kiểm tra Maintenance Mode từ Supabase (Cache 60s để tránh quá tải)
+  // 1. Kiểm tra Maintenance Mode từ Supabase (in-memory cache 60s)
   let isMaintenanceMode = false;
   
   // Bỏ qua chế độ bảo trì nếu đang chạy ở localhost (để Admin vẫn code và test được bình thường)
   if (!host.includes('localhost')) {
-    try {
-      const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/site_settings?key=eq.maintenance_mode&select=value`, {
-        headers: {
-          'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-          'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`
-        },
-        next: { revalidate: 30 } // Cache 30 giây
-      });
-      if (res.ok) {
-        const data = await res.json();
-        if (data && data.length > 0) {
-          isMaintenanceMode = data[0].value === true || data[0].value === 'true';
+    const now = Date.now();
+    // Dùng cache nếu còn hạn, tránh gọi Supabase mỗi request
+    if (maintenanceCache && now < maintenanceCache.expiresAt) {
+      isMaintenanceMode = maintenanceCache.value;
+    } else {
+      try {
+        const res = await fetch(`${process.env.NEXT_PUBLIC_SUPABASE_URL}/rest/v1/site_settings?key=eq.maintenance_mode&select=value`, {
+          headers: {
+            'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!}`
+          },
+          // Không dùng next: { revalidate } vì không có tác dụng trong middleware
+          cache: 'no-store',
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const val = data && data.length > 0
+            ? (data[0].value === true || data[0].value === 'true')
+            : false;
+          isMaintenanceMode = val;
+          maintenanceCache = { value: val, expiresAt: now + MAINTENANCE_CACHE_TTL_MS };
         }
+      } catch (e) {
+        // Fallback: nếu đứt cáp hoặc Supabase sập, không tự ý khóa web
+        isMaintenanceMode = false;
+        // Vẫn cache false để tránh hammering khi Supabase sập
+        maintenanceCache = { value: false, expiresAt: now + MAINTENANCE_CACHE_TTL_MS };
       }
-    } catch (e) {
-      // Fallback: nếu đứt cáp hoặc Supabase sập, không tự ý khóa web
-      isMaintenanceMode = false;
     }
   }
 

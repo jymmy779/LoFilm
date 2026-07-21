@@ -12,16 +12,21 @@ export const metadata: Metadata = {
     keywords: ["phim le", "phim le moi", "phim le hay", "phim le vietsub", "phim le chieu rap", "xem phim le online", "phim le 4k", "lofilm phim le"],
 };
 
-export default async function MovieListPage() {
+export default function MovieListPage() {
+    return (
+        <Suspense fallback={<CatalogSkeleton />}>
+            <MovieListData />
+        </Suspense>
+    );
+}
+
+async function MovieListData() {
     const initialData = await fetchCatalogData(
         "https://phimapi.com/v1/api/danh-sach/phim-le",
         1,
         32
     );
 
-    return (
-        <Suspense fallback={<CatalogSkeleton />}>
-            <MovieListClient initialData={initialData} />
-        </Suspense>
-    );
+    return <MovieListClient initialData={initialData} />;
 }
+
