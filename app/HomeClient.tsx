@@ -23,7 +23,7 @@ import ReunificationEvent from "./components/SpecialSections/ReunificationEvent"
 import ReunificationEventSkeleton from "./components/SpecialSections/ReunificationEventSkeleton";
 import SocialStatsSection from "./components/SocialStats/SocialStatsSection";
 
-export default function HomeClient({ prefetched, activeEvent }: { prefetched: HomePrefetch, activeEvent?: string }) {
+export default function HomeClient({ prefetched, activeEvent, initialTopics }: { prefetched: HomePrefetch, activeEvent?: string, initialTopics?: any[] }) {
     const isEventPeriod = activeEvent === 'reunification';
 
     useEffect(() => {
@@ -50,7 +50,7 @@ export default function HomeClient({ prefetched, activeEvent }: { prefetched: Ho
             </div>
 
             <div className="flex flex-col gap-6 md:gap-[50px] pb-20">
-                <CategoriesSection />
+                <CategoriesSection initialTopics={initialTopics} />
 
                 {isEventPeriod && (
                     <LazyRow id="event-row" estimatedHeight="600px" skeleton={<ReunificationEventSkeleton />}>

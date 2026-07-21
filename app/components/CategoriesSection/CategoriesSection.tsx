@@ -7,7 +7,7 @@ import Image from "next/image";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, FreeMode } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
-import { mockTopics } from "@/app/(pages)/chu-de/TopicsClient";
+import { mockTopics, getIconComponent } from "@/app/(pages)/chu-de/TopicsClient";
 import SwiperNavButtons from "@/app/components/Common/SwiperNavButtons";
 
 import "swiper/css";
@@ -15,15 +15,34 @@ import "swiper/css/navigation";
 import "swiper/css/free-mode";
 import { ChevronRight } from "lucide-react";
 
-export default function CategoriesSection() {
+export default function CategoriesSection({ initialTopics }: { initialTopics?: any[] }) {
     const swiperRef = useRef<SwiperType>(null);
     const [isBeginning, setIsBeginning] = useState(true);
     const [isEnd, setIsEnd] = useState(false);
     const [mounted, setMounted] = useState(false);
+    const [topics, setTopics] = useState<any[]>(initialTopics || mockTopics);
 
     useEffect(() => {
         setMounted(true);
-    }, []);
+        if (initialTopics) {
+            setTopics(initialTopics);
+            return;
+        }
+
+        const fetchTopics = async () => {
+            try {
+                const { createClient } = await import("@/app/utils/supabase/client");
+                const supabase = createClient();
+                const { data } = await supabase.from('site_settings').select('*').eq('key', 'home_topics').maybeSingle();
+                if (data && data.value) {
+                    setTopics(data.value);
+                }
+            } catch (error) {
+                console.error("Failed to load categories:", error);
+            }
+        };
+        fetchTopics();
+    }, [initialTopics]);
 
     if (!mounted) {
         return (
@@ -70,8 +89,8 @@ export default function CategoriesSection() {
                     }}
                     className="!pb-6 !pt-2"
                 >
-                    {mockTopics.map((topic) => {
-                        const Icon = topic.icon;
+                    {topics.map((topic) => {
+                        const Icon = getIconComponent(topic.icon);
                         return (
                             <SwiperSlide key={topic.id} className="!w-[200px] md:!w-[240px] lg:!w-[280px]">
                                 <TransitionLink

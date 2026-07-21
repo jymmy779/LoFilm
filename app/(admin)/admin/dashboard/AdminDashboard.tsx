@@ -6,11 +6,12 @@ import Link from "next/link";
 import toast from "react-hot-toast";
 import HeroSliderTab from "./HeroSliderTab";
 import EditorChoicesTab from "./EditorChoicesTab";
+import TopicsTab from "./TopicsTab";
 
 export default function AdminDashboard({ initialMovies, initialSettings, initialStarredMovies }: { initialMovies: any[], initialSettings: any, initialStarredMovies?: any[] }) {
     const [movies, setMovies] = useState(initialMovies);
     const [settings, setSettings] = useState(initialSettings);
-    const [activeTab, setActiveTab] = useState<"movies" | "settings" | "hero" | "editor">("movies");
+    const [activeTab, setActiveTab] = useState<"movies" | "settings" | "hero" | "editor" | "topics">("movies");
     const [isPending, startTransition] = useTransition();
     const [hasChanges, setHasChanges] = useState(false);
 
@@ -87,11 +88,22 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                 >
                     <i className="fa-solid fa-award mr-2"></i> Editor's Choices
                 </button>
+                <button 
+                    onClick={() => setActiveTab("topics")}
+                    className={`pb-2 px-2 font-medium transition ${activeTab === 'topics' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-white'}`}
+                >
+                    <i className="fa-solid fa-list mr-2"></i> Quản lý Chủ đề
+                </button>
             </div>
 
             {/* Editor Choices Tab */}
             {activeTab === "editor" && (
                 <EditorChoicesTab initialConfig={initialSettings?.editor_choices || { mode: "manual", autoCount: 30, movies: [] }} />
+            )}
+
+            {/* Topics Tab */}
+            {activeTab === "topics" && (
+                <TopicsTab initialTopics={initialSettings?.home_topics} />
             )}
 
             {/* Hero Slider Tab */}

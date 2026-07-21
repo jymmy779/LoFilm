@@ -91,26 +91,37 @@ export const mockTopics: TopicItem[] = [
     }
 ];
 
-export default function TopicsClient() {
-    const [topics, setTopics] = useState<TopicItem[]>([]);
-    const [isLoading, setIsLoading] = useState(true);
+export default function TopicsClient({ initialTopics }: { initialTopics?: TopicItem[] }) {
+    const [topics, setTopics] = useState<TopicItem[]>(initialTopics || mockTopics);
+    const [isLoading, setIsLoading] = useState(!initialTopics);
 
     useEffect(() => {
-        // Giả lập quá trình fetch API
+        if (initialTopics) {
+            setTopics(initialTopics);
+            setIsLoading(false);
+            return;
+        }
+
         const fetchTopics = async () => {
             try {
-                // Sau này đổi thành: const res = await fetch('/api/topics'); const data = await res.json();
-                const data = mockTopics;
-                setTopics(data);
+                const { createClient } = await import("@/app/utils/supabase/client");
+                const supabase = createClient();
+                const { data } = await supabase.from('site_settings').select('*').eq('key', 'home_topics').maybeSingle();
+                if (data && data.value) {
+                    setTopics(data.value);
+                } else {
+                    setTopics(mockTopics);
+                }
             } catch (error) {
                 console.error("Failed to load topics:", error);
+                setTopics(mockTopics);
             } finally {
                 setIsLoading(false);
             }
         };
 
         fetchTopics();
-    }, []);
+    }, [initialTopics]);
 
     if (isLoading) {
         return <CatalogSkeleton hideSidebar={true} />;
@@ -125,10 +136,10 @@ export default function TopicsClient() {
                         Khám phá các bộ sưu tập và chủ đề phim đang được quan tâm trên LoFilm.
                     </p>
                 </div>
-
+ 
                 <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-5">
                     {topics.map((topic) => {
-                        const Icon = topic.icon;
+                        const Icon = getIconComponent(topic.icon);
                         return (
                             <TransitionLink
                                 key={topic.id}

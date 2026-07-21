@@ -1,5 +1,6 @@
 import { Metadata } from "next";
 import TopicsClient from "./TopicsClient";
+import { getSiteSettings } from "@/app/actions/adminSettings";
 
 export const metadata: Metadata = {
     title: "Chủ Đề Phim | Khám phá bộ sưu tập phim đa dạng",
@@ -9,8 +10,9 @@ export const metadata: Metadata = {
 
 export const revalidate = 86400; // Cache 24 giờ cho trang chủ đề tĩnh
 
-export default function TopicsPage() {
+export default async function TopicsPage() {
+    const settings = await getSiteSettings();
     return (
-        <TopicsClient />
+        <TopicsClient initialTopics={settings.home_topics} />
     );
 }
