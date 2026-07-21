@@ -2,7 +2,6 @@
 
 import { useEffect, useRef, useState } from "react";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
-import axios from "axios";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade, Thumbs, FreeMode } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
@@ -29,11 +28,9 @@ interface HeroSliderProps {
 
 import HeroSliderSkeleton from "./HeroSliderSkeleton";
 
-// Global cache for HeroSlider with timestamp
+// Global cache for HeroSlider
 let cachedHeroMovies: Movie[] = [];
 let hasFetchedHeroOnce = false;
-let lastFetchTime = 0;
-const HERO_CACHE_TTL = 60 * 1000; // Cache tối đa 1 phút thay vì vô hạn
 
 export default function HeroSlider({ initialMovies }: HeroSliderProps) {
     const [movies, setMovies] = useState<Movie[]>(() => {
@@ -46,48 +43,11 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
 
 
     useEffect(() => {
-        const now = Date.now();
-
-        // Nếu initialMovies mới từ server khác với cache -> ưu tiên server data (CÓ content)
         if (initialMovies && initialMovies.length > 0) {
-            const serverFirstId = initialMovies[0]?._id;
-            const cachedFirstId = cachedHeroMovies[0]?._id;
-            
-            if (serverFirstId !== cachedFirstId || !hasFetchedHeroOnce) {
-                cachedHeroMovies = initialMovies;
-                hasFetchedHeroOnce = true;
-                lastFetchTime = now;
-                setMovies(initialMovies);
-                return;
-            }
+            setMovies(initialMovies);
+            cachedHeroMovies = initialMovies;
+            hasFetchedHeroOnce = true;
         }
-
-        // Cache còn mới và đã có data thì không fetch lại
-        if (hasFetchedHeroOnce && cachedHeroMovies.length > 0 && (now - lastFetchTime) < HERO_CACHE_TTL) return;
-
-        // Fetch mới nếu cache cũ (quá 1 phút) hoặc không có dữ liệu
-        axios.get(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?limit=40")}`)
-            .then((res) => {
-                const items: Movie[] = res.data.items || [];
-                const filtered = filterDuplicateMovies(items);
-                const first8 = filtered.slice(0, 8);
-
-                // Merge content từ cache cũ (nếu slug trùng)
-                // vì API phim-moi-cap-nhat-v3 không trả về field `content`
-                const contentMap = new Map(cachedHeroMovies.map(m => [m.slug, m.content]));
-                const enriched = first8.map(m => ({
-                    ...m,
-                    content: m.content || contentMap.get(m.slug) || undefined
-                }));
-
-                cachedHeroMovies = enriched;
-                hasFetchedHeroOnce = true;
-                lastFetchTime = Date.now();
-                setMovies(enriched);
-            })
-            .catch((err) => {
-                console.error("Lỗi fetch phim:", err);
-            });
     }, [initialMovies]);
 
     if (movies.length === 0) {

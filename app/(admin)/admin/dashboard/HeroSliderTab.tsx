@@ -49,12 +49,22 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
             expires_in_days = Number(daysStr);
         }
 
+        const getCleanUrl = (path: string) => {
+            if (!path) return "";
+            const trimmed = path.trim();
+            if (trimmed.startsWith("http")) return trimmed;
+            return `https://phimimg.com/${trimmed.startsWith("/") ? trimmed.slice(1) : trimmed}`;
+        };
+
+        const cleanThumb = getCleanUrl(movie.thumb_url);
+        const cleanPoster = getCleanUrl(movie.poster_url);
+
         startTransition(async () => {
             const res = await addStarredMovie(
                 movie.slug,
                 movie.name,
-                `https://phimimg.com/${movie.thumb_url}`,
-                `https://phimimg.com/${movie.poster_url}`,
+                cleanThumb,
+                cleanPoster,
                 expires_in_days
             );
             if (res.error) {
@@ -68,8 +78,8 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
                         id: res.id, // Use real ID from DB
                         slug: movie.slug,
                         name: movie.name,
-                        thumb_url: `https://phimimg.com/${movie.thumb_url}`,
-                        poster_url: `https://phimimg.com/${movie.poster_url}`,
+                        thumb_url: cleanThumb,
+                        poster_url: cleanPoster,
                         priority: res.priority,
                         expires_at: expires_in_days ? new Date(Date.now() + expires_in_days * 86400000).toISOString() : null
                     }

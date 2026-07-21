@@ -98,7 +98,12 @@ export const TRANSPARENT_GIF = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQ
 export function getImageUrl(url: string | undefined, _options?: { width?: number; quality?: number }): string {
     if (!url) return TRANSPARENT_GIF;
 
-    const trimmedUrl = url.trim();
+    let trimmedUrl = url.trim();
+
+    // Tự động làm sạch nếu bị trùng lặp domain do lỗi lưu trữ
+    if (trimmedUrl.includes("https://phimimg.com/https://phimimg.com/")) {
+        trimmedUrl = trimmedUrl.replace(/https:\/\/phimimg\.com\/https:\/\/phimimg\.com\//g, "https://phimimg.com/");
+    }
 
     // Nếu URL có chứa /upload/, lấy từ /upload/ trở đi và ép dùng phimimg.com
     const uploadIndex = trimmedUrl.indexOf('/upload/');
@@ -119,7 +124,12 @@ export function getImageUrl(url: string | undefined, _options?: { width?: number
 export function getRawImageUrl(url: string | undefined): string {
     if (!url) return TRANSPARENT_GIF;
     
-    const trimmedUrl = url.trim();
+    let trimmedUrl = url.trim();
+
+    // Tự động làm sạch nếu bị trùng lặp domain do lỗi lưu trữ
+    if (trimmedUrl.includes("https://phimimg.com/https://phimimg.com/")) {
+        trimmedUrl = trimmedUrl.replace(/https:\/\/phimimg\.com\/https:\/\/phimimg\.com\//g, "https://phimimg.com/");
+    }
 
     const uploadIndex = trimmedUrl.indexOf('/upload/');
     if (uploadIndex !== -1) {
