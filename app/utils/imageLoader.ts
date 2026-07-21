@@ -29,9 +29,19 @@ export default function imageLoader({ src, width, quality }: { src: string, widt
     }
   }
 
+  // Nếu là path chứa public/images/ thì ép dùng phim.nguonc.com (kể cả khi đã có domain phimimg.com bị gán sai trước đó)
+  if (originUrl.includes('phimimg.com/public/images/')) {
+    originUrl = originUrl.replace('phimimg.com/public/images/', 'phim.nguonc.com/public/images/');
+  }
+
   // Bổ sung domain nếu thiếu
   if (!originUrl.startsWith('http')) {
-    originUrl = `https://phimimg.com/${originUrl.startsWith('/') ? originUrl.slice(1) : originUrl}`;
+    const publicIndex = originUrl.indexOf('public/images/');
+    if (publicIndex !== -1) {
+      originUrl = `https://phim.nguonc.com/${originUrl.slice(publicIndex)}`;
+    } else {
+      originUrl = `https://phimimg.com/${originUrl.startsWith('/') ? originUrl.slice(1) : originUrl}`;
+    }
   }
 
   // 4. Tối ưu hóa tham số wsrv.nl

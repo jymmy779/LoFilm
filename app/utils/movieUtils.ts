@@ -111,6 +111,12 @@ export function getImageUrl(url: string | undefined, _options?: { width?: number
         return `https://phimimg.com${trimmedUrl.slice(uploadIndex)}`;
     }
 
+    // Nếu URL có chứa public/images/, lấy từ public/images/ trở đi và ép dùng phim.nguonc.com
+    const publicIndex = trimmedUrl.indexOf('public/images/');
+    if (publicIndex !== -1) {
+        return `https://phim.nguonc.com/${trimmedUrl.slice(publicIndex)}`;
+    }
+
     // Nếu là URL đầy đủ, trả về nguyên
     if (trimmedUrl.startsWith("http")) return trimmedUrl;
 
@@ -134,6 +140,12 @@ export function getRawImageUrl(url: string | undefined): string {
     const uploadIndex = trimmedUrl.indexOf('/upload/');
     if (uploadIndex !== -1) {
         return `https://phimimg.com${trimmedUrl.slice(uploadIndex)}`;
+    }
+
+    // Nếu URL có chứa public/images/, lấy từ public/images/ trở đi và ép dùng phim.nguonc.com
+    const publicIndex = trimmedUrl.indexOf('public/images/');
+    if (publicIndex !== -1) {
+        return `https://phim.nguonc.com/${trimmedUrl.slice(publicIndex)}`;
     }
 
     if (trimmedUrl.startsWith("http")) return trimmedUrl;
