@@ -91,7 +91,8 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
             }
 
             // If we have initialData and this is the first load (or the active filters/page match the initial params), use it
-            if (initialData && currentPage === initialPage && JSON.stringify(activeFilters) === JSON.stringify(initialFilters)) {
+            // We check pageTitle to ensure initialData matches the current keyword (avoids stale data on client navigation)
+            if (initialData && currentPage === initialPage && JSON.stringify(activeFilters) === JSON.stringify(initialFilters) && initialData.pageTitle === `Tìm kiếm: ${keyword}`) {
                 setMovies(initialData.movies || []);
                 setTotalPages(initialData.totalPages || 1);
                 setIsLoading(false);
@@ -240,7 +241,7 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
         return () => { 
             isMounted = false; 
         };
-    }, [keyword, currentPage, activeFilters]);
+    }, [keyword, currentPage, activeFilters, initialData]);
 
     const handleFilterChange = (filters: FilterState) => {
         setActiveFilters(filters);
