@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
+import * as Icons from "lucide-react";
 import { Flame, Film, Camera, Crown, Ghost, Globe, Sparkles, Gamepad2, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
@@ -11,8 +12,15 @@ export interface TopicItem {
     title: string;
     href: string;
     bgColor: string; // Tailwind gradient classes
-    icon: React.ElementType;
+    icon: any; // Can be string or Lucide React component
     imageUrl: string;
+}
+
+export function getIconComponent(iconName: any): React.ElementType {
+    if (!iconName) return Icons.Film;
+    if (typeof iconName !== "string") return iconName;
+    const IconComponent = (Icons as any)[iconName];
+    return IconComponent || Icons.Film;
 }
 
 // Dữ liệu mô phỏng, sau này có thể được thay thế bằng fetch API từ Admin
@@ -23,7 +31,7 @@ export const mockTopics: TopicItem[] = [
         href: "/danh-sach/phim-moi",
         bgColor: "from-[#d94a38] to-[#ab3024]",
         icon: Flame,
-        imageUrl: "https://image.tmdb.org/t/p/w500/nJUHX3XL1jMkk8honUZnUmudFb9.jpg",
+        imageUrl: "https://image.tmdb.org/t/p/w500/bRBeSHfGHwkEpImlhxPmOcUsaeg.jpg",
     },
     {
         id: "chieu-rap",
@@ -31,7 +39,7 @@ export const mockTopics: TopicItem[] = [
         href: "/danh-sach/phim-chieu-rap",
         bgColor: "from-[#0a8ea0] to-[#065b66]",
         icon: Film,
-        imageUrl: "https://phimimg.com/upload/vod/20260705-1/da17fb96c14f9e569331b051d829b99f.jpg",
+        imageUrl: "https://image.tmdb.org/t/p/w500/5rhTDKUhPYvpdQIijFIs5VoWsON.jpg",
     },
     {
         id: "han-quoc",
@@ -39,7 +47,7 @@ export const mockTopics: TopicItem[] = [
         href: "/quoc-gia/han-quoc",
         bgColor: "from-[#f4689b] to-[#6042e6]",
         icon: Camera,
-        imageUrl: "https://phimimg.com/upload/vod/20260628-1/c696f539ba8561e36548ae499f4ac927.jpg",
+        imageUrl: "https://image.tmdb.org/t/p/w500/zgUh4cgalSzBjbsT5P0qmU7Rjzk.jpg",
     },
     {
         id: "co-trang",
@@ -47,7 +55,7 @@ export const mockTopics: TopicItem[] = [
         href: "/the-loai/co-trang",
         bgColor: "from-[#f5a623] to-[#d68400]",
         icon: Crown,
-        imageUrl: "https://phimimg.com/upload/vod/20260702-1/fcd0a866253f0559bf4c18ecbed9f3ee.jpg",
+        imageUrl: "https://image.tmdb.org/t/p/w500/l1gTssKenpyuwgjX7Lutn2DvRzV.jpg",
     },
     {
         id: "hoat-hinh",
@@ -63,7 +71,7 @@ export const mockTopics: TopicItem[] = [
         href: "/the-loai/kinh-di",
         bgColor: "from-[#7123d4] to-[#2b085c]",
         icon: Ghost,
-        imageUrl: "https://phimimg.com/upload/vod/20260629-1/ff8cb4090ccc2095b5293a3e9d4f69fc.jpg",
+        imageUrl: "https://image.tmdb.org/t/p/w500/xVjDFOKoZuPOv1m4Z7NJpQ1gbfF.jpg",
     },
     {
         id: "au-my",
@@ -71,7 +79,7 @@ export const mockTopics: TopicItem[] = [
         href: "/quoc-gia/au-my",
         bgColor: "from-[#b53018] to-[#59160a]",
         icon: Globe,
-        imageUrl: "https://phimimg.com/upload/vod/20260705-1/735c64f678f0d8fa8da07fb85f25b2d1.jpg",
+        imageUrl: "https://image.tmdb.org/t/p/w500/hxvTdKAwv27PUfpXOQp6AwWr6V.jpg",
     },
     {
         id: "trung-quoc",
@@ -79,7 +87,7 @@ export const mockTopics: TopicItem[] = [
         href: "/quoc-gia/trung-quoc",
         bgColor: "from-[#40a373] to-[#1f5f5b]",
         icon: Sparkles,
-        imageUrl: "https://phimimg.com/upload/vod/20260623-1/affbc3dbc0538f99a35c1ab96178a98c.jpg",
+        imageUrl: "https://image.tmdb.org/t/p/w500/9bB4tJbjViEsQCMJ0qth7wuzpNA.jpg",
     }
 ];
 
