@@ -41,7 +41,7 @@ export async function generateMetadata({
         `${movie.name} lofilm`,
         ...(movie.category?.map(c => c.name) || []),
         ...(movie.category?.map(c => `phim ${c.name}`) || []),
-        ...(movie.actor?.slice(0, 5) || []),
+        ...(movie.actor || []),
         ...(movie.director || []),
         "LoFilm", "xem phim online", "phim moi"
     ].filter(Boolean);
@@ -118,7 +118,7 @@ export default async function MoviePage({
             "@type": "Person",
             "name": name
         })),
-        "actor": (detail.movie.actor || []).slice(0, 10).map(name => ({
+        "actor": (detail.movie.actor || []).map(name => ({
             "@type": "Person",
             "name": name
         })),
