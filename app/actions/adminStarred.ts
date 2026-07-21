@@ -101,6 +101,27 @@ export async function updateStarredPriority(id: string, priority: number) {
     return { success: true };
 }
 
+export async function updateStarredExpiry(id: string, expires_in_days: number | null) {
+    const supabase = await createClient();
+
+    let expires_at: string | null = null;
+    if (expires_in_days !== null && expires_in_days > 0) {
+        const date = new Date();
+        date.setDate(date.getDate() + expires_in_days);
+        expires_at = date.toISOString();
+    }
+
+    const { error } = await supabase
+        .from("starred_movies")
+        .update({ expires_at })
+        .eq("id", id);
+
+    if (error) return { error: error.message };
+
+    await invalidateHomeCache();
+    return { success: true, expires_at };
+}
+
 // Xóa Redis Cache để cập nhật Hero Slider ngay lập tức
 async function invalidateHomeCache() {
     if (redis) {

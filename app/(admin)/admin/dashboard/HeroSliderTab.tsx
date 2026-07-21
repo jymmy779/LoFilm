@@ -1,6 +1,6 @@
 "use client";
 import { useState, useTransition } from "react";
-import { addStarredMovie, removeStarredMovie, updateStarredPriority } from "@/app/actions/adminStarred";
+import { addStarredMovie, removeStarredMovie, updateStarredPriority, updateStarredExpiry } from "@/app/actions/adminStarred";
 import toast from "react-hot-toast";
 import Image from "next/image";
 
@@ -163,6 +163,37 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
         handleMovePriority(movie.id, movie.priority, newPriority);
     };
 
+    const handleEditExpiry = (movie: any) => {
+        const currentDays = movie.expires_at
+            ? Math.ceil((new Date(movie.expires_at).getTime() - Date.now()) / 86400000)
+            : null;
+
+        const input = prompt(
+            `Sửa thời hạn cho "${movie.name}"\nNhập số ngày từ hôm nay (0 hoặc để trống = Vô hạn):`,
+            currentDays !== null && currentDays > 0 ? currentDays.toString() : ""
+        );
+        if (input === null) return; // user bấm Cancel
+
+        const trimmed = input.trim();
+        const days = trimmed === "" || Number(trimmed) <= 0 ? null : parseInt(trimmed, 10);
+        if (trimmed !== "" && isNaN(Number(trimmed))) {
+            toast.error("Vui lòng nhập số ngày hợp lệ!");
+            return;
+        }
+
+        startTransition(async () => {
+            const res = await updateStarredExpiry(movie.id, days);
+            if (res.error) {
+                toast.error("Lỗi: " + res.error);
+            } else {
+                toast.success(days ? `Đã cập nhật: còn ${days} ngày` : "Đã đặt thành Vô hạn!");
+                setStarredMovies(prev =>
+                    prev.map(m => m.id === movie.id ? { ...m, expires_at: res.expires_at ?? null } : m)
+                );
+            }
+        });
+    };
+
     return (
         <div className="space-y-8">
             {/* Search Section */}
@@ -270,6 +301,16 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
                                         >
                                             Vị trí: {movie.priority}
                                             <i className="fa-solid fa-pen text-[10px] text-amber-500/80"></i>
+                                        </button>
+                                        <button
+                                            onClick={() => handleEditExpiry(movie)}
+                                            className="text-xs bg-black/40 hover:bg-black/60 transition-colors px-2 py-1 flex items-center gap-1.5 rounded text-white/70 mr-2"
+                                            title="Bấm để sửa thời gian hết hạn"
+                                        >
+                                            {movie.expires_at
+                                                ? `Còn ${Math.max(0, Math.ceil((new Date(movie.expires_at).getTime() - Date.now()) / 86400000))}n`
+                                                : "Vô hạn"}
+                                            <i className="fa-solid fa-clock text-[10px] text-blue-400/80"></i>
                                         </button>
                                         <button
                                             onClick={() => handleRemove(movie.id)}
