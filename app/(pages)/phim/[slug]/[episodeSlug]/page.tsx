@@ -255,6 +255,15 @@ async function WatchData({
         }
     }
 
+    // Fallback 1.5: Nếu không tìm thấy tập theo slug yêu cầu (ví dụ tap-01 nhưng phim chỉ có tap-01-06), tự động lấy tập đầu tiên
+    if (!currentEpisode && episodes && episodes.length > 0) {
+        const fallbackEp = episodes[0]?.server_data?.[0];
+        if (fallbackEp) {
+            currentEpisode = fallbackEp;
+            serverIndex = 0;
+        }
+    }
+
     // Fallback 2: Nếu hoàn toàn không có tập phim nào từ API, nhưng có trailer_url
     if (!currentEpisode && movie.trailer_url) {
         currentEpisode = {
