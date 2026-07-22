@@ -3,15 +3,13 @@
  * sync-images.mjs – Tải ảnh phim & diễn viên về Cloudflare R2 (JPG → WebP)
  *
  * Cách dùng:
- *   node scripts/sync-images.mjs                  # Sync toàn bộ (phim + diễn viên)
- *   node scripts/sync-images.mjs --movies-only     # Chỉ sync ảnh phim
- *   node scripts/sync-images.mjs --actors-only     # Chỉ sync ảnh diễn viên
- *   node scripts/sync-images.mjs --limit=50        # Test với 50 phim đầu
- *   node scripts/sync-images.mjs --page=1          # Chỉ sync trang 1
- *   node scripts/sync-images.mjs --new-only        # Chỉ sync phim chưa có trên R2
- *
- * Cron VPS (3AM mỗi đêm):
- *   0 3 * * * cd /var/www/lofilm && node scripts/sync-images.mjs --new-only >> /var/log/sync-images.log 2>&1
+ *   node scripts/sync-images.mjs                             # Sync toàn bộ (phim + diễn viên)
+ *   node scripts/sync-images.mjs --movies-only                # Chỉ sync ảnh phim
+ *   node scripts/sync-images.mjs --actors-only                # Chỉ sync ảnh diễn viên
+ *   node scripts/sync-images.mjs --new-only                   # Chỉ sync phim chưa có trên R2 (>1KB)
+ *   node scripts/sync-images.mjs --start-page=1 --max-pages=15 # Quét theo khoảng trang chỉ định
+ *   node scripts/sync-images.mjs --resume                     # Khôi phục chạy tiếp từ trang dừng trước đó
+ *   node scripts/sync-images.mjs --retry-failed               # Sửa 100% các ảnh bị lỗi từ lần chạy trước
  *
  * Yêu cầu env vars (copy từ .env.local):
  *   R2_ACCOUNT_ID, R2_ACCESS_KEY_ID, R2_SECRET_ACCESS_KEY, R2_BUCKET_NAME
@@ -20,7 +18,7 @@
 
 import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
 import sharp from 'sharp';
-import { readFileSync } from 'fs';
+import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
 import { fileURLToPath } from 'url';
 
@@ -59,13 +57,34 @@ if (!R2_ACCOUNT_ID || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY) {
 
 // ─── Parse CLI args ────────────────────────────────────────────────────────────
 const args = process.argv.slice(2);
-const moviesOnly = args.includes('--movies-only');
-const actorsOnly = args.includes('--actors-only');
-const newOnly    = args.includes('--new-only');
-const maxPagesArg = args.find(a => a.startsWith('--max-pages='));
-const LIMIT        = limitArg ? parseInt(limitArg.split('=')[1]) : Infinity;
-const SINGLE_PAGE  = pageArg ? parseInt(pageArg.split('=')[1]) : null;
-const MAX_PAGES_LIMIT = maxPagesArg ? parseInt(maxPagesArg.split('=')[1]) : null;
+const moviesOnly   = args.includes('--movies-only');
+const actorsOnly   = args.includes('--actors-only');
+const newOnly      = args.includes('--new-only');
+const retryFailed  = args.includes('--retry-failed');
+const resumeMode   = args.includes('--resume');
+
+const limitArg     = args.find(a => a.startsWith('--limit='));
+const pageArg      = args.find(a => a.startsWith('--page='));
+const maxPagesArg  = args.find(a => a.startsWith('--max-pages='));
+const startPageArg = args.find(a => a.startsWith('--start-page='));
+
+// File Checkpoint & Failed Logs
+const STATE_FILE  = resolve(__dirname, 'sync-state.json');
+const FAILED_FILE = resolve(__dirname, 'failed-images.json');
+
+// Đọc checkpoint cũ nếu có cờ --resume
+let savedState = { lastPage: 1 };
+if (resumeMode && existsSync(STATE_FILE)) {
+    try {
+        savedState = JSON.parse(readFileSync(STATE_FILE, 'utf8'));
+        console.log(`[Checkpoint] Khôi phục từ trang gần nhất: Page ${savedState.lastPage}`);
+    } catch {}
+}
+
+const LIMIT            = limitArg ? parseInt(limitArg.split('=')[1]) : Infinity;
+const SINGLE_PAGE      = pageArg ? parseInt(pageArg.split('=')[1]) : null;
+const START_PAGE       = startPageArg ? parseInt(startPageArg.split('=')[1]) : (resumeMode ? savedState.lastPage : (SINGLE_PAGE || 1));
+const MAX_PAGES_LIMIT  = maxPagesArg ? parseInt(maxPagesArg.split('=')[1]) : (SINGLE_PAGE ? SINGLE_PAGE : 9999);
 
 // ─── TMDB keys (round-robin để tránh rate limit) ───────────────────────────────
 const TMDB_KEYS = [
@@ -96,8 +115,9 @@ const s3 = new S3Client({
 /** Kiểm tra file đã có trên R2 chưa */
 async function existsOnR2(key) {
     try {
-        await s3.send(new HeadObjectCommand({ Bucket: R2_BUCKET_NAME, Key: key }));
-        return true;
+        const res = await s3.send(new HeadObjectCommand({ Bucket: R2_BUCKET_NAME, Key: key }));
+        // Đảm bảo file tồn tại VÀ kích thước > 1KB (nếu 0-byte hoặc bị lỗi sẽ tự động tải lại)
+        return (res.ContentLength || 0) > 1024;
     } catch {
         return false;
     }
@@ -167,11 +187,26 @@ async function withRetry(fn, retries = 3, delay = 1000) {
 
 const sleep = (ms) => new Promise(r => setTimeout(r, ms));
 
-// ─── Stats ─────────────────────────────────────────────────────────────────────
+// ─── Stats & Log List ─────────────────────────────────────────────────────────
 const stats = {
     movies:  { total: 0, uploaded: 0, skipped: 0, failed: 0 },
     actors:  { total: 0, uploaded: 0, skipped: 0, failed: 0 },
 };
+
+const failedItems = [];
+
+function saveFailedLog(item) {
+    failedItems.push(item);
+    try {
+        writeFileSync(FAILED_FILE, JSON.stringify(failedItems, null, 2));
+    } catch {}
+}
+
+function saveCheckpoint(page) {
+    try {
+        writeFileSync(STATE_FILE, JSON.stringify({ lastPage: page, updatedAt: new Date().toISOString() }, null, 2));
+    } catch {}
+}
 
 // ─── Process 1 phim: poster + thumb ───────────────────────────────────────────
 async function processMovieImages(movie, idx, total) {
@@ -201,6 +236,7 @@ async function processMovieImages(movie, idx, total) {
         }
     } catch (err) {
         stats.movies.failed++;
+        saveFailedLog({ type: 'poster', slug, url: poster_url, key: posterKey, error: err.message });
         console.error(`  ✗ poster [${slug}]: ${err.message}`);
     }
 
@@ -222,6 +258,7 @@ async function processMovieImages(movie, idx, total) {
         }
     } catch (err) {
         stats.movies.failed++;
+        saveFailedLog({ type: 'thumb', slug, url: thumb_url || poster_url, key: thumbKey, error: err.message });
         console.error(`  ✗ thumb  [${slug}]: ${err.message}`);
     }
 
@@ -285,8 +322,10 @@ async function processActorImages(movie) {
                 await convertAndUpload(buf, actorKey, 200, 80);
                 stats.actors.uploaded++;
             });
-        } catch {
+        } catch (err) {
             stats.actors.failed++;
+            const imgUrl = `https://image.tmdb.org/t/p/w185${actor.profile_path}`;
+            saveFailedLog({ type: 'actor', actorId: actor.id, url: imgUrl, key: actorKey, error: err.message });
         }
     }
 }
@@ -294,8 +333,8 @@ async function processActorImages(movie) {
 // ─── Fetch danh sách phim từ phimapi.com ──────────────────────────────────────
 async function fetchAllMovies() {
     const allMovies = [];
-    let page = SINGLE_PAGE || 1;
-    const maxPage = SINGLE_PAGE || MAX_PAGES_LIMIT || 999;
+    let page = START_PAGE;
+    const maxPage = MAX_PAGES_LIMIT;
 
     console.log('[phimapi] Đang fetch danh sách phim...');
 
@@ -320,6 +359,7 @@ async function fetchAllMovies() {
             if (!items.length) break;
 
             allMovies.push(...items);
+            saveCheckpoint(page);
 
             const totalPages = data?.pagination?.totalPages || data?.data?.params?.pagination?.totalPage || 999;
             console.log(`  Trang ${page}/${totalPages}: ${items.length} phim (tổng: ${allMovies.length})`);
@@ -344,10 +384,51 @@ async function fetchAllMovies() {
 async function main() {
     console.log('═══════════════════════════════════════════════════════');
     console.log('  LoFilm Image Sync → Cloudflare R2');
-    console.log(`  Mode: ${actorsOnly ? 'actors-only' : moviesOnly ? 'movies-only' : 'movies + actors'}`);
+    console.log(`  Mode: ${retryFailed ? 'RETRY FAILED LOGS' : actorsOnly ? 'actors-only' : moviesOnly ? 'movies-only' : 'movies + actors'}`);
     console.log(`  New-only: ${newOnly}`);
+    console.log(`  Resume: ${resumeMode}`);
     console.log(`  Limit: ${LIMIT === Infinity ? 'unlimited' : LIMIT} phim`);
     console.log('═══════════════════════════════════════════════════════\n');
+
+    // KỊCH BẢN CHỈ SYNC LẠI CÁC ẢNH BỊ LỖI
+    if (retryFailed) {
+        if (!existsSync(FAILED_FILE)) {
+            console.log('🎉 Không tìm thấy file failed-images.json (Không có ảnh nào bị lỗi trước đó)!');
+            return;
+        }
+        try {
+            const list = JSON.parse(readFileSync(FAILED_FILE, 'utf8'));
+            if (!list.length) {
+                console.log('🎉 Danh sách ảnh lỗi trống (100% ảnh đã sync thành công)!');
+                return;
+            }
+            console.log(`[Retry Failed] Đang thử tải lại ${list.length} ảnh bị lỗi...`);
+            const remainingFailed = [];
+            let fixedCount = 0;
+
+            for (const item of list) {
+                try {
+                    const url = normalizeImgUrl(item.url);
+                    if (url) {
+                        const buf = await downloadImage(url);
+                        await convertAndUpload(buf, item.key, item.type === 'poster' ? 400 : 800, 80);
+                        fixedCount++;
+                        console.log(`  ✓ Đã sửa thành công ảnh lỗi [${item.type}]: ${item.slug || item.key}`);
+                    }
+                } catch (err) {
+                    console.error(`  ✗ Vẫn lỗi [${item.key}]: ${err.message}`);
+                    remainingFailed.push(item);
+                }
+                await sleep(300);
+            }
+            writeFileSync(FAILED_FILE, JSON.stringify(remainingFailed, null, 2));
+            console.log(`\n[Hoàn tất Retry] Đã sửa được: ${fixedCount}/${list.length} ảnh. Còn lại: ${remainingFailed.length} lỗi.`);
+            return;
+        } catch (err) {
+            console.error('Lỗi khi đọc file failed-images.json:', err.message);
+            return;
+        }
+    }
 
     const movies = await fetchAllMovies();
     stats.movies.total = movies.length * 2; // poster + thumb

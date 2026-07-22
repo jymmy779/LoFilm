@@ -8,7 +8,7 @@ on:
   workflow_dispatch:
     inputs:
       args:
-        description: 'Tham số bổ sung (vd: --new-only, --movies-only)'
+        description: 'Tham số (vd: --new-only --start-page=16 --max-pages=30)'
         required: false
         default: '--new-only --max-pages=15'
 
