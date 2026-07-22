@@ -1,11 +1,13 @@
+import { cache } from "react";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 import { createClient } from "@/app/utils/supabase/server";
 import { MovieDetailResponse } from "@/app/types/movie";
 
 const API_BASE = "https://phimapi.com";
 
-export async function getMovieDetail(slug: string, isPreview: boolean = false): Promise<MovieDetailResponse | null> {
+export const getMovieDetail = cache(async (slug: string, isPreview: boolean = false): Promise<MovieDetailResponse | null> => {
     try {
+        const cleanSlug = typeof slug === "string" ? decodeURIComponent(slug).trim() : slug;
         const supabase = await createClient();
         
         // Fetch cả 3 nguồn song song để tối ưu tốc độ: Độc quyền, PhimAPI, và View nội bộ
@@ -13,13 +15,13 @@ export async function getMovieDetail(slug: string, isPreview: boolean = false): 
             supabase
                 .from('exclusive_movies')
                 .select(`*, exclusive_episodes (*)`)
-                .eq('slug', slug)
+                .eq('slug', cleanSlug)
                 .single(),
-            fetchWithRedis(`${API_BASE}/phim/${slug}`),
+            fetchWithRedis(`${API_BASE}/phim/${cleanSlug}`),
             supabase
                 .from('movie_views')
                 .select('view_count')
-                .eq('movie_slug', slug)
+                .eq('movie_slug', cleanSlug)
                 .maybeSingle()
         ]);
 
@@ -160,4 +162,4 @@ export async function getMovieDetail(slug: string, isPreview: boolean = false): 
     }
     
     return null;
-}
+});

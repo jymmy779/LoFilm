@@ -72,7 +72,13 @@ export default async function MoviePage({
     const isPreview = false; // Luôn false ở SSR tĩnh. Preview sẽ xử lý sau ở Client nếu cần.
 
     // Fetch movie detail - Chạy cực nhanh nhờ cơ chế Cache-First Redis mới (<50ms)
-    const detail = await getMovieDetail(slug, isPreview);
+    let detail = await getMovieDetail(slug, isPreview);
+
+    // Nếu bị lỗi mạng hoặc API chập chờn nhất thời, retry lại 1 lần sau 300ms trước khi đưa ra notFound
+    if (!detail) {
+        await new Promise((resolve) => setTimeout(resolve, 300));
+        detail = await getMovieDetail(slug, isPreview);
+    }
 
     if (!detail) {
         notFound();

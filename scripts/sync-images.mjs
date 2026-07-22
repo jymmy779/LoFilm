@@ -62,10 +62,10 @@ const args = process.argv.slice(2);
 const moviesOnly = args.includes('--movies-only');
 const actorsOnly = args.includes('--actors-only');
 const newOnly    = args.includes('--new-only');
-const limitArg   = args.find(a => a.startsWith('--limit='));
-const pageArg    = args.find(a => a.startsWith('--page='));
-const LIMIT      = limitArg ? parseInt(limitArg.split('=')[1]) : Infinity;
-const SINGLE_PAGE = pageArg ? parseInt(pageArg.split('=')[1]) : null;
+const maxPagesArg = args.find(a => a.startsWith('--max-pages='));
+const LIMIT        = limitArg ? parseInt(limitArg.split('=')[1]) : Infinity;
+const SINGLE_PAGE  = pageArg ? parseInt(pageArg.split('=')[1]) : null;
+const MAX_PAGES_LIMIT = maxPagesArg ? parseInt(maxPagesArg.split('=')[1]) : null;
 
 // ─── TMDB keys (round-robin để tránh rate limit) ───────────────────────────────
 const TMDB_KEYS = [
@@ -112,7 +112,12 @@ async function downloadImage(url, timeout = 15000) {
             signal: controller.signal,
             headers: { 'User-Agent': 'Mozilla/5.0 (compatible; LoFilm-ImageSync/1.0)' },
         });
-        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        if (!res.ok) {
+            if (res.status === 429) {
+                await sleep(3000);
+            }
+            throw new Error(`HTTP ${res.status}`);
+        }
         const arrayBuf = await res.arrayBuffer();
         return Buffer.from(arrayBuf);
     } finally {
@@ -290,7 +295,7 @@ async function processActorImages(movie) {
 async function fetchAllMovies() {
     const allMovies = [];
     let page = SINGLE_PAGE || 1;
-    const maxPage = SINGLE_PAGE || 999;
+    const maxPage = SINGLE_PAGE || MAX_PAGES_LIMIT || 999;
 
     console.log('[phimapi] Đang fetch danh sách phim...');
 
@@ -298,7 +303,17 @@ async function fetchAllMovies() {
         try {
             const url = `https://phimapi.com/danh-sach/phim-moi-cap-nhat?page=${page}&limit=64`;
             const res = await fetch(url, { signal: AbortSignal.timeout(15000) });
-            if (!res.ok) break;
+            if (!res.ok) {
+                if (res.status === 429) {
+                    console.warn(`  ⚠️ Dính Rate Limit (429) tại trang ${page}, tạm dừng 5s rồi thử lại...`);
+                    await sleep(5000);
+                    continue; // Thử lại cùng trang này
+                }
+                console.error(`  ⚠️ Lỗi HTTP ${res.status} tại trang ${page}, bỏ qua trang này...`);
+                page++;
+                await sleep(1000);
+                continue;
+            }
             const data = await res.json();
 
             const items = data?.items || data?.data?.items || [];
@@ -309,7 +324,7 @@ async function fetchAllMovies() {
             const totalPages = data?.pagination?.totalPages || data?.data?.params?.pagination?.totalPage || 999;
             console.log(`  Trang ${page}/${totalPages}: ${items.length} phim (tổng: ${allMovies.length})`);
 
-            if (page >= totalPages) break;
+            if (page >= totalPages || page >= maxPage) break;
             if (allMovies.length >= LIMIT) break;
 
             page++;

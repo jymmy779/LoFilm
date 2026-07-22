@@ -157,6 +157,10 @@ async function WatchData({
     let data: any = null;
     try {
         data = await getMovieDetail(slug, isPreview);
+        if (!data) {
+            await new Promise((resolve) => setTimeout(resolve, 300));
+            data = await getMovieDetail(slug, isPreview);
+        }
     } catch (error) {
         console.error("Fetch movie error:", error);
         return (
