@@ -30,8 +30,13 @@ interface EpisodeListProps {
   showServers?: boolean;
 }
 
+interface PartItem {
+  part: number;
+  slug: string;
+}
+
 // Custom Part Dropdown component
-const PartDropdown = ({ parts, currentPart, baseSlug }: { parts: number[]; currentPart: number; baseSlug: string }) => {
+const PartDropdown = ({ parts, currentPart }: { parts: PartItem[]; currentPart: number }) => {
   const [isOpen, setIsOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
   const router = useRouter();
@@ -61,14 +66,14 @@ const PartDropdown = ({ parts, currentPart, baseSlug }: { parts: number[]; curre
           <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
           <div className="absolute top-full left-0 mt-1.5 z-50 min-w-[120px] bg-[#1e2028] border border-white/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden animate-dropdown-in origin-top">
             {parts.map((p, i) => {
-              const isSelected = p === currentPart;
+              const isSelected = p.part === currentPart;
               return (
                 <button
-                  key={p}
+                  key={p.part}
                   onClick={() => {
                     setIsOpen(false);
-                    if (p !== currentPart) {
-                      router.push(`/phim/${baseSlug}-phan-${p}`, { scroll: false });
+                    if (p.part !== currentPart) {
+                      router.push(`/phim/${p.slug}`, { scroll: false });
                     }
                   }}
                   className={`
@@ -80,7 +85,7 @@ const PartDropdown = ({ parts, currentPart, baseSlug }: { parts: number[]; curre
                     ${i !== 0 ? "border-t border-white/5" : ""}
                   `}
                 >
-                  <span>Phần {p}</span>
+                  <span>Phần {p.part}</span>
                 </button>
               );
             })}
@@ -107,16 +112,14 @@ const EpisodeList = ({
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const CHUNK_SIZE = 100;
 
-  // Parse part info from slug (e.g., "naruto-phan-2" → base="naruto", part=2)
+  // Parse part info from slug (e.g., "naruto-phan-2" → base="naruto", part=2; "boboiboy-galaxy" → base="boboiboy-galaxy", part=1)
   const partInfo = useMemo(() => {
-    const match = slug.match(/^(.+?)(?:-phan-(\d+))$/i);
+    const match = slug.match(/^(.+?)(?:-(?:phan|season|ss|p)-?(\d+))$/i);
     if (match) return { base: match[1], part: parseInt(match[2], 10) };
-    const seasonMatch = slug.match(/^(.+?)(?:-season-(\d+))$/i);
-    if (seasonMatch) return { base: seasonMatch[1], part: parseInt(seasonMatch[2], 10) };
-    return null;
+    return { base: slug, part: 1 };
   }, [slug]);
 
-  const [availableParts, setAvailableParts] = useState<number[]>([]);
+  const [availableParts, setAvailableParts] = useState<PartItem[]>([]);
   const [isLoadingParts, setIsLoadingParts] = useState(false);
 
   // Check existence of nearby parts (cache in sessionStorage)
@@ -130,48 +133,89 @@ const EpisodeList = ({
       const cached = sessionStorage.getItem(cacheKey);
       if (cached) {
         const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0 && parsed.includes(part)) {
+        if (Array.isArray(parsed) && parsed.length > 0 && parsed.some((item: any) => item.part === part)) {
           setAvailableParts(parsed);
           return;
         }
       }
     } catch { /* ignore */ }
 
-    const partsToCheck: number[] = [];
-    for (let i = Math.max(1, part - 2); i <= part + 2; i++) {
-      if (i !== part) partsToCheck.push(i);
-    }
-
-    if (partsToCheck.length === 0) return;
-
     setIsLoadingParts(true);
 
-    const fetchPart = async (p: number) => {
-      const partSlug = `${base}-phan-${p}`;
-      try {
-        const res = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/phim/${partSlug}`)}`);
-        const exists = !!(res.data?.status === "success" || res.data?.status === true);
-        return { part: p, exists };
-      } catch {
-        return { part: p, exists: false };
+    const maxPartToCheck = Math.max(5, part + 2);
+    const partsToCheck: number[] = [];
+    for (let i = 1; i <= maxPartToCheck; i++) {
+      partsToCheck.push(i);
+    }
+
+    const fetchPart = async (p: number): Promise<PartItem | null> => {
+      if (p === part) {
+        return { part: p, slug };
       }
+
+      let candidates: string[] = [];
+      if (p === 1) {
+        candidates = [
+          base,
+          `${base}-phan-1`,
+          `${base}-season-1`,
+          `${base}-phan-01`,
+          `${base}-ss1`,
+          `${base}-p1`
+        ];
+      } else {
+        candidates = [
+          `${base}-phan-${p}`,
+          `${base}-season-${p}`,
+          `${base}-phan-0${p}`,
+          `${base}-ss${p}`,
+          `${base}-p${p}`
+        ];
+      }
+
+      candidates = [...new Set(candidates)].filter(c => c !== slug);
+
+      // Check all candidates for part p concurrently for max performance
+      const candidateResults = await Promise.all(
+        candidates.map(async (cand) => {
+          try {
+            const res = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/phim/${cand}`)}`);
+            if (res.data?.status === "success" || res.data?.status === true) {
+              return cand;
+            }
+          } catch {
+            /* ignore */
+          }
+          return null;
+        })
+      );
+
+      const foundSlug = candidateResults.find(c => c !== null);
+      return foundSlug ? { part: p, slug: foundSlug } : null;
     };
 
     Promise.allSettled(partsToCheck.map(fetchPart)).then(results => {
-      const valid: number[] = [part]; // always include current part
+      const validMap = new Map<number, string>();
+      validMap.set(part, slug); // current part is always valid
+
       results.forEach(r => {
-        if (r.status === 'fulfilled' && r.value.exists) {
-          valid.push(r.value.part);
+        if (r.status === 'fulfilled' && r.value) {
+          validMap.set(r.value.part, r.value.slug);
         }
       });
-      setAvailableParts(valid);
+
+      const validParts: PartItem[] = Array.from(validMap.entries())
+        .map(([p, s]) => ({ part: p, slug: s }))
+        .sort((a, b) => a.part - b.part);
+
+      setAvailableParts(validParts);
       try {
-        sessionStorage.setItem(cacheKey, JSON.stringify(valid));
+        sessionStorage.setItem(cacheKey, JSON.stringify(validParts));
       } catch { /* ignore */ }
     }).finally(() => {
       setIsLoadingParts(false);
     });
-  }, [partInfo]);
+  }, [partInfo, slug]);
 
   if (!episodes || episodes.length === 0) return null;
 
@@ -362,8 +406,8 @@ const EpisodeList = ({
         </div>
       )}
 
-      {/* Part Selector - only show if slug has -phan-X suffix and other parts exist */}
-      {partInfo && !searchQuery.trim() && (
+      {/* Part Selector - show if there are multiple parts */}
+      {!searchQuery.trim() && (
         <div className="mb-4 pt-2">
           {isLoadingParts ? (
             <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 animate-pulse border border-white/5">
@@ -372,19 +416,10 @@ const EpisodeList = ({
             </div>
           ) : availableParts.length > 1 ? (
             <PartDropdown
-              parts={[...new Set([...availableParts, partInfo.part])].sort((a, b) => a - b)}
+              parts={availableParts}
               currentPart={partInfo.part}
-              baseSlug={partInfo.base}
             />
-          ) : (
-            <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 border border-white/5">
-              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-amber-400/60">
-                <rect x="2" y="4" width="20" height="16" rx="2" />
-                <path d="M12 2v20" />
-              </svg>
-              <span className="text-xs md:text-sm text-gray-400 font-semibold">Phần {partInfo.part}</span>
-            </div>
-          )}
+          ) : null}
         </div>
       )}
 
