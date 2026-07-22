@@ -353,7 +353,7 @@ async function processActorImages(movie) {
         );
         if (!res.ok) return;
         const data = await res.json();
-        cast = (data.cast || []).filter(a => a.profile_path).slice(0, 10);
+        cast = (data.cast || []).filter(a => a.profile_path);
     } catch {
         return; // TMDB timeout / lỗi → bỏ qua
     }
