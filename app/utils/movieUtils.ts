@@ -95,62 +95,87 @@ export const TRANSPARENT_GIF = "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQ
  * Actual resizing/quality optimization is handled by the custom imageLoader (wsrv.nl proxy)
  * which is automatically invoked by Next.js <Image> component.
  */
-export function getImageUrl(url: string | undefined, _options?: { width?: number; quality?: number }): string {
+export function normalizeImageUrl(url: string | undefined): string {
     if (!url) return TRANSPARENT_GIF;
 
-    let trimmedUrl = url.trim();
-
-    // Tự động làm sạch nếu bị trùng lặp domain do lỗi lưu trữ
-    if (trimmedUrl.includes("https://phimimg.com/https://phimimg.com/")) {
-        trimmedUrl = trimmedUrl.replace(/https:\/\/phimimg\.com\/https:\/\/phimimg\.com\//g, "https://phimimg.com/");
+    let trimmed = url.trim();
+    if (!trimmed || trimmed === "null" || trimmed === "undefined" || trimmed === "N/A" || trimmed === "none") {
+        return TRANSPARENT_GIF;
     }
 
-    // Nếu URL có chứa /upload/, lấy từ /upload/ trở đi và ép dùng phimimg.com
-    const uploadIndex = trimmedUrl.indexOf('/upload/');
-    if (uploadIndex !== -1) {
-        return `https://phimimg.com${trimmedUrl.slice(uploadIndex)}`;
+    // 1. Protocol-relative URL: //domain.com/path -> https://domain.com/path
+    if (trimmed.startsWith("//")) {
+        trimmed = `https:${trimmed}`;
     }
 
-    // Nếu URL có chứa public/images/, lấy từ public/images/ trở đi và ép dùng phim.nguonc.com
-    const publicIndex = trimmedUrl.indexOf('public/images/');
+    // 2. Làm sạch các lỗi lặp domain do cào/lưu database
+    if (trimmed.includes("https://phimimg.com/https://phimimg.com/")) {
+        trimmed = trimmed.replace(/https:\/\/phimimg\.com\/https:\/\/phimimg\.com\//g, "https://phimimg.com/");
+    }
+    if (trimmed.includes("phimimg.com/public/images/")) {
+        trimmed = trimmed.replace("phimimg.com/public/images/", "phim.nguonc.com/public/images/");
+    }
+
+    // 3. Thiếu protocol nhưng là domain name (vd: img.phimapi.com/..., occ-0-..., tmdb.org/...)
+    if (!trimmed.startsWith("http://") && !trimmed.startsWith("https://")) {
+        if (/^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+\//.test(trimmed)) {
+            trimmed = `https://${trimmed}`;
+        }
+    }
+
+    // 4. Nếu đã là URL đầy đủ (http:// hoặc https://) -> Giữ nguyên 100% cho mọi nguồn cào (Netflix, TMDB, KKPhim, NguonC, Cloudinary...)
+    if (trimmed.startsWith("http://") || trimmed.startsWith("https://")) {
+        return trimmed;
+    }
+
+    // 5. Xử lý relative path từ các nguồn cào:
+    // - Nguồn Ophim (chứa ophim):
+    const ophimIndex = trimmed.indexOf("ophim");
+    if (ophimIndex !== -1 && !trimmed.includes(".")) {
+        return `https://img.ophim.live/${trimmed.slice(ophimIndex)}`;
+    }
+
+    // - Nguồn Netflix (chứa dnm/):
+    const dnmIndex = trimmed.indexOf("dnm/");
+    if (dnmIndex !== -1) {
+        return `https://occ-0-8407-116.1.nflxso.net/${trimmed.slice(dnmIndex)}`;
+    }
+
+    // - Nguồn TMDB (chứa t/p/):
+    const tmdbIndex = trimmed.indexOf("t/p/");
+    if (tmdbIndex !== -1) {
+        return `https://image.tmdb.org/${trimmed.slice(tmdbIndex)}`;
+    }
+
+    // - Nguồn NguonC (chứa public/images/):
+    const publicIndex = trimmed.indexOf("public/images/");
     if (publicIndex !== -1) {
-        return `https://phim.nguonc.com/${trimmedUrl.slice(publicIndex)}`;
+        return `https://phim.nguonc.com/${trimmed.slice(publicIndex)}`;
     }
 
-    // Nếu là URL đầy đủ, trả về nguyên
-    if (trimmedUrl.startsWith("http")) return trimmedUrl;
+    // - Nguồn KKPhim / PhimAPI (chứa upload/ hoặc uploads/):
+    const uploadsIndex = trimmed.indexOf("uploads/");
+    if (uploadsIndex !== -1) {
+        return `https://phimimg.com/${trimmed.slice(uploadsIndex)}`;
+    }
+    const uploadIndex = trimmed.indexOf("upload/");
+    if (uploadIndex !== -1) {
+        return `https://phimimg.com/${trimmed.slice(uploadIndex)}`;
+    }
 
-    // Relative path → prepend domain
-    return `https://phimimg.com/${trimmedUrl.startsWith('/') ? trimmedUrl.slice(1) : trimmedUrl}`;
+    const cleanPath = trimmed.startsWith("/") ? trimmed.slice(1) : trimmed;
+    return `https://phimimg.com/${cleanPath}`;
+}
+
+export function getImageUrl(url: string | undefined, _options?: { width?: number; quality?: number }): string {
+    return normalizeImageUrl(url);
 }
 
 /**
  * Get the raw image URL from the source without any proxy
  */
 export function getRawImageUrl(url: string | undefined): string {
-    if (!url) return TRANSPARENT_GIF;
-    
-    let trimmedUrl = url.trim();
-
-    // Tự động làm sạch nếu bị trùng lặp domain do lỗi lưu trữ
-    if (trimmedUrl.includes("https://phimimg.com/https://phimimg.com/")) {
-        trimmedUrl = trimmedUrl.replace(/https:\/\/phimimg\.com\/https:\/\/phimimg\.com\//g, "https://phimimg.com/");
-    }
-
-    const uploadIndex = trimmedUrl.indexOf('/upload/');
-    if (uploadIndex !== -1) {
-        return `https://phimimg.com${trimmedUrl.slice(uploadIndex)}`;
-    }
-
-    // Nếu URL có chứa public/images/, lấy từ public/images/ trở đi và ép dùng phim.nguonc.com
-    const publicIndex = trimmedUrl.indexOf('public/images/');
-    if (publicIndex !== -1) {
-        return `https://phim.nguonc.com/${trimmedUrl.slice(publicIndex)}`;
-    }
-
-    if (trimmedUrl.startsWith("http")) return trimmedUrl;
-
-    return `https://phimimg.com/${trimmedUrl.startsWith('/') ? trimmedUrl.slice(1) : trimmedUrl}`;
+    return normalizeImageUrl(url);
 }
 
 /**

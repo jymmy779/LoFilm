@@ -59,13 +59,13 @@ const SmartImage = forwardRef<HTMLImageElement, SmartImageProps>(
         }, [currentSrc]);
 
         const handleError = () => {
-            // Tầng 0 (r2Src) → thử tầng 1 (wsrv.nl/src)
+            // Tầng 0 (r2Src) → thử tầng 1 (wsrv.nl / src)
             if (fallbackLevel === 0 && r2Src && currentSrc === r2Src && src) {
                 setCurrentSrc(src);
                 setFallbackLevel(1);
                 return;
             }
-            // Tầng 1 (wsrv.nl) → thử tầng 2 (rawSrc)
+            // Tầng 1 (wsrv.nl hoặc r2 không có src) → thử tầng 2 (rawSrc)
             if (fallbackLevel <= 1 && rawSrc && currentSrc !== rawSrc) {
                 setCurrentSrc(rawSrc);
                 setFallbackLevel(2);
@@ -79,14 +79,15 @@ const SmartImage = forwardRef<HTMLImageElement, SmartImageProps>(
         };
 
         const baseClass = props.className || "";
-        // Disable Next.js optimization khi đã xuống fallback raw/r2 (không cần proxy thêm)
-        const shouldUnoptimize = fallbackLevel >= 2;
+        // Disable Next.js optimization khi đã xuống fallback raw (không cần proxy thêm)
+        const shouldUnoptimize = props.unoptimized || fallbackLevel >= 2;
 
         return (
             <Image
+                referrerPolicy="no-referrer"
                 {...props}
                 ref={handleRef}
-                src={currentSrc}
+                src={currentSrc || fallbackSrc || "data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs="}
                 alt={alt || ""}
                 onError={handleError}
                 onLoad={(e) => {

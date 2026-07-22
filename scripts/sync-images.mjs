@@ -130,7 +130,10 @@ async function downloadImage(url, timeout = 15000) {
     try {
         const res = await fetch(url, {
             signal: controller.signal,
-            headers: { 'User-Agent': 'Mozilla/5.0 (compatible; LoFilm-ImageSync/1.0)' },
+            headers: {
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
+                'Accept': 'image/avif,image/webp,image/apng,image/svg+xml,image/*,*/*;q=0.8',
+            },
         });
         if (!res.ok) {
             if (res.status === 429) {
@@ -163,13 +166,63 @@ async function convertAndUpload(srcBuffer, r2Key, width, quality = 80) {
     return webpBuffer.length;
 }
 
-/** Normalize URL ảnh từ phimapi (relative → absolute) */
+/** Normalize URL ảnh từ phimapi / nguonc / ophim / netflix / tmdb (relative → absolute) */
 function normalizeImgUrl(url) {
     if (!url) return null;
-    const t = url.trim();
-    if (t.startsWith('http')) return t;
-    const uploadIdx = t.indexOf('/upload/');
-    if (uploadIdx !== -1) return `https://phimimg.com${t.slice(uploadIdx)}`;
+    let t = url.trim();
+    if (!t || t === "null" || t === "undefined" || t === "N/A" || t === "none") return null;
+
+    if (t.startsWith("//")) {
+        t = `https:${t}`;
+    }
+
+    if (t.includes("phimimg.com/https://phimimg.com/")) {
+        t = t.replace(/https:\/\/phimimg\.com\/https:\/\/phimimg\.com\//g, "https://phimimg.com/");
+    }
+    if (t.includes("phimimg.com/public/images/")) {
+        t = t.replace("phimimg.com/public/images/", "phim.nguonc.com/public/images/");
+    }
+
+    if (!t.startsWith("http://") && !t.startsWith("https://")) {
+        if (/^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+\//.test(t)) {
+            t = `https://${t}`;
+        }
+    }
+
+    if (t.startsWith("http://") || t.startsWith("https://")) {
+        return t;
+    }
+
+    const ophimIdx = t.indexOf("ophim");
+    if (ophimIdx !== -1 && !t.includes(".")) {
+        return `https://img.ophim.live/${t.slice(ophimIdx)}`;
+    }
+
+    const dnmIdx = t.indexOf("dnm/");
+    if (dnmIdx !== -1) {
+        return `https://occ-0-8407-116.1.nflxso.net/${t.slice(dnmIdx)}`;
+    }
+
+    const tmdbIdx = t.indexOf("t/p/");
+    if (tmdbIdx !== -1) {
+        return `https://image.tmdb.org/${t.slice(tmdbIdx)}`;
+    }
+
+    const publicIdx = t.indexOf("public/images/");
+    if (publicIdx !== -1) {
+        return `https://phim.nguonc.com/${t.slice(publicIdx)}`;
+    }
+
+    const uploadsIdx = t.indexOf("uploads/");
+    if (uploadsIdx !== -1) {
+        return `https://phimimg.com/${t.slice(uploadsIdx)}`;
+    }
+
+    const uploadIdx = t.indexOf("upload/");
+    if (uploadIdx !== -1) {
+        return `https://phimimg.com/${t.slice(uploadIdx)}`;
+    }
+
     return `https://phimimg.com/${t.replace(/^\//, '')}`;
 }
 

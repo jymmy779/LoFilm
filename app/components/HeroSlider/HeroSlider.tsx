@@ -78,6 +78,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                         r2Src={getR2MovieThumbUrl(movie.slug)}
                                         src={getImageUrl(movie.thumb_url, { width: 1920, quality: 85 })}
                                         rawSrc={getRawImageUrl(movie.thumb_url)}
+                                        fallbackSrc={movie.poster_url ? getImageUrl(movie.poster_url, { width: 1200, quality: 75 }) : undefined}
                                         alt={movie.name}
                                         priority={index === 0}
                                         loading={index === 0 ? "eager" : "lazy"}

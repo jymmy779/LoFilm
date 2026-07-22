@@ -101,7 +101,7 @@ export default function TopCommentsSlider() {
                     spaceBetween={8}
                     autoplay={{
                         delay: 4000,
-                        disableOnInteraction: true,
+                        disableOnInteraction: false,
                         pauseOnMouseEnter: true
                     }}
                     breakpoints={{

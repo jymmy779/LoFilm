@@ -29,18 +29,40 @@ export default function imageLoader({ src, width, quality }: { src: string, widt
     }
   }
 
-  // Nếu là path chứa public/images/ thì ép dùng phim.nguonc.com (kể cả khi đã có domain phimimg.com bị gán sai trước đó)
+  // Sửa các trường hợp domain dính sai
   if (originUrl.includes('phimimg.com/public/images/')) {
     originUrl = originUrl.replace('phimimg.com/public/images/', 'phim.nguonc.com/public/images/');
   }
 
   // Bổ sung domain nếu thiếu
-  if (!originUrl.startsWith('http')) {
-    const publicIndex = originUrl.indexOf('public/images/');
-    if (publicIndex !== -1) {
-      originUrl = `https://phim.nguonc.com/${originUrl.slice(publicIndex)}`;
+  if (!originUrl.startsWith('http://') && !originUrl.startsWith('https://')) {
+    if (originUrl.startsWith('//')) {
+      originUrl = `https:${originUrl}`;
     } else {
-      originUrl = `https://phimimg.com/${originUrl.startsWith('/') ? originUrl.slice(1) : originUrl}`;
+      const ophimIndex = originUrl.indexOf('ophim');
+      const dnmIndex = originUrl.indexOf('dnm/');
+      const tmdbIndex = originUrl.indexOf('t/p/');
+      const publicIndex = originUrl.indexOf('public/images/');
+      const uploadsIndex = originUrl.indexOf('uploads/');
+      const uploadIndex = originUrl.indexOf('upload/');
+
+      if (ophimIndex !== -1 && !originUrl.includes('.')) {
+        originUrl = `https://img.ophim.live/${originUrl.slice(ophimIndex)}`;
+      } else if (dnmIndex !== -1) {
+        originUrl = `https://occ-0-8407-116.1.nflxso.net/${originUrl.slice(dnmIndex)}`;
+      } else if (tmdbIndex !== -1) {
+        originUrl = `https://image.tmdb.org/${originUrl.slice(tmdbIndex)}`;
+      } else if (publicIndex !== -1) {
+        originUrl = `https://phim.nguonc.com/${originUrl.slice(publicIndex)}`;
+      } else if (uploadsIndex !== -1) {
+        originUrl = `https://phimimg.com/${originUrl.slice(uploadsIndex)}`;
+      } else if (uploadIndex !== -1) {
+        originUrl = `https://phimimg.com/${originUrl.slice(uploadIndex)}`;
+      } else if (/^[a-zA-Z0-9-]+(\.[a-zA-Z0-9-]+)+\//.test(originUrl)) {
+        originUrl = `https://${originUrl}`;
+      } else {
+        originUrl = `https://phimimg.com/${originUrl.startsWith('/') ? originUrl.slice(1) : originUrl}`;
+      }
     }
   }
 
