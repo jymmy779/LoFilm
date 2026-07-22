@@ -1,4 +1,5 @@
 import { Metadata } from "next";
+import { getAbsoluteUrl } from "@/app/config/site";
 import { Suspense } from "react";
 import CountryClient from "./CountryClient";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
@@ -40,7 +41,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             "xem phim online"
         ],
         alternates: {
-            canonical: `https://www.munos.store/quoc-gia/${slug}`,
+            canonical: getAbsoluteUrl(`/quoc-gia/${slug}`),
         },
     };
 }

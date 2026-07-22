@@ -1,6 +1,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
+import { SITE_URL, SITE_DOMAIN } from '@/app/config/site'
+
 // In-memory cache cho maintenance mode (tránh fetch Supabase mỗi request)
 // next: { revalidate } trong middleware KHÔNG hoạt động như Server Components
 let maintenanceCache: { value: boolean; expiresAt: number } | null = null;
@@ -9,19 +11,15 @@ const MAINTENANCE_CACHE_TTL_MS = 60_000; // Cache 60 giây
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 0. Redirect non-www and/or HTTP to canonical https://www.munos.store (SEO & Indexing Fix)
-  // Handles all cases in a SINGLE redirect to avoid redirect chains:
-  //   http://munos.store  → https://www.munos.store  (1 hop)
-  //   https://munos.store → https://www.munos.store  (1 hop)
-  //   http://www.munos.store → https://www.munos.store (1 hop)
+  // 0. Redirect non-www and/or HTTP to canonical SITE_URL (SEO & Indexing Fix)
   const host = request.headers.get('host') || '';
   const proto = request.headers.get('x-forwarded-proto') || 'https';
   
   // Chỉ thực hiện redirect khi đang chạy trên production server thật (tránh lỗi khi mở bằng localhost hay IP Lan như 192.168.x.x)
   if (process.env.NODE_ENV === 'production' && !host.includes('localhost') && !host.includes('192.168')) {
-    if (host === 'munos.store' || proto === 'http') {
+    if (host === SITE_DOMAIN || proto === 'http') {
       return NextResponse.redirect(
-        `https://www.munos.store${pathname}${request.nextUrl.search}`,
+        `${SITE_URL}${pathname}${request.nextUrl.search}`,
         301
       );
     }

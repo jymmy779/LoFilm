@@ -1,12 +1,13 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import { Mail, Send, MessageSquare, Phone, Globe } from 'lucide-react';
-import { Metadata } from 'next';
+import { getAbsoluteUrl } from '@/app/config/site';
 
 export const metadata: Metadata = {
   title: 'Liên Hệ | LoFilm - Hỗ Trợ 24/7',
   description: 'Liên hệ với tập thể phát triển LoFilm. Giải đáp thắc mắc, gửi ý kiến đóng góp và yêu cầu phim mới nhất.',
   alternates: {
-    canonical: 'https://www.munos.store/lien-he',
+    canonical: getAbsoluteUrl('/lien-he'),
   },
 };
 

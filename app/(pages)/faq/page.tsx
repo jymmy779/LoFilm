@@ -1,11 +1,12 @@
 import React from 'react';
-import { Metadata } from 'next';
+import type { Metadata } from 'next';
+import { getAbsoluteUrl } from '@/app/config/site';
 
 export const metadata: Metadata = {
   title: 'Câu Hỏi Thường Gặp (FAQ) | LoFilm',
   description: 'Giải đáp những thắc mắc thường gặp khi xem phim tại LoFilm. Tìm hiểu quy trình xem phim miễn phí, đăng ký tài khoản nhanh chóng.',
   alternates: {
-    canonical: 'https://www.munos.store/faq',
+    canonical: getAbsoluteUrl('/faq'),
   },
 };
 

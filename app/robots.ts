@@ -1,4 +1,5 @@
 import { MetadataRoute } from 'next';
+import { SITE_URL } from '@/app/config/site';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -27,7 +28,7 @@ export default function robots(): MetadataRoute.Robots {
         disallow: ['/api/', '/auth/', '/trang-ca-nhan/'],
       },
     ],
-    sitemap: 'https://www.munos.store/sitemap.xml',
-    host: 'https://www.munos.store',
+    sitemap: `${SITE_URL}/sitemap.xml`,
+    host: SITE_URL,
   };
 }

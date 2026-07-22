@@ -12,6 +12,8 @@ import { getMovieDetail } from "@/app/utils/movieFetcher";
 
 
 
+import { getAbsoluteUrl } from "@/app/config/site";
+
 // Dynamic metadata for SEO
 export async function generateMetadata({
     params,
@@ -56,7 +58,7 @@ export async function generateMetadata({
             images: [movie.poster_url],
         },
         alternates: {
-            canonical: `https://www.munos.store/phim/${slug}`,
+            canonical: getAbsoluteUrl(`/phim/${slug}`),
         },
     };
 }
@@ -137,7 +139,7 @@ export default async function MoviePage({
             "worstRating": "1",
             "ratingCount": detail.movie.tmdb.vote_count || "100"
         } : undefined,
-        "url": `https://www.munos.store/phim/${slug}`
+        "url": getAbsoluteUrl(`/phim/${slug}`)
     };
 
     return (

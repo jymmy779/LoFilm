@@ -1,12 +1,13 @@
 import React from 'react';
+import type { Metadata } from 'next';
 import { Mail, Send } from 'lucide-react';
-import { Metadata } from 'next';
+import { getAbsoluteUrl } from '@/app/config/site';
 
 export const metadata: Metadata = {
   title: 'Giới Thiệu | LoFilm - Xem Phim Online Chất Lượng Cao',
   description: 'Tìm hiểu về LoFilm - Nền tảng xem phim trực tuyến miễn phí, chất lượng cao cực nét. Khám phá sứ mệnh và tầm nhìn của chúng tôi.',
   alternates: {
-    canonical: 'https://www.munos.store/gioi-thieu',
+    canonical: getAbsoluteUrl('/gioi-thieu'),
   },
 };
 

@@ -36,6 +36,8 @@ interface Props {
 
 import { getMovieDetail } from "@/app/utils/movieFetcher";
 
+import { SITE_URL, getAbsoluteUrl } from "@/app/config/site";
+
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const { slug, episodeSlug } = await params;
     const data = await getMovieDetail(slug);
@@ -96,12 +98,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         description,
         keywords,
         alternates: {
-            canonical: `https://www.munos.store/phim/${slug}/${episodeSlug}`,
+            canonical: getAbsoluteUrl(`/phim/${slug}/${episodeSlug}`),
         },
         openGraph: {
             title,
             description,
-            url: `https://www.munos.store/phim/${slug}/${episodeSlug}`,
+            url: getAbsoluteUrl(`/phim/${slug}/${episodeSlug}`),
             siteName: 'LoFilm',
             locale: 'vi_VN',
             type: 'video.movie',
@@ -301,8 +303,8 @@ async function WatchData({
             `Xem phim ${movie.name} (${movie.origin_name}) - ${currentEpisode.name} vietsub chất lượng cao tại LoFilm`,
         "thumbnailUrl": movie.poster_url || movie.thumb_url,
         "uploadDate": movie.modified?.time || new Date().toISOString(),
-        "contentUrl": `https://www.munos.store/phim/${slug}/${episodeSlug}`,
-        "embedUrl": `https://www.munos.store/phim/${slug}/${episodeSlug}`,
+        "contentUrl": getAbsoluteUrl(`/phim/${slug}/${episodeSlug}`),
+        "embedUrl": getAbsoluteUrl(`/phim/${slug}/${episodeSlug}`),
         "duration": movie.time ? `PT${movie.time.replace(/[^0-9]/g, '')}M` : undefined,
         "inLanguage": "vi",
         "actor": (movie.actor || []).slice(0, 5).map((name: string) => ({
@@ -317,10 +319,10 @@ async function WatchData({
         "publisher": {
             "@type": "Organization",
             "name": "LoFilm",
-            "url": "https://www.munos.store",
+            "url": SITE_URL,
             "logo": {
                 "@type": "ImageObject",
-                "url": "https://www.munos.store/images/lofilm_logo.webp"
+                "url": getAbsoluteUrl("/images/lofilm_logo.webp")
             }
         }
     };

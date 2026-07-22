@@ -9,6 +9,8 @@ import { prefetchHomePageData } from "./lib/prefetch-home";
 
 export const dynamic = "force-dynamic"; // Tắt Next.js ISR để luôn lấy data mới nhất từ Redis
 
+import { SITE_URL, getAbsoluteUrl } from "@/app/config/site";
+
 export async function generateMetadata({ searchParams }: { searchParams: Promise<any> }): Promise<Metadata> {
     const params = await searchParams;
     const query = params.search;
@@ -18,7 +20,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
             title: `Tìm kiếm: ${query} | LoFilm`,
             description: `Kết quả tìm kiếm cho từ khóa "${query}" trên LoFilm. Khám phá kho phim đa dạng, chất lượng cao ngay tại đây.`,
             alternates: {
-                canonical: `https://www.munos.store/?search=${query}`,
+                canonical: getAbsoluteUrl(`/?search=${query}`),
             },
         };
     }
@@ -27,7 +29,7 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
         title: "LoFilm - Xem Phim Online Chất Lượng Cao, Phim 4K, Vietsub",
         description: "Trải nghiệm xem phim online chất lượng cao 4K, Vietsub tại LoFilm. Kho phim lẻ, phim bộ, anime mới nhất 2026 cập nhật mỗi ngày với tốc độ cực nhanh và không quảng cáo!",
         alternates: {
-            canonical: 'https://www.munos.store',
+            canonical: SITE_URL,
         },
     };
 }
