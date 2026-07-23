@@ -506,6 +506,11 @@ async function main() {
                 await processActorImages(movie);
                 await sleep(250); // ~4 req/s, an toàn với TMDB free
             }
+            if (actorsOnly) {
+                const currentCount = Math.min(i + BATCH_SIZE, movies.length);
+                const pct = Math.round((currentCount / movies.length) * 100);
+                console.log(`[Actors] Đã xử lý ${currentCount}/${movies.length} phim (${pct}%) | Upload mới: ${stats.actors.uploaded} | Đã có trên R2: ${stats.actors.skipped}`);
+            }
         }
 
         // Delay giữa các batch
