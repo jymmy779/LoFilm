@@ -86,8 +86,15 @@ export const metadata: Metadata = {
     title: 'LoFilm',
   },
   icons: {
-    icon: '/favicon.ico',
-    apple: '/images/lofilm_logo.webp',
+    icon: [
+      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/icon-48.png', sizes: '48x48', type: 'image/png' },
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
+    ],
+    apple: [
+      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+    ],
   },
   robots: {
     index: true,
@@ -184,7 +191,7 @@ export default async function RootLayout({
               "@type": "Organization",
               "name": "LoFilm",
               "url": SITE_URL,
-              "logo": getAbsoluteUrl("/images/lofilm_logo.webp"),
+              "logo": getAbsoluteUrl("/icon-512.png"),
               "sameAs": [
                 "https://t.me/ponpornsec",
                 "https://t.me/+5S1xkPn1SCAxZWZl"
