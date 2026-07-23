@@ -332,7 +332,7 @@ export default function AuthContent() {
                         required={!isLogin}
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
-                        placeholder="Họ và tên của bạn"
+                        placeholder="Tên hiển thị"
                         icon={User}
                       />
                     )}

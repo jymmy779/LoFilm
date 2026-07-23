@@ -15,7 +15,8 @@ import {
   Plus,
   ArrowRight,
   AlertCircle,
-  Activity
+  Activity,
+  X
 } from 'lucide-react';
 import { createClient } from "@/app/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -25,6 +26,7 @@ import Image from "next/image";
 import LogoutModal from "@/app/components/Modals/LogoutModal";
 import ComingSoonModal from "@/app/components/Modals/ComingSoonModal";
 import CommonModal from "@/app/components/Modals/CommonModal";
+import AvatarCropModal from "@/app/components/Modals/AvatarCropModal";
 
 type TabType = 'overview' | 'history' | 'favorites' | 'activities' | 'watchlist' | 'settings';
 
@@ -53,6 +55,7 @@ export default function ProfileContent() {
   const [isFavoritesLoading, setIsFavoritesLoading] = useState(false);
   const [watchlist, setWatchlist] = useState<any[]>([]);
   const [isWatchlistLoading, setIsWatchlistLoading] = useState(false);
+  const [isAvatarModalOpen, setIsAvatarModalOpen] = useState(false);
   const router = useRouter();
   const searchParams = useSearchParams();
   const supabase = createClient();
@@ -351,8 +354,10 @@ export default function ProfileContent() {
   const [showLogoutModal, setShowLogoutModal] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
   const [isUpdatingAvatar, setIsUpdatingAvatar] = useState(false);
+  const [cropImageSrc, setCropImageSrc] = useState<string | null>(null);
+  const [isCropModalOpen, setIsCropModalOpen] = useState(false);
 
-  const handleUpdateAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleUpdateAvatar = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -361,15 +366,27 @@ export default function ProfileContent() {
       return;
     }
 
+    const reader = new FileReader();
+    reader.addEventListener("load", () => {
+      setCropImageSrc(reader.result?.toString() || null);
+      setIsCropModalOpen(true);
+    });
+    reader.readAsDataURL(file);
+    // Reset file input so user can select the same file again
+    e.target.value = "";
+  };
+
+  const handleUploadCroppedImage = async (croppedBlob: Blob) => {
+    setIsCropModalOpen(false);
     setIsUpdatingAvatar(true);
-    const fileExt = file.name.split('.').pop();
+    const fileExt = "jpg"; // Blob từ cropper là image/jpeg
     const fileName = `${user.id}-${Math.random()}.${fileExt}`;
 
     try {
       // 1. Upload to Storage
       const { error: uploadError } = await supabase.storage
         .from('avatars')
-        .upload(fileName, file);
+        .upload(fileName, croppedBlob);
 
       if (uploadError) {
         if (uploadError.message.includes("not found")) {
@@ -553,14 +570,18 @@ export default function ProfileContent() {
                           alt={displayName}
                           width={96}
                           height={96}
-                          className="w-full h-full object-cover"
+                          className="w-full h-full object-cover cursor-pointer"
+                          onClick={() => setIsAvatarModalOpen(true)}
                         />
                       ) : (
                         userAvatar
                       )}
                     </div>
 
-                    <label className="absolute bottom-0 right-0 p-2 bg-white text-black rounded-full border-2 border-[#0F1115] z-20 opacity-0 group-hover/avatar:opacity-100 translate-y-2 group-hover/avatar:translate-y-0 transition-all cursor-pointer hover:bg-amber-400">
+                    <label 
+                      className="absolute bottom-0 right-0 p-2 bg-white text-black rounded-full border-2 border-[#0F1115] z-20 opacity-100 translate-y-0 transition-all cursor-pointer hover:bg-amber-400"
+                      onClick={(e) => e.stopPropagation()}
+                    >
                       <Camera size={14} />
                       <input
                         type="file"
@@ -729,6 +750,41 @@ export default function ProfileContent() {
         title="LOFILM Premium"
         message="Dịch vụ nâng cấp Premium đang được triển khai"
       />
+
+      <AvatarCropModal
+        isOpen={isCropModalOpen}
+        onClose={() => setIsCropModalOpen(false)}
+        imageSrc={cropImageSrc || ""}
+        onCropComplete={handleUploadCroppedImage}
+      />
+
+      {/* Avatar Fullsize Modal */}
+      {isAvatarModalOpen && user?.user_metadata?.avatar_url && (
+        <div 
+          className="fixed inset-0 z-50 flex items-center justify-center bg-[#0F1115]/90 backdrop-blur-sm p-4 animate-fade-in"
+          onClick={() => setIsAvatarModalOpen(false)}
+        >
+          <div 
+            className="relative w-full max-w-lg lg:max-w-xl aspect-square flex flex-col items-center justify-center"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <button 
+              onClick={() => setIsAvatarModalOpen(false)}
+              className="absolute -top-12 right-0 p-2 bg-white/10 hover:bg-amber-400 text-white hover:text-black rounded-full transition-all z-10"
+            >
+              <X size={20} />
+            </button>
+            <div className="relative w-full h-full">
+              <Image 
+                src={user.user_metadata.avatar_url}
+                alt="Avatar Fullsize"
+                fill
+                className="object-contain rounded-2xl shadow-2xl"
+              />
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };
