@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from "react";
 import { motion } from "framer-motion";
 import axios from "axios";
 import Image from "next/image";
-import { X } from "lucide-react";
+import { X, Settings } from "lucide-react";
 
 import { MenuItem } from "./types";
 import DropdownMenu from "./DropdownMenu";
@@ -16,6 +16,7 @@ import NotificationBell from "./NotificationBell";
 import MobileBottomSheet from "./MobileBottomSheet";
 import { useAuth } from "@/app/components/Auth/AuthContext";
 import LoginPromptModal from "@/app/components/Modals/LoginPromptModal";
+import UtilitySettingsModal from "@/app/components/Modals/UtilitySettingsModal";
 
 export default function Header() {
     const pathname = usePathname();
@@ -30,6 +31,7 @@ export default function Header() {
     const [isSearchActive, setIsSearchActive] = useState(false);
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
     const [loginPromptSource, setLoginPromptSource] = useState<"history" | "account" | null>(null);
+    const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
     const router = useRouter();
     const { user } = useAuth();
 
@@ -137,6 +139,13 @@ export default function Header() {
                         </div>
 
                         <div className="flex items-center gap-1">
+                            <button
+                                onClick={() => setIsSettingsModalOpen(true)}
+                                className="p-2 cursor-pointer text-white/60 hover:text-white transition-colors shrink-0 flex items-center justify-center w-10 h-10"
+                                aria-label="Cài đặt tiện ích"
+                            >
+                                <Settings size={22} />
+                            </button>
                             <NotificationBell />
                             <button
                                 onClick={() => {
@@ -214,6 +223,13 @@ export default function Header() {
                         </div>
 
                         <div className="flex items-center gap-2 xl:gap-4 shrink-0">
+                            <button
+                                onClick={() => setIsSettingsModalOpen(true)}
+                                className="p-2 cursor-pointer text-white/60 hover:text-white transition-colors shrink-0 flex items-center justify-center w-10 h-10 hidden xl:flex"
+                                aria-label="Cài đặt tiện ích"
+                            >
+                                <Settings size={22} />
+                            </button>
                             <NotificationBell />
                             <MemberButton />
                         </div>
@@ -283,7 +299,16 @@ export default function Header() {
                     <span className="text-[9px] font-bold tracking-wide">Tài khoản</span>
                 </button>
             </div>
-            <LoginPromptModal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} />
+            <LoginPromptModal
+                isOpen={showLoginPrompt}
+                onClose={() => setShowLoginPrompt(false)}
+                source={loginPromptSource}
+            />
+
+            <UtilitySettingsModal
+                isOpen={isSettingsModalOpen}
+                onClose={() => setIsSettingsModalOpen(false)}
+            />
         </>
     );
 }

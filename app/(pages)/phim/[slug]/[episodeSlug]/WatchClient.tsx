@@ -58,6 +58,7 @@ import { useFavorites } from "./hooks/useFavorites";
 import { useWatchlist } from "./hooks/useWatchlist";
 import { useWatchProgress } from "./hooks/useWatchProgress";
 import { logActivity } from "@/app/utils/log-activity";
+import { useSettingsStore } from "@/app/store/useSettingsStore";
 
 interface WatchClientProps {
     slug: string;
@@ -144,9 +145,19 @@ export default function WatchClient({
     }, [initialSuggestions]);
     const router = useRouter();
     const { user } = useAuth();
-    const [isExpanded, setIsExpanded] = useState(false);
-    const [isTheaterMode, setIsTheaterMode] = useState(false);
-    const [isAutoNext, setIsAutoNext] = useState(true);
+    
+    const settings = useSettingsStore();
+    const [isMounted, setIsMounted] = useState(false);
+    useEffect(() => { setIsMounted(true); }, []);
+    
+    const isExpanded = isMounted ? settings.theaterMode : false;
+    const isTheaterMode = isMounted ? settings.theaterMode : false;
+    const isAutoNext = isMounted ? settings.autoNext : true;
+    const isAutoPlay = isMounted ? settings.autoPlay : true;
+
+    const setIsExpanded = (val: boolean) => { if (val !== settings.theaterMode) settings.toggleTheaterMode(); };
+    const setIsTheaterMode = (val: boolean) => { if (val !== settings.theaterMode) settings.toggleTheaterMode(); };
+    const setIsAutoNext = (val: boolean) => { if (val !== settings.autoNext) settings.toggleAutoNext(); };
     const [activeServerIndex, setActiveServerIndex] = useState(0);
     const [hasError, setHasError] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
@@ -330,12 +341,7 @@ export default function WatchClient({
         fallbackTimeRef.current = 0;
     }, [currentEpisodeSlug]);
 
-    useEffect(() => {
-        const savedAutoNext = localStorage.getItem('lofilm-auto-next');
-        if (savedAutoNext !== null) {
-            setIsAutoNext(savedAutoNext === 'true');
-        }
-    }, []);
+    // Bỏ localStorage cũ của autoNext vì đã dùng Zustand
 
 
     useEffect(() => {
@@ -410,10 +416,8 @@ export default function WatchClient({
     }, []);
 
     const toggleAutoNext = useCallback(() => {
-        const newValue = !isAutoNext;
-        setIsAutoNext(newValue);
-        localStorage.setItem('lofilm-auto-next', String(newValue));
-    }, [isAutoNext]);
+        settings.toggleAutoNext();
+    }, [settings]);
 
     const { isFavorited, toggleFavorite } = useFavorites(
         slug,
@@ -537,7 +541,7 @@ export default function WatchClient({
                 volume: 1,
                 isLive: false,
                 muted: false,
-                autoplay: true,
+                autoplay: useSettingsStore.getState().autoPlay,
                 pip: true,
                 autoSize: false,
                 autoMini: false,
