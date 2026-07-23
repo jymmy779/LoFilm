@@ -302,7 +302,6 @@ export default function Header() {
             <LoginPromptModal
                 isOpen={showLoginPrompt}
                 onClose={() => setShowLoginPrompt(false)}
-                source={loginPromptSource}
             />
 
             <UtilitySettingsModal
