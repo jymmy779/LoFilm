@@ -1,4 +1,4 @@
-import React, { useState, useEffect, forwardRef, memo } from "react";
+import React, { useState, useEffect, useRef, forwardRef, memo } from "react";
 import Image, { ImageProps } from "next/image";
 
 interface SmartImageProps extends Omit<ImageProps, "onError"> {
@@ -21,7 +21,18 @@ const SmartImage = forwardRef<HTMLImageElement, SmartImageProps>(
         const [fallbackLevel, setFallbackLevel] = useState(0); // 0=r2, 1=wsrv, 2=raw
         const [isLoaded, setIsLoaded] = useState(false);
 
-        const localRef = React.useRef<HTMLImageElement | null>(null);
+        const localRef = useRef<HTMLImageElement | null>(null);
+        const prevInputsRef = useRef({ r2Src, src });
+
+        // Chỉ reset khi props r2Src hoặc src thực sự thay đổi (chuyển sang phim khác)
+        useEffect(() => {
+            if (prevInputsRef.current.r2Src !== r2Src || prevInputsRef.current.src !== src) {
+                prevInputsRef.current = { r2Src, src };
+                setCurrentSrc(r2Src || src);
+                setFallbackLevel(0);
+                setIsLoaded(false);
+            }
+        }, [src, r2Src]);
 
         const handleRef = React.useCallback((node: HTMLImageElement | null) => {
             localRef.current = node;
@@ -40,17 +51,10 @@ const SmartImage = forwardRef<HTMLImageElement, SmartImageProps>(
             }
         }, [ref]);
 
-        // Reset khi src hoặc r2Src thay đổi
-        useEffect(() => {
-            setCurrentSrc(r2Src || src);
-            setFallbackLevel(0);
-            setIsLoaded(false);
-        }, [src, r2Src]);
-
         useEffect(() => {
             // Fallback cuối: nếu sau 1.5s ảnh vẫn chưa hiện, tự động hiện lên
             const timer = setTimeout(() => {
-                if (localRef.current?.complete) {
+                if (localRef.current?.complete && localRef.current?.naturalWidth > 0) {
                     setIsLoaded(true);
                 }
             }, 1500);
@@ -84,6 +88,7 @@ const SmartImage = forwardRef<HTMLImageElement, SmartImageProps>(
 
         return (
             <Image
+                key={currentSrc}
                 referrerPolicy="no-referrer"
                 {...props}
                 ref={handleRef}
@@ -104,4 +109,3 @@ const SmartImage = forwardRef<HTMLImageElement, SmartImageProps>(
 SmartImage.displayName = "SmartImage";
 
 export default memo(SmartImage);
-

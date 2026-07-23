@@ -5,17 +5,15 @@ export default function imageLoader({ src, width, quality }: { src: string, widt
   }
 
   // 2. Nếu là R2 URL của mình -> serve thẳng, không cần proxy
-  // R2 đã là WebP rồi, Cloudflare CDN đã tối ưu sẵn
   const r2PublicUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || '';
   if (r2PublicUrl && src.startsWith(r2PublicUrl)) {
     return src;
   }
-  // Fallback thêm: check domain r2.dev chung (trường hợp env chưa set)
   if (src.includes('.r2.dev/') || src.includes('r2.cloudflarestorage.com')) {
     return src;
   }
 
-  // 3. Xử lý URL nguồn ngoài -> proxy qua wsrv.nl để convert + resize
+  // 3. Xử lý URL nguồn ngoài
   let originUrl = src;
 
   // Nếu lỡ có proxy cũ bọc ngoài, gỡ ra
@@ -66,7 +64,14 @@ export default function imageLoader({ src, width, quality }: { src: string, widt
     }
   }
 
-  // 4. Tối ưu hóa tham số wsrv.nl
-  const finalQuality = quality || (width < 640 ? 75 : 82);
-  return `https://wsrv.nl/?url=${encodeURIComponent(originUrl)}&w=${width}&q=${finalQuality}&output=webp&il&maxage=1y`;
+  // 4. Các nguồn ảnh phimimg.com / phim.nguonc.com vốn dĩ đã là ảnh WebP chuẩn từ nguồn,
+  // Tải trực tiếp originUrl để lấy đầy đủ độ phân giải gốc sắc nét, không bị wsrv.nl giới hạn size/bóp mờ hay zoom sát
+  if (originUrl.includes('phimimg.com') || originUrl.includes('phim.nguonc.com') || originUrl.includes('img.ophim.live')) {
+    return originUrl;
+  }
+
+  // Chỉ dùng wsrv.nl proxy cho các nguồn bên ngoài cần convert khác
+  const targetWidth = Math.min(width, 1000);
+  const finalQuality = quality || (targetWidth < 640 ? 75 : 82);
+  return `https://wsrv.nl/?url=${encodeURIComponent(originUrl)}&w=${targetWidth}&q=${finalQuality}&output=webp&il&maxage=1y`;
 }
