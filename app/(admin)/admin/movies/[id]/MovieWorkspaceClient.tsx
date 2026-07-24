@@ -226,7 +226,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                         onChange={(e) => {
                                             const checked = e.target.checked;
                                             setSubDocquyen(checked);
-                                            setLangTag(prev => checked ? `${prev.replace(" Độc Quyền", "")} Độc Quyền` : prev.replace(" Độc Quyền", ""));
+                                            setLangTag((prev: string) => checked ? `${prev.replace(" Độc Quyền", "")} Độc Quyền` : prev.replace(" Độc Quyền", ""));
                                         }} 
                                         className="w-4 h-4 accent-purple-600 cursor-pointer" 
                                     />
