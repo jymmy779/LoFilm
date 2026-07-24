@@ -13,7 +13,6 @@ export default function AuthListener() {
     const { data: { subscription } } = supabase.auth.onAuthStateChange(async (event, session) => {
       // Catch password recovery event
       if (event === "PASSWORD_RECOVERY") {
-        toast.success("Hệ thống đã sẵn sàng để bạn đặt lại mật khẩu!");
         localStorage.removeItem('lofilm-guest-watch-history');
         router.push("/dat-lai-mat-khau");
         router.refresh(); // Ép Next.js tải lại server state (cookie) để Header cập nhật Account B

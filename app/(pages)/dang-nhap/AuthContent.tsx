@@ -12,7 +12,6 @@ import { usePageTransition } from "@/app/components/Transition/PageTransitionCon
 import CatalogHeader from "../../components/MovieCatalog/CatalogHeader";
 import Container from "../../components/Container";
 import Link from "next/link";
-import { checkEmailExists } from "@/app/actions/authActions";
 
 // Import Sidebar từ đúng thư mục
 import SidebarComp from "@/app/components/Sidebar/Sidebar";
@@ -146,28 +145,8 @@ export default function AuthContent() {
 
         if (error) throw error;
 
-        // KIỂM TRA XÁC THỰC EMAIL (BẢO MẬT)
-        // Nếu user tồn tại nhưng chưa confirmed email, chặn không cho vào
-        if (data.user && !data.user.email_confirmed_at) {
-          // Gửi lại email xác nhận tự động để hỗ trợ người dùng
-          await supabase.auth.resend({
-            type: 'signup',
-            email: email,
-            options: {
-              emailRedirectTo: `${window.location.origin}/auth/callback`,
-            }
-          });
+        // Nếu thành công, tự động tiếp tục luồng đăng nhập mà không cần kiểm tra email_confirmed_at
 
-          // Đăng xuất ngay lập tức để xóa session tạm thời
-          await supabase.auth.signOut();
-
-          toast.error("Email của bạn chưa được xác thực. Chúng tôi đã gửi lại một email xác nhận mới, vui lòng kiểm tra hộp thư (cả hòm thư Spam)!", {
-            duration: 6000,
-            icon: '✉️'
-          });
-          setIsLoading(false);
-          return;
-        }
 
         // Lưu thông tin "Ghi nhớ"
         if (rememberMe) {
@@ -209,34 +188,33 @@ export default function AuthContent() {
           options: {
             data: {
               full_name: fullName,
-            },
-            emailRedirectTo: `${window.location.origin}/auth/callback`,
+            }
           },
         });
 
         if (error) {
-          // Xử lý trường hợp User đã đăng ký nhưng chưa xác thực (đăng ký lại)
-          if (error.message.includes("User already registered") || error.message.includes("is not confirmed")) {
-            const { error: resendError } = await supabase.auth.resend({
-              type: 'signup',
-              email: email,
-              options: {
-                emailRedirectTo: `${window.location.origin}/auth/callback`,
-              }
-            });
-
-            if (resendError) throw resendError;
-
-            toast.success("Tài khoản này đã tồn tại nhưng chưa xác thực. Một email xác nhận mới đã được gửi đi!", { duration: 5000 });
-            setIsLogin(true);
-            setIsLoading(false);
-            return;
-          }
           throw error;
         }
 
-        toast.success("Đăng ký thành công! Vui lòng kiểm tra email (cả hòm thư Spam) để xác thực tài khoản.");
-        setIsLogin(true);
+        // Lưu thông tin "Ghi nhớ" nếu cần, giống với đăng nhập
+        if (rememberMe) {
+          localStorage.setItem("rememberedEmail", email);
+          localStorage.setItem("rememberMe", "true");
+        } else {
+          localStorage.removeItem("rememberedEmail");
+          localStorage.setItem("rememberMe", "false");
+        }
+
+        toast.success("Đăng ký thành công! Chào mừng bạn đến với LoFilm.");
+        
+        const referrer = typeof document !== "undefined" ? document.referrer : "";
+        const isInternal = referrer && referrer.includes(window.location.origin) && !referrer.includes("/dang-nhap");
+
+        if (isInternal) {
+          navigateWithTransition(referrer, true);
+        } else {
+          navigateWithTransition("/", true);
+        }
       }
     } catch (error: any) {
       console.error("Auth error:", error.message);
@@ -246,33 +224,7 @@ export default function AuthContent() {
     }
   };
 
-  const handleForgotPassword = async () => {
-    if (!email) {
-      toast.error("Vui lòng nhập Email trước khi khôi phục mật khẩu!");
-      return;
-    }
-    setIsLoading(true);
-
-    // 1. Kiểm tra tài khoản có thực sự tồn tại hay không
-    const exists = await checkEmailExists(email);
-    if (!exists) {
-      toast.error("Tài khoản với email này không tồn tại!");
-      setIsLoading(false);
-      return;
-    }
-
-    // 2. Nếu tồn tại, tiến hành gửi email khôi phục
-    const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/dat-lai-mat-khau`,
-    });
-
-    if (error) {
-      toast.error(translateError(error.message));
-    } else {
-      toast.success("Link khôi phục mật khẩu đã được gửi tới Email của bạn!");
-    }
-    setIsLoading(false);
-  };
+  // handleForgotPassword đã được thay thế bằng redirect sang /quen-mat-khau
 
   return (
     <Container className="min-h-[90vh] pt-28 pb-30 px-4 relative">
@@ -393,13 +345,12 @@ export default function AuthContent() {
                           <span className="text-[10px] md:text-xs text-white/50 group-hover:text-white/80 transition-colors">Ghi nhớ đăng nhập</span>
                         </label>
 
-                        <button
-                          type="button"
-                          onClick={handleForgotPassword}
+                        <Link
+                          href="/quen-mat-khau"
                           className="text-amber-400/60 hover:text-amber-400 text-[10px] md:text-xs transition-colors cursor-pointer"
                         >
                           Quên mật khẩu?
-                        </button>
+                        </Link>
                       </div>
                     )}
 
