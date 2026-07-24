@@ -51,8 +51,8 @@ function CommentSection({ movieSlug }: CommentSectionProps) {
                 `);
 
             if (movieSlug.includes('/')) {
-                // Trang xem tập phim cụ thể -> Chỉ lấy bình luận của đúng tập đó
-                query = query.eq('movie_slug', movieSlug);
+                // Trang xem tập phim cụ thể -> Lấy bình luận của tập đó VÀ bình luận chung của phim (trang detail)
+                query = query.or(`movie_slug.eq.${movieSlug},movie_slug.eq.${mainMovieSlug}`);
             } else {
                 // Trang chi tiết phim -> Lấy bình luận chung của phim VÀ của tất cả các tập
                 query = query.or(`movie_slug.eq.${movieSlug},movie_slug.like.${movieSlug}/%`);
