@@ -16,6 +16,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
     const [slug, setSlug] = useState(movie.slug);
     const [status, setStatus] = useState(movie.status);
     const [langTag, setLangTag] = useState(movie.lang_tag || "Vietsub Độc Quyền");
+    const [subDocquyen, setSubDocquyen] = useState<boolean>(movie.sub_docquyen ?? false);
     const [isStarred, setIsStarred] = useState(false);
     const [expiresDays, setExpiresDays] = useState("3");
 
@@ -51,6 +52,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
             slug: slug,
             status: status,
             lang_tag: langTag,
+            sub_docquyen: subDocquyen ? "true" : "false",
             is_starred: isStarred ? "true" : "false",
             expires_in_days: expiresDays
         };
@@ -191,10 +193,21 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                             <div>
                                 <label className="text-gray-400 text-xs mb-1 block">Ngôn ngữ</label>
                                 <select value={langTag} onChange={e => setLangTag(e.target.value)} className="w-full bg-[#0F1115] rounded p-2 text-sm">
-                                    <option value="Vietsub Độc Quyền">Vietsub Độc Quyền</option>
-                                    <option value="Song Ngữ Độc Quyền">Song Ngữ Độc Quyền</option>
-                                    <option value="Lồng Tiếng Độc Quyền">Lồng Tiếng Độc Quyền</option>
-                                    <option value="Thuyết Minh Độc Quyền">Thuyết Minh Độc Quyền</option>
+                                    {subDocquyen ? (
+                                        <>
+                                            <option value="Vietsub Độc Quyền">Vietsub Độc Quyền</option>
+                                            <option value="Song Ngữ Độc Quyền">Song Ngữ Độc Quyền</option>
+                                            <option value="Lồng Tiếng Độc Quyền">Lồng Tiếng Độc Quyền</option>
+                                            <option value="Thuyết Minh Độc Quyền">Thuyết Minh Độc Quyền</option>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <option value="Vietsub">Vietsub</option>
+                                            <option value="Song Ngữ">Song Ngữ</option>
+                                            <option value="Lồng Tiếng">Lồng Tiếng</option>
+                                            <option value="Thuyết Minh">Thuyết Minh</option>
+                                        </>
+                                    )}
                                 </select>
                             </div>
                             <div>
@@ -203,6 +216,22 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                     <option value="draft">Bản nháp</option>
                                     <option value="published">Công khai</option>
                                 </select>
+                            </div>
+                            
+                            <div className="col-span-1 md:col-span-6 bg-[#0F1115]/50 border border-purple-500/30 rounded p-3 mt-2">
+                                <label className="flex items-center gap-3 cursor-pointer group w-fit">
+                                    <input 
+                                        type="checkbox" 
+                                        checked={subDocquyen} 
+                                        onChange={(e) => {
+                                            const checked = e.target.checked;
+                                            setSubDocquyen(checked);
+                                            setLangTag(prev => checked ? `${prev.replace(" Độc Quyền", "")} Độc Quyền` : prev.replace(" Độc Quyền", ""));
+                                        }} 
+                                        className="w-4 h-4 accent-purple-600 cursor-pointer" 
+                                    />
+                                    <span className="font-semibold text-purple-400 text-sm">👑 Đánh dấu là Phim Độc Quyền (Hiển thị badge góc poster)</span>
+                                </label>
                             </div>
                             
                             <div className="col-span-1 md:col-span-6 bg-[#0F1115]/50 border border-amber-500/30 rounded p-4 mt-2">

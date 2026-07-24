@@ -123,7 +123,7 @@ async function getStarredMoviesForHero(): Promise<Movie[]> {
                 name: m.name,
                 origin_name: m.name, // Dự phòng
                 slug: m.slug,
-                type: "single", // Mặc định, sẽ bị ghi đè khi fetch
+                type: m.type || "single",
                 thumb_url: m.thumb_url,
                 poster_url: m.poster_url,
                 year: new Date().getFullYear(),
@@ -190,10 +190,18 @@ async function getExclusiveMoviesForHero(): Promise<Movie[]> {
                 poster_url: m.poster_url,
                 year: m.year || new Date().getFullYear(),
                 is_copyright: true,
-                sub_docquyen: true,
-                lang: m.lang_tag || "Vietsub Độc Quyền",
-                episode_current: m.type === "single" ? "Full" : "Tập mới",
-                quality: "FHD",
+                sub_docquyen: m.sub_docquyen ?? false,
+                lang: m.lang || m.lang_tag || "Vietsub Độc Quyền",
+                episode_current: m.episode_current || (m.type === "single" ? "Full" : "Tập mới"),
+                quality: m.quality || "FHD",
+                content: m.content || "",
+                time: m.time || "",
+                episode_total: m.episode_total || "",
+                actor: m.actor || [],
+                director: m.director || [],
+                category: m.category || [],
+                country: m.country || [],
+                trailer_url: m.trailer_url || ""
             };
 
             // Ưu tiên 1: Lấy data từ PhimAPI (api thứ 3) — tránh bị nhà mạng VN block TMDB
@@ -342,9 +350,18 @@ async function mapNominated(): Promise<Movie[]> {
                         thumb_url: exclusive.thumb_url?.startsWith('http') ? exclusive.thumb_url : `https://phimimg.com/${exclusive.thumb_url}`,
                         poster_url: exclusive.poster_url?.startsWith('http') ? exclusive.poster_url : `https://phimimg.com/${exclusive.poster_url}`,
                         year: exclusive.year || new Date().getFullYear(),
-                        lang: exclusive.lang_tag || "Vietsub",
-                        quality: "FHD",
-                        episode_current: "Tập mới"
+                        lang: exclusive.lang || exclusive.lang_tag || "Vietsub",
+                        quality: exclusive.quality || "FHD",
+                        episode_current: exclusive.episode_current || "Tập mới",
+                        content: exclusive.content || "",
+                        time: exclusive.time || "",
+                        episode_total: exclusive.episode_total || "",
+                        actor: exclusive.actor || [],
+                        director: exclusive.director || [],
+                        category: exclusive.category || [],
+                        country: exclusive.country || [],
+                        trailer_url: exclusive.trailer_url || "",
+                        sub_docquyen: exclusive.sub_docquyen ?? false
                     } as unknown as Movie;
                 }
 

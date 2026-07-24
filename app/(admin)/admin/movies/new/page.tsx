@@ -1,6 +1,6 @@
 "use client";
 import { useState, useTransition, useEffect } from "react";
-import { addExclusiveMovie, previewTMDB } from "@/app/actions/adminMovies";
+import { addExclusiveMovie, previewTMDB, importMovieFromApi } from "@/app/actions/adminMovies";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Link from "next/link";
@@ -8,6 +8,9 @@ import Link from "next/link";
 export default function NewMoviePage() {
     const router = useRouter();
     const [isPending, startTransition] = useTransition();
+
+    // Tabs
+    const [activeTab, setActiveTab] = useState<"manual" | "import">("manual");
 
     // Form states
     const [tmdbId, setTmdbId] = useState("");
@@ -23,12 +26,104 @@ export default function NewMoviePage() {
     const [phimApiStatus, setPhimApiStatus] = useState<"checking" | "found" | "not_found" | "idle">("idle");
     const [phimApiData, setPhimApiData] = useState<any>(null);
 
+    // Helpers for Import images
+    const getImportImages = () => {
+        if (!importData) return { poster_url: "", thumb_url: "" };
+        const movieData = importData.data?.item || importData.movie || {};
+        const domain = (
+            importData.data?.APP_DOMAIN_CDN_IMAGE || 
+            importData.APP_DOMAIN_CDN_IMAGE || 
+            importData.data?.pathImage || 
+            importData.pathImage || 
+            "https://phimimg.com"
+        ).replace(/\/$/, "");
+        const isOPhim = domain.includes("ophim") || (importData.data?.seoOnPage?.og_url?.includes("ophim") ?? false) || (importData.data?.seoOnPage?.seoSchema?.url?.includes("ophim") ?? false);
+
+        const buildUrl = (path: string) => {
+            if (!path) return "";
+            let fullUrl = path;
+            if (!path.startsWith("http://") && !path.startsWith("https://")) {
+                const cleanPath = path.startsWith("/") ? path.slice(1) : path;
+                if (cleanPath.startsWith("uploads/")) {
+                    fullUrl = `${domain}/${cleanPath}`;
+                } else {
+                    fullUrl = `${domain}/uploads/movies/${cleanPath}`;
+                }
+            }
+            if (fullUrl.includes("wsrv.nl")) return fullUrl;
+            return `https://wsrv.nl/?url=${encodeURIComponent(fullUrl)}&output=webp`;
+        };
+
+        const rawPoster = movieData.poster_url || "";
+        const rawThumb = movieData.thumb_url || "";
+
+        if (isOPhim) {
+            return {
+                poster_url: buildUrl(rawThumb || rawPoster),
+                thumb_url: buildUrl(rawPoster || rawThumb)
+            };
+        }
+
+        return {
+            poster_url: buildUrl(rawPoster || rawThumb),
+            thumb_url: buildUrl(rawThumb || rawPoster)
+        };
+    };
+
     // Link Type State
     const [linkType, setLinkType] = useState<"m3u8" | "embed" | "both">("m3u8");
 
-    // Starred State
+    // Starred & Exclusive State
     const [isStarred, setIsStarred] = useState(false);
     const [expiresDays, setExpiresDays] = useState("3");
+    const [subDocquyenManual, setSubDocquyenManual] = useState(true);
+    const [subDocquyenImport, setSubDocquyenImport] = useState(false);
+
+    // Import states
+    const [importUrl, setImportUrl] = useState("");
+    const [importData, setImportData] = useState<any>(null);
+    const [isFetchingImport, setIsFetchingImport] = useState(false);
+
+    const handleFetchImport = async () => {
+        if (!importUrl) {
+            toast.error("Vui lòng nhập Link API");
+            return;
+        }
+        setIsFetchingImport(true);
+        try {
+            const res = await fetch(importUrl);
+            const data = await res.json();
+            if (data.status) {
+                setImportData(data);
+                toast.success("Đã cào được dữ liệu phim!");
+            } else {
+                toast.error("Dữ liệu không hợp lệ");
+            }
+        } catch (err) {
+            toast.error("Lỗi khi fetch data từ API");
+        } finally {
+            setIsFetchingImport(false);
+        }
+    };
+
+    const handleImportSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+        e.preventDefault();
+        const formData = new FormData(e.currentTarget);
+        const data = Object.fromEntries(formData.entries()) as Record<string, string>;
+
+        startTransition(async () => {
+            try {
+                const res = await importMovieFromApi(importUrl, data);
+                if (res.error) toast.error(res.error);
+                else {
+                    toast.success("Import phim thành công!");
+                    router.push("/admin/dashboard");
+                }
+            } catch (err: any) {
+                toast.error(`Lỗi hệ thống: ${err.message || "Lỗi import"}`);
+            }
+        });
+    };
 
     useEffect(() => {
         if (!slug.trim()) {
@@ -104,7 +199,23 @@ export default function NewMoviePage() {
             </header>
             
             <main className="container mx-auto px-4 py-8 max-w-4xl">
+                <div className="flex gap-2 mb-6">
+                    <button 
+                        onClick={() => setActiveTab('manual')}
+                        className={`px-6 py-2 rounded-lg font-medium transition ${activeTab === 'manual' ? 'bg-blue-600 text-white shadow-lg' : 'bg-[#0F1115] text-gray-400 hover:bg-white/5 border border-white/10'}`}
+                    >
+                        Thêm Thủ Công
+                    </button>
+                    <button 
+                        onClick={() => setActiveTab('import')}
+                        className={`px-6 py-2 rounded-lg font-medium transition flex items-center gap-2 ${activeTab === 'import' ? 'bg-amber-600 text-white shadow-lg' : 'bg-[#0F1115] text-gray-400 hover:bg-white/5 border border-white/10'}`}
+                    >
+                        <i className="fa-solid fa-cloud-arrow-down"></i> Import từ API OPhim/KKPhim
+                    </button>
+                </div>
+
                 <div className="bg-[#0F1115] p-6 md:p-8 rounded-xl border border-white/10 shadow-2xl">
+                    {activeTab === 'manual' ? (
                     <form onSubmit={handleSaveMovie} className="flex flex-col gap-6">
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
@@ -158,12 +269,47 @@ export default function NewMoviePage() {
                             <div>
                                 <label className="text-gray-400 text-sm mb-1.5 block">Tag ngôn ngữ</label>
                                 <select name="lang_tag" value={langTag} onChange={(e) => setLangTag(e.target.value)} className="w-full bg-[#0F1115] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                    <option value="Vietsub Độc Quyền">Vietsub Độc Quyền</option>
-                                    <option value="Song Ngữ Độc Quyền">Song Ngữ Độc Quyền</option>
-                                    <option value="Lồng Tiếng Độc Quyền">Lồng Tiếng Độc Quyền</option>
-                                    <option value="Thuyết Minh Độc Quyền">Thuyết Minh Độc Quyền</option>
+                                    {subDocquyenManual ? (
+                                        <>
+                                            <option value="Vietsub Độc Quyền">Vietsub Độc Quyền</option>
+                                            <option value="Song Ngữ Độc Quyền">Song Ngữ Độc Quyền</option>
+                                            <option value="Lồng Tiếng Độc Quyền">Lồng Tiếng Độc Quyền</option>
+                                            <option value="Thuyết Minh Độc Quyền">Thuyết Minh Độc Quyền</option>
+                                        </>
+                                    ) : (
+                                        <>
+                                            <option value="Vietsub">Vietsub</option>
+                                            <option value="Song Ngữ">Song Ngữ</option>
+                                            <option value="Lồng Tiếng">Lồng Tiếng</option>
+                                            <option value="Thuyết Minh">Thuyết Minh</option>
+                                        </>
+                                    )}
                                 </select>
                             </div>
+                        </div>
+
+                        {/* Exclusive Tag Checkbox */}
+                        <div className="bg-[#0F1115]/50 border border-purple-500/30 rounded-xl p-5 md:p-6">
+                            <label className="flex items-center gap-3 cursor-pointer group w-fit">
+                                <div className="relative flex items-center justify-center w-6 h-6">
+                                    <input 
+                                        type="checkbox" 
+                                        name="sub_docquyen" 
+                                        checked={subDocquyenManual} 
+                                        onChange={(e) => {
+                                            const checked = e.target.checked;
+                                            setSubDocquyenManual(checked);
+                                            setLangTag(prev => checked ? `${prev.replace(" Độc Quyền", "")} Độc Quyền` : prev.replace(" Độc Quyền", ""));
+                                        }} 
+                                        className="appearance-none w-6 h-6 border-2 border-purple-500/50 rounded bg-transparent checked:bg-purple-600 transition-colors peer cursor-pointer" 
+                                    />
+                                    <i className="fa-solid fa-check absolute text-white text-xs opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"></i>
+                                </div>
+                                <div className="flex-1">
+                                    <span className="font-semibold text-purple-400 group-hover:text-purple-300 transition">👑 Đánh dấu là Phim Độc Quyền</span>
+                                    <p className="text-sm text-gray-400 mt-0.5">Hiển thị badge "Độc Quyền" màu nổi bật ở góc trên poster phim</p>
+                                </div>
+                            </label>
                         </div>
 
                         {/* Starred UI */}
@@ -273,6 +419,198 @@ export default function NewMoviePage() {
                             </button>
                         </div>
                     </form>
+                    ) : (
+                    <form onSubmit={handleImportSubmit} className="flex flex-col gap-6">
+                        <div className="bg-[#0F1115]/50 border border-blue-500/30 rounded-xl p-5 md:p-6 mb-2">
+                            <h4 className="font-semibold mb-4 text-sm text-gray-300 uppercase tracking-wider">Nhập Link API (OPhim / KKPhim)</h4>
+                            <div className="flex flex-col md:flex-row gap-3">
+                                <input 
+                                    type="url" 
+                                    value={importUrl} 
+                                    onChange={(e) => setImportUrl(e.target.value)} 
+                                    required 
+                                    className="flex-1 bg-[#0F1115] text-white rounded-lg p-3 border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                    placeholder="VD: https://ophim1.com/v1/api/phim/san-lung-tho-ngoc" 
+                                />
+                                <button type="button" onClick={handleFetchImport} disabled={isFetchingImport} className="bg-amber-600 hover:bg-amber-700 px-6 py-3 rounded-lg transition font-medium text-white shadow-lg shrink-0">
+                                    {isFetchingImport ? <><i className="fa-solid fa-spinner fa-spin mr-2"></i> Đang lấy...</> : "Kiểm tra Dữ liệu"}
+                                </button>
+                            </div>
+                        </div>
+
+                        {importData && (
+                            <>
+                                <div className="border border-green-500/30 bg-green-500/5 p-4 md:p-6 rounded-xl flex flex-col gap-5 relative overflow-hidden">
+                                    <div className="absolute top-0 right-0 bg-green-500 text-white text-xs font-bold px-3 py-1 rounded-bl-lg z-10 flex items-center gap-1">
+                                        <i className="fa-solid fa-circle-check"></i> Dữ liệu hợp lệ
+                                    </div>
+                                    
+                                    <div className="flex flex-col lg:flex-row gap-5 items-start">
+                                        {/* Images Preview */}
+                                        <div className="flex flex-wrap gap-3 shrink-0">
+                                            <div className="flex flex-col gap-1">
+                                                <span className="text-[11px] text-gray-400 font-medium">Poster (Ảnh đứng)</span>
+                                                <img src={getImportImages().poster_url} alt="Poster" className="w-24 md:w-28 rounded-lg shadow-lg object-cover aspect-[2/3] border border-white/10" />
+                                            </div>
+                                            {getImportImages().thumb_url && (
+                                                <div className="flex flex-col gap-1">
+                                                    <span className="text-[11px] text-gray-400 font-medium">Thumb (Ảnh nằm)</span>
+                                                    <img src={getImportImages().thumb_url} alt="Thumb" className="w-40 md:w-44 rounded-lg shadow-lg object-cover aspect-video border border-white/10" />
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        {/* Movie Info */}
+                                        <div className="flex-1 w-full">
+                                            <h3 className="text-xl md:text-2xl font-bold text-white mb-1">
+                                                {importData.data?.item?.name || importData.movie?.name}
+                                            </h3>
+                                            <p className="text-gray-400 text-sm mb-3">
+                                                {importData.data?.item?.origin_name || importData.movie?.origin_name} ({importData.data?.item?.year || importData.movie?.year})
+                                            </p>
+
+                                            {/* Badges */}
+                                            <div className="flex flex-wrap gap-2 mb-4">
+                                                <span className="bg-blue-500/20 border border-blue-500/30 text-blue-400 px-2.5 py-0.5 rounded-md text-xs font-semibold">
+                                                    {importData.data?.item?.quality || importData.movie?.quality || "HD"}
+                                                </span>
+                                                <span className="bg-amber-500/20 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-md text-xs font-semibold">
+                                                    {importData.data?.item?.lang || importData.movie?.lang || "Vietsub"}
+                                                </span>
+                                                <span className="bg-purple-500/20 border border-purple-500/30 text-purple-400 px-2.5 py-0.5 rounded-md text-xs font-semibold">
+                                                    {importData.data?.item?.episode_current || importData.movie?.episode_current || "Tập mới"}
+                                                </span>
+                                                {(importData.data?.item?.time || importData.movie?.time) && (
+                                                    <span className="bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 px-2.5 py-0.5 rounded-md text-xs font-semibold">
+                                                        <i className="fa-regular fa-clock mr-1"></i>
+                                                        {importData.data?.item?.time || importData.movie?.time}
+                                                    </span>
+                                                )}
+                                                {(importData.data?.item?.episodes?.[0]?.server_name || importData.episodes?.[0]?.server_name) && (
+                                                    <span className="bg-rose-500/20 border border-rose-500/30 text-rose-400 px-2.5 py-0.5 rounded-md text-xs font-semibold">
+                                                        <i className="fa-solid fa-server mr-1"></i>
+                                                        {importData.data?.item?.episodes?.[0]?.server_name || importData.episodes?.[0]?.server_name}
+                                                    </span>
+                                                )}
+                                            </div>
+
+                                            {/* Metadata Details Grid */}
+                                            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-2 text-xs bg-black/40 p-3.5 rounded-lg border border-white/5 mb-3">
+                                                <div>
+                                                    <span className="text-gray-400 font-medium">Quốc gia: </span>
+                                                    <span className="text-gray-200">
+                                                        {Array.isArray(importData.data?.item?.country || importData.movie?.country)
+                                                            ? (importData.data?.item?.country || importData.movie?.country).map((c: any) => c.name).join(", ")
+                                                            : "Đang cập nhật"}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-400 font-medium">Thể loại: </span>
+                                                    <span className="text-gray-200">
+                                                        {Array.isArray(importData.data?.item?.category || importData.movie?.category)
+                                                            ? (importData.data?.item?.category || importData.movie?.category).map((c: any) => c.name).join(", ")
+                                                            : "Đang cập nhật"}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-400 font-medium">Đạo diễn: </span>
+                                                    <span className="text-gray-200">
+                                                        {Array.isArray(importData.data?.item?.director || importData.movie?.director)
+                                                            ? (importData.data?.item?.director || importData.movie?.director).filter(Boolean).join(", ") || "Đang cập nhật"
+                                                            : (importData.data?.item?.director || importData.movie?.director || "Đang cập nhật")}
+                                                    </span>
+                                                </div>
+                                                <div>
+                                                    <span className="text-gray-400 font-medium">Diễn viên: </span>
+                                                    <span className="text-gray-200 line-clamp-1">
+                                                        {Array.isArray(importData.data?.item?.actor || importData.movie?.actor)
+                                                            ? (importData.data?.item?.actor || importData.movie?.actor).filter(Boolean).join(", ") || "Đang cập nhật"
+                                                            : (importData.data?.item?.actor || importData.movie?.actor || "Đang cập nhật")}
+                                                    </span>
+                                                </div>
+                                                {(importData.data?.item?.trailer_url || importData.movie?.trailer_url) && (
+                                                    <div className="md:col-span-2">
+                                                        <span className="text-gray-400 font-medium">Trailer: </span>
+                                                        <a href={importData.data?.item?.trailer_url || importData.movie?.trailer_url} target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">
+                                                            {importData.data?.item?.trailer_url || importData.movie?.trailer_url}
+                                                        </a>
+                                                    </div>
+                                                )}
+                                            </div>
+
+                                            {/* Overview content */}
+                                            <div className="text-xs text-gray-300 line-clamp-3 leading-relaxed">
+                                                {(importData.data?.item?.content || importData.movie?.content || "").replace(/<[^>]*>?/gm, '')}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
+                                    <div>
+                                        <label className="text-gray-400 text-sm mb-1.5 block">Trạng thái sau khi Import</label>
+                                        <select name="status" className="w-full bg-[#0F1115] text-white rounded-lg p-3 border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                            <option value="published">Công khai (Hiển thị ngay)</option>
+                                            <option value="draft">Bản nháp (Ẩn)</option>
+                                        </select>
+                                    </div>
+                                    <div className="bg-[#0F1115]/50 border border-purple-500/30 rounded-xl p-4 flex flex-col justify-center">
+                                        <label className="flex items-center gap-3 cursor-pointer group">
+                                            <div className="relative flex items-center justify-center w-5 h-5 shrink-0">
+                                                <input 
+                                                    type="checkbox" 
+                                                    name="sub_docquyen" 
+                                                    checked={subDocquyenImport}
+                                                    onChange={(e) => setSubDocquyenImport(e.target.checked)}
+                                                    className="appearance-none w-5 h-5 border-2 border-purple-500/50 rounded bg-transparent checked:bg-purple-600 transition-colors peer cursor-pointer" 
+                                                />
+                                                <i className="fa-solid fa-check absolute text-white text-[10px] opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"></i>
+                                            </div>
+                                            <div className="flex-1">
+                                                <span className="font-medium text-purple-400 group-hover:text-purple-300 transition text-sm">👑 Hiển thị Tag Độc Quyền</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                    <div className="bg-[#0F1115]/50 border border-amber-500/30 rounded-xl p-4 flex flex-col justify-center">
+                                        <label className="flex items-center gap-3 cursor-pointer group">
+                                            <div className="relative flex items-center justify-center w-5 h-5 shrink-0">
+                                                <input 
+                                                    type="checkbox" 
+                                                    name="is_starred" 
+                                                    className="appearance-none w-5 h-5 border-2 border-amber-500/50 rounded bg-transparent checked:bg-amber-500 transition-colors peer cursor-pointer" 
+                                                />
+                                                <i className="fa-solid fa-check absolute text-[#0F1115] text-[10px] opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"></i>
+                                            </div>
+                                            <div className="flex-1">
+                                                <span className="font-medium text-amber-400 group-hover:text-amber-300 transition text-sm">⭐ Lên Hero Slider</span>
+                                            </div>
+                                        </label>
+                                    </div>
+                                </div>
+
+                                <div className="border border-white/10 rounded-xl p-5 mt-2 bg-[#0F1115]/30">
+                                    <h4 className="font-semibold mb-4 text-sm text-gray-300 uppercase tracking-wider flex justify-between items-center">
+                                        <span>Danh sách Tập Sẽ Import</span>
+                                        <span className="bg-white/10 px-2 py-1 rounded text-xs text-white">{(importData.data?.item?.episodes?.[0]?.server_data || importData.episodes?.[0]?.server_data || []).length} tập</span>
+                                    </h4>
+                                    <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto custom-scrollbar pr-2">
+                                        {(importData.data?.item?.episodes?.[0]?.server_data || importData.episodes?.[0]?.server_data || []).map((ep: any, idx: number) => (
+                                            <span key={idx} className="bg-white/5 border border-white/10 text-gray-300 px-3 py-1.5 rounded-lg text-sm">
+                                                {ep.name}
+                                            </span>
+                                        ))}
+                                    </div>
+                                </div>
+
+                                <div className="flex justify-end mt-4 pt-6 border-t border-white/10">
+                                    <button type="submit" disabled={isPending} className="bg-amber-600 hover:bg-amber-700 px-8 py-3 rounded-lg font-medium transition text-white w-full md:w-auto shadow-lg shadow-amber-900/20">
+                                        {isPending ? <><i className="fa-solid fa-spinner fa-spin mr-2"></i> Đang Import...</> : <><i className="fa-solid fa-cloud-arrow-down mr-2"></i> Bắt Đầu Import Toàn Bộ</>}
+                                    </button>
+                                </div>
+                            </>
+                        )}
+                    </form>
+                    )}
                 </div>
             </main>
         </div>

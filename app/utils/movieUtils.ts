@@ -42,19 +42,34 @@ export function getEpisodeStatus(movie: Movie): string {
     const cur = (movie.episode_current || "").toLowerCase();
     if (cur.includes("trailer")) return "Trailer";
 
+    const isSeries = movie.type === "series" || movie.type === "hoathinh" || movie.type === "tvshows" || (movie.episode_total && String(movie.episode_total) !== "1");
+
+    // 1. Nếu có định dạng phân số dạng 12/12
     const matchSlash = movie.episode_current?.match(/(\d+)\/(\d+)/);
-    if (matchSlash) return `HT (${matchSlash[1]}/${matchSlash[2]})`;
+    if (matchSlash) {
+        return `HT (${matchSlash[1]}/${matchSlash[2]})`;
+    }
 
-    if (cur.includes("full") || cur.includes("hoàn tất")) return "Full";
+    const totalNumMatch = String(movie.episode_total || "").match(/\d+/);
+    const totalNum = totalNumMatch ? totalNumMatch[0] : null;
 
-    const matchNum = movie.episode_current?.match(/\d+/);
-    if (matchNum) {
-        const total = movie.episode_total != null ? String(movie.episode_total) : "??";
-        // Nếu số tập hiện tại khớp với tổng số tập thì coi như Full
-        if (total !== "??" && matchNum[0] === total.match(/\d+/)?.[0]) {
-            return "Full";
+    // 2. Nếu là phim bộ
+    if (isSeries) {
+        if (cur.includes("full") || cur.includes("hoàn tất") || movie.status === "completed") {
+            if (totalNum) return `HT (${totalNum}/${totalNum})`;
+            const matchNum = movie.episode_current?.match(/\d+/);
+            if (matchNum) return `HT (${matchNum[0]}/${matchNum[0]})`;
+            return "HT";
         }
-        return `Tập ${matchNum[0]}`;
+
+        const matchNum = movie.episode_current?.match(/\d+/);
+        if (matchNum) {
+            if (totalNum && matchNum[0] === totalNum) {
+                return `HT (${totalNum}/${totalNum})`;
+            }
+            return `Tập ${matchNum[0]}`;
+        }
+        return "HT";
     }
 
     return "Full";
@@ -176,6 +191,34 @@ export function getImageUrl(url: string | undefined, _options?: { width?: number
  */
 export function getRawImageUrl(url: string | undefined): string {
     return normalizeImageUrl(url);
+}
+
+/**
+ * Smart helper to select the best vertical poster URL for a movie object.
+ * Handles OPhim/PhimAPI inverted poster/thumb naming conventions.
+ */
+export function getMoviePosterUrl(movie: Partial<Movie> | undefined): string {
+    if (!movie) return TRANSPARENT_GIF;
+    const poster = movie.poster_url || "";
+    const thumb = movie.thumb_url || "";
+
+    if (poster.includes("poster") && thumb.includes("thumb")) {
+        return getImageUrl(thumb || poster);
+    }
+
+    return getImageUrl(poster || thumb);
+}
+
+export function getMovieRawPosterUrl(movie: Partial<Movie> | undefined): string {
+    if (!movie) return TRANSPARENT_GIF;
+    const poster = movie.poster_url || "";
+    const thumb = movie.thumb_url || "";
+
+    if (poster.includes("poster") && thumb.includes("thumb")) {
+        return getRawImageUrl(thumb || poster);
+    }
+
+    return getRawImageUrl(poster || thumb);
 }
 
 /**

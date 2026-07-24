@@ -121,14 +121,17 @@ export default function WatchClient({
         if (!episodes) return [];
         const list: typeof episodes = [];
         episodes.forEach(server => {
-            list.push({
-                ...server,
-                server_name: `${server.server_name} - VIP`
-            });
+            const cleanName = server.server_name.replace(/\s*-\s*(VIP|Dự Phòng)/gi, '').trim();
+            if (server.server_data.some(ep => ep.link_m3u8)) {
+                list.push({
+                    ...server,
+                    server_name: `${cleanName} - VIP`
+                });
+            }
             if (server.server_data.some(ep => ep.link_embed)) {
                 list.push({
                     ...server,
-                    server_name: `${server.server_name} - Dự Phòng`
+                    server_name: `${cleanName} - Dự Phòng`
                 });
             }
         });

@@ -75,8 +75,10 @@ export async function GET(request: NextRequest) {
                 thumb_url: movie.thumb_url || "",
                 poster_url: movie.poster_url || "",
                 year: movie.year || new Date().getFullYear(),
+                episode_current: movie.episode_current || "",
+                episode_total: movie.episode_total || "",
                 is_copyright: true,
-                sub_docquyen: true
+                sub_docquyen: movie.sub_docquyen ?? false
             }));
         }
 

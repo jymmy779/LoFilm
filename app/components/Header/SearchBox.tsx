@@ -4,7 +4,7 @@ import Image from "next/image";
 import axios from "axios";
 import { Movie } from "@/app/types/movie";
 import { usePageTransition } from "@/app/components/Transition/PageTransitionContext";
-import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
+import { getImageUrl, getRawImageUrl, getMoviePosterUrl, getMovieRawPosterUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/Common/SmartImage";
 import TransitionLink from "@/app/components/Transition/TransitionLink";
 import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
@@ -252,8 +252,8 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                                         <div className="w-10 h-14 md:w-12 md:h-16 shrink-0 rounded-lg overflow-hidden relative border border-white/5 bg-white/5">
                                             <SmartImage
                                                 r2Src={getR2MoviePosterUrl(movie.slug)}
-                                                src={getImageUrl(movie.poster_url || movie.thumb_url || "", { width: 100, quality: 75 })}
-                                                rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url || "")}
+                                                src={getMoviePosterUrl(movie)}
+                                                rawSrc={getMovieRawPosterUrl(movie)}
                                                 alt={movie.name}
                                                 fill
                                                 sizes="48px"

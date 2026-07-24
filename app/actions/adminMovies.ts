@@ -125,6 +125,8 @@ export async function addExclusiveMovie(data: Record<string, string>) {
 
     const supabase = await createClient();
 
+    const subDocquyen = data.sub_docquyen === 'true' || data.sub_docquyen === 'on' || (data.sub_docquyen as unknown) === true;
+
     // 1. Insert movie
     const { data: movie, error: insertError } = await supabase.from('exclusive_movies').insert([
         { 
@@ -133,6 +135,7 @@ export async function addExclusiveMovie(data: Record<string, string>) {
             type, 
             status, 
             lang_tag: langTag,
+            sub_docquyen: subDocquyen,
             name: movieName,
             origin_name: originName,
             thumb_url: thumbUrl,
@@ -251,6 +254,8 @@ export async function updateExclusiveMovie(id: string, data: Record<string, stri
         }
     }
 
+    const subDocquyen = data.sub_docquyen === 'true' || data.sub_docquyen === 'on' || (data.sub_docquyen as unknown) === true;
+
     const supabase = await createClient();
     const { error } = await supabase
         .from("exclusive_movies")
@@ -259,7 +264,8 @@ export async function updateExclusiveMovie(id: string, data: Record<string, stri
             tmdb_id: tmdbId.trim(),
             type: type,
             status: status,
-            lang_tag: langTag
+            lang_tag: langTag,
+            sub_docquyen: subDocquyen
         })
         .eq("id", id);
 
@@ -475,5 +481,160 @@ export async function previewTMDB(tmdbId: string, type: "single" | "series") {
     } catch (e) {
 
         return { error: "Lỗi kết nối TMDB" };
+    }
+}
+
+export async function importMovieFromApi(apiUrl: string, data: Record<string, any>) {
+    const isStarred = data.is_starred === 'on' || data.is_starred === true;
+    const subDocquyen = data.sub_docquyen === 'on' || data.sub_docquyen === 'true' || data.sub_docquyen === true;
+    const expiresDays = data.expires_in_days ? parseInt(data.expires_in_days) : null;
+    const status = data.status || "published";
+
+    if (!apiUrl) {
+        return { error: "Vui lòng nhập API URL" };
+    }
+
+    try {
+        // Fetch data from API
+        const res = await axios.get(apiUrl, AXIOS_OPTIONS);
+        const resData = res.data;
+
+        if (!resData || !resData.status) {
+            return { error: "Dữ liệu API không hợp lệ hoặc lỗi kết nối" };
+        }
+
+        const movieData = resData.data?.item || resData.movie;
+        const episodesData = resData.data?.item?.episodes || resData.episodes || [];
+
+        if (!movieData) {
+            return { error: "Không tìm thấy thông tin phim trong phản hồi API" };
+        }
+
+        const type = movieData.type === 'series' || movieData.type === 'hoathinh' || movieData.type === 'tvshows' ? 'series' : 'single';
+        let tmdbId = movieData.tmdb?.id || "";
+
+        const supabase = await createClient();
+
+        const domain = (
+            resData.data?.APP_DOMAIN_CDN_IMAGE || 
+            resData.APP_DOMAIN_CDN_IMAGE || 
+            resData.data?.pathImage || 
+            resData.pathImage || 
+            "https://phimimg.com"
+        ).replace(/\/$/, "");
+        const isOPhim = domain.includes("ophim") || (resData.data?.seoOnPage?.og_url?.includes("ophim") ?? false) || (resData.data?.seoOnPage?.seoSchema?.url?.includes("ophim") ?? false);
+
+        const buildUrl = (path: string) => {
+            if (!path) return "";
+            let fullUrl = path;
+            if (!path.startsWith("http://") && !path.startsWith("https://")) {
+                const cleanPath = path.startsWith("/") ? path.slice(1) : path;
+                if (cleanPath.startsWith("uploads/")) {
+                    fullUrl = `${domain}/${cleanPath}`;
+                } else {
+                    fullUrl = `${domain}/uploads/movies/${cleanPath}`;
+                }
+            }
+            if (fullUrl.includes("wsrv.nl")) return fullUrl;
+            return `https://wsrv.nl/?url=${encodeURIComponent(fullUrl)}&output=webp`;
+        };
+
+        const rawPoster = movieData.poster_url || "";
+        const rawThumb = movieData.thumb_url || "";
+
+        let parsedPosterUrl = buildUrl(rawPoster || rawThumb);
+        let parsedThumbUrl = buildUrl(rawThumb || rawPoster);
+
+        if (isOPhim) {
+            // OPhim bị đảo ngược thumb_url (ảnh đứng poster) và poster_url (ảnh nằm thumb)
+            parsedPosterUrl = buildUrl(rawThumb || rawPoster);
+            parsedThumbUrl = buildUrl(rawPoster || rawThumb);
+        }
+
+        // 1. Insert/Update movie
+        const { data: movie, error: insertError } = await supabase.from('exclusive_movies').upsert([
+            { 
+                tmdb_id: tmdbId,
+                slug: movieData.slug, 
+                type, 
+                status, 
+                lang_tag: movieData.lang || "Vietsub",
+                sub_docquyen: subDocquyen,
+                name: movieData.name,
+                origin_name: movieData.origin_name || movieData.name,
+                thumb_url: parsedThumbUrl,
+                poster_url: parsedPosterUrl,
+                year: movieData.year || new Date().getFullYear(),
+                content: movieData.content || "",
+                time: movieData.time || "",
+                episode_current: movieData.episode_current || "",
+                episode_total: String(movieData.episode_total || ""),
+                quality: movieData.quality || "",
+                view: movieData.view || 0,
+                actor: movieData.actor || [],
+                director: movieData.director || [],
+                category: movieData.category || [],
+                country: movieData.country || [],
+                trailer_url: movieData.trailer_url || ""
+            }
+        ], { onConflict: 'slug' }).select().single();
+
+        if (insertError || !movie) {
+            return { error: insertError?.message || "Lỗi khi lưu phim vào CSDL" };
+        }
+
+        // 2. Insert Episodes
+        let episodeInserts = [];
+        for (const server of episodesData) {
+            const serverData = server.server_data || [];
+            let order = 1;
+            for (const ep of serverData) {
+                episodeInserts.push({
+                    movie_id: movie.id,
+                    server_name: server.server_name || "Vietsub #1",
+                    name: ep.name,
+                    slug: ep.slug,
+                    link_m3u8: ep.link_m3u8 || "",
+                    link_embed: ep.link_embed || null,
+                    order: order++,
+                    status: "published"
+                });
+            }
+        }
+
+        if (episodeInserts.length > 0) {
+            // Xóa các tập cũ (nếu update)
+            await supabase.from("exclusive_episodes").delete().eq("movie_id", movie.id);
+            // Thêm các tập mới
+            const { error: bulkError } = await supabase.from('exclusive_episodes').insert(episodeInserts);
+            if (bulkError) {
+                console.error("Lỗi insert episodes", bulkError);
+                return { error: "Lỗi lưu danh sách tập: " + bulkError.message };
+            }
+        }
+
+        if (isStarred) {
+            let finalThumb = movieData.thumb_url;
+            let finalPoster = movieData.poster_url;
+            
+            if (finalThumb && !finalThumb.startsWith('http')) finalThumb = `https://phimimg.com/${finalThumb}`;
+            if (finalPoster && !finalPoster.startsWith('http')) finalPoster = `https://phimimg.com/${finalPoster}`;
+            
+            await addStarredMovie(
+                movie.slug,
+                movie.name,
+                finalThumb,
+                finalPoster,
+                expiresDays
+            );
+        }
+
+        revalidatePath("/admin", "layout");
+        revalidatePath("/", "layout");
+        return { success: true };
+
+    } catch (e: any) {
+        console.error("Lỗi Import API", e);
+        return { error: `Lỗi kết nối hoặc xử lý dữ liệu: ${e.message}` };
     }
 }
