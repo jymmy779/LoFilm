@@ -7,6 +7,7 @@ import AuthInput from "@/app/components/Auth/AuthInput";
 import { createClient } from "@/app/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import { Turnstile } from '@marsidev/react-turnstile';
 
 import { usePageTransition } from "@/app/components/Transition/PageTransitionContext";
 import CatalogHeader from "../../components/MovieCatalog/CatalogHeader";
@@ -24,6 +25,7 @@ export default function AuthContent() {
   const [fullName, setFullName] = useState("");
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState("");
   const router = useRouter();
   const { navigateWithTransition } = usePageTransition();
   const supabase = createClient();
@@ -141,6 +143,9 @@ export default function AuthContent() {
         const { data, error } = await supabase.auth.signInWithPassword({
           email,
           password,
+          options: {
+            captchaToken,
+          }
         });
 
         if (error) throw error;
@@ -186,6 +191,7 @@ export default function AuthContent() {
           email,
           password,
           options: {
+            captchaToken,
             data: {
               full_name: fullName,
             }
@@ -350,6 +356,15 @@ export default function AuthContent() {
                         </Link>
                       </div>
                     )}
+
+                    {/* Turnstile Captcha */}
+                    <div className="flex justify-center mt-4">
+                      <Turnstile
+                        siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+                        onSuccess={(token) => setCaptchaToken(token)}
+                        options={{ theme: 'dark' }}
+                      />
+                    </div>
 
                     <button
                       type="submit"
