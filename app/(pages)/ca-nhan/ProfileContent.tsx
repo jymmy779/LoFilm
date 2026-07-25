@@ -666,7 +666,7 @@ export default function ProfileContent() {
 
         {/* Nút Upload Cover Image (Chỉ hiện khi isEditMode = true) */}
         {isEditMode && (
-          <label className="absolute bottom-4 right-4 md:bottom-8 md:right-8 z-20 cursor-pointer flex items-center gap-2 rounded-full bg-black/50 px-4 py-2 text-sm font-medium text-white hover:bg-black/70 transition-all backdrop-blur-md border border-white/10">
+          <label className="absolute top-1/3 md:top-1/4 right-4 md:right-8 -translate-y-1/2 z-20 cursor-pointer flex items-center gap-2 rounded-full bg-black/50 px-4 py-2 text-sm font-medium text-white hover:bg-black/70 transition-all backdrop-blur-md border border-white/10">
             {isUpdatingCover ? (
               <>
                 <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
@@ -864,8 +864,8 @@ export default function ProfileContent() {
                 )}
                 {activeTab === 'utilities' && (
                   <div className="space-y-8">
-                    {/* Đường dẫn tới các trang tiện ích (Glassmorphism) */}
-                    <div className="w-full bg-zinc-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+                    {/* Đường dẫn tới các trang tiện ích */}
+                    <div className="w-full bg-zinc-900/80 border border-white/10 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
                       <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none"></div>
                       <div className="absolute bottom-[-20%] right-[-20%] w-[50%] h-[50%] bg-amber-500/10 rounded-full blur-[100px] pointer-events-none"></div>
 
@@ -918,7 +918,7 @@ export default function ProfileContent() {
                     </div>
 
                     {/* Hoạt động */}
-                    <div className="w-full bg-zinc-900/40 backdrop-blur-md border border-white/10 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
+                    <div className="w-full bg-zinc-900/80 border border-white/10 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
                       <div className="absolute top-[-20%] right-[-20%] w-[50%] h-[50%] bg-white/5 rounded-full blur-[100px] pointer-events-none"></div>
 
                       <div className="flex items-center justify-between mb-8 relative z-10">
