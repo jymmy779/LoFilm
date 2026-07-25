@@ -140,11 +140,6 @@ export async function middleware(request: NextRequest) {
     if (isProtectedRoute && !user) {
       return NextResponse.redirect(new URL('/dang-nhap', request.url))
     }
-
-    // Nếu là route bảo vệ mà user chưa xác thực email, redirect về login
-    if (isProtectedRoute && user && !user.email_confirmed_at) {
-      return NextResponse.redirect(new URL('/dang-nhap?error=unverified', request.url))
-    }
   }
 
   return supabaseResponse
