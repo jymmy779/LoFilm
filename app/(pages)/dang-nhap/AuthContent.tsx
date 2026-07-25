@@ -182,7 +182,7 @@ export default function AuthContent() {
         }
 
         // Handle Sign Up
-        const { error } = await supabase.auth.signUp({
+        const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
@@ -196,6 +196,9 @@ export default function AuthContent() {
           throw error;
         }
 
+        // Đăng xuất ngay lập tức phòng trường hợp Supabase tự động đăng nhập khi tắt Confirm Email
+        await supabase.auth.signOut();
+
         // Lưu thông tin "Ghi nhớ" nếu cần, giống với đăng nhập
         if (rememberMe) {
           localStorage.setItem("rememberedEmail", email);
@@ -205,16 +208,10 @@ export default function AuthContent() {
           localStorage.setItem("rememberMe", "false");
         }
 
-        toast.success("Đăng ký thành công! Chào mừng bạn đến với LoFilm.");
+        toast.success("Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.");
         
-        const referrer = typeof document !== "undefined" ? document.referrer : "";
-        const isInternal = referrer && referrer.includes(window.location.origin) && !referrer.includes("/dang-nhap");
-
-        if (isInternal) {
-          navigateWithTransition(referrer, true);
-        } else {
-          navigateWithTransition("/", true);
-        }
+        // Chuyển sang tab đăng nhập
+        setIsLogin(true);
       }
     } catch (error: any) {
       console.error("Auth error:", error.message);
