@@ -2,12 +2,12 @@
 
 import React, { useState } from "react";
 import Image from "next/image";
-import TransitionLink from "@/app/components/Transition/TransitionLink";
-import Skeleton from "@/app/components/Skeleton/Skeleton";
+import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
+import Skeleton from "@/app/components/UI/Skeleton/Skeleton";
 import { Star, ChevronDown, User } from "lucide-react";
 
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
-import SmartImage from "@/app/components/Common/SmartImage";
+import SmartImage from "@/app/components/UI/Common/SmartImage";
 import { fetchActorsFromTMDB, TMDBActor } from "@/app/utils/tmdbUtils";
 import { getR2ActorUrl, getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 import { useEffect } from "react";

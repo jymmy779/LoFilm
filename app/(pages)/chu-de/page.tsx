@@ -1,3 +1,4 @@
+import Loading from "@/app/loading";
 import { Suspense } from "react";
 import { Metadata } from "next";
 import TopicsClient from "./TopicsClient";
@@ -14,7 +15,7 @@ export const revalidate = 86400; // Cache 24 giờ cho trang chủ đề tĩnh
 
 export default function TopicsPage() {
     return (
-        <Suspense fallback={<TopicsSkeleton />}>
+        <Suspense fallback={<Loading />}>
             <TopicsData />
         </Suspense>
     );

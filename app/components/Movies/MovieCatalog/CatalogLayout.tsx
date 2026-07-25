@@ -1,0 +1,134 @@
+"use client";
+
+import Container from "@/app/components/UI/Container";
+import MoviePosterCard from "@/app/components/Movies/MovieCard/MoviePosterCard";
+import MovieCardSkeleton from "@/app/components/Movies/MovieCard/MovieCardSkeleton";
+import { Movie } from "@/app/types/movie";
+import Pagination from "@/app/components/UI/Common/Pagination";
+import CatalogHeader from "@/app/components/Movies/MovieCatalog/CatalogHeader";
+import MovieFilter, { FilterState } from "@/app/components/Movies/MovieCatalog/MovieFilter";
+import { MenuItem } from "@/app/components/Layout/Header/types";
+
+import Sidebar from "@/app/components/Layout/Sidebar/Sidebar";
+
+
+
+interface CatalogLayoutProps {
+    title: string;
+    isLoading: boolean;
+    movies: Movie[];
+    currentPage: number;
+    totalPages: number;
+    isFilterOpen: boolean;
+    activeFilters: FilterState;
+    categories: MenuItem[];
+    countries: MenuItem[];
+    onFilterChange: (filters: FilterState) => void;
+    onToggleFilter: (isOpen: boolean) => void;
+    onPageChange: (page: number) => void;
+    emptyMessage?: React.ReactNode;
+    isPageLoading?: boolean;
+    hideSidebar?: boolean;
+    hideFilter?: boolean;
+    sidebarProps?: {
+        weeklyLimit?: number;
+        seriesLimit?: number;
+    };
+}
+
+export default function CatalogLayout({
+    title,
+    isLoading,
+    movies,
+    currentPage,
+    totalPages,
+    isFilterOpen,
+    activeFilters,
+    categories,
+    countries,
+    onFilterChange,
+    onToggleFilter,
+    onPageChange,
+    emptyMessage = "Chưa có phim nào trong danh sách này.",
+    isPageLoading = false,
+    hideSidebar = false,
+    hideFilter = false,
+    sidebarProps
+}: CatalogLayoutProps) {
+    return (
+        <main className="pt-27 pb-12 min-h-screen">
+            <Container>
+                <div className="catalog-page">
+                    <CatalogHeader title={title} />
+
+                    {!hideFilter && (
+                        <MovieFilter
+                            categories={categories}
+                            countries={countries}
+                            initialFilters={activeFilters}
+                            initialIsOpen={isFilterOpen}
+                            onFilterChange={onFilterChange}
+                            onToggle={onToggleFilter}
+                        />
+                    )}
+
+                    <div className="flex flex-col xl:flex-row gap-8 xl:gap-10 mt-8">
+                        {/* Main Content Area */}
+                        <div className="flex-grow w-full xl:min-w-0">
+                            <div className="relative">
+                                <div>
+                                    <div className="w-full">
+                                        {isLoading || isPageLoading ? (
+                                            <div
+                                                className={`grid gap-x-2 gap-y-8 md:gap-x-3 md:gap-y-10 ${hideSidebar
+                                                    ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8"
+                                                    : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+                                                    }`}
+                                            >
+                                                {[...Array(24)].map((_, i) => (
+                                                    <MovieCardSkeleton key={i} />
+                                                ))}
+                                            </div>
+                                        ) : (
+                                            <div key="content" className="animate-fade-in">
+                                                {movies.length > 0 ? (
+                                                    <div className={`grid gap-x-2 gap-y-8 md:gap-x-3 md:gap-y-10 ${hideSidebar
+                                                        ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8"
+                                                        : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+                                                        }`}>
+                                                        {movies.map((movie, index) => (
+                                                            <MoviePosterCard key={movie._id} movie={movie} priority={index < 2} />
+                                                        ))}
+                                                    </div>
+                                                ) : (
+                                                    <div className="py-20 text-center text-white/50 text-lg">
+                                                        {emptyMessage}
+                                                    </div>
+                                                )}
+
+                                                {totalPages > 1 && (
+                                                    <Pagination
+                                                        currentPage={currentPage}
+                                                        totalPages={totalPages}
+                                                        onPageChange={onPageChange}
+                                                    />
+                                                )}
+                                            </div>
+                                        )}
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        {/* Sidebar */}
+                        {!hideSidebar && (
+                            <div className="w-full xl:w-[320px] shrink-0">
+                                <Sidebar {...sidebarProps} />
+                            </div>
+                        )}
+                    </div>
+                </div>
+            </Container>
+        </main>
+    );
+}

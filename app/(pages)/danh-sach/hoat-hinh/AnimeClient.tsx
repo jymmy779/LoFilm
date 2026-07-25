@@ -1,6 +1,6 @@
 "use client";
 
-import MovieCatalogClient from "@/app/components/MovieCatalog/MovieCatalogClient";
+import MovieCatalogClient from "@/app/components/Movies/MovieCatalog/MovieCatalogClient";
 import { useSearchParams } from "next/navigation";
 import { CatalogInitialData } from "@/app/utils/serverFetch";
 

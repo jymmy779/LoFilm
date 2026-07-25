@@ -12,7 +12,9 @@ export type ActivityType =
     | "dislike_movie"
     | "share_movie"
     | "update_avatar"
-    | "update_name";
+    | "update_cover"
+    | "update_name"
+    | "update_password";
 
 export async function logActivity(
     userId: string,

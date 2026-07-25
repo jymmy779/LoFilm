@@ -1,9 +1,10 @@
+import Loading from "@/app/loading";
 import { Metadata } from "next";
 import { getAbsoluteUrl } from "@/app/config/site";
 import { Suspense } from "react";
 import CategoryClient from "./CategoryClient";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
-import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
+import CatalogSkeleton from "@/app/components/Movies/MovieCatalog/CatalogSkeleton";
 import { fetchCatalogData } from "@/app/utils/serverFetch";
 
 export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
@@ -50,7 +51,7 @@ export default async function CategoryPage({ params }: Props) {
     const { slug } = await params;
     
     return (
-        <Suspense fallback={<CatalogSkeleton />}>
+        <Suspense fallback={<Loading />}>
             <CategoryData slug={slug} />
         </Suspense>
     );

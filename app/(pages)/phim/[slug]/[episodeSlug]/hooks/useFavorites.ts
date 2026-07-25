@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { createClient } from "@/app/utils/supabase/client";
 import { toast } from "react-hot-toast";
-import { useAuth } from "@/app/components/Auth/AuthContext";
+import { useAuth } from "@/app/components/User/Auth/AuthContext";
 import { logActivity } from "@/app/utils/log-activity";
 
 export const useFavorites = (movieSlug: string, movieName: string, moviePoster: string, movieThumb?: string) => {

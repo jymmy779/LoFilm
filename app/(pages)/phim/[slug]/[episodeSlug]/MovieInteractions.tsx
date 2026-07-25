@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { ThumbsUp, ThumbsDown } from "lucide-react";
 import { createClient } from "@/app/utils/supabase/client";
 import { toast } from "react-hot-toast";
-import Skeleton from "@/app/components/Skeleton/Skeleton";
+import Skeleton from "@/app/components/UI/Skeleton/Skeleton";
 import { logActivity } from "@/app/utils/log-activity";
 
 interface MovieInteractionsProps {

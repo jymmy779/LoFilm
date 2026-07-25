@@ -1,8 +1,8 @@
 "use client";
 
 import React from "react";
-import HeroSliderSkeleton from "./components/HeroSlider/HeroSliderSkeleton";
-import MovieRowSkeleton from "./components/MovieRow/MovieRowSkeleton";
+import HeroSliderSkeleton from "./components/Movies/HeroSlider/HeroSliderSkeleton";
+import MovieRowSkeleton from "./components/Movies/MovieRow/MovieRowSkeleton";
 
 export default function HomeSkeleton() {
     return (

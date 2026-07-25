@@ -4,8 +4,8 @@ import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { Movie } from "@/app/types/movie";
-import { FilterState } from "@/app/components/MovieCatalog/MovieFilter";
-import { MenuItem } from "@/app/components/Header/types";
+import { FilterState } from "@/app/components/Movies/MovieCatalog/MovieFilter";
+import { MenuItem } from "@/app/components/Layout/Header/types";
 import { CatalogInitialData } from "@/app/utils/serverFetch";
 import { globalCache } from "@/app/utils/globalCache";
 
@@ -182,6 +182,7 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
         isFirstMount.current = false;
 
         let isMounted = true;
+        const controller = new AbortController();
         
         const fetchMovies = async () => {
             // Check cache first for SWR
@@ -290,7 +291,7 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                     }
                 }
 
-                const res = await axios.get(`/api/proxy?url=${encodeURIComponent(`${apiUrl}?${params.toString()}`)}`);
+                const res = await axios.get(`/api/proxy?url=${encodeURIComponent(`${apiUrl}?${params.toString()}`)}`, { signal: controller.signal });
 
                 let items: Movie[] = [];
                 let totalItems = 0;
@@ -368,17 +369,22 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                     setTotalPages(calculatedTotalPages);
                     setPageTitle(title);
                     
-                    // Update cache
-                    globalCache.set(cacheKey, {
-                        movies: items,
-                        totalPages: calculatedTotalPages,
-                        pageTitle: title
-                    });
+                    // Update cache only if we have items
+                    if (items.length > 0) {
+                        globalCache.set(cacheKey, {
+                            movies: items,
+                            totalPages: calculatedTotalPages,
+                            pageTitle: title
+                        });
+                    }
 
                     setIsLoading(false);
                     setIsPageLoading(false);
                 }
             } catch (error) {
+                if (axios.isCancel(error)) {
+                    return;
+                }
                 console.error("Lỗi fetch phim:", error);
                 if (isMounted) { setIsLoading(false); setIsPageLoading(false); }
             }
@@ -389,6 +395,7 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
         
         return () => { 
             isMounted = false; 
+            controller.abort();
         };
     }, [currentPage, activeFilters, baseApiUrl, itemsPerPage, slug, router]); // eslint-disable-line react-hooks/exhaustive-deps
 

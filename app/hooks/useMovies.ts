@@ -41,7 +41,7 @@ export function useMovies({
     const isMounted = useRef(true);
 
     const processMovies = useCallback((items: Movie[]) => {
-        let processed = [...items];
+        const processed = [...items];
         if (sortByYear) {
             processed.sort((a, b) => {
                 const yearA = a.year || 0;

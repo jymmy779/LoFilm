@@ -7,7 +7,7 @@
  */
 
 import { Movie } from "@/app/types/movie";
-import { MenuItem } from "@/app/components/Header/types";
+import { MenuItem } from "@/app/components/Layout/Header/types";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 
 export interface CatalogInitialData {

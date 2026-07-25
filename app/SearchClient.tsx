@@ -4,11 +4,11 @@ import { useEffect, useState, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import axios from "axios";
 import { Movie } from "@/app/types/movie";
-import { FilterState } from "@/app/components/MovieCatalog/MovieFilter";
-import { MenuItem } from "@/app/components/Header/types";
+import { FilterState } from "@/app/components/Movies/MovieCatalog/MovieFilter";
+import { MenuItem } from "@/app/components/Layout/Header/types";
 import { globalCache } from "@/app/utils/globalCache";
 
-import CatalogLayout from "@/app/components/MovieCatalog/CatalogLayout";
+import CatalogLayout from "@/app/components/Movies/MovieCatalog/CatalogLayout";
 import { Film, AlertCircle, RotateCcw, Trash2 } from "lucide-react";
 
 import { CatalogInitialData } from "@/app/utils/serverFetch";
@@ -27,7 +27,7 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
     const searchParams = useSearchParams();
 
     // Parse filters from URL
-    const keyword = (searchParams.get("search") || "").trim();
+    const keyword = (searchParams.get("q") || "").trim();
     const initialFilters: FilterState = {
         category: searchParams.get("cat") || "",
         country: searchParams.get("country") || "",
@@ -56,7 +56,7 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
 
     const updateUrl = (page: number, filters: FilterState, isOpen: boolean) => {
         const params = new URLSearchParams();
-        if (keyword) params.set("search", keyword);
+        if (keyword) params.set("q", keyword);
         if (page > 1) params.set("page", page.toString());
         if (filters.category) params.set("cat", filters.category);
         if (filters.country) params.set("country", filters.country);

@@ -53,7 +53,22 @@ export async function generateMetadata({
         description,
         keywords: dynamicKeywords,
         openGraph: {
-            title: `${movie.name} - LoFilm`,
+            title: `${movie.name} (${movie.origin_name}) - Xem Phim Vietsub HD | LoFilm`,
+            description,
+            type: 'video.movie',
+            siteName: 'LoFilm',
+            locale: 'vi_VN',
+            url: getAbsoluteUrl(`/phim/${slug}`),
+            images: [{
+                url: movie.poster_url,
+                width: 800,
+                height: 1200,
+                alt: `Xem phim ${movie.name} (${movie.origin_name}) vietsub HD - LoFilm`,
+            }],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: `${movie.name} - Xem Vietsub HD | LoFilm`,
             description,
             images: [movie.poster_url],
         },

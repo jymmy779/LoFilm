@@ -1,6 +1,6 @@
 "use client";
 
-import Skeleton from "@/app/components/Skeleton/Skeleton";
+import Skeleton from "@/app/components/UI/Skeleton/Skeleton";
 
 export default function TopicsSkeleton() {
     return (

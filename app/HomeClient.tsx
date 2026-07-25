@@ -2,26 +2,26 @@
 
 import React, { useEffect } from "react";
 import type { HomePrefetch } from "@/app/types/home-prefetch";
-import CategoriesSection from "./components/CategoriesSection/CategoriesSection";
-import HeroSlider from "./components/HeroSlider/HeroSlider";
-import MovieRow from "./components/MovieRow/MovieRow";
-import FeaturedSlider from "./components/FeaturedSlider/FeaturedSlider";
-import MoviePosterRow from "./components/MoviePosterRow/MoviePosterRow";
-import TopMovieRow from "./components/TopMovieRow/TopMovieRow";
-import ContinueWatchingRow from "./components/MovieRow/ContinueWatchingRow";
-import RandomMovieRow from "./components/MovieRow/RandomMovieRow";
-import LazyRow from "./components/Common/LazyRow";
+import CategoriesSection from "./components/Movies/CategoriesSection/CategoriesSection";
+import HeroSlider from "./components/Movies/HeroSlider/HeroSlider";
+import MovieRow from "./components/Movies/MovieRow/MovieRow";
+import FeaturedSlider from "./components/Movies/FeaturedSlider/FeaturedSlider";
+import MoviePosterRow from "./components/Movies/MoviePosterRow/MoviePosterRow";
+import TopMovieRow from "./components/Movies/TopMovieRow/TopMovieRow";
+import ContinueWatchingRow from "./components/Movies/MovieRow/ContinueWatchingRow";
+import RandomMovieRow from "./components/Movies/MovieRow/RandomMovieRow";
+import LazyRow from "./components/UI/Common/LazyRow";
 import { toast } from "react-hot-toast";
-import WideMovieRow from "./components/MovieRow/WideMovieRow";
-import MovieRowSkeleton from "./components/MovieRow/MovieRowSkeleton";
-import MoviePosterRowSkeleton from "./components/MoviePosterRow/MoviePosterRowSkeleton";
-import TopMovieRowSkeleton from "./components/TopMovieRow/TopMovieRowSkeleton";
-import FeaturedSliderSkeleton from "./components/FeaturedSlider/FeaturedSliderSkeleton";
-import RandomMovieRowSkeleton from "./components/MovieRow/RandomMovieRowSkeleton";
-import WideMovieRowSkeleton from "./components/MovieRow/WideMovieRowSkeleton";
-import ReunificationEvent from "./components/SpecialSections/ReunificationEvent";
-import ReunificationEventSkeleton from "./components/SpecialSections/ReunificationEventSkeleton";
-import SocialStatsSection from "./components/SocialStats/SocialStatsSection";
+import WideMovieRow from "./components/Movies/MovieRow/WideMovieRow";
+import MovieRowSkeleton from "./components/Movies/MovieRow/MovieRowSkeleton";
+import MoviePosterRowSkeleton from "./components/Movies/MoviePosterRow/MoviePosterRowSkeleton";
+import TopMovieRowSkeleton from "./components/Movies/TopMovieRow/TopMovieRowSkeleton";
+import FeaturedSliderSkeleton from "./components/Movies/FeaturedSlider/FeaturedSliderSkeleton";
+import RandomMovieRowSkeleton from "./components/Movies/MovieRow/RandomMovieRowSkeleton";
+import WideMovieRowSkeleton from "./components/Movies/MovieRow/WideMovieRowSkeleton";
+import ReunificationEvent from "./components/Movies/SpecialSections/ReunificationEvent";
+import ReunificationEventSkeleton from "./components/Movies/SpecialSections/ReunificationEventSkeleton";
+import SocialStatsSection from "./components/Social/SocialStats/SocialStatsSection";
 
 export default function HomeClient({ prefetched, activeEvent, initialTopics }: { prefetched: HomePrefetch, activeEvent?: string, initialTopics?: any[] }) {
     const isEventPeriod = activeEvent === 'reunification';

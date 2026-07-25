@@ -85,12 +85,30 @@ export async function GET() {
             return slug.includes('/') ? slug.split('/')[0] : slug;
         }).filter(Boolean) as string[]));
 
-        // 5. Fetch movie details in parallel for only the top 20 unique slugs
+        // 5. Fetch movie details in parallel, prioritize local Supabase DB to get R2 URLs
+        const { data: moviesInDb } = await supabase
+            .from('movies')
+            .select('slug, name, poster_url, thumb_url')
+            .in('slug', uniqueSlugs);
+            
+        const dbMoviesMap = new Map(moviesInDb?.map(m => [m.slug, m]) || []);
+        
         const movieMetaMap: Record<string, { title: string; poster: string; backdrop: string; isValid: boolean }> = {};
 
         await Promise.all(
             uniqueSlugs.map(async (slug) => {
                 try {
+                    const dbMovie = dbMoviesMap.get(slug);
+                    if (dbMovie) {
+                        movieMetaMap[slug] = {
+                            title: dbMovie.name || "Phim",
+                            poster: getImageUrl(dbMovie.poster_url),
+                            backdrop: getImageUrl(dbMovie.thumb_url),
+                            isValid: true
+                        };
+                        return;
+                    }
+
                     const data = await fetchWithRedis(`https://phimapi.com/phim/${slug}`, { revalidate: 60 });
                     const movieData = data?.movie;
                     if (movieData) {
@@ -99,12 +117,8 @@ export async function GET() {
 
                         movieMetaMap[slug] = {
                             title: movieData.name || "Phim",
-                            poster: rawPoster && !rawPoster.includes("data:")
-                                ? `https://wsrv.nl/?url=${encodeURIComponent(rawPoster)}&w=120&q=75&output=webp`
-                                : rawPoster,
-                            backdrop: rawBackdrop && !rawBackdrop.includes("data:")
-                                ? `https://wsrv.nl/?url=${encodeURIComponent(rawBackdrop)}&w=600&q=65&output=webp`
-                                : rawBackdrop,
+                            poster: rawPoster,
+                            backdrop: rawBackdrop,
                             isValid: true
                         };
                     } else {

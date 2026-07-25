@@ -8,7 +8,6 @@ const DEFAULT_REVALIDATE_SEC = 60; // Cache 60 giây theo ý bạn
 export let redis: Redis | null = null;
 
 try {
-    console.log('[Redis Init] REDIS_URL is:', process.env.REDIS_URL ? 'FOUND' : 'NOT FOUND');
     if (process.env.REDIS_URL) {
         redis = new Redis(process.env.REDIS_URL, {
             maxRetriesPerRequest: 1,
@@ -119,7 +118,6 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
 export const flushMemoryCache = async () => {
     if (redis) {
         await redis.flushdb();
-        console.log('[Cache] Toàn bộ Redis cache đã được xóa.');
     }
 };
 

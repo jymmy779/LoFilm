@@ -127,7 +127,7 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
 
             // KỊCH BẢN PHỤ: NẾU KHÔNG CÓ TMDB ID HOẶC LỖI FETCH TMDB
             // Dùng data của PhimAPI nếu có, nếu không thì dùng 100% data của exclusiveMovie
-            let fallbackMovie = phimApiData?.movie || {};
+            const fallbackMovie = phimApiData?.movie || {};
             
             const movieObj = {
                 ...fallbackMovie,

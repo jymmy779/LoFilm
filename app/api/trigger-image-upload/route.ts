@@ -53,7 +53,6 @@ export async function POST(request: NextRequest) {
         });
         child.unref(); // cho phép process cha kết thúc mà không chờ child
 
-        console.log(`[trigger-image-upload] Started job ${jobId} | args: ${args.join(' ')}`);
 
         return NextResponse.json({
             status: 'started',

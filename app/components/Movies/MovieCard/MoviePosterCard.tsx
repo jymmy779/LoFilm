@@ -1,0 +1,90 @@
+"use client";
+
+import { memo } from "react";
+import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
+import SmartImage from "@/app/components/UI/Common/SmartImage";
+import { Movie } from "@/app/types/movie";
+import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
+import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
+import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
+import MoviePreviewWrapper from "./MoviePreviewWrapper";
+import { MovieQualityBadge, MovieLangBadge, MovieEpisodeBadge, MovieExclusiveBadge } from "@/app/components/UI/Common/MovieBadge";
+import { useBaitStore } from "@/app/store/useBaitStore";
+
+interface MoviePosterCardProps {
+    movie: Movie;
+    /** Ưu tiên tải poster cho các ô đầu (trong viewport) */
+    priority?: boolean;
+    isFirst?: boolean;
+    isLast?: boolean;
+    user?: any;
+    adZone?: string;
+}
+
+function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZone }: MoviePosterCardProps) {
+    const moviePath = `/phim/${movie.slug}`;
+    const setBaitMovie = useBaitStore(state => state.setBaitMovie);
+
+    // Chuẩn bị dữ liệu hiển thị cho Popup
+    const description = movie.content ? cleanContent(decodeHtml(movie.content)) : "Đang cập nhật nội dung cho bộ phim này...";
+    const genres = movie.category?.slice(0, 3).map(c => c.name).join(", ");
+    const imdbRating = (movie.tmdb?.vote_count && movie.tmdb.vote_count > 0)
+        ? movie.tmdb.vote_average.toFixed(1)
+        : "N/A";
+
+    return (
+        <MoviePreviewWrapper
+            movie={movie}
+            user={user}
+            isFirst={isFirst}
+            isLast={isLast}
+            adZone={adZone}
+            className="sw-item group/item cursor-pointer relative h-full flex flex-col"
+        >
+            <TransitionLink
+                href={moviePath}
+                className="block h-full"
+                onClick={() => setBaitMovie(movie)}
+                onMouseEnter={() => setBaitMovie(movie)}
+            >
+                <div className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-[#0F1115]">
+                    {/* Poster Image */}
+                    <SmartImage
+                        r2Src={getR2MoviePosterUrl(movie.slug)}
+                        src={getImageUrl(movie.poster_url, { width: 400, quality: 80 })}
+                        rawSrc={getRawImageUrl(movie.poster_url)}
+                        alt={movie.name}
+                        fill
+                        priority={priority}
+                        loading={priority ? "eager" : "lazy"}
+                        sizes="(max-width: 640px) 150px, (max-width: 1024px) 200px, 250px"
+                        className="object-cover transition-transform duration-700 ease-out group-hover/item:scale-110 transform-gpu"
+                    />
+
+                    {/* Exclusive Badge */}
+                    <div className="absolute top-2 right-2 z-20">
+                        <MovieExclusiveBadge movie={movie} />
+                    </div>
+
+                    {/* Solid Badges (No Glassmorphism) */}
+                    <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center flex-wrap gap-1 px-2 z-20 translate-y-1 group-hover/item:translate-y-0 transition-transform duration-300 transform-gpu">
+                        <MovieQualityBadge movie={movie} className="h-5 px-1.5 bg-gray-500 rounded-md text-white text-[9px]" />
+                        <MovieLangBadge movie={movie} className="h-5 px-1.5 bg-green-600 rounded-md text-white text-[9px]" />
+                        <MovieEpisodeBadge movie={movie} className="h-5 px-1.5 bg-amber-600 rounded-md text-white text-[9px]" />
+                    </div>
+                </div>
+
+                <div className="info text-center space-y-0.5 mt-auto">
+                    <h4 className="item-title text-white text-xs lg:text-sm font-bold line-clamp-1 group-hover/item:text-[#f5a623] transition-colors duration-300">
+                        <span title={movie.name}>{decodeHtml(movie.name)}</span>
+                    </h4>
+                    <h4 className="alias-title text-white/40 text-[10px] md:text-[11px] line-clamp-1 font-medium transition-colors group-hover/item:text-white/60">
+                        <span>{decodeHtml(movie.origin_name)}</span>
+                    </h4>
+                </div>
+            </TransitionLink>
+        </MoviePreviewWrapper>
+    );
+}
+
+export default memo(MoviePosterCard);

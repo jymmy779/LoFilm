@@ -2,29 +2,14 @@ import { Metadata } from "next";
 import { Suspense } from "react";
 import { createClient } from "@/app/utils/supabase/server";
 import HomeClient from "./HomeClient";
-import SearchClient from "./SearchClient";
-import HomeSkeleton from "./HomeSkeleton";
-import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
+import Loading from "./loading";
 import { prefetchHomePageData } from "./lib/prefetch-home";
 
 export const dynamic = "force-dynamic"; // Tắt Next.js ISR để luôn lấy data mới nhất từ Redis
 
-import { SITE_URL, getAbsoluteUrl } from "@/app/config/site";
+import { SITE_URL } from "@/app/config/site";
 
-export async function generateMetadata({ searchParams }: { searchParams: Promise<any> }): Promise<Metadata> {
-    const params = await searchParams;
-    const query = params.search;
-
-    if (query) {
-        return {
-            title: `Tìm kiếm: ${query} | LoFilm`,
-            description: `Kết quả tìm kiếm cho từ khóa "${query}" trên LoFilm. Khám phá kho phim đa dạng, chất lượng cao ngay tại đây.`,
-            alternates: {
-                canonical: getAbsoluteUrl(`/?search=${query}`),
-            },
-        };
-    }
-
+export async function generateMetadata(): Promise<Metadata> {
     return {
         title: "LoFilm - Xem Phim Online Chất Lượng Cao, Phim 4K, Vietsub",
         description: "Trải nghiệm xem phim online chất lượng cao 4K, Vietsub tại LoFilm. Kho phim lẻ, phim bộ, anime mới nhất 2026 cập nhật mỗi ngày với tốc độ cực nhanh và không quảng cáo!",
@@ -34,44 +19,15 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     };
 }
 
-export default async function Home({
-    searchParams,
-}: {
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-    const resolvedParams = await searchParams;
-    const isSearch = !!resolvedParams.search;
-
-    if (isSearch) {
-        return (
-            <Suspense fallback={<CatalogSkeleton hideSidebar={true} />}>
-                <SearchData resolvedParams={resolvedParams} />
-            </Suspense>
-        );
-    }
-
+export default async function Home() {
     return (
-        <Suspense fallback={<HomeSkeleton />}>
+        <Suspense fallback={<Loading />}>
             <HomeData />
         </Suspense>
     );
 }
 
-async function SearchData({ resolvedParams }: { resolvedParams: any }) {
-    const { fetchSearchData } = await import("@/app/utils/serverFetch");
-    const initialData = await fetchSearchData(
-        resolvedParams.search as string,
-        Number(resolvedParams.page) || 1,
-        48,
-        {
-            category: resolvedParams.cat as string,
-            country: resolvedParams.country as string,
-            year: resolvedParams.year as string,
-            sort: resolvedParams.sort as string
-        }
-    );
-    return <SearchClient initialData={initialData} />;
-}
+
 
 async function HomeData() {
     const supabase = await createClient();
@@ -90,7 +46,7 @@ async function HomeData() {
             .limit(20);
 
         if (history) {
-            let filteredHistory = history.filter(item => {
+            const filteredHistory = history.filter(item => {
                 if (!item.duration) return true;
                 const progress = (item.watched_seconds / item.duration) * 100;
                 const isFinished = progress >= 85;

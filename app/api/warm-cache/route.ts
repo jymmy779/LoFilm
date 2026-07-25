@@ -9,7 +9,6 @@ export async function GET(request: Request) {
     try {
         const moviesToWarm: string[] = [];
 
-        console.log(`[Cache Warmer] Bắt đầu nạp dữ liệu cho ${pages} trang...`);
 
         // 1. Lấy danh sách phim để lấy slug
         for (let i = 1; i <= pages; i++) {
@@ -33,7 +32,6 @@ export async function GET(request: Request) {
             }
         }
 
-        console.log(`[Cache Warmer] Tìm thấy ${moviesToWarm.length} phim. Bắt đầu nạp chi tiết...`);
 
         // 2. Chạy nạp chi tiết từng phim vào RAM
         // Chia nhỏ (Chunking) để tránh spam API quá nhanh

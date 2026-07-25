@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
-import TransitionLink from "@/app/components/Transition/TransitionLink";
+import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { Server, Search, ArrowUpDown, ChevronDown } from "lucide-react";
 import { getFriendlyEpisodeSlug, parseEpNumber } from "@/app/utils/movieUtils";
 import axios from "axios";

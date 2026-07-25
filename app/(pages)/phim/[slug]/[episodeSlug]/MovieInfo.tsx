@@ -2,10 +2,10 @@
 
 import React from "react";
 
-import TransitionLink from "@/app/components/Transition/TransitionLink";
+import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { ChevronRight } from "lucide-react";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
-import SmartImage from "@/app/components/Common/SmartImage";
+import SmartImage from "@/app/components/UI/Common/SmartImage";
 import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 
 interface MovieInfoProps {

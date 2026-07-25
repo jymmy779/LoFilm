@@ -23,6 +23,7 @@ export const useWatchProgress = (
     const lastSavedTimeDB = useRef(0);
 
     const watchTimeAccumulator = useRef(0);
+    const realWatchTimeDBAccumulator = useRef(0);
     const hasRecordedView = useRef(false);
     const lastUpdateTimestamp = useRef(0);
 
@@ -80,7 +81,7 @@ export const useWatchProgress = (
                 try {
                     const HISTORY_KEY = currentUser ? `lofilm-watch-history-${currentUser.id}` : "lofilm-guest-watch-history";
                     const historyStr = localStorage.getItem(HISTORY_KEY);
-                    let history = historyStr ? JSON.parse(historyStr) : {};
+                    const history = historyStr ? JSON.parse(historyStr) : {};
 
                     const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
                     const now = Date.now();
@@ -143,6 +144,7 @@ export const useWatchProgress = (
                     const delta = (now - lastUpdateTimestamp.current) / 1000;
                     if (delta > 0 && delta < 2) {
                         watchTimeAccumulator.current += delta;
+                        realWatchTimeDBAccumulator.current += delta;
                     }
                 }
                 lastUpdateTimestamp.current = now;
@@ -153,9 +155,22 @@ export const useWatchProgress = (
                 }
             }
 
+            // Gọi RPC mỗi 60s xem thực tế để tích lũy thống kê
+            if (userRef.current && realWatchTimeDBAccumulator.current >= 60) {
+                const secondsToRecord = Math.floor(realWatchTimeDBAccumulator.current);
+                realWatchTimeDBAccumulator.current = realWatchTimeDBAccumulator.current - secondsToRecord;
+                
+                supabase.rpc('increment_watch_time', {
+                    p_user_id: userRef.current.id,
+                    p_seconds: secondsToRecord
+                }).then(({ error }) => {
+                    if (error) console.error("Error incrementing watch time:", error);
+                });
+            }
+
             saveProgress(currentTime, duration);
         },
-        [saveProgress, recordViewToSupabase]
+        [saveProgress, recordViewToSupabase, supabase]
     );
 
     return {

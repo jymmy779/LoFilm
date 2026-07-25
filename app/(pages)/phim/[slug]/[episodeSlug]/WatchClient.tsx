@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
-import TransitionLink from "@/app/components/Transition/TransitionLink";
+import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { AlertTriangle, RefreshCcw, List, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -29,23 +29,23 @@ const getYouTubeId = (url: string): string | null => {
     return null;
 };
 
-import Container from "@/app/components/Container";
+import Container from "@/app/components/UI/Container";
 import PlayerControls from "./PlayerControls";
 import EpisodeList from "./EpisodeList";
 import DualSubtitleMenu from "./DualSubtitleMenu";
 import Sidebar from "./Sidebar";
 import MovieHeader from "./MovieHeader";
 import MovieInfo from "./MovieInfo";
-import CommentSection from "@/app/components/Comments/CommentSection";
-import ReportModal from "@/app/components/Common/ReportModal";
-import ShareModal from "@/app/components/Movie/ShareModal";
+import CommentSection from "@/app/components/Social/Comments/CommentSection";
+import ReportModal from "@/app/components/UI/Common/ReportModal";
+import ShareModal from "@/app/components/Movies/Movie/ShareModal";
 import { getImageUrl, getRawImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
-import LazyRow from "@/app/components/Common/LazyRow";
-import Skeleton from "@/app/components/Skeleton/Skeleton";
+import LazyRow from "@/app/components/UI/Common/LazyRow";
+import Skeleton from "@/app/components/UI/Skeleton/Skeleton";
 
-import SmartImage from "@/app/components/Common/SmartImage";
+import SmartImage from "@/app/components/UI/Common/SmartImage";
 import { fetchTotalEpisodesFromTMDB } from "@/app/utils/tmdbUtils";
-import { useAuth } from "@/app/components/Auth/AuthContext";
+import { useAuth } from "@/app/components/User/Auth/AuthContext";
 import { toast } from "react-hot-toast";
 import { MdReplay10, MdForward10 } from "react-icons/md";
 import { renderToStaticMarkup } from "react-dom/server";

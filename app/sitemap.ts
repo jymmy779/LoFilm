@@ -22,7 +22,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ].map((route) => ({
         url: `${BASE_URL}${route}`,
         lastModified: new Date(),
-        changeFrequency: 'daily' as const,
+        changeFrequency: (route === '' ? 'hourly' : 'daily') as 'hourly' | 'daily',
         priority: route === '' ? 1 : 0.8,
     }));
 
@@ -52,8 +52,18 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         priority: 0.7,
     }));
 
+    // 3b. Trang chủ đề (topic pages)
+    const topicRoutes = [
+        'phim-le', 'phim-bo', 'phim-chieu-rap', 'hoat-hinh', 'tv-shows',
+    ].map((slug) => ({
+        url: `${BASE_URL}/chu-de/${slug}`,
+        lastModified: new Date(),
+        changeFrequency: 'daily' as const,
+        priority: 0.6,
+    }));
+
     // 4. Lấy danh sách phim + episode URLs (tăng lên 100 trang ~2000 phim)
-    let movieRoutes: MetadataRoute.Sitemap = [];
+    const movieRoutes: MetadataRoute.Sitemap = [];
     let episodeRoutes: MetadataRoute.Sitemap = [];
 
     try {
@@ -118,5 +128,5 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
         console.error("Sitemap generation error:", error);
     }
 
-    return [...staticRoutes, ...genreRoutes, ...countryRoutes, ...movieRoutes, ...episodeRoutes];
+    return [...staticRoutes, ...genreRoutes, ...countryRoutes, ...topicRoutes, ...movieRoutes, ...episodeRoutes];
 }

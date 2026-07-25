@@ -70,22 +70,35 @@ export async function GET() {
         // Limit to top 15 candidates before fetching details to avoid rate limits and timeouts
         candidateSlugs = candidateSlugs.slice(0, 15);
 
-        // 4. Fetch movie details in parallel
+        // 4. Fetch movie details in parallel, prioritize local Supabase DB to get R2 URLs
+        const { data: moviesInDb } = await supabase
+            .from('movies')
+            .select('slug, name, poster_url, thumb_url')
+            .in('slug', candidateSlugs);
+            
+        const dbMoviesMap = new Map(moviesInDb?.map(m => [m.slug, m]) || []);
+        
         const fetchedMovies = await Promise.all(
             candidateSlugs.map(async (slug) => {
                 try {
+                    const dbMovie = dbMoviesMap.get(slug);
+                    if (dbMovie) {
+                        return {
+                            slug,
+                            title: dbMovie.name || "Phim",
+                            poster: getImageUrl(dbMovie.poster_url)
+                        };
+                    }
+
                     const data = await fetchWithRedis(`https://phimapi.com/phim/${slug}`, { revalidate: 60 });
                     if (data && data.movie) {
                         const movieData = data.movie;
                         const rawPoster = getImageUrl(movieData.poster_url);
-                        const wsrvPoster = rawPoster && !rawPoster.includes("data:") 
-                            ? `https://wsrv.nl/?url=${encodeURIComponent(rawPoster)}&w=80&q=70&output=webp` 
-                            : rawPoster;
 
                         return {
                             slug,
                             title: movieData.name || "Phim",
-                            poster: wsrvPoster
+                            poster: rawPoster
                         };
                     }
                 } catch (fetchErr) {

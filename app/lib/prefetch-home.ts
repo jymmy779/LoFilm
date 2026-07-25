@@ -118,7 +118,7 @@ async function getStarredMoviesForHero(): Promise<Movie[]> {
         if (!data || data.length === 0) return [];
 
         return await Promise.all(data.map(async (m: any) => {
-            let movieObj: any = {
+            const movieObj: any = {
                 _id: m.id,
                 name: m.name,
                 origin_name: m.name, // Dự phòng
@@ -180,7 +180,7 @@ async function getExclusiveMoviesForHero(): Promise<Movie[]> {
         if (!data || data.length === 0) return [];
 
         return await Promise.all(data.map(async (m: any) => {
-            let movieObj: any = {
+            const movieObj: any = {
                 _id: m.id,
                 name: m.name,
                 origin_name: m.origin_name,
@@ -305,10 +305,8 @@ async function mapNominated(): Promise<Movie[]> {
     }
 
     let config = configData?.value;
-    console.log("[mapNominated] configData retrieved:", !!configData);
 
     if (!config) {
-        console.log("[mapNominated] Dùng danh sách MẶC ĐỊNH vì không có config trong DB.");
         const NOMINATED_SLUGS = [
             "bai-hoc-dang-doi", "ke-thu-hoang-gia-cua-toi", "tieng-yeu-nay-anh-dich-duoc-khong",
             "huyen-thoai-linh-bep-anh-nuoi-thang-cap-thanh-huyen-thoai", "dieu-nhan-choi-mat",
@@ -436,7 +434,6 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
         try {
             const cached = await redis.get(BUNDLE_KEY);
             if (cached) {
-                console.log("[Redis] Home bundle HIT");
                 return JSON.parse(cached);
             }
 
@@ -444,7 +441,6 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
             // Nếu STALE_KEY còn sống → dùng làm fallback nếu fetch lỗi, nhưng vẫn await fresh data
             const staleCached = await redis.get(STALE_KEY);
             if (staleCached) {
-                console.log("[Redis] Home bundle STALE HIT - Fetching fresh data (await)");
                 try {
                     const freshBundle = await fetchAndCacheBundle(BUNDLE_KEY, STALE_KEY, EMERGENCY_KEY, BUNDLE_TTL, STALE_TTL, EMERGENCY_TTL);
                     return freshBundle;
@@ -457,11 +453,9 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
             // 3. Cả STALE cũng MISS (rất hiếm) → Kiểm tra EMERGENCY backup (24h)
             const emergencyCached = await redis.get(EMERGENCY_KEY);
             if (emergencyCached) {
-                console.log("[Redis] Home bundle EMERGENCY HIT - Serving 24h backup");
                 refreshBundleInBackground(BUNDLE_KEY, STALE_KEY, EMERGENCY_KEY, BUNDLE_TTL, STALE_TTL, EMERGENCY_TTL);
                 return JSON.parse(emergencyCached);
             }
-            console.log("[Redis] Home bundle MISS ALL - Fetching fresh data");
         } catch (err) {
             console.error("[Redis Bundle Error]", err);
         }
@@ -579,6 +573,5 @@ function refreshBundleInBackground(
 ): void {
     // Fire-and-forget — không await, không block response
     fetchAndCacheBundle(bundleKey, staleKey, emergencyKey, bundleTtl, staleTtl, emergencyTtl)
-        .then(() => console.log("[SWR] Home bundle refreshed in background"))
         .catch(err => console.error("[SWR] Background refresh failed:", err));
 }

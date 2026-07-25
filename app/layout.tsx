@@ -1,10 +1,10 @@
 import type { Metadata, Viewport } from "next";
-import Header from "./components/Header/Header";
-import Footer from "./components/Footer/Footer";
-import InitialLoader from "./components/Transition/InitialLoader";
-import ReunificationLoader from "./components/Transition/ReunificationLoader";
+import Header from "./components/Layout/Header/Header";
+import Footer from "./components/Layout/Footer/Footer";
+import InitialLoader from "./components/UI/Transition/InitialLoader";
+import ReunificationLoader from "./components/UI/Transition/ReunificationLoader";
 import { getSiteSettings } from "./actions/adminSettings";
-import { PageTransitionProvider } from "./components/Transition/PageTransitionContext";
+import { PageTransitionProvider } from "./components/UI/Transition/PageTransitionContext";
 import "./globals.css";
 import { Inter, Montserrat } from "next/font/google";
 
@@ -28,12 +28,12 @@ const montserrat = Montserrat({
   display: "swap",
 });
 
-import ClientToaster from "./components/Common/ClientToaster";
+import ClientToaster from "./components/UI/Common/ClientToaster";
 
 
 import { Suspense } from "react";
 import { GoogleAnalytics } from '@next/third-parties/google'
-import AdsterraSocialBar from "./components/Ads/AdsterraSocialBar";
+import AdsterraSocialBar from "./components/Layout/Ads/AdsterraSocialBar";
 
 
 export const viewport: Viewport = {
@@ -87,14 +87,16 @@ export const metadata: Metadata = {
   },
   icons: {
     icon: [
-      { url: '/favicon.ico', sizes: 'any' },
+      { url: '/favicon.ico', sizes: 'any', type: 'image/x-icon' },
       { url: '/icon-48.png', sizes: '48x48', type: 'image/png' },
       { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
       { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
     apple: [
       { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
+      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
+    shortcut: '/favicon.ico',
   },
   robots: {
     index: true,
@@ -133,13 +135,13 @@ export const metadata: Metadata = {
 };
 
 
-import AuthListener from "./components/Auth/AuthListener";
-import NetworkMonitor from "./components/Network/NetworkMonitor";
-import WakeUpMonitor from "./components/Common/WakeUpMonitor";
-import ScrollToTop from "./components/Common/ScrollToTop";
-import { AuthProvider } from "./components/Auth/AuthContext";
-import HideOnAdmin from "./components/Common/HideOnAdmin";
-import DesktopSidebar from "./components/Sidebar/DesktopSidebar";
+import AuthListener from "./components/User/Auth/AuthListener";
+import NetworkMonitor from "./components/UI/Network/NetworkMonitor";
+import WakeUpMonitor from "./components/UI/Common/WakeUpMonitor";
+import ScrollToTop from "./components/UI/Common/ScrollToTop";
+import { AuthProvider } from "./components/User/Auth/AuthContext";
+import HideOnAdmin from "./components/UI/Common/HideOnAdmin";
+import DesktopSidebar from "./components/Layout/Sidebar/DesktopSidebar";
 
 export default async function RootLayout({
   children,
@@ -177,7 +179,10 @@ export default async function RootLayout({
               "url": SITE_URL,
               "potentialAction": {
                 "@type": "SearchAction",
-                "target": getAbsoluteUrl("/?search={search_term_string}"),
+                "target": {
+                  "@type": "EntryPoint",
+                  "urlTemplate": getAbsoluteUrl("/tim-kiem?q={search_term_string}")
+                },
                 "query-input": "required name=search_term_string"
               }
             })
@@ -191,11 +196,21 @@ export default async function RootLayout({
               "@type": "Organization",
               "name": "LoFilm",
               "url": SITE_URL,
-              "logo": getAbsoluteUrl("/icon-512.png"),
+              "logo": {
+                "@type": "ImageObject",
+                "url": getAbsoluteUrl("/icon-512.png"),
+                "width": 512,
+                "height": 512
+              },
+              "contactPoint": {
+                "@type": "ContactPoint",
+                "contactType": "customer service",
+                "availableLanguage": ["Vietnamese", "English"]
+              },
               "sameAs": [
                 "https://t.me/ponpornsec",
                 "https://t.me/+5S1xkPn1SCAxZWZl"
-              ],
+              ]
             })
           }}
         />

@@ -4,11 +4,11 @@ import { useState, useMemo, useEffect, useCallback } from "react";
 
 import axios from "axios";
 import Image from "next/image";
-import TransitionLink from "@/app/components/Transition/TransitionLink";
-import Container from "@/app/components/Container";
-import MoviePosterCard from "@/app/components/MovieCard/MoviePosterCard";
-import FavoriteButton from "@/app/components/Common/FavoriteButton";
-import WatchlistButton from "@/app/components/Common/WatchlistButton";
+import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
+import Container from "@/app/components/UI/Container";
+import MoviePosterCard from "@/app/components/Movies/MovieCard/MoviePosterCard";
+import FavoriteButton from "@/app/components/UI/Common/FavoriteButton";
+import WatchlistButton from "@/app/components/UI/Common/WatchlistButton";
 import { MessageSquare } from "lucide-react";
 import { Movie, EpisodeServer } from "@/app/types/movie";
 import {
@@ -21,16 +21,16 @@ import {
     parseEpNumber,
     getYoutubeEmbedUrl
 } from "@/app/utils/movieUtils";
-import SmartImage from "@/app/components/Common/SmartImage";
+import SmartImage from "@/app/components/UI/Common/SmartImage";
 import { fetchTotalEpisodesFromTMDB, fetchActorsFromTMDB, TMDBActor } from "@/app/utils/tmdbUtils";
-import Skeleton from "@/app/components/Skeleton/Skeleton";
+import Skeleton from "@/app/components/UI/Skeleton/Skeleton";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import dynamic from "next/dynamic";
 import { globalCache } from "@/app/utils/globalCache";
 import EpisodeList from "./[episodeSlug]/EpisodeList";
-import LazyRow from "@/app/components/Common/LazyRow";
+import LazyRow from "@/app/components/UI/Common/LazyRow";
 import { getR2ActorUrl, getR2MoviePosterUrl, getR2MovieThumbUrl } from "@/app/utils/r2ImageUrl";
-const CommentSection = dynamic(() => import("@/app/components/Comments/CommentSection"), {
+const CommentSection = dynamic(() => import("@/app/components/Social/Comments/CommentSection"), {
     loading: () => <Skeleton className="h-40" rounded="2xl" />,
     ssr: false
 });
@@ -134,12 +134,12 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
             try {
                 // Sử dụng API phim bộ đồng nhất với Sidebar
                 const res = await axios.get(`/api/proxy?url=${encodeURIComponent('https://phimapi.com/v1/api/danh-sach/phim-bo?limit=40')}`);
-                let items = res.data?.data?.items || res.data?.items || [];
+                const items = res.data?.data?.items || res.data?.items || [];
 
                 if (items.length > 0) {
                     // 1. Lọc trùng (mỗi phim chỉ hiện 1 phần) và chuẩn hóa dữ liệu
                     const seenNames = new Set();
-                    let processed = items
+                    const processed = items
                         .map((m: any) => ({
                             ...m,
                             rating: m.tmdb?.vote_average || 0

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import React, { useState, useEffect } from "react";
 
@@ -60,7 +60,7 @@ export default function ResetPasswordPage() {
       setIsSuccess(true);
       toast.success("Cập nhật mật khẩu thành công!");
       setTimeout(() => {
-        router.push("/trang-ca-nhan");
+        router.push("/ca-nhan");
       }, 2000);
     } catch (error: any) {
       if (error.message && error.message.includes("different from the old password")) {

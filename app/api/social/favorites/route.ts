@@ -51,14 +51,11 @@ export async function GET() {
             .slice(0, 10)
             .map(([slug, item]) => {
                 const rawPoster = getImageUrl(item.poster);
-                const wsrvPoster = rawPoster && !rawPoster.includes("data:") 
-                    ? `https://wsrv.nl/?url=${encodeURIComponent(rawPoster)}&w=80&q=70&output=webp` 
-                    : rawPoster;
 
                 return {
                     slug,
                     title: item.name,
-                    avatar: wsrvPoster
+                    avatar: rawPoster
                 };
             });
 

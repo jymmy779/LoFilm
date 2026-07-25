@@ -3,19 +3,19 @@
 import React, { useState } from "react";
 
 import { Mail, Lock, User, ArrowRight, ThumbsUp, Star, History as HistoryIcon, AlertCircle, CheckCircle2 } from "lucide-react";
-import AuthInput from "@/app/components/Auth/AuthInput";
+import AuthInput from "@/app/components/User/Auth/AuthInput";
 import { createClient } from "@/app/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
-import { Turnstile } from '@marsidev/react-turnstile';
+import { Turnstile, type TurnstileInstance } from '@marsidev/react-turnstile';
 
-import { usePageTransition } from "@/app/components/Transition/PageTransitionContext";
-import CatalogHeader from "../../components/MovieCatalog/CatalogHeader";
-import Container from "../../components/Container";
+import { usePageTransition } from "@/app/components/UI/Transition/PageTransitionContext";
+import CatalogHeader from "../../components/Movies/MovieCatalog/CatalogHeader";
+import Container from "../../components/UI/Container";
 import Link from "next/link";
 
 // Import Sidebar từ đúng thư mục
-import SidebarComp from "@/app/components/Sidebar/Sidebar";
+import SidebarComp from "@/app/components/Layout/Sidebar/Sidebar";
 
 export default function AuthContent() {
   const [isLogin, setIsLogin] = useState(true);
@@ -23,14 +23,20 @@ export default function AuthContent() {
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
   const [fullName, setFullName] = useState("");
-  const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [captchaToken, setCaptchaToken] = useState("");
+  const turnstileRef = React.useRef<TurnstileInstance>(null);
   const router = useRouter();
   const { navigateWithTransition } = usePageTransition();
   const supabase = createClient();
 
   React.useEffect(() => {
+    // Load last login email for better autofill UX
+    const savedEmail = localStorage.getItem('last_login_email');
+    if (savedEmail) {
+      setEmail(savedEmail);
+    }
+
     // 1. Kiểm tra session ngay lập tức khi vào trang
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
@@ -40,14 +46,7 @@ export default function AuthContent() {
     };
     checkSession();
 
-    // 2. Tải thông tin "Ghi nhớ" từ localStorage
-    const savedEmail = localStorage.getItem("rememberedEmail");
-    const savedRememberMe = localStorage.getItem("rememberMe");
-
-    if (savedEmail) setEmail(savedEmail);
-    if (savedRememberMe !== null) setRememberMe(savedRememberMe === "true");
-
-    // 3. Lắng nghe thay đổi trạng thái đăng nhập (để đồng bộ giữa các Tab)
+    // 2. Lắng nghe thay đổi trạng thái đăng nhập (để đồng bộ giữa các Tab)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       // Chúng ta sẽ để logic kiểm tra session ở mount và handleAuth xử lý chuyển hướng
       // Tránh việc gọi push ở đây gây xung đột với transition
@@ -94,15 +93,8 @@ export default function AuthContent() {
       setConfirmPassword("");
       setFullName("");
     } else {
-      // Khi sang tab Đăng nhập: khôi phục email nếu có "Ghi nhớ", dọn password
-      const savedEmail = localStorage.getItem("rememberedEmail");
-      const savedRememberMe = localStorage.getItem("rememberMe") === "true";
-
-      if (savedRememberMe && savedEmail) {
-        setEmail(savedEmail);
-      } else {
-        setEmail("");
-      }
+      // Khi sang tab Đăng nhập: dọn email và password
+      setEmail("");
       setPassword("");
     }
   }, [isLogin]);
@@ -113,6 +105,7 @@ export default function AuthContent() {
     if (error.includes("User already registered")) return "Email này đã được đăng ký bởi người dùng khác!";
     if (error.includes("Password should be at least 6 characters")) return "Mật khẩu phải có ít nhất 6 ký tự!";
     if (error.includes("rate limit exceeded")) return "Bạn đã thực hiện quá nhiều yêu cầu. Vui lòng thử lại sau!";
+    if (error.includes("captcha protection: request disallowed")) return "Xác thực Captcha thất bại. Vui lòng thử lại!";
     return "Đã có lỗi xảy ra, vui lòng thử lại!";
   };
 
@@ -133,16 +126,35 @@ export default function AuthContent() {
     // Note: Nếu thành công, trang sẽ tự động redirect sang Google, không cần setIsLoading(false)
   };
 
-  const handleAuth = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setIsLoading(true);
 
+    // Lấy giá trị trực tiếp từ form để phòng trường hợp trình duyệt (như Google Password) 
+    // tự động submit trước khi state của React kịp cập nhật
+    const formData = new FormData(e.currentTarget);
+    const formEmail = (formData.get("email") as string) || email;
+    const formPassword = (formData.get("password") as string) || password;
+    const formFullName = !isLogin ? ((formData.get("name") as string) || fullName) : "";
+
     try {
+      if (!captchaToken) {
+        toast.error("Đang tải Captcha, vui lòng đợi một chút...");
+        setIsLoading(false);
+        return;
+      }
+
       if (isLogin) {
+        if (!formEmail || !formPassword) {
+          toast.error("Vui lòng nhập đầy đủ email và mật khẩu!");
+          setIsLoading(false);
+          return;
+        }
+
         // Handle Login
         const { data, error } = await supabase.auth.signInWithPassword({
-          email,
-          password,
+          email: formEmail,
+          password: formPassword,
           options: {
             captchaToken,
           }
@@ -152,15 +164,8 @@ export default function AuthContent() {
 
         // Nếu thành công, tự động tiếp tục luồng đăng nhập mà không cần kiểm tra email_confirmed_at
 
-
-        // Lưu thông tin "Ghi nhớ"
-        if (rememberMe) {
-          localStorage.setItem("rememberedEmail", email);
-          localStorage.setItem("rememberMe", "true");
-        } else {
-          localStorage.removeItem("rememberedEmail");
-          localStorage.setItem("rememberMe", "false");
-        }
+        // Lưu email vào localStorage để tự điền cho lần sau
+        localStorage.setItem('last_login_email', formEmail);
 
         toast.success("Chào mừng bạn trở lại!");
 
@@ -175,12 +180,17 @@ export default function AuthContent() {
         }
       } else {
         // Validation
-        if (password.length < 6) {
+        if (!formEmail || !formPassword) {
+          toast.error("Vui lòng nhập đầy đủ thông tin!");
+          setIsLoading(false);
+          return;
+        }
+        if (formPassword.length < 6) {
           toast.error("Mật khẩu phải có ít nhất 6 ký tự!");
           setIsLoading(false);
           return;
         }
-        if (password !== confirmPassword) {
+        if (formPassword !== confirmPassword) {
           toast.error("Mật khẩu xác nhận không khớp!");
           setIsLoading(false);
           return;
@@ -188,12 +198,12 @@ export default function AuthContent() {
 
         // Handle Sign Up
         const { data, error } = await supabase.auth.signUp({
-          email,
-          password,
+          email: formEmail,
+          password: formPassword,
           options: {
             captchaToken,
             data: {
-              full_name: fullName,
+              full_name: formFullName,
             }
           },
         });
@@ -205,15 +215,6 @@ export default function AuthContent() {
         // Đăng xuất ngay lập tức phòng trường hợp Supabase tự động đăng nhập khi tắt Confirm Email
         await supabase.auth.signOut();
 
-        // Lưu thông tin "Ghi nhớ" nếu cần, giống với đăng nhập
-        if (rememberMe) {
-          localStorage.setItem("rememberedEmail", email);
-          localStorage.setItem("rememberMe", "true");
-        } else {
-          localStorage.removeItem("rememberedEmail");
-          localStorage.setItem("rememberMe", "false");
-        }
-
         toast.success("Đăng ký thành công! Vui lòng đăng nhập để tiếp tục.");
         
         // Chuyển sang tab đăng nhập
@@ -222,6 +223,7 @@ export default function AuthContent() {
     } catch (error: any) {
       console.error("Auth error:", error.message);
       toast.error(translateError(error.message));
+      turnstileRef.current?.reset();
     } finally {
       setIsLoading(false);
     }
@@ -295,7 +297,7 @@ export default function AuthContent() {
                     <AuthInput
                       type="email"
                       name="email"
-                      autoComplete="username email"
+                      autoComplete="username"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="Email của bạn"
@@ -327,27 +329,7 @@ export default function AuthContent() {
                     )}
 
                     {isLogin && (
-                      <div className="flex items-center justify-between px-2">
-                        <label className="flex items-center gap-3 group cursor-pointer select-none">
-                          <div className="relative">
-                            <input
-                              type="checkbox"
-                              checked={rememberMe}
-                              onChange={(e) => setRememberMe(e.target.checked)}
-                              className="sr-only peer"
-                            />
-                            <div className={`w-4 h-4 md:w-5 md:h-5 rounded-md border-2 transition-all duration-300 flex items-center justify-center ${rememberMe ? 'bg-amber-400 border-amber-400 rotate-0' : 'bg-transparent border-white/20 -rotate-12'}`}>
-                              <CheckCircle2 size={12} className={`text-black transition-opacity duration-300 md:hidden ${rememberMe ? 'opacity-100' : 'opacity-0'}`} />
-                              <CheckCircle2 size={14} className={`text-black transition-opacity duration-300 hidden md:block ${rememberMe ? 'opacity-100' : 'opacity-0'}`} />
-                            </div>
-                            {/* Subtle Glow Effect when checked */}
-                            {rememberMe && (
-                              <div className="absolute inset-0 bg-amber-400 opacity-20 -z-10 animate-pulse" />
-                            )}
-                          </div>
-                          <span className="text-[10px] md:text-xs text-white/50 group-hover:text-white/80 transition-colors">Ghi nhớ đăng nhập</span>
-                        </label>
-
+                      <div className="flex items-center justify-end px-2">
                         <Link
                           href="/quen-mat-khau"
                           className="text-amber-400/60 hover:text-amber-400 text-[10px] md:text-xs transition-colors cursor-pointer"
@@ -360,6 +342,7 @@ export default function AuthContent() {
                     {/* Turnstile Captcha */}
                     <div className="flex justify-center mt-4">
                       <Turnstile
+                        ref={turnstileRef}
                         siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
                         onSuccess={(token) => setCaptchaToken(token)}
                         options={{ theme: 'dark' }}

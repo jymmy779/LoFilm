@@ -360,7 +360,6 @@ export async function addEpisode(movieId: string, data: Record<string, string>) 
 
     try {
         const supabase = await createClient();
-        console.log("DB connecting for addEpisode...");
         
         let insertError = null;
         for (let attempt = 0; attempt < 3; attempt++) {
@@ -380,7 +379,6 @@ export async function addEpisode(movieId: string, data: Record<string, string>) 
                 }).select();
                 
             if (!error) {
-                console.log("DB Insert success on attempt", attempt + 1);
                 insertError = null;
                 break;
             }
@@ -414,7 +412,6 @@ export async function updateEpisode(id: string, data: Record<string, string>) {
 
     try {
         const supabase = await createClient();
-        console.log("DB connecting for updateEpisode...");
 
         let updateError = null;
         for (let attempt = 0; attempt < 3; attempt++) {
@@ -433,7 +430,6 @@ export async function updateEpisode(id: string, data: Record<string, string>) {
                 .eq("id", id);
                 
             if (!error) {
-                console.log("DB Update success on attempt", attempt + 1);
                 updateError = null;
                 break;
             }
@@ -511,7 +507,7 @@ export async function importMovieFromApi(apiUrl: string, data: Record<string, an
         }
 
         const type = movieData.type === 'series' || movieData.type === 'hoathinh' || movieData.type === 'tvshows' ? 'series' : 'single';
-        let tmdbId = movieData.tmdb?.id || "";
+        const tmdbId = movieData.tmdb?.id || "";
 
         const supabase = await createClient();
 
@@ -584,7 +580,7 @@ export async function importMovieFromApi(apiUrl: string, data: Record<string, an
         }
 
         // 2. Insert Episodes
-        let episodeInserts = [];
+        const episodeInserts = [];
         for (const server of episodesData) {
             const serverData = server.server_data || [];
             let order = 1;

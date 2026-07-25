@@ -1,11 +1,11 @@
 "use client";
 
 import Image from "next/image";
-import TransitionLink from "@/app/components/Transition/TransitionLink";
+import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import * as Icons from "lucide-react";
 import { Flame, Film, Camera, Crown, Ghost, Globe, Sparkles, Gamepad2, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
-import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
+import CatalogSkeleton from "@/app/components/Movies/MovieCatalog/CatalogSkeleton";
 
 export interface TopicItem {
     id: string;

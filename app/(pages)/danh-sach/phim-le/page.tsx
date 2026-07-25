@@ -1,20 +1,30 @@
+import Loading from "@/app/loading";
 import { Metadata } from "next";
 import { Suspense } from "react";
 import MovieListClient from "./MovieListClient";
-import CatalogSkeleton from "@/app/components/MovieCatalog/CatalogSkeleton";
+import CatalogSkeleton from "@/app/components/Movies/MovieCatalog/CatalogSkeleton";
 import { fetchCatalogData } from "@/app/utils/serverFetch";
+
+import { getAbsoluteUrl } from "@/app/config/site";
 
 export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
 export const metadata: Metadata = {
-    title: "Danh sách Phim Lẻ mới nhất | LoFilm - Kho phim lẻ Việt Nam, Quốc Tế",
-    description: "Tổng hợp các phim lẻ, phim một tập mới nhất từ khắp nơi trên thế giới, cập nhật liên tục mỗi ngày trên LoFilm. Xem phim lẻ 4K, Vietsub cực nhanh.",
-    keywords: ["phim le", "phim le moi", "phim le hay", "phim le vietsub", "phim le chieu rap", "xem phim le online", "phim le 4k", "lofilm phim le"],
+    title: "Phim Lẻ Mới Nhất 2026 | LoFilm - Xem Phim Lẻ 4K Vietsub Miễn Phí",
+    description: "Tổng hợp các phim lẻ, phim một tập mới nhất từ khắp nơi trên thế giới, cập nhật liên tục mỗi ngày trên LoFilm. Xem phim lẻ 4K, Vietsub, thuyết minh chất lượng cao hoàn toàn miễn phí.",
+    keywords: [
+        "phim le", "phim le moi", "phim le hay", "phim le vietsub",
+        "phim le chieu rap", "xem phim le online", "phim le 4k",
+        "lofilm phim le", "phim le 2026", "phim mot tap hay"
+    ],
+    alternates: {
+        canonical: getAbsoluteUrl('/danh-sach/phim-le'),
+    },
 };
 
 export default function MovieListPage() {
     return (
-        <Suspense fallback={<CatalogSkeleton />}>
+        <Suspense fallback={<Loading />}>
             <MovieListData />
         </Suspense>
     );

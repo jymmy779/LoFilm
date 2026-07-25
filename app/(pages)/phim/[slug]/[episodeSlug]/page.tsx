@@ -1,3 +1,4 @@
+import Loading from "@/app/loading";
 import WatchClient from "./WatchClient";
 import { Movie } from "@/app/types/movie";
 import { AlertTriangle } from "lucide-react";
@@ -131,7 +132,7 @@ export default async function WatchPage({ params, searchParams }: Props) {
     const preview = resolvedParams.preview;
 
     return (
-        <Suspense fallback={<WatchLoading />}>
+        <Suspense fallback={<Loading />}>
             <WatchData slug={slug} episodeSlug={episodeSlug} preview={preview} />
         </Suspense>
     );

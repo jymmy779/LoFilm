@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import TransitionLink from "@/app/components/Transition/TransitionLink";
+import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { ChevronLeft } from "lucide-react";
 
-import Container from "@/app/components/Container";
+import Container from "@/app/components/UI/Container";
 
 interface MovieHeaderProps {
   slug: string;

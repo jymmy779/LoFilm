@@ -19,7 +19,6 @@ export async function POST(req: NextRequest) {
 
         // Security check: Only allow the specific user
         if (userId !== ALLOWED_USER_ID) {
-            console.log(`Unauthorized notification attempt from ID: ${userId}`);
             return NextResponse.json({ ok: true });
         }
 
