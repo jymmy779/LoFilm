@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { Server, Search, ArrowUpDown, ChevronDown } from "lucide-react";
 import { getFriendlyEpisodeSlug, parseEpNumber } from "@/app/utils/movieUtils";
-import axios from "axios";
 
 interface EpisodeListProps {
   slug: string;
@@ -30,72 +29,6 @@ interface EpisodeListProps {
   showServers?: boolean;
 }
 
-interface PartItem {
-  part: number;
-  slug: string;
-}
-
-// Custom Part Dropdown component
-const PartDropdown = ({ parts, currentPart }: { parts: PartItem[]; currentPart: number }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-  const router = useRouter();
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) {
-        setIsOpen(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
-
-  return (
-    <div className="relative inline-flex" ref={ref}>
-      <button
-        onClick={() => setIsOpen(prev => !prev)}
-        className="flex items-center gap-1.5 bg-white/10 border border-white/10 rounded-xl px-4 py-2.5 text-xs md:text-sm font-bold text-white cursor-pointer focus:outline-none focus:border-amber-500/50 focus:bg-white/15 transition-all hover:bg-white/15 hover:border-white/20"
-      >
-        <span>Phần {currentPart}</span>
-        <span className={`transition-transform duration-200 ${isOpen ? "rotate-180" : ""}`}>▾</span>
-      </button>
-
-      {isOpen && (
-        <>
-          <div className="fixed inset-0 z-40" onClick={() => setIsOpen(false)} />
-          <div className="absolute top-full left-0 mt-1.5 z-50 min-w-[120px] bg-[#1e2028] border border-white/10 rounded-xl shadow-2xl shadow-black/50 overflow-hidden animate-dropdown-in origin-top">
-            {parts.map((p, i) => {
-              const isSelected = p.part === currentPart;
-              return (
-                <button
-                  key={p.part}
-                  onClick={() => {
-                    setIsOpen(false);
-                    if (p.part !== currentPart) {
-                      router.push(`/phim/${p.slug}`, { scroll: false });
-                    }
-                  }}
-                  className={`
-                    w-full flex items-center px-4 py-2.5 text-xs md:text-sm font-semibold transition-all cursor-pointer
-                    ${isSelected
-                      ? "bg-amber-500/15 text-amber-400"
-                      : "text-gray-400 hover:bg-white/5 hover:text-white"
-                    }
-                    ${i !== 0 ? "border-t border-white/5" : ""}
-                  `}
-                >
-                  <span>Phần {p.part}</span>
-                </button>
-              );
-            })}
-          </div>
-        </>
-      )}
-    </div>
-  );
-};
-
 const EpisodeList = ({
   slug,
   movieName,
@@ -111,111 +44,6 @@ const EpisodeList = ({
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
   const CHUNK_SIZE = 100;
-
-  // Parse part info from slug (e.g., "naruto-phan-2" → base="naruto", part=2; "boboiboy-galaxy" → base="boboiboy-galaxy", part=1)
-  const partInfo = useMemo(() => {
-    const match = slug.match(/^(.+?)(?:-(?:phan|season|ss|p)-?(\d+))$/i);
-    if (match) return { base: match[1], part: parseInt(match[2], 10) };
-    return { base: slug, part: 1 };
-  }, [slug]);
-
-  const [availableParts, setAvailableParts] = useState<PartItem[]>([]);
-  const [isLoadingParts, setIsLoadingParts] = useState(false);
-
-  // Check existence of nearby parts (cache in sessionStorage)
-  useEffect(() => {
-    if (!partInfo) return;
-
-    const { base, part } = partInfo;
-    const cacheKey = `parts_${base}`;
-
-    try {
-      const cached = sessionStorage.getItem(cacheKey);
-      if (cached) {
-        const parsed = JSON.parse(cached);
-        if (Array.isArray(parsed) && parsed.length > 0 && parsed.some((item: any) => item.part === part)) {
-          setAvailableParts(parsed);
-          return;
-        }
-      }
-    } catch { /* ignore */ }
-
-    setIsLoadingParts(true);
-
-    const maxPartToCheck = Math.max(5, part + 2);
-    const partsToCheck: number[] = [];
-    for (let i = 1; i <= maxPartToCheck; i++) {
-      partsToCheck.push(i);
-    }
-
-    const fetchPart = async (p: number): Promise<PartItem | null> => {
-      if (p === part) {
-        return { part: p, slug };
-      }
-
-      let candidates: string[] = [];
-      if (p === 1) {
-        candidates = [
-          base,
-          `${base}-phan-1`,
-          `${base}-season-1`,
-          `${base}-phan-01`,
-          `${base}-ss1`,
-          `${base}-p1`
-        ];
-      } else {
-        candidates = [
-          `${base}-phan-${p}`,
-          `${base}-season-${p}`,
-          `${base}-phan-0${p}`,
-          `${base}-ss${p}`,
-          `${base}-p${p}`
-        ];
-      }
-
-      candidates = [...new Set(candidates)].filter(c => c !== slug);
-
-      // Check all candidates for part p concurrently for max performance
-      const candidateResults = await Promise.all(
-        candidates.map(async (cand) => {
-          try {
-            const res = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/phim/${cand}`)}`);
-            if (res.data?.status === "success" || res.data?.status === true) {
-              return cand;
-            }
-          } catch {
-            /* ignore */
-          }
-          return null;
-        })
-      );
-
-      const foundSlug = candidateResults.find(c => c !== null);
-      return foundSlug ? { part: p, slug: foundSlug } : null;
-    };
-
-    Promise.allSettled(partsToCheck.map(fetchPart)).then(results => {
-      const validMap = new Map<number, string>();
-      validMap.set(part, slug); // current part is always valid
-
-      results.forEach(r => {
-        if (r.status === 'fulfilled' && r.value) {
-          validMap.set(r.value.part, r.value.slug);
-        }
-      });
-
-      const validParts: PartItem[] = Array.from(validMap.entries())
-        .map(([p, s]) => ({ part: p, slug: s }))
-        .sort((a, b) => a.part - b.part);
-
-      setAvailableParts(validParts);
-      try {
-        sessionStorage.setItem(cacheKey, JSON.stringify(validParts));
-      } catch { /* ignore */ }
-    }).finally(() => {
-      setIsLoadingParts(false);
-    });
-  }, [partInfo, slug]);
 
   if (!episodes || episodes.length === 0) return null;
 
@@ -403,23 +231,6 @@ const EpisodeList = ({
             <span className="">👉</span>
             <span>{movieName} - Tập {latestEpisode.name.replace(/Tập\s*/i, "").trim()}</span>
           </TransitionLink>
-        </div>
-      )}
-
-      {/* Part Selector - show if there are multiple parts */}
-      {!searchQuery.trim() && (
-        <div className="mb-4 pt-2">
-          {isLoadingParts ? (
-            <div className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 animate-pulse border border-white/5">
-              <div className="w-16 h-4 bg-white/10 rounded" />
-              <div className="w-4 h-4 bg-white/10 rounded" />
-            </div>
-          ) : availableParts.length > 1 ? (
-            <PartDropdown
-              parts={availableParts}
-              currentPart={partInfo.part}
-            />
-          ) : null}
         </div>
       )}
 
