@@ -172,6 +172,7 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
 
     } catch (error) {
         console.error("Error in getMovieDetail:", error);
+        throw error; // Throw để không cache trang 404 nếu là lỗi mạng
     }
     
     return null;

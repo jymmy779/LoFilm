@@ -40,7 +40,7 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
             const fetchUrl = `${url}${separator}${cacheBuster}`;
 
             const response = await axios.get(fetchUrl, {
-                timeout: 20000, // 20 giây timeout
+                timeout: 8000, // 8 giây timeout để fail fast và không treo server
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                     'Accept': 'application/json',
@@ -72,7 +72,7 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
                 return fetchFreshData(retryCount + 1);
             }
             console.error(`[Axios Fetch Error After Retry] ${url}`, error.message);
-            return null; // Nếu sập hẳn thì đành chịu (nhưng nhờ SWR, ta ít khi phải chạy tới dòng này)
+            throw new Error(`Fetch failed for ${url}: ${error.message}`); // Ném lỗi để Next.js không cache kết quả rỗng
         }
     };
 

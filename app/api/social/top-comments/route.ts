@@ -168,6 +168,10 @@ export async function GET() {
             })
             .filter((c) => c !== null);
 
+        if (top20Comments.length === 0 && top20RawComments.length > 0) {
+            throw new Error("Failed to fetch all movie metadata due to rate limit or timeout.");
+        }
+
         return NextResponse.json(top20Comments, {
             headers: {
                 'Cache-Control': 'public, s-maxage=43200, stale-while-revalidate=600, max-age=0'

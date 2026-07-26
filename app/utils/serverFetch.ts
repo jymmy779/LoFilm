@@ -79,13 +79,7 @@ export async function fetchCatalogData(
         };
     } catch (error) {
         console.error("Server fetch error:", error);
-        return {
-            movies: [],
-            totalPages: 1,
-            pageTitle: "",
-            categories: [],
-            countries: [],
-        };
+        throw error; // Throw để Next.js ngừng build/cache trang này thay vì lưu mảng rỗng
     }
 }
 
@@ -199,12 +193,6 @@ export async function fetchSearchData(
         };
     } catch (error) {
         console.error("Server search error:", error);
-        return {
-            movies: [],
-            totalPages: 1,
-            pageTitle: "",
-            categories: [],
-            countries: [],
-        };
+        throw error; // Throw để Next.js ngừng cache kết quả rỗng
     }
 }
