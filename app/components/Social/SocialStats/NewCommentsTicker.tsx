@@ -2,9 +2,8 @@
 
 import { useEffect, useState } from "react";
 import { Zap, Play } from "lucide-react";
-import axios from "axios";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
-import { globalCache } from "@/app/utils/globalCache";
+import { useSocialData } from "./SocialDataContext";
 
 interface TickerComment {
     id: string;
@@ -43,37 +42,18 @@ function TickerAvatar({ avatar, name }: { avatar: string | null; name: string })
 }
 
 export default function NewCommentsTicker() {
-    const [comments, setComments] = useState<TickerComment[]>(() => globalCache.getRaw<TickerComment[]>("social-new-comments") || []);
-    const [loading, setLoading] = useState(() => !globalCache.has("social-new-comments"));
+    const { data, loading } = useSocialData();
+    const sourceComments = data?.newComments || [];
+    // Local copy for ticker rotation animation
+    const [comments, setComments] = useState<TickerComment[]>([]);
     const [isTransitioning, setIsTransitioning] = useState(false);
 
+    // Seed local state when data arrives from Context
     useEffect(() => {
-        const controller = new AbortController();
-
-        const loadNewestComments = async () => {
-            try {
-                const res = await axios.get("/api/social/new-comments", { signal: controller.signal });
-                if (res.data && Array.isArray(res.data)) {
-                    if (res.data.length > 0) {
-                        setComments(res.data);
-                        globalCache.set("social-new-comments", res.data);
-                    } else if (!globalCache.has("social-new-comments")) {
-                        setComments([]);
-                    }
-                }
-            } catch (err) {
-                if (!axios.isCancel(err)) {
-                    console.error("Error loading newest comments:", err);
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadNewestComments();
-
-        return () => controller.abort();
-    }, []);
+        if (sourceComments.length > 0) {
+            setComments(sourceComments as TickerComment[]);
+        }
+    }, [sourceComments.length]);
 
     // Ticker animation loop
     useEffect(() => {

@@ -3,11 +3,10 @@
 import { useEffect, useState } from "react";
 import { Flame, TrendingUp, TrendingDown, Minus, X } from "lucide-react";
 import { createPortal } from "react-dom";
-import axios from "axios";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
-import { globalCache } from "@/app/utils/globalCache";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
 import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
+import { useSocialData } from "./SocialDataContext";
 
 interface TrendingMovie {
     slug: string;
@@ -16,39 +15,12 @@ interface TrendingMovie {
 }
 
 export default function TrendingList() {
-    const [movies, setMovies] = useState<TrendingMovie[]>(() => globalCache.getRaw<TrendingMovie[]>("social-trending") || []);
-    const [loading, setLoading] = useState(() => !globalCache.has("social-trending"));
+    const { data, loading } = useSocialData();
+    const movies = data?.trending || [];
     const [isOpen, setIsOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
 
-    useEffect(() => {
-        setMounted(true);
-        const controller = new AbortController();
-
-        const fetchTrendingMovies = async () => {
-            try {
-                const res = await axios.get("/api/social/trending", { signal: controller.signal });
-                if (res.data && Array.isArray(res.data)) {
-                    if (res.data.length > 0) {
-                        setMovies(res.data);
-                        globalCache.set("social-trending", res.data);
-                    } else if (!globalCache.has("social-trending")) {
-                        setMovies([]);
-                    }
-                }
-            } catch (err) {
-                if (!axios.isCancel(err)) {
-                    console.error("Error loading trending list:", err);
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchTrendingMovies();
-
-        return () => controller.abort();
-    }, []);
+    useEffect(() => { setMounted(true); }, []);
 
     const [shouldRender, setShouldRender] = useState(isOpen);
     const [isClosing, setIsClosing] = useState(false);

@@ -7,7 +7,7 @@ import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 import { Suspense } from "react";
 import WatchLoading from "./loading";
 
-export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
+export const dynamic = 'force-dynamic';
 
 const API_BASE = "https://phimapi.com";
 

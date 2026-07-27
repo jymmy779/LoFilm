@@ -90,13 +90,8 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
 
                     // Nếu quá hạn (Stale), kích hoạt fetch ngầm để cập nhật cho lần sau
                     if (ageMs > maxAgeMs) {
-                        // Chờ fetch mới hoàn thành để đảm bảo tiến trình không bị tắt ngầm bởi serverless
-                        try {
-                            const freshData = await fetchFreshData();
-                            if (freshData) return freshData;
-                        } catch (err) {
-                            console.error("SWR Update Failed", err);
-                        }
+                        // Bỏ await để KHÔNG BLOCK - Dữ liệu cũ được trả về ngay lập tức (True SWR)
+                        fetchFreshData().catch((err) => console.error("SWR Update Failed", err));
                     }
 
                     // Luôn luôn trả về data ngay lập tức (dù cũ hay mới)

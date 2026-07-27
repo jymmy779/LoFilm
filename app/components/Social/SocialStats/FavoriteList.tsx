@@ -3,11 +3,10 @@
 import { useEffect, useState } from "react";
 import { Heart, X, TrendingUp, TrendingDown, Minus } from "lucide-react";
 import { createPortal } from "react-dom";
-import axios from "axios";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
-import { globalCache } from "@/app/utils/globalCache";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
 import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
+import { useSocialData } from "./SocialDataContext";
 
 interface FavoriteMovie {
     slug: string;
@@ -16,40 +15,12 @@ interface FavoriteMovie {
 }
 
 export default function FavoriteList() {
-    const [movies, setMovies] = useState<FavoriteMovie[]>(() => globalCache.getRaw<FavoriteMovie[]>("social-favorites") || []);
-    const [loading, setLoading] = useState(() => !globalCache.has("social-favorites"));
+    const { data, loading } = useSocialData();
+    const movies = data?.favorites || [];
     const [isOpen, setIsOpen] = useState(false);
     const [mounted, setMounted] = useState(false);
 
-    useEffect(() => {
-        setMounted(true);
-        const controller = new AbortController();
-
-        const fetchWeeklyFavorites = async () => {
-            try {
-                // Fetch from our secure aggregated API route which bypasses RLS on server-side
-                const res = await axios.get("/api/social/favorites", { signal: controller.signal });
-                if (res.data && Array.isArray(res.data)) {
-                    if (res.data.length > 0) {
-                        setMovies(res.data);
-                        globalCache.set("social-favorites", res.data);
-                    } else if (!globalCache.has("social-favorites")) {
-                        setMovies([]);
-                    }
-                }
-            } catch (err) {
-                if (!axios.isCancel(err)) {
-                    console.error("Error loading weekly favorites:", err);
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        fetchWeeklyFavorites();
-
-        return () => controller.abort();
-    }, []);
+    useEffect(() => { setMounted(true); }, []);
 
     const [shouldRender, setShouldRender] = useState(isOpen);
     const [isClosing, setIsClosing] = useState(false);

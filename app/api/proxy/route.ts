@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
 
   try {
     const revalidateParam = searchParams.get('revalidate');
-    const revalidate = revalidateParam ? parseInt(revalidateParam) : 60; // Sync 60 giây với prefetch-home
+    const revalidate = revalidateParam ? parseInt(revalidateParam) : 60;
 
     const data = await fetchWithRedis(targetUrl, { revalidate });
 
@@ -19,14 +19,16 @@ export async function GET(request: NextRequest) {
       throw new Error('Dữ liệu không tồn tại hoặc lỗi kết nối từ nguồn API (TMDB/PhimAPI)');
     }
 
+    // For long-lived static data (>= 1 hour), allow browser to cache it too.
+    // This eliminates repeated hits to VPS for data like the-loai/quoc-gia that rarely change.
+    const isLongLived = revalidate >= 3600;
+    const cacheControlHeader = isLongLived
+      ? `public, max-age=${revalidate}, stale-while-revalidate=600`
+      : 'no-cache, no-store, must-revalidate';
+
     return NextResponse.json(data, {
       headers: {
-        // Không cho Cloudflare/edge cache proxy (dữ liệu luôn thay đổi)
-        'Cache-Control': 'no-cache, no-store, must-revalidate, proxy-revalidate',
-        'Pragma': 'no-cache',
-        'Expires': '0',
-        'CDN-Cache-Control': 'no-cache',
-        'Cloudflare-CDN-Cache-Control': 'no-cache',
+        'Cache-Control': cacheControlHeader,
       }
     });
   } catch (error: any) {
@@ -37,3 +39,4 @@ export async function GET(request: NextRequest) {
     );
   }
 }
+

@@ -1,18 +1,17 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import { Star, MessageSquare } from "lucide-react";
 import SwiperNavButtons from "@/app/components/UI/Common/SwiperNavButtons";
-import axios from "axios";
 import Skeleton from "@/app/components/UI/Skeleton/Skeleton";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
-import { globalCache } from "@/app/utils/globalCache";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
 import { getR2MoviePosterUrl, getR2MovieThumbUrl } from "@/app/utils/r2ImageUrl";
+import { useSocialData } from "./SocialDataContext";
 
 interface DisplayComment {
     id: string | number;
@@ -58,36 +57,10 @@ function AvatarCell({ avatar, name }: { avatar: string | null; name: string }) {
 }
 
 export default function TopCommentsSlider() {
-    const [comments, setComments] = useState<DisplayComment[]>(() => globalCache.getRaw<DisplayComment[]>("social-top-comments") || []);
-    const [loading, setLoading] = useState(() => !globalCache.has("social-top-comments"));
+    const { data, loading } = useSocialData();
+    const comments = (data?.topComments || []) as DisplayComment[];
 
-    useEffect(() => {
-        const controller = new AbortController();
-
-        const loadTopComments = async () => {
-            try {
-                const res = await axios.get("/api/social/top-comments", { signal: controller.signal });
-                if (res.data && Array.isArray(res.data)) {
-                    if (res.data.length > 0) {
-                        setComments(res.data);
-                        globalCache.set("social-top-comments", res.data);
-                    } else if (!globalCache.has("social-top-comments")) {
-                        setComments([]);
-                    }
-                }
-            } catch (err) {
-                if (!axios.isCancel(err)) {
-                    console.error("Error loading social top comments:", err);
-                }
-            } finally {
-                setLoading(false);
-            }
-        };
-
-        loadTopComments();
-
-        return () => controller.abort();
-    }, []);
+    const [showAll, setShowAll] = useState(false);
 
     return (
         <div className="relative group/comments">
