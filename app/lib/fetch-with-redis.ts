@@ -13,6 +13,9 @@ export const redis =
     ? new Redis(process.env.REDIS_URL, {
         maxRetriesPerRequest: 1,
         connectTimeout: 2000,
+        commandTimeout: 3000,
+        enableOfflineQueue: false,
+        keepAlive: 10000,
       })
     : null);
 
