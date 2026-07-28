@@ -137,31 +137,37 @@ export async function GET() {
         const dbMap = new Map(moviesInDb?.map((m: any) => [m.slug, m]) || []);
 
         const movieMetaMap: Record<string, { title: string; poster: string; backdrop: string }> = {};
-        await Promise.all(
-            allSlugs.map(async (slug) => {
-                const dbMovie: any = dbMap.get(slug);
-                if (dbMovie) {
-                    movieMetaMap[slug] = {
-                        title: dbMovie.name || 'Phim',
-                        poster: getImageUrl(dbMovie.poster_url),
-                        backdrop: getImageUrl(dbMovie.thumb_url),
-                    };
-                    return;
-                }
-                try {
-                    const data = await fetchWithRedis(`https://phimapi.com/phim/${slug}`, { revalidate: 3600 });
-                    if (data?.movie) {
+        
+        // Chunking (giới hạn concurrent requests để tránh OOM / 502 Bad Gateway)
+        const CHUNK_SIZE = 5;
+        for (let i = 0; i < allSlugs.length; i += CHUNK_SIZE) {
+            const chunk = allSlugs.slice(i, i + CHUNK_SIZE);
+            await Promise.all(
+                chunk.map(async (slug) => {
+                    const dbMovie: any = dbMap.get(slug);
+                    if (dbMovie) {
                         movieMetaMap[slug] = {
-                            title: data.movie.name || 'Phim',
-                            poster: getImageUrl(data.movie.poster_url),
-                            backdrop: getImageUrl(data.movie.thumb_url),
+                            title: dbMovie.name || 'Phim',
+                            poster: getImageUrl(dbMovie.poster_url),
+                            backdrop: getImageUrl(dbMovie.thumb_url),
                         };
+                        return;
                     }
-                } catch {
-                    // Skip slugs that fail to fetch
-                }
-            })
-        );
+                    try {
+                        const data = await fetchWithRedis(`https://phimapi.com/phim/${slug}`, { revalidate: 3600 });
+                        if (data?.movie) {
+                            movieMetaMap[slug] = {
+                                title: data.movie.name || 'Phim',
+                                poster: getImageUrl(data.movie.poster_url),
+                                backdrop: getImageUrl(data.movie.thumb_url),
+                            };
+                        }
+                    } catch {
+                        // Skip slugs that fail to fetch
+                    }
+                })
+            );
+        }
 
         // --- Build response objects ---
         const topComments = uniqueTopComments

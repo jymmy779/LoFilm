@@ -36,8 +36,15 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
     // Đổi prefix để phân biệt với cache cũ, tránh lỗi format
     const cacheKey = `swr:${url}`;
 
+    // Deduplicator (chống Cache Stampede)
+    const globalForPromises = global as unknown as { pendingFetches: Map<string, Promise<any>> };
+    if (!globalForPromises.pendingFetches) {
+        globalForPromises.pendingFetches = new Map();
+    }
+    const pendingFetches = globalForPromises.pendingFetches;
+
     // Hàm gọi API gốc
-    const fetchFreshData = async (retryCount = 0): Promise<any> => {
+    const _fetchFreshData = async (retryCount = 0): Promise<any> => {
         try {
             // Thêm cache-buster để bypass cache của Cloudflare/CDN bên thứ 3
             const safeRevalidate = revalidate && revalidate > 0 ? revalidate : 60;
@@ -75,11 +82,22 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
             }
         } catch (error: any) {
             if (retryCount < 1) { // Thử lại 1 lần nữa nếu lỗi
-                return fetchFreshData(retryCount + 1);
+                return _fetchFreshData(retryCount + 1);
             }
             console.error(`[Axios Fetch Error After Retry] ${url}`, error.message);
             throw new Error(`Fetch failed for ${url}: ${error.message}`); // Ném lỗi để Next.js không cache kết quả rỗng
         }
+    };
+
+    const fetchFreshData = () => {
+        if (pendingFetches.has(url)) {
+            return pendingFetches.get(url)!;
+        }
+        const promise = _fetchFreshData().finally(() => {
+            pendingFetches.delete(url);
+        });
+        pendingFetches.set(url, promise);
+        return promise;
     };
 
     // 1. Lục trong Redis trước
