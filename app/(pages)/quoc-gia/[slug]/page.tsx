@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title = title.charAt(0).toUpperCase() + title.slice(1);
 
     try {
-        const res = await fetchWithRedis("https://phimapi.com/quoc-gia", { revalidate: 60 });
+        const res = await fetchWithRedis("https://phimapi.com/v1/api/quoc-gia", { revalidate: 60 });
         const countries = (res as any)?.data?.items || (Array.isArray(res) ? res : []);
         const country = countries.find((item: any) => item.slug === slug);
         if (country) title = country.name;
@@ -62,7 +62,7 @@ async function CountryData({ slug }: { slug: string }) {
     countryName = countryName.charAt(0).toUpperCase() + countryName.slice(1);
 
     try {
-        const res = await fetchWithRedis("https://phimapi.com/quoc-gia", { revalidate: 60 });
+        const res = await fetchWithRedis("https://phimapi.com/v1/api/quoc-gia", { revalidate: 60 });
         const countries = (res as any)?.data?.items || (Array.isArray(res) ? res : []);
         const country = countries.find((item: any) => item.slug === slug);
         if (country) countryName = country.name;

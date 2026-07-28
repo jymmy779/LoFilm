@@ -47,10 +47,12 @@ export async function fetchCatalogData(
         const fullUrl = `${apiUrl}?${params.toString()}`;
 
         // Fetch movies + filter lists in parallel using unified cache strategy
-        const [moviesData, categoriesData, countriesData] = await Promise.all([
+        const [moviesData, [categoriesData, countriesData]] = await Promise.all([
             fetchWithRedis(fullUrl, { revalidate: 60 }),
-            fetchWithRedis("https://phimapi.com/the-loai", { revalidate: 86400 }), // 24 giờ
-            fetchWithRedis("https://phimapi.com/quoc-gia", { revalidate: 86400 }), // 24 giờ
+            Promise.all([
+                fetchWithRedis("https://phimapi.com/v1/api/the-loai", { revalidate: 86400 }), // 24 giờ
+                fetchWithRedis("https://phimapi.com/v1/api/quoc-gia", { revalidate: 86400 }), // 24 giờ
+            ])
         ]);
 
         let items: Movie[] = [];
@@ -155,8 +157,8 @@ export async function fetchSearchData(
         // Use fetchWithRedis for unified caching
         const [searchData, categoriesData, countriesData] = await Promise.all([
             fetchWithRedis(fullUrl, { revalidate: 30 }),
-            fetchWithRedis("https://phimapi.com/the-loai", { revalidate: 86400 }), // 24 giờ
-            fetchWithRedis("https://phimapi.com/quoc-gia", { revalidate: 86400 }), // 24 giờ
+            fetchWithRedis("https://phimapi.com/v1/api/the-loai", { revalidate: 86400 }), // 24 giờ
+            fetchWithRedis("https://phimapi.com/v1/api/quoc-gia", { revalidate: 86400 }), // 24 giờ
         ]);
 
         let apiItems: any[] = [];

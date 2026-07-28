@@ -11,11 +11,17 @@ export const dynamic = 'force-dynamic';
 // Endpoints merged: /api/social/top-comments, trending, favorites, new-comments
 // ---------------------------------------------------------------------------
 
+let supabaseClient: any = null;
+
 async function getSupabaseClient() {
+    if (supabaseClient) return supabaseClient;
+    
     const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
     const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
     if (!supabaseUrl || !supabaseServiceKey) throw new Error('Missing Supabase configuration');
-    return createClient(supabaseUrl, supabaseServiceKey);
+    
+    supabaseClient = createClient(supabaseUrl, supabaseServiceKey);
+    return supabaseClient;
 }
 
 const FALLBACK_SLUGS = [

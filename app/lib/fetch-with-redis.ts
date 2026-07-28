@@ -4,19 +4,22 @@ import axios from 'axios';
 
 const DEFAULT_REVALIDATE_SEC = 60; // Cache 60 giây theo ý bạn
 
-// Khởi tạo Redis client (Singleton)
-export let redis: Redis | null = null;
+// Khởi tạo Redis client (Singleton) an toàn cho Next.js HMR
+const globalForRedis = global as unknown as { redis: Redis };
 
-try {
-    if (process.env.REDIS_URL) {
-        redis = new Redis(process.env.REDIS_URL, {
-            maxRetriesPerRequest: 1,
-            connectTimeout: 2000,
-        });
-        redis.on('error', (err) => console.error('[Redis Error]', err.message));
-    }
-} catch (error) {
-    console.error('[Redis Setup Error]', error);
+export const redis =
+  globalForRedis.redis ||
+  (process.env.REDIS_URL
+    ? new Redis(process.env.REDIS_URL, {
+        maxRetriesPerRequest: 1,
+        connectTimeout: 2000,
+      })
+    : null);
+
+if (process.env.NODE_ENV !== "production") globalForRedis.redis = redis as Redis;
+
+if (redis && !globalForRedis.redis) {
+    redis.on('error', (err) => console.error('[Redis Error]', err.message));
 }
 
 /**

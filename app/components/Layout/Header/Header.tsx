@@ -49,7 +49,7 @@ export default function Header() {
         window.addEventListener("scroll", handleScroll, { passive: true });
         window.addEventListener("resize", handleResize, { passive: true });
 
-        axios.get<MenuItem[]>(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/the-loai")}&revalidate=86400`)
+        axios.get<MenuItem[]>(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/v1/api/the-loai")}&revalidate=86400`)
             .then((res) => {
                 // Proxy returns data directly, but we need to handle the format
                 const items = (res.data as any).data?.items || res.data;
@@ -57,7 +57,7 @@ export default function Header() {
             })
             .catch((err) => console.error("Lỗi fetch thể loại:", err));
 
-        axios.get<MenuItem[]>(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/quoc-gia")}&revalidate=86400`)
+        axios.get<MenuItem[]>(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/v1/api/quoc-gia")}&revalidate=86400`)
             .then((res) => {
                 const items = (res.data as any).data?.items || res.data;
                 setCountries(Array.isArray(items) ? items : []);

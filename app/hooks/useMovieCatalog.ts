@@ -146,9 +146,9 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
 
         const fetchFilters = async () => {
             try {
-                const [catRes, countRes] = await Promise.all([
-                    axios.get<MenuItem[]>("https://phimapi.com/the-loai"),
-                    axios.get<MenuItem[]>("https://phimapi.com/quoc-gia")
+                const [catRes, counRes] = await Promise.all([
+                    axios.get<MenuItem[]>("https://phimapi.com/v1/api/the-loai"),
+                    axios.get<MenuItem[]>("https://phimapi.com/v1/api/quoc-gia")
                 ]);
                 const extractArray = (data: any) => {
                     if (Array.isArray(data)) return data;

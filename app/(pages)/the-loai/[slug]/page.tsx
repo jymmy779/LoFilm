@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title = title.charAt(0).toUpperCase() + title.slice(1);
 
     try {
-        const res = await fetchWithRedis("https://phimapi.com/the-loai", { revalidate: 60 });
+        const res = await fetchWithRedis("https://phimapi.com/v1/api/the-loai", { revalidate: 60 });
         const categories = (res as any)?.data?.items || (Array.isArray(res) ? res : []);
         const category = categories.find((cat: any) => cat.slug === slug);
         if (category) title = category.name;
@@ -62,7 +62,7 @@ async function CategoryData({ slug }: { slug: string }) {
     categoryName = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
 
     try {
-        const res = await fetchWithRedis("https://phimapi.com/the-loai", { revalidate: 60 });
+        const res = await fetchWithRedis("https://phimapi.com/v1/api/the-loai", { revalidate: 60 });
         const categories = (res as any)?.data?.items || (Array.isArray(res) ? res : []);
         const category = categories.find((cat: any) => cat.slug === slug);
         if (category) categoryName = category.name;

@@ -267,7 +267,7 @@ async function getExclusiveMoviesForHero(): Promise<Movie[]> {
 
 const URLS = {
     hero: "https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?limit=60",
-    categories: "https://phimapi.com/the-loai",
+    categories: "https://phimapi.com/v1/api/the-loai",
     movieRowHan: "https://phimapi.com/v1/api/quoc-gia/han-quoc?limit=60",
     movieRowTrung: "https://phimapi.com/v1/api/quoc-gia/trung-quoc?limit=60",
     movieRowAuMy: "https://phimapi.com/v1/api/quoc-gia/au-my?limit=60",
