@@ -74,7 +74,14 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL('/', request.url));
   }
 
-  // 2. OPTIMIZATION: Nếu là trang PHIM hoặc trang công cộng, cho đi thẳng luôn
+  // 2. OPTIMIZATION: Skip Supabase auth for API routes — they don't need session cookies.
+  // This prevents unnecessary Set-Cookie headers that cause Nginx 502
+  // ("upstream sent too big header") when Supabase refreshes expired JWT tokens.
+  if (pathname.startsWith('/api/')) {
+    return NextResponse.next();
+  }
+
+  // 3. OPTIMIZATION: Nếu là trang PHIM hoặc trang công cộng, cho đi thẳng luôn
   // Việc này cực kỳ quan trọng để tiết kiệm CPU và tránh Next.js gắn header 'private'
   const isPublicRoute = pathname.startsWith('/phim/') || 
                          pathname === '/' || 
@@ -82,7 +89,7 @@ export async function middleware(request: NextRequest) {
                          pathname.startsWith('/the-loai/') ||
                          pathname.startsWith('/quoc-gia/');
 
-  if (isPublicRoute && !pathname.includes('api')) {
+  if (isPublicRoute) {
      return NextResponse.next();
   }
 
