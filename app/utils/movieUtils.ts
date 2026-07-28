@@ -42,6 +42,11 @@ export function getEpisodeStatus(movie: Movie): string {
     const cur = (movie.episode_current || "").toLowerCase();
     if (cur.includes("trailer")) return "Trailer";
 
+    // Phim lẻ thực sự: episode_total = 1 HOẶC (episode_total không xác định VÀ current là "Full" chính xác - dành cho Anime Movie trong catalog)
+    const isSingleMovie = (movie.episode_total === 1 || String(movie.episode_total) === "1" || (!movie.episode_total && cur === "full")) && cur.includes("full");
+    if (isSingleMovie) return "Full";
+
+
     const isSeries = movie.type === "series" || movie.type === "hoathinh" || movie.type === "tvshows" || (movie.episode_total && String(movie.episode_total) !== "1");
 
     // 1. Nếu có định dạng phân số dạng 12/12
