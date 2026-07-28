@@ -60,20 +60,20 @@ export async function GET() {
                 .select('movie_slug, movie_name, movie_poster'),
         ]);
 
-        const rawComments = commentsResult.data || [];
-        const favoritesData = favoritesResult.data || [];
+        const rawComments: any[] = commentsResult.data || [];
+        const favoritesData: any[] = favoritesResult.data || [];
 
         // --- Process Top Comments ---
-        const mappedComments = rawComments.map((c) => ({
+        const mappedComments = rawComments.map((c: any) => ({
             ...c,
             upvotes: c.reactions?.filter((r: any) => r.type === 'up').length || 0,
             downvotes: c.reactions?.filter((r: any) => r.type === 'down').length || 0,
             createdAt: new Date(c.created_at).getTime(),
         }));
-        mappedComments.sort((a, b) => b.upvotes !== a.upvotes ? b.upvotes - a.upvotes : b.createdAt - a.createdAt);
+        mappedComments.sort((a: any, b: any) => b.upvotes !== a.upvotes ? b.upvotes - a.upvotes : b.createdAt - a.createdAt);
 
         const seenTopContents = new Set<string>();
-        const uniqueTopComments = mappedComments.filter((c) => {
+        const uniqueTopComments = mappedComments.filter((c: any) => {
             const norm = (c.content || '').trim().toLowerCase();
             if (seenTopContents.has(norm)) return false;
             seenTopContents.add(norm);
@@ -82,7 +82,7 @@ export async function GET() {
 
         // --- Process New Comments ---
         const seenNewContents = new Set<string>();
-        const uniqueNewComments = rawComments.filter((c) => {
+        const uniqueNewComments = rawComments.filter((c: any) => {
             const norm = (c.content || '').trim().toLowerCase();
             if (seenNewContents.has(norm)) return false;
             seenNewContents.add(norm);
@@ -91,7 +91,7 @@ export async function GET() {
 
         // --- Process Trending (by comment count) ---
         const commentCounts: Record<string, number> = {};
-        rawComments.forEach((c) => {
+        rawComments.forEach((c: any) => {
             if (c.movie_slug) {
                 const base = extractBaseSlug(c.movie_slug);
                 commentCounts[base] = (commentCounts[base] || 0) + 1;
@@ -107,7 +107,7 @@ export async function GET() {
 
         // --- Process Favorites ---
         const favCounts: Record<string, { count: number; name: string; poster: string }> = {};
-        favoritesData.forEach((fav) => {
+        favoritesData.forEach((fav: any) => {
             if (fav.movie_slug) {
                 if (!favCounts[fav.movie_slug]) {
                     favCounts[fav.movie_slug] = { count: 0, name: fav.movie_name || 'Phim', poster: fav.movie_poster || '' };
@@ -122,8 +122,8 @@ export async function GET() {
 
         // --- Collect all unique slugs that need movie metadata ---
         const allSlugs = Array.from(new Set([
-            ...uniqueTopComments.map(c => c.movie_slug ? extractBaseSlug(c.movie_slug) : null).filter(Boolean) as string[],
-            ...uniqueNewComments.map(c => c.movie_slug ? extractBaseSlug(c.movie_slug) : null).filter(Boolean) as string[],
+            ...uniqueTopComments.map((c: any) => c.movie_slug ? extractBaseSlug(c.movie_slug) : null).filter(Boolean) as string[],
+            ...uniqueNewComments.map((c: any) => c.movie_slug ? extractBaseSlug(c.movie_slug) : null).filter(Boolean) as string[],
             ...trendingSlugs,
             ...top10FavSlugs,
         ]));
@@ -134,12 +134,12 @@ export async function GET() {
             .select('slug, name, poster_url, thumb_url')
             .in('slug', allSlugs);
 
-        const dbMap = new Map(moviesInDb?.map(m => [m.slug, m]) || []);
+        const dbMap = new Map(moviesInDb?.map((m: any) => [m.slug, m]) || []);
 
         const movieMetaMap: Record<string, { title: string; poster: string; backdrop: string }> = {};
         await Promise.all(
             allSlugs.map(async (slug) => {
-                const dbMovie = dbMap.get(slug);
+                const dbMovie: any = dbMap.get(slug);
                 if (dbMovie) {
                     movieMetaMap[slug] = {
                         title: dbMovie.name || 'Phim',
@@ -165,7 +165,7 @@ export async function GET() {
 
         // --- Build response objects ---
         const topComments = uniqueTopComments
-            .map((c) => {
+            .map((c: any) => {
                 if (!c.movie_slug) return null;
                 const slug = extractBaseSlug(c.movie_slug);
                 const meta = movieMetaMap[slug];
@@ -183,7 +183,7 @@ export async function GET() {
             .filter(Boolean);
 
         const newComments = uniqueNewComments
-            .map((c) => {
+            .map((c: any) => {
                 if (!c.movie_slug) return null;
                 const slug = extractBaseSlug(c.movie_slug);
                 const meta = movieMetaMap[slug];

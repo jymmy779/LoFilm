@@ -158,7 +158,7 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                     return [];
                 };
                 setCategories(extractArray(catRes.data));
-                setCountries(extractArray(countRes.data));
+                setCountries(extractArray(counRes.data));
             } catch (err) {
                 console.error("Lỗi fetch dữ liệu bộ lọc:", err);
             }
