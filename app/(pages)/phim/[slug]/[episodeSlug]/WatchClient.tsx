@@ -658,7 +658,7 @@ export default function WatchClient({
                     },
                     ...(nextEpisode ? [{
                         position: 'right',
-                        html: '<div class="art-control art-control-next hint--rounded hint--top" data-index="15" aria-label="Tập tiếp theo"><div style="display: flex; align-items: center; justify-content: center; width: 30px; height: 30px;"><img src="https://sf-static.onflixcdn.pics/images/svg/1772478616_next-svgrepo-com_flix.svg" style="width: 22px; height: 22px;"></div></div>',
+                        html: '<div class="art-control art-control-next hint--rounded hint--top" data-index="15" aria-label="Tập tiếp theo"><i class="art-icon" style="display: flex; align-items: center; justify-content: center;"><img class="w-5 h-5 sm:w-6 sm:h-6" src="https://sf-static.onflixcdn.pics/images/svg/1772478616_next-svgrepo-com_flix.svg"></i></div>',
                         index: 15,
                         click: function () {
                             const event = new CustomEvent('art-next-episode');
