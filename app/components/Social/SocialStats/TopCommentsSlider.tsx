@@ -47,10 +47,10 @@ function AvatarCell({ avatar, name }: { avatar: string | null; name: string }) {
                 />
             ) : null}
             <div
-                className="w-full h-full flex items-center justify-center bg-gradient-to-br from-amber-400 to-orange-500 absolute inset-0"
+                className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-950 via-zinc-900 to-zinc-950 border border-white/20 rounded-full absolute inset-0"
                 style={{ display: hasAvatar ? 'none' : 'flex' }}
             >
-                <span className="text-[10px] sm:text-xs font-bold text-black">{name.charAt(0).toUpperCase()}</span>
+                <span className="text-[10px] sm:text-xs font-bold text-white/90">{name.charAt(0).toUpperCase()}</span>
             </div>
         </div>
     );

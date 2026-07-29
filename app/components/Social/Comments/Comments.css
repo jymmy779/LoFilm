@@ -47,8 +47,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #f5a623, #ffcc33);
-  color: #000;
+  background: linear-gradient(135deg, #431407, #18181b, #09090b);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: rgba(255, 255, 255, 0.9);
   font-weight: bold;
   overflow: hidden;
 }

@@ -10,7 +10,7 @@ import "swiper/css/navigation";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "../../UI/Common/SmartImage";
 import Container from "@/app/components/UI/Container";
-import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
+import { getR2MovieThumbUrl } from "@/app/utils/r2ImageUrl";
 import { Play } from "lucide-react";
 import SwiperNavButtons from "@/app/components/UI/Common/SwiperNavButtons";
 import { useAuth } from "@/app/components/User/Auth/AuthContext";
@@ -320,7 +320,7 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                                         >
                                             <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-zinc-800 relative z-0 transition-opacity duration-300">
                                                 <SmartImage
-                                                    r2Src={getR2MoviePosterUrl(item.movie_slug)}
+                                                    r2Src={getR2MovieThumbUrl(item.movie_slug)}
                                                     src={getImageUrl(item.movie_poster, { width: 320, quality: 75 })}
                                                     rawSrc={getRawImageUrl(item.movie_poster)}
                                                     alt={item.movie_name}

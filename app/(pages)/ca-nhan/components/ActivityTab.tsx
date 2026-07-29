@@ -1,4 +1,4 @@
-﻿/* app/(pages)/ca-nhan/components/ActivityTab.tsx */
+/* app/(pages)/ca-nhan/components/ActivityTab.tsx */
 "use client";
 
 import { useState, useEffect } from "react";
@@ -85,9 +85,17 @@ const ACTIVITY_CONFIG: Record<string, ActivityConfig> = {
         icon: <Image size={16} />,
         label: () => "Đã thay đổi ảnh đại diện",
     },
+    update_cover: {
+        icon: <Image size={16} />,
+        label: () => "Đã thay đổi ảnh bìa",
+    },
     update_name: {
         icon: <Edit3 size={16} />,
         label: (meta) => `Đã cập nhật tên thành "${meta.new_name || ""}"`,
+    },
+    update_password: {
+        icon: <Edit3 size={16} />,
+        label: () => "Đã thay đổi mật khẩu",
     },
 };
 

@@ -65,6 +65,8 @@ export default function ProfileContent() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [isUpdatingCover, setIsUpdatingCover] = useState(false);
   const [showPremiumModal, setShowPremiumModal] = useState(false);
+  const [isCoverLoaded, setIsCoverLoaded] = useState(false);
+  const [isAvatarLoaded, setIsAvatarLoaded] = useState(false);
 
   useEffect(() => {
     const tabParam = searchParams.get('tab');
@@ -651,10 +653,12 @@ export default function ProfileContent() {
       <div className="relative h-72 md:h-96 w-full overflow-hidden group">
         {pendingCoverSrc || user?.user_metadata?.cover_url ? (
           <Image
+            key={pendingCoverSrc || user.user_metadata.cover_url}
             src={pendingCoverSrc || user.user_metadata.cover_url}
             alt="Cover"
             fill
-            className="object-cover"
+            className={`object-cover transition-opacity duration-700 ease-in-out ${isCoverLoaded ? 'opacity-100' : 'opacity-0'}`}
+            onLoad={() => setIsCoverLoaded(true)}
           />
         ) : (
           <div className="h-full w-full bg-gradient-to-br from-orange-950 via-zinc-900 to-zinc-950"></div>
@@ -702,10 +706,12 @@ export default function ProfileContent() {
                   </div>
                 ) : pendingAvatarSrc || user?.user_metadata?.avatar_url ? (
                   <Image
+                    key={pendingAvatarSrc || user.user_metadata.avatar_url}
                     src={pendingAvatarSrc || user.user_metadata.avatar_url}
                     alt={displayName}
                     fill
-                    className="object-cover"
+                    className={`object-cover transition-opacity duration-500 ease-in-out ${isAvatarLoaded ? 'opacity-100' : 'opacity-0'}`}
+                    onLoad={() => setIsAvatarLoaded(true)}
                   />
                 ) : (
                   <span>{userAvatar}</span>
