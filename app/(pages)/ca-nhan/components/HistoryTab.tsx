@@ -23,11 +23,14 @@ export default function HistoryTab({ watchHistory, isHistoryLoading, onDeleteIte
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const markLoaded = (id: string) => setLoadedImages(prev => new Set(prev).add(id));
 
-  // Xử lý dữ liệu 7 ngày qua
+  // Xử lý dữ liệu 7 ngày qua (Theo múi giờ hiện tại thay vì UTC)
   const last7Days = Array.from({ length: 7 }, (_, i) => {
     const d = new Date();
     d.setDate(d.getDate() - (6 - i));
-    return d.toISOString().split('T')[0];
+    const year = d.getFullYear();
+    const month = String(d.getMonth() + 1).padStart(2, '0');
+    const day = String(d.getDate()).padStart(2, '0');
+    return `${year}-${month}-${day}`;
   });
 
   const chartData = last7Days.map(dateStr => {
@@ -95,12 +98,12 @@ export default function HistoryTab({ watchHistory, isHistoryLoading, onDeleteIte
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mt-6 relative z-10">
           <div className="bg-white/5 border border-white/5 rounded-xl p-4 flex flex-col justify-between hover:bg-white/10 hover:border-white/10 transition-all duration-300 group">
             <div className="flex items-center justify-between">
-              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Tổng thời gian</span>
+              <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Tổng 7 ngày</span>
               <Clock className="w-4 h-4 text-orange-400 group-hover:rotate-12 transition-transform" />
             </div>
             <div className="mt-2">
               <span className="text-xl font-extrabold text-white tracking-tight">{formatMinutes(totalSeconds7Days)} phút</span>
-              <p className="text-[10px] text-zinc-500 mt-0.5">7 ngày qua</p>
+              <p className="text-[10px] text-zinc-500 mt-0.5">Tích lũy: {formatMinutes(totalWatchTime || 0)} phút</p>
             </div>
           </div>
 
