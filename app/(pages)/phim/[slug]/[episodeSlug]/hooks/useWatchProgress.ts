@@ -138,8 +138,8 @@ export const useWatchProgress = (
 
     const handleTimeUpdate = useCallback(
         (currentTime: number, duration: number, isPaused: boolean) => {
-            if (!hasRecordedView.current && !isPaused) {
-                const now = Date.now();
+            const now = Date.now();
+            if (!isPaused) {
                 if (lastUpdateTimestamp.current > 0) {
                     const delta = (now - lastUpdateTimestamp.current) / 1000;
                     if (delta > 0 && delta < 2) {
@@ -147,13 +147,13 @@ export const useWatchProgress = (
                         realWatchTimeDBAccumulator.current += delta;
                     }
                 }
-                lastUpdateTimestamp.current = now;
 
-                if (watchTimeAccumulator.current >= 120 || currentTime >= 120) {
+                if (!hasRecordedView.current && (watchTimeAccumulator.current >= 120 || currentTime >= 120)) {
                     hasRecordedView.current = true;
                     recordViewToSupabase();
                 }
             }
+            lastUpdateTimestamp.current = now;
 
             // Gọi RPC mỗi 60s xem thực tế để tích lũy thống kê
             if (userRef.current && realWatchTimeDBAccumulator.current >= 60) {
