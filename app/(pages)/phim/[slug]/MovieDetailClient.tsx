@@ -431,13 +431,13 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                                         fontSize: '2.5em',
                                                         fontWeight: 900,
                                                         color: 'transparent',
-                                                        WebkitTextStroke: index === 0 ? '1.5px #ef4444' : 
-                                                                          index === 1 ? '1.5px #eab308' : 
-                                                                          index === 2 ? '1.5px #3b82f6' : 
-                                                                          '1px rgba(255,255,255,0.4)',
+                                                        WebkitTextStroke: index === 0 ? '1.5px #ef4444' :
+                                                            index === 1 ? '1.5px #eab308' :
+                                                                index === 2 ? '1.5px #3b82f6' :
+                                                                    '1px rgba(255,255,255,0.4)',
                                                         textShadow: index === 0 ? '0 0 12px rgba(239, 68, 68, 0.4)' :
-                                                                    index === 1 ? '0 0 12px rgba(234, 179, 8, 0.4)' :
-                                                                    index === 2 ? '0 0 12px rgba(59, 130, 246, 0.4)' : 'none',
+                                                            index === 1 ? '0 0 12px rgba(234, 179, 8, 0.4)' :
+                                                                index === 2 ? '0 0 12px rgba(59, 130, 246, 0.4)' : 'none',
                                                         fontFamily: 'var(--font-montserrat), sans-serif',
                                                         opacity: index < 3 ? 1 : 0.45
                                                     }}>
@@ -575,7 +575,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                     <div className="space-y-6">
                                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
                                             {([
-                                                { label: 'Trạng thái', value: statusText, color: isCompleted ? 'text-green-400' : 'text-yellow-400' },
+                                                { label: 'Trạng thái', value: statusText, color: isCompleted ? 'text-green-400' : 'text-pink-400' },
                                                 { label: 'Số tập', value: `${getEpisodeStatus(movie)} / ${movie.episode_total || '??'} Tập` },
                                                 { label: 'Thời lượng', value: movie.time || 'N/A' },
                                                 { label: 'Chất lượng', value: `${movie.quality || 'HD'} - ${movie.lang || 'Vietsub'}` },

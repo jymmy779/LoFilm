@@ -70,6 +70,54 @@ export default function NewMoviePage() {
         };
     };
 
+    // Helper to parse movie data for preview UI
+    const getParsedPreviewData = () => {
+        if (!importData) return null;
+        const rawMovie = importData.data?.item || importData.movie || {};
+        
+        let parsedCategory = rawMovie.category || [];
+        let parsedCountry = rawMovie.country || [];
+        let parsedYear = rawMovie.year;
+        
+        if (rawMovie.category && typeof rawMovie.category === 'object' && !Array.isArray(rawMovie.category)) {
+            const catList: any[] = [];
+            const countryList: any[] = [];
+            Object.values(rawMovie.category).forEach((group: any) => {
+                if (group.group?.name === "Thể loại" && group.list) {
+                    catList.push(...group.list);
+                } else if (group.group?.name === "Quốc gia" && group.list) {
+                    countryList.push(...group.list);
+                } else if (group.group?.name === "Năm" && group.list) {
+                    const parsed = parseInt(group.list[0]?.name);
+                    if (!isNaN(parsed)) parsedYear = parsed;
+                }
+            });
+            parsedCategory = catList;
+            if (countryList.length > 0) parsedCountry = countryList;
+        }
+
+        const episodes = rawMovie.episodes || importData.episodes || [];
+        const firstServerEps = episodes[0]?.server_data || episodes[0]?.items || [];
+
+        return {
+            name: rawMovie.name,
+            origin_name: rawMovie.origin_name || rawMovie.original_name || rawMovie.name,
+            year: parsedYear,
+            quality: rawMovie.quality || "HD",
+            lang: rawMovie.lang || "Vietsub",
+            episode_current: rawMovie.episode_current || rawMovie.current_episode || "Tập mới",
+            time: rawMovie.time,
+            server_name: episodes[0]?.server_name || "",
+            country: parsedCountry,
+            category: parsedCategory,
+            director: typeof rawMovie.director === 'string' ? rawMovie.director.split(',').map((s:string)=>s.trim()) : (rawMovie.director || []),
+            actor: typeof rawMovie.actor === 'string' ? rawMovie.actor.split(',').map((s:string)=>s.trim()) : (rawMovie.actor || rawMovie.casts?.split(',').map((s:string)=>s.trim()) || []),
+            trailer_url: rawMovie.trailer_url,
+            content: rawMovie.content || rawMovie.description || "",
+            episodes_list: firstServerEps
+        };
+    };
+
     // Link Type State
     const [linkType, setLinkType] = useState<"m3u8" | "embed" | "both">("m3u8");
 
@@ -463,33 +511,33 @@ export default function NewMoviePage() {
                                         {/* Movie Info */}
                                         <div className="flex-1 w-full">
                                             <h3 className="text-xl md:text-2xl font-bold text-white mb-1">
-                                                {importData.data?.item?.name || importData.movie?.name}
+                                                {getParsedPreviewData()?.name}
                                             </h3>
                                             <p className="text-gray-400 text-sm mb-3">
-                                                {importData.data?.item?.origin_name || importData.movie?.origin_name} ({importData.data?.item?.year || importData.movie?.year})
+                                                {getParsedPreviewData()?.origin_name} {getParsedPreviewData()?.year ? `(${getParsedPreviewData()?.year})` : ""}
                                             </p>
 
                                             {/* Badges */}
                                             <div className="flex flex-wrap gap-2 mb-4">
                                                 <span className="bg-[#D497FF]/20 border border-[#D497FF]/30 text-[#D497FF] px-2.5 py-0.5 rounded-md text-xs font-semibold">
-                                                    {importData.data?.item?.quality || importData.movie?.quality || "HD"}
+                                                    {getParsedPreviewData()?.quality}
                                                 </span>
                                                 <span className="bg-amber-500/20 border border-[#D497FF]/30 text-amber-400 px-2.5 py-0.5 rounded-md text-xs font-semibold">
-                                                    {importData.data?.item?.lang || importData.movie?.lang || "Vietsub"}
+                                                    {getParsedPreviewData()?.lang}
                                                 </span>
                                                 <span className="bg-purple-500/20 border border-purple-500/30 text-purple-400 px-2.5 py-0.5 rounded-md text-xs font-semibold">
-                                                    {importData.data?.item?.episode_current || importData.movie?.episode_current || "Tập mới"}
+                                                    {getParsedPreviewData()?.episode_current}
                                                 </span>
-                                                {(importData.data?.item?.time || importData.movie?.time) && (
+                                                {getParsedPreviewData()?.time && (
                                                     <span className="bg-emerald-500/20 border border-emerald-500/30 text-emerald-400 px-2.5 py-0.5 rounded-md text-xs font-semibold">
                                                         <i className="fa-regular fa-clock mr-1"></i>
-                                                        {importData.data?.item?.time || importData.movie?.time}
+                                                        {getParsedPreviewData()?.time}
                                                     </span>
                                                 )}
-                                                {(importData.data?.item?.episodes?.[0]?.server_name || importData.episodes?.[0]?.server_name) && (
+                                                {getParsedPreviewData()?.server_name && (
                                                     <span className="bg-rose-500/20 border border-rose-500/30 text-rose-400 px-2.5 py-0.5 rounded-md text-xs font-semibold">
                                                         <i className="fa-solid fa-server mr-1"></i>
-                                                        {importData.data?.item?.episodes?.[0]?.server_name || importData.episodes?.[0]?.server_name}
+                                                        {getParsedPreviewData()?.server_name}
                                                     </span>
                                                 )}
                                             </div>
@@ -499,40 +547,36 @@ export default function NewMoviePage() {
                                                 <div>
                                                     <span className="text-gray-400 font-medium">Quốc gia: </span>
                                                     <span className="text-gray-200">
-                                                        {Array.isArray(importData.data?.item?.country || importData.movie?.country)
-                                                            ? (importData.data?.item?.country || importData.movie?.country).map((c: any) => c.name).join(", ")
+                                                        {getParsedPreviewData()?.country?.length
+                                                            ? getParsedPreviewData()?.country.map((c: any) => c.name).join(", ")
                                                             : "Đang cập nhật"}
                                                     </span>
                                                 </div>
                                                 <div>
                                                     <span className="text-gray-400 font-medium">Thể loại: </span>
                                                     <span className="text-gray-200">
-                                                        {Array.isArray(importData.data?.item?.category || importData.movie?.category)
-                                                            ? (importData.data?.item?.category || importData.movie?.category).map((c: any) => c.name).join(", ")
+                                                        {getParsedPreviewData()?.category?.length
+                                                            ? getParsedPreviewData()?.category.map((c: any) => c.name).join(", ")
                                                             : "Đang cập nhật"}
                                                     </span>
                                                 </div>
                                                 <div>
                                                     <span className="text-gray-400 font-medium">Đạo diễn: </span>
                                                     <span className="text-gray-200">
-                                                        {Array.isArray(importData.data?.item?.director || importData.movie?.director)
-                                                            ? (importData.data?.item?.director || importData.movie?.director).filter(Boolean).join(", ") || "Đang cập nhật"
-                                                            : (importData.data?.item?.director || importData.movie?.director || "Đang cập nhật")}
+                                                        {getParsedPreviewData()?.director?.filter(Boolean).join(", ") || "Đang cập nhật"}
                                                     </span>
                                                 </div>
                                                 <div>
                                                     <span className="text-gray-400 font-medium">Diễn viên: </span>
                                                     <span className="text-gray-200 line-clamp-1">
-                                                        {Array.isArray(importData.data?.item?.actor || importData.movie?.actor)
-                                                            ? (importData.data?.item?.actor || importData.movie?.actor).filter(Boolean).join(", ") || "Đang cập nhật"
-                                                            : (importData.data?.item?.actor || importData.movie?.actor || "Đang cập nhật")}
+                                                        {getParsedPreviewData()?.actor?.filter(Boolean).join(", ") || "Đang cập nhật"}
                                                     </span>
                                                 </div>
-                                                {(importData.data?.item?.trailer_url || importData.movie?.trailer_url) && (
+                                                {getParsedPreviewData()?.trailer_url && (
                                                     <div className="md:col-span-2">
                                                         <span className="text-gray-400 font-medium">Trailer: </span>
-                                                        <a href={importData.data?.item?.trailer_url || importData.movie?.trailer_url} target="_blank" rel="noreferrer" className="text-[#D497FF] hover:underline">
-                                                            {importData.data?.item?.trailer_url || importData.movie?.trailer_url}
+                                                        <a href={getParsedPreviewData()?.trailer_url} target="_blank" rel="noreferrer" className="text-[#D497FF] hover:underline">
+                                                            {getParsedPreviewData()?.trailer_url}
                                                         </a>
                                                     </div>
                                                 )}
@@ -540,7 +584,7 @@ export default function NewMoviePage() {
 
                                             {/* Overview content */}
                                             <div className="text-xs text-gray-300 line-clamp-3 leading-relaxed">
-                                                {(importData.data?.item?.content || importData.movie?.content || "").replace(/<[^>]*>?/gm, '')}
+                                                {getParsedPreviewData()?.content?.replace(/<[^>]*>?/gm, '')}
                                             </div>
                                         </div>
                                     </div>
@@ -591,10 +635,10 @@ export default function NewMoviePage() {
                                 <div className="border border-white/10 rounded-xl p-5 mt-2 bg-[#0F1115]/30">
                                     <h4 className="font-semibold mb-4 text-sm text-gray-300 uppercase tracking-wider flex justify-between items-center">
                                         <span>Danh sách Tập Sẽ Import</span>
-                                        <span className="bg-white/10 px-2 py-1 rounded text-xs text-white">{(importData.data?.item?.episodes?.[0]?.server_data || importData.episodes?.[0]?.server_data || []).length} tập</span>
+                                        <span className="bg-white/10 px-2 py-1 rounded text-xs text-white">{getParsedPreviewData()?.episodes_list?.length || 0} tập</span>
                                     </h4>
                                     <div className="flex flex-wrap gap-2 max-h-40 overflow-y-auto custom-scrollbar pr-2">
-                                        {(importData.data?.item?.episodes?.[0]?.server_data || importData.episodes?.[0]?.server_data || []).map((ep: any, idx: number) => (
+                                        {getParsedPreviewData()?.episodes_list?.map((ep: any, idx: number) => (
                                             <span key={idx} className="bg-white/5 border border-white/10 text-gray-300 px-3 py-1.5 rounded-lg text-sm">
                                                 {ep.name}
                                             </span>

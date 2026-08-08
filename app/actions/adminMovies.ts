@@ -242,15 +242,12 @@ export async function updateExclusiveMovie(id: string, data: Record<string, stri
         try {
             const check = await axios.get(`https://phimapi.com/phim/${slug.toLowerCase().trim()}`, AXIOS_OPTIONS);
             const checkData = check.data;
-            if (!checkData || !checkData.status) {
-                return { error: "Phim chưa có trên PhimAPI. Bắt buộc phải nhập TMDB ID!" };
-            }
-            if (checkData.movie?.tmdb?.id) {
+            if (checkData?.status && checkData.movie?.tmdb?.id) {
                 tmdbId = checkData.movie.tmdb.id;
             }
         } catch (error: any) {
-            console.error("Lỗi kiểm tra PhimAPI", error.message);
-            return { error: "Lỗi kiểm tra PhimAPI (timeout). Vui lòng nhập TMDB ID." };
+            console.warn("Không thể lấy TMDB ID từ PhimAPI:", error.message);
+            // Ignore error and let tmdbId remain empty
         }
     }
 
@@ -500,14 +497,31 @@ export async function importMovieFromApi(apiUrl: string, data: Record<string, an
         }
 
         const movieData = resData.data?.item || resData.movie;
-        const episodesData = resData.data?.item?.episodes || resData.episodes || [];
+        const episodesData = resData.data?.item?.episodes || resData.movie?.episodes || resData.episodes || [];
 
         if (!movieData) {
             return { error: "Không tìm thấy thông tin phim trong phản hồi API" };
         }
 
-        const type = movieData.type === 'series' || movieData.type === 'hoathinh' || movieData.type === 'tvshows' ? 'series' : 'single';
-        const tmdbId = movieData.tmdb?.id || "";
+        let type = movieData.type === 'series' || movieData.type === 'hoathinh' || movieData.type === 'tvshows' ? 'series' : 'single';
+        let year = movieData.year || new Date().getFullYear();
+        
+        if (movieData.category && typeof movieData.category === 'object' && !Array.isArray(movieData.category)) {
+            Object.values(movieData.category).forEach((group: any) => {
+                if (group.group?.name === "Định dạng" && group.list) {
+                    if (group.list.some((item: any) => item.name.toLowerCase().includes("bộ"))) {
+                        type = 'series';
+                    } else {
+                        type = 'single';
+                    }
+                } else if (group.group?.name === "Năm" && group.list) {
+                    const parsedYear = parseInt(group.list[0]?.name);
+                    if (!isNaN(parsedYear)) year = parsedYear;
+                }
+            });
+        }
+
+        const tmdbId = data.tmdb_id || movieData.tmdb?.id || "";
 
         const supabase = await createClient();
 
@@ -519,6 +533,15 @@ export async function importMovieFromApi(apiUrl: string, data: Record<string, an
             "https://phimimg.com"
         ).replace(/\/$/, "");
         const isOPhim = domain.includes("ophim") || (resData.data?.seoOnPage?.og_url?.includes("ophim") ?? false) || (resData.data?.seoOnPage?.seoSchema?.url?.includes("ophim") ?? false);
+
+        let sourceSuffix = "";
+        if (isOPhim || apiUrl.includes("ophim")) {
+            sourceSuffix = " OP";
+        } else if (apiUrl.includes("nguonc")) {
+            sourceSuffix = " NC";
+        } else if (apiUrl.includes("phimapi.com") || apiUrl.includes("kkphim")) {
+            sourceSuffix = " KK";
+        }
 
         const buildUrl = (path: string) => {
             if (!path) return "";
@@ -547,6 +570,24 @@ export async function importMovieFromApi(apiUrl: string, data: Record<string, an
             parsedThumbUrl = buildUrl(rawPoster || rawThumb);
         }
 
+        let parsedCategory = movieData.category || [];
+        let parsedCountry = movieData.country || [];
+        
+        // Handle NguonC's category object structure
+        if (movieData.category && typeof movieData.category === 'object' && !Array.isArray(movieData.category)) {
+            const catList: any[] = [];
+            const countryList: any[] = [];
+            Object.values(movieData.category).forEach((group: any) => {
+                if (group.group?.name === "Thể loại" && group.list) {
+                    catList.push(...group.list.map((c: any) => ({ name: c.name, slug: c.slug || c.name })));
+                } else if (group.group?.name === "Quốc gia" && group.list) {
+                    countryList.push(...group.list.map((c: any) => ({ name: c.name, slug: c.slug || c.name })));
+                }
+            });
+            parsedCategory = catList;
+            if (countryList.length > 0) parsedCountry = countryList;
+        }
+
         // 1. Insert/Update movie
         const { data: movie, error: insertError } = await supabase.from('exclusive_movies').upsert([
             { 
@@ -557,20 +598,20 @@ export async function importMovieFromApi(apiUrl: string, data: Record<string, an
                 lang_tag: movieData.lang || "Vietsub",
                 sub_docquyen: subDocquyen,
                 name: movieData.name,
-                origin_name: movieData.origin_name || movieData.name,
+                origin_name: movieData.origin_name || movieData.original_name || movieData.name,
                 thumb_url: parsedThumbUrl,
                 poster_url: parsedPosterUrl,
-                year: movieData.year || new Date().getFullYear(),
-                content: movieData.content || "",
+                year: year,
+                content: movieData.content || movieData.description || "",
                 time: movieData.time || "",
-                episode_current: movieData.episode_current || "",
-                episode_total: String(movieData.episode_total || ""),
+                episode_current: movieData.episode_current || movieData.current_episode || "",
+                episode_total: String(movieData.episode_total || movieData.total_episodes || ""),
                 quality: movieData.quality || "",
                 view: movieData.view || 0,
-                actor: movieData.actor || [],
-                director: movieData.director || [],
-                category: movieData.category || [],
-                country: movieData.country || [],
+                actor: typeof movieData.actor === 'string' ? movieData.actor.split(',').map((s: string) => s.trim()) : (movieData.actor || movieData.casts?.split(',').map((s: string) => s.trim()) || []),
+                director: typeof movieData.director === 'string' ? movieData.director.split(',').map((s: string) => s.trim()) : (movieData.director || []),
+                category: parsedCategory,
+                country: parsedCountry,
                 trailer_url: movieData.trailer_url || ""
             }
         ], { onConflict: 'slug' }).select().single();
@@ -582,16 +623,19 @@ export async function importMovieFromApi(apiUrl: string, data: Record<string, an
         // 2. Insert Episodes
         const episodeInserts = [];
         for (const server of episodesData) {
-            const serverData = server.server_data || [];
+            const serverData = server.server_data || server.items || [];
+            const baseServerName = server.server_name || "Vietsub #1";
+            const finalServerName = baseServerName.endsWith(sourceSuffix) ? baseServerName : `${baseServerName}${sourceSuffix}`;
+            
             let order = 1;
             for (const ep of serverData) {
                 episodeInserts.push({
                     movie_id: movie.id,
-                    server_name: server.server_name || "Vietsub #1",
+                    server_name: finalServerName,
                     name: ep.name,
                     slug: ep.slug,
-                    link_m3u8: ep.link_m3u8 || "",
-                    link_embed: ep.link_embed || null,
+                    link_m3u8: apiUrl.includes("nguonc") ? "" : (ep.link_m3u8 || ep.m3u8 || ""),
+                    link_embed: ep.link_embed || ep.embed || null,
                     order: order++,
                     status: "published"
                 });

@@ -26,7 +26,8 @@ function CommentSection({ movieSlug }: CommentSectionProps) {
     const supabase = createClient();
 
     // Lấy slug gốc của phim (bỏ phần tập phim đằng sau nếu có) để đồng bộ lượt thích của cả bộ phim
-    const mainMovieSlug = movieSlug.includes('/') ? movieSlug.split('/')[0] : movieSlug;
+    const safeMovieSlug = movieSlug || "";
+    const mainMovieSlug = safeMovieSlug.includes('/') ? safeMovieSlug.split('/')[0] : safeMovieSlug;
 
     useEffect(() => {
         setVisibleCount(5); // Reset visible count when movie changes
@@ -50,12 +51,12 @@ function CommentSection({ movieSlug }: CommentSectionProps) {
                     reactions:comment_reactions (id, user_id, type)
                 `);
 
-            if (movieSlug.includes('/')) {
+            if (safeMovieSlug.includes('/')) {
                 // Trang xem tập phim cụ thể -> Lấy bình luận của tập đó VÀ bình luận chung của phim (trang detail)
-                query = query.or(`movie_slug.eq.${movieSlug},movie_slug.eq.${mainMovieSlug}`);
+                query = query.or(`movie_slug.eq.${safeMovieSlug},movie_slug.eq.${mainMovieSlug}`);
             } else {
                 // Trang chi tiết phim -> Lấy bình luận chung của phim VÀ của tất cả các tập
-                query = query.or(`movie_slug.eq.${movieSlug},movie_slug.like.${movieSlug}/%`);
+                query = query.or(`movie_slug.eq.${safeMovieSlug},movie_slug.like.${safeMovieSlug}/%`);
             }
 
             const { data, error } = await query.order('created_at', { ascending: false });

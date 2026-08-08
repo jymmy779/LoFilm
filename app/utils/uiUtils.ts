@@ -37,8 +37,8 @@ const CATEGORY_STYLES = [
     { bg: "bg-blue-500/10", text: "text-blue-400", border: "border-blue-500/20" },
 ];
 
-// Hash-based: same genre name always gets same color (consistent across all pages)
 const hashString = (str: string): number => {
+    if (!str) return 0;
     let hash = 0;
     for (let i = 0; i < str.length; i++) {
         hash = str.charCodeAt(i) + ((hash << 5) - hash);

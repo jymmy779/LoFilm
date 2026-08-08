@@ -32,10 +32,13 @@ export default function Header() {
     const [showLoginPrompt, setShowLoginPrompt] = useState(false);
     const [loginPromptSource, setLoginPromptSource] = useState<"history" | "account" | "watchlist" | "playlist" | null>(null);
     const [isSettingsModalOpen, setIsSettingsModalOpen] = useState(false);
+    const [isMounted, setIsMounted] = useState(false);
     const router = useRouter();
     const { user } = useAuth();
 
     useEffect(() => {
+        setIsMounted(true);
+        
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 10);
         };
@@ -283,7 +286,7 @@ export default function Header() {
                         </TransitionLink>
 
                         <button onClick={() => { if(user) router.push('/ca-nhan'); else { setLoginPromptSource("account"); setShowLoginPrompt(true); } }} className={`relative flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-xl transition-all duration-300 ${pathname === '/ca-nhan' && !isMenuOpen ? 'text-[#D497FF]' : 'text-white/60 hover:text-white'}`}>
-                            {user ? (
+                            {isMounted && user ? (
                                 user?.user_metadata?.avatar_url ? (
                                     <div className={`w-[22px] h-[22px] rounded-full overflow-hidden border transition-transform duration-300 ${pathname === '/ca-nhan' && !isMenuOpen ? 'border-[#D497FF] scale-110 -translate-y-1' : 'border-white/40 scale-100'}`}>
                                         <Image src={user.user_metadata.avatar_url} alt="Avatar" width={22} height={22} className="w-full h-full object-cover" />

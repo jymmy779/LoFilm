@@ -132,6 +132,7 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
             const movieObj = {
                 ...fallbackMovie,
                 _id: exclusiveMovie.id,
+                slug: exclusiveMovie.slug,
                 name: fallbackMovie.name || exclusiveMovie.name,
                 origin_name: fallbackMovie.origin_name || exclusiveMovie.origin_name,
                 content: fallbackMovie.content || exclusiveMovie.content || "",
