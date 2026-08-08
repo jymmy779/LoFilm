@@ -208,7 +208,7 @@ const EpisodeList = ({
                 setSearchQuery("");
               }}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] md:text-xs tracking-wider transition-all cursor-pointer font-medium whitespace-nowrap focus:outline-none ${activeServer === index
-                ? "bg-gradient-to-r from-[#D497FF] to-[#D497FF] text-white shadow-lg shadow-[#D497FF]/20 border border-transparent"
+                ? "bg-gradient-to-r from-[#D497FF] to-[#D497FF] text-black shadow-lg shadow-[#D497FF]/20 border border-transparent"
                 : "bg-white/5 text-gray-500 hover:text-white border border-transparent"
                 }`}
             >
@@ -289,7 +289,7 @@ const EpisodeList = ({
               className={`
                   py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border font-bold
                   ${isActive
-                  ? "bg-gradient-to-r from-[#D497FF] to-[#D497FF] text-white border-transparent shadow-lg shadow-[#D497FF]/20 z-10"
+                  ? "bg-gradient-to-r from-[#D497FF] to-[#D497FF] text-black border-transparent shadow-lg shadow-[#D497FF]/20 z-10"
                   : "bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
                 }
                 `}

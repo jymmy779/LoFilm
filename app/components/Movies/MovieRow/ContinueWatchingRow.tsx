@@ -333,7 +333,7 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
 
                                                 {/* Play overlay on hover */}
                                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/item:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                                                    <div className="w-12 h-12 rounded-full bg-[#D497FF] flex items-center justify-center text-white shadow-lg shadow-[#D497FF]/50 transform scale-75 group-hover/item:scale-100 transition-transform">
+                                                    <div className="w-12 h-12 rounded-full bg-[#D497FF] flex items-center justify-center text-black shadow-lg shadow-[#D497FF]/50 transform scale-75 group-hover/item:scale-100 transition-transform">
                                                         <Play size={24} fill="currentColor" />
                                                     </div>
                                                 </div>

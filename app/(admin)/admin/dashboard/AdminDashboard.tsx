@@ -120,7 +120,7 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                             <button
                                 onClick={saveAllSettings}
                                 disabled={isPending}
-                                className="bg-[#D497FF] hover:bg-[#D497FF] text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm animate-fade-in"
+                                className="bg-[#D497FF] hover:bg-[#D497FF] text-black px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm animate-fade-in"
                             >
                                 {isPending ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>}
                                 Lưu thay đổi
@@ -196,7 +196,7 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                         <h2 className="text-xl">Danh sách phim</h2>
                         <Link 
                             href="/admin/movies/new"
-                            className="bg-[#D497FF] hover:bg-[#D497FF] text-white px-4 py-2 rounded transition flex items-center"
+                            className="bg-[#D497FF] hover:bg-[#D497FF] text-black px-4 py-2 rounded transition flex items-center"
                         >
                             <i className="fa-solid fa-plus mr-2"></i> Thêm phim mới
                         </Link>

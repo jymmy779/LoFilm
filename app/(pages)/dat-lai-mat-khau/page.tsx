@@ -6,6 +6,7 @@ import { Lock, ArrowRight, CheckCircle2 } from "lucide-react";
 import { createClient } from "@/app/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
+import AuthInput from "@/app/components/User/Auth/AuthInput";
 
 export default function ResetPasswordPage() {
   const [password, setPassword] = useState("");
@@ -89,7 +90,7 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#0F1115] px-4">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-500/10 to-transparent rounded-full opacity-60 pointer-events-none" />
+        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#B366FF]/10 to-transparent rounded-full opacity-60 pointer-events-none" />
         <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#D497FF]/10 to-transparent rounded-full opacity-60 pointer-events-none" />
       </div>
 
@@ -111,38 +112,30 @@ export default function ResetPasswordPage() {
           </div>
         ) : (
           <form onSubmit={handleUpdatePassword} className="space-y-4">
-            <div className="relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
-                <Lock size={18} />
-              </div>
-              <input
-                type="password"
-                required
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Mật khẩu mới"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-[#D497FF]/50 focus:bg-white/10 transition-all text-sm"
-              />
-            </div>
+            <AuthInput
+              type="password"
+              name="password"
+              required
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              placeholder="Mật khẩu mới"
+              icon={Lock}
+            />
 
-            <div className="relative">
-              <div className="absolute left-4 top-1/2 -translate-y-1/2 text-white/40">
-                <Lock size={18} />
-              </div>
-              <input
-                type="password"
-                required
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Xác nhận mật khẩu mới"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-[#D497FF]/50 focus:bg-white/10 transition-all text-sm"
-              />
-            </div>
+            <AuthInput
+              type="password"
+              name="confirmPassword"
+              required
+              value={confirmPassword}
+              onChange={(e) => setConfirmPassword(e.target.value)}
+              placeholder="Xác nhận mật khẩu mới"
+              icon={Lock}
+            />
 
             <button
               type="submit"
               disabled={isLoading}
-              className="w-full bg-amber-400 text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:translate-y-[-2px] hover:shadow-lg hover:shadow-amber-500/20 active:translate-y-0 transition-all cursor-pointer mt-6"
+              className="w-full bg-gradient-to-r from-[#D497FF] to-[#B366FF] text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:translate-y-[-2px] hover:shadow-lg hover:shadow-[#D497FF]/20 active:translate-y-0 transition-all cursor-pointer mt-6"
             >
               {isLoading ? (
                 <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />

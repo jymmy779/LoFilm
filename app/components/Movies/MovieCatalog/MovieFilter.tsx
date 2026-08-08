@@ -84,7 +84,7 @@ const DropdownSelect = React.memo(({ label, value, options, onChange, placeholde
                                 }}
                                 className={`px-3 py-2 text-xs md:text-sm rounded-lg transition-colors cursor-pointer ${
                                     isActive 
-                                    ? "bg-[#D497FF] text-cyan-950 font-bold" 
+                                    ? "bg-[#D497FF] text-black font-bold" 
                                     : "text-white/70 hover:bg-white/5 hover:text-white"
                                 }`}
                             >
@@ -233,7 +233,7 @@ export default function MovieFilter({
             <button
                 onClick={handleToggle}
                 className={`flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 cursor-pointer text-sm font-medium ${isOpen
-                    ? "bg-[#D497FF] border-[#D497FF] text-cyan-950"
+                    ? "bg-[#D497FF] border-[#D497FF] text-black"
                     : "bg-white/5 border-white/10 text-white hover:border-[#D497FF]/50 hover:bg-white/10"
                     }`}
             >
@@ -325,7 +325,7 @@ export default function MovieFilter({
                                                 isSpecial ? "px-3" : "w-8"
                                             } ${
                                                 isActive
-                                                ? "bg-[#D497FF] border-[#D497FF] text-cyan-950"
+                                                ? "bg-[#D497FF] border-[#D497FF] text-black"
                                                 : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-[#D497FF]/30"
                                             }`}
                                         >
@@ -344,7 +344,7 @@ export default function MovieFilter({
                                     onClick={() => handleSelect("category", "")}
                                     className={`px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 cursor-pointer ${
                                         filters.category === ""
-                                        ? "bg-[#D497FF] border-[#D497FF] text-cyan-950 font-bold"
+                                        ? "bg-[#D497FF] border-[#D497FF] text-black font-bold"
                                         : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-[#D497FF]/30"
                                     }`}
                                 >
@@ -359,7 +359,7 @@ export default function MovieFilter({
                                             onClick={() => handleSelect("category", val)}
                                             className={`px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 cursor-pointer ${
                                                 isActive
-                                                ? "bg-[#D497FF] border-[#D497FF] text-cyan-950 font-bold"
+                                                ? "bg-[#D497FF] border-[#D497FF] text-black font-bold"
                                                 : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-[#D497FF]/30"
                                             }`}
                                         >
@@ -374,7 +374,7 @@ export default function MovieFilter({
                         <div className="flex items-center gap-3 pt-5 border-t border-white/5">
                             <button
                                 onClick={handleApply}
-                                className="md:px-7 px-5 py-2.5 md:py-3 rounded-full bg-[#D497FF] text-white font-bold text-xs md:text-sm flex items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer shadow-lg shadow-[0_0_15px_rgba(212,151,255,0.4)]"
+                                className="md:px-7 px-5 py-2.5 md:py-3 rounded-full bg-[#D497FF] text-black font-bold text-xs md:text-sm flex items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer shadow-lg shadow-[0_0_15px_rgba(212,151,255,0.4)]"
                             >
                                 <span>Tìm Kiếm</span>
                                 <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">

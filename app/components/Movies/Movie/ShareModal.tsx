@@ -199,7 +199,7 @@ export default function ShareModal({ isOpen, onClose, movieName, shareUrl }: Sha
                                 />
                                 <button 
                                     onClick={handleCopy}
-                                    className="flex items-center gap-1.5 px-3 py-2 md:px-4 md:py-2.5 rounded-lg text-[13px] md:text-sm font-bold transition-all bg-[#D497FF] hover:bg-[#D497FF] text-white shrink-0"
+                                    className="flex items-center gap-1.5 px-3 py-2 md:px-4 md:py-2.5 rounded-lg text-[13px] md:text-sm font-bold transition-all bg-[#D497FF] hover:bg-[#D497FF] text-black shrink-0"
                                 >
                                     <Copy className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                     <span>Sao chép</span>

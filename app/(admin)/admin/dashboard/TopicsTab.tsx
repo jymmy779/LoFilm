@@ -189,14 +189,14 @@ export default function TopicsTab({ initialTopics }: { initialTopics?: any[] }) 
                         <div className="flex gap-3">
                             <button
                                 onClick={startAdd}
-                                className="bg-[#D497FF]/10 text-[#D497FF] border border-[#D497FF]/20 hover:bg-[#D497FF] hover:text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 text-sm"
+                                className="bg-[#D497FF]/10 text-[#D497FF] border border-[#D497FF]/20 hover:bg-[#D497FF] hover:text-black px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 text-sm"
                             >
                                 <Plus size={16} /> Thêm mới
                             </button>
                             <button
                                 onClick={handleSaveToDb}
                                 disabled={isPending}
-                                className="bg-[#D497FF] hover:bg-[#D497FF] text-white px-5 py-2 rounded-lg font-bold transition disabled:opacity-50 flex items-center gap-2 text-sm"
+                                className="bg-[#D497FF] hover:bg-[#D497FF] text-black px-5 py-2 rounded-lg font-bold transition disabled:opacity-50 flex items-center gap-2 text-sm"
                             >
                                 {isPending ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-cloud-arrow-up"></i>}
                                 Lưu cấu hình DB
@@ -295,7 +295,7 @@ export default function TopicsTab({ initialTopics }: { initialTopics?: any[] }) 
                                             {/* Action Buttons */}
                                             <button
                                                 onClick={() => startEdit(index)}
-                                                className="p-2 bg-[#D497FF]/10 text-[#D497FF] hover:bg-[#D497FF] hover:text-white rounded-lg transition"
+                                                className="p-2 bg-[#D497FF]/10 text-[#D497FF] hover:bg-[#D497FF] hover:text-black rounded-lg transition"
                                                 title="Sửa thông tin"
                                             >
                                                 <Edit2 size={15} />
@@ -450,7 +450,7 @@ export default function TopicsTab({ initialTopics }: { initialTopics?: any[] }) 
                             <div className="flex gap-3 pt-2">
                                 <button
                                     type="submit"
-                                    className="flex-1 bg-[#D497FF] hover:bg-[#D497FF] text-white py-2.5 rounded-lg font-bold transition flex items-center justify-center gap-2"
+                                    className="flex-1 bg-[#D497FF] hover:bg-[#D497FF] text-black py-2.5 rounded-lg font-bold transition flex items-center justify-center gap-2"
                                 >
                                     <Check size={18} /> {isAdding ? "Thêm vào danh sách" : "Cập nhật thay đổi"}
                                 </button>

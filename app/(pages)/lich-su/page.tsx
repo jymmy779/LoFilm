@@ -221,7 +221,7 @@ export default function HistoryPage() {
         </div>
       </div>
       
-      <div className="relative z-20 w-full px-4 xl:pl-[132px] xl:pr-8 mt-4 py-2 space-y-0">
+      <div className="relative z-20 w-full px-4 xl:pl-[132px] xl:pr-8 -mt-24 py-2 space-y-0">
           {isLoading ? (
           <div className="py-20 flex justify-center">
             <div className="relative flex items-center justify-center">

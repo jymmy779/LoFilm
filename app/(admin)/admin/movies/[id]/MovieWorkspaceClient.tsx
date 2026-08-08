@@ -153,7 +153,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                         </Link>
                         <span className="text-white font-medium border-l border-white/20 pl-4">Quản lý Phim: {movie.slug}</span>
                     </div>
-                    <Link href={`/phim/${movie.slug}?preview=true`} target="_blank" className="bg-[#D497FF]/20 text-[#D497FF] hover:bg-[#D497FF] hover:text-white px-4 py-2 rounded-lg transition font-medium text-sm flex items-center gap-2">
+                    <Link href={`/phim/${movie.slug}?preview=true`} target="_blank" className="bg-[#D497FF]/20 text-[#D497FF] hover:bg-[#D497FF] hover:text-black px-4 py-2 rounded-lg transition font-medium text-sm flex items-center gap-2">
                         <i className="fa-solid fa-eye"></i> Xem trước trang khách
                     </Link>
                 </div>
@@ -295,7 +295,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                             </h2>
                             <button
                                 onClick={() => { setEditingEpisode(null); setEpisodeTab("single"); }}
-                                className="text-xs bg-[#D497FF]/20 text-[#D497FF] hover:bg-[#D497FF] hover:text-white px-2 py-1 rounded transition"
+                                className="text-xs bg-[#D497FF]/20 text-[#D497FF] hover:bg-[#D497FF] hover:text-black px-2 py-1 rounded transition"
                             >
                                 <i className="fa-solid fa-plus"></i> Thêm mới
                             </button>
@@ -451,7 +451,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                     {editingEpisode && (
                                         <button type="button" onClick={() => setEditingEpisode(null)} className="bg-transparent border border-white/20 hover:bg-white/10 px-6 py-2.5 rounded-lg text-sm transition">Hủy sửa</button>
                                     )}
-                                    <button type="submit" disabled={isPending} className="bg-[#D497FF] hover:bg-[#D497FF] px-8 py-2.5 rounded-lg font-medium transition text-white shadow-lg shadow-[#D497FF]/20">
+                                    <button type="submit" disabled={isPending} className="bg-[#D497FF] hover:bg-[#D497FF] px-8 py-2.5 rounded-lg font-medium transition text-black shadow-lg shadow-[#D497FF]/20">
                                         {isPending ? <><i className="fa-solid fa-spinner fa-spin mr-2"></i>Đang lưu...</> : (editingEpisode ? "Lưu thay đổi" : "Thêm tập mới")}
                                     </button>
                                 </div>

@@ -237,7 +237,7 @@ function RandomMovieRow() {
                                                         <h5 className="text-white text-[11px] font-bold mb-0.5 line-clamp-1 uppercase tracking-tight leading-tight">{movie.name}</h5>
                                                         <p className="text-[9px] text-white/50 mb-2 line-clamp-1 italic">{movie.origin_name}</p>
 
-                                                        <div className="inline-flex items-center gap-1 bg-[#D497FF] text-white text-[8px] font-black py-1 px-2 rounded-sm uppercase tracking-tighter translate-y-2 group-hover:translate-y-0 transition-transform duration-500 shadow-md shadow-[0_0_15px_rgba(212,151,255,0.4)]">
+                                                        <div className="inline-flex items-center gap-1 bg-[#D497FF] text-black text-[8px] font-black py-1 px-2 rounded-sm uppercase tracking-tighter translate-y-2 group-hover:translate-y-0 transition-transform duration-500 shadow-md shadow-[0_0_15px_rgba(212,151,255,0.4)]">
                                                             <Play size={8} fill="currentColor" /> Xem
                                                         </div>
                                                     </div>

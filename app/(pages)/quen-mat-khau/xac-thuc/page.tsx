@@ -6,12 +6,16 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
+import { Turnstile } from '@marsidev/react-turnstile';
+import { useRef } from 'react';
 
 function OtpVerificationContent() {
   const [otp, setOtp] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isResending, setIsResending] = useState(false);
   const [countdown, setCountdown] = useState(0);
+  const [captchaToken, setCaptchaToken] = useState("");
+  const turnstileRef = useRef<any>(null);
   
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -69,9 +73,16 @@ function OtpVerificationContent() {
   const handleResendCode = async () => {
     if (!email || countdown > 0) return;
     
+    if (!captchaToken) {
+      toast.error("Đang tải Captcha, vui lòng đợi một chút...");
+      return;
+    }
+    
     setIsResending(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        captchaToken,
+      });
 
       if (error) {
         throw error;
@@ -117,7 +128,7 @@ function OtpVerificationContent() {
         <button
           type="submit"
           disabled={isLoading || otp.length !== 6}
-          className="w-full bg-amber-400 text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:translate-y-[-2px] hover:shadow-lg hover:shadow-amber-500/20 active:translate-y-0 transition-all cursor-pointer mt-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
+          className="w-full bg-gradient-to-r from-[#D497FF] to-[#B366FF] text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:translate-y-[-2px] hover:shadow-lg hover:shadow-[#D497FF]/20 active:translate-y-0 transition-all cursor-pointer mt-6 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:translate-y-0 disabled:hover:shadow-none"
         >
           {isLoading ? (
             <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
@@ -134,7 +145,7 @@ function OtpVerificationContent() {
         <button
           onClick={handleResendCode}
           disabled={isResending || countdown > 0}
-          className="inline-flex items-center gap-2 text-amber-400/80 hover:text-amber-400 transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
+          className="inline-flex items-center gap-2 text-[#D497FF]/80 hover:text-[#D497FF] transition-colors text-sm font-medium disabled:opacity-50 disabled:cursor-not-allowed"
         >
           {isResending ? (
             <RefreshCw size={16} className="animate-spin" />
@@ -148,6 +159,14 @@ function OtpVerificationContent() {
           <ArrowLeft size={16} />
           Đổi Email khác
         </Link>
+        
+        {/* Turnstile Captcha for Resend (Invisible) */}
+        <Turnstile
+          ref={turnstileRef}
+          siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+          onSuccess={(token) => setCaptchaToken(token)}
+          options={{ size: 'invisible' }}
+        />
       </div>
     </div>
   );
@@ -157,7 +176,7 @@ export default function OtpVerificationPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0F1115] px-4">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-500/10 to-transparent rounded-full opacity-60 pointer-events-none" />
+        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#B366FF]/10 to-transparent rounded-full opacity-60 pointer-events-none" />
         <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#D497FF]/10 to-transparent rounded-full opacity-60 pointer-events-none" />
       </div>
 

@@ -189,7 +189,7 @@ async function WatchData({
                         <div className="flex flex-col gap-4">
                             <a
                                 href=""
-                                className="w-full py-4 bg-[#D497FF] text-white font-black rounded-2xl hover:bg-[#D497FF] active:scale-95 transition-all duration-300 text-center"
+                                className="w-full py-4 bg-[#D497FF] text-black font-black rounded-2xl hover:bg-[#D497FF] active:scale-95 transition-all duration-300 text-center"
                             >
                                 THỬ TẢI LẠI TRANG
                             </a>

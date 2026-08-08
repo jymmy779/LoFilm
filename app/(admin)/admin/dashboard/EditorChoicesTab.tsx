@@ -84,7 +84,7 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
                     <button
                         onClick={handleSave}
                         disabled={isPending}
-                        className="bg-[#D497FF] hover:bg-[#D497FF] text-white px-6 py-2 rounded font-bold transition-colors disabled:opacity-50 flex items-center gap-2"
+                        className="bg-[#D497FF] hover:bg-[#D497FF] text-black px-6 py-2 rounded font-bold transition-colors disabled:opacity-50 flex items-center gap-2"
                     >
                         {isPending ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>}
                         Lưu Cấu Hình
@@ -146,7 +146,7 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
                             <button
                                 type="submit"
                                 disabled={isSearching}
-                                className="bg-[#D497FF] hover:bg-[#D497FF] text-white px-6 py-2 rounded font-bold transition-colors disabled:opacity-50"
+                                className="bg-[#D497FF] hover:bg-[#D497FF] text-black px-6 py-2 rounded font-bold transition-colors disabled:opacity-50"
                             >
                                 {isSearching ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-search"></i>}
                                 Tìm kiếm
@@ -168,7 +168,7 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
                                         </div>
                                         <button
                                             onClick={() => handleAddMovie(movie)}
-                                            className="bg-[#D497FF] hover:bg-[#D497FF] text-white px-4 py-2 rounded font-bold transition-colors w-full md:w-auto shrink-0 flex items-center justify-center gap-2"
+                                            className="bg-[#D497FF] hover:bg-[#D497FF] text-black px-4 py-2 rounded font-bold transition-colors w-full md:w-auto shrink-0 flex items-center justify-center gap-2"
                                         >
                                             <i className="fa-solid fa-plus"></i> Thêm
                                         </button>

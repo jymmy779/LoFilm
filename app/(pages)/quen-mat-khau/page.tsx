@@ -6,10 +6,14 @@ import { createClient } from "@/app/utils/supabase/client";
 import { useRouter } from "next/navigation";
 import { toast } from "react-hot-toast";
 import Link from "next/link";
+import { Turnstile } from '@marsidev/react-turnstile';
+import { useRef } from 'react';
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState("");
+  const turnstileRef = useRef<any>(null);
   const router = useRouter();
   const supabase = createClient();
 
@@ -19,11 +23,17 @@ export default function ForgotPasswordPage() {
       toast.error("Vui lòng nhập Email!");
       return;
     }
+    if (!captchaToken) {
+      toast.error("Đang tải Captcha, vui lòng đợi một chút...");
+      return;
+    }
     setIsLoading(true);
 
     try {
       // Gửi email chứa mã OTP (Supabase sẽ tự động không gửi nếu email không tồn tại để bảo mật)
-      const { error } = await supabase.auth.resetPasswordForEmail(email);
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        captchaToken,
+      });
 
       if (error) {
         throw error;
@@ -47,7 +57,7 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0F1115] px-4">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-500/10 to-transparent rounded-full opacity-60 pointer-events-none" />
+        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#B366FF]/10 to-transparent rounded-full opacity-60 pointer-events-none" />
         <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#D497FF]/10 to-transparent rounded-full opacity-60 pointer-events-none" />
       </div>
 
@@ -75,7 +85,7 @@ export default function ForgotPasswordPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-amber-400 text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:translate-y-[-2px] hover:shadow-lg hover:shadow-amber-500/20 active:translate-y-0 transition-all cursor-pointer mt-6"
+            className="w-full bg-gradient-to-r from-[#D497FF] to-[#B366FF] text-black py-4 rounded-2xl font-bold flex items-center justify-center gap-2 hover:translate-y-[-2px] hover:shadow-lg hover:shadow-[#D497FF]/20 active:translate-y-0 transition-all cursor-pointer mt-6"
           >
             {isLoading ? (
               <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
@@ -86,6 +96,14 @@ export default function ForgotPasswordPage() {
               </>
             )}
           </button>
+
+          {/* Turnstile Captcha (Invisible) */}
+          <Turnstile
+            ref={turnstileRef}
+            siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+            onSuccess={(token) => setCaptchaToken(token)}
+            options={{ size: 'invisible' }}
+          />
         </form>
 
         <div className="mt-6 text-center">

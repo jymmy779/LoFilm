@@ -109,7 +109,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
         setShowMenu(false);
         setShowLogoutModal(false);
         setLoading(false);
-        const protectedPaths = ["/ca-nhan", "/lich-su", "/yeu-thich", "/xem-sau", "/thong-bao", "/cai-dat"];
+        const protectedPaths = ["/ca-nhan", "/lich-su", "/yeu-thich", "/xem-sau", "/thu-vien", "/thong-bao", "/cai-dat"];
         if (protectedPaths.some(p => pathname.startsWith(p))) {
             window.location.href = "/";
         } else {
@@ -132,7 +132,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
         return (
             <TransitionLink
                 href="/dang-nhap"
-                className="flex items-center cursor-pointer gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-[#D497FF] text-white font-bold hover:-translate-y-0.5 active:scale-95 transition-all duration-300 whitespace-nowrap shrink-0 overflow-hidden relative group/btn"
+                className="flex items-center cursor-pointer gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-[#D497FF] text-black font-bold hover:-translate-y-0.5 active:scale-95 transition-all duration-300 whitespace-nowrap shrink-0 overflow-hidden relative group/btn"
             >
                 <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 skew-x-[-20deg]" />
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="14" height="14" fill="currentColor" className="relative z-10">

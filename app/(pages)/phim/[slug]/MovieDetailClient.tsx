@@ -498,7 +498,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                 <div className="flex flex-wrap items-center gap-3">
                                     <TransitionLink
                                         href={`/phim/${movie.slug}/${watchEpisodeSlug}`}
-                                        className="relative overflow-hidden group flex items-center gap-3 bg-gradient-to-r from-[#D497FF] to-[#D497FF] hover:brightness-110 text-white py-2 px-6 md:py-4 md:px-8 rounded-full font-bold transition-transform duration-200 active:scale-95 cursor-pointer shadow-[0_0_20px_rgba(212,151,255,0.4)] hover:shadow-[0_0_30px_rgba(212,151,255,0.6)]"
+                                        className="relative overflow-hidden group flex items-center gap-3 bg-gradient-to-r from-[#D497FF] to-[#D497FF] hover:brightness-110 text-black py-2 px-6 md:py-4 md:px-8 rounded-full font-bold transition-transform duration-200 active:scale-95 cursor-pointer shadow-[0_0_20px_rgba(212,151,255,0.4)] hover:shadow-[0_0_30px_rgba(212,151,255,0.6)]"
                                     >
                                         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-btn-shine pointer-events-none" />
                                         <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors z-10">

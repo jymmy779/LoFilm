@@ -292,7 +292,7 @@ export default function Header() {
                                         <Image src={user.user_metadata.avatar_url} alt="Avatar" width={22} height={22} className="w-full h-full object-cover" />
                                     </div>
                                 ) : (
-                                    <div className={`w-[22px] h-[22px] rounded-full overflow-hidden border transition-transform duration-300 ${pathname === '/ca-nhan' && !isMenuOpen ? 'border-[#D497FF] scale-110 -translate-y-1' : 'border-white/40 scale-100'} bg-gradient-to-br from-[#D497FF] to-[#8B5CF6] flex items-center justify-center text-white text-[11px] font-bold`}>
+                                    <div className={`w-[22px] h-[22px] rounded-full overflow-hidden border transition-transform duration-300 ${pathname === '/ca-nhan' && !isMenuOpen ? 'border-[#D497FF] scale-110 -translate-y-1' : 'border-white/40 scale-100'} bg-gradient-to-br from-[#D497FF] to-[#8B5CF6] flex items-center justify-center text-black text-[11px] font-bold`}>
                                         {(user.user_metadata?.full_name || user.email || "U").charAt(0).toUpperCase()}
                                     </div>
                                 )
@@ -315,7 +315,7 @@ export default function Header() {
                         <div className={`absolute inset-0 rounded-full bg-gradient-to-tr from-[#C084FC] to-[#D497FF] transition-opacity duration-300 ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'opacity-100' : 'opacity-0'}`} />
                         
                         {/* Icon */}
-                        <svg className={`relative z-10 transition-colors duration-300 ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'text-white' : 'text-white/90 group-hover:text-[#D497FF]'}`} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                        <svg className={`relative z-10 transition-colors duration-300 ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'text-black' : 'text-white/90 group-hover:text-[#D497FF]'}`} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
                     </TransitionLink>
                 </div>
             </div>

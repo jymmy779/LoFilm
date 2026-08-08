@@ -250,7 +250,7 @@ export default function NewMoviePage() {
                 <div className="flex gap-2 mb-6">
                     <button 
                         onClick={() => setActiveTab('manual')}
-                        className={`px-6 py-2 rounded-lg font-medium transition ${activeTab === 'manual' ? 'bg-[#D497FF] text-white shadow-lg' : 'bg-[#0F1115] text-gray-400 hover:bg-white/5 border border-white/10'}`}
+                        className={`px-6 py-2 rounded-lg font-medium transition ${activeTab === 'manual' ? 'bg-[#D497FF] text-black shadow-lg' : 'bg-[#0F1115] text-gray-400 hover:bg-white/5 border border-white/10'}`}
                     >
                         Thêm Thủ Công
                     </button>
@@ -462,7 +462,7 @@ export default function NewMoviePage() {
                         )}
 
                         <div className="flex justify-end mt-4 pt-6 border-t border-white/10">
-                            <button type="submit" disabled={isPending} className="bg-[#D497FF] hover:bg-[#D497FF] px-8 py-3 rounded-lg font-medium transition text-white w-full md:w-auto shadow-lg shadow-[#D497FF]/20">
+                            <button type="submit" disabled={isPending} className="bg-[#D497FF] hover:bg-[#D497FF] px-8 py-3 rounded-lg font-medium transition text-black w-full md:w-auto shadow-lg shadow-[#D497FF]/20">
                                 {isPending ? <><i className="fa-solid fa-spinner fa-spin mr-2"></i> Đang lưu...</> : "Lưu Phim Mới"}
                             </button>
                         </div>

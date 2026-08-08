@@ -16,14 +16,14 @@ export default function LibraryPage() {
   const supabase = createClient();
   const searchParams = useSearchParams();
   const router = useRouter();
-  
+
   const [user, setUser] = useState<any>(null);
   const [activeTab, setActiveTab] = useState(searchParams.get("tab") || "history");
-  
+
   const [watchHistory, setWatchHistory] = useState<any[]>([]);
   const [watchlist, setWatchlist] = useState<any[]>([]);
   const [favorites, setFavorites] = useState<any[]>([]);
-  
+
   const [isLoading, setIsLoading] = useState(true);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [confirmModal, setConfirmModal] = useState({
@@ -216,37 +216,38 @@ export default function LibraryPage() {
     <div className="min-h-screen pt-0 pb-10 bg-zinc-950 w-full xl:w-[calc(100%+100px)] xl:-ml-[100px]">
       <div className="relative py-10 md:py-20 px-4 xl:pl-[132px] xl:pr-8 -mb-16 overflow-hidden min-h-[250px] md:min-h-[300px] flex items-center justify-center">
         <div className="absolute inset-0 opacity-40 bg-gradient-to-b from-transparent to-zinc-950" style={{ backgroundColor: '#f97316' }}></div>
-        <div className="relative z-20 w-full py-2 space-y-0 text-left">
-          <TransitionLink className="inline-flex items-center text-zinc-400 hover:text-white mb-2 transition-colors" href="/ca-nhan">
-            <ChevronLeft className="w-5 h-5 mr-1" />
-            Quay lại
-          </TransitionLink>
-          <h1 className="text-2xl md:text-4xl font-black text-white mb-6 drop-shadow-xl tracking-tighter">Thư viện của bạn</h1>
-          
-          <div className="flex gap-4 border-b border-white/10 w-full overflow-x-auto pb-1 scrollbar-hide">
-            <button 
+        <div className="relative z-20 w-full py-2 space-y-0 text-left flex justify-between items-end">
+          <div>
+            <TransitionLink className="inline-flex items-center text-zinc-400 hover:text-white mb-2 transition-colors" href="/ca-nhan">
+              <ChevronLeft className="w-5 h-5 mr-1" />
+              Quay lại
+            </TransitionLink>
+            <h1 className="text-2xl md:text-4xl font-bold text-white mb-1 drop-shadow-xl tracking-tighter">Thư viện của bạn</h1>
+          </div>
+        </div>
+      </div>
+
+      <div className="relative z-20 w-full px-4 xl:pl-[132px] xl:pr-8 py-2 space-y-0 -mt-24 relative z-30">
+        <div className="flex gap-4 border-b border-white/10 w-full overflow-x-auto pb-1 scrollbar-hide mb-6">
+          <button
               onClick={() => setActiveTab('history')}
               className={`flex items-center gap-2 px-4 py-3 border-b-2 font-medium transition-all whitespace-nowrap text-sm md:text-base ${activeTab === 'history' ? 'border-orange-500 text-orange-500' : 'border-transparent text-zinc-400 hover:text-white hover:border-white/50'}`}
             >
               <History className="w-4 h-4" /> Lịch sử
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('watchlist')}
               className={`flex items-center gap-2 px-4 py-3 border-b-2 font-medium transition-all whitespace-nowrap text-sm md:text-base ${activeTab === 'watchlist' ? 'border-orange-500 text-orange-500' : 'border-transparent text-zinc-400 hover:text-white hover:border-white/50'}`}
             >
               <Bookmark className="w-4 h-4" /> Xem sau
             </button>
-            <button 
+            <button
               onClick={() => setActiveTab('favorites')}
               className={`flex items-center gap-2 px-4 py-3 border-b-2 font-medium transition-all whitespace-nowrap text-sm md:text-base ${activeTab === 'favorites' ? 'border-orange-500 text-orange-500' : 'border-transparent text-zinc-400 hover:text-white hover:border-white/50'}`}
             >
               <Heart className="w-4 h-4" /> Yêu thích
             </button>
           </div>
-        </div>
-      </div>
-
-      <div className="relative z-20 w-full px-4 xl:pl-[132px] xl:pr-8 py-2 space-y-0 mt-4">
         {isLoading ? (
           <div className="py-20 flex justify-center">
             <div className="relative flex items-center justify-center">
@@ -262,9 +263,9 @@ export default function LibraryPage() {
                 <div className="group/item relative block w-full h-full">
                   <TransitionLink className="block w-full" href={activeTab === 'history' ? `/phim/${item.movie_slug}/${item.episode_slug || 'tap-full'}` : `/phim/${item.movie_slug}`}>
                     <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-[#0F1115] z-0 transition-opacity duration-300">
-                      <SmartImage 
-                        alt={item.movie_name} 
-                        className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover/item:scale-110 transform-gpu ${loadedImages.has(item.id) ? 'opacity-100' : 'opacity-0'}`} 
+                      <SmartImage
+                        alt={item.movie_name}
+                        className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover/item:scale-110 transform-gpu ${loadedImages.has(item.id) ? 'opacity-100' : 'opacity-0'}`}
                         r2Src={getR2MoviePosterUrl(item.movie_slug)}
                         src={getImageUrl(item.movie_poster, { width: 300, quality: 70 })}
                         rawSrc={getRawImageUrl(item.movie_poster)}
@@ -273,18 +274,18 @@ export default function LibraryPage() {
                         onLoad={() => markLoaded(item.id)}
                       />
                       <div className="absolute top-2 right-2 z-20">
-                        <button 
+                        <button
                           onClick={(e) => deleteItem(item.id, activeTab as any, item.movie_slug, e)}
-                          className="group flex items-center justify-center w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:bg-rose-500 hover:border-rose-500 transition-all shadow-lg" 
+                          className="group flex items-center justify-center w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:bg-rose-500 hover:border-rose-500 transition-all shadow-lg"
                           title="Xóa"
                         >
                           <X className="w-4 h-4" />
                         </button>
                       </div>
-                      
+
                       {activeTab === 'history' && (
                         <div className="absolute bottom-1 left-1 z-10 pointer-events-none">
-                           <span className="rounded-[4px] bg-orange-600/90 px-1 py-[2px] text-[8px] md:text-[11px] font-bold text-white shadow-sm border border-white/10 tracking-wide">
+                          <span className="rounded-[4px] bg-orange-600/90 px-1 py-[2px] text-[8px] md:text-[11px] font-bold text-white shadow-sm border border-white/10 tracking-wide">
                             {formatEpisode(item.episode_name)}
                           </span>
                         </div>

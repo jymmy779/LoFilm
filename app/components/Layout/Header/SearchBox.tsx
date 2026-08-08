@@ -294,7 +294,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                             setIsFocused(false);
                             setShowResults(false);
                         }}
-                        className="w-full py-2.5 md:py-3 bg-white/5 hover:bg-gradient-to-r hover:from-[#D497FF] hover:to-[#D497FF] hover:text-white transition-all duration-300 cursor-pointer text-[13px] md:text-[14px] font-medium text-[#D497FF] border-t border-white/5 block text-center"
+                        className="w-full py-2.5 md:py-3 bg-white/5 hover:bg-gradient-to-r hover:from-[#D497FF] hover:to-[#D497FF] hover:text-black transition-all duration-300 cursor-pointer text-[13px] md:text-[14px] font-medium text-[#D497FF] border-t border-white/5 block text-center"
                     >
                         Xem tất cả kết quả
                     </TransitionLink>

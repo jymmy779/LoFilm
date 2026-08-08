@@ -133,7 +133,8 @@ export async function middleware(request: NextRequest) {
   )
 
   const hasAuthCookie = request.cookies.getAll().some(c => c.name.startsWith('sb-'));
-  const isProtectedRoute = pathname.startsWith('/trang-ca-nhan') || pathname.startsWith('/history');
+  const protectedRoutes = ['/ca-nhan', '/thu-vien', '/lich-su', '/yeu-thich', '/xem-sau'];
+  const isProtectedRoute = protectedRoutes.some(route => pathname.startsWith(route));
 
   // Dùng getSession() thay vì getUser() để tránh gọi mạng ra Supabase server.
   // getUser() gọi network để xác thực token → dễ bị timeout/fetch failed → redirect sai về login.

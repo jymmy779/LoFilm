@@ -350,15 +350,13 @@ export default function NotificationBell() {
                     )}
                 </div>
 
-                <div className="border-t border-white/5 bg-[#0a0a0f] p-2 md:p-3 flex justify-center">
-                    <Link 
-                        href="/thong-bao" 
-                        onClick={() => setIsOpen(false)}
-                        className="text-[11px] md:text-xs text-white/50 hover:text-white transition-colors w-full text-center py-1 md:py-1.5 rounded-lg hover:bg-white/5 font-medium"
-                    >
-                        Xem tất cả
-                    </Link>
-                </div>
+                <Link 
+                    href="/thong-bao" 
+                    onClick={() => setIsOpen(false)}
+                    className="block w-full py-2.5 md:py-3 border-t border-white/5 bg-[#0a0a0f] hover:bg-white/5 text-[11px] md:text-xs text-white/50 hover:text-white transition-all text-center font-medium"
+                >
+                    Xem tất cả
+                </Link>
             </div>
         </div>
     );
