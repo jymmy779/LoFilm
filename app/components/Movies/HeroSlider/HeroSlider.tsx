@@ -143,7 +143,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                     </p>
 
                                     {/* Tags */}
-                                    <div className="flex flex-wrap items-center justify-center min-[700px]:justify-start gap-2 h-7 overflow-hidden">
+                                    <div className="flex flex-wrap items-center justify-center min-[700px]:justify-start gap-1.5 md:gap-2">
                                         {(currentMovie.tmdb?.vote_average || 0) > 0 && (
                                             <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-rose-500 text-white rounded shadow-sm">
                                                 ★ {(currentMovie.tmdb?.vote_average || 0).toFixed(1)}

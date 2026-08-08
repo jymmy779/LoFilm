@@ -108,7 +108,7 @@ export default function Header() {
                 <div className="flex items-center justify-between h-[54px] md:h-[64px] w-full max-w-[1900px] mx-auto px-4 xl:px-0 gap-4 md:gap-8">
                     <div className="flex xl:hidden items-center justify-between w-full h-full gap-3">
                         <div className="relative flex-1 h-full flex items-center">
-                            <div className={`items-center gap-2 shrink-0 ${isSearchActive ? "hidden" : "flex animate-fade-in"}`}>
+                            <div className={`items-center gap-2 md:gap-4 shrink-0 ${isSearchActive ? "hidden md:flex" : "flex animate-fade-in"}`}>
                                 <button
                                     onClick={() => setIsMenuOpen(true)}
                                     className="p-1.5 -ml-1.5 text-white/80 hover:text-white transition-colors"
@@ -134,7 +134,7 @@ export default function Header() {
                                     />
                                 </TransitionLink>
                             </div>
-                            <div className={`flex-1 ${isSearchActive ? "block animate-reveal-left" : "hidden"}`}>
+                            <div className={`flex-1 md:block md:ml-4 lg:ml-8 ${isSearchActive ? "block animate-reveal-left" : "hidden"}`}>
                                 <SearchBox autoFocus={isSearchActive} />
                             </div>
                         </div>
@@ -153,7 +153,7 @@ export default function Header() {
                                     setIsSearchActive(!isSearchActive);
                                     setIsMenuOpen(false);
                                 }}
-                                className="p-2 cursor-pointer text-white/60 hover:text-white transition-colors shrink-0 flex items-center justify-center w-10 h-10"
+                                className="p-2 cursor-pointer text-white/60 hover:text-white transition-colors shrink-0 flex items-center justify-center w-10 h-10 md:hidden"
                                 aria-label={isSearchActive ? "Đóng tìm kiếm" : "Mở tìm kiếm"}
                             >
                                 <div className="relative w-10 h-10 flex items-center justify-center">
