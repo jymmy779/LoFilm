@@ -1,5 +1,6 @@
 import Loading from "@/app/loading";
 import { Metadata } from "next";
+import { notFound } from "next/navigation";
 import { getAbsoluteUrl } from "@/app/config/site";
 import { Suspense } from "react";
 import CategoryClient from "./CategoryClient";
@@ -70,11 +71,20 @@ async function CategoryData({ slug }: { slug: string }) {
         console.error("Lỗi fetch tên thể loại:", err);
     }
 
-    const initialData = await fetchCatalogData(
-        `https://phimapi.com/v1/api/the-loai/${slug}`,
-        1,
-        48
-    );
+    let initialData;
+    try {
+        initialData = await fetchCatalogData(
+            `https://phimapi.com/v1/api/the-loai/${slug}`,
+            1,
+            48
+        );
+    } catch (err) {
+        console.error("Lỗi fetch dữ liệu thể loại (có thể không tồn tại):", err);
+    }
+
+    if (!initialData || initialData.movies.length === 0) {
+        notFound();
+    }
 
     return (
         <CategoryClient slug={slug} title={`Danh sách phim ${categoryName}`} initialData={initialData} />

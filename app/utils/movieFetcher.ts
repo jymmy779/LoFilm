@@ -111,7 +111,8 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                         view: localViewCount || phimApiData?.movie?.view || exclusiveMovie.view || 1000,
                         actor: (data.credits?.cast?.length > 0 ? data.credits.cast.slice(0, 10).map((c: any) => c.name) : exclusiveMovie.actor) || [],
                         director: (data.credits?.crew?.length > 0 ? data.credits.crew.filter((c: any) => c.job === "Director").map((c: any) => c.name) : exclusiveMovie.director) || [],
-                        category: (data.genres?.length > 0 ? data.genres.map((g: any) => ({ name: g.name })) : exclusiveMovie.category) || [],
+                        // Ưu tiên dùng category có sẵn trong DB (từ Ophim/Nguonc có sẵn tiếng Việt), nếu không có mới dùng TMDB
+                        category: (exclusiveMovie.category && exclusiveMovie.category.length > 0 ? exclusiveMovie.category : (data.genres?.length > 0 ? data.genres.map((g: any) => ({ name: g.name })) : [])) || [],
                         country: exclusiveMovie.country?.length > 0 ? exclusiveMovie.country : [{ name: "Độc quyền" }],
                         tmdb: { id: exclusiveMovie.tmdb_id, vote_average: data.vote_average, vote_count: data.vote_count, type: tmdbType }
                     };

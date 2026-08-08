@@ -1,5 +1,82 @@
 import { Movie } from "@/app/types/movie";
 
+const CATEGORY_MAPPING: Record<string, string> = {
+    // Lỗi có chữ "phim-" ở đầu (thường do Nguonc/Ophim)
+    "phim-hanh-dong": "hanh-dong",
+    "phim-tinh-cam": "tinh-cam",
+    "phim-hai": "hai-huoc",
+    "phim-co-trang": "co-trang",
+    "phim-kinh-di": "kinh-di",
+    "phim-vien-tuong": "vien-tuong",
+    "phim-vo-thuat": "vo-thuat",
+    "phim-phieu-luu": "phieu-luu",
+    "phim-tai-lieu": "tai-lieu",
+    "phim-gia-dinh": "gia-dinh",
+    "phim-tam-ly": "tam-ly",
+    "phim-the-thao": "the-thao",
+    "phim-am-nhac": "am-nhac",
+    "phim-chinh-kich": "chinh-kich",
+    "phim-bi-an": "bi-an",
+    "phim-hoc-duong": "hoc-duong",
+    "phim-kinh-dien": "kinh-dien",
+    
+    // Khác biệt cách gọi
+    "hai": "hai-huoc",
+    "khoa-hoc": "khoa-hoc-vien-tuong",
+    "phim-khoa-hoc": "khoa-hoc-vien-tuong",
+    "than-thoai": "than-thoai",
+    "phim-than-thoai": "than-thoai",
+    "huyen-huyen": "co-trang", // Có thể huyễn huyễn đưa tạm về cổ trang
+    "dam-my": "tinh-cam",
+    "bach-hop": "tinh-cam",
+    "vo-hiep": "vo-thuat",
+    
+    // Thể loại tiếng Anh (thường do Ophim crawl từ TMDB)
+    "action": "hanh-dong",
+    "adventure": "phieu-luu",
+    "action-adventure": "hanh-dong",
+    "animation": "hoat-hinh",
+    "comedy": "hai-huoc",
+    "crime": "hinh-su",
+    "documentary": "tai-lieu",
+    "drama": "chinh-kich",
+    "family": "gia-dinh",
+    "fantasy": "vien-tuong",
+    "history": "co-trang",
+    "horror": "kinh-di",
+    "music": "am-nhac",
+    "mystery": "bi-an",
+    "romance": "tinh-cam",
+    "science-fiction": "khoa-hoc-vien-tuong",
+    "sci-fi-fantasy": "khoa-hoc-vien-tuong",
+    "thriller": "tam-ly",
+    "war": "chien-tranh",
+    "western": "vien-tay",
+    "reality": "tv-shows", // TV Shows / Truyền hình thực tế
+    "kids": "gia-dinh",
+    "soap": "tam-ly",
+    "talk": "tv-shows",
+    "politics": "chinh-kich",
+};
+
+/**
+ * Generate a consistent slug for categories/genres from various APIs.
+ */
+export function generateCategorySlug(slug: string | undefined | null, name: string | undefined | null): string {
+    const raw = slug || name || "";
+    const generatedSlug = raw
+        .toLowerCase()
+        .normalize("NFD")
+        .replace(/[\u0300-\u036f]/g, "")
+        .replace(/đ/g, "d")
+        .replace(/Đ/g, "D")
+        .replace(/[^a-z0-9]/g, "-")
+        .replace(/-+/g, "-")
+        .replace(/^-|-$/g, "");
+        
+    return CATEGORY_MAPPING[generatedSlug] || generatedSlug;
+}
+
 /**
  * Filter duplicate movies by root name (removes sequels like SS1, SS2, Phần 1, Phần 2...)
  */

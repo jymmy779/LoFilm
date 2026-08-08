@@ -13,7 +13,7 @@ import "swiper/css/thumbs";
 
 import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
-import { filterDuplicateMovies, getImageUrl, getRawImageUrl, getEpisodeStatus } from "@/app/utils/movieUtils";
+import { filterDuplicateMovies, getImageUrl, getRawImageUrl, getEpisodeStatus, generateCategorySlug } from "@/app/utils/movieUtils";
 import { getR2MovieThumbUrl, getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 
 import SmartImage from "@/app/components/UI/Common/SmartImage";
@@ -182,12 +182,13 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
                                             <div className="flex flex-wrap gap-2 w-full pt-1">
                                                 {(() => {
                                                     const cats = movie.category?.slice(0, 3) || [];
-                                                    const styles = getCategoryStyles(cats.map((c: any) => c.slug || c.name));
+                                                    const slugs = cats.map((c: any) => generateCategorySlug(c.slug, c.name));
+                                                    const styles = getCategoryStyles(slugs);
                                                     return cats.map((cat: any, i: number) => (
                                                         <TransitionLink
-                                                            key={cat.id || cat.slug}
-                                                            href={`/the-loai/${cat.slug}`}
-                                                            className={`px-2.5 py-1 text-[10px] lg:text-xs font-medium flex items-center justify-center bg-white/10 border border-white/10 hover:border-[#D497FF]/50 ${styles[i].text} rounded-md transition-[border-color,color]`}
+                                                            key={slugs[i] || cat.id || i}
+                                                            href={`/the-loai/${slugs[i]}`}
+                                                            className={`px-2.5 py-1 text-[10px] lg:text-xs font-medium flex items-center justify-center bg-white/10 border border-white/10 hover:border-[#D497FF]/50 ${styles[i]?.text || 'text-white'} rounded-md transition-[border-color,color]`}
                                                         >
                                                             {cat.name}
                                                         </TransitionLink>

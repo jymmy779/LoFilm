@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { getCategoryStyles } from "@/app/utils/uiUtils";
+import { generateCategorySlug } from "@/app/utils/movieUtils";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade, Thumbs, FreeMode } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
@@ -178,12 +179,13 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                     >
                                         {(() => {
                                             const cats = currentMovie.category.slice(0, 3);
-                                            const styles = getCategoryStyles(cats.map((c) => c.slug));
+                                            const slugs = cats.map(c => generateCategorySlug(c.slug, c.name));
+                                            const styles = getCategoryStyles(slugs);
                                             return cats.map((cat, i) => (
                                                 <TransitionLink
-                                                    key={cat.slug}
-                                                    href={`/the-loai/${cat.slug}`}
-                                                    className={`px-2.5 py-1 text-[10px] lg:text-xs font-medium flex items-center justify-center bg-white/10 border border-white/10 hover:border-[#D497FF]/50 ${styles[i].text} rounded transition-[border-color,color] duration-300 leading-none`}
+                                                    key={slugs[i] || i}
+                                                    href={`/the-loai/${slugs[i]}`}
+                                                    className={`px-2.5 py-1 text-[10px] lg:text-xs font-medium flex items-center justify-center bg-white/10 border border-white/10 hover:border-[#D497FF]/50 ${styles[i]?.text || 'text-white'} rounded transition-[border-color,color] duration-300 leading-none`}
                                                 >
                                                     {cat.name}
                                                 </TransitionLink>

@@ -19,7 +19,8 @@ import {
     getFriendlyEpisodeSlug,
     filterDuplicateMovies,
     parseEpNumber,
-    getYoutubeEmbedUrl
+    getYoutubeEmbedUrl,
+    generateCategorySlug
 } from "@/app/utils/movieUtils";
 import { getCategoryColor, getCategoryStyles } from "@/app/utils/uiUtils";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
@@ -343,11 +344,14 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                     const styles = getCategoryStyles(movie.category.map((c) => c.slug));
                                     return (
                                         <div className="hl-tags flex flex-wrap gap-2">
-                                            {movie.category.map((cat, idx) => (
-                                                <TransitionLink key={cat.slug} href={`/the-loai/${cat.slug}`} className={`px-3 py-1 bg-white/5 ${styles[idx].text} border-white/10 border rounded-full text-[11px] font-bold hover:brightness-110 transition-all`}>
+                                            {movie.category.map((cat, idx) => {
+                                                const finalSlug = generateCategorySlug(cat.slug, cat.name);
+                                                return (
+                                                <TransitionLink key={finalSlug || idx} href={`/the-loai/${finalSlug}`} className={`px-3 py-1 bg-white/5 ${styles[idx].text} border-white/10 border rounded-full text-[11px] font-bold hover:brightness-110 transition-all`}>
                                                     {cat.name}
                                                 </TransitionLink>
-                                            ))}
+                                                )
+                                            })}
                                         </div>
                                     );
                                 })()}
@@ -581,13 +585,24 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                                 { label: 'Chất lượng', value: `${movie.quality || 'HD'} - ${movie.lang || 'Vietsub'}` },
                                                 { label: 'Năm', value: String(movie.year) },
                                                 { label: 'Quốc gia', value: movie.country?.map(c => c.name).join(', ') || 'N/A' },
-                                                { label: 'Thể loại', value: movie.category?.map(c => c.name).join(', ') || 'N/A' },
+                                                { label: 'Thể loại', value: movie.category?.map(c => c.name).join(', ') || 'N/A', isCustom: true, items: movie.category },
                                                 { label: 'Đạo diễn', value: movie.director?.filter(d => d !== '').join(', ') || 'N/A' }
                                             ] as any[]).map((item, idx) => (
                                                 <div key={idx} className="flex items-start justify-between border-b border-white/5 pb-3 gap-4">
                                                     <span className="text-gray-500 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap shrink-0 pt-0.5">{item.label}</span>
                                                     {item.isTag ? (
                                                         <span className="px-2 py-0.5 bg-white/10 rounded text-[11px] text-white/80 text-right">{item.value}</span>
+                                                    ) : item.isCustom ? (
+                                                        <div className="flex flex-wrap gap-1 justify-end text-sm font-medium text-white/80">
+                                                            {item.items && item.items.length > 0 ? item.items.map((c: any, i: number) => {
+                                                                const finalSlug = generateCategorySlug(c.slug, c.name);
+                                                                return (
+                                                                    <TransitionLink key={i} href={`/the-loai/${finalSlug}`} className="hover:text-[#D497FF] hover:underline transition-colors text-right">
+                                                                        {c.name}{i < item.items.length - 1 ? ', ' : ''}
+                                                                    </TransitionLink>
+                                                                )
+                                                            }) : 'N/A'}
+                                                        </div>
                                                     ) : item.isLink ? (
                                                         <span className="text-[#D497FF] text-sm font-medium hover:underline cursor-pointer text-right">{item.value}</span>
                                                     ) : (
