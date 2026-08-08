@@ -17,6 +17,7 @@
  */
 
 import { S3Client, PutObjectCommand, HeadObjectCommand } from '@aws-sdk/client-s3';
+import { createClient } from '@supabase/supabase-js';
 import sharp from 'sharp';
 import { readFileSync, writeFileSync, existsSync } from 'fs';
 import { resolve, dirname } from 'path';
@@ -50,9 +51,20 @@ const R2_ACCESS_KEY_ID   = process.env.R2_ACCESS_KEY_ID;
 const R2_SECRET_ACCESS_KEY = process.env.R2_SECRET_ACCESS_KEY;
 const R2_BUCKET_NAME     = process.env.R2_BUCKET_NAME || 'lofilm';
 
+const SUPABASE_URL = process.env.NEXT_PUBLIC_SUPABASE_URL;
+const SUPABASE_ANON_KEY = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+
 if (!R2_ACCOUNT_ID || !R2_ACCESS_KEY_ID || !R2_SECRET_ACCESS_KEY) {
     console.error('[ERROR] Thiếu R2 credentials. Kiểm tra .env.local');
     process.exit(1);
+}
+
+// ─── Khởi tạo Supabase ─────────────────────────────────────────────────────────
+let supabase = null;
+if (SUPABASE_URL && SUPABASE_ANON_KEY) {
+    supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+} else {
+    console.warn('[WARN] Thiếu cấu hình Supabase (NEXT_PUBLIC_SUPABASE_URL, NEXT_PUBLIC_SUPABASE_ANON_KEY). Bỏ qua tính năng cào phim độc quyền.');
 }
 
 // ─── Parse CLI args ────────────────────────────────────────────────────────────
@@ -433,6 +445,39 @@ async function fetchAllMovies() {
     return allMovies.slice(0, LIMIT === Infinity ? undefined : LIMIT);
 }
 
+// ─── Fetch danh sách phim từ Supabase ─────────────────────────────────────────
+async function fetchExclusiveMovies() {
+    if (!supabase) return [];
+    console.log('[supabase] Đang fetch danh sách phim độc quyền...');
+    try {
+        // Fetch all exclusive movies.
+        // We select tmdb_id, slug, poster_url, thumb_url, and name.
+        const { data, error } = await supabase
+            .from('exclusive_movies')
+            .select('slug, name, tmdb_id, poster_url, thumb_url');
+        
+        if (error) {
+            console.error('[ERROR] Supabase fetch failed:', error.message);
+            return [];
+        }
+
+        if (!data) return [];
+        console.log(`  Tìm thấy ${data.length} phim độc quyền.`);
+        
+        // Map to PhimAPI format
+        return data.map(item => ({
+            name: item.name,
+            slug: item.slug,
+            poster_url: item.poster_url,
+            thumb_url: item.thumb_url,
+            tmdb: { id: item.tmdb_id || '' }
+        }));
+    } catch (err) {
+        console.error('[ERROR] Supabase fetch error:', err.message);
+        return [];
+    }
+}
+
 // ─── Main ──────────────────────────────────────────────────────────────────────
 async function main() {
     console.log('═══════════════════════════════════════════════════════');
@@ -466,10 +511,10 @@ async function main() {
                         const buf = await downloadImage(url);
                         await convertAndUpload(buf, item.key, item.type === 'poster' ? 400 : 800, 80);
                         fixedCount++;
-                        console.log(`  ✓ Đã sửa thành công ảnh lỗi [${item.type}]: ${item.slug || item.key}`);
+                        console.log(`  ✅ Fixed: ${item.key}`);
                     }
                 } catch (err) {
-                    console.error(`  ✗ Vẫn lỗi [${item.key}]: ${err.message}`);
+                    console.error(`  ❌ Failed again: ${item.key}`, err.message);
                     remainingFailed.push(item);
                 }
                 await sleep(300);
@@ -483,7 +528,20 @@ async function main() {
         }
     }
 
-    const movies = await fetchAllMovies();
+    const exclusiveMovies = await fetchExclusiveMovies();
+    const phimApiMovies = await fetchAllMovies();
+    
+    // Merge exclusive movies FIRST so they get prioritized/synced first, then PhimAPI movies.
+    // Avoid duplicates by slug if they exist in both.
+    const mergedMoviesMap = new Map();
+    for (const m of phimApiMovies) {
+        mergedMoviesMap.set(m.slug, m);
+    }
+    for (const m of exclusiveMovies) {
+        mergedMoviesMap.set(m.slug, m); // Overwrite with exclusive if duplicate
+    }
+    const movies = Array.from(mergedMoviesMap.values());
+
     stats.movies.total = movies.length * 2; // poster + thumb
 
     console.log(`\n[Bắt đầu] ${movies.length} phim\n`);

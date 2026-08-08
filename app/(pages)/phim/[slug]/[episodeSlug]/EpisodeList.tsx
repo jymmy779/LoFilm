@@ -207,9 +207,9 @@ const EpisodeList = ({
                 setActiveRangeIndex(0);
                 setSearchQuery("");
               }}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] md:text-xs tracking-wider transition-all cursor-pointer font-medium whitespace-nowrap ${activeServer === index
+              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] md:text-xs tracking-wider transition-all cursor-pointer font-medium whitespace-nowrap focus:outline-none ${activeServer === index
                 ? "bg-gradient-to-r from-[#D497FF] to-[#D497FF] text-white shadow-lg shadow-[#D497FF]/20 border border-transparent"
-                : "bg-white/5 text-gray-500 hover:text-white"
+                : "bg-white/5 text-gray-500 hover:text-white border border-transparent"
                 }`}
             >
               <Server size={12} />

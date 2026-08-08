@@ -754,7 +754,15 @@ export default function WatchClient({
             isMounted = false;
             clearTimeout(initTimeout);
             if (artRef.current) {
-                try { artRef.current.destroy(true); } catch (e) { }
+                try { 
+                    const video = artRef.current.video;
+                    if (video) {
+                        video.pause();
+                        video.removeAttribute('src');
+                        video.load();
+                    }
+                    artRef.current.destroy(true); 
+                } catch (e) { }
                 artRef.current = null;
                 setArtContainer(null);
             }
