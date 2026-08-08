@@ -101,6 +101,7 @@ export default function Header() {
     ];
 
     const showBackground = isScrolled || isMenuOpen;
+    const isKhamPhaActive = (pathname.startsWith('/danh-sach/') && pathname !== '/danh-sach/phim-chieu-rap') || pathname.startsWith('/the-loai/') || pathname.startsWith('/quoc-gia/') || hasSearchQuery;
 
     return (
         <>
@@ -260,10 +261,10 @@ export default function Header() {
                 >
                     {/* Left Items */}
                     <div className="flex items-center w-[42%] justify-between pr-2">
-                        <TransitionLink href="/danh-sach/phim-moi" className={`relative flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-xl transition-all duration-300 ${(pathname.startsWith('/danh-sach/') || pathname.startsWith('/the-loai/') || pathname.startsWith('/quoc-gia/') || hasSearchQuery) ? 'text-[#D497FF]' : 'text-white/60 hover:text-white'}`}>
-                            <svg className={`transition-transform duration-300 ${(pathname.startsWith('/danh-sach/') || pathname.startsWith('/the-loai/') || pathname.startsWith('/quoc-gia/') || hasSearchQuery) ? 'scale-110 -translate-y-1' : 'scale-100'}`} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" /></svg>
-                            <span className={`text-[9px] font-medium tracking-wide transition-all duration-300 ${(pathname.startsWith('/danh-sach/') || pathname.startsWith('/the-loai/') || pathname.startsWith('/quoc-gia/') || hasSearchQuery) ? 'opacity-100 -translate-y-0.5' : 'opacity-80'}`}>Khám phá</span>
-                            <div className={`absolute bottom-0 w-1 h-1 rounded-full bg-[#D497FF] transition-all duration-300 ${(pathname.startsWith('/danh-sach/') || pathname.startsWith('/the-loai/') || pathname.startsWith('/quoc-gia/') || hasSearchQuery) ? 'opacity-100 shadow-[0_0_8px_#D497FF]' : 'opacity-0 scale-0'}`} />
+                        <TransitionLink href="/danh-sach/phim-moi" className={`relative flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-xl transition-all duration-300 ${isKhamPhaActive ? 'text-[#D497FF]' : 'text-white/60 hover:text-white'}`}>
+                            <svg className={`transition-transform duration-300 ${isKhamPhaActive ? 'scale-110 -translate-y-1' : 'scale-100'}`} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" /></svg>
+                            <span className={`text-[9px] font-medium tracking-wide transition-all duration-300 ${isKhamPhaActive ? 'opacity-100 -translate-y-0.5' : 'opacity-80'}`}>Khám phá</span>
+                            <div className={`absolute bottom-0 w-1 h-1 rounded-full bg-[#D497FF] transition-all duration-300 ${isKhamPhaActive ? 'opacity-100 shadow-[0_0_8px_#D497FF]' : 'opacity-0 scale-0'}`} />
                         </TransitionLink>
 
                         <button onClick={() => { if(user) router.push('/thu-vien'); else { setLoginPromptSource("playlist"); setShowLoginPrompt(true); } }} className={`relative flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-xl transition-all duration-300 ${pathname === '/thu-vien' ? 'text-[#D497FF]' : 'text-white/60 hover:text-white'}`}>
