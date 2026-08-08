@@ -110,7 +110,7 @@ function OtpVerificationContent() {
             value={otp}
             onChange={(e) => setOtp(e.target.value.replace(/\D/g, ''))} // Chỉ cho phép nhập số
             placeholder="Mã xác thực 6 số"
-            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-12 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm text-center text-lg font-medium"
+            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 px-12 text-white placeholder:text-white/20 focus:outline-none focus:border-[#D497FF]/50 focus:bg-white/10 transition-all text-sm text-center text-lg font-medium"
           />
         </div>
 
@@ -157,13 +157,13 @@ export default function OtpVerificationPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0F1115] px-4">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-amber-500/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-blue-500/5 rounded-full blur-[100px]" />
+        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-500/10 to-transparent rounded-full opacity-60 pointer-events-none" />
+        <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#D497FF]/10 to-transparent rounded-full opacity-60 pointer-events-none" />
       </div>
 
       <Suspense fallback={
         <div className="w-full max-w-md bg-[#0F1115]/60 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl flex justify-center items-center h-64">
-          <div className="w-8 h-8 border-4 border-amber-400/20 border-t-amber-400 rounded-full animate-spin" />
+          <div className="w-8 h-8 border-4 border-[#D497FF]/20 border-t-[#D497FF] rounded-full animate-spin" />
         </div>
       }>
         <OtpVerificationContent />

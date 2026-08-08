@@ -47,7 +47,7 @@ function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZon
                 onClick={() => setBaitMovie(movie)}
                 onMouseEnter={() => setBaitMovie(movie)}
             >
-                <div className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-[#0F1115]">
+                <div className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-[#0F1115] active:scale-[0.98] transition-transform duration-200">
                     {/* Poster Image */}
                     <SmartImage
                         r2Src={getR2MoviePosterUrl(movie.slug)}
@@ -68,14 +68,14 @@ function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZon
 
                     {/* Solid Badges (No Glassmorphism) */}
                     <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center flex-wrap gap-1 px-2 z-20 translate-y-1 group-hover/item:translate-y-0 transition-transform duration-300 transform-gpu">
-                        <MovieQualityBadge movie={movie} className="h-5 px-1.5 bg-gray-500 rounded-md text-white text-[9px]" />
-                        <MovieLangBadge movie={movie} className="h-5 px-1.5 bg-green-600 rounded-md text-white text-[9px]" />
-                        <MovieEpisodeBadge movie={movie} className="h-5 px-1.5 bg-amber-600 rounded-md text-white text-[9px]" />
+                        <MovieQualityBadge movie={movie} className="h-5 px-1.5 bg-[#FAD078] rounded-md text-amber-950 text-[9px] shadow-sm" />
+                        <MovieLangBadge movie={movie} className="h-5 px-1.5 bg-[#C084FC] rounded-md text-purple-950 text-[9px] shadow-sm" />
+                        <MovieEpisodeBadge movie={movie} className="h-5 px-1.5 bg-[#A7F3D0] rounded-md text-emerald-950 text-[9px] shadow-sm" />
                     </div>
                 </div>
 
                 <div className="info text-center space-y-0.5 mt-auto">
-                    <h4 className="item-title text-white text-xs lg:text-sm font-bold line-clamp-1 group-hover/item:text-[#f5a623] transition-colors duration-300">
+                    <h4 className="item-title text-white text-xs lg:text-sm font-bold line-clamp-1 group-hover/item:text-[#D497FF] transition-colors duration-300">
                         <span title={movie.name}>{decodeHtml(movie.name)}</span>
                     </h4>
                     <h4 className="alias-title text-white/40 text-[10px] md:text-[11px] line-clamp-1 font-medium transition-colors group-hover/item:text-white/60">
@@ -88,3 +88,4 @@ function MoviePosterCard({ movie, priority = false, isFirst, isLast, user, adZon
 }
 
 export default memo(MoviePosterCard);
+

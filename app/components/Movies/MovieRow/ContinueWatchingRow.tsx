@@ -257,7 +257,7 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
         <Container as="section" className="continue-watching-section relative z-30">
             <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/40 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 relative overflow-hidden">
                 {/* Background Decor subtle */}
-                <div className="absolute top-0 left-0 w-32 h-32 bg-amber-400/5 blur-[100px] pointer-events-none"></div>
+                <div className="absolute top-0 left-0 w-32 h-32 bg-[#D497FF]/5 blur-[100px] pointer-events-none"></div>
 
                 {/* Header */}
                 <div className="w-full xl:w-[260px] xl:flex-shrink-0 flex xl:flex-col justify-between xl:justify-center gap-4">
@@ -271,7 +271,7 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                     <div className="flex xl:flex-col gap-3">
                         <TransitionLink
                                 href="/lich-su"
-                                className="text-amber-400/80 font-medium hover:text-amber-400 transition-colors flex items-center gap-2 text-[10px] md:text-sm tracking-widest w-max"
+                                className="text-[#D497FF]/80 font-medium hover:text-[#D497FF] transition-colors flex items-center gap-2 text-[10px] md:text-sm tracking-widest w-max"
                             >
                                 Tất cả lịch sử
                             </TransitionLink>
@@ -333,15 +333,15 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
 
                                                 {/* Play overlay on hover */}
                                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/item:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                                                    <div className="w-12 h-12 rounded-full bg-amber-400 flex items-center justify-center text-black border border-amber-500/20 transform scale-75 group-hover/item:scale-100 transition-transform">
-                                                        <Play size={24} fill="black" />
+                                                    <div className="w-12 h-12 rounded-full bg-[#D497FF] flex items-center justify-center text-white shadow-lg shadow-[#D497FF]/50 transform scale-75 group-hover/item:scale-100 transition-transform">
+                                                        <Play size={24} fill="currentColor" />
                                                     </div>
                                                 </div>
 
                                                 <div className="absolute bottom-1 left-1 z-10 pointer-events-none transition-opacity duration-200 opacity-100">
                                                     <div className="flex flex-wrap gap-1">
                                                         {item.episode_name && (
-                                                            <span className="rounded-[4px] bg-orange-600/90 px-1 py-[2px] text-[8px] md:text-[11px] font-bold text-white shadow-sm border border-white/10 tracking-wide">
+                                                            <span className="rounded-[4px] bg-[#F5CAE3] px-1 py-[2px] text-[8px] md:text-[11px] font-bold text-pink-950 shadow-sm border border-pink-500/20 tracking-wide">
                                                                 {item.episode_name}
                                                             </span>
                                                         )}
@@ -363,7 +363,7 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                                         </TransitionLink>
 
                                         <div className="mt-2.5 px-0.5 transition-opacity duration-200 opacity-100">
-                                            <h3 className="truncate text-[13px] font-semibold text-zinc-100 leading-snug hover:text-amber-400 transition-colors cursor-pointer" title={item.movie_name}>
+                                            <h3 className="truncate text-[13px] font-semibold text-zinc-100 leading-snug hover:text-[#D497FF] transition-colors cursor-pointer" title={item.movie_name}>
                                                 <TransitionLink href={`/phim/${item.movie_slug}/${item.episode_slug}`}>
                                                     {item.movie_name}
                                                 </TransitionLink>
@@ -409,3 +409,4 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
 }
 
 export default memo(ContinueWatchingRow);
+

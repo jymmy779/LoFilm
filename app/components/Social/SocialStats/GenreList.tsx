@@ -50,7 +50,7 @@ export default function GenreList() {
     return (
         <div className="flex flex-col h-full">
             <div className="flex items-center gap-1.5 sm:gap-2 mb-4 md:mb-6">
-                <Folder className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 fill-blue-500" />
+                <Folder className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFD14E] fill-[#FFD14E]" />
                 <h3 className="font-bold uppercase text-xs sm:text-sm">Thể loại Hot</h3>
             </div>
 
@@ -89,7 +89,7 @@ export default function GenreList() {
 
             <button
                 onClick={() => setIsOpen(true)}
-                className="mt-auto pt-4 sm:pt-6 text-[11px] cursor-pointer text-left text-white/30 hover:text-amber-400 transition-colors font-medium block border-none bg-transparent"
+                className="mt-auto pt-4 sm:pt-6 text-[11px] cursor-pointer text-left text-white/30 hover:text-[#D497FF] transition-colors font-medium block border-none bg-transparent"
             >
                 Xem thêm
             </button>
@@ -106,15 +106,14 @@ export default function GenreList() {
 
                     {/* Modal Content container matching CommonModal styling */}
                     <div
-                        className={`relative w-[95%] max-w-[340px] sm:max-w-[400px] md:max-w-[440px] lg:max-w-[480px] bg-[#0F1115] border border-white/10 rounded-2xl p-4 sm:p-5 md:p-6 shadow-2xl z-10 overflow-y-auto max-h-[90vh] custom-scrollbar ${
-                            isClosing ? 'animate-pop-out' : 'animate-pop-in'
-                        }`}
+                        className={`relative w-[95%] max-w-[340px] sm:max-w-[400px] md:max-w-[440px] lg:max-w-[480px] bg-[#0F1115] border border-white/10 rounded-2xl p-4 sm:p-5 md:p-6 shadow-2xl z-10 overflow-y-auto max-h-[90vh] custom-scrollbar ${isClosing ? 'animate-pop-out' : 'animate-pop-in'
+                            }`}
                     >
                         {/* Header */}
                         <div className="flex items-center justify-between mb-3 sm:mb-4">
                             <div className="flex items-center gap-2 sm:gap-2.5">
-                                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-blue-500/10 flex items-center justify-center animate-pulse">
-                                    <Folder className="w-4 h-4 sm:w-5 sm:h-5 text-blue-500 fill-blue-500" />
+                                <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-lg bg-[#FFD14E]/10 flex items-center justify-center animate-pulse">
+                                    <Folder className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFD14E] fill-[#FFD14E]" />
                                 </div>
                                 <h3 className="font-bold uppercase text-xs sm:text-sm md:text-base text-white italic">
                                     Thể loại Hot
@@ -180,3 +179,4 @@ export default function GenreList() {
         </div>
     );
 }
+

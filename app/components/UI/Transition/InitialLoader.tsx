@@ -50,7 +50,10 @@ export default function InitialLoader() {
 
   return (
     <>
-      <div className={`lofilm-loader-overlay ${fadingOut ? 'fade-out' : ''}`}>
+      <div 
+        className={`lofilm-loader-overlay ${fadingOut ? 'fade-out' : ''}`}
+        style={{ position: 'fixed', inset: 0, backgroundColor: '#0F1115', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+      >
         <div className="lofilm-loader-content">
           <div className="lofilm-loader-text">
             LoFilm

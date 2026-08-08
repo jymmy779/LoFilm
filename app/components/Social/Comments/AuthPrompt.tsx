@@ -8,7 +8,7 @@ export default function AuthPrompt() {
     return (
         <div className="auth-prompt">
             <div className="flex justify-center mb-4">
-                <div className="w-12 h-12 bg-amber-400/10 rounded-full flex items-center justify-center text-amber-400">
+                <div className="w-12 h-12 bg-[#D497FF]/10 rounded-full flex items-center justify-center text-[#D497FF]">
                     <User size={22} />
                 </div>
             </div>

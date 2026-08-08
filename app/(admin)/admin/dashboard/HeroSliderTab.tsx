@@ -225,7 +225,7 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
                                     <h4 className="font-bold text-lg text-white mb-1">{movie.name}</h4>
                                     <p className="text-sm text-gray-400 mb-2">{movie.origin_name} ({movie.year})</p>
                                     <div className="flex flex-wrap gap-2 text-xs">
-                                        <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded border border-blue-500/30">
+                                        <span className="bg-[#D497FF]/20 text-[#D497FF] px-2 py-1 rounded border border-[#D497FF]/30">
                                             {movie.type === 'single' ? 'Phim Lẻ' : movie.type === 'series' ? 'Phim Bộ' : movie.type === 'hoathinh' ? 'Hoạt Hình' : movie.type === 'tvshows' ? 'TV Shows' : movie.type}
                                         </span>
                                         {movie.quality && (
@@ -310,7 +310,7 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
                                             {movie.expires_at
                                                 ? `Còn ${Math.max(0, Math.ceil((new Date(movie.expires_at).getTime() - Date.now()) / 86400000))}n`
                                                 : "Vô hạn"}
-                                            <i className="fa-solid fa-clock text-[10px] text-blue-400/80"></i>
+                                            <i className="fa-solid fa-clock text-[10px] text-[#D497FF]/80"></i>
                                         </button>
                                         <button
                                             onClick={() => handleRemove(movie.id)}

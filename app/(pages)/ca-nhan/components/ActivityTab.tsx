@@ -77,7 +77,7 @@ const ACTIVITY_CONFIG: Record<string, ActivityConfig> = {
         getLink: (meta) => meta.movie_slug ? `/phim/${meta.movie_slug}` : null,
     },
     share_movie: {
-        icon: <Share2 size={16} className="text-blue-400" />,
+        icon: <Share2 size={16} className="text-[#D497FF]" />,
         label: (meta) => `Đã chia sẻ phim "${meta.movie_name || meta.movie_slug}"`,
         getLink: (meta) => meta.movie_slug ? `/phim/${meta.movie_slug}` : null,
     },
@@ -144,7 +144,7 @@ export default function ActivityTab({ user }: ActivityTabProps) {
     if (loading) {
         return (
             <div className="flex items-center justify-center py-16">
-                <Loader2 size={24} className="animate-spin text-amber-400" />
+                <Loader2 size={24} className="animate-spin text-[#D497FF]" />
             </div>
         );
     }

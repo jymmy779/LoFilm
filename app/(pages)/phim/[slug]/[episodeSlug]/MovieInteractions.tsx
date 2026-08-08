@@ -111,7 +111,7 @@ export default function MovieInteractions({ movieSlug, user }: MovieInteractions
                 <button
                     onClick={() => handleInteraction('like')}
                     className={`flex items-center gap-2 px-4 py-2 rounded-xl transition-all cursor-pointer ${userInteraction === 'like'
-                        ? "bg-amber-400 text-black font-bold"
+                        ? "bg-[#D497FF] text-black font-bold"
                         : "text-white/40 hover:text-white"
                         }`}
                 >

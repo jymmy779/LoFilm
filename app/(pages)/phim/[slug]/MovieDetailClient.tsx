@@ -21,6 +21,7 @@ import {
     parseEpNumber,
     getYoutubeEmbedUrl
 } from "@/app/utils/movieUtils";
+import { getCategoryColor, getCategoryStyles } from "@/app/utils/uiUtils";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
 import { fetchTotalEpisodesFromTMDB, fetchActorsFromTMDB, TMDBActor } from "@/app/utils/tmdbUtils";
 import Skeleton from "@/app/components/UI/Skeleton/Skeleton";
@@ -269,7 +270,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                     {/* Instant blurred placeholder - priority must be TRUE for 0s loading */}
                     <SmartImage
                         r2Src={getR2MoviePosterUrl(movie.slug)}
-                        className="absolute blur-2xl inset-0 w-full h-full object-cover object-top"
+                        className="absolute opacity-20 inset-0 w-full h-full object-cover object-top"
                         src={getImageUrl(movie.poster_url, { width: 300, quality: 80 })}
                         rawSrc={getRawImageUrl(movie.poster_url)}
                         alt={movie.name}
@@ -293,7 +294,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                 </div>
                 {/* Balanced Spotlight: Soft natural darkness on sides, bright center */}
                 <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,#0F1115_100%)] z-10 opacity-85" />
-                <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-[#0F1115] via-[#0F1115]/20 to-transparent z-10" />
+                <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-[#0F1115] via-[#0F1115]/80 to-transparent z-10" />
                 <div className="absolute inset-x-0 top-0 h-[15%] bg-gradient-to-b from-[#0F1115]/40 to-transparent z-10" />
             </div>
 
@@ -329,26 +330,29 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                             <div className="detail-more xl:block hidden space-y-5">
                                 <div className="hl-tags flex flex-wrap gap-2">
                                     {rating && (
-                                        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#f5c518]/10 rounded-md text-[#f5c518] font-bold text-[10px]">
+                                        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#f5c518] rounded-md text-black font-bold text-[10px]">
                                             <span className="text-[9px]">★</span>
                                             <span>{rating}</span>
                                         </div>
                                     )}
-                                    <div className="px-2 py-1 bg-white/5 rounded-md text-white/60 text-[11px] font-medium">{movie.year}</div>
-                                    <div className="px-2 py-1 bg-white/5 rounded-md text-white/60 text-[11px] font-medium">{getEpisodeStatus(movie)}</div>
+                                    <div className="px-2 py-1 bg-[#A7F3D0] rounded-md text-emerald-950 text-[11px] font-bold">{movie.year}</div>
+                                    <div className="px-2 py-1 bg-[#F5CAE3] rounded-md text-pink-950 text-[11px] font-bold">{getEpisodeStatus(movie)}</div>
                                 </div>
 
-                                {movie.category && movie.category.length > 0 && (
-                                    <div className="hl-tags flex flex-wrap gap-2">
-                                        {movie.category.map((cat) => (
-                                            <TransitionLink key={cat.slug} href={`/the-loai/${cat.slug}`} className="px-3 py-1 bg-white/5 text-white/50 rounded-full text-xs font-medium hover:bg-white/10 hover:text-white transition-all">
-                                                {cat.name}
-                                            </TransitionLink>
-                                        ))}
-                                    </div>
-                                )}
+                                {movie.category && movie.category.length > 0 && (() => {
+                                    const styles = getCategoryStyles(movie.category.map((c) => c.slug));
+                                    return (
+                                        <div className="hl-tags flex flex-wrap gap-2">
+                                            {movie.category.map((cat, idx) => (
+                                                <TransitionLink key={cat.slug} href={`/the-loai/${cat.slug}`} className={`px-3 py-1 bg-white/5 ${styles[idx].text} border-white/10 border rounded-full text-[11px] font-bold hover:brightness-110 transition-all`}>
+                                                    {cat.name}
+                                                </TransitionLink>
+                                            ))}
+                                        </div>
+                                    );
+                                })()}
 
-                                <div className={`status-box p-3 ${isCompleted ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-yellow-500/10 border-yellow-500/20 text-yellow-400'} border rounded-xl flex items-center gap-3`}>
+                                <div className={`status-box p-3 ${isCompleted ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-pink-500/10 border-pink-500/20 text-pink-400'} border rounded-xl flex items-center gap-3`}>
                                     {isCompleted && (
                                         <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" height="18" width="18"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"></path></svg>
                                     )}
@@ -378,7 +382,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                             <span className="text-white/40 font-medium font-bold uppercase tracking-wider">Quốc gia:</span>
                                             <div className="flex gap-2">
                                                 {movie.country.map((c) => (
-                                                    <TransitionLink key={c.slug} href={`/quoc-gia/${c.slug}`} className="text-blue-400 font-medium hover:underline">
+                                                    <TransitionLink key={c.slug} href={`/quoc-gia/${c.slug}`} className="text-[#D497FF] font-medium hover:underline">
                                                         {c.name}
                                                     </TransitionLink>
                                                 ))}
@@ -426,10 +430,16 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                                     style={{
                                                         fontSize: '2.5em',
                                                         fontWeight: 900,
-                                                        color: '#13213a',
-                                                        textShadow: '-1px 0 #fff, 0 1px #fff, 1px 0 #fff, 0 -1px #fff',
+                                                        color: 'transparent',
+                                                        WebkitTextStroke: index === 0 ? '1.5px #ef4444' : 
+                                                                          index === 1 ? '1.5px #eab308' : 
+                                                                          index === 2 ? '1.5px #3b82f6' : 
+                                                                          '1px rgba(255,255,255,0.4)',
+                                                        textShadow: index === 0 ? '0 0 12px rgba(239, 68, 68, 0.4)' :
+                                                                    index === 1 ? '0 0 12px rgba(234, 179, 8, 0.4)' :
+                                                                    index === 2 ? '0 0 12px rgba(59, 130, 246, 0.4)' : 'none',
                                                         fontFamily: 'var(--font-montserrat), sans-serif',
-                                                        opacity: index < 3 ? 1 : 0.5
+                                                        opacity: index < 3 ? 1 : 0.45
                                                     }}>
                                                     {index + 1}
                                                 </div>
@@ -446,13 +456,13 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                                         <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
                                                     </TransitionLink>
                                                     <div className="info flex-1 min-w-0 flex flex-col justify-center">
-                                                        <h4 className="item-title truncate text-[14px] font-bold text-white group-hover:text-amber-400 transition-colors mb-0.5">
+                                                        <h4 className="item-title truncate text-[14px] font-bold text-white group-hover:text-[#D497FF] transition-colors mb-0.5">
                                                             <TransitionLink href={`/phim/${m.slug}`} title={m.name}>{decodeHtml(m.name)}</TransitionLink>
                                                         </h4>
                                                         <div className="alias-title text-[11px] text-white/40 font-medium italic truncate mb-2">{decodeHtml(m.origin_name)}</div>
                                                         <div className="info-line flex gap-2">
                                                             <div className="tag-small px-1.5 py-0.5 bg-white/5 rounded text-[9.5px] font-bold text-white/30">{m.year}</div>
-                                                            <div className="tag-small px-1.5 py-0.5 bg-amber-500/10 rounded text-amber-400 text-[9.5px] font-bold tracking-tighter">
+                                                            <div className="tag-small px-1.5 py-0.5 bg-[#D497FF]/10 rounded text-[#D497FF] text-[9.5px] font-bold tracking-tighter">
                                                                 {(() => {
                                                                     const cur = m.episode_current || "";
                                                                     const slashMatch = cur.match(/(\d+\/\d+)/);
@@ -484,9 +494,10 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                 <div className="flex flex-wrap items-center gap-3">
                                     <TransitionLink
                                         href={`/phim/${movie.slug}/${watchEpisodeSlug}`}
-                                        className="group flex items-center gap-3 bg-gradient-to-r from-[#f5a623] to-[#ffcc33] hover:from-[#ffcc33] hover:to-[#f5a623] text-[#0F1115] py-2 px-6 md:py-4 md:px-8 rounded-full font-bold transition-all transform cursor-pointer shadow-[0_0_20px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.6)]"
+                                        className="relative overflow-hidden group flex items-center gap-3 bg-gradient-to-r from-[#D497FF] to-[#D497FF] hover:brightness-110 text-white py-2 px-6 md:py-4 md:px-8 rounded-full font-bold transition-transform duration-200 active:scale-95 cursor-pointer shadow-[0_0_20px_rgba(212,151,255,0.4)] hover:shadow-[0_0_30px_rgba(212,151,255,0.6)]"
                                     >
-                                        <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors">
+                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-btn-shine pointer-events-none" />
+                                        <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors z-10">
                                             <i className="fa-solid fa-play text-sm ml-0.5"></i>
                                         </div>
                                         <span className="tracking-wider text-lg">Xem Ngay</span>
@@ -495,13 +506,13 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                     <div className="flex items-center gap-3">
                                         <FavoriteButton
                                             movie={movie}
-                                            className="cursor-pointer transition-all duration-300 flex items-center justify-center w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-white/10 text-white border border-white/10 shadow-lg"
+                                            className="cursor-pointer transition-transform duration-200 active:scale-90 flex items-center justify-center w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/50 text-white border border-white/10 shadow-lg group-hover:animate-pulse"
                                             iconSize={18}
                                         />
 
                                         <WatchlistButton
                                             movie={movie}
-                                            className="cursor-pointer transition-all duration-300 flex items-center justify-center w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-white/10 text-white border border-white/10 shadow-lg"
+                                            className="cursor-pointer transition-transform duration-200 active:scale-90 flex items-center justify-center w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-amber-500/20 hover:text-amber-400 hover:border-amber-500/50 text-white border border-white/10 shadow-lg"
                                             iconSize={18}
                                         />
 
@@ -509,7 +520,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                             onClick={() => {
                                                 document.getElementById('comment-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                                             }}
-                                            className="w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white border border-white/10 transition-colors cursor-pointer group"
+                                            className="w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white border border-white/10 transition-all duration-200 active:scale-90 cursor-pointer group"
                                             title="Bình luận"
                                         >
                                             <MessageSquare size={18} className="group-hover:scale-110 transition-transform" />
@@ -518,7 +529,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                 </div>
                                 <div className="flex items-center gap-2 md:gap-4 bg-white/5 md:px-4 md:py-2 px-2 py-1 rounded-2xl border border-white/10">
                                     <div className="flex items-center gap-1 md:gap-2">
-                                        <i className="text-yellow-500 text-xl">★</i>
+                                        <i className="text-[#f5c518] text-xl">★</i>
                                         <span className="text-sm font-black text-white tracking-tighter">
                                             {rating || 'N/A'}
                                         </span>
@@ -533,12 +544,12 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                     <button
                                         key={tab}
                                         onClick={() => setActiveTab(tab)}
-                                        className={`pb-2 md:pb-4 text-xs font-bold cursor-pointer uppercase tracking-[0.2em] transition-all relative shrink-0 ${activeTab === tab ? 'text-[#f5a623]' : 'text-gray-500 hover:text-white'
+                                        className={`pb-2 md:pb-4 text-xs font-bold cursor-pointer uppercase tracking-[0.2em] transition-all relative shrink-0 ${activeTab === tab ? 'text-[#D497FF]' : 'text-gray-500 hover:text-white'
                                             }`}
                                     >
                                         {tab}
                                         {activeTab === tab && (
-                                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#f5a623] rounded-full" />
+                                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#D497FF] rounded-full" />
                                         )}
                                     </button>
                                 ))}
@@ -578,7 +589,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                                     {item.isTag ? (
                                                         <span className="px-2 py-0.5 bg-white/10 rounded text-[11px] text-white/80 text-right">{item.value}</span>
                                                     ) : item.isLink ? (
-                                                        <span className="text-[#f5a623] text-sm font-medium hover:underline cursor-pointer text-right">{item.value}</span>
+                                                        <span className="text-[#D497FF] text-sm font-medium hover:underline cursor-pointer text-right">{item.value}</span>
                                                     ) : (
                                                         <span className={`text-sm font-medium ${item.color || 'text-white/80'} text-right`}>{item.value}</span>
                                                     )}
@@ -588,7 +599,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                         {movie.content && (
                                             <div className="pt-4 mt-6 border-t border-white/5">
                                                 <div className="flex items-center gap-2 mb-4">
-                                                    <div className="w-1 h-4 bg-[#f5a623] rounded-full"></div>
+                                                    <div className="w-1 h-4 bg-[#D497FF] rounded-full"></div>
                                                     <h3 className="text-sm font-bold text-white uppercase tracking-widest">Nội dung phim</h3>
                                                 </div>
                                                 <p className="text-gray-400 leading-8 text-[15px] font-light">

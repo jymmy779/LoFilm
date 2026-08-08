@@ -65,7 +65,7 @@ export default function TopCommentsSlider() {
     return (
         <div className="relative group/comments">
             <div className="flex items-center gap-1.5 sm:gap-2 mb-4 sm:mb-6">
-                <Star className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400 fill-amber-400" />
+                <Star className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFD14E] fill-[#FFD14E]" />
                 <h2 className="text-base sm:text-lg lg:text-xl font-bold uppercase">Top Bình luận</h2>
             </div>
 
@@ -149,7 +149,7 @@ export default function TopCommentsSlider() {
                                             {/* Small Poster link to detail page - Sleeker size to save space */}
                                             <TransitionLink
                                                 href={`/phim/${comment.movie.slug}`}
-                                                className="relative w-8 h-11 sm:w-12 sm:h-16 rounded-lg overflow-hidden border border-white/10 flex-shrink-0 hover:border-amber-500 group/poster transition-all duration-300"
+                                                className="relative w-8 h-11 sm:w-12 sm:h-16 rounded-lg overflow-hidden border border-white/10 flex-shrink-0 hover:border-[#D497FF] group/poster transition-all duration-300"
                                             >
                                                 <SmartImage
                                                     r2Src={getR2MoviePosterUrl(comment.movie.slug)}

@@ -27,7 +27,7 @@ export default function ContactPage() {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 md:gap-8">
           {/* Contact Info Cards */}
           <div className="lg:col-span-1 space-y-4 md:space-y-6">
-            <div className="bg-[#12151C] border border-white/5 p-6 md:p-8 rounded-2xl md:rounded-[32px] hover:border-amber-400/20 transition-all group shadow-xl">
+            <div className="bg-[#12151C] border border-white/5 p-6 md:p-8 rounded-2xl md:rounded-[32px] hover:border-[#D497FF]/20 transition-all group shadow-xl">
               <div className="w-10 h-10 bg-amber-400/10 rounded-xl flex items-center justify-center text-amber-400 mb-4 group-hover:scale-110 transition-transform">
                 <Mail size={18} />
               </div>
@@ -36,13 +36,13 @@ export default function ContactPage() {
               <a href="mailto:contactlofilm@gmail.com" className="text-amber-400 font-bold text-xs md:text-sm hover:underline break-all">contactlofilm@gmail.com</a>
             </div>
 
-            <div className="bg-[#12151C] border border-white/5 p-6 md:p-8 rounded-2xl md:rounded-[32px] hover:border-blue-400/20 transition-all group shadow-xl">
-              <div className="w-10 h-10 bg-blue-400/10 rounded-xl flex items-center justify-center text-blue-400 mb-4 group-hover:scale-110 transition-transform">
+            <div className="bg-[#12151C] border border-white/5 p-6 md:p-8 rounded-2xl md:rounded-[32px] hover:border-[#D497FF]/20 transition-all group shadow-xl">
+              <div className="w-10 h-10 bg-[#D497FF]/10 rounded-xl flex items-center justify-center text-[#D497FF] mb-4 group-hover:scale-110 transition-transform">
                 <Send size={18} />
               </div>
               <h3 className="text-sm md:text-base font-bold text-white mb-2 uppercase tracking-widest">Telegram</h3>
               <p className="text-white/20 text-[10px] md:text-xs mb-3">Kết nối nhanh nhất qua kênh cộng đồng.</p>
-              <a href="https://t.me/+5S1xkPn1SCAxZWZl" target='blank' className="text-blue-400 font-bold text-xs md:text-sm hover:underline">@LoFilmSupport</a>
+              <a href="https://t.me/+5S1xkPn1SCAxZWZl" target='blank' className="text-[#D497FF] font-bold text-xs md:text-sm hover:underline">@LoFilmSupport</a>
             </div>
 
             <div className="bg-[#12151C] border border-white/5 p-6 md:p-8 rounded-2xl md:rounded-[32px] hover:border-[#0088cc]/30 transition-all group shadow-xl">

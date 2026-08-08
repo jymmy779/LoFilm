@@ -182,7 +182,7 @@ const EpisodeList = ({
                 setActiveRangeIndex(0);
               }}
               placeholder="Tìm tập..."
-              className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-[10px] md:text-xs text-white placeholder-gray-500 focus:outline-none focus:border-amber-500/50 focus:bg-white/10 transition-all"
+              className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-[10px] md:text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#D497FF]/50 focus:bg-white/10 transition-all"
             />
           </div>
           <button
@@ -208,7 +208,7 @@ const EpisodeList = ({
                 setSearchQuery("");
               }}
               className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] md:text-xs tracking-wider transition-all cursor-pointer font-medium whitespace-nowrap ${activeServer === index
-                ? "bg-amber-500 text-[#0F1115]"
+                ? "bg-gradient-to-r from-[#D497FF] to-[#D497FF] text-white shadow-lg shadow-[#D497FF]/20 border border-transparent"
                 : "bg-white/5 text-gray-500 hover:text-white"
                 }`}
             >
@@ -226,7 +226,7 @@ const EpisodeList = ({
           <span>Xem tập mới nhất tại</span>
           <TransitionLink
             href={`/phim/${slug}/${getFriendlyEpisodeSlug(latestEpisode.slug)}`}
-            className="inline-flex items-center gap-1 text-amber-400 hover:text-amber-300 transition-colors group font-bold"
+            className="inline-flex items-center gap-1 text-[#D497FF] hover:text-[#D497FF] transition-colors group font-bold"
           >
             <span className="">👉</span>
             <span>{movieName} - Tập {latestEpisode.name.replace(/Tập\s*/i, "").trim()}</span>
@@ -242,7 +242,7 @@ const EpisodeList = ({
               key={idx}
               onClick={() => setActiveRangeIndex(idx)}
               className={`px-4 py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all cursor-pointer border ${activeRangeIndex === idx
-                ? 'bg-[#FFFFFF] text-[#0F1115] border-[#FFFFFF]'
+                ? 'bg-[#D497FF]/20 text-[#D497FF] border-[#D497FF]/50'
                 : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white'
                 }`}
             >
@@ -287,9 +287,9 @@ const EpisodeList = ({
                 }
               }}
               className={`
-                  py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border
+                  py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border font-bold
                   ${isActive
-                  ? "bg-[#F0F0F0] text-[#0F1115] border-[#F0F0F0] z-10"
+                  ? "bg-gradient-to-r from-[#D497FF] to-[#D497FF] text-white border-transparent shadow-lg shadow-[#D497FF]/20 z-10"
                   : "bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
                 }
                 `}

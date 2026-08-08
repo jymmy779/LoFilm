@@ -165,9 +165,9 @@ export default function NotificationBell() {
 
     const renderIcon = (type: string) => {
         switch (type) {
-            case 'system': return <Info size={14} className="text-amber-500" />;
+            case 'system': return <Info size={14} className="text-amber-400" />;
             case 'reply': return <MessageCircle size={14} className="text-blue-400" />;
-            case 'like': return <Heart size={14} className="text-red-400 fill-red-400" />;
+            case 'like': return <Heart size={14} className="text-rose-400 fill-rose-400" />;
             case 'dislike': return <ThumbsDown size={14} className="text-purple-400" />;
             default: return <Bell size={14} />;
         }
@@ -175,7 +175,7 @@ export default function NotificationBell() {
 
     const renderLabel = (type: string) => {
         switch (type) {
-            case 'system': return <span className="text-[10px] md:text-[11px] lg:text-xs font-bold text-amber-500 bg-amber-500/10 px-1.5 md:px-2 py-0.5 rounded ml-2 border border-amber-500/20">Hệ thống</span>;
+            case 'system': return <span className="text-[10px] md:text-[11px] lg:text-xs font-bold text-amber-400 bg-amber-500/10 px-1.5 md:px-2 py-0.5 rounded ml-2 border border-amber-500/20">Admin</span>;
             default: return <span className="text-[10px] md:text-[11px] lg:text-xs font-bold text-blue-400 bg-blue-500/10 px-1.5 md:px-2 py-0.5 rounded ml-2 border border-blue-500/20">Cá nhân</span>;
         }
     };
@@ -220,7 +220,7 @@ export default function NotificationBell() {
                 aria-label="Thông báo"
             >
                 <div className={hasNew ? "animate-bell-shake" : ""}>
-                    <Bell size={20} className={hasNew ? "text-amber-400" : ""} />
+                    <Bell size={20} className={hasNew ? "text-pink-400" : ""} />
                 </div>
 
                 {hasNew && (
@@ -283,7 +283,7 @@ export default function NotificationBell() {
                                             // Tạo hiệu ứng nháy sáng nhẹ
                                             el.style.transition = 'background-color 0.5s';
                                             const originalBg = el.style.backgroundColor;
-                                            el.style.backgroundColor = 'rgba(245, 166, 35, 0.2)'; // amber-500/20
+                                            el.style.backgroundColor = 'rgba(34, 211, 238, 0.2)'; // cyan-400/20
                                             setTimeout(() => {
                                                 el.style.backgroundColor = originalBg;
                                             }, 2000);
@@ -300,7 +300,7 @@ export default function NotificationBell() {
                                         key={notif.id}
                                         {...wrapperProps}
                                         className={`flex gap-3 p-3 md:p-4 hover:bg-white/5 transition-colors group ${
-                                            notif.type !== 'system' && !notif.is_read ? 'bg-blue-500/5' : ''
+                                            notif.type !== 'system' && !notif.is_read ? 'bg-[#D497FF]/5' : ''
                                         } ${notif.type !== 'system' && notif.movie_slug ? 'cursor-pointer' : 'cursor-default'}`}
                                     >
                                         <div className="shrink-0 mt-0.5 relative">
@@ -333,7 +333,7 @@ export default function NotificationBell() {
                                                     {renderLabel(notif.type)}
                                                 </div>
                                                 {notif.type !== 'system' && !notif.is_read && (
-                                                    <span className="w-1.5 h-1.5 bg-blue-500 rounded-full shrink-0" />
+                                                    <span className="w-1.5 h-1.5 bg-[#D497FF] rounded-full shrink-0" />
                                                 )}
                                             </div>
                                             {renderContent(notif)}
@@ -363,3 +363,4 @@ export default function NotificationBell() {
         </div>
     );
 }
+

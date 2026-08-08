@@ -104,7 +104,7 @@ export default function UtilitySettingsModal({ isOpen, onClose }: UtilitySetting
             </div>
             <button 
               onClick={toggleAutoPlay}
-              className={`w-12 h-6 sm:w-14 sm:h-7 flex items-center rounded-full transition-colors shrink-0 cursor-pointer ${autoPlay ? 'bg-amber-400' : 'bg-white/10'}`}
+              className={`w-12 h-6 sm:w-14 sm:h-7 flex items-center rounded-full transition-colors shrink-0 cursor-pointer ${autoPlay ? 'bg-[#D497FF]' : 'bg-white/10'}`}
             >
               <div className={`w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${autoPlay ? 'translate-x-6 sm:translate-x-7' : 'translate-x-1'}`} />
             </button>
@@ -118,7 +118,7 @@ export default function UtilitySettingsModal({ isOpen, onClose }: UtilitySetting
             </div>
             <button 
               onClick={toggleAutoNext}
-              className={`w-12 h-6 sm:w-14 sm:h-7 flex items-center rounded-full transition-colors shrink-0 cursor-pointer ${autoNext ? 'bg-amber-400' : 'bg-white/10'}`}
+              className={`w-12 h-6 sm:w-14 sm:h-7 flex items-center rounded-full transition-colors shrink-0 cursor-pointer ${autoNext ? 'bg-[#D497FF]' : 'bg-white/10'}`}
             >
               <div className={`w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${autoNext ? 'translate-x-6 sm:translate-x-7' : 'translate-x-1'}`} />
             </button>
@@ -132,7 +132,7 @@ export default function UtilitySettingsModal({ isOpen, onClose }: UtilitySetting
             </div>
             <button 
               onClick={toggleTheaterMode}
-              className={`w-12 h-6 sm:w-14 sm:h-7 flex items-center rounded-full transition-colors shrink-0 cursor-pointer ${theaterMode ? 'bg-amber-400' : 'bg-white/10'}`}
+              className={`w-12 h-6 sm:w-14 sm:h-7 flex items-center rounded-full transition-colors shrink-0 cursor-pointer ${theaterMode ? 'bg-[#D497FF]' : 'bg-white/10'}`}
             >
               <div className={`w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${theaterMode ? 'translate-x-6 sm:translate-x-7' : 'translate-x-1'}`} />
             </button>
@@ -146,7 +146,7 @@ export default function UtilitySettingsModal({ isOpen, onClose }: UtilitySetting
             </div>
             <button 
               onClick={toggleNewMovieNotif}
-              className={`w-12 h-6 sm:w-14 sm:h-7 flex items-center rounded-full transition-colors shrink-0 cursor-pointer ${newMovieNotif ? 'bg-amber-400' : 'bg-white/10'}`}
+              className={`w-12 h-6 sm:w-14 sm:h-7 flex items-center rounded-full transition-colors shrink-0 cursor-pointer ${newMovieNotif ? 'bg-[#D497FF]' : 'bg-white/10'}`}
             >
               <div className={`w-5 h-5 sm:w-6 sm:h-6 bg-white rounded-full shadow-md transform transition-transform duration-300 ${newMovieNotif ? 'translate-x-6 sm:translate-x-7' : 'translate-x-1'}`} />
             </button>
@@ -158,3 +158,4 @@ export default function UtilitySettingsModal({ isOpen, onClose }: UtilitySetting
     document.body
   );
 }
+

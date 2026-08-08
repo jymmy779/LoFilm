@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import { usePathname, useRouter } from "next/navigation";
@@ -8,6 +8,8 @@ import { MenuItem } from "./types";
 import toast from "react-hot-toast";
 import { useAuth } from "@/app/components/User/Auth/AuthContext";
 import LoginPromptModal from "@/app/components/UI/Modals/LoginPromptModal";
+import CountryFlag from "@/app/components/UI/Common/CountryFlag";
+import { getCategoryColor } from "@/app/utils/uiUtils";
 
 interface Props {
     isOpen: boolean;
@@ -92,9 +94,9 @@ export default function MobileBottomSheet({ isOpen, onClose, categories, countri
                     <div className="w-12 h-1 bg-white/20 rounded-full mb-4" />
                     <div className="w-full flex items-center justify-between">
                         {activeView === 'main' ? (
-                            <h3 className="text-amber-400 font-semibold text-lg animate-fade-in">Khám phá nhanh</h3>
+                            <h3 className="text-[#D497FF] font-semibold text-lg animate-fade-in">Khám phá nhanh</h3>
                         ) : (
-                            <button onClick={() => setActiveView('main')} className="flex items-center gap-1 text-amber-400 font-semibold text-lg hover:text-amber-300 transition-colors animate-reveal-left">
+                            <button onClick={() => setActiveView('main')} className="flex items-center gap-1 text-[#D497FF] font-semibold text-lg hover:text-[#D497FF] transition-colors animate-reveal-left">
                                 <ChevronLeft size={22} className="-ml-1" />
                                 <h3>
                                     {activeView === 'types' && "Loại Phim"}
@@ -147,46 +149,46 @@ export default function MobileBottomSheet({ isOpen, onClose, categories, countri
                                 {/* Random Movie */}
                                 <button onClick={handleRandomMovie} className="flex items-center justify-between py-3.5 px-2 hover:bg-white/5 rounded-xl transition-colors w-full">
                                     <div className="flex items-center gap-3 text-white/90">
-                                        <Shuffle size={18} className="text-amber-400" />
+                                        <Shuffle size={18} className="text-[#D497FF]" />
                                         <span className="font-medium text-[15px]">Xem phim ngẫu nhiên</span>
                                     </div>
-                                    <ChevronRight size={16} className="text-amber-400" />
+                                    <ChevronRight size={16} className="text-[#D497FF]" />
                                 </button>
 
                                 {/* Request Movie */}
                                 <TransitionLink href="/lien-he" onClick={() => handleLinkClick("/lien-he")} className="flex items-center justify-between py-3.5 px-2 hover:bg-white/5 rounded-xl transition-colors">
                                     <div className="flex items-center gap-3 text-white/90">
-                                        <MessageSquare size={18} className="text-amber-400" />
+                                        <MessageSquare size={18} className="text-[#D497FF]" />
                                         <span className="font-medium text-[15px]">Yêu cầu phim</span>
                                     </div>
-                                    <ChevronRight size={16} className="text-amber-400" />
+                                    <ChevronRight size={16} className="text-[#D497FF]" />
                                 </TransitionLink>
 
                                 {/* Loại Phim Button */}
                                 <button onClick={() => setActiveView('types')} className="flex items-center justify-between py-3.5 px-2 hover:bg-white/5 rounded-xl transition-colors w-full">
                                     <div className="flex items-center gap-3 text-white/90">
-                                        <List size={18} className="text-amber-400" />
+                                        <List size={18} className="text-[#D497FF]" />
                                         <span className="font-medium text-[15px]">Loại Phim</span>
                                     </div>
-                                    <ChevronRight size={16} className="text-amber-400" />
+                                    <ChevronRight size={16} className="text-[#D497FF]" />
                                 </button>
 
                                 {/* Thể Loại Button */}
                                 <button onClick={() => setActiveView('categories')} className="flex items-center justify-between py-3.5 px-2 hover:bg-white/5 rounded-xl transition-colors w-full">
                                     <div className="flex items-center gap-3 text-white/90">
-                                        <Grid size={18} className="text-amber-400" />
+                                        <Grid size={18} className="text-[#D497FF]" />
                                         <span className="font-medium text-[15px]">Thể Loại</span>
                                     </div>
-                                    <ChevronRight size={16} className="text-amber-400" />
+                                    <ChevronRight size={16} className="text-[#D497FF]" />
                                 </button>
 
                                 {/* Quốc Gia Button */}
                                 <button onClick={() => setActiveView('countries')} className="flex items-center justify-between py-3.5 px-2 hover:bg-white/5 rounded-xl transition-colors w-full">
                                     <div className="flex items-center gap-3 text-white/90">
-                                        <Globe size={18} className="text-amber-400" />
+                                        <Globe size={18} className="text-[#D497FF]" />
                                         <span className="font-medium text-[15px]">Quốc Gia</span>
                                     </div>
-                                    <ChevronRight size={16} className="text-amber-400" />
+                                    <ChevronRight size={16} className="text-[#D497FF]" />
                                 </button>
                             </div>
                         </div>
@@ -195,24 +197,24 @@ export default function MobileBottomSheet({ isOpen, onClose, categories, countri
                     {/* --- TYPES VIEW --- */}
                     {activeView === 'types' && (
                         <div className="animate-reveal-right flex flex-col gap-2">
-                            <TransitionLink href="/danh-sach/phim-le" onClick={() => handleLinkClick("/danh-sach/phim-le")} className="flex items-center p-3 hover:bg-white/5 rounded-xl text-white/80 hover:text-amber-400 transition-colors">
-                                <div className="w-1.5 h-1.5 rounded-full bg-amber-400/50 mr-3" />
+                            <TransitionLink href="/danh-sach/phim-le" onClick={() => handleLinkClick("/danh-sach/phim-le")} className="flex items-center p-3 hover:bg-white/5 rounded-xl text-white/80 hover:text-[#D497FF] transition-colors">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#D497FF]/50 mr-3" />
                                 <span className="text-[15px]">Phim Lẻ</span>
                             </TransitionLink>
-                            <TransitionLink href="/danh-sach/phim-bo" onClick={() => handleLinkClick("/danh-sach/phim-bo")} className="flex items-center p-3 hover:bg-white/5 rounded-xl text-white/80 hover:text-amber-400 transition-colors">
-                                <div className="w-1.5 h-1.5 rounded-full bg-amber-400/50 mr-3" />
+                            <TransitionLink href="/danh-sach/phim-bo" onClick={() => handleLinkClick("/danh-sach/phim-bo")} className="flex items-center p-3 hover:bg-white/5 rounded-xl text-white/80 hover:text-[#D497FF] transition-colors">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#D497FF]/50 mr-3" />
                                 <span className="text-[15px]">Phim Bộ</span>
                             </TransitionLink>
-                            <TransitionLink href="/danh-sach/phim-chieu-rap" onClick={() => handleLinkClick("/danh-sach/phim-chieu-rap")} className="flex items-center p-3 hover:bg-white/5 rounded-xl text-white/80 hover:text-amber-400 transition-colors">
-                                <div className="w-1.5 h-1.5 rounded-full bg-amber-400/50 mr-3" />
+                            <TransitionLink href="/danh-sach/phim-chieu-rap" onClick={() => handleLinkClick("/danh-sach/phim-chieu-rap")} className="flex items-center p-3 hover:bg-white/5 rounded-xl text-white/80 hover:text-[#D497FF] transition-colors">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#D497FF]/50 mr-3" />
                                 <span className="text-[15px]">Phim Chiếu Rạp</span>
                             </TransitionLink>
-                            <TransitionLink href="/danh-sach/hoat-hinh" onClick={() => handleLinkClick("/danh-sach/hoat-hinh")} className="flex items-center p-3 hover:bg-white/5 rounded-xl text-white/80 hover:text-amber-400 transition-colors">
-                                <div className="w-1.5 h-1.5 rounded-full bg-amber-400/50 mr-3" />
+                            <TransitionLink href="/danh-sach/hoat-hinh" onClick={() => handleLinkClick("/danh-sach/hoat-hinh")} className="flex items-center p-3 hover:bg-white/5 rounded-xl text-white/80 hover:text-[#D497FF] transition-colors">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#D497FF]/50 mr-3" />
                                 <span className="text-[15px]">Hoạt Hình</span>
                             </TransitionLink>
-                            <TransitionLink href="/danh-sach/tv-shows" onClick={() => handleLinkClick("/danh-sach/tv-shows")} className="flex items-center p-3 hover:bg-white/5 rounded-xl text-white/80 hover:text-amber-400 transition-colors">
-                                <div className="w-1.5 h-1.5 rounded-full bg-amber-400/50 mr-3" />
+                            <TransitionLink href="/danh-sach/tv-shows" onClick={() => handleLinkClick("/danh-sach/tv-shows")} className="flex items-center p-3 hover:bg-white/5 rounded-xl text-white/80 hover:text-[#D497FF] transition-colors">
+                                <div className="w-1.5 h-1.5 rounded-full bg-[#D497FF]/50 mr-3" />
                                 <span className="text-[15px]">TV Shows</span>
                             </TransitionLink>
                         </div>
@@ -221,8 +223,8 @@ export default function MobileBottomSheet({ isOpen, onClose, categories, countri
                     {/* --- CATEGORIES VIEW --- */}
                     {activeView === 'categories' && (
                         <div className="animate-reveal-right grid grid-cols-2 gap-2">
-                            {categories.map(cat => (
-                                <TransitionLink key={cat._id} href={`/the-loai/${cat.slug}`} onClick={() => handleLinkClick(`/the-loai/${cat.slug}`)} className="flex items-center p-3 hover:bg-white/5 rounded-xl text-white/80 hover:text-amber-400 transition-colors">
+                            {categories.map((cat, index) => (
+                                <TransitionLink key={cat._id} href={`/the-loai/${cat.slug}`} onClick={() => handleLinkClick(`/the-loai/${cat.slug}`)} className={`flex items-center p-3 hover:bg-white/5 rounded-xl ${getCategoryColor(index, cat.slug)} transition-colors`}>
                                     <span className="text-[14px] truncate">{cat.name}</span>
                                 </TransitionLink>
                             ))}
@@ -233,7 +235,8 @@ export default function MobileBottomSheet({ isOpen, onClose, categories, countri
                     {activeView === 'countries' && (
                         <div className="animate-reveal-right grid grid-cols-2 gap-2">
                             {countries.map(country => (
-                                <TransitionLink key={country._id} href={`/quoc-gia/${country.slug}`} onClick={() => handleLinkClick(`/quoc-gia/${country.slug}`)} className="flex items-center p-3 hover:bg-white/5 rounded-xl text-white/80 hover:text-amber-400 transition-colors">
+                                <TransitionLink key={country._id} href={`/quoc-gia/${country.slug}`} onClick={() => handleLinkClick(`/quoc-gia/${country.slug}`)} className="flex items-center p-3 hover:bg-white/5 rounded-xl text-white/80 hover:text-[#D497FF] transition-colors">
+                                    <CountryFlag name={country.name} className="w-5 h-3.5 mr-2" />
                                     <span className="text-[14px] truncate">{country.name}</span>
                                 </TransitionLink>
                             ))}
@@ -246,3 +249,4 @@ export default function MobileBottomSheet({ isOpen, onClose, categories, countri
         </>
     );
 }
+

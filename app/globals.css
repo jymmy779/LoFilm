@@ -1,6 +1,7 @@
 @import "tailwindcss";
 
 :root {
+  --plyr-color-main: #D497FF;
   --font-body: var(--font-inter), sans-serif;
   --font-heading: var(--font-montserrat), sans-serif;
   --animate-pulse-glow: pulse-glow 2s ease-in-out infinite;
@@ -462,7 +463,7 @@ body.theater-mode footer:hover {
 }
 
 .plyr__control:hover svg {
-  color: #fbbf24 !important;
+  color: #D497FF !important;
   /* amber-400 - ONLY on hover */
 }
 
@@ -477,7 +478,7 @@ body.theater-mode footer:hover {
 
 /* Reset original Plyr behavior contextually */
 .plyr--full-ui.plyr--video .plyr__control:hover {
-  color: #fbbf24 !important;
+  color: #D497FF !important;
   background: transparent !important;
 }
 
@@ -488,12 +489,12 @@ body.theater-mode footer:hover {
 }
 
 .plyr--full-ui.plyr--video .plyr__control--overlaid {
-  background: #fbbf24 !important;
-  border: 1px solid rgba(245, 158, 11, 0.4) !important;
+  background: #D497FF !important;
+  border: 1px solid rgba(212,151,255, 0.4) !important;
 }
 
 .plyr--full-ui.plyr--video .plyr__control--overlaid:hover {
-  background: rgba(245, 158, 11, 0.4) !important;
+  background: rgba(212,151,255, 0.4) !important;
   color: white !important;
 }
 
@@ -836,7 +837,7 @@ body.theater-mode footer:hover {
   position: absolute;
   inset: 0;
   width: 40%;
-  background: linear-gradient(to right, transparent, #fbbf24, transparent);
+  background: linear-gradient(to right, transparent, #D497FF, transparent);
   animation: cssProgressLoop 1.5s cubic-bezier(0.65, 0, 0.35, 1) infinite;
 }
 
@@ -898,7 +899,7 @@ body.theater-mode footer:hover {
 }
 
 .event-celebration {
-  color: #fbbf24;
+  color: #D497FF;
   font-weight: 800;
   font-size: 0.6rem;
   text-transform: uppercase;
@@ -1025,7 +1026,7 @@ body.theater-mode footer:hover {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  color: #fbbf24;
+  color: #D497FF;
   font-size: 8px;
 }
 
@@ -1100,6 +1101,7 @@ body.theater-mode footer:hover {
 
 /* --- Netflix Style Captions for Plyr --- */
 :root {
+  --plyr-color-main: #D497FF;
   --plyr-captions-background: transparent;
   --plyr-captions-text-color: #ffffff;
 }
@@ -1158,6 +1160,9 @@ body.theater-mode footer:hover {
 }
 
 /* Fix riêng cho Mobile khi xoay ngang (Landscape) */
+
+
+/* Fix riêng cho Mobile khi xoay ngang (Landscape) */
 @media (max-height: 500px) and (orientation: landscape) {
   .plyr__captions .plyr__caption {
     font-size: 20px !important;
@@ -1168,4 +1173,13 @@ body.theater-mode footer:hover {
     transform: translateY(10px) !important;
     /* Kéo sub xuống hẳn dưới đáy do chiều cao màn hình ngang rất hẹp */
   }
+}
+
+@keyframes btn-shine {
+  0% { transform: translateX(-150%) skewX(-20deg); opacity: 0; }
+  10%, 20% { opacity: 1; }
+  30%, 100% { transform: translateX(200%) skewX(-20deg); opacity: 0; }
+}
+.animate-btn-shine {
+  animation: btn-shine 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
 }

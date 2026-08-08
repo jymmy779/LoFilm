@@ -80,7 +80,7 @@ export default function CommentInput({
             
             // Highlight hiệu ứng nháy nhẹ
             targetComment.style.transition = 'all 0.5s ease-in-out';
-            targetComment.style.backgroundColor = 'rgba(245, 166, 35, 0.1)';
+            targetComment.style.backgroundColor = 'rgba(212,151,255, 0.1)';
             targetComment.style.transform = 'scale(1.02)';
             
             setTimeout(() => {
@@ -93,7 +93,7 @@ export default function CommentInput({
     if (hasCommented && !isReply && !isEdit) {
         return (
             <div className="bg-white/[0.02] border border-white/5 rounded-2xl p-6 text-center">
-                <div className="w-10 h-10 bg-amber-500/10 rounded-full flex items-center justify-center mx-auto mb-3 text-amber-500">
+                <div className="w-10 h-10 bg-[#D497FF]/10 rounded-full flex items-center justify-center mx-auto mb-3 text-[#D497FF]">
                     <CheckCircle2 size={20} />
                 </div>
                 <p className="text-white/60 text-sm font-medium">Bạn đã chia sẻ nhận xét về phim này.</p>
@@ -101,7 +101,7 @@ export default function CommentInput({
                     {userCommentId && (
                         <button
                             onClick={scrollToMyComment}
-                            className="w-full py-3 bg-amber-400 text-black rounded-2xl text-[11px] font-bold hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
+                            className="w-full py-3 bg-[#D497FF] text-black rounded-2xl text-[11px] font-bold hover:scale-[1.02] active:scale-[0.98] transition-all cursor-pointer flex items-center justify-center gap-2"
                         >
                             <Send size={12} className="rotate-[-45deg] translate-y-[-1px]" />
                             Đi tới bình luận của tôi
@@ -114,7 +114,7 @@ export default function CommentInput({
     }
 
     return (
-        <form onSubmit={handleSubmit} className={`comment-form-container ${isReply || isEdit ? 'mt-4 border-l-2 border-amber-400/20' : ''}`}>
+        <form onSubmit={handleSubmit} className={`comment-form-container ${isReply || isEdit ? 'mt-4 border-l-2 border-[#D497FF]/20' : ''}`}>
             <textarea
                 className="comment-textarea"
                 placeholder={isEdit ? "Chỉnh sửa bình luận..." : placeholder}

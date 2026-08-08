@@ -53,7 +53,7 @@ const DropdownSelect = React.memo(({ label, value, options, onChange, placeholde
             <div 
                 onClick={() => setIsOpen(!isOpen)} 
                 className={`flex items-center justify-between gap-2 bg-[#0F1115]/80 hover:bg-white/5 border text-xs md:text-sm rounded-xl px-4 py-2.5 cursor-pointer transition-all duration-200 ${
-                    isOpen ? 'border-[#f5a623] shadow-[0_0_10px_rgba(245,166,35,0.1)]' : 'border-white/10'
+                    isOpen ? 'border-[#D497FF] shadow-[0_0_10px_rgba(212,151,255,0.1)]' : 'border-white/10'
                 }`}
             >
                 <div className="flex items-center gap-1.5 overflow-hidden">
@@ -61,7 +61,7 @@ const DropdownSelect = React.memo(({ label, value, options, onChange, placeholde
                     <span className="text-white font-medium truncate">{displayLabel}</span>
                 </div>
                 <svg 
-                    className={`w-3 h-3 text-white/40 shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180 text-[#f5a623]' : ''}`}
+                    className={`w-3 h-3 text-white/40 shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180 text-[#D497FF]' : ''}`}
                     fill="none" 
                     stroke="currentColor" 
                     viewBox="0 0 24 24"
@@ -84,7 +84,7 @@ const DropdownSelect = React.memo(({ label, value, options, onChange, placeholde
                                 }}
                                 className={`px-3 py-2 text-xs md:text-sm rounded-lg transition-colors cursor-pointer ${
                                     isActive 
-                                    ? "bg-[#f5a623] text-[#0F1115] font-bold" 
+                                    ? "bg-[#D497FF] text-cyan-950 font-bold" 
                                     : "text-white/70 hover:bg-white/5 hover:text-white"
                                 }`}
                             >
@@ -233,8 +233,8 @@ export default function MovieFilter({
             <button
                 onClick={handleToggle}
                 className={`flex items-center gap-2 px-6 py-2.5 rounded-full border transition-all duration-300 cursor-pointer text-sm font-medium ${isOpen
-                    ? "bg-[#f5a623] border-[#f5a623] text-[#0F1115]"
-                    : "bg-white/5 border-white/10 text-white hover:border-[#f5a623]/50 hover:bg-white/10"
+                    ? "bg-[#D497FF] border-[#D497FF] text-cyan-950"
+                    : "bg-white/5 border-white/10 text-white hover:border-[#D497FF]/50 hover:bg-white/10"
                     }`}
             >
                 <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" height="1.1em" width="1.1em" xmlns="http://www.w3.org/2000/svg">
@@ -325,8 +325,8 @@ export default function MovieFilter({
                                                 isSpecial ? "px-3" : "w-8"
                                             } ${
                                                 isActive
-                                                ? "bg-[#f5a623] border-[#f5a623] text-[#0F1115]"
-                                                : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-[#f5a623]/30"
+                                                ? "bg-[#D497FF] border-[#D497FF] text-cyan-950"
+                                                : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-[#D497FF]/30"
                                             }`}
                                         >
                                             {letter}
@@ -344,8 +344,8 @@ export default function MovieFilter({
                                     onClick={() => handleSelect("category", "")}
                                     className={`px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 cursor-pointer ${
                                         filters.category === ""
-                                        ? "bg-[#f5a623] border-[#f5a623] text-[#0F1115] font-bold"
-                                        : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-[#f5a623]/30"
+                                        ? "bg-[#D497FF] border-[#D497FF] text-cyan-950 font-bold"
+                                        : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-[#D497FF]/30"
                                     }`}
                                 >
                                     Tất cả
@@ -359,8 +359,8 @@ export default function MovieFilter({
                                             onClick={() => handleSelect("category", val)}
                                             className={`px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 cursor-pointer ${
                                                 isActive
-                                                ? "bg-[#f5a623] border-[#f5a623] text-[#0F1115] font-bold"
-                                                : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-[#f5a623]/30"
+                                                ? "bg-[#D497FF] border-[#D497FF] text-cyan-950 font-bold"
+                                                : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-[#D497FF]/30"
                                             }`}
                                         >
                                             {c.name}
@@ -374,7 +374,7 @@ export default function MovieFilter({
                         <div className="flex items-center gap-3 pt-5 border-t border-white/5">
                             <button
                                 onClick={handleApply}
-                                className="md:px-7 px-5 py-2.5 md:py-3 rounded-full bg-gradient-to-r from-[#f5a623] to-[#ffcc33] text-[#0F1115] font-bold text-xs md:text-sm flex items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer shadow-lg shadow-amber-500/10"
+                                className="md:px-7 px-5 py-2.5 md:py-3 rounded-full bg-[#D497FF] text-white font-bold text-xs md:text-sm flex items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer shadow-lg shadow-[0_0_15px_rgba(212,151,255,0.4)]"
                             >
                                 <span>Tìm Kiếm</span>
                                 <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
@@ -401,3 +401,6 @@ export default function MovieFilter({
         </div>
     );
 }
+
+
+

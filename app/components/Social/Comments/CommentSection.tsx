@@ -96,7 +96,7 @@ function CommentSection({ movieSlug }: CommentSectionProps) {
                         el.scrollIntoView({ behavior: 'smooth', block: 'center' });
                         el.style.transition = 'background-color 0.5s';
                         const originalBg = el.style.backgroundColor;
-                        el.style.backgroundColor = 'rgba(245, 166, 35, 0.2)'; // amber-500/20
+                        el.style.backgroundColor = 'rgba(212,151,255, 0.2)'; // amber-500/20
                         setTimeout(() => {
                             el.style.backgroundColor = originalBg;
                         }, 2000);
@@ -141,7 +141,7 @@ function CommentSection({ movieSlug }: CommentSectionProps) {
             </div>
 
             <h3 className="comment-label">
-                <i className="fa-solid fa-comments text-[#f5a623]"></i>
+                <i className="fa-solid fa-comments text-[#D497FF]"></i>
                 Bình luận
             </h3>
 
@@ -188,7 +188,7 @@ function CommentSection({ movieSlug }: CommentSectionProps) {
                                 {comments.length > visibleCount && (
                                     <button
                                         onClick={() => setVisibleCount(prev => prev + 5)}
-                                        className="group text-[12px] md:text-[13px] text-white/40 hover:text-[#f5a623] font-semibold transition-colors duration-300 cursor-pointer flex items-center gap-1.5 py-2 px-4"
+                                        className="group text-[12px] md:text-[13px] text-white/40 hover:text-[#D497FF] font-semibold transition-colors duration-300 cursor-pointer flex items-center gap-1.5 py-2 px-4"
                                     >
                                         <span>Xem thêm bình luận (+{comments.length - visibleCount})</span>
                                         <i className="fa-solid fa-chevron-down text-[10px] group-hover:translate-y-0.5 transition-transform duration-300"></i>

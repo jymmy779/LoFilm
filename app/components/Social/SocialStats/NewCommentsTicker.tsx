@@ -79,7 +79,7 @@ export default function NewCommentsTicker() {
     return (
         <div className="flex flex-col h-full">
             <div className="flex items-center gap-1.5 sm:gap-2 mb-4 md:mb-6">
-                <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-yellow-400 fill-yellow-400" />
+                <Zap className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFD14E] fill-[#FFD14E]" />
                 <h3 className="font-bold uppercase tracking-wider text-xs sm:text-sm">Bình luận mới</h3>
             </div>
 
@@ -113,7 +113,7 @@ export default function NewCommentsTicker() {
                             <TransitionLink
                                 key={`${comment.id}-${index}`}
                                 href={`/phim/${comment.slug}`}
-                                className="p-3 bg-white/[0.03] rounded-xl border border-white/5 hover:border-amber-500/40 hover:bg-white/[0.05] transition-all group/comment h-[75px] flex flex-col justify-center shrink-0 block cursor-pointer"
+                                className="p-3 bg-white/[0.03] rounded-xl border border-white/5 hover:border-[#D497FF]/40 hover:bg-white/[0.05] transition-all group/comment h-[75px] flex flex-col justify-center shrink-0 block cursor-pointer"
                             >
                                 <div className="flex items-center gap-2 mb-1 min-w-0">
                                     <TickerAvatar avatar={comment.avatar} name={comment.user} />
@@ -127,10 +127,10 @@ export default function NewCommentsTicker() {
                                     </div>
                                 </div>
                                 <div className="flex items-center gap-1.5 text-[9px] text-white/30 pl-8">
-                                    <div className="w-3 h-3 flex items-center justify-center bg-blue-500/10 rounded">
-                                        <Play className="w-1.5 h-1.5 text-blue-400/60 fill-blue-400/60" />
+                                    <div className="w-3 h-3 flex items-center justify-center bg-[#D497FF]/10 rounded">
+                                        <Play className="w-1.5 h-1.5 text-[#D497FF]/60 fill-[#D497FF]/60" />
                                     </div>
-                                    <span className="truncate font-medium text-[12px] group-hover/comment:text-white/60 hover:!text-amber-400 transition-colors tracking-tight">
+                                    <span className="truncate font-medium text-[12px] group-hover/comment:text-white/60 hover:!text-[#D497FF] transition-colors tracking-tight">
                                         {comment.movie}
                                     </span>
                                 </div>

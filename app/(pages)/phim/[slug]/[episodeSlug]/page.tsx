@@ -169,13 +169,13 @@ async function WatchData({
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#0F1115] text-white p-6 relative overflow-hidden">
                 {/* Minimal Background Decor - No Blur for Performance */}
-                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-amber-500/5 rounded-full pointer-events-none" />
-                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-blue-500/5 rounded-full pointer-events-none" />
+                <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-[#D497FF]/5 rounded-full pointer-events-none" />
+                <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-[#D497FF]/5 rounded-full pointer-events-none" />
 
                 <div className="max-w-md w-full text-center relative z-10">
                     <div className="bg-[#111e35] border border-white/5 p-10 md:p-14 rounded-[40px]">
                         <div className="w-24 h-24 bg-white/5 border border-white/10 rounded-3xl flex items-center justify-center mx-auto mb-8 rotate-12 hover:rotate-0 transition-transform duration-500">
-                            <AlertTriangle size={48} className="text-amber-500" />
+                            <AlertTriangle size={48} className="text-[#D497FF]" />
                         </div>
 
                         <h1 className="text-2xl md:text-3xl font-black mb-4 uppercase tracking-[0.2em] font-montserrat">
@@ -189,7 +189,7 @@ async function WatchData({
                         <div className="flex flex-col gap-4">
                             <a
                                 href=""
-                                className="w-full py-4 bg-amber-500 text-[#0F1115] font-black rounded-2xl hover:bg-amber-400 active:scale-95 transition-all duration-300 text-center"
+                                className="w-full py-4 bg-[#D497FF] text-white font-black rounded-2xl hover:bg-[#D497FF] active:scale-95 transition-all duration-300 text-center"
                             >
                                 THỬ TẢI LẠI TRANG
                             </a>
@@ -213,7 +213,7 @@ async function WatchData({
             <div className="min-h-screen flex items-center justify-center bg-[#0F1115] text-white">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold mb-4 uppercase tracking-wider italic">PHIM KHÔNG TỒN TẠI</h1>
-                    <a href="/" className="text-amber-400 hover:underline">Về trang chủ</a>
+                    <a href="/" className="text-[#D497FF] hover:underline">Về trang chủ</a>
                 </div>
             </div>
         );
@@ -286,7 +286,7 @@ async function WatchData({
             <div className="min-h-screen flex items-center justify-center bg-[#0F1115] text-white">
                 <div className="text-center">
                     <h1 className="text-2xl font-bold mb-4">Không tìm thấy phim hoặc tập phim</h1>
-                    <a href="/" className="text-amber-400 hover:underline">Về trang chủ</a>
+                    <a href="/" className="text-[#D497FF] hover:underline">Về trang chủ</a>
                 </div>
             </div>
         );

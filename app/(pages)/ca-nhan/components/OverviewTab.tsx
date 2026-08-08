@@ -87,8 +87,8 @@ export default function OverviewTab({
           </div>
           
           <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-              <span className="text-blue-400 text-xs font-bold">@</span>
+            <div className="w-8 h-8 rounded-lg bg-[#D497FF]/10 flex items-center justify-center flex-shrink-0">
+              <span className="text-[#D497FF] text-xs font-bold">@</span>
             </div>
             <div>
               <p className="text-xs text-zinc-600">Email</p>
@@ -111,7 +111,7 @@ export default function OverviewTab({
       <div className="pt-4 border-t border-white/5">
         <p className="text-xs text-zinc-600 uppercase font-bold tracking-widest mb-3">Xếp hạng toàn thời gian</p>
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/30 to-orange-600/10 border border-amber-500/20 flex items-center justify-center">
+          <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-500/30 to-orange-600/10 border border-[#D497FF]/20 flex items-center justify-center">
             <Trophy className="w-5 h-5 text-amber-400" />
           </div>
           <div>

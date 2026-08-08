@@ -263,7 +263,11 @@ export default async function RootLayout({
           }}
         />
       </head>
-      <body className={`${inter.variable} ${montserrat.variable} bg-[#0F1115] text-white font-sans`} suppressHydrationWarning>
+      <body 
+        className={`${inter.variable} ${montserrat.variable} bg-[#0F1115] text-white font-sans`} 
+        style={{ backgroundColor: '#0F1115', color: '#ffffff' }}
+        suppressHydrationWarning
+      >
 
         <NetworkMonitor />
         <WakeUpMonitor />

@@ -191,7 +191,7 @@ export default function NotificationsPage() {
         switch (type) {
             case 'like': return <Heart size={14} className="text-rose-500 fill-rose-500" />;
             case 'dislike': return <ThumbsDown size={14} className="text-zinc-400 fill-zinc-400" />;
-            case 'reply': return <MessageCircle size={14} className="text-blue-500 fill-blue-500" />;
+            case 'reply': return <MessageCircle size={14} className="text-[#D497FF] fill-[#D497FF]" />;
             case 'system': return <Info size={14} className="text-amber-500" />;
             default: return <Bell size={14} />;
         }
@@ -201,7 +201,7 @@ export default function NotificationsPage() {
         switch (type) {
             case 'like': return <span className="text-rose-500 text-[11px] md:text-xs font-semibold uppercase tracking-wider ml-2">Thích</span>;
             case 'dislike': return <span className="text-zinc-400 text-[11px] md:text-xs font-semibold uppercase tracking-wider ml-2">Không thích</span>;
-            case 'reply': return <span className="text-blue-500 text-[11px] md:text-xs font-semibold uppercase tracking-wider ml-2">Phản hồi</span>;
+            case 'reply': return <span className="text-[#D497FF] text-[11px] md:text-xs font-semibold uppercase tracking-wider ml-2">Phản hồi</span>;
             case 'system': return <span className="text-amber-500 text-[11px] md:text-xs font-semibold uppercase tracking-wider ml-2">Hệ thống</span>;
             default: return null;
         }
@@ -266,7 +266,7 @@ export default function NotificationsPage() {
                 <div className="bg-[#0F1115] border border-white/5 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl">
                     {isLoading ? (
                         <div className="py-20 text-center text-zinc-500 flex flex-col items-center">
-                            <div className="w-8 h-8 border-2 border-amber-500/30 border-t-amber-500 rounded-full animate-spin mb-4" />
+                            <div className="w-8 h-8 border-2 border-[#D497FF]/30 border-t-[#D497FF] rounded-full animate-spin mb-4" />
                             Đang tải thông báo...
                         </div>
                     ) : notifications.length > 0 ? (
@@ -283,7 +283,7 @@ export default function NotificationsPage() {
                                         <Wrapper
                                             href={targetUrl !== '#' ? targetUrl : undefined}
                                             className={`flex gap-3 md:gap-5 p-4 md:p-6 transition-colors ${
-                                                notif.type !== 'system' && !notif.is_read ? 'bg-blue-500/5 hover:bg-blue-500/10' : 'hover:bg-white/5'
+                                                notif.type !== 'system' && !notif.is_read ? 'bg-[#D497FF]/5 hover:bg-[#D497FF]/10' : 'hover:bg-white/5'
                                             } ${notif.type !== 'system' && notif.movie_slug ? 'cursor-pointer' : 'cursor-default'}`}
                                         >
                                             <div className="shrink-0 mt-1 relative">
@@ -314,7 +314,7 @@ export default function NotificationsPage() {
                                                         {renderLabel(notif.type)}
                                                     </div>
                                                     {notif.type !== 'system' && !notif.is_read && (
-                                                        <span className="w-2 h-2 bg-blue-500 rounded-full shrink-0 shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
+                                                        <span className="w-2 h-2 bg-[#D497FF] rounded-full shrink-0 shadow-[0_0_8px_rgba(212,151,255,0.6)]" />
                                                     )}
                                                 </div>
                                                 {renderContent(notif)}

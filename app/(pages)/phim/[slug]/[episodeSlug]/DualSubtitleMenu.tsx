@@ -81,7 +81,7 @@ export default function DualSubtitleMenu({
                                             ${isDisabled
                                                 ? 'opacity-30 cursor-not-allowed text-white/40'
                                                 : isActive
-                                                    ? 'bg-amber-500/10 text-amber-400 cursor-pointer'
+                                                    ? 'bg-[#D497FF]/10 text-[#D497FF] cursor-pointer'
                                                     : 'text-white/80 hover:bg-white/10 hover:text-white cursor-pointer'
                                             }`}
                                     >
@@ -131,7 +131,7 @@ export default function DualSubtitleMenu({
                                             ${isDisabled
                                                 ? 'opacity-30 cursor-not-allowed text-white/40'
                                                 : isActive
-                                                    ? 'bg-amber-500/10 text-amber-400 cursor-pointer'
+                                                    ? 'bg-[#D497FF]/10 text-[#D497FF] cursor-pointer'
                                                     : 'text-white/80 hover:bg-white/10 hover:text-white cursor-pointer'
                                             }`}
                                     >

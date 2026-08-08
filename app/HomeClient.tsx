@@ -107,6 +107,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                         viewAllLink="/danh-sach/tv-shows"
                         navId="featured-tv"
                         initialMovies={prefetched.featuredTv}
+                        titleGradient="from-white via-yellow-200 to-amber-400"
                     />
                 </LazyRow>
 
@@ -118,6 +119,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                         initialMovies={prefetched.posterChieuRap}
                         sortByYear={true}
                         revalidate={120}
+                        titleGradient="from-white via-lime-200 to-lime-400"
                     />
                 </LazyRow>
 
@@ -129,6 +131,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                         initialMovies={prefetched.posterPhimBo}
                         sortByYear={true}
                         revalidate={120}
+                        titleGradient="from-white via-sky-200 to-sky-400"
                     />
                 </LazyRow>
 
@@ -138,6 +141,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                         apiUrl="https://phimapi.com/v1/api/danh-sach/phim-le?limit=60"
                         viewAllLink="/danh-sach/phim-le"
                         initialMovies={prefetched.topPhimLe}
+                        titleGradient="from-white via-rose-200 to-rose-400"
                     />
                 </LazyRow>
 
@@ -147,6 +151,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                         apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=60"
                         viewAllLink="/danh-sach/phim-bo"
                         initialMovies={prefetched.topPhimBo}
+                        titleGradient="from-white via-emerald-200 to-emerald-400"
                     />
                 </LazyRow>
 
@@ -156,6 +161,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                         apiUrl=""
                         viewAllLink="/danh-sach/phim-moi"
                         initialMovies={prefetched.nominated}
+                        titleGradient="from-white via-indigo-200 to-indigo-400"
                     />
                 </LazyRow>
 
@@ -166,6 +172,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                         viewAllLink="/danh-sach/hoat-hinh?country=nhat-ban"
                         navId="featured-anime"
                         initialMovies={prefetched.featuredAnime}
+                        titleGradient="from-white via-pink-200 to-pink-400"
                     />
                 </LazyRow>
 
@@ -175,6 +182,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                         apiUrl="https://phimapi.com/v1/api/the-loai/kinh-di?limit=60"
                         viewAllLink="/the-loai/kinh-di"
                         initialMovies={prefetched.posterKinhDi}
+                        titleGradient="from-white via-red-200 to-red-500"
                     />
                 </LazyRow>
 
@@ -184,6 +192,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                         apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=60"
                         viewAllLink="/danh-sach/hoat-hinh"
                         initialMovies={prefetched.posterHoatHinh}
+                        titleGradient="from-white via-cyan-200 to-cyan-400"
                     />
                 </LazyRow>
 

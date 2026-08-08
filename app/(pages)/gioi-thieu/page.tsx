@@ -31,7 +31,7 @@ export default function AboutContact() {
           </section>
 
           <section className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-            <div className="bg-white/5 p-5 md:p-6 rounded-2xl border border-white/5 hover:border-amber-400/20 transition-all group">
+            <div className="bg-white/5 p-5 md:p-6 rounded-2xl border border-white/5 hover:border-[#D497FF]/20 transition-all group">
               <h3 className="text-sm md:text-base font-bold text-amber-400 mb-3 md:mb-4 flex items-center gap-3">
                 <Mail size={16} className="md:w-[18px] md:h-[18px] group-hover:rotate-12 transition-transform" />
                 Liên hệ trực tiếp

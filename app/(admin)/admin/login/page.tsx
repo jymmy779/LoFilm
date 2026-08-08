@@ -36,13 +36,13 @@ export default function AdminLogin() {
                 <form onSubmit={handleSubmit} className="flex flex-col gap-5">
                     <div>
                         <label className="text-gray-400 text-sm mb-1 block">Tên đăng nhập</label>
-                        <input name="username" type="text" required className="w-full bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-transparent focus:border-blue-500 transition" />
+                        <input name="username" type="text" required className="w-full bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF] border border-transparent focus:border-[#D497FF] transition" />
                     </div>
                     <div>
                         <label className="text-gray-400 text-sm mb-1 block">Mật khẩu</label>
-                        <input name="password" type="password" required className="w-full bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-transparent focus:border-blue-500 transition" />
+                        <input name="password" type="password" required className="w-full bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF] border border-transparent focus:border-[#D497FF] transition" />
                     </div>
-                    <button type="submit" disabled={loading} className="w-full bg-blue-600 text-white font-semibold p-3 rounded mt-2 hover:bg-blue-700 transition flex items-center justify-center gap-2">
+                    <button type="submit" disabled={loading} className="w-full bg-[#D497FF] text-white font-semibold p-3 rounded mt-2 hover:bg-[#D497FF] transition flex items-center justify-center gap-2">
                         {loading ? (
                             <><i className="fa-solid fa-spinner fa-spin"></i> Đang xử lý...</>
                         ) : "Đăng nhập"}

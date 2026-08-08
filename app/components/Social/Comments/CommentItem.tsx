@@ -71,7 +71,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
             epText = numMatch ? `Tập ${parseInt(numMatch[0])}` : rawEp;
         }
         episodeBadge = (
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-[#f5a623]/10 text-[#f5a623] border border-[#f5a623]/20 ml-2 select-none animate-fade-in">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-[#D497FF]/10 text-[#D497FF] border border-[#D497FF]/20 ml-2 select-none animate-fade-in">
                 {epText}
             </span>
         );
@@ -416,7 +416,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                                 className={`v-dropdown-menu border border-white/10 transition-all duration-200 ${isMenuOpen ? 'visible opacity-100 scale-100 translate-y-0' : 'invisible opacity-0 scale-95 translate-y-2'}`}
                             >
                                 {comment.is_spoiler && (
-                                    <button className="dropdown-item text-amber-500" onClick={() => { setShowSpoiler(!showSpoiler); setIsMenuOpen(false); }}>
+                                    <button className="dropdown-item text-[#D497FF]" onClick={() => { setShowSpoiler(!showSpoiler); setIsMenuOpen(false); }}>
                                         <Eye size={14} /> <span>Tiết lộ nội dung này</span>
                                     </button>
                                 )}
@@ -425,7 +425,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                                 </button>
                                 {user?.id === comment.user_id && (
                                     <>
-                                        <button className="dropdown-item text-amber-500/80" onClick={handleEdit}>
+                                        <button className="dropdown-item text-[#D497FF]/80" onClick={handleEdit}>
                                             <Pencil size={14} /> <span>Chỉnh sửa</span>
                                         </button>
                                         <button className="dropdown-item text-red-500/80" onClick={handleDelete}>
@@ -477,10 +477,10 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                 <div className="reply-actions mt-2 ml-10 flex items-center gap-4">
                     {replies.length > visibleReplies && (
                         <button
-                            className="show-more-replies lg:text-sm text-xs cursor-pointer btn btn-xs btn-link text-amber-500/70 hover:text-amber-400 flex items-center gap-2"
+                            className="show-more-replies lg:text-sm text-xs cursor-pointer btn btn-xs btn-link text-[#D497FF]/70 hover:text-[#D497FF] flex items-center gap-2"
                             onClick={() => setVisibleReplies(prev => prev + 5)}
                         >
-                            <span className="w-8 h-px bg-amber-500/20"></span>
+                            <span className="w-8 h-px bg-[#D497FF]/20"></span>
                             Xem thêm trả lời khác
                         </button>
                     )}

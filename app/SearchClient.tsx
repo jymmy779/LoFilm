@@ -304,7 +304,7 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
                                     sortType: "desc",
                                     letter: "all"
                                 })}
-                                className="mt-8 flex items-center gap-2 px-6 py-3 bg-amber-500/10 hover:bg-amber-500/20 border border-amber-500/30 text-amber-500 rounded-full transition-all group"
+                                className="mt-8 flex items-center gap-2 px-6 py-3 bg-amber-500/10 hover:bg-amber-500/20 border border-[#D497FF]/30 text-amber-500 rounded-full transition-all group"
                             >
                                 <Trash2 size={18} className="group-hover:rotate-12 transition-transform" />
                                 Xóa tất cả bộ lọc & Tìm lại

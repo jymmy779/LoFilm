@@ -50,7 +50,7 @@ const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
 
       <div className="flex-1 min-w-0">
         <h1 className="text-lg md:text-xl font-bold text-white mb-1 font-montserrat tracking-tight leading-tight">
-          <TransitionLink href={`/phim/${slug}`} className="hover:text-amber-400 transition-colors">
+          <TransitionLink href={`/phim/${slug}`} className="hover:text-[#D497FF] transition-colors">
             {movie.name}
           </TransitionLink>
         </h1>
@@ -58,12 +58,12 @@ const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
 
         <div className="flex flex-wrap items-center gap-3 md:gap-5 mb-5 md:mb-6">
           <div className="flex flex-wrap gap-2">
-            <div className="flex items-center gap-1.5 px-1.5 py-0.5 bg-[#f5c518] rounded text-black text-[9px] font-bold">
+            <div className="flex items-center gap-1.5 px-1.5 py-0.5 bg-rose-500 rounded text-white text-[9px] font-bold">
               <span className="text-[8px]">★</span>
               <span>{rating}</span>
             </div>
-            <div className="px-1.5 py-0.5 bg-white/10 rounded flex items-center justify-center text-white/70 text-[9px] font-medium  tracking-wider">{movie.quality}</div>
-            <div className="px-1.5 py-0.5 bg-amber-500/10 flex items-center justify-center rounded text-amber-400 text-[9px] tracking-tight font-medium ">{episode.name || "Trailer"}</div>
+            <div className="px-1.5 py-0.5 bg-[#FAD078] rounded flex items-center justify-center text-amber-950 text-[9px] font-bold tracking-wider">{movie.quality}</div>
+            <div className="px-1.5 py-0.5 bg-[#F5CAE3] flex items-center justify-center rounded text-pink-950 text-[9px] tracking-tight font-bold">{episode.name || "Trailer"}</div>
           </div>
         </div>
       </div>
@@ -74,7 +74,7 @@ const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
         </div>
         <TransitionLink
           href={`/phim/${slug}`}
-          className="inline-flex items-center gap-1 mt-8 text-amber-400 hover:text-amber-300 text-[13px] transition-colors group"
+          className="inline-flex items-center gap-1 mt-8 text-[#D497FF] hover:text-[#D497FF] text-[13px] transition-colors group font-bold"
         >
           Thông tin phim
           <ChevronRight size={10} className="mt-[3px] group-hover:translate-x-0.5 transition-transform" />

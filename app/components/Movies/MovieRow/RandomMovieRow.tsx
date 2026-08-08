@@ -21,7 +21,7 @@ const MOODS = [
     { id: 'gia-dinh', title: 'Trạm sạc chữa lành', sub: 'Khóc trôi muộn phiền', bgColor: 'bg-[#fb923c]' },
     { id: 'kinh-di', title: 'Đóng bỉm cày đêm', sub: 'Yếu tim xin tự trọng', bgColor: 'bg-[#38bdf8]' },
     { id: 'hai-huoc', title: 'Hệ tư tưởng tấu hài', sub: 'Cười văng cả hàm', bgColor: 'bg-[#fbbf24]' },
-    { id: 'phieu-luu', title: 'Chạy trốn thực tại', sub: 'Đi vào dĩ vãng', bgColor: 'bg-[#22d3ee]' },
+    { id: 'phieu-luu', title: 'Chạy trốn thực tại', sub: 'Đi vào dĩ vãng', bgColor: 'bg-[#D497FF]' },
 ];
 
 import RandomMovieRowSkeleton from "./RandomMovieRowSkeleton";
@@ -237,7 +237,7 @@ function RandomMovieRow() {
                                                         <h5 className="text-white text-[11px] font-bold mb-0.5 line-clamp-1 uppercase tracking-tight leading-tight">{movie.name}</h5>
                                                         <p className="text-[9px] text-white/50 mb-2 line-clamp-1 italic">{movie.origin_name}</p>
 
-                                                        <div className="inline-flex items-center gap-1 bg-amber-500 text-[#0F1115] text-[8px] font-black py-1 px-2 rounded-sm uppercase tracking-tighter translate-y-2 group-hover:translate-y-0 transition-transform duration-500 border border-amber-600/30">
+                                                        <div className="inline-flex items-center gap-1 bg-[#D497FF] text-white text-[8px] font-black py-1 px-2 rounded-sm uppercase tracking-tighter translate-y-2 group-hover:translate-y-0 transition-transform duration-500 shadow-md shadow-[0_0_15px_rgba(212,151,255,0.4)]">
                                                             <Play size={8} fill="currentColor" /> Xem
                                                         </div>
                                                     </div>
@@ -260,3 +260,5 @@ function RandomMovieRow() {
 }
 
 export default memo(RandomMovieRow);
+
+

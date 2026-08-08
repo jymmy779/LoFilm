@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import React, { useState, useEffect } from "react";
 
@@ -78,7 +78,7 @@ export default function ResetPasswordPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#0F1115] px-4">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-amber-400/20 border-t-amber-400 rounded-full animate-spin" />
+          <div className="w-12 h-12 border-4 border-[#D497FF]/20 border-t-[#D497FF] rounded-full animate-spin" />
           <p className="text-white/40 text-sm animate-pulse italic">Đang xác thực quyền truy cập...</p>
         </div>
       </div>
@@ -89,8 +89,8 @@ export default function ResetPasswordPage() {
     <div className="min-h-screen flex items-center justify-center bg-[#0F1115] px-4">
       {/* Background decoration */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-amber-500/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-blue-500/5 rounded-full blur-[100px]" />
+        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-500/10 to-transparent rounded-full opacity-60 pointer-events-none" />
+        <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#D497FF]/10 to-transparent rounded-full opacity-60 pointer-events-none" />
       </div>
 
       <div
@@ -121,7 +121,7 @@ export default function ResetPasswordPage() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Mật khẩu mới"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-[#D497FF]/50 focus:bg-white/10 transition-all text-sm"
               />
             </div>
 
@@ -135,7 +135,7 @@ export default function ResetPasswordPage() {
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 placeholder="Xác nhận mật khẩu mới"
-                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
+                className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-[#D497FF]/50 focus:bg-white/10 transition-all text-sm"
               />
             </div>
 

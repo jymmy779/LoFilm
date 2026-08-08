@@ -5,6 +5,7 @@ import Image from "next/image";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { createClient } from "@/app/utils/supabase/client";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
+import LoadingSpinner from "@/app/components/UI/Common/LoadingSpinner";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 import { toast } from "react-hot-toast";
@@ -248,7 +249,11 @@ export default function LibraryPage() {
       <div className="relative z-20 w-full px-4 xl:pl-[132px] xl:pr-8 py-2 space-y-0 mt-4">
         {isLoading ? (
           <div className="py-20 flex justify-center">
-            <div className="w-10 h-10 border-4 border-white/10 border-t-amber-500 rounded-full animate-spin"></div>
+            <div className="relative flex items-center justify-center">
+              <div className="w-10 h-10 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin" style={{ animationDuration: '0.45s' }} />
+              <div className="absolute w-6 h-6 border-2 border-amber-400/20 border-b-amber-400 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '0.65s' }} />
+              <div className="absolute w-1.5 h-1.5 bg-orange-500 rounded-full" />
+            </div>
           </div>
         ) : currentData.length > 0 ? (
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-x-3 gap-y-3">

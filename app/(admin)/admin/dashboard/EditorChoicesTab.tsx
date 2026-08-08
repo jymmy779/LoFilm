@@ -84,7 +84,7 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
                     <button
                         onClick={handleSave}
                         disabled={isPending}
-                        className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-bold transition-colors disabled:opacity-50 flex items-center gap-2"
+                        className="bg-[#D497FF] hover:bg-[#D497FF] text-white px-6 py-2 rounded font-bold transition-colors disabled:opacity-50 flex items-center gap-2"
                     >
                         {isPending ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>}
                         Lưu Cấu Hình
@@ -123,7 +123,7 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
                             max="50"
                             value={config.autoCount}
                             onChange={(e) => setConfig({ ...config, autoCount: parseInt(e.target.value) || 10 })}
-                            className="bg-[#0F1115] text-white rounded p-2 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/10 w-24 text-center"
+                            className="bg-[#0F1115] text-white rounded p-2 focus:outline-none focus:ring-2 focus:ring-[#D497FF] border border-white/10 w-24 text-center"
                         />
                         <span className="text-sm text-gray-400">Hệ thống sẽ lấy danh sách từ bảng movie_views</span>
                     </div>
@@ -141,12 +141,12 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
                                 value={searchKeyword}
                                 onChange={(e) => setSearchKeyword(e.target.value)}
                                 placeholder="Nhập tên phim cần tìm..."
-                                className="flex-1 bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/10"
+                                className="flex-1 bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF] border border-white/10"
                             />
                             <button
                                 type="submit"
                                 disabled={isSearching}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-6 py-2 rounded font-bold transition-colors disabled:opacity-50"
+                                className="bg-[#D497FF] hover:bg-[#D497FF] text-white px-6 py-2 rounded font-bold transition-colors disabled:opacity-50"
                             >
                                 {isSearching ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-search"></i>}
                                 Tìm kiếm
@@ -161,14 +161,14 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
                                             <h4 className="font-bold text-lg text-white mb-1">{movie.name}</h4>
                                             <p className="text-sm text-gray-400 mb-2">{movie.origin_name} ({movie.year})</p>
                                             <div className="flex flex-wrap gap-2 text-xs">
-                                                <span className="bg-blue-500/20 text-blue-300 px-2 py-1 rounded border border-blue-500/30">
+                                                <span className="bg-[#D497FF]/20 text-[#D497FF] px-2 py-1 rounded border border-[#D497FF]/30">
                                                     {movie.type}
                                                 </span>
                                             </div>
                                         </div>
                                         <button
                                             onClick={() => handleAddMovie(movie)}
-                                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded font-bold transition-colors w-full md:w-auto shrink-0 flex items-center justify-center gap-2"
+                                            className="bg-[#D497FF] hover:bg-[#D497FF] text-white px-4 py-2 rounded font-bold transition-colors w-full md:w-auto shrink-0 flex items-center justify-center gap-2"
                                         >
                                             <i className="fa-solid fa-plus"></i> Thêm
                                         </button>
@@ -194,7 +194,7 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
                                     <div key={movie.slug} className="flex items-center gap-4 bg-[#0F1115] p-3 rounded-lg border border-white/5">
                                         <div className="text-gray-500 font-mono w-6 text-center">{index + 1}</div>
                                         <div className="flex-1 min-w-0">
-                                            <p className="font-medium truncate text-blue-400">{movie.name}</p>
+                                            <p className="font-medium truncate text-[#D497FF]">{movie.name}</p>
                                             <p className="text-xs text-white/50 truncate">{movie.slug}</p>
                                         </div>
                                         <div className="flex items-center gap-2 shrink-0">

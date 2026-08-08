@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
+import { getCategoryStyles } from "@/app/utils/uiUtils";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, EffectFade, Thumbs, FreeMode } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
@@ -115,22 +116,28 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                         {currentMovie && (
                             <div
                                 key={activeIndex}
-                                className="space-y-4 animate-reveal-right"
+                                className="space-y-4"
                             >
                                 {/* Title */}
-                                <div className="min-h-[76px] m-0 md:mb-[16px] flex items-end justify-center min-[700px]:justify-start">
+                                <div 
+                                    className="min-h-[76px] m-0 md:mb-[16px] flex items-end justify-center min-[700px]:justify-start"
+                                    style={{ animation: 'cssFadeInUp 0.6s ease-out forwards', opacity: 0 }}
+                                >
                                     <TransitionLink
                                         href={`/phim/${currentMovie.slug}`}
                                         className="block"
                                     >
-                                        <h2 className="text-2xl xl:text-4xl font-bold text-white leading-tight drop-shadow-2xl [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)] line-clamp-1 md:line-clamp-2 hover:text-[#f5a623] transition-colors">
+                                        <h2 className="text-2xl xl:text-4xl font-bold text-white leading-tight drop-shadow-2xl [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)] line-clamp-1 md:line-clamp-2 hover:text-[#D497FF] transition-colors">
                                             {decodeHtml(currentMovie.name)}
                                         </h2>
                                     </TransitionLink>
                                 </div>
 
                                 {/* Origin name & Tags */}
-                                <div className="space-y-2 md:mb-[16px] mb-0">
+                                <div 
+                                    className="space-y-2 md:mb-[16px] mb-0"
+                                    style={{ animation: 'cssFadeInUp 0.6s ease-out 0.1s forwards', opacity: 0 }}
+                                >
                                     <p className="font-bold text-xs md:text-sm md:mb-[16px] mb-0 italic h-5 truncate [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)]">
                                         {decodeHtml(currentMovie.origin_name)}
                                     </p>
@@ -138,21 +145,26 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                     {/* Tags */}
                                     <div className="flex flex-wrap items-center justify-center min-[700px]:justify-start gap-2 h-7 overflow-hidden">
                                         {(currentMovie.tmdb?.vote_average || 0) > 0 && (
-                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-amber-500/20 text-amber-200 border border-amber-400/30 rounded [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-colors duration-300">
+                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-rose-500 text-white rounded shadow-sm">
                                                 ★ {(currentMovie.tmdb?.vote_average || 0).toFixed(1)}
                                             </span>
                                         )}
-                                        <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/20 text-white border border-white/10 rounded [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-colors duration-300">
+                                        <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-[#A7F3D0] text-emerald-950 rounded shadow-sm">
                                             {currentMovie.year}
                                         </span>
                                         {currentMovie.episode_current && (
-                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/20 text-white border border-white/10 rounded [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-colors duration-300">
+                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-[#F5CAE3] text-pink-950 rounded shadow-sm">
                                                 {currentMovie.episode_current}
                                             </span>
                                         )}
                                         {currentMovie.quality && (
-                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-white/20 text-white border border-white/10 rounded [text-shadow:0_1px_2px_rgba(0,0,0,0.5)] transition-colors duration-300">
+                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-[#FAD078] text-amber-950 rounded shadow-sm">
                                                 {currentMovie.quality}
+                                            </span>
+                                        )}
+                                        {currentMovie.lang && (
+                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-[#C084FC] text-purple-950 rounded shadow-sm">
+                                                {currentMovie.lang}
                                             </span>
                                         )}
                                     </div>
@@ -160,21 +172,31 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
 
                                 {/* Categories */}
                                 {currentMovie.category && currentMovie.category.length > 0 && (
-                                    <div className="min-[700px]:flex flex-wrap hidden justify-center min-[700px]:justify-start gap-2">
-                                        {currentMovie.category.slice(0, 3).map((cat) => (
-                                            <TransitionLink
-                                                key={cat.slug}
-                                                href={`/the-loai/${cat.slug}`}
-                                                className="px-2.5 py-1 text-[10px] lg:text-xs font-medium flex items-center justify-center bg-white/10 border border-white/10 hover:border-[#f5a623]/50 hover:text-[#f5a623] rounded transition-[border-color,color] duration-300 leading-none"
-                                            >
-                                                {cat.name}
-                                            </TransitionLink>
-                                        ))}
+                                    <div 
+                                        className="min-[700px]:flex flex-wrap hidden justify-center min-[700px]:justify-start gap-2"
+                                        style={{ animation: 'cssFadeInUp 0.6s ease-out 0.2s forwards', opacity: 0 }}
+                                    >
+                                        {(() => {
+                                            const cats = currentMovie.category.slice(0, 3);
+                                            const styles = getCategoryStyles(cats.map((c) => c.slug));
+                                            return cats.map((cat, i) => (
+                                                <TransitionLink
+                                                    key={cat.slug}
+                                                    href={`/the-loai/${cat.slug}`}
+                                                    className={`px-2.5 py-1 text-[10px] lg:text-xs font-medium flex items-center justify-center bg-white/10 border border-white/10 hover:border-[#D497FF]/50 ${styles[i].text} rounded transition-[border-color,color] duration-300 leading-none`}
+                                                >
+                                                    {cat.name}
+                                                </TransitionLink>
+                                            ));
+                                        })()}
                                     </div>
                                 )}
 
                                 {/* Description */}
-                                <div className="min-h-[60px] lg:block hidden max-w-lg mx-auto lg:mx-0">
+                                <div 
+                                    className="min-h-[60px] lg:block hidden max-w-lg mx-auto lg:mx-0"
+                                    style={{ animation: 'cssFadeInUp 0.6s ease-out 0.3s forwards', opacity: 0 }}
+                                >
                                     {currentMovie.content ? (
                                         <p className=" text-xs xl:text-sm leading-relaxed drop-shadow-2xl [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)] line-clamp-3">
                                             {cleanContent(currentMovie.content) || "Nội dung phim đang được cập nhật..."}
@@ -189,10 +211,13 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                 </div>
 
                                 {/* Buttons */}
-                                <div className="flex min-[700px]:flex hidden items-center justify-center min-[700px]:justify-start gap-8 pt-4">
+                                <div 
+                                    className="flex min-[700px]:flex hidden items-center justify-center min-[700px]:justify-start gap-8 pt-4"
+                                    style={{ animation: 'cssFadeInUp 0.6s ease-out 0.4s forwards', opacity: 0 }}
+                                >
                                     <TransitionLink
                                         href={`/phim/${currentMovie.slug}`}
-                                        className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-15 lg:h-15 rounded-full bg-gradient-to-tr from-[#f5a623] to-[#ffcc33] text-[#0F1115] ring-4 ring-[#f5a623]/20 shadow-[0_4px_15px_rgba(245,166,35,0.4)] hover:shadow-[0_0_30px_rgba(245,166,35,0.8)] hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer"
+                                        className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-15 lg:h-15 rounded-full bg-[#D497FF] text-white ring-4 ring-[#D497FF]/30 shadow-[0_4px_15px_rgba(212,151,255,0.4)] hover:shadow-[0_0_30px_rgba(212,151,255,0.8)] hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer"
                                     >
                                         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="20" height="20" fill="currentColor" className="ml-1 relative z-10">
                                             <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z" />
@@ -206,7 +231,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                         />
                                         <TransitionLink
                                             href={`/phim/${currentMovie.slug}`}
-                                            className="p-3 px-7 h-full flex items-center justify-center text-white cursor-pointer hover:text-[#f5a623] transition-colors"
+                                            className="p-3 px-7 h-full flex items-center justify-center text-white cursor-pointer hover:text-[#D497FF] transition-colors"
                                         >
                                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="18" height="18" fill="currentColor">
                                                 <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336h24V272H216c-13.3 0-24-10.7-24-24s10.7-24 24-24h48c13.3 0 24 10.7 24 24v88h8c13.3 0 24 10.7 24 24s-10.7 24-24 24H216c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z" />
@@ -236,9 +261,9 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                         >
                             {movies.map((movie, index) => (
                                 <SwiperSlide key={movie._id}>
-                                    <div className="relative cursor-pointer rounded-full min-[700px]:rounded overflow-hidden aspect-square min-[700px]:aspect-video border-2 border-white/20 hover:border-white/40 [.swiper-slide-thumb-active_&]:border-[#f5a623] transition-all duration-300 opacity-60 hover:opacity-90 [.swiper-slide-thumb-active_&]:opacity-100 bg-[#0F1115]/40">
+                                    <div className="relative cursor-pointer rounded-full min-[700px]:rounded overflow-hidden aspect-square min-[700px]:aspect-video border-2 border-white/20 hover:border-white/40 [.swiper-slide-thumb-active_&]:border-[#D497FF] transition-all duration-300 opacity-60 hover:opacity-90 [.swiper-slide-thumb-active_&]:opacity-100 bg-[#0F1115]/40">
                                         <SmartImage
-                                            r2Src={getR2MoviePosterUrl(movie.slug)}
+                                            r2Src={getR2MovieThumbUrl(movie.slug)}
                                             src={getImageUrl(movie.thumb_url, { width: 100, quality: 60 })}
                                             rawSrc={getRawImageUrl(movie.thumb_url)}
                                             alt={movie.name}
@@ -257,3 +282,5 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
         </section>
     );
 }
+
+

@@ -125,6 +125,7 @@ export default function Header() {
                                         width={140}
                                         height={70}
                                         className="h-[50px] md:h-[65px] w-auto object-contain"
+                                        style={{ maxWidth: '140px', maxHeight: '70px', width: 'auto', height: '100%' }}
                                         src="/images/lofilm_logo.webp"
                                         alt="LoFilm - Xem Phim Online Chất Lượng Cao | Phim 4K Vietsub Miễn Phí"
                                         priority
@@ -178,6 +179,7 @@ export default function Header() {
                                     width={150}
                                     height={80}
                                     className="h-[50px] xl:h-[55px] 2xl:h-[65px] w-auto object-contain transition-all duration-300"
+                                    style={{ maxWidth: '150px', maxHeight: '80px', width: 'auto', height: '100%' }}
                                     src="/images/lofilm_logo.webp"
                                     alt="LoFilm - Xem Phim Online Chất Lượng Cao"
                                     priority
@@ -191,7 +193,7 @@ export default function Header() {
 
                             <nav className="flex items-center gap-8">
                                 {navLinks.map((item) => (
-                                    <TransitionLink key={item.href} href={item.href} className=" font-medium text-white/80 hover:text-amber-400 transition-colors duration-150 whitespace-nowrap">
+                                    <TransitionLink key={item.href} href={item.href} className=" font-medium text-white hover:text-[#D497FF] transition-colors duration-150 whitespace-nowrap">
                                         {item.label}
                                     </TransitionLink>
                                 ))}
@@ -247,15 +249,15 @@ export default function Header() {
 
             {/* Mobile Bottom Navigation Pill (Chỉ hiện trên màn hình < xl) */}
             <div className="xl:hidden fixed bottom-5 md:bottom-8 left-1/2 -translate-x-1/2 z-[90] w-[92%] sm:w-[85%] max-w-[300px] h-[60px] bg-[#0F1115] border border-white/10 rounded-full shadow-[0_16px_40px_rgba(0,0,0,0.6)] flex items-center justify-between px-2">
-                <TransitionLink href="/" className={`relative w-[64px] h-[48px] rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors z-10 ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'text-amber-400' : 'text-white/50 hover:text-amber-400'}`}>
-                    <div className={`absolute inset-0 bg-amber-400/10 rounded-full z-[-1] transition-all duration-300 ease-out ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`} />
-                    <svg className={`transition-transform duration-300 ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'scale-110 -translate-y-0.5 text-amber-400' : 'scale-100'}`} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                <TransitionLink href="/" className={`relative w-[64px] h-[48px] rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors z-10 ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'text-[#D497FF]' : 'text-white/50 hover:text-[#D497FF]'}`}>
+                    <div className={`absolute inset-0 bg-[#D497FF]/10 rounded-full z-[-1] transition-all duration-300 ease-out ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`} />
+                    <svg className={`transition-transform duration-300 ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'scale-110 -translate-y-0.5 text-[#D497FF]' : 'scale-100'}`} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
                     <span className={`text-[9px] font-bold tracking-wide transition-all duration-300 ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'translate-y-0.5' : ''}`}>Trang chủ</span>
                 </TransitionLink>
 
-                <TransitionLink href="/danh-sach/phim-moi" className={`relative w-[64px] h-[48px] rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer z-10 ${pathname.startsWith('/danh-sach/') || pathname.startsWith('/the-loai/') || pathname.startsWith('/quoc-gia/') || hasSearchQuery ? 'text-amber-400' : 'text-white/50 hover:text-amber-400'}`}>
-                    <div className={`absolute inset-0 bg-amber-400/10 rounded-full z-[-1] transition-all duration-300 ease-out ${(pathname.startsWith('/danh-sach/') || pathname.startsWith('/the-loai/') || pathname.startsWith('/quoc-gia/') || hasSearchQuery) ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`} />
-                    <svg className={`transition-transform duration-300 ${(pathname.startsWith('/danh-sach/') || pathname.startsWith('/the-loai/') || pathname.startsWith('/quoc-gia/') || hasSearchQuery) ? 'scale-110 -translate-y-0.5 text-amber-400' : 'scale-100'}`} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" /></svg>
+                <TransitionLink href="/danh-sach/phim-moi" className={`relative w-[64px] h-[48px] rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer z-10 ${pathname.startsWith('/danh-sach/') || pathname.startsWith('/the-loai/') || pathname.startsWith('/quoc-gia/') || hasSearchQuery ? 'text-[#D497FF]' : 'text-white/50 hover:text-[#D497FF]'}`}>
+                    <div className={`absolute inset-0 bg-[#D497FF]/10 rounded-full z-[-1] transition-all duration-300 ease-out ${(pathname.startsWith('/danh-sach/') || pathname.startsWith('/the-loai/') || pathname.startsWith('/quoc-gia/') || hasSearchQuery) ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`} />
+                    <svg className={`transition-transform duration-300 ${(pathname.startsWith('/danh-sach/') || pathname.startsWith('/the-loai/') || pathname.startsWith('/quoc-gia/') || hasSearchQuery) ? 'scale-110 -translate-y-0.5 text-[#D497FF]' : 'scale-100'}`} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" /></svg>
                     <span className={`text-[9px] font-bold tracking-wide transition-all duration-300 ${(pathname.startsWith('/danh-sach/') || pathname.startsWith('/the-loai/') || pathname.startsWith('/quoc-gia/') || hasSearchQuery) ? 'translate-y-0.5' : ''}`}>Khám phá</span>
                 </TransitionLink>
 
@@ -268,10 +270,10 @@ export default function Header() {
                             setShowLoginPrompt(true);
                         }
                     }}
-                    className={`relative w-[64px] h-[48px] rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer z-10 ${pathname === '/lich-su' ? 'text-amber-400' : 'text-white/50 hover:text-amber-400'}`}
+                    className={`relative w-[64px] h-[48px] rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer z-10 ${pathname === '/lich-su' ? 'text-[#D497FF]' : 'text-white/50 hover:text-[#D497FF]'}`}
                 >
-                    <div className={`absolute inset-0 bg-amber-400/10 rounded-full z-[-1] transition-all duration-300 ease-out ${pathname === '/lich-su' ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`} />
-                    <svg className={`transition-transform duration-300 ${pathname === '/lich-su' ? 'scale-110 -translate-y-0.5 text-amber-400' : 'scale-100'}`} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" /></svg>
+                    <div className={`absolute inset-0 bg-[#D497FF]/10 rounded-full z-[-1] transition-all duration-300 ease-out ${pathname === '/lich-su' ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`} />
+                    <svg className={`transition-transform duration-300 ${pathname === '/lich-su' ? 'scale-110 -translate-y-0.5 text-[#D497FF]' : 'scale-100'}`} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M3 12a9 9 0 1 0 9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" /><path d="M3 3v5h5" /><path d="M12 7v5l4 2" /></svg>
                     <span className={`text-[9px] font-bold tracking-wide transition-all duration-300 ${pathname === '/lich-su' ? 'translate-y-0.5' : ''}`}>Lịch sử</span>
                 </button>
 
@@ -284,12 +286,12 @@ export default function Header() {
                             setShowLoginPrompt(true);
                         }
                     }}
-                    className={`relative w-[64px] h-[48px] rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer z-10 ${pathname === '/ca-nhan' && !isMenuOpen ? 'text-amber-400' : 'text-white/50 hover:text-amber-400'}`}
+                    className={`relative w-[64px] h-[48px] rounded-full flex flex-col items-center justify-center gap-0.5 transition-colors cursor-pointer z-10 ${pathname === '/ca-nhan' && !isMenuOpen ? 'text-[#D497FF]' : 'text-white/50 hover:text-[#D497FF]'}`}
                 >
-                    <div className={`absolute inset-0 bg-amber-400/10 rounded-full z-[-1] transition-all duration-300 ease-out ${pathname === '/ca-nhan' && !isMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`} />
+                    <div className={`absolute inset-0 bg-[#D497FF]/10 rounded-full z-[-1] transition-all duration-300 ease-out ${pathname === '/ca-nhan' && !isMenuOpen ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`} />
                     {user ? (
                         user?.user_metadata?.avatar_url ? (
-                            <div className={`w-5 h-5 rounded-full overflow-hidden border transition-transform duration-300 ${pathname === '/ca-nhan' && !isMenuOpen ? 'border-amber-400/50 scale-110 -translate-y-0.5' : 'border-white/20 scale-100'}`}>
+                            <div className={`w-5 h-5 rounded-full overflow-hidden border transition-transform duration-300 ${pathname === '/ca-nhan' && !isMenuOpen ? 'border-[#D497FF]/50 scale-110 -translate-y-0.5' : 'border-white/20 scale-100'}`}>
                                 <Image
                                     src={user.user_metadata.avatar_url}
                                     alt="Avatar"
@@ -299,12 +301,12 @@ export default function Header() {
                                 />
                             </div>
                         ) : (
-                            <div className={`w-5 h-5 rounded-full overflow-hidden border transition-transform duration-300 ${pathname === '/ca-nhan' && !isMenuOpen ? 'border-amber-400/50 scale-110 -translate-y-0.5' : 'border-white/20 scale-100'} bg-gradient-to-br from-orange-950 via-zinc-900 to-zinc-950 flex items-center justify-center text-white/90 text-[10px] font-bold`}>
+                            <div className={`w-5 h-5 rounded-full overflow-hidden border transition-transform duration-300 ${pathname === '/ca-nhan' && !isMenuOpen ? 'border-[#D497FF]/50 scale-110 -translate-y-0.5' : 'border-white/20 scale-100'} bg-gradient-to-br from-orange-950 via-zinc-900 to-zinc-950 flex items-center justify-center text-white/90 text-[10px] font-bold`}>
                                 {(user.user_metadata?.full_name || user.email || "U").charAt(0).toUpperCase()}
                             </div>
                         )
                     ) : (
-                        <svg className={`transition-transform duration-300 ${pathname === '/ca-nhan' && !isMenuOpen ? 'scale-110 -translate-y-0.5 text-amber-400' : 'scale-100'}`} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                        <svg className={`transition-transform duration-300 ${pathname === '/ca-nhan' && !isMenuOpen ? 'scale-110 -translate-y-0.5 text-[#D497FF]' : 'scale-100'}`} width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                     )}
                     <span className={`text-[9px] font-bold tracking-wide transition-all duration-300 ${pathname === '/ca-nhan' && !isMenuOpen ? 'translate-y-0.5' : ''}`}>Tài khoản</span>
                 </button>
@@ -321,3 +323,4 @@ export default function Header() {
         </>
     );
 }
+

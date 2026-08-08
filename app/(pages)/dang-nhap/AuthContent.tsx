@@ -250,14 +250,14 @@ export default function AuthContent() {
                 <div className="flex bg-white/5 p-1 rounded-2xl w-full border border-white/10">
                   <button
                     onClick={() => setIsLogin(true)}
-                    className={`flex-1 py-2.5 text-xs md:text-sm font-semibold rounded-xl transition-all cursor-pointer ${isLogin ? "bg-amber-400 text-black" : "text-white/60 hover:text-white"
+                    className={`flex-1 py-2.5 text-xs md:text-sm font-semibold rounded-xl transition-all cursor-pointer ${isLogin ? "bg-[#D497FF] text-black" : "text-white/60 hover:text-white"
                       }`}
                   >
                     Đăng nhập
                   </button>
                   <button
                     onClick={() => setIsLogin(false)}
-                    className={`flex-1 py-2.5 text-xs md:text-sm font-semibold rounded-xl transition-all cursor-pointer ${!isLogin ? "bg-amber-400 text-black" : "text-white/60 hover:text-white"
+                    className={`flex-1 py-2.5 text-xs md:text-sm font-semibold rounded-xl transition-all cursor-pointer ${!isLogin ? "bg-[#D497FF] text-black" : "text-white/60 hover:text-white"
                       }`}
                   >
                     Đăng ký
@@ -332,7 +332,7 @@ export default function AuthContent() {
                       <div className="flex items-center justify-end px-2">
                         <Link
                           href="/quen-mat-khau"
-                          className="text-amber-400/60 hover:text-amber-400 text-[10px] md:text-xs transition-colors cursor-pointer"
+                          className="text-[#D497FF]/60 hover:text-[#D497FF] text-[10px] md:text-xs transition-colors cursor-pointer"
                         >
                           Quên mật khẩu?
                         </Link>
@@ -352,7 +352,7 @@ export default function AuthContent() {
                     <button
                       type="submit"
                       disabled={isLoading}
-                      className="w-full bg-gradient-to-r from-amber-400 to-amber-500 text-black py-3 md:py-4 rounded-2xl font-bold text-sm md:text-base flex items-center justify-center gap-2 hover:translate-y-[-2px] hover:shadow-lg hover:shadow-amber-500/20 active:translate-y-0 transition-all cursor-pointer mt-4"
+                      className="w-full bg-gradient-to-r from-[#D497FF] to-[#B366FF] text-black py-3 md:py-4 rounded-2xl font-bold text-sm md:text-base flex items-center justify-center gap-2 hover:translate-y-[-2px] hover:shadow-lg hover:shadow-[#D497FF]/20 active:translate-y-0 active:scale-[0.98] transition-all cursor-pointer mt-4"
                     >
                       {isLoading ? (
                         <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin" />
@@ -401,7 +401,7 @@ export default function AuthContent() {
                 </div>
 
                 <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-3 md:p-4 text-center group hover:bg-white/5 transition-all">
-                  <div className="w-10 h-10 bg-blue-500/10 rounded-xl flex items-center justify-center text-blue-400 mx-auto mb-3 group-hover:scale-110 transition-transform">
+                  <div className="w-10 h-10 bg-sky-500/10 rounded-xl flex items-center justify-center text-sky-400 mx-auto mb-3 group-hover:scale-110 transition-transform">
                     <ThumbsUp size={20} />
                   </div>
                   <div className="text-[12px] font-bold text-white mb-1">Like / Dislike</div>
@@ -409,7 +409,7 @@ export default function AuthContent() {
                 </div>
 
                 <div className="bg-white/[0.03] border border-white/5 rounded-2xl p-3 md:p-4 text-center group hover:bg-white/5 transition-all">
-                  <div className="w-10 h-10 bg-purple-500/10 rounded-xl flex items-center justify-center text-purple-400 mx-auto mb-3 group-hover:scale-110 transition-transform">
+                  <div className="w-10 h-10 bg-emerald-500/10 rounded-xl flex items-center justify-center text-emerald-400 mx-auto mb-3 group-hover:scale-110 transition-transform">
                     <HistoryIcon size={20} />
                   </div>
                   <div className="text-[12px] font-bold text-white mb-1">Lịch sử xem</div>
@@ -435,8 +435,8 @@ export default function AuthContent() {
       </div>
 
       <div className="absolute top-0 left-0 w-full h-full overflow-hidden -z-10 pointer-events-none">
-        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-amber-500/10 rounded-full blur-[100px]" />
-        <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-blue-500/10 rounded-full blur-[80px]" />
+        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-500/20 to-transparent rounded-full opacity-60" />
+        <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#D497FF]/20 to-transparent rounded-full opacity-60" />
       </div>
     </Container>
   );

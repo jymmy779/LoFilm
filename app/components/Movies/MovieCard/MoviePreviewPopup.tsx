@@ -4,6 +4,7 @@ import { useFavorites } from "@/app/(pages)/phim/[slug]/[episodeSlug]/hooks/useF
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
+import { getCategoryColors } from "@/app/utils/uiUtils";
 import { getEpisodeStatus, getImageUrl, getFriendlyEpisodeSlug, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
 import { getR2MovieThumbUrl, getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
@@ -159,7 +160,7 @@ export default function MoviePreviewPopup({
                         <h3 className="text-white font-bold text-base leading-tight line-clamp-2">
                             {decodeHtml(movie.name)}
                         </h3>
-                        <p className="text-[#f5a623] text-xs font-medium line-clamp-1">
+                        <p className="text-[#D497FF] text-xs font-medium line-clamp-1">
                             {decodeHtml(movie.origin_name)}
                         </p>
                     </div>
@@ -167,7 +168,7 @@ export default function MoviePreviewPopup({
                     <div className="flex items-center gap-2 pt-1">
                         <TransitionLink
                             href={playUrl}
-                            className="flex-[1.5] h-10 bg-gradient-to-r from-[#f5a623] to-[#fbd671] hover:brightness-110 text-black rounded-full flex items-center justify-center gap-2 font-bold text-xs transition-all pointer-events-auto cursor-pointer"
+                            className="flex-[1.5] h-10 bg-[#D497FF] hover:opacity-90 text-white rounded-full flex items-center justify-center gap-2 font-bold text-xs transition-all pointer-events-auto cursor-pointer shadow-[0_0_15px_rgba(212,151,255,0.4)]"
                         >
                             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="10" height="10" fill="currentColor">
                                 <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z" />
@@ -202,13 +203,13 @@ export default function MoviePreviewPopup({
 
                     {/* Metadata Tags */}
                     <div className="flex flex-wrap items-center gap-2">
-                        <div className="px-2.5 py-1 border border-[#f5a623] rounded-lg text-[#f5a623] text-[10px] font-bold">
+                        <div className="px-2.5 py-1 bg-amber-400/20 text-amber-400 rounded-lg text-[10px] font-bold">
                             ★ {imdbRating}
                         </div>
-                        <div className="px-2.5 py-1 bg-white/10 rounded-lg text-white/60 text-[10px] font-bold">
+                        <div className="px-2.5 py-1 bg-rose-500/20 text-rose-400 rounded-lg text-[10px] font-bold">
                             {movie.year}
                         </div>
-                        <div className="px-2.5 py-1 bg-white/10 rounded-lg text-white/60 text-[10px] font-bold">
+                        <div className="px-2.5 py-1 bg-[#D497FF]/20 text-[#D497FF] rounded-lg text-[10px] font-bold">
                             {updatedMetadata
                                 ? getEpisodeStatus({ ...movie, ...updatedMetadata })
                                 : getEpisodeStatus(movie)}
@@ -216,16 +217,24 @@ export default function MoviePreviewPopup({
                     </div>
 
                     {/* Genres Row */}
-                    {movie.category && movie.category.length > 0 && (
-                        <div className="text-[11px] text-white/60 font-medium flex flex-wrap gap-x-2 gap-y-1">
-                            {movie.category.slice(0, 3).map((cat, idx) => (
-                                <span key={cat.slug} className="flex items-center gap-2">
-                                    {cat.name}
-                                    {idx < Math.min(movie.category!.slice(0, 3).length - 1, 2) && <span>•</span>}
-                                </span>
-                            ))}
-                        </div>
-                    )}
+                    {movie.category && movie.category.length > 0 && (() => {
+                        const genres = movie.category.slice(0, 3);
+                        const colors = getCategoryColors(genres.map((g) => g.slug));
+                        return (
+                            <div className="text-[11px] font-medium flex flex-wrap gap-x-2 gap-y-1">
+                                {genres.map((cat, idx) => (
+                                    <span key={cat.slug} className="flex items-center gap-2">
+                                        <span
+                                            className={`text-md ${colors[idx]} hover:translate-x-1 transition-all duration-150 whitespace-nowrap block`}
+                                        >
+                                            {cat.name}
+                                        </span>
+                                        {idx < Math.min(movie.category!.slice(0, 3).length - 1, 2) && <span className="text-white/60">•</span>}
+                                    </span>
+                                ))}
+                            </div>
+                        );
+                    })()}
                 </div>
             </div>
         </div>

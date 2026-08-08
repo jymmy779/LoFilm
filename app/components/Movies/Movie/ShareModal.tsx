@@ -118,8 +118,8 @@ export default function ShareModal({ isOpen, onClose, movieName, shareUrl }: Sha
                     {/* Header */}
                     <div className="flex items-center justify-between mb-4 md:mb-5">
                         <div className="flex items-center gap-2.5 md:gap-3">
-                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-blue-500/10 flex items-center justify-center border border-blue-500/20 shrink-0">
-                                <Share2 className="text-blue-500 w-4 h-4 md:w-5 md:h-5" />
+                            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-[#D497FF]/10 flex items-center justify-center border border-[#D497FF]/20 shrink-0">
+                                <Share2 className="text-[#D497FF] w-4 h-4 md:w-5 md:h-5" />
                             </div>
                             <div>
                                 <h3 className="text-base md:text-lg lg:text-xl font-bold text-white uppercase tracking-wider">Chia sẻ phim</h3>
@@ -136,7 +136,7 @@ export default function ShareModal({ isOpen, onClose, movieName, shareUrl }: Sha
 
                     <div className="space-y-6">
                         <p className="text-white/70 text-sm mb-2 md:mb-4">
-                            Bạn đang chia sẻ phim: <span className="text-amber-400 font-semibold">{movieName}</span>
+                            Bạn đang chia sẻ phim: <span className="text-[#D497FF] font-semibold">{movieName}</span>
                         </p>
 
                         <label className="block text-white text-[13px] md:text-sm font-medium mb-2.5 md:mb-3">Mạng xã hội:</label>
@@ -199,7 +199,7 @@ export default function ShareModal({ isOpen, onClose, movieName, shareUrl }: Sha
                                 />
                                 <button 
                                     onClick={handleCopy}
-                                    className="flex items-center gap-1.5 px-3 py-2 md:px-4 md:py-2.5 rounded-lg text-[13px] md:text-sm font-bold transition-all bg-blue-500 hover:bg-blue-600 text-white shrink-0"
+                                    className="flex items-center gap-1.5 px-3 py-2 md:px-4 md:py-2.5 rounded-lg text-[13px] md:text-sm font-bold transition-all bg-[#D497FF] hover:bg-[#D497FF] text-white shrink-0"
                                 >
                                     <Copy className="w-3.5 h-3.5 md:w-4 md:h-4" />
                                     <span>Sao chép</span>
@@ -213,3 +213,4 @@ export default function ShareModal({ isOpen, onClose, movieName, shareUrl }: Sha
         document.body
     );
 }
+

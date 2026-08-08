@@ -59,7 +59,7 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
 
                     {/* Text Info */}
                     <div className="flex-1 min-w-0 flex flex-col gap-1 pt-1.5 md:pt-3 items-center md:items-start text-center md:text-left">
-                        <h4 className="text-[13px] md:text-[15px] font-bold text-white truncate group-hover/link:text-yellow-400 transition-colors drop-shadow-sm mb-0.5">
+                        <h4 className="text-[13px] md:text-[15px] font-bold text-white truncate group-hover/link:text-[#D497FF] transition-colors drop-shadow-sm mb-0.5">
                             {decodeHtml(movie.name)}
                         </h4>
                         <span className="text-[10px] md:text-xs text-white/40 truncate font-medium mb-1.5">
@@ -68,11 +68,11 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
 
                         {/* Badges: year, episode, quality */}
                         <div className="hidden md:flex flex-wrap gap-1.5 items-center">
-                            <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9px] md:text-[10px] text-white/50 font-medium leading-none flex items-center justify-center">
+                            <div className="tag-small px-1.5 py-0.5 bg-[#F5CAE3] rounded text-[9px] md:text-[10px] text-pink-950 font-bold leading-none flex items-center justify-center shadow-sm">
                                 {movie.year || "2024"}
                             </div>
-                            <MovieEpisodeBadge movie={movie} className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9px] md:text-[10px] text-white/50 font-medium leading-none flex items-center justify-center" />
-                            <MovieQualityBadge movie={movie} className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9px] md:text-[10px] text-white/50 font-medium leading-none flex items-center justify-center" />
+                            <MovieEpisodeBadge movie={movie} className="tag-small px-1.5 py-0.5 bg-[#A7F3D0] rounded text-[9px] md:text-[10px] text-emerald-950 font-bold leading-none flex items-center justify-center shadow-sm" />
+                            <MovieQualityBadge movie={movie} className="tag-small px-1.5 py-0.5 bg-[#FAD078] rounded text-[9px] md:text-[10px] text-amber-950 font-bold leading-none flex items-center justify-center shadow-sm" />
                         </div>
                     </div>
                 </div>
@@ -80,3 +80,4 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
         </MoviePreviewWrapper>
     );
 }
+

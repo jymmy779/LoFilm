@@ -132,7 +132,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
         return (
             <TransitionLink
                 href="/dang-nhap"
-                className="flex items-center cursor-pointer gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-gradient-to-r from-[#FED877] to-[#F5A623] text-[#0F1115] font-bold hover:-translate-y-0.5 active:scale-95 transition-all duration-300 whitespace-nowrap shrink-0 overflow-hidden relative group/btn"
+                className="flex items-center cursor-pointer gap-2 px-4 md:px-6 py-2 md:py-2.5 rounded-full bg-[#D497FF] text-white font-bold hover:-translate-y-0.5 active:scale-95 transition-all duration-300 whitespace-nowrap shrink-0 overflow-hidden relative group/btn"
             >
                 <div className="absolute inset-0 bg-white/20 translate-x-[-100%] group-hover/btn:translate-x-[100%] transition-transform duration-700 skew-x-[-20deg]" />
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512" width="14" height="14" fill="currentColor" className="relative z-10">
@@ -174,7 +174,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                             onClick={() => { if (pathname !== "/ca-nhan") { setShowMenu(false); onClick?.(); } }}
                             className="flex items-center justify-center gap-2 px-4 py-2.5 bg-white/5 border border-white/10 rounded-xl text-xs text-white/80 hover:bg-white/10 transition-all font-semibold"
                         >
-                            <User size={14} className="text-amber-400" />
+                            <User size={14} className="text-[#D497FF]" />
                             Cá nhân
                         </TransitionLink>
 
@@ -183,7 +183,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                     <div className="w-full animate-fade-in" style={{ animationDelay: '0.2s' }}>
                         <button
                             onClick={() => setShowPremiumModal(true)}
-                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-amber-500/20 to-amber-600/20 border border-amber-500/30 rounded-xl text-[11px] text-amber-400 hover:from-amber-500/30 hover:to-amber-600/30 transition-all font-bold cursor-pointer"
+                            className="w-full flex items-center justify-center gap-2 px-4 py-3 bg-gradient-to-r from-fuchsia-500/20 to-purple-600/20 border border-fuchsia-500/30 rounded-xl text-[11px] text-fuchsia-400 hover:from-fuchsia-500/30 hover:to-purple-600/30 transition-all font-bold cursor-pointer"
                         >
                             <Crown size={14} className="animate-pulse" />
                             NÂNG CẤP LOFILM PREMIUM
@@ -254,7 +254,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                             setShowMenu(false);
                             setShowPremiumModal(true);
                         }}
-                        className="mt-2 flex items-center gap-2 px-2.5 py-1.5 bg-amber-500/10 border border-amber-500/20 rounded-lg text-[10px] font-bold text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer w-full"
+                        className="mt-2 flex items-center gap-2 px-2.5 py-1.5 bg-amber-500/10 border border-[#D497FF]/20 rounded-lg text-[10px] font-bold text-amber-400 hover:bg-amber-500/20 transition-all cursor-pointer w-full"
                     >
                         <Crown size={12} className="animate-pulse" />
                         Nâng cấp Premium
@@ -304,3 +304,6 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
         </div>
     );
 }
+
+
+

@@ -189,14 +189,14 @@ export default function TopicsTab({ initialTopics }: { initialTopics?: any[] }) 
                         <div className="flex gap-3">
                             <button
                                 onClick={startAdd}
-                                className="bg-blue-600/10 text-blue-400 border border-blue-500/20 hover:bg-blue-600 hover:text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 text-sm"
+                                className="bg-[#D497FF]/10 text-[#D497FF] border border-[#D497FF]/20 hover:bg-[#D497FF] hover:text-white px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 text-sm"
                             >
                                 <Plus size={16} /> Thêm mới
                             </button>
                             <button
                                 onClick={handleSaveToDb}
                                 disabled={isPending}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2 rounded-lg font-bold transition disabled:opacity-50 flex items-center gap-2 text-sm"
+                                className="bg-[#D497FF] hover:bg-[#D497FF] text-white px-5 py-2 rounded-lg font-bold transition disabled:opacity-50 flex items-center gap-2 text-sm"
                             >
                                 {isPending ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-cloud-arrow-up"></i>}
                                 Lưu cấu hình DB
@@ -219,7 +219,7 @@ export default function TopicsTab({ initialTopics }: { initialTopics?: any[] }) 
                                         key={topic.id}
                                         className={`flex flex-col md:flex-row items-start md:items-center justify-between p-4 rounded-xl border transition gap-4 ${
                                             isCurrentEditing
-                                                ? "bg-blue-600/5 border-blue-500/40"
+                                                ? "bg-[#D497FF]/5 border-[#D497FF]/40"
                                                 : "bg-[#14171c] hover:bg-[#181c24] border-white/5"
                                         }`}
                                     >
@@ -295,7 +295,7 @@ export default function TopicsTab({ initialTopics }: { initialTopics?: any[] }) 
                                             {/* Action Buttons */}
                                             <button
                                                 onClick={() => startEdit(index)}
-                                                className="p-2 bg-blue-500/10 text-blue-400 hover:bg-blue-600 hover:text-white rounded-lg transition"
+                                                className="p-2 bg-[#D497FF]/10 text-[#D497FF] hover:bg-[#D497FF] hover:text-white rounded-lg transition"
                                                 title="Sửa thông tin"
                                             >
                                                 <Edit2 size={15} />
@@ -321,7 +321,7 @@ export default function TopicsTab({ initialTopics }: { initialTopics?: any[] }) 
                 {(isAdding || editingIndex !== null) ? (
                     <div className="bg-[#0F1115] rounded-lg p-6 border border-white/5 sticky top-24">
                         <div className="flex justify-between items-center mb-6">
-                            <h3 className="text-lg font-bold text-blue-400 flex items-center gap-2">
+                            <h3 className="text-lg font-bold text-[#D497FF] flex items-center gap-2">
                                 <Eye size={18} /> {isAdding ? "Thêm Chủ đề mới" : `Sửa Chủ đề: ${topics[editingIndex!].title}`}
                             </h3>
                             <button onClick={cancelForm} className="text-gray-400 hover:text-white p-1 rounded-lg">
@@ -340,7 +340,7 @@ export default function TopicsTab({ initialTopics }: { initialTopics?: any[] }) 
                                     placeholder="Ví dụ: phim-moi, co-trang..."
                                     value={id}
                                     onChange={(e) => setId(e.target.value.toLowerCase().replace(/[^a-z0-9-_]/g, ""))}
-                                    className="w-full bg-[#14171c] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/10 disabled:opacity-50 font-mono text-sm"
+                                    className="w-full bg-[#14171c] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF] border border-white/10 disabled:opacity-50 font-mono text-sm"
                                 />
                                 {isAdding && <p className="text-[10px] text-gray-500 mt-1">Chỉ chứa chữ thường không dấu, số, gạch nối và gạch dưới.</p>}
                             </div>
@@ -354,7 +354,7 @@ export default function TopicsTab({ initialTopics }: { initialTopics?: any[] }) 
                                     placeholder="Ví dụ: Phim Mới, Cổ Trang..."
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
-                                    className="w-full bg-[#14171c] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/10"
+                                    className="w-full bg-[#14171c] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF] border border-white/10"
                                 />
                             </div>
 
@@ -367,7 +367,7 @@ export default function TopicsTab({ initialTopics }: { initialTopics?: any[] }) 
                                     placeholder="Ví dụ: /danh-sach/phim-moi, /the-loai/co-trang..."
                                     value={href}
                                     onChange={(e) => setHref(e.target.value)}
-                                    className="w-full bg-[#14171c] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/10 font-mono text-sm"
+                                    className="w-full bg-[#14171c] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF] border border-white/10 font-mono text-sm"
                                 />
                             </div>
 
@@ -382,7 +382,7 @@ export default function TopicsTab({ initialTopics }: { initialTopics?: any[] }) 
                                             onClick={() => setIcon(preset.value)}
                                             className={`p-2 rounded-lg text-xs font-medium border text-left flex items-center gap-2 transition ${
                                                 icon === preset.value
-                                                    ? "bg-blue-600/10 text-blue-400 border-blue-500/40"
+                                                    ? "bg-[#D497FF]/10 text-[#D497FF] border-[#D497FF]/40"
                                                     : "bg-[#14171c] text-gray-400 border-white/5 hover:bg-[#181c24]"
                                             }`}
                                         >
@@ -399,7 +399,7 @@ export default function TopicsTab({ initialTopics }: { initialTopics?: any[] }) 
                                     placeholder="Tên icon Lucide tùy chỉnh..."
                                     value={icon}
                                     onChange={(e) => setIcon(e.target.value)}
-                                    className="w-full bg-[#14171c] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/10 font-mono text-sm"
+                                    className="w-full bg-[#14171c] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF] border border-white/10 font-mono text-sm"
                                 />
                             </div>
 
@@ -414,7 +414,7 @@ export default function TopicsTab({ initialTopics }: { initialTopics?: any[] }) 
                                             onClick={() => setBgColor(preset.value)}
                                             className={`p-2 rounded-lg text-xs font-medium border text-left flex items-center gap-2 transition ${
                                                 bgColor === preset.value
-                                                    ? "bg-blue-600/10 text-blue-400 border-blue-500/40"
+                                                    ? "bg-[#D497FF]/10 text-[#D497FF] border-[#D497FF]/40"
                                                     : "bg-[#14171c] text-gray-400 border-white/5 hover:bg-[#181c24]"
                                             }`}
                                         >
@@ -429,7 +429,7 @@ export default function TopicsTab({ initialTopics }: { initialTopics?: any[] }) 
                                     placeholder="Class Tailwind Gradient tùy chỉnh..."
                                     value={bgColor}
                                     onChange={(e) => setBgColor(e.target.value)}
-                                    className="w-full bg-[#14171c] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/10 font-mono text-sm"
+                                    className="w-full bg-[#14171c] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF] border border-white/10 font-mono text-sm"
                                 />
                             </div>
 
@@ -442,7 +442,7 @@ export default function TopicsTab({ initialTopics }: { initialTopics?: any[] }) 
                                     placeholder="https://image.tmdb.org/t/p/w500/..."
                                     value={imageUrl}
                                     onChange={(e) => setImageUrl(e.target.value)}
-                                    className="w-full bg-[#14171c] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/10 font-mono text-sm"
+                                    className="w-full bg-[#14171c] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF] border border-white/10 font-mono text-sm"
                                 />
                             </div>
 
@@ -450,7 +450,7 @@ export default function TopicsTab({ initialTopics }: { initialTopics?: any[] }) 
                             <div className="flex gap-3 pt-2">
                                 <button
                                     type="submit"
-                                    className="flex-1 bg-blue-600 hover:bg-blue-700 text-white py-2.5 rounded-lg font-bold transition flex items-center justify-center gap-2"
+                                    className="flex-1 bg-[#D497FF] hover:bg-[#D497FF] text-white py-2.5 rounded-lg font-bold transition flex items-center justify-center gap-2"
                                 >
                                     <Check size={18} /> {isAdding ? "Thêm vào danh sách" : "Cập nhật thay đổi"}
                                 </button>

@@ -3,6 +3,7 @@
 import React, { useState, useEffect, useRef, useMemo, useCallback } from "react";
 
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
+import LoadingSpinner from "@/app/components/UI/Common/LoadingSpinner";
 import { AlertTriangle, RefreshCcw, List, X } from "lucide-react";
 import { useRouter } from "next/navigation";
 
@@ -540,7 +541,7 @@ export default function WatchClient({
             const art = new Artplayer({
                 container: container,
                 url: videoSrc,
-                theme: '#f59e0b',
+                theme: '#D497FF',
                 volume: 1,
                 isLive: false,
                 muted: false,
@@ -960,14 +961,14 @@ export default function WatchClient({
             document.documentElement.classList.remove('fullscreen-scrollbar-fix');
             const orientation = (screen as any).orientation;
             if (orientation && typeof orientation.unlock === 'function') {
-                orientation.unlock();
+                try { orientation.unlock(); } catch(e) {}
             }
         }
         return () => {
             document.documentElement.classList.remove('fullscreen-scrollbar-fix');
             const orientation = (screen as any).orientation;
             if (orientation && typeof orientation.unlock === 'function') {
-                orientation.unlock();
+                try { orientation.unlock(); } catch(e) {}
             }
         };
     }, [isFullscreenActive]);
@@ -1279,12 +1280,7 @@ export default function WatchClient({
                             />
                             {isIframeLoading && (
                                 <div className="absolute inset-0 z-[200] bg-[#0F1115] flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300">
-                                    <div className="relative mb-4 md:mb-6">
-                                        <div className="md:w-16 md:h-16 w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
-                                        <div className="absolute inset-0 flex items-center justify-center">
-                                            <div className="md:w-8 md:h-8 w-6 h-6 border-4 border-white/10 border-b-white/40 rounded-full animate-spin [animation-duration:1.5s] [animation-direction:reverse]" />
-                                        </div>
-                                    </div>
+                                    <LoadingSpinner size="xl" className="mb-4 md:mb-6" />
                                     <div className="transition-all duration-500 delay-100">
                                         <h3 className="text-white text-md md:text-lg lg:text-xl font-bold tracking-tight mb-2">Đang kết nối Server...</h3>
                                         <p className="text-white/40 text-xs md:text-sm">Vui lòng đợi trong giây lát</p>
@@ -1304,7 +1300,7 @@ export default function WatchClient({
                                 <div className="flex items-center gap-2 text-white/70 text-[10px] md:text-[14px] font-medium [text-shadow:1px_1px_2px_rgba(0,0,0,0.9)]">
                                     {movie.origin_name && <span className="hidden sm:inline opacity-60 font-normal truncate max-w-[150px] md:max-w-xs">{movie.origin_name}</span>}
                                     {movie.origin_name && <span className="hidden sm:inline opacity-40">•</span>}
-                                    <span className="text-amber-400/90 [text-shadow:none] font-bold">{currentEpisode.name}</span>
+                                    <span className="text-[#D497FF]/90 [text-shadow:none] font-bold">{currentEpisode.name}</span>
                                 </div>
                             </div>
                         </div>,
@@ -1318,10 +1314,10 @@ export default function WatchClient({
                                 e.stopPropagation();
                                 setShowEpisodeOverlay(true);
                             }}
-                            className={`watch-top-overlay absolute top-3 right-3 md:top-8 md:right-8 z-[110] flex items-center gap-2 md:gap-2.5 bg-black/60 hover:bg-amber-500/20 border border-white/10 hover:border-amber-500/50 py-1.5 md:py-2.5 px-3 md:px-5 rounded-full transition-all duration-300 cursor-pointer group shadow-lg ${!showEpisodeOverlay ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                            className={`watch-top-overlay absolute top-3 right-3 md:top-8 md:right-8 z-[110] flex items-center gap-2 md:gap-2.5 bg-black/60 hover:bg-[#D497FF]/20 border border-white/10 hover:border-[#D497FF]/50 py-1.5 md:py-2.5 px-3 md:px-5 rounded-full transition-all duration-300 cursor-pointer group shadow-lg ${!showEpisodeOverlay ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                         >
-                            <List size={14} className="md:w-5 md:h-5 text-white group-hover:text-amber-400 transition-colors" />
-                            <span className="text-white text-[10px] md:text-[14px] font-bold tracking-wide group-hover:text-amber-500 transition-colors">Danh sách tập</span>
+                            <List size={14} className="md:w-5 md:h-5 text-white group-hover:text-[#D497FF] transition-colors" />
+                            <span className="text-white text-[10px] md:text-[14px] font-bold tracking-wide group-hover:text-[#D497FF] transition-colors">Danh sách tập</span>
                         </button>,
                         portalTarget
                     )}
@@ -1331,12 +1327,7 @@ export default function WatchClient({
                         <div
                             className={`absolute inset-0 z-[200] bg-black/60 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300 ${isChangingEpisode ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                         >
-                            <div className="relative mb-4 md:mb-6">
-                                <div className="md:w-16 md:h-16 w-12 h-12 border-4 border-amber-500/20 border-t-amber-500 rounded-full animate-spin" />
-                                <div className="absolute inset-0 flex items-center justify-center">
-                                    <div className="md:w-8 md:h-8 w-6 h-6 border-4 border-white/10 border-b-white/40 rounded-full animate-spin [animation-duration:1.5s] [animation-direction:reverse]" />
-                                </div>
-                            </div>
+                            <LoadingSpinner size="xl" className="mb-4 md:mb-6" />
                             <div className={`transition-all duration-500 delay-100 ${isChangingEpisode ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
                                 <h3 className="text-white text-md md:text-lg lg:text-xl font-bold tracking-tight mb-2">Đang chuyển tập...</h3>
                                 <p className="text-white/40 text-xs md:text-sm">Vui lòng đợi trong giây lát</p>
@@ -1391,7 +1382,7 @@ export default function WatchClient({
                                                         selectEpisode(epSlug);
                                                     }
                                                 }}
-                                                className={`group flex items-center w-full flex-shrink-0 gap-1.5 lg:gap-3 p-1 sm:p-2 lg:p-3 rounded-md lg:rounded-xl transition-all duration-300 relative overflow-hidden cursor-pointer ${isActive ? 'bg-amber-500/10 border border-amber-500/20' : 'hover:bg-white/5 border border-transparent'}`}
+                                                className={`group flex items-center w-full flex-shrink-0 gap-1.5 lg:gap-3 p-1 sm:p-2 lg:p-3 rounded-md lg:rounded-xl transition-all duration-300 relative overflow-hidden cursor-pointer ${isActive ? 'bg-[#D497FF]/10 border border-[#D497FF]/20' : 'hover:bg-white/5 border border-transparent'}`}
                                             >
                                                 <div className="relative w-12 sm:w-20 lg:w-28 aspect-video rounded sm:rounded-lg overflow-hidden flex-shrink-0 bg-white/5">
                                                     <img
@@ -1400,13 +1391,13 @@ export default function WatchClient({
                                                         className={`object-cover w-full h-full transition-transform duration-500 ${isActive ? 'scale-105' : 'group-hover:scale-110'}`}
                                                     />
                                                     {isActive && (
-                                                        <div className="absolute inset-0 bg-amber-500/20 flex items-center justify-center">
-                                                            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 lg:w-2 lg:h-2 rounded-full bg-amber-500 animate-ping" />
+                                                        <div className="absolute inset-0 bg-[#D497FF]/20 flex items-center justify-center">
+                                                            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 lg:w-2 lg:h-2 rounded-full bg-[#D497FF] animate-ping" />
                                                         </div>
                                                     )}
                                                 </div>
                                                 <div className="flex flex-col gap-0 min-w-0">
-                                                    <h4 className={`text-[9px] sm:text-[11px] lg:text-[13px] font-bold truncate ${isActive ? 'text-amber-500' : 'text-white/80 group-hover:text-white'}`}>
+                                                    <h4 className={`text-[9px] sm:text-[11px] lg:text-[13px] font-bold truncate ${isActive ? 'text-[#D497FF]' : 'text-white/80 group-hover:text-white'}`}>
                                                         {(() => {
                                                             const rawName = ep.name || "";
                                                             const displayName = rawName.replace(/Tập\s*/i, "").trim();

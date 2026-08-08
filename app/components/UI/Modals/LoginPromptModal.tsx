@@ -73,8 +73,8 @@ export default function LoginPromptModal({ isOpen, onClose, onLogin }: LoginProm
             >
                 <div className="flex flex-col items-center text-center">
                     {/* Avatar Icon */}
-                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-amber-400/20 to-amber-600/10 border-2 border-dashed border-amber-400/30 flex items-center justify-center mb-3 md:mb-4">
-                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-amber-400/60">
+                    <div className="w-16 h-16 md:w-20 md:h-20 rounded-full bg-gradient-to-br from-[#D497FF]/20 to-[#B366FF]/10 border-2 border-dashed border-[#D497FF]/30 flex items-center justify-center mb-3 md:mb-4">
+                        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" className="text-[#D497FF]/60">
                             <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
                             <circle cx="12" cy="7" r="4" />
                         </svg>
@@ -96,7 +96,7 @@ export default function LoginPromptModal({ isOpen, onClose, onLogin }: LoginProm
                         </button>
                         <button
                             onClick={handleLogin}
-                            className="flex-1 text-nowrap px-3 md:px-4 py-2.5 md:py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 text-[10px] md:text-xs font-bold text-[#0F1115] transition-all tracking-wider flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer hover:from-amber-300 hover:to-amber-400"
+                            className="flex-1 text-nowrap px-3 md:px-4 py-2.5 md:py-3 rounded-xl bg-gradient-to-r from-[#D497FF] to-[#B366FF] text-[10px] md:text-xs font-bold text-[#0F1115] transition-all tracking-wider flex items-center justify-center gap-1.5 active:scale-95 cursor-pointer hover:from-[#C6ade8] hover:to-[#D497FF]"
                         >
                             <LogIn size={14} />
                             Đăng nhập ngay

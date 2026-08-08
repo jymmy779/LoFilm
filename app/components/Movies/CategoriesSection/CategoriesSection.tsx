@@ -61,7 +61,7 @@ export default function CategoriesSection({ initialTopics }: { initialTopics?: a
         <Container as="section" className="relative z-30 -mt-[90px] md:-mt-[120px] pointer-events-none">
             {/* Header Section */}
             <div className="flex items-center justify-between mb-4 pointer-events-auto">
-                <h2 className="text-xl lg:text-2xl font-bold text-white tracking-tight">Bạn Đang Quan Tâm Gì?</h2>
+                <h2 className="text-xl lg:text-[32px] font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-[#E9D5FF] to-[#D497FF] tracking-tight drop-shadow-sm">Bạn Đang Quan Tâm Gì?</h2>
             </div>
 
             {/* Swiper Slider */}
@@ -146,3 +146,4 @@ export default function CategoriesSection({ initialTopics }: { initialTopics?: a
         </Container>
     );
 }
+

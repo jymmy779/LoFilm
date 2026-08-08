@@ -115,7 +115,7 @@ const SidebarSection = ({ title, apiUrl, type, limit = 10 }: SidebarSectionProps
     return (
         <div className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-5 mb-6">
             <div className="flex items-center gap-2 mb-5 pb-3 border-b border-white/10">
-                <div className="w-1 h-5 bg-[#FFD700] rounded-full" />
+                <div className="w-1 h-5 bg-[#D497FF] rounded-full" />
                 <h3 className="text-sm font-bold uppercase tracking-wider text-white/90">{title}</h3>
             </div>
 
@@ -140,9 +140,9 @@ const SidebarSection = ({ title, apiUrl, type, limit = 10 }: SidebarSectionProps
                                 className="group flex items-center gap-3 hover:bg-white/5 p-1 -m-1 rounded-xl transition-all duration-300"
                             >
                                 {type === 'rank' && (
-                                    <span className={`text-sm font-black w-5 shrink-0 ${index === 0 ? "text-amber-400 scale-125" :
-                                        index === 1 ? "text-slate-300" :
-                                            index === 2 ? "text-orange-400" : "text-white/20"
+                                    <span className={`text-sm font-black w-5 shrink-0 transition-transform ${index === 0 ? "text-amber-400 scale-125 drop-shadow-[0_0_8px_rgba(251,191,36,0.5)]" :
+                                        index === 1 ? "text-slate-300 scale-110 drop-shadow-[0_0_8px_rgba(203,213,225,0.5)]" :
+                                            index === 2 ? "text-amber-600 scale-105 drop-shadow-[0_0_8px_rgba(217,119,6,0.5)]" : "text-white/20"
                                         }`}>
                                         {index + 1}.
                                     </span>
@@ -160,11 +160,11 @@ const SidebarSection = ({ title, apiUrl, type, limit = 10 }: SidebarSectionProps
 
                                 </div>
                                 <div className="flex-grow min-w-0">
-                                    <h4 className="text-[13px] font-bold text-white/90 group-hover:text-amber-400 transition-colors line-clamp-1 leading-tight mb-1">
+                                    <h4 className="text-[13px] font-bold text-white/90 group-hover:text-[#D497FF] transition-colors line-clamp-1 leading-tight mb-1">
                                         {decodeHtml(movie.name)}
                                     </h4>
                                     <div className="flex items-center gap-2 text-[10px] text-white/40 font-medium">
-                                        <span className="flex items-center gap-0.5 text-amber-500/80">
+                                        <span className="flex items-center gap-0.5 text-[#D497FF]/80">
                                             <Star size={10} fill="currentColor" />
                                             {movie.tmdb?.vote_average ? movie.tmdb.vote_average.toFixed(1) : "8.5"}
                                         </span>
@@ -210,3 +210,4 @@ export default function Sidebar({ weeklyLimit = 10, seriesLimit = 5 }: SidebarPr
         </aside>
     );
 }
+

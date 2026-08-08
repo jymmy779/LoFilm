@@ -175,12 +175,15 @@ export default function ReunificationLoader() {
                 }
             `}</style>
 
-            <div className={`reunification-loader ${fadingOut ? 'fade-out' : ''}`}>
+            <div 
+                className={`reunification-loader ${fadingOut ? 'fade-out' : ''}`}
+                style={{ position: 'fixed', inset: 0, backgroundColor: '#0F1115', zIndex: 99999, display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+            >
                 <div className="loader-bg-glow" />
 
                 <div className="loader-center">
                     <div className="flag-badge">
-                        <img src="/images/vn-flag-full.gif" alt="Vietnam Flag" className="w-full h-auto" />
+                        <img src="/images/vn-flag-full.gif" alt="Vietnam Flag" className="w-full h-auto" style={{ maxWidth: '180px', maxHeight: '120px' }} />
                     </div>
                     <div className="lofilm-loader-text !mb-0">
                         LoFilm

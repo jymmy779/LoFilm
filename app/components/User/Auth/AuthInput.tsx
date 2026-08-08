@@ -43,7 +43,7 @@ export default function AuthInput({
         value={value}
         onChange={onChange}
         placeholder={placeholder}
-        className={`w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 md:py-4 pl-12 pr-12 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-xs md:text-sm`}
+        className={`w-full bg-white/5 border border-white/10 rounded-2xl py-3.5 md:py-4 pl-12 pr-12 text-white placeholder:text-white/20 focus:outline-none focus:border-[#D497FF]/50 focus:bg-white/10 transition-all text-xs md:text-sm`}
       />
       {isPassword && (
         <button

@@ -23,11 +23,12 @@ interface MoviePosterRowProps {
     initialMovies?: Movie[];
     sortByYear?: boolean;
     revalidate?: number;
+    titleGradient?: string;
 }
 
 import MoviePosterRowSkeleton from "./MoviePosterRowSkeleton";
 
-function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear = false, revalidate }: MoviePosterRowProps) {
+function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear = false, revalidate, titleGradient = "from-white via-[#E9D5FF] to-[#D497FF]" }: MoviePosterRowProps) {
     const navId = title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
     const { user } = useAuth();
 
@@ -48,13 +49,15 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
     return (
         <Container as="section" className="movie-row-section relative z-30">
             <div className="row-header flex items-center justify-between mb-6">
-                <h2 className="text-[20px] lg:text-[28px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-blue-200 via-blue-100 to-white drop-shadow-sm flex items-center gap-4">
-                    {title}
+                <div className="flex items-center gap-4">
+                    <h2 className={`text-[20px] lg:text-[28px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r ${titleGradient} drop-shadow-sm`}>
+                        {title}
+                    </h2>
                     <TransitionLink
                         href={viewAllLink || "/"}
-                        className="group/more flex items-center justify-center bg-[#0F1115] border border-white/10 rounded-full h-8 w-8 lg:h-10 lg:w-10 transition-all duration-500 hover:border-[#f1c40f]/50 hover:w-[110px] lg:hover:w-[130px] overflow-hidden"
+                        className="group/more flex items-center justify-center bg-[#0F1115] border border-white/10 rounded-full h-8 w-8 lg:h-10 lg:w-10 transition-all duration-500 hover:border-[#D497FF]/50 hover:w-[110px] lg:hover:w-[130px] overflow-hidden hover:shadow-lg hover:shadow-[#D497FF]/20"
                     >
-                        <span className="max-w-0 overflow-hidden whitespace-nowrap text-[#f1c40f] text-[10px] lg:text-xs font-medium transition-all duration-500 group-hover/more:max-w-[80px] group-hover/more:mr-2 leading-none opacity-0 group-hover/more:opacity-100">
+                        <span className="max-w-0 overflow-hidden whitespace-nowrap text-[#D497FF] text-[10px] lg:text-xs font-bold transition-all duration-500 group-hover/more:max-w-[80px] group-hover/more:mr-2 leading-none opacity-0 group-hover/more:opacity-100">
                             Xem thêm
                         </span>
                         <svg
@@ -63,12 +66,12 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
                             width="10"
                             height="10"
                             fill="currentColor"
-                            className="text-[#f1c40f] transform transition-transform duration-300 group-hover/more:translate-x-0.5 flex-shrink-0"
+                            className="text-[#D497FF] transform transition-transform duration-300 group-hover/more:translate-x-0.5 flex-shrink-0"
                         >
                             <path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path>
                         </svg>
                     </TransitionLink>
-                </h2>
+                </div>
             </div>
 
             <div className="row-content">
@@ -129,3 +132,4 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
 }
 
 export default memo(MoviePosterRow);
+

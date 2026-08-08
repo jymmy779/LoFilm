@@ -77,7 +77,7 @@ const PlayerControls = ({
               onClick={() => setShowServers(!showServers)}
               className="flex items-center cursor-pointer gap-2 text-white/80 hover:text-white transition-colors py-1 pl-1 pr-2"
             >
-              <Server size={14} className="text-amber-400" />
+              <Server size={14} className="text-[#D497FF]" />
               <span className="md:text-sm text-xs font-medium">Đổi server</span>
               <ChevronDown size={12} className={`transition-transform duration-300 ${showServers ? 'rotate-180' : ''}`} />
             </button>
@@ -99,11 +99,11 @@ const PlayerControls = ({
                       setShowServers(false);
                     }}
                     className={`w-full flex items-center gap-3 px-3 py-2.5 md:text-sm text-xs rounded-md transition-all text-left cursor-pointer ${isActive
-                      ? "bg-amber-400/10 border border-amber-400/20 text-amber-400"
+                      ? "bg-[#D497FF]/10 border border-[#D497FF]/20 text-[#D497FF]"
                       : "text-white/70 hover:bg-white/10 hover:text-white"
                       }`}
                   >
-                    <Play size={10} fill={isActive ? "currentColor" : "none"} className={isActive ? "text-amber-400" : "text-white/40"} />
+                    <Play size={10} fill={isActive ? "currentColor" : "none"} className={isActive ? "text-[#D497FF]" : "text-white/40"} />
                     <span className="font-medium">{server.server_name}</span>
                   </button>
                 );
@@ -120,7 +120,7 @@ const PlayerControls = ({
           onClick={onToggleAutoNext}
         >
           <span className="md:text-sm text-xs font-medium text-white/80 group-hover:text-white transition-colors">Chuyển tập</span>
-          <div className={`md:w-9 md:h-5 w-7 h-4 rounded-full relative transition-colors duration-300 ${isAutoNext ? 'bg-amber-500' : 'bg-white/20'}`}>
+          <div className={`md:w-9 md:h-5 w-7 h-4 rounded-full relative transition-colors duration-300 ${isAutoNext ? 'bg-[#D497FF]' : 'bg-white/20'}`}>
             <div className={`absolute md:top-1 top-[3px] md:w-3 md:h-3 w-2.5 h-2.5 rounded-full bg-white transition-all duration-300 ${isAutoNext ? 'md:left-5 left-[15px]' : 'md:left-1 left-[3px]'}`} />
           </div>
         </div>
@@ -130,8 +130,8 @@ const PlayerControls = ({
           className="flex items-center gap-3 cursor-pointer group"
           onClick={onToggleTheater}
         >
-          <span className={`md:text-sm text-xs font-medium transition-colors ${isTheaterMode ? "text-amber-400" : "text-white/80 group-hover:text-white"}`}>Rạp phim</span>
-          <div className={`md:w-9 md:h-5 w-7 h-4 rounded-full relative transition-colors duration-300 ${isTheaterMode ? 'bg-amber-500' : 'bg-white/20'}`}>
+          <span className={`md:text-sm text-xs font-medium transition-colors ${isTheaterMode ? "text-[#D497FF]" : "text-white/80 group-hover:text-white"}`}>Rạp phim</span>
+          <div className={`md:w-9 md:h-5 w-7 h-4 rounded-full relative transition-colors duration-300 ${isTheaterMode ? 'bg-[#D497FF]' : 'bg-white/20'}`}>
             <div className={`absolute md:top-1 top-[3px] md:w-3 md:h-3 w-2.5 h-2.5 rounded-full bg-white transition-all duration-300 ${isTheaterMode ? 'md:left-5 left-[15px]' : 'md:left-1 left-[3px]'}`} />
           </div>
         </div>
@@ -141,8 +141,8 @@ const PlayerControls = ({
           onClick={onToggleExpanded}
           className="flex items-center cursor-pointer gap-2 text-white/80 hover:text-white transition-colors group"
         >
-          <Maximize2 className={`w-3 h-3 md:w-3.5 md:h-3.5 transition-colors ${isExpanded ? 'text-amber-400' : 'text-white/60 group-hover:text-amber-400'}`} />
-          <span className={`md:text-sm text-xs font-medium ${isExpanded ? 'text-amber-400' : ''}`}>Mở rộng</span>
+          <Maximize2 className={`w-3 h-3 md:w-3.5 md:h-3.5 transition-colors ${isExpanded ? 'text-[#D497FF]' : 'text-white/60 group-hover:text-[#D497FF]'}`} />
+          <span className={`md:text-sm text-xs font-medium ${isExpanded ? 'text-[#D497FF]' : ''}`}>Mở rộng</span>
         </button>
 
         <button
@@ -165,8 +165,8 @@ const PlayerControls = ({
           className={`
             lg:w-10 lg:h-10 w-8 h-8 flex items-center justify-center rounded-full border transition-all cursor-pointer 
             ${isInWatchlist
-              ? "bg-amber-500 border-amber-500 text-black"
-              : "bg-white/5 border-white/10 text-white/60 hover:text-amber-400 hover:border-amber-400/30"
+              ? "bg-[#D497FF] border-[#D497FF] text-black"
+              : "bg-white/5 border-white/10 text-white/60 hover:text-[#D497FF] hover:border-[#D497FF]/30"
             }
           `}
           title={isInWatchlist ? "Xóa khỏi danh sách xem sau" : "Thêm vào danh sách xem sau"}
@@ -198,7 +198,7 @@ const PlayerControls = ({
           {/* Chia sẻ */}
           <button
             onClick={onShare}
-            className="flex items-center cursor-pointer gap-2 text-white/60 hover:text-blue-400 transition-colors group"
+            className="flex items-center cursor-pointer gap-2 text-white/60 hover:text-[#D497FF] transition-colors group"
           >
             <Share2 size={14} />
             <span className="md:text-sm text-xs font-medium">Chia sẻ</span>

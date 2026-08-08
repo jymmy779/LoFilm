@@ -202,7 +202,7 @@ export default function NewMoviePage() {
                 <div className="flex gap-2 mb-6">
                     <button 
                         onClick={() => setActiveTab('manual')}
-                        className={`px-6 py-2 rounded-lg font-medium transition ${activeTab === 'manual' ? 'bg-blue-600 text-white shadow-lg' : 'bg-[#0F1115] text-gray-400 hover:bg-white/5 border border-white/10'}`}
+                        className={`px-6 py-2 rounded-lg font-medium transition ${activeTab === 'manual' ? 'bg-[#D497FF] text-white shadow-lg' : 'bg-[#0F1115] text-gray-400 hover:bg-white/5 border border-white/10'}`}
                     >
                         Thêm Thủ Công
                     </button>
@@ -220,7 +220,7 @@ export default function NewMoviePage() {
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                             <div>
                                 <label className="text-gray-400 text-sm mb-1.5 block">Loại phim</label>
-                                <select name="type" value={type} onChange={(e) => setType(e.target.value as any)} className="w-full bg-[#0F1115] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <select name="type" value={type} onChange={(e) => setType(e.target.value as any)} className="w-full bg-[#0F1115] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF]">
                                     <option value="single">Phim Lẻ</option>
                                     <option value="series">Phim Bộ</option>
                                 </select>
@@ -230,8 +230,8 @@ export default function NewMoviePage() {
                                     TMDB ID {phimApiStatus === 'found' ? <span className="text-green-400 text-xs font-normal ml-2">(Tùy chọn)</span> : <span className="text-red-400 text-xs font-normal ml-2">(*) Bắt buộc</span>}
                                 </label>
                                 <div className="flex gap-2">
-                                    <input name="tmdb_id" type="text" value={tmdbId} onChange={e => setTmdbId(e.target.value)} required={phimApiStatus !== 'found'} className="w-full bg-[#0F1115] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="Ví dụ: 1139087" />
-                                    <button type="button" onClick={() => handlePreview(tmdbId)} disabled={isChecking} className="bg-blue-600 hover:bg-blue-700 px-5 rounded-lg transition shrink-0 font-medium">
+                                    <input name="tmdb_id" type="text" value={tmdbId} onChange={e => setTmdbId(e.target.value)} required={phimApiStatus !== 'found'} className="w-full bg-[#0F1115] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF]" placeholder="Ví dụ: 1139087" />
+                                    <button type="button" onClick={() => handlePreview(tmdbId)} disabled={isChecking} className="bg-[#D497FF] hover:bg-[#D497FF] px-5 rounded-lg transition shrink-0 font-medium">
                                         {isChecking ? <i className="fa-solid fa-spinner fa-spin"></i> : "Check"}
                                     </button>
                                 </div>
@@ -252,7 +252,7 @@ export default function NewMoviePage() {
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                             <div>
                                 <label className="text-gray-400 text-sm mb-1.5 block">Slug (URL Phim)</label>
-                                <input name="slug" type="text" value={slug} onChange={(e) => setSlug(e.target.value)} required className="w-full bg-[#0F1115] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="ten-phim-viet-lien-khong-dau" />
+                                <input name="slug" type="text" value={slug} onChange={(e) => setSlug(e.target.value)} required className="w-full bg-[#0F1115] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF]" placeholder="ten-phim-viet-lien-khong-dau" />
                                 <div className="h-5 mt-1.5">
                                     {phimApiStatus === 'checking' && <div className="text-gray-400 text-xs flex items-center gap-1"><i className="fa-solid fa-spinner fa-spin"></i> Đang kiểm tra PhimAPI...</div>}
                                     {phimApiStatus === 'found' && <div className="text-green-400 text-xs flex items-center gap-1"><i className="fa-solid fa-check"></i> Đã có trên PhimAPI</div>}
@@ -261,14 +261,14 @@ export default function NewMoviePage() {
                             </div>
                             <div>
                                 <label className="text-gray-400 text-sm mb-1.5 block">Trạng thái</label>
-                                <select name="status" value={status} onChange={(e) => setStatus(e.target.value)} className="w-full bg-[#0F1115] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <select name="status" value={status} onChange={(e) => setStatus(e.target.value)} className="w-full bg-[#0F1115] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF]">
                                     <option value="draft">Bản nháp</option>
                                     <option value="published">Công khai</option>
                                 </select>
                             </div>
                             <div>
                                 <label className="text-gray-400 text-sm mb-1.5 block">Tag ngôn ngữ</label>
-                                <select name="lang_tag" value={langTag} onChange={(e) => setLangTag(e.target.value)} className="w-full bg-[#0F1115] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <select name="lang_tag" value={langTag} onChange={(e) => setLangTag(e.target.value)} className="w-full bg-[#0F1115] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF]">
                                     {subDocquyenManual ? (
                                         <>
                                             <option value="Vietsub Độc Quyền">Vietsub Độc Quyền</option>
@@ -313,7 +313,7 @@ export default function NewMoviePage() {
                         </div>
 
                         {/* Starred UI */}
-                        <div className="bg-[#0F1115]/50 border border-amber-500/30 rounded-xl p-5 md:p-6 mt-2">
+                        <div className="bg-[#0F1115]/50 border border-[#D497FF]/30 rounded-xl p-5 md:p-6 mt-2">
                             <label className="flex items-center gap-3 cursor-pointer group w-fit">
                                 <div className="relative flex items-center justify-center w-6 h-6">
                                     <input 
@@ -321,7 +321,7 @@ export default function NewMoviePage() {
                                         name="is_starred" 
                                         checked={isStarred} 
                                         onChange={(e) => setIsStarred(e.target.checked)} 
-                                        className="appearance-none w-6 h-6 border-2 border-amber-500/50 rounded bg-transparent checked:bg-amber-500 transition-colors peer cursor-pointer" 
+                                        className="appearance-none w-6 h-6 border-2 border-[#D497FF]/50 rounded bg-transparent checked:bg-amber-500 transition-colors peer cursor-pointer" 
                                     />
                                     <i className="fa-solid fa-check absolute text-[#0F1115] text-xs opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"></i>
                                 </div>
@@ -378,13 +378,13 @@ export default function NewMoviePage() {
                                     {(linkType === 'm3u8' || linkType === 'both') && (
                                         <div>
                                             <label className="text-gray-400 text-sm mb-1.5 block">Link M3U8 (Video Streaming - R2/B2)</label>
-                                            <input name="link_m3u8" type="url" className="w-full bg-[#0F1115] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://pub-xxxx.r2.dev/phim-xxx/index.m3u8" />
+                                            <input name="link_m3u8" type="url" className="w-full bg-[#0F1115] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF]" placeholder="https://pub-xxxx.r2.dev/phim-xxx/index.m3u8" />
                                         </div>
                                     )}
                                     {(linkType === 'embed' || linkType === 'both') && (
                                         <div>
                                             <label className="text-gray-400 text-sm mb-1.5 block">Link Embed (Dự phòng - Loadvid)</label>
-                                            <input name="link_embed" type="url" className="w-full bg-[#0F1115] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500" placeholder="https://cdn.loadvid.com/..." />
+                                            <input name="link_embed" type="url" className="w-full bg-[#0F1115] text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF]" placeholder="https://cdn.loadvid.com/..." />
                                         </div>
                                     )}
                                 </div>
@@ -397,7 +397,7 @@ export default function NewMoviePage() {
                                         <textarea
                                             name="subtitle_tracks"
                                             rows={4}
-                                            className="w-full bg-[#0F1115] text-white rounded-lg p-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500 placeholder:text-gray-600"
+                                            className="w-full bg-[#0F1115] text-white rounded-lg p-3 text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#D497FF] placeholder:text-gray-600"
                                             placeholder={`Tiếng Việt|https://r2.../film-vi.vtt\nEnglish|https://r2.../film-en.vtt\n\n(Mỗi dòng: Tên Ngôn ngữ|URL)`}
                                         />
                                         <p className="text-xs text-gray-500 mt-2">⚠️ Subtitle chỉ áp dụng khi xem bằng link M3U8.</p>
@@ -414,14 +414,14 @@ export default function NewMoviePage() {
                         )}
 
                         <div className="flex justify-end mt-4 pt-6 border-t border-white/10">
-                            <button type="submit" disabled={isPending} className="bg-blue-600 hover:bg-blue-700 px-8 py-3 rounded-lg font-medium transition text-white w-full md:w-auto shadow-lg shadow-blue-900/20">
+                            <button type="submit" disabled={isPending} className="bg-[#D497FF] hover:bg-[#D497FF] px-8 py-3 rounded-lg font-medium transition text-white w-full md:w-auto shadow-lg shadow-[#D497FF]/20">
                                 {isPending ? <><i className="fa-solid fa-spinner fa-spin mr-2"></i> Đang lưu...</> : "Lưu Phim Mới"}
                             </button>
                         </div>
                     </form>
                     ) : (
                     <form onSubmit={handleImportSubmit} className="flex flex-col gap-6">
-                        <div className="bg-[#0F1115]/50 border border-blue-500/30 rounded-xl p-5 md:p-6 mb-2">
+                        <div className="bg-[#0F1115]/50 border border-[#D497FF]/30 rounded-xl p-5 md:p-6 mb-2">
                             <h4 className="font-semibold mb-4 text-sm text-gray-300 uppercase tracking-wider">Nhập Link API (OPhim / KKPhim)</h4>
                             <div className="flex flex-col md:flex-row gap-3">
                                 <input 
@@ -429,7 +429,7 @@ export default function NewMoviePage() {
                                     value={importUrl} 
                                     onChange={(e) => setImportUrl(e.target.value)} 
                                     required 
-                                    className="flex-1 bg-[#0F1115] text-white rounded-lg p-3 border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500" 
+                                    className="flex-1 bg-[#0F1115] text-white rounded-lg p-3 border border-white/10 focus:outline-none focus:ring-2 focus:ring-[#D497FF]" 
                                     placeholder="VD: https://ophim1.com/v1/api/phim/san-lung-tho-ngoc" 
                                 />
                                 <button type="button" onClick={handleFetchImport} disabled={isFetchingImport} className="bg-amber-600 hover:bg-amber-700 px-6 py-3 rounded-lg transition font-medium text-white shadow-lg shrink-0">
@@ -471,10 +471,10 @@ export default function NewMoviePage() {
 
                                             {/* Badges */}
                                             <div className="flex flex-wrap gap-2 mb-4">
-                                                <span className="bg-blue-500/20 border border-blue-500/30 text-blue-400 px-2.5 py-0.5 rounded-md text-xs font-semibold">
+                                                <span className="bg-[#D497FF]/20 border border-[#D497FF]/30 text-[#D497FF] px-2.5 py-0.5 rounded-md text-xs font-semibold">
                                                     {importData.data?.item?.quality || importData.movie?.quality || "HD"}
                                                 </span>
-                                                <span className="bg-amber-500/20 border border-amber-500/30 text-amber-400 px-2.5 py-0.5 rounded-md text-xs font-semibold">
+                                                <span className="bg-amber-500/20 border border-[#D497FF]/30 text-amber-400 px-2.5 py-0.5 rounded-md text-xs font-semibold">
                                                     {importData.data?.item?.lang || importData.movie?.lang || "Vietsub"}
                                                 </span>
                                                 <span className="bg-purple-500/20 border border-purple-500/30 text-purple-400 px-2.5 py-0.5 rounded-md text-xs font-semibold">
@@ -531,7 +531,7 @@ export default function NewMoviePage() {
                                                 {(importData.data?.item?.trailer_url || importData.movie?.trailer_url) && (
                                                     <div className="md:col-span-2">
                                                         <span className="text-gray-400 font-medium">Trailer: </span>
-                                                        <a href={importData.data?.item?.trailer_url || importData.movie?.trailer_url} target="_blank" rel="noreferrer" className="text-blue-400 hover:underline">
+                                                        <a href={importData.data?.item?.trailer_url || importData.movie?.trailer_url} target="_blank" rel="noreferrer" className="text-[#D497FF] hover:underline">
                                                             {importData.data?.item?.trailer_url || importData.movie?.trailer_url}
                                                         </a>
                                                     </div>
@@ -549,7 +549,7 @@ export default function NewMoviePage() {
                                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-2">
                                     <div>
                                         <label className="text-gray-400 text-sm mb-1.5 block">Trạng thái sau khi Import</label>
-                                        <select name="status" className="w-full bg-[#0F1115] text-white rounded-lg p-3 border border-white/10 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                        <select name="status" className="w-full bg-[#0F1115] text-white rounded-lg p-3 border border-white/10 focus:outline-none focus:ring-2 focus:ring-[#D497FF]">
                                             <option value="published">Công khai (Hiển thị ngay)</option>
                                             <option value="draft">Bản nháp (Ẩn)</option>
                                         </select>
@@ -571,13 +571,13 @@ export default function NewMoviePage() {
                                             </div>
                                         </label>
                                     </div>
-                                    <div className="bg-[#0F1115]/50 border border-amber-500/30 rounded-xl p-4 flex flex-col justify-center">
+                                    <div className="bg-[#0F1115]/50 border border-[#D497FF]/30 rounded-xl p-4 flex flex-col justify-center">
                                         <label className="flex items-center gap-3 cursor-pointer group">
                                             <div className="relative flex items-center justify-center w-5 h-5 shrink-0">
                                                 <input 
                                                     type="checkbox" 
                                                     name="is_starred" 
-                                                    className="appearance-none w-5 h-5 border-2 border-amber-500/50 rounded bg-transparent checked:bg-amber-500 transition-colors peer cursor-pointer" 
+                                                    className="appearance-none w-5 h-5 border-2 border-[#D497FF]/50 rounded bg-transparent checked:bg-amber-500 transition-colors peer cursor-pointer" 
                                                 />
                                                 <i className="fa-solid fa-check absolute text-[#0F1115] text-[10px] opacity-0 peer-checked:opacity-100 transition-opacity pointer-events-none"></i>
                                             </div>

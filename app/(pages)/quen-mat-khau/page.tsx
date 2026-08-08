@@ -47,8 +47,8 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-[#0F1115] px-4">
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-amber-500/5 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-blue-500/5 rounded-full blur-[100px]" />
+        <div className="absolute top-[20%] left-[10%] w-[30vw] h-[30vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-500/10 to-transparent rounded-full opacity-60 pointer-events-none" />
+        <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#D497FF]/10 to-transparent rounded-full opacity-60 pointer-events-none" />
       </div>
 
       <div className="w-full max-w-md bg-[#0F1115]/60 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl animate-fade-in relative z-10">
@@ -68,7 +68,7 @@ export default function ForgotPasswordPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="Email đăng ký"
-              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-amber-400/50 focus:bg-white/10 transition-all text-sm"
+              className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 pl-12 pr-4 text-white placeholder:text-white/20 focus:outline-none focus:border-[#D497FF]/50 focus:bg-white/10 transition-all text-sm"
             />
           </div>
 

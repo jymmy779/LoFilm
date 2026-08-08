@@ -177,7 +177,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
 
     return (
         <div ref={containerRef} className="relative w-full md:w-auto">
-            <div className={`flex items-center gap-2 2xl:gap-3 px-4 2xl:px-5 py-2 2xl:py-2.5 rounded-full border border-white/10 bg-white/5 w-full md:w-[220px] xl:w-[240px] 2xl:w-[270px] focus-within:md:w-[260px] focus-within:xl:w-[280px] focus-within:2xl:w-[320px] focus-within:border-[#f5a623]/50 focus-within:bg-white/10 transition-all duration-500 ease-out ${showResults ? 'md:w-[260px] xl:w-[280px] 2xl:w-[320px] border-[#f5a623]/50 bg-white/10' : ''}`}>
+            <div className={`flex items-center gap-2 2xl:gap-3 px-4 2xl:px-5 py-2 2xl:py-2.5 rounded-full border border-white/10 bg-white/5 w-full md:w-[220px] xl:w-[240px] 2xl:w-[270px] focus-within:md:w-[260px] focus-within:xl:w-[280px] focus-within:2xl:w-[320px] focus-within:border-[#D497FF]/50 focus-within:bg-white/10 transition-all duration-500 ease-out ${showResults ? 'md:w-[260px] xl:w-[280px] 2xl:w-[320px] border-[#D497FF]/50 bg-white/10' : ''}`}>
                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="16" height="16" fill="currentColor" className="shrink-0 text-white/30">
                     <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z" />
                 </svg>
@@ -235,8 +235,8 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                     }`}
             >
                 <div className="p-3 md:p-4">
-                    <div className="text-[9.5px] md:text-[10px] font-bold uppercase tracking-widest text-[#f5a623] mb-3 md:mb-4 flex items-center gap-1.5 md:gap-2">
-                        <span className="w-1 h-2.5 md:h-3 bg-[#f5a623] rounded-full" />
+                    <div className="text-[9.5px] md:text-[10px] font-bold uppercase tracking-widest text-[#D497FF] mb-3 md:mb-4 flex items-center gap-1.5 md:gap-2">
+                        <span className="w-1 h-2.5 md:h-3 bg-[#D497FF] rounded-full" />
                         Kết quả tìm kiếm
                     </div>
 
@@ -246,7 +246,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                                 <div key={movie._id}>
                                     <TransitionLink
                                         href={`/phim/${movie.slug}`}
-                                        className={`group flex gap-2.5 md:gap-3 p-1.5 md:p-2 rounded-xl transition-all duration-300 ${activeIndex === index ? 'bg-white/10 ring-1 ring-[#f5a623]/30' : 'hover:bg-white/5'}`}
+                                        className={`group flex gap-2.5 md:gap-3 p-1.5 md:p-2 rounded-xl transition-all duration-300 ${activeIndex === index ? 'bg-white/10 ring-1 ring-[#D497FF]/30' : 'hover:bg-white/5'}`}
                                         onMouseEnter={() => setActiveIndex(index)}
                                     >
                                         <div className="w-10 h-14 md:w-12 md:h-16 shrink-0 rounded-lg overflow-hidden relative border border-white/5 bg-white/5">
@@ -262,7 +262,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                                             />
                                         </div>
                                         <div className="flex flex-col justify-center min-w-0">
-                                            <h4 className={`text-[12px] md:text-[13px] font-bold transition-colors truncate leading-tight ${activeIndex === index ? 'text-[#f5a623]' : 'text-white/90 group-hover:text-[#f5a623]'}`}>
+                                            <h4 className={`text-[12px] md:text-[13px] font-bold transition-colors truncate leading-tight ${activeIndex === index ? 'text-[#D497FF]' : 'text-white/90 group-hover:text-[#D497FF]'}`}>
                                                 {movie.name}
                                             </h4>
                                             <p className="text-[10px] md:text-[11px] text-white/40 truncate mt-0.5">
@@ -272,7 +272,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                                                 <span className="text-[8px] md:text-[9px] px-1 md:px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-white/60 font-medium tracking-wide">
                                                     {movie.year || '2025'}
                                                 </span>
-                                                <span className="text-[8px] md:text-[9px] px-1 md:px-1.5 py-0.5 rounded bg-amber-500/10 border border-amber-500/20 text-amber-500/80 font-bold uppercase">
+                                                <span className="text-[8px] md:text-[9px] px-1 md:px-1.5 py-0.5 rounded bg-pink-500/10 border border-pink-500/20 text-pink-400 font-bold uppercase">
                                                     {movie.quality || 'FHD'}
                                                 </span>
                                                 <span className="text-[8px] md:text-[9px] px-1 md:px-1.5 py-0.5 rounded bg-white/5 border border-white/10 text-white/60 font-medium">
@@ -294,7 +294,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                             setIsFocused(false);
                             setShowResults(false);
                         }}
-                        className="w-full py-2.5 md:py-3 bg-white/5 hover:bg-amber-500 hover:text-black transition-all duration-300 cursor-pointer text-[13px] md:text-[14px] font-medium text-[#f5a623] border-t border-white/5 block text-center"
+                        className="w-full py-2.5 md:py-3 bg-white/5 hover:bg-gradient-to-r hover:from-[#D497FF] hover:to-[#D497FF] hover:text-white transition-all duration-300 cursor-pointer text-[13px] md:text-[14px] font-medium text-[#D497FF] border-t border-white/5 block text-center"
                     >
                         Xem tất cả kết quả
                     </TransitionLink>
@@ -305,3 +305,4 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
 }
 
 export default memo(SearchBox);
+

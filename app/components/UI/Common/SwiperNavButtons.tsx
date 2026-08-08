@@ -21,7 +21,7 @@ export default function SwiperNavButtons({ prevClassName, nextClassName, variant
     const variantStyles = isGhost
         ? ""
         : isAmber 
-            ? "bg-white text-black hover:bg-amber-400" 
+            ? "bg-white text-black hover:bg-[#D497FF]" 
             : "bg-white text-black hover:bg-gray-100";
 
     const sizeStyles = isGhost 

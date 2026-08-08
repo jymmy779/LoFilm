@@ -52,9 +52,9 @@ export default function CommonModal({
         };
       case "info":
         return {
-          iconBg: "bg-blue-500/10",
-          iconColor: "text-blue-500",
-          confirmBg: "bg-blue-500 hover:bg-blue-600",
+          iconBg: "bg-[#D497FF]/10",
+          iconColor: "text-[#D497FF]",
+          confirmBg: "bg-[#D497FF] hover:bg-[#D497FF]",
         };
       case "success":
         return {

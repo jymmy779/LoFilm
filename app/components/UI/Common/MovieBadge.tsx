@@ -40,9 +40,9 @@ export function MovieExclusiveBadge({ movie, className = "" }: MovieBadgeProps) 
 
     const getExclusiveBadgeStyle = (tag: string) => {
         if (tag?.includes("Song Ngữ")) return "bg-fuchsia-600/90 border-fuchsia-500/30";
-        if (tag?.includes("Thuyết Minh")) return "bg-blue-600/90 border-blue-500/30";
+        if (tag?.includes("Thuyết Minh")) return "bg-[#D497FF]/90 border-[#D497FF]/30";
         if (tag?.includes("Lồng Tiếng")) return "bg-emerald-600/90 border-emerald-500/30";
-        if (tag?.includes("RAW")) return "bg-orange-600/90 border-orange-500/30";
+        if (tag?.includes("RAW")) return "bg-orange-600/90 border-[#D497FF]/30";
         return "bg-red-600/90 border-red-500/30"; // Mặc định Vietsub là Đỏ
     };
 

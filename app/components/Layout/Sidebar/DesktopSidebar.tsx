@@ -45,8 +45,8 @@ export default function DesktopSidebar() {
 
                     const content = (
                         <div className="relative w-[84px] py-4 flex items-center justify-center z-10 cursor-pointer">
-                            <div className={`absolute inset-0 bg-amber-400/10 rounded-2xl z-[-1] transition-all duration-300 ease-out ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`} />
-                            <div className={`flex flex-col items-center gap-1.5 transition-colors ${isActive ? "text-amber-400" : "text-white/50 group-hover:text-white"}`}>
+                            <div className={`absolute inset-0 bg-gradient-to-tr from-[#D497FF]/20 to-[#D497FF]/20 rounded-2xl z-[-1] transition-all duration-300 ease-out ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`} />
+                            <div className={`flex flex-col items-center gap-1.5 transition-colors ${isActive ? "text-[#D497FF]" : "text-white/50 group-hover:text-white"}`}>
                                 <Icon size={26} strokeWidth={isActive ? 2.5 : 1.5} className={`mb-0.5 transition-transform duration-300 ${isActive ? 'scale-110 -translate-y-0.5' : 'scale-100'}`} />
                                 <span className={`text-[11px] font-medium tracking-wide text-center leading-tight transition-all duration-300 ${isActive ? 'translate-y-0.5' : ''}`}>
                                     {item.label}
@@ -80,3 +80,4 @@ export default function DesktopSidebar() {
         </aside>
     );
 }
+

@@ -98,7 +98,7 @@ export default function FavoriteList() {
                             </TransitionLink>
                             <TransitionLink
                                 href={`/phim/${movie.slug}`}
-                                className="text-xs sm:text-sm font-medium text-white/80 hover:text-amber-400 transition-colors line-clamp-1 cursor-pointer"
+                                className="text-xs sm:text-sm font-medium text-white/80 hover:text-[#D497FF] transition-colors line-clamp-1 cursor-pointer"
                             >
                                 {movie.title}
                             </TransitionLink>
@@ -111,7 +111,7 @@ export default function FavoriteList() {
 
             <button
                 onClick={() => setIsOpen(true)}
-                className="mt-auto pt-4 sm:pt-6 text-[11px] cursor-pointer text-left text-white/30 hover:text-amber-400 transition-colors font-medium block border-none bg-transparent"
+                className="mt-auto pt-4 sm:pt-6 text-[11px] cursor-pointer text-left text-white/30 hover:text-[#D497FF] transition-colors font-medium block border-none bg-transparent"
             >
                 Xem thêm
             </button>
@@ -206,7 +206,7 @@ export default function FavoriteList() {
                                         <TransitionLink
                                             href={`/phim/${movie.slug}`}
                                             onClick={() => setIsOpen(false)}
-                                            className="text-[10px] sm:text-xs md:text-sm font-semibold text-white/80 hover:text-amber-400 transition-colors line-clamp-1 flex-1 leading-snug cursor-pointer"
+                                            className="text-[10px] sm:text-xs md:text-sm font-semibold text-white/80 hover:text-[#D497FF] transition-colors line-clamp-1 flex-1 leading-snug cursor-pointer"
                                         >
                                             {movie.title}
                                         </TransitionLink>
@@ -221,3 +221,4 @@ export default function FavoriteList() {
         </div>
     );
 }
+

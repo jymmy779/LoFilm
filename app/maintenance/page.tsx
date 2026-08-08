@@ -43,7 +43,7 @@ export default function MaintenancePage() {
     <div className="fixed inset-0 z-[9999] bg-[#0f1115] w-full h-[100dvh] flex items-center justify-center overflow-hidden touch-none">
       {/* Background Cinematic Effects */}
       <div className="absolute inset-0 z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-blue-600/20 rounded-full blur-[120px]" />
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#D497FF]/20 rounded-full blur-[120px]" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-red-600/10 rounded-full blur-[120px]" />
       </div>
 
@@ -56,16 +56,16 @@ export default function MaintenancePage() {
             className="p-6 md:p-8 rounded-2xl md:rounded-3xl bg-white/5 border border-white/10 backdrop-blur-2xl shadow-2xl relative overflow-hidden animate-pulse"
           >
             {/* Glow overlay */}
-            <div className="absolute inset-0 bg-gradient-to-br from-blue-500/10 to-transparent pointer-events-none" />
-            <Hammer className="w-12 h-12 md:w-16 md:h-16 text-blue-500 mb-2 relative z-10" />
+            <div className="absolute inset-0 bg-gradient-to-br from-[#D497FF]/10 to-transparent pointer-events-none" />
+            <Hammer className="w-12 h-12 md:w-16 md:h-16 text-[#D497FF] mb-2 relative z-10" />
             <div className="text-white/40 font-bold text-[10px] md:text-xs uppercase tracking-[0.3em]">Under Maintenance</div>
           </div>
 
           {/* Floating extra elements */}
           <div
-            className="absolute -top-2 -right-1 md:-top-4 md:-right-2 p-2 md:p-3 rounded-full bg-blue-600/20 backdrop-blur-md border border-blue-500/30 animate-bounce"
+            className="absolute -top-2 -right-1 md:-top-4 md:-right-2 p-2 md:p-3 rounded-full bg-[#D497FF]/20 backdrop-blur-md border border-[#D497FF]/30 animate-bounce"
           >
-            <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-blue-400" />
+            <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-[#D497FF]" />
           </div>
 
           <div
@@ -79,7 +79,7 @@ export default function MaintenancePage() {
         {/* Text Content */}
         <div className="space-y-4 md:space-y-6">
           <h1 className="text-3xl whitespace-nowrap sm:text-4xl md:text-5xl font-bold tracking-tight text-white mb-2 md:mb-4 px-4">
-            Website Đang <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-blue-600">Bảo Trì</span>{dots}
+            Website Đang <span className="text-transparent bg-clip-text bg-gradient-to-r from-[#D497FF] to-[#D497FF]">Bảo Trì</span>{dots}
           </h1>
 
           <p className="text-base md:text-lg lg:text-xl text-white/60 leading-relaxed max-w-sm md:max-w-md mx-auto px-4">
@@ -89,7 +89,7 @@ export default function MaintenancePage() {
 
           <div className="pt-6 md:pt-8 flex flex-col items-center gap-4">
             <div className="flex items-center gap-2 md:gap-3 px-5 py-2.5 md:px-6 md:py-3 rounded-full bg-white/5 border border-white/10 text-white/70 text-xs md:text-sm">
-              <span className="flex h-2 w-2 rounded-full bg-blue-500 animate-pulse" />
+              <span className="flex h-2 w-2 rounded-full bg-[#D497FF] animate-pulse" />
               Dự kiến sẽ quay lại sớm nhất có thể
             </div>
 

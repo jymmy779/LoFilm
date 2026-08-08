@@ -27,7 +27,7 @@ export default function WatchlistTab({ watchlist, isWatchlistLoading, onDeleteIt
           {watchlist.length > 0 && (
             <button
               onClick={onClearAll}
-              className="text-[10px] font-medium text-white/20 hover:text-amber-400 tracking-widest transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/5 hover:border-amber-400/20 text-nowrap active:scale-95 cursor-pointer"
+              className="text-[10px] font-medium text-white/20 hover:text-amber-400 tracking-widest transition-colors flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-white/5 hover:border-[#D497FF]/20 text-nowrap active:scale-95 cursor-pointer"
             >
               <Trash2 size={12} />
               Xóa tất cả

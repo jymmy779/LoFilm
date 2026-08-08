@@ -22,6 +22,7 @@ interface TopMovieRowProps {
     apiUrl: string;
     viewAllLink: string;
     initialMovies?: Movie[];
+    titleGradient?: string;
 }
 
 // Sawtooth clip-path constants (hoisted outside)
@@ -30,7 +31,7 @@ const CLIP_PATH_ODD = 'polygon(0 0, calc(100% - 16px) 5%, calc(100% - 9.9px) cal
 
 import TopMovieRowSkeleton from "./TopMovieRowSkeleton";
 
-function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowProps) {
+function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies, titleGradient = "from-white via-[#E9D5FF] to-[#D497FF]" }: TopMovieRowProps) {
     const seeded = !!(initialMovies && initialMovies.length > 0);
     const [movies, setMovies] = useState<Movie[]>(() => initialMovies ?? []);
     const [isLoading, setIsLoading] = useState(!seeded);
@@ -86,7 +87,7 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
     return (
         <Container as="section" className="top-movie-row-section relative z-30">
             <div className="row-header flex items-center justify-between mb-8">
-                <h2 className="text-[22px] lg:text-[32px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-yellow-200 via-orange-100 to-white drop-shadow-sm flex items-center gap-4">
+                <h2 className={`text-[22px] lg:text-[32px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r ${titleGradient} drop-shadow-sm flex items-center gap-4`}>
                     {title}
                 </h2>
             </div>
@@ -147,7 +148,7 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
 
                                         {/* Play Icon Highlight */}
                                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 bg-black/30 z-10">
-                                            <div className="w-10 h-10 rounded-full bg-[#f5a623] text-[#0F1115] flex items-center justify-center shadow-lg transform scale-90 group-hover/item:scale-100 transition-transform duration-300">
+                                            <div className="w-10 h-10 rounded-full bg-[#D497FF] text-white flex items-center justify-center shadow-lg shadow-[#D497FF]/50 transform scale-90 group-hover/item:scale-100 transition-transform duration-300">
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 ml-0.5">
                                                     <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.54-2.33 2.77-1.613l11.74 6.813a1.614 1.614 0 010 2.825L7.27 20.493c-1.23.717-2.77-.187-2.77-1.613V5.653z" clipRule="evenodd" />
                                                 </svg>
@@ -158,13 +159,13 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
 
                                         {/* Glassmorphism Badges */}
                                         <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center flex-wrap gap-1 px-2 z-20 translate-y-1 group-hover/item:translate-y-0 transition-transform duration-300 transform-gpu">
-                                            <div className="h-5 px-1.5 bg-gray-500 rounded-md text-white text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
+                                            <div className="h-5 px-1.5 bg-[#FAD078] rounded-md text-amber-950 shadow-sm text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
                                                 {movie.quality || "HD"}
                                             </div>
-                                            <div className="h-5 px-1.5 bg-green-600 rounded-md text-white text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
+                                            <div className="h-5 px-1.5 bg-[#C084FC] rounded-md text-purple-950 shadow-sm text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
                                                 {(movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
                                             </div>
-                                            <div className="h-5 px-1.5 bg-amber-600 rounded-md text-white text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
+                                            <div className="h-5 px-1.5 bg-[#A7F3D0] rounded-md text-emerald-950 shadow-sm text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
                                                 {getEpisodeStatus(movie)}
                                             </div>
                                         </div>
@@ -174,17 +175,18 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
                                     <div className="flex gap-2 items-center pr-2">
                                         <div className="ranking-number md:text-4xl text-3xl lg:text-5xl font-black italic select-none drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] flex-shrink-0 w-6 md:w-8 lg:w-10 flex items-center justify-start"
                                             style={{
-                                                color: '#FED877',
-                                                backgroundImage: 'linear-gradient(135deg, #FFEFBA 0%, #FED877 100%)',
+                                                color: '#D497FF',
+                                                backgroundImage: 'linear-gradient(135deg, #FFFFFF 0%, #E9D5FF 45%, #D497FF 100%)',
                                                 WebkitBackgroundClip: 'text',
                                                 WebkitTextFillColor: 'transparent',
+                                                opacity: 1
                                             }}>
                                             {index + 1}
                                         </div>
                                         <div className="flex flex-col flex-nowrap gap-1.5 min-w-0">
                                             <TransitionLink
                                                 href={`/phim/${movie.slug}`}
-                                                className="text-white text-sm md:text-base leading-tight hover:text-[#FED877] transition-colors line-clamp-1 lg:font-bold cursor-pointer"
+                                                className="text-white text-sm md:text-base leading-tight hover:text-[#D497FF] transition-colors line-clamp-1 lg:font-bold cursor-pointer"
                                             >
                                                 {decodeHtml(movie.name)}
                                             </TransitionLink>
@@ -256,3 +258,4 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies }: TopMovieRowP
 }
 
 export default memo(TopMovieRow);
+

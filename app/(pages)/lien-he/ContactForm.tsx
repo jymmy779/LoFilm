@@ -74,7 +74,7 @@ export default function ContactForm() {
                             onChange={handleChange}
                             required
                             placeholder="Nguyễn Văn A"
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-xs md:text-sm text-white placeholder:text-white/10 focus:outline-none focus:border-amber-400/30 transition-all font-medium"
+                            className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-xs md:text-sm text-white placeholder:text-white/10 focus:outline-none focus:border-[#D497FF]/30 transition-all font-medium"
                         />
                     </div>
                     <div className="space-y-1.5 md:space-y-2">
@@ -86,7 +86,7 @@ export default function ContactForm() {
                             onChange={handleChange}
                             required
                             placeholder="example@gmail.com"
-                            className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-xs md:text-sm text-white placeholder:text-white/10 focus:outline-none focus:border-amber-400/30 transition-all font-medium"
+                            className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-xs md:text-sm text-white placeholder:text-white/10 focus:outline-none focus:border-[#D497FF]/30 transition-all font-medium"
                         />
                     </div>
                 </div>
@@ -97,7 +97,7 @@ export default function ContactForm() {
                         name="subject"
                         value={formData.subject}
                         onChange={handleChange}
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-xs md:text-sm text-white focus:outline-none focus:border-amber-400/30 transition-all appearance-none cursor-pointer"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-xs md:text-sm text-white focus:outline-none focus:border-[#D497FF]/30 transition-all appearance-none cursor-pointer"
                     >
                         <option value="Báo lỗi phim" className="bg-[#0F1115]">Báo lỗi phim</option>
                         <option value="Yêu cầu phim mới" className="bg-[#0F1115]">Yêu cầu phim mới</option>
@@ -115,7 +115,7 @@ export default function ContactForm() {
                         required
                         rows={4}
                         placeholder="Hãy cho chúng tôi biết bạn đang nghĩ gì..."
-                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-xs md:text-sm text-white placeholder:text-white/10 focus:outline-none focus:border-amber-400/30 transition-all resize-none font-medium"
+                        className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-5 text-xs md:text-sm text-white placeholder:text-white/10 focus:outline-none focus:border-[#D497FF]/30 transition-all resize-none font-medium"
                     ></textarea>
                 </div>
 

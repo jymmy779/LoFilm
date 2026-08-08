@@ -94,7 +94,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
             <div className="flex flex-col items-center ">
                 <div className="flex items-center gap-6 mb-6">
                     <button className="flex flex-col items-center gap-2 group cursor-pointer">
-                        <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-amber-400 group-hover:bg-amber-400 group-hover:text-[#0F1115] transition-all">
+                        <div className="w-12 h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-[#f5c518] group-hover:bg-[#f5c518] group-hover:text-[#0F1115] transition-all">
                             <Star size={20} fill="currentColor" />
                         </div>
                         <span className="text-[12px] text-white/60 font-medium">Đánh giá</span>
@@ -125,7 +125,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                                     <span className="text-sm">{item.icon}</span>
                                     <span className="text-white/60">{item.name}</span>
                                 </div>
-                                <span className="text-amber-400">{item.percent}%</span>
+                                <span className="text-[#D497FF]">{item.percent}%</span>
                             </div>
                             <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden relative border border-white/5">
                                 <div
@@ -152,7 +152,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                                         <span className="text-sm">{item.icon}</span>
                                         <span className="text-white/60">{item.name}</span>
                                     </div>
-                                    <span className="text-amber-400">{item.percent}%</span>
+                                    <span className="text-[#D497FF]">{item.percent}%</span>
                                 </div>
                                 <div className="h-1.5 w-full bg-white/10 rounded-full overflow-hidden relative border border-white/5">
                                     <div
@@ -187,7 +187,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                     {tmdbActors.length > 0 ? (
                         tmdbActors.map((actor, idx) => (
                             <div key={idx} className="flex flex-col items-center gap-2 group cursor-pointer relative">
-                                <div className="w-16 h-16 rounded-full bg-white/5 border border-white/5 group-hover:border-amber-400 flex items-center justify-center overflow-hidden transition-all relative">
+                                <div className="w-16 h-16 rounded-full bg-white/5 border border-white/5 group-hover:border-[#D497FF] flex items-center justify-center overflow-hidden transition-all relative">
                                     {actor.profile_path ? (
                                         <SmartImage
                                             r2Src={getR2ActorUrl(actor.id)}
@@ -202,7 +202,7 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                                         <User size={20} className="text-white/20 group-hover:text-white/40 transition-colors" />
                                     )}
                                 </div>
-                                <span className="text-[10px] text-white/60 group-hover:text-amber-400 text-center leading-tight truncate w-full transition-colors font-medium">
+                                <span className="text-[10px] text-white/60 group-hover:text-[#D497FF] text-center leading-tight truncate w-full transition-colors font-medium">
                                     {actor.name}
                                 </span>
                             </div>
@@ -249,11 +249,11 @@ const Sidebar = ({ movie, suggestedMovies = [] }: SidebarProps) => {
                                 <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
                             </div>
                             <div className="flex flex-col justify-center min-w-0">
-                                <h4 className="text-[13px] font-bold text-white line-clamp-1 group-hover:text-amber-400 transition-colors mb-0.5">{movie.title}</h4>
+                                <h4 className="text-[13px] font-bold text-white line-clamp-1 group-hover:text-[#D497FF] transition-colors mb-0.5">{movie.title}</h4>
                                 <div className="text-[11px] text-white/40 font-medium italic line-clamp-1 mb-2">{movie.alias}</div>
                                 <div className="flex gap-2">
                                     <span className="px-1.5 py-0.5 bg-white/5 rounded font-bold text-[9px] text-white/30">{movie.year}</span>
-                                    <span className="px-1.5 py-0.5 bg-amber-500/10 rounded text-amber-400 font-bold text-[9px] tracking-tighter">
+                                    <span className="px-1.5 py-0.5 bg-[#D497FF]/10 rounded text-[#D497FF] font-bold text-[9px] tracking-tighter">
                                         {movie.ep}
                                     </span>
                                 </div>

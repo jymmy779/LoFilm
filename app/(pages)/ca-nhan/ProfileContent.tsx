@@ -702,7 +702,7 @@ export default function ProfileContent() {
               <div className="relative h-36 w-36 md:h-44 md:w-44 rounded-full border-4 border-[#0a0a0f] bg-zinc-900 overflow-hidden shadow-2xl flex items-center justify-center text-5xl font-bold text-zinc-500">
                 {isUpdatingAvatar ? (
                   <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-[#0a0a0f]/80 z-[15]">
-                    <div className="w-8 h-8 border-2 border-amber-400/20 border-t-amber-400 rounded-full animate-spin" />
+                    <div className="w-8 h-8 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin" />
                   </div>
                 ) : pendingAvatarSrc || user?.user_metadata?.avatar_url ? (
                   <Image
@@ -821,7 +821,7 @@ export default function ProfileContent() {
                       setActiveTab(tab.id as TabType);
                     }}
                     className={`flex items-center gap-2 px-5 py-3 text-sm font-bold uppercase tracking-wider border-b-2 transition-all cursor-pointer whitespace-nowrap ${isActive
-                      ? "border-orange-500 text-white"
+                      ? "border-orange-500 text-orange-400"
                       : "border-transparent text-zinc-500 hover:text-zinc-300 hover:border-white/20"
                       }`}
                   >
@@ -872,12 +872,12 @@ export default function ProfileContent() {
                   <div className="space-y-8">
                     {/* Đường dẫn tới các trang tiện ích */}
                     <div className="w-full bg-zinc-900/80 border border-white/10 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
-                      <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] bg-blue-600/10 rounded-full blur-[100px] pointer-events-none"></div>
-                      <div className="absolute bottom-[-20%] right-[-20%] w-[50%] h-[50%] bg-amber-500/10 rounded-full blur-[100px] pointer-events-none"></div>
+                      <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-orange-500/20 to-transparent rounded-full opacity-60 pointer-events-none"></div>
+                      <div className="absolute bottom-[-20%] right-[-20%] w-[50%] h-[50%] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-amber-500/20 to-transparent rounded-full opacity-60 pointer-events-none"></div>
 
                       <div className="flex items-center justify-between mb-8 relative z-10">
                         <div className="flex items-center gap-3">
-                          <div className="p-2 bg-gradient-to-tr from-blue-600 to-cyan-500 rounded-xl shadow-lg shadow-blue-500/20">
+                          <div className="p-2 bg-gradient-to-tr from-amber-500 to-orange-500 rounded-xl shadow-lg shadow-orange-900/40">
                             <Activity className="w-5 h-5 text-white animate-pulse" />
                           </div>
                           <div>
@@ -925,7 +925,7 @@ export default function ProfileContent() {
 
                     {/* Hoạt động */}
                     <div className="w-full bg-zinc-900/80 border border-white/10 rounded-2xl p-6 shadow-2xl relative overflow-hidden">
-                      <div className="absolute top-[-20%] right-[-20%] w-[50%] h-[50%] bg-white/5 rounded-full blur-[100px] pointer-events-none"></div>
+                      <div className="absolute top-[-20%] right-[-20%] w-[50%] h-[50%] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-white/10 to-transparent rounded-full opacity-60 pointer-events-none"></div>
 
                       <div className="flex items-center justify-between mb-8 relative z-10">
                         <div className="flex items-center gap-3">

@@ -66,31 +66,31 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
             <div className="flex flex-wrap gap-4 mb-6 border-b border-white/10 pb-2">
                 <button 
                     onClick={() => setActiveTab("movies")}
-                    className={`pb-2 px-2 font-medium transition ${activeTab === 'movies' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-white'}`}
+                    className={`pb-2 px-2 font-medium transition ${activeTab === 'movies' ? 'text-[#D497FF] border-b-2 border-[#D497FF]' : 'text-gray-400 hover:text-white'}`}
                 >
                     <i className="fa-solid fa-film mr-2"></i> Quản lý Phim
                 </button>
                 <button 
                     onClick={() => setActiveTab("settings")}
-                    className={`pb-2 px-2 font-medium transition ${activeTab === 'settings' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-white'}`}
+                    className={`pb-2 px-2 font-medium transition ${activeTab === 'settings' ? 'text-[#D497FF] border-b-2 border-[#D497FF]' : 'text-gray-400 hover:text-white'}`}
                 >
                     <i className="fa-solid fa-cog mr-2"></i> Cấu hình Website
                 </button>
                 <button 
                     onClick={() => setActiveTab("hero")}
-                    className={`pb-2 px-2 font-medium transition ${activeTab === 'hero' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-white'}`}
+                    className={`pb-2 px-2 font-medium transition ${activeTab === 'hero' ? 'text-[#D497FF] border-b-2 border-[#D497FF]' : 'text-gray-400 hover:text-white'}`}
                 >
                     <i className="fa-solid fa-star mr-2"></i> Hero Slider
                 </button>
                 <button 
                     onClick={() => setActiveTab("editor")}
-                    className={`pb-2 px-2 font-medium transition ${activeTab === 'editor' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-white'}`}
+                    className={`pb-2 px-2 font-medium transition ${activeTab === 'editor' ? 'text-[#D497FF] border-b-2 border-[#D497FF]' : 'text-gray-400 hover:text-white'}`}
                 >
                     <i className="fa-solid fa-award mr-2"></i> Editor's Choices
                 </button>
                 <button 
                     onClick={() => setActiveTab("topics")}
-                    className={`pb-2 px-2 font-medium transition ${activeTab === 'topics' ? 'text-blue-400 border-b-2 border-blue-400' : 'text-gray-400 hover:text-white'}`}
+                    className={`pb-2 px-2 font-medium transition ${activeTab === 'topics' ? 'text-[#D497FF] border-b-2 border-[#D497FF]' : 'text-gray-400 hover:text-white'}`}
                 >
                     <i className="fa-solid fa-list mr-2"></i> Quản lý Chủ đề
                 </button>
@@ -120,7 +120,7 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                             <button
                                 onClick={saveAllSettings}
                                 disabled={isPending}
-                                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm animate-fade-in"
+                                className="bg-[#D497FF] hover:bg-[#D497FF] text-white px-4 py-2 rounded-lg font-medium transition-colors flex items-center gap-2 text-sm animate-fade-in"
                             >
                                 {isPending ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>}
                                 Lưu thay đổi
@@ -151,7 +151,7 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                             value={settings.active_event || 'none'}
                             onChange={(e) => handleChangeSetting('active_event', e.target.value)}
                             disabled={isPending}
-                            className="w-full bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                            className="w-full bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF]"
                         >
                             <option value="none">Không có sự kiện (Mặc định)</option>
                             <option value="reunification">Giải phóng Miền Nam 30/4</option>
@@ -181,7 +181,7 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                                     placeholder={`Nhập ${field.label}...`}
                                     onChange={(e) => handleChangeSetting(field.key, e.target.value)}
                                     disabled={isPending}
-                                    className="flex-1 bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-blue-500 border border-white/10"
+                                    className="flex-1 bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF] border border-white/10"
                                 />
                             </div>
                         ))}
@@ -196,7 +196,7 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                         <h2 className="text-xl">Danh sách phim</h2>
                         <Link 
                             href="/admin/movies/new"
-                            className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded transition flex items-center"
+                            className="bg-[#D497FF] hover:bg-[#D497FF] text-white px-4 py-2 rounded transition flex items-center"
                         >
                             <i className="fa-solid fa-plus mr-2"></i> Thêm phim mới
                         </Link>
@@ -223,7 +223,7 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                                     {movies.map((movie: any) => (
                                         <tr key={movie.id} className="border-t border-white/5 hover:bg-white/5 transition">
                                             <td className="p-4">{movie.slug}</td>
-                                            <td className="p-4 font-mono text-blue-400">{movie.tmdb_id}</td>
+                                            <td className="p-4 font-mono text-[#D497FF]">{movie.tmdb_id}</td>
                                             <td className="p-4">{movie.type === 'single' ? 'Phim Lẻ' : 'Phim Bộ'}</td>
                                             <td className="p-4">
                                                 <span className={`px-2 py-1 rounded text-xs ${movie.status === 'published' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}`}>
@@ -232,7 +232,7 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                                             </td>
                                             <td className="p-4">{movie.type === 'single' ? '-' : `${movie.exclusive_episodes?.filter((ep: any) => ep.status === 'published' || !ep.status).length || 0} / ${movie.exclusive_episodes?.length || 0}`}</td>
                                             <td className="p-4 flex gap-3 justify-end items-center">
-                                                <Link href={`/admin/movies/${movie.id}`} className="text-blue-400 bg-blue-400/10 hover:bg-blue-400/20 px-3 py-1.5 rounded transition flex items-center gap-2" title="Quản lý & Sửa phim">
+                                                <Link href={`/admin/movies/${movie.id}`} className="text-[#D497FF] bg-[#D497FF]/10 hover:bg-[#D497FF]/20 px-3 py-1.5 rounded transition flex items-center gap-2" title="Quản lý & Sửa phim">
                                                     <i className="fa-solid fa-pen-to-square"></i> Sửa / Quản lý tập
                                                 </Link>
                                                 <button onClick={() => handleDeleteMovie(movie.id)} disabled={isPending} className="text-red-400 bg-red-400/10 hover:bg-red-400/20 px-3 py-1.5 rounded transition" title="Xóa">

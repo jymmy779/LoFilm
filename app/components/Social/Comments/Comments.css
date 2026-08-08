@@ -78,7 +78,7 @@
 .user-name {
   font-weight: 700;
   font-size: 0.85rem;
-  color: #f5a623;
+  color: #D497FF;
 }
 
 .c-time {
@@ -239,7 +239,7 @@
 }
 
 .comment-form-container:focus-within {
-  border-color: rgba(245, 166, 35, 0.3);
+  border-color: rgba(212,151,255, 0.3);
 }
 
 .comment-textarea {
@@ -265,7 +265,7 @@
 }
 
 .btn-submit {
-  background: #f5a623;
+  background: #D497FF;
   color: #000;
   font-weight: bold;
   padding: 8px 24px;
@@ -277,7 +277,7 @@
 }
 
 .btn-submit:hover {
-  background: #ffcc33;
+  background: #D497FF;
 }
 
 .btn-submit:disabled {
@@ -288,8 +288,8 @@
 
 /* Auth Prompt */
 .auth-prompt {
-  background: rgba(245, 166, 35, 0.05);
-  border: 1px dashed rgba(245, 166, 35, 0.2);
+  background: rgba(212,151,255, 0.05);
+  border: 1px dashed rgba(212,151,255, 0.2);
   border-radius: 1.5rem;
   padding: 2rem;
   text-align: center;
@@ -303,7 +303,7 @@
 }
 
 .btn-login-prompt {
-  background: rgba(245, 166, 35, 1);
+  background: rgba(212,151,255, 1);
   color: #000;
   font-weight: 700;
   border-radius: 30px;
@@ -313,8 +313,8 @@
 }
 
 .btn-login-prompt:hover {
-  background: #ffcc33;
-  border-color: rgba(245, 166, 35, 0.5);
+  background: #D497FF;
+  border-color: rgba(212,151,255, 0.5);
 }
 
 .text-spoiler {

@@ -7,8 +7,8 @@ export default async function Footer() {
 
     return (
         <footer className="relative w-full border-t border-white/10 bg-[#0F1115] mt-10 overflow-hidden pb-6 transition-all duration-300">
-            <div className="absolute top-0 right-0 w-[600px] h-[600px] pointer-events-none opacity-[0.08] bg-gradient-to-bl from-orange-500/40 via-yellow-500/20 to-transparent rounded-full translate-x-1/2 -translate-y-1/2"></div>
-            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] pointer-events-none opacity-[0.05] bg-gradient-to-tr from-blue-500/30 to-transparent rounded-full -translate-x-1/2 translate-y-1/2"></div>
+            <div className="absolute top-0 right-0 w-[600px] h-[600px] pointer-events-none opacity-[0.08] bg-gradient-to-bl from-[#D497FF]/40 via-[#D497FF]/20 to-transparent rounded-full translate-x-1/2 -translate-y-1/2"></div>
+            <div className="absolute bottom-0 left-0 w-[400px] h-[400px] pointer-events-none opacity-[0.05] bg-gradient-to-tr from-[#D497FF]/30 to-transparent rounded-full -translate-x-1/2 translate-y-1/2"></div>
 
             <div className="relative z-10 w-full max-w-[1900px] mx-auto pt-10 px-4 md:px-8 xl:px-12">
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-10">
@@ -87,7 +87,7 @@ export default async function Footer() {
                                 <TransitionLink
                                     key={item.label}
                                     href={item.href}
-                                    className="text-[14px] font-medium text-white/60 hover:text-[#f5a623]  underline-offset-4 transition-all"
+                                    className="text-[14px] font-medium text-white/60 hover:text-[#D497FF]  underline-offset-4 transition-all"
                                 >
                                     {item.label}
                                 </TransitionLink>
@@ -151,3 +151,4 @@ export default async function Footer() {
         </footer>
     );
 }
+
