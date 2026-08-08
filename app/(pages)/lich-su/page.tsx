@@ -232,12 +232,12 @@ export default function HistoryPage() {
           </div>
         ) : watchHistory.length > 0 ? (
           <>
-            <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-x-3 gap-y-3 md:gap-x-4 md:gap-y-4">
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-x-2 gap-y-4 md:gap-x-4 md:gap-y-6">
               {watchHistory.slice(0, displayLimit).map((item) => (
               <div key={item.id} className="w-full relative group">
                 <div className="group/item relative block w-full h-full">
                   <TransitionLink className="block w-full" href={`/phim/${item.movie_slug}/${item.episode_slug || 'tap-full'}`}>
-                    <div className="relative aspect-video rounded-2xl overflow-hidden mb-3 bg-[#0F1115]">
+                    <div className="relative aspect-[2/3] rounded-lg overflow-hidden mb-2 md:mb-3 bg-[#0F1115]">
                       <SmartImage 
                         alt={item.movie_name} 
                         className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover/item:scale-110 transform-gpu ${loadedImages.has(item.id) ? 'opacity-100' : 'opacity-0'}`} 
@@ -245,12 +245,12 @@ export default function HistoryPage() {
                         src={getImageUrl(item.movie_poster, { width: 300, quality: 70 })}
                         rawSrc={getRawImageUrl(item.movie_poster)}
                         fill
-                        sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 15vw"
+                        sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 15vw"
                         onLoad={() => markLoaded(item.id)}
                       />
                       <div className="absolute bottom-1 left-1 z-10 pointer-events-none">
                         <div className="flex flex-wrap gap-1">
-                          <span className="rounded-[4px] bg-orange-600/90 px-1 py-[2px] text-[8px] md:text-[11px] font-bold text-white shadow-sm border border-white/10 tracking-wide">
+                          <span className="rounded-[4px] bg-orange-600/90 px-1 py-[2px] text-[8px] md:text-[10px] font-bold text-white shadow-sm border border-white/10 tracking-wide">
                             {formatEpisode(item.episode_name)}
                           </span>
                         </div>
@@ -259,15 +259,15 @@ export default function HistoryPage() {
                     </div>
                   </TransitionLink>
                   <div>
-                    <h3 className="truncate text-[10px] md:text-[14px] font-semibold text-white group-hover:text-orange-400 leading-snug transition-colors" title={item.movie_name}>
+                    <h3 className="truncate text-[11px] md:text-[14px] font-semibold text-white group-hover:text-orange-400 leading-snug transition-colors" title={item.movie_name}>
                       {item.movie_name}
                     </h3>
-                    <div className="mt-2 flex flex-col gap-1.5 opacity-90">
-                      <div className="flex items-center justify-between text-[10px] font-medium text-zinc-400 leading-none">
-                        <span>Đã xem: {formatMinutes(item.watched_seconds)}p</span>
+                    <div className="mt-1 md:mt-2 flex flex-col gap-1 md:gap-1.5 opacity-90">
+                      <div className="flex items-center justify-between text-[9px] md:text-[10px] font-medium text-zinc-400 leading-none">
+                        <span>{formatMinutes(item.watched_seconds)}p</span>
                         <span>{formatMinutes(item.duration)}p</span>
                       </div>
-                      <div className="h-1 w-full bg-zinc-700 rounded-full overflow-hidden">
+                      <div className="h-[3px] md:h-1 w-full bg-zinc-700 rounded-full overflow-hidden">
                         <div className="h-full bg-red-600 rounded-full" style={{ width: `${calculateProgressPercent(item.watched_seconds, item.duration)}%` }}></div>
                       </div>
                     </div>
