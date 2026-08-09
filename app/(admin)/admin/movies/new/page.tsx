@@ -13,6 +13,7 @@ export default function NewMoviePage() {
     const [activeTab, setActiveTab] = useState<"manual" | "import">("manual");
 
     // Form states
+    const [importUrl, setImportUrl] = useState("");
     const [tmdbId, setTmdbId] = useState("");
     const [type, setType] = useState<"single" | "series">("single");
     const [slug, setSlug] = useState("");
@@ -38,6 +39,7 @@ export default function NewMoviePage() {
             "https://phimimg.com"
         ).replace(/\/$/, "");
         const isOPhim = domain.includes("ophim") || (importData.data?.seoOnPage?.og_url?.includes("ophim") ?? false) || (importData.data?.seoOnPage?.seoSchema?.url?.includes("ophim") ?? false);
+        const isVsMov = importUrl.includes("vsmov") || domain.includes("vsmov") || (importData.data?.seoOnPage?.og_url?.includes("vsmov") ?? false) || (importData.data?.seoOnPage?.seoSchema?.url?.includes("vsmov") ?? false);
 
         const buildUrl = (path: string) => {
             if (!path) return "";
@@ -57,7 +59,7 @@ export default function NewMoviePage() {
         const rawPoster = movieData.poster_url || "";
         const rawThumb = movieData.thumb_url || "";
 
-        if (isOPhim) {
+        if (isOPhim || isVsMov) {
             return {
                 poster_url: buildUrl(rawThumb || rawPoster),
                 thumb_url: buildUrl(rawPoster || rawThumb)
@@ -128,7 +130,6 @@ export default function NewMoviePage() {
     const [subDocquyenImport, setSubDocquyenImport] = useState(false);
 
     // Import states
-    const [importUrl, setImportUrl] = useState("");
     const [importData, setImportData] = useState<any>(null);
     const [isFetchingImport, setIsFetchingImport] = useState(false);
 

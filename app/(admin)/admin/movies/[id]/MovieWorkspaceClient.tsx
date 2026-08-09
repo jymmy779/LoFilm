@@ -1,6 +1,6 @@
 "use client";
 import { useState, useEffect, useTransition } from "react";
-import { updateExclusiveMovie, addEpisode, updateEpisode, deleteEpisode, bulkAddExclusiveEpisodes } from "@/app/actions/adminMovies";
+import { updateCMSMovie, addCMSEpisode, updateCMSEpisode, deleteCMSEpisode, bulkAddCMSEpisodes } from "@/app/actions/cmsAdmin";
 import { useRouter } from "next/navigation";
 import toast from "react-hot-toast";
 import Link from "next/link";
@@ -15,8 +15,8 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
     const [type, setType] = useState<"single" | "series">(movie.type);
     const [slug, setSlug] = useState(movie.slug);
     const [status, setStatus] = useState(movie.status);
-    const [langTag, setLangTag] = useState(movie.lang_tag || "Vietsub Độc Quyền");
-    const [subDocquyen, setSubDocquyen] = useState<boolean>(movie.sub_docquyen ?? false);
+    const [langTag, setLangTag] = useState(movie.lang_tag || "Vietsub");
+    const [subDocquyen, setSubDocquyen] = useState<boolean>(movie.is_exclusive ?? false);
     const [isStarred, setIsStarred] = useState(false);
     const [expiresDays, setExpiresDays] = useState("3");
 
@@ -37,7 +37,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
     }, [editingEpisode]);
 
     // Sort episodes
-    const episodes = [...(movie.exclusive_episodes || [])].sort((a: any, b: any) => a.order - b.order);
+    const episodes = [...(movie.cms_episodes || [])].sort((a: any, b: any) => a.order_num - b.order_num);
 
     const generateSlug = (str: string) => {
         return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/[^a-z0-9 -]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").trim();
@@ -45,7 +45,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
 
     const handleSaveMovie = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
-        
+
         const data = {
             tmdb_id: tmdbId,
             type: type,
@@ -56,10 +56,10 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
             is_starred: isStarred ? "true" : "false",
             expires_in_days: expiresDays
         };
-        
+
         startTransition(async () => {
             try {
-                const res = await updateExclusiveMovie(movie.id, data);
+                const res = await updateCMSMovie(movie.id, data);
                 if (res.error) toast.error(res.error);
                 else {
                     toast.success("Cập nhật thông tin phim thành công");
@@ -77,11 +77,11 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
         const form = e.currentTarget;
         const formData = new FormData(form);
         const data = Object.fromEntries(formData.entries()) as Record<string, string>;
-        
+
         startTransition(async () => {
             try {
                 if (editingEpisode) {
-                    const res = await updateEpisode(editingEpisode.id, data);
+                    const res = await updateCMSEpisode(editingEpisode.id, data);
                     if (res.error) toast.error(res.error);
                     else {
                         toast.success("Đã cập nhật tập thành công!");
@@ -90,7 +90,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                         router.refresh();
                     }
                 } else {
-                    const res = await addEpisode(movie.id, data);
+                    const res = await addCMSEpisode(movie.id, data);
                     if (res.error) toast.error(res.error);
                     else {
                         toast.success("Đã thêm tập mới thành công!");
@@ -116,7 +116,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
 
         startTransition(async () => {
             try {
-                const res = await bulkAddExclusiveEpisodes(movie.id, startEpisode, links, vttLinks, embedLinks, status);
+                const res = await bulkAddCMSEpisodes(movie.id, startEpisode, links, vttLinks, embedLinks, status);
                 if (res.error) toast.error(res.error);
                 else {
                     toast.success("Đã thêm hàng loạt thành công!");
@@ -133,7 +133,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
     const handleDeleteEpisode = async (id: string) => {
         if (!confirm("Bạn có chắc chắn muốn xóa tập này?")) return;
         startTransition(async () => {
-            const res = await deleteEpisode(id);
+            const res = await deleteCMSEpisode(id);
             if (res.error) toast.error(res.error);
             else {
                 toast.success("Xóa tập thành công");
@@ -145,7 +145,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
 
     return (
         <div className="bg-[#0F1115] min-h-screen text-white">
-            <header className="bg-[#0F1115] border-b border-white/10 sticky top-0 z-10">
+            <header className="bg-[#0F1115] border-b border-white/10 top-0 z-10">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <Link href="/admin/dashboard" className="text-gray-400 hover:text-white transition flex items-center gap-2">
@@ -217,30 +217,30 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                     <option value="published">Công khai</option>
                                 </select>
                             </div>
-                            
+
                             <div className="col-span-1 md:col-span-6 bg-[#0F1115]/50 border border-purple-500/30 rounded p-3 mt-2">
                                 <label className="flex items-center gap-3 cursor-pointer group w-fit">
-                                    <input 
-                                        type="checkbox" 
-                                        checked={subDocquyen} 
+                                    <input
+                                        type="checkbox"
+                                        checked={subDocquyen}
                                         onChange={(e) => {
                                             const checked = e.target.checked;
                                             setSubDocquyen(checked);
                                             setLangTag((prev: string) => checked ? `${prev.replace(" Độc Quyền", "")} Độc Quyền` : prev.replace(" Độc Quyền", ""));
-                                        }} 
-                                        className="w-4 h-4 accent-purple-600 cursor-pointer" 
+                                        }}
+                                        className="w-4 h-4 accent-purple-600 cursor-pointer"
                                     />
                                     <span className="font-semibold text-purple-400 text-sm">👑 Đánh dấu là Phim Độc Quyền (Hiển thị badge góc poster)</span>
                                 </label>
                             </div>
-                            
+
                             <div className="col-span-1 md:col-span-6 bg-[#0F1115]/50 border border-[#D497FF]/30 rounded p-4 mt-2">
                                 <label className="flex items-center gap-3 cursor-pointer group w-fit">
-                                    <input 
-                                        type="checkbox" 
-                                        checked={isStarred} 
-                                        onChange={(e) => setIsStarred(e.target.checked)} 
-                                        className="w-4 h-4 accent-amber-500" 
+                                    <input
+                                        type="checkbox"
+                                        checked={isStarred}
+                                        onChange={(e) => setIsStarred(e.target.checked)}
+                                        className="w-4 h-4 accent-amber-500"
                                     />
                                     <span className="font-semibold text-amber-400 text-sm">⭐ Đánh dấu ưu tiên lên Hero Slider (Ghi đè nếu đã có)</span>
                                 </label>
@@ -248,13 +248,13 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                 {isStarred && (
                                     <div className="mt-3 ml-7 flex items-center gap-3">
                                         <label className="text-gray-400 text-xs">Số ngày hiển thị:</label>
-                                        <input 
-                                            type="number" 
+                                        <input
+                                            type="number"
                                             min="0"
-                                            value={expiresDays} 
-                                            onChange={(e) => setExpiresDays(e.target.value)} 
-                                            className="w-24 bg-[#0F1115] text-white rounded p-1.5 text-sm focus:ring-1 focus:ring-amber-500 border border-white/5" 
-                                            placeholder="Vô hạn" 
+                                            value={expiresDays}
+                                            onChange={(e) => setExpiresDays(e.target.value)}
+                                            className="w-24 bg-[#0F1115] text-white rounded p-1.5 text-sm focus:ring-1 focus:ring-amber-500 border border-white/5"
+                                            placeholder="Vô hạn"
                                         />
                                     </div>
                                 )}
@@ -307,7 +307,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                     <div className="flex justify-between items-start">
                                         <div className="flex-1 overflow-hidden pr-2">
                                             <div className="font-medium text-sm flex items-center gap-2">
-                                                {ep.name} <span className="text-gray-500 text-xs font-mono">#{ep.order}</span>
+                                                {ep.name} <span className="text-gray-500 text-xs font-mono">#{ep.order_num}</span>
                                                 {ep.subtitles && ep.subtitles.length > 1 && (
                                                     <span className="bg-amber-500/20 text-amber-400 px-1.5 py-0.5 text-[10px] rounded uppercase font-bold tracking-wider">Song ngữ</span>
                                                 )}
@@ -412,7 +412,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                 <div className="grid grid-cols-1 md:grid-cols-[1fr_1fr] gap-5 items-start">
                                     <div>
                                         <label className="text-gray-400 text-sm mb-1.5 block">Thứ tự sắp xếp</label>
-                                        <input name="order" type="number" defaultValue={editingEpisode?.order || episodes.length + 1} required className="w-full bg-[#0F1115] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#D497FF] text-center" />
+                                        <input name="order" type="number" defaultValue={editingEpisode?.order_num || episodes.length + 1} required className="w-full bg-[#0F1115] text-white rounded-lg p-3 text-sm focus:outline-none focus:ring-1 focus:ring-[#D497FF] text-center" />
                                     </div>
                                     <div>
                                         <label className="text-gray-400 text-sm mb-1.5 block">Trạng thái</label>
@@ -461,7 +461,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                 <div className="bg-[#D497FF]/10 border border-[#D497FF]/20 p-4 rounded-lg text-sm text-[#D497FF]/80 mb-2">
                                     Chế độ Bulk giúp bạn thêm nhanh hàng chục tập phim cùng lúc. Tên tập và Slug sẽ được tự động tạo theo thứ tự (Tập 1, Tập 2...).
                                 </div>
-                                
+
                                 <div className="bg-[#0F1115]/50 p-3 rounded-lg border border-white/5 mb-2">
                                     <label className="text-gray-300 text-sm font-medium mb-2 block">Nguồn Video (Hàng loạt)</label>
                                     <div className="flex flex-wrap gap-4 text-sm">

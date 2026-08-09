@@ -533,10 +533,13 @@ export async function importMovieFromApi(apiUrl: string, data: Record<string, an
             "https://phimimg.com"
         ).replace(/\/$/, "");
         const isOPhim = domain.includes("ophim") || (resData.data?.seoOnPage?.og_url?.includes("ophim") ?? false) || (resData.data?.seoOnPage?.seoSchema?.url?.includes("ophim") ?? false);
+        const isVsMov = domain.includes("vsmov") || apiUrl.includes("vsmov");
 
         let sourceSuffix = "";
         if (isOPhim || apiUrl.includes("ophim")) {
             sourceSuffix = " OP";
+        } else if (apiUrl.includes("vsmov")) {
+            sourceSuffix = " VS";
         } else if (apiUrl.includes("nguonc")) {
             sourceSuffix = " NC";
         } else if (apiUrl.includes("phimapi.com") || apiUrl.includes("kkphim")) {
@@ -564,8 +567,8 @@ export async function importMovieFromApi(apiUrl: string, data: Record<string, an
         let parsedPosterUrl = buildUrl(rawPoster || rawThumb);
         let parsedThumbUrl = buildUrl(rawThumb || rawPoster);
 
-        if (isOPhim) {
-            // OPhim bị đảo ngược thumb_url (ảnh đứng poster) và poster_url (ảnh nằm thumb)
+        if (isOPhim || isVsMov) {
+            // OPhim / VSMov bị đảo ngược thumb_url (ảnh đứng poster) và poster_url (ảnh nằm thumb)
             parsedPosterUrl = buildUrl(rawThumb || rawPoster);
             parsedThumbUrl = buildUrl(rawPoster || rawThumb);
         }

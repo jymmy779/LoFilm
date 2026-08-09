@@ -14,15 +14,19 @@ export const redis =
         maxRetriesPerRequest: 1,
         connectTimeout: 2000,
         commandTimeout: 3000,
-        enableOfflineQueue: false,
+        enableOfflineQueue: true, // Sửa thành true (hoặc xóa) để chờ kết nối xong mới query
         keepAlive: 10000,
       })
     : null);
 
-if (process.env.NODE_ENV !== "production") globalForRedis.redis = redis as Redis;
-
-if (redis && !globalForRedis.redis) {
+if (redis && !(globalForRedis as any)._redisInitialized) {
+    (globalForRedis as any)._redisInitialized = true;
     redis.on('error', (err) => console.error('[Redis Error]', err.message));
+    redis.on('ready', () => console.log('✅ [REDIS FOUND] Connected successfully'));
+}
+
+if (process.env.NODE_ENV !== "production") {
+    globalForRedis.redis = redis as Redis;
 }
 
 /**

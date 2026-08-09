@@ -8,16 +8,16 @@ import HeroSliderTab from "./HeroSliderTab";
 import EditorChoicesTab from "./EditorChoicesTab";
 import TopicsTab from "./TopicsTab";
 
-export default function AdminDashboard({ initialMovies, initialSettings, initialStarredMovies }: { initialMovies: any[], initialSettings: any, initialStarredMovies?: any[] }) {
-    const [movies, setMovies] = useState(initialMovies);
+export default function AdminDashboard({ initialStats, initialSettings, initialStarredMovies }: { initialStats: { moviesCount: number, episodesCount: number, sourcesCount: number }, initialSettings: any, initialStarredMovies?: any[] }) {
+    const [stats, setStats] = useState(initialStats);
     const [settings, setSettings] = useState(initialSettings);
-    const [activeTab, setActiveTab] = useState<"movies" | "settings" | "hero" | "editor" | "topics">("movies");
+    const [activeTab, setActiveTab] = useState<"stats" | "settings" | "hero" | "editor" | "topics">("stats");
     const [isPending, startTransition] = useTransition();
     const [hasChanges, setHasChanges] = useState(false);
 
     useEffect(() => {
-        setMovies(initialMovies);
-    }, [initialMovies]);
+        setStats(initialStats);
+    }, [initialStats]);
 
     useEffect(() => {
         setSettings(initialSettings);
@@ -50,25 +50,15 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
         });
     };
 
-    const handleDeleteMovie = async (id: string) => {
-        if (confirm("Bạn có chắc muốn xóa phim này? Mọi tập phim bên trong cũng sẽ bị xóa!")) {
-            startTransition(async () => {
-                const res = await deleteExclusiveMovie(id);
-                if (res?.error) alert(res.error);
-                else window.location.reload();
-            });
-        }
-    };
-
     return (
         <div>
             {/* Tabs */}
             <div className="flex flex-wrap gap-4 mb-6 border-b border-white/10 pb-2">
                 <button 
-                    onClick={() => setActiveTab("movies")}
-                    className={`pb-2 px-2 font-medium transition ${activeTab === 'movies' ? 'text-[#D497FF] border-b-2 border-[#D497FF]' : 'text-gray-400 hover:text-white'}`}
+                    onClick={() => setActiveTab("stats")}
+                    className={`pb-2 px-2 font-medium transition ${activeTab === 'stats' ? 'text-[#D497FF] border-b-2 border-[#D497FF]' : 'text-gray-400 hover:text-white'}`}
                 >
-                    <i className="fa-solid fa-film mr-2"></i> Quản lý Phim
+                    <i className="fa-solid fa-chart-pie mr-2"></i> Tổng quan
                 </button>
                 <button 
                     onClick={() => setActiveTab("settings")}
@@ -95,6 +85,33 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                     <i className="fa-solid fa-list mr-2"></i> Quản lý Chủ đề
                 </button>
             </div>
+
+            {/* Stats Tab */}
+            {activeTab === "stats" && (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div className="bg-[#0F1115] border border-white/5 rounded-xl p-6 flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-full bg-blue-500/10 text-blue-400 flex items-center justify-center text-2xl">
+                            <i className="fa-solid fa-film"></i>
+                        </div>
+                        <div>
+                            <div className="text-gray-400 text-sm">Tổng Số Phim</div>
+                            <div className="text-3xl font-bold">{stats.moviesCount.toLocaleString()}</div>
+                        </div>
+                    </div>
+                    
+
+                    
+                    <div className="bg-[#0F1115] border border-white/5 rounded-xl p-6 flex items-center gap-4">
+                        <div className="w-14 h-14 rounded-full bg-green-500/10 text-green-400 flex items-center justify-center text-2xl">
+                            <i className="fa-solid fa-play"></i>
+                        </div>
+                        <div>
+                            <div className="text-gray-400 text-sm">Tổng Số Tập Phim</div>
+                            <div className="text-3xl font-bold">{stats.episodesCount.toLocaleString()}</div>
+                        </div>
+                    </div>
+                </div>
+            )}
 
             {/* Editor Choices Tab */}
             {activeTab === "editor" && (
@@ -189,64 +206,6 @@ export default function AdminDashboard({ initialMovies, initialSettings, initial
                 </div>
             )}
 
-            {/* Movies Tab */}
-            {activeTab === "movies" && (
-                <>
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-xl">Danh sách phim</h2>
-                        <Link 
-                            href="/admin/movies/new"
-                            className="bg-[#D497FF] hover:bg-[#D497FF] text-black px-4 py-2 rounded transition flex items-center"
-                        >
-                            <i className="fa-solid fa-plus mr-2"></i> Thêm phim mới
-                        </Link>
-                    </div>
-                    
-                    {movies.length === 0 ? (
-                        <div className="text-gray-400 text-center py-10 bg-[#0F1115] rounded-lg border border-white/5">
-                            Chưa có phim độc quyền nào.
-                        </div>
-                    ) : (
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left bg-[#0F1115] rounded-lg overflow-hidden whitespace-nowrap">
-                                <thead className="bg-[#0F1115]">
-                                    <tr>
-                                        <th className="p-4">Slug</th>
-                                        <th className="p-4">TMDB ID</th>
-                                        <th className="p-4">Loại</th>
-                                        <th className="p-4">Trạng thái</th>
-                                        <th className="p-4">Số Tập</th>
-                                        <th className="p-4 text-right">Hành động</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {movies.map((movie: any) => (
-                                        <tr key={movie.id} className="border-t border-white/5 hover:bg-white/5 transition">
-                                            <td className="p-4">{movie.slug}</td>
-                                            <td className="p-4 font-mono text-[#D497FF]">{movie.tmdb_id}</td>
-                                            <td className="p-4">{movie.type === 'single' ? 'Phim Lẻ' : 'Phim Bộ'}</td>
-                                            <td className="p-4">
-                                                <span className={`px-2 py-1 rounded text-xs ${movie.status === 'published' ? 'bg-green-500/20 text-green-400' : 'bg-gray-500/20 text-gray-400'}`}>
-                                                    {movie.status === 'published' ? 'Công khai' : 'Nháp'}
-                                                </span>
-                                            </td>
-                                            <td className="p-4">{movie.type === 'single' ? '-' : `${movie.exclusive_episodes?.filter((ep: any) => ep.status === 'published' || !ep.status).length || 0} / ${movie.exclusive_episodes?.length || 0}`}</td>
-                                            <td className="p-4 flex gap-3 justify-end items-center">
-                                                <Link href={`/admin/movies/${movie.id}`} className="text-[#D497FF] bg-[#D497FF]/10 hover:bg-[#D497FF]/20 px-3 py-1.5 rounded transition flex items-center gap-2" title="Quản lý & Sửa phim">
-                                                    <i className="fa-solid fa-pen-to-square"></i> Sửa / Quản lý tập
-                                                </Link>
-                                                <button onClick={() => handleDeleteMovie(movie.id)} disabled={isPending} className="text-red-400 bg-red-400/10 hover:bg-red-400/20 px-3 py-1.5 rounded transition" title="Xóa">
-                                                    <i className="fa-solid fa-trash"></i>
-                                                </button>
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    )}
-                </>
-            )}
         </div>
     );
 }

@@ -42,10 +42,12 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                 let sName = ep.server_name || exclusiveMovie.lang_tag || "Song Ngữ Độc Quyền";
                 
                 // Tự động nhận diện nguồn từ URL nếu server_name chưa có hậu tố
-                if (!sName.includes(' OP') && !sName.includes(' KK') && !sName.includes(' NC')) {
+                if (!sName.includes(' OP') && !sName.includes(' KK') && !sName.includes(' NC') && !sName.includes(' VS')) {
                     const url = (ep.link_m3u8 || ep.link_embed || '').toLowerCase();
                     if (url.includes('ophim')) {
                         sName += ' OP';
+                    } else if (url.includes('vsmov')) {
+                        sName += ' VS';
                     } else if (url.includes('nguonc')) {
                         sName += ' NC';
                     } else if (url.includes('phimimg') || url.includes('kkphim') || url.includes('phimapi')) {
@@ -78,7 +80,7 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
             if (phimApiData && phimApiData.episodes) {
                 const apiEpisodes = phimApiData.episodes.map((epServer: any) => {
                     let sName = epServer.server_name;
-                    if (!sName.includes(' OP') && !sName.includes(' KK') && !sName.includes(' NC')) {
+                    if (!sName.includes(' OP') && !sName.includes(' KK') && !sName.includes(' NC') && !sName.includes(' VS')) {
                         sName += ' KK'; // phimapi is KKPhim
                     }
                     return { ...epServer, server_name: sName };
@@ -113,8 +115,8 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                         content: data.overview || dataEn.overview || exclusiveMovie.content,
                         type: exclusiveMovie.type,
                         status: exclusiveMovie.status,
-                        thumb_url: `https://image.tmdb.org/t/p/w780${dataEn.backdrop_path || data.backdrop_path || dataEn.poster_path || data.poster_path}`,
-                        poster_url: `https://image.tmdb.org/t/p/w500${dataEn.poster_path || data.poster_path}`,
+                        thumb_url: exclusiveMovie.thumb_url || `https://image.tmdb.org/t/p/w780${dataEn.backdrop_path || data.backdrop_path || dataEn.poster_path || data.poster_path}`,
+                        poster_url: exclusiveMovie.poster_url || `https://image.tmdb.org/t/p/w500${dataEn.poster_path || data.poster_path}`,
                         is_copyright: true,
                         sub_docquyen: exclusiveMovie.sub_docquyen ?? false,
                         chieurap: false,
@@ -192,7 +194,7 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
             if (phimApiData.episodes) {
                 phimApiData.episodes = phimApiData.episodes.map((epServer: any) => {
                     let sName = epServer.server_name;
-                    if (!sName.includes(' OP') && !sName.includes(' KK') && !sName.includes(' NC')) {
+                    if (!sName.includes(' OP') && !sName.includes(' KK') && !sName.includes(' NC') && !sName.includes(' VS')) {
                         sName += ' KK'; // phimapi is KKPhim
                     }
                     return { ...epServer, server_name: sName };

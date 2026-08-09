@@ -1,36 +1,30 @@
-import { createClient } from "@/app/utils/supabase/server";
 import AdminDashboard from "./AdminDashboard";
 import Link from "next/link";
 import { logoutAdmin } from "@/app/actions/adminAuth";
 
 import { getSiteSettings } from "@/app/actions/adminSettings";
 import { getStarredMovies } from "@/app/actions/adminStarred";
+import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+
+export const dynamic = "force-dynamic";
 
 export default async function AdminPage() {
-    const supabase = await createClient();
-    
-    // Cơ chế Retry tự động cho Supabase Cold Start (để tránh lỗi fetch failed do timeout)
-    let movies: any = [];
-    let error: any = null;
-    
-    for (let attempt = 0; attempt < 3; attempt++) {
-        const { data, error: sbError } = await supabase
-            .from('exclusive_movies')
-            .select(`
-                *,
-                exclusive_episodes (*)
-            `)
-            .order('created_at', { ascending: false });
+    const supabase = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
 
-        if (!sbError) {
-            movies = data;
-            error = null;
-            break;
-        }
-        
-        error = sbError;
-        console.warn(`[Dashboard] Lỗi lấy phim (thử lần ${attempt + 1}):`, sbError.message);
-        if (attempt < 2) await new Promise(r => setTimeout(r, 2000));
+    let stats = { moviesCount: 0, episodesCount: 0, sourcesCount: 0 };
+    let error: any = null;
+
+    try {
+        const { count: mCount } = await supabase.from('exclusive_movies').select('*', { count: 'exact', head: true });
+        const { count: eCount } = await supabase.from('exclusive_episodes').select('*', { count: 'exact', head: true });
+        stats = {
+            moviesCount: mCount || 0,
+            episodesCount: eCount || 0,
+            sourcesCount: 0
+        };
+    } catch (e: any) {
+        error = e;
+        console.error("[Dashboard] Lỗi lấy thống kê:", e);
     }
 
     const settings = await getSiteSettings();
@@ -39,7 +33,7 @@ export default async function AdminPage() {
 
     return (
         <div className="bg-[#0F1115] min-h-screen text-white">
-            <header className="bg-[#0F1115] border-b border-white/10 sticky top-0 z-10">
+            <header className="bg-[#0F1115] border-b border-white/10 top-0 z-10">
                 <div className="container mx-auto px-4 h-16 flex items-center justify-between">
                     <div className="flex items-center gap-4">
                         <Link href="/">
@@ -57,15 +51,15 @@ export default async function AdminPage() {
                     </div>
                 </div>
             </header>
-            
+
             <main className="container mx-auto px-4 py-8">
                 {error ? (
                     <div className="bg-red-500/10 border border-red-500/50 p-4 rounded text-red-500 mb-6">
-                        <strong>Lỗi kết nối CSDL: </strong> {error.message}. <br/>
+                        <strong>Lỗi kết nối CSDL: </strong> {error.message}. <br />
                         <em>Vui lòng chắc chắn rằng bạn đã chạy đoạn mã SQL tạo bảng trong Supabase Dashboard.</em>
                     </div>
                 ) : null}
-                <AdminDashboard initialMovies={movies || []} initialSettings={settings} initialStarredMovies={starredMovies} />
+                <AdminDashboard initialStats={stats} initialSettings={settings} initialStarredMovies={starredMovies} />
             </main>
         </div>
     );
