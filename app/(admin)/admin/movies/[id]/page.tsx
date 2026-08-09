@@ -8,12 +8,11 @@ export default async function MovieWorkspacePage(props: { params: Promise<{ id: 
 
     let movie = null;
     let lastError = null;
-    
+
     const { data, error } = await supabase
         .from('exclusive_movies')
         .select(`
             *,
-            cms_movie_sources (*),
             exclusive_episodes (*)
         `)
         .eq('id', params.id)
