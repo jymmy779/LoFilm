@@ -80,7 +80,7 @@ export async function addCMSEpisode(movieId: string, data: Record<string, string
             .from("exclusive_episodes")
             .insert({
                 movie_id: movieId,
-                source_id: source.id,
+                source_id: source!.id,
                 name,
                 slug: slug.toLowerCase().trim(),
                 link_m3u8: linkM3u8 ? linkM3u8.trim() : "",
