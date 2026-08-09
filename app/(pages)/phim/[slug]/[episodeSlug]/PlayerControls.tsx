@@ -84,13 +84,18 @@ const PlayerControls = ({
 
             {/* Server Dropdown */}
             <div
-              className={`absolute bottom-full left-0 mb-3 w-48 bg-[#0F1115] border border-white/10 rounded-lg p-1 z-50 overflow-hidden transition-all duration-200 ease-out ${showServers
+              className={`absolute bottom-full left-0 mb-3 min-w-[12rem] w-max bg-[#0F1115] border border-white/10 rounded-lg p-1 z-50 overflow-hidden transition-all duration-200 ease-out ${showServers
                 ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
                 : "opacity-0 translate-y-2 scale-95 pointer-events-none"
                 }`}
             >
               {episodes.map((server, index) => {
                 const isActive = activeServer === index;
+                // Rút gọn tên server cho gọn gàng
+                const displayName = server.server_name
+                  .replace(/Thuyết Minh/gi, "TM")
+                  .replace(/Lồng Tiếng/gi, "LT");
+                  
                 return (
                   <button
                     key={index}
@@ -98,13 +103,13 @@ const PlayerControls = ({
                       onServerChange(index);
                       setShowServers(false);
                     }}
-                    className={`w-full flex items-center gap-3 px-3 py-2.5 md:text-sm text-xs rounded-md transition-all text-left cursor-pointer ${isActive
+                    className={`w-full flex items-center gap-3 px-3 py-2.5 md:text-sm text-xs rounded-md transition-all text-left cursor-pointer whitespace-nowrap ${isActive
                       ? "bg-[#D497FF]/10 border border-[#D497FF]/20 text-[#D497FF]"
                       : "text-white/70 hover:bg-white/10 hover:text-white"
                       }`}
                   >
-                    <Play size={10} fill={isActive ? "currentColor" : "none"} className={isActive ? "text-[#D497FF]" : "text-white/40"} />
-                    <span className="font-medium">{server.server_name}</span>
+                    <Play size={10} fill={isActive ? "currentColor" : "none"} className={`shrink-0 ${isActive ? "text-[#D497FF]" : "text-white/40"}`} />
+                    <span className="font-medium">{displayName}</span>
                   </button>
                 );
               })}

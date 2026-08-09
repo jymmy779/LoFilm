@@ -39,7 +39,20 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
 
             const serverMap = new Map<string, any[]>();
             for (const ep of sortedEpisodes) {
-                const sName = ep.server_name || exclusiveMovie.lang_tag || "Song Ngữ Độc Quyền";
+                let sName = ep.server_name || exclusiveMovie.lang_tag || "Song Ngữ Độc Quyền";
+                
+                // Tự động nhận diện nguồn từ URL nếu server_name chưa có hậu tố
+                if (!sName.includes(' OP') && !sName.includes(' KK') && !sName.includes(' NC')) {
+                    const url = (ep.link_m3u8 || ep.link_embed || '').toLowerCase();
+                    if (url.includes('ophim')) {
+                        sName += ' OP';
+                    } else if (url.includes('nguonc')) {
+                        sName += ' NC';
+                    } else if (url.includes('phimimg') || url.includes('kkphim') || url.includes('phimapi')) {
+                        sName += ' KK';
+                    }
+                }
+
                 if (!serverMap.has(sName)) {
                     serverMap.set(sName, []);
                 }
@@ -63,7 +76,14 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
             let finalEpisodes = [...exclusiveServers];
 
             if (phimApiData && phimApiData.episodes) {
-                finalEpisodes = [...finalEpisodes, ...phimApiData.episodes];
+                const apiEpisodes = phimApiData.episodes.map((epServer: any) => {
+                    let sName = epServer.server_name;
+                    if (!sName.includes(' OP') && !sName.includes(' KK') && !sName.includes(' NC')) {
+                        sName += ' KK'; // phimapi is KKPhim
+                    }
+                    return { ...epServer, server_name: sName };
+                });
+                finalEpisodes = [...finalEpisodes, ...apiEpisodes];
             }
 
             // 3. Xây dựng Movie Object
@@ -168,6 +188,15 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
             if (localViewCount && phimApiData.movie) {
                 // Ưu tiên lấy view nội bộ, nếu không có thì xài của PhimAPI
                 phimApiData.movie.view = localViewCount;
+            }
+            if (phimApiData.episodes) {
+                phimApiData.episodes = phimApiData.episodes.map((epServer: any) => {
+                    let sName = epServer.server_name;
+                    if (!sName.includes(' OP') && !sName.includes(' KK') && !sName.includes(' NC')) {
+                        sName += ' KK'; // phimapi is KKPhim
+                    }
+                    return { ...epServer, server_name: sName };
+                });
             }
             return phimApiData;
         }
