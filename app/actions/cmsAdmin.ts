@@ -171,7 +171,7 @@ export async function bulkAddCMSEpisodes(movieId: string, startEpisode: number, 
             const epNumStr = String(epNum).padStart(2, '0');
             episodesToInsert.push({
                 movie_id: movieId,
-                source_id: source.id,
+                source_id: source!.id,
                 name: `Tập ${epNumStr}`,
                 slug: `tap-${epNumStr}`,
                 link_m3u8: rawM3u8[i] || "",
