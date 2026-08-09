@@ -37,7 +37,7 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
     }, [editingEpisode]);
 
     // Sort episodes
-    const episodes = [...(movie.cms_episodes || [])].sort((a: any, b: any) => a.order_num - b.order_num);
+    const episodes = [...(movie.exclusive_episodes || [])].sort((a: any, b: any) => a.order_num - b.order_num);
 
     const generateSlug = (str: string) => {
         return str.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/[^a-z0-9 -]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-").trim();

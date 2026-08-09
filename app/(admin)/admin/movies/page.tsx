@@ -7,12 +7,13 @@ export const dynamic = "force-dynamic";
 export default async function AdminMoviesPage({
     searchParams,
 }: {
-    searchParams: { page?: string, search?: string }
+    searchParams: Promise<{ page?: string, search?: string }>
 }) {
     const supabase = createSupabaseClient(process.env.NEXT_PUBLIC_SUPABASE_URL!, process.env.SUPABASE_SERVICE_ROLE_KEY!);
-    const currentPage = Number(searchParams?.page) || 1;
+    const resolvedSearchParams = await searchParams;
+    const currentPage = Number(resolvedSearchParams?.page) || 1;
     const itemsPerPage = 20;
-    const search = searchParams?.search || '';
+    const search = resolvedSearchParams?.search || '';
 
     const from = (currentPage - 1) * itemsPerPage;
     const to = from + itemsPerPage - 1;

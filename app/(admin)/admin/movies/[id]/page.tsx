@@ -10,11 +10,11 @@ export default async function MovieWorkspacePage(props: { params: Promise<{ id: 
     let lastError = null;
     
     const { data, error } = await supabase
-        .from('cms_movies')
+        .from('exclusive_movies')
         .select(`
             *,
             cms_movie_sources (*),
-            cms_episodes (*)
+            exclusive_episodes (*)
         `)
         .eq('id', params.id)
         .single();
