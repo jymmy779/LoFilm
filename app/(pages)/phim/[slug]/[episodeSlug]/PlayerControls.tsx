@@ -71,7 +71,7 @@ const PlayerControls = ({
       <div className="flex flex-wrap items-center gap-4 md:gap-6 max-w-[1900px] mx-auto px-5 lg:px-12">
 
         {/* Đổi Server - Chỉ hiện nếu có nhiều hơn 1 server */}
-        {episodes && episodes.length > 1 && (
+        {episodes && episodes.length > 0 && (
           <div className="relative">
             <button
               onClick={() => setShowServers(!showServers)}

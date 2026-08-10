@@ -121,19 +121,48 @@ export default function WatchClient({
     const processedEpisodes = useMemo(() => {
         if (!episodes) return [];
         const list: typeof episodes = [];
+        const counts: Record<string, number> = {};
         episodes.forEach(server => {
-            const cleanName = server.server_name.replace(/\s*-\s*(VIP|Dự Phòng)/gi, '').trim();
+            let originalName = server.server_name.toLowerCase();
+            let cleanName = "Vietsub";
+            
+            if (originalName.includes('thuyết minh') || originalName.includes(' tm') || originalName === 'tm') {
+                cleanName = 'Thuyết Minh';
+            } else if (originalName.includes('lồng tiếng') || originalName.includes(' lt') || originalName === 'lt') {
+                cleanName = 'Lồng Tiếng';
+            } else if (originalName.includes('raw') || originalName.includes('nosub')) {
+                cleanName = 'Raw';
+            }
+
+            if (originalName.includes(' op')) cleanName += ' OP';
+            else if (originalName.includes(' nc')) cleanName += ' NC';
+            else if (originalName.includes(' vs')) cleanName += ' VS';
+            else if (originalName.includes(' kk')) cleanName += ' KK';
+            else {
+                const sampleUrl = (server.server_data?.[0]?.link_m3u8 || server.server_data?.[0]?.link_embed || '').toLowerCase();
+                if (sampleUrl.includes('ophim') || sampleUrl.includes('opstream')) cleanName += ' OP';
+                else if (sampleUrl.includes('vsmov')) cleanName += ' VS';
+                else if (sampleUrl.includes('nguonc')) cleanName += ' NC';
+                else cleanName += ' KK';
+            }
+
+            counts[cleanName] = counts[cleanName] || 0;
+
             if (server.server_data.some(ep => ep.link_m3u8)) {
+                counts[cleanName]++;
                 list.push({
                     ...server,
-                    server_name: `${cleanName} - VIP`
-                });
+                    server_name: `${cleanName} #${counts[cleanName]}`,
+                    _isEmbed: false
+                } as any);
             }
             if (server.server_data.some(ep => ep.link_embed)) {
+                counts[cleanName]++;
                 list.push({
                     ...server,
-                    server_name: `${cleanName} - Dự Phòng`
-                });
+                    server_name: `${cleanName} #${counts[cleanName]}`,
+                    _isEmbed: true
+                } as any);
             }
         });
         return list;
@@ -243,8 +272,8 @@ export default function WatchClient({
     const subtitle2Text = useVttOverlay(hasCustomSubtitles ? slot2Url : null, videoRef);
 
     const isEmbedServer = useMemo(() => {
-        const server = processedEpisodes[activeServerIndex];
-        return server?.server_name.includes('Dự Phòng') || false;
+        const server = processedEpisodes[activeServerIndex] as any;
+        return server?._isEmbed || false;
     }, [processedEpisodes, activeServerIndex]);
 
     const currentIndex = useMemo(() => {
@@ -682,7 +711,7 @@ export default function WatchClient({
 
                 if (startFrom > 0 && (!hasResumed || isFallbackResume)) {
                     if (isFallbackResume) {
-                        toast.success(`Đang tự động kết nối máy chủ dự phòng...`, { icon: '🔄', duration: 2500 });
+                        toast.success(`Đang tự động đổi máy chủ...`, { icon: '🔄', duration: 2500 });
                         fallbackTimeRef.current = 0;
                     } else {
                         toast.success(`Đã khôi phục vị trí xem cũ: ${Math.floor(startFrom / 60)} phút`, { icon: '🕒', duration: 2500 });

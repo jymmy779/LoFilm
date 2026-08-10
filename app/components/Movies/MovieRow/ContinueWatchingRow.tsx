@@ -342,7 +342,7 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                                                     <div className="flex flex-wrap gap-1">
                                                         {item.episode_name && (
                                                             <span className="rounded-[4px] bg-[#F5CAE3] px-1 py-[2px] text-[8px] md:text-[11px] font-bold text-pink-950 shadow-sm border border-pink-500/20 tracking-wide">
-                                                                {item.episode_name}
+                                                                {item.episode_name.toLowerCase().includes('tập') ? item.episode_name : `Tập ${item.episode_name}`}
                                                             </span>
                                                         )}
                                                     </div>

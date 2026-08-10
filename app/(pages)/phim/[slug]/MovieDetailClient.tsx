@@ -61,6 +61,57 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
     const [hasFetchedSuggestions, setHasFetchedSuggestions] = useState(false);
     const [hasFetchedActors, setHasFetchedActors] = useState(!!initialActors && initialActors.length > 0);
 
+    const processedEpisodes = useMemo(() => {
+        if (!episodes) return [];
+        const list: typeof episodes = [];
+        const counts: Record<string, number> = {};
+        
+        episodes.forEach(server => {
+            let originalName = server.server_name.toLowerCase();
+            let cleanName = "Vietsub";
+            
+            if (originalName.includes('thuyết minh') || originalName.includes(' tm') || originalName === 'tm') {
+                cleanName = 'Thuyết Minh';
+            } else if (originalName.includes('lồng tiếng') || originalName.includes(' lt') || originalName === 'lt') {
+                cleanName = 'Lồng Tiếng';
+            } else if (originalName.includes('raw') || originalName.includes('nosub')) {
+                cleanName = 'Raw';
+            }
+
+            if (originalName.includes(' op')) cleanName += ' OP';
+            else if (originalName.includes(' nc')) cleanName += ' NC';
+            else if (originalName.includes(' vs')) cleanName += ' VS';
+            else if (originalName.includes(' kk')) cleanName += ' KK';
+            else {
+                const sampleUrl = (server.server_data?.[0]?.link_m3u8 || server.server_data?.[0]?.link_embed || '').toLowerCase();
+                if (sampleUrl.includes('ophim') || sampleUrl.includes('opstream')) cleanName += ' OP';
+                else if (sampleUrl.includes('vsmov')) cleanName += ' VS';
+                else if (sampleUrl.includes('nguonc')) cleanName += ' NC';
+                else cleanName += ' KK';
+            }
+
+            counts[cleanName] = counts[cleanName] || 0;
+
+            if (server.server_data.some(ep => ep.link_m3u8)) {
+                counts[cleanName]++;
+                list.push({
+                    ...server,
+                    server_name: `${cleanName} #${counts[cleanName]}`,
+                    _isEmbed: false
+                } as any);
+            }
+            if (server.server_data.some(ep => ep.link_embed)) {
+                counts[cleanName]++;
+                list.push({
+                    ...server,
+                    server_name: `${cleanName} #${counts[cleanName]}`,
+                    _isEmbed: true
+                } as any);
+            }
+        });
+        return list;
+    }, [episodes]);
+
     // Đảm bảo luôn cuộn lên đầu khi vào chi tiết phim
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
@@ -566,11 +617,11 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                         slug={slug}
                                         movieName={movie.name}
                                         currentEpisode=""
-                                        episodes={episodes}
+                                        episodes={processedEpisodes}
                                         activeServer={activeServerIndex}
                                         onServerChange={setActiveServerIndex}
                                         onEpisodeClick={handleEpisodeClick}
-                                        showServers={episodes.length > 1}
+                                        showServers={true}
                                     />
                                 )}
 

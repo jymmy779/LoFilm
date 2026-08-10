@@ -44,7 +44,7 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                 // Tự động nhận diện nguồn từ URL nếu server_name chưa có hậu tố
                 if (!sName.includes(' OP') && !sName.includes(' KK') && !sName.includes(' NC') && !sName.includes(' VS')) {
                     const url = (ep.link_m3u8 || ep.link_embed || '').toLowerCase();
-                    if (url.includes('ophim')) {
+                    if (url.includes('ophim') || url.includes('opstream')) {
                         sName += ' OP';
                     } else if (url.includes('vsmov')) {
                         sName += ' VS';
@@ -81,7 +81,16 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                 const apiEpisodes = phimApiData.episodes.map((epServer: any) => {
                     let sName = epServer.server_name;
                     if (!sName.includes(' OP') && !sName.includes(' KK') && !sName.includes(' NC') && !sName.includes(' VS')) {
-                        sName += ' KK'; // phimapi is KKPhim
+                        const sampleUrl = (epServer.server_data?.[0]?.link_m3u8 || epServer.server_data?.[0]?.link_embed || '').toLowerCase();
+                        if (sampleUrl.includes('ophim') || sampleUrl.includes('opstream')) {
+                            sName += ' OP';
+                        } else if (sampleUrl.includes('vsmov')) {
+                            sName += ' VS';
+                        } else if (sampleUrl.includes('nguonc')) {
+                            sName += ' NC';
+                        } else {
+                            sName += ' KK'; // phimapi default is KKPhim
+                        }
                     }
                     return { ...epServer, server_name: sName };
                 });
@@ -195,7 +204,16 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                 phimApiData.episodes = phimApiData.episodes.map((epServer: any) => {
                     let sName = epServer.server_name;
                     if (!sName.includes(' OP') && !sName.includes(' KK') && !sName.includes(' NC') && !sName.includes(' VS')) {
-                        sName += ' KK'; // phimapi is KKPhim
+                        const sampleUrl = (epServer.server_data?.[0]?.link_m3u8 || epServer.server_data?.[0]?.link_embed || '').toLowerCase();
+                        if (sampleUrl.includes('ophim') || sampleUrl.includes('opstream')) {
+                            sName += ' OP';
+                        } else if (sampleUrl.includes('vsmov')) {
+                            sName += ' VS';
+                        } else if (sampleUrl.includes('nguonc')) {
+                            sName += ' NC';
+                        } else {
+                            sName += ' KK'; // phimapi default is KKPhim
+                        }
                     }
                     return { ...epServer, server_name: sName };
                 });

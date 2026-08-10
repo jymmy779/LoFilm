@@ -153,7 +153,7 @@ export default async function RootLayout({
   const settings = await getSiteSettings();
 
   return (
-    <html lang="vi" suppressHydrationWarning>
+    <html lang="vi" suppressHydrationWarning className={`${inter.variable} ${montserrat.variable}`}>
       <head>
         <meta name="clckd" content="7b88ce9a85e401383596fcdebfbf0c88" />
         <link rel="preconnect" href="https://wsrv.nl" />
@@ -266,7 +266,7 @@ export default async function RootLayout({
         />
       </head>
       <body 
-        className={`${inter.variable} ${montserrat.variable} bg-[#0F1115] text-white font-sans`} 
+        className="bg-[#0F1115] text-white" 
         style={{ backgroundColor: '#0F1115', color: '#ffffff' }}
         suppressHydrationWarning
       >

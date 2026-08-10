@@ -197,7 +197,7 @@ const EpisodeList = ({
       </div>
 
       {/* Server buttons - full width inside collapsed area */}
-      {showServers && episodes.length > 1 && (
+      {showServers && episodes.length > 0 && (
         <div className="flex items-center gap-2 flex-wrap mb-4">
           {episodes.map((server, index) => (
             <button
