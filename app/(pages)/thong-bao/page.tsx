@@ -107,6 +107,10 @@ export default function NotificationsPage() {
 
             // Tự động đánh dấu tất cả là đã đọc khi vào trang
             if (page === 1) {
+                if (formattedSiteData.length > 0) {
+                    localStorage.setItem('last_seen_notification_id', formattedSiteData[0].id);
+                }
+
                 const unreadUserData = formattedUserData.some(n => !n.is_read);
                 if (unreadUserData) {
                     supabase
@@ -116,7 +120,10 @@ export default function NotificationsPage() {
                         .eq('is_read', false)
                         .then(() => {
                             setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
+                            window.dispatchEvent(new CustomEvent('notifications_updated'));
                         });
+                } else {
+                    window.dispatchEvent(new CustomEvent('notifications_updated'));
                 }
             }
         } catch (error) {
@@ -146,6 +153,7 @@ export default function NotificationsPage() {
             fetchNotifications(1);
             setCurrentPage(1);
             setIsDeleteModalOpen(false);
+            window.dispatchEvent(new CustomEvent('notifications_updated'));
         } catch (error) {
             toast.error('Có lỗi xảy ra');
         }
@@ -165,6 +173,7 @@ export default function NotificationsPage() {
 
             setNotifications(prev => prev.filter(n => n.id !== id));
             toast.success('Đã xóa thông báo');
+            window.dispatchEvent(new CustomEvent('notifications_updated'));
         } catch (error) {
             toast.error('Có lỗi xảy ra');
         }

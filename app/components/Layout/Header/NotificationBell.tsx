@@ -97,16 +97,31 @@ export default function NotificationBell() {
             .channel(siteChannelName)
             .on('postgres_changes', { event: '*', schema: 'public', table: 'site_notifications' }, () => {
                 fetchNotifications(currentUserId);
+                window.dispatchEvent(new CustomEvent('notifications_updated'));
+            })
+            .subscribe();
+
+        // Realtime for User Notifications
+        const userChannelName = `bell_user_notifs_${Math.random().toString(36).substring(7)}`;
+        const userChannel = supabase
+            .channel(userChannelName)
+            .on('postgres_changes', { event: '*', schema: 'public', table: 'user_notifications' }, () => {
+                fetchNotifications(currentUserId);
+                window.dispatchEvent(new CustomEvent('notifications_updated'));
             })
             .subscribe();
 
         // Polling for User Notifications every 60 seconds (thay vì WebSocket)
-        // Giúp tiết kiệm cực kỳ nhiều RAM, CPU cho Database và API Quota
         const pollingInterval = setInterval(() => {
             if (currentUserId) {
                 fetchNotifications(currentUserId);
             }
         }, 60000);
+
+        const handleNotificationsUpdated = () => {
+            fetchNotifications(currentUserId);
+        };
+        window.addEventListener('notifications_updated', handleNotificationsUpdated);
 
         const handleClickOutside = (event: MouseEvent | TouchEvent) => {
             if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
@@ -118,7 +133,9 @@ export default function NotificationBell() {
 
         return () => {
             supabase.removeChannel(siteChannel);
+            supabase.removeChannel(userChannel);
             clearInterval(pollingInterval);
+            window.removeEventListener('notifications_updated', handleNotificationsUpdated);
             document.removeEventListener("mousedown", handleClickOutside, true);
             document.removeEventListener("touchstart", handleClickOutside, true);
         };
@@ -148,6 +165,7 @@ export default function NotificationBell() {
                     setNotifications(prev => prev.map(n => n.type !== 'system' ? { ...n, is_read: true } : n));
                 }
             }
+            window.dispatchEvent(new CustomEvent('notifications_updated'));
         }
     };
 
@@ -271,6 +289,7 @@ export default function NotificationBell() {
                                                 // Kiểm tra lại xem còn thông báo nào chưa đọc không
                                                 const hasUnreadUser = notifications.some(n => n.id !== notif.id && n.type !== 'system' && !n.is_read);
                                                 setHasNew(hasUnreadUser);
+                                                window.dispatchEvent(new CustomEvent('notifications_updated'));
                                             });
                                     }
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import { User, LogOut, Settings, Bell } from "lucide-react";
 import { createClient } from "@/app/utils/supabase/client";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
@@ -30,54 +30,97 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
     const pathname = usePathname();
     const dropdownRef = useRef<HTMLDivElement>(null);
 
+    const fetchUnreadCount = useCallback(async (userId: string) => {
+        if (!userId) {
+            setUnreadCount(0);
+            return;
+        }
+
+        // Check user unread count
+        const { count } = await supabase
+            .from('user_notifications')
+            .select('*', { count: 'exact', head: true })
+            .eq('user_id', userId)
+            .eq('is_read', false);
+
+        let total = count || 0;
+
+        // Check system unread
+        const { data: siteData } = await supabase
+            .from('site_notifications')
+            .select('id')
+            .eq('is_active', true)
+            .gt('expires_at', new Date().toISOString())
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+        if (siteData && siteData.length > 0) {
+            const lastSeenSystemId = typeof window !== 'undefined' ? localStorage.getItem('last_seen_notification_id') : null;
+            if (siteData[0].id !== lastSeenSystemId) {
+                total += 1;
+            }
+        }
+
+        setUnreadCount(total);
+    }, [supabase]);
+
     useEffect(() => {
         const checkUser = async () => {
             const { data: { session } } = await supabase.auth.getSession();
+            const currentUserId = session?.user?.id || null;
             setUser(session?.user || null);
             setLoading(false);
-            if (session?.user) {
-                fetchUnreadCount(session.user.id);
+            if (currentUserId) {
+                fetchUnreadCount(currentUserId);
             }
-        };
-
-        const fetchUnreadCount = async (userId: string) => {
-            // Check user unread count
-            const { count } = await supabase
-                .from('user_notifications')
-                .select('*', { count: 'exact', head: true })
-                .eq('user_id', userId)
-                .eq('is_read', false);
-
-            let total = count || 0;
-
-            // Check system unread
-            const { data: siteData } = await supabase
-                .from('site_notifications')
-                .select('id')
-                .eq('is_active', true)
-                .gt('expires_at', new Date().toISOString())
-                .order('created_at', { ascending: false })
-                .limit(1);
-
-            if (siteData && siteData.length > 0) {
-                const lastSeenSystemId = localStorage.getItem('last_seen_notification_id');
-                if (siteData[0].id !== lastSeenSystemId) {
-                    total += 1;
-                }
-            }
-
-            setUnreadCount(total);
         };
 
         checkUser();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+            const currentUserId = session?.user?.id || null;
             setUser(session?.user || null);
             setLoading(false);
+            if (currentUserId) {
+                fetchUnreadCount(currentUserId);
+            } else {
+                setUnreadCount(0);
+            }
         });
 
         return () => subscription.unsubscribe();
-    }, [supabase]);
+    }, [supabase, fetchUnreadCount]);
+
+    useEffect(() => {
+        if (!user?.id) return;
+
+        fetchUnreadCount(user.id);
+
+        const handleNotificationsUpdated = () => {
+            fetchUnreadCount(user.id);
+        };
+
+        window.addEventListener('notifications_updated', handleNotificationsUpdated);
+
+        // Realtime subscription on user_notifications for this user
+        const channelName = `member_notifs_${Math.random().toString(36).substring(7)}`;
+        const notifChannel = supabase
+            .channel(channelName)
+            .on('postgres_changes', {
+                event: '*',
+                schema: 'public',
+                table: 'user_notifications',
+                filter: `user_id=eq.${user.id}`
+            }, () => {
+                fetchUnreadCount(user.id);
+            })
+            .subscribe();
+
+        return () => {
+            window.removeEventListener('notifications_updated', handleNotificationsUpdated);
+            supabase.removeChannel(notifChannel);
+        };
+    }, [user?.id, pathname, fetchUnreadCount, supabase]);
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent | TouchEvent) => {
