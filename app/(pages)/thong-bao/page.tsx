@@ -30,7 +30,7 @@ export default function NotificationsPage() {
     const [totalCount, setTotalCount] = useState(0);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const ITEMS_PER_PAGE = 15;
-    
+
     const [user, setUser] = useState<any>(null);
     const supabase = createClient();
 
@@ -93,12 +93,12 @@ export default function NotificationsPage() {
 
             // Ghép và sắp xếp
             // Nếu ở trang 1 thì ghép cả thông báo hệ thống, các trang sau chỉ hiện thông báo cá nhân
-            const merged = page === 1 
+            const merged = page === 1
                 ? [...formattedSiteData, ...formattedUserData].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
                 : formattedUserData;
 
             setNotifications(merged);
-            
+
             if (count !== null) {
                 setTotalCount(count);
                 setTotalPages(Math.ceil(count / ITEMS_PER_PAGE));
@@ -134,13 +134,13 @@ export default function NotificationsPage() {
 
     const handleDeleteAllConfirm = async () => {
         if (!user?.id) return;
-        
+
         try {
             await supabase
                 .from('user_notifications')
                 .delete()
                 .eq('user_id', user.id);
-            
+
             toast.success('Đã xóa tất cả thông báo');
             fetchNotifications(1);
             setCurrentPage(1);
@@ -161,7 +161,7 @@ export default function NotificationsPage() {
                 .delete()
                 .eq('id', id)
                 .eq('user_id', user.id);
-            
+
             setNotifications(prev => prev.filter(n => n.id !== id));
             toast.success('Đã xóa thông báo');
         } catch (error) {
@@ -174,7 +174,7 @@ export default function NotificationsPage() {
         const date = new Date(dateStr);
         const now = new Date();
         const seconds = Math.floor((now.getTime() - date.getTime()) / 1000);
-        
+
         if (seconds < 60) return `${seconds} giây trước`;
         const minutes = Math.floor(seconds / 60);
         if (minutes < 60) return `${minutes} phút trước`;
@@ -202,7 +202,7 @@ export default function NotificationsPage() {
             case 'like': return <span className="text-rose-500 text-[11px] md:text-xs font-semibold uppercase tracking-wider ml-2">Thích</span>;
             case 'dislike': return <span className="text-zinc-400 text-[11px] md:text-xs font-semibold uppercase tracking-wider ml-2">Không thích</span>;
             case 'reply': return <span className="text-[#D497FF] text-[11px] md:text-xs font-semibold uppercase tracking-wider ml-2">Phản hồi</span>;
-            case 'system': return <span className="text-amber-500 text-[11px] md:text-xs font-semibold uppercase tracking-wider ml-2">Hệ thống</span>;
+            case 'system': return <span className="text-amber-500 text-[11px] md:text-xs font-semibold uppercase tracking-wider ml-2">Admin</span>;
             default: return null;
         }
     };
@@ -211,9 +211,9 @@ export default function NotificationsPage() {
         if (notif.type === 'system') {
             return <p className="text-sm md:text-base text-white/90 mt-1 line-clamp-3">{notif.message}</p>;
         }
-        
+
         const actionText = notif.type === 'like' ? 'thích' : notif.type === 'dislike' ? 'không thích' : 'trả lời';
-        
+
         return (
             <div className="mt-1.5 md:mt-2">
                 <p className="text-xs md:text-sm text-white/70 leading-relaxed">
@@ -239,7 +239,7 @@ export default function NotificationsPage() {
     return (
         <div className="min-h-screen pt-20 md:pt-28 pb-20 bg-zinc-950">
             <div className="max-w-4xl mx-auto px-4 md:px-6">
-                
+
                 {/* Header */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
                     <div>
@@ -251,7 +251,7 @@ export default function NotificationsPage() {
                     </div>
 
                     <div className="flex items-center gap-3 shrink-0">
-                        <button 
+                        <button
                             onClick={() => setIsDeleteModalOpen(true)}
                             className="flex items-center gap-1.5 md:gap-2 px-3 py-1.5 md:px-4 md:py-2 bg-red-500/10 hover:bg-red-500/20 text-red-400 rounded-lg md:rounded-xl transition-colors text-[12px] md:text-sm font-medium border border-red-500/20"
                         >
@@ -272,19 +272,18 @@ export default function NotificationsPage() {
                     ) : notifications.length > 0 ? (
                         <div className="divide-y divide-white/5">
                             {notifications.map((notif) => {
-                                const targetUrl = notif.type !== 'system' && notif.movie_slug 
-                                    ? `/phim/${notif.movie_slug}${notif.comment_id ? `#comment-${notif.comment_id}` : ''}` 
+                                const targetUrl = notif.type !== 'system' && notif.movie_slug
+                                    ? `/phim/${notif.movie_slug}${notif.comment_id ? `#comment-${notif.comment_id}` : ''}`
                                     : '#';
-                                    
+
                                 const Wrapper = (notif.type !== 'system' && notif.movie_slug ? Link : "div") as any;
 
                                 return (
                                     <div key={notif.id} className="relative group">
                                         <Wrapper
                                             href={targetUrl !== '#' ? targetUrl : undefined}
-                                            className={`flex gap-3 md:gap-5 p-4 md:p-6 transition-colors ${
-                                                notif.type !== 'system' && !notif.is_read ? 'bg-[#D497FF]/5 hover:bg-[#D497FF]/10' : 'hover:bg-white/5'
-                                            } ${notif.type !== 'system' && notif.movie_slug ? 'cursor-pointer' : 'cursor-default'}`}
+                                            className={`flex gap-3 md:gap-5 p-4 md:p-6 transition-colors ${notif.type !== 'system' && !notif.is_read ? 'bg-[#D497FF]/5 hover:bg-[#D497FF]/10' : 'hover:bg-white/5'
+                                                } ${notif.type !== 'system' && notif.movie_slug ? 'cursor-pointer' : 'cursor-default'}`}
                                         >
                                             <div className="shrink-0 mt-1 relative">
                                                 {notif.type !== 'system' && notif.actor_avatar ? (
