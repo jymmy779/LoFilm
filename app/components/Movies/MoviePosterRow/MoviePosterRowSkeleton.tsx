@@ -12,7 +12,7 @@ export default function MoviePosterRowSkeleton() {
             </div>
 
             <div className="row-content">
-                <div className="relative overflow-hidden">
+                <div className="relative overflow-hidden pb-[20px] pt-[5px]">
                     <div className="flex gap-[10px] md:gap-[13px] xl:gap-[15px]">
                         {[...Array(8)].map((_, i) => (
                             <div key={i} className="flex-shrink-0 w-[calc(50%-5px)] sm:w-[calc(33.333%-8.7px)] md:w-[calc(25%-9.75px)] lg:w-[calc(20%-10.4px)] xl:w-[calc(14.28%-12.8px)] 2xl:w-[calc(12.5%-13.1px)]">

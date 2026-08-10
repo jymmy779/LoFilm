@@ -3,7 +3,7 @@
 import { useEffect, useState, memo } from "react";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
+import { Navigation, Virtual } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
@@ -290,7 +290,8 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                 {/* Swiper */}
                 <div className="w-full xl:w-[calc(100%-292px)] relative group/slider">
                     <Swiper
-                        modules={[Navigation]}
+                        modules={[Navigation, Virtual]}
+                        virtual={{ enabled: true }}
                         slidesPerView={2}
                         spaceBetween={8}
                         breakpoints={{
@@ -312,7 +313,7 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                             const isPriority = index < 4;
 
                             return (
-                                <SwiperSlide key={item.id}>
+                                <SwiperSlide key={item.id} virtualIndex={index}>
                                     <div className="group relative block w-full h-full">
                                         <TransitionLink
                                             href={`/phim/${item.movie_slug}/${item.episode_slug}`}

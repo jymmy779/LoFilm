@@ -9,8 +9,8 @@ export default function MovieRowCardSkeleton() {
       
       {/* Info area */}
       <div className="space-y-0.5">
-        <Skeleton className="w-3/4 h-5" rounded="md" />
-        <Skeleton className="w-1/2 h-4" rounded="md" />
+        <Skeleton className="w-3/4 h-[16px] md:h-[20px]" rounded="md" />
+        <Skeleton className="w-1/2 h-[14px] md:h-[16px]" rounded="md" />
       </div>
     </div>
   );

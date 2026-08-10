@@ -3,7 +3,7 @@
 import { memo } from "react";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
+import { Navigation, Virtual } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
@@ -65,7 +65,8 @@ function MovieRow({
                 {/* === RIGHT SIDE: SWIPER === */}
                 <div className="w-full xl:w-[calc(100%-292px)] relative group/slider">
                     <Swiper
-                        modules={[Navigation]}
+                        modules={[Navigation, Virtual]}
+                        virtual={{ enabled: true }}
                         slidesPerView={"auto"}
                         spaceBetween={6}
                         breakpoints={
@@ -85,7 +86,7 @@ function MovieRow({
                             const eager = index < 3;
 
                             return (
-                                <SwiperSlide key={movie._id} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
+                                <SwiperSlide key={movie._id} virtualIndex={index} className="!w-[160px] sm:!w-[200px] md:!w-[240px] lg:!w-[280px]">
                                     <MovieRowCard
                                         movie={movie}
                                         priority={eager}

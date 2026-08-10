@@ -4,7 +4,7 @@ import { memo, useEffect, useState } from "react";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import axios from "axios";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
+import { Navigation, Virtual } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
@@ -94,7 +94,8 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies, titleGradient 
 
             <div className="row-content relative group/slider">
                 <Swiper
-                    modules={[Navigation]}
+                    modules={[Navigation, Virtual]}
+                    virtual={{ enabled: true }}
                     spaceBetween={8}
                     navigation={{
                         nextEl: `.sw-next-${navId}`,
@@ -110,13 +111,13 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies, titleGradient 
                         1400: { slidesPerView: 7, spaceBetween: 12 },
                         1536: { slidesPerView: 8, spaceBetween: 12 }
                     }}
-                    className="swiper-carousel"
+                    className="swiper-carousel top-movie-carousel"
                 >
                     {movies.map((movie, index) => {
                         const isEven = index % 2 !== 0;
 
                         return (
-                            <SwiperSlide key={movie._id} className="transform-gpu">
+                            <SwiperSlide key={movie._id} virtualIndex={index} className="transform-gpu">
                                 <MoviePreviewWrapper
                                     movie={movie}
                                     adZone="top_movie"
@@ -244,7 +245,7 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies, titleGradient 
             </div>
 
             <style jsx global>{`
-                .swiper-carousel .swiper-wrapper {
+                .top-movie-carousel .swiper-wrapper {
                     padding-bottom: 20px;
                     padding-top: 5px;
                 }

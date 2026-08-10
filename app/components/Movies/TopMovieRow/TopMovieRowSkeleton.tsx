@@ -14,7 +14,7 @@ export default function TopMovieRowSkeleton() {
             </div>
 
             <div className="row-content">
-                <div className="relative overflow-hidden">
+                <div className="relative overflow-hidden pb-[20px] pt-[5px]">
                     <div className="flex gap-[10px] md:gap-[13px] xl:gap-[15px]">
                         {[...Array(8)].map((_, i) => {
                             const isEven = i % 2 !== 0;
@@ -31,9 +31,12 @@ export default function TopMovieRowSkeleton() {
                                         />
                                         <div className="flex gap-2 items-start">
                                             <Skeleton className="w-8 md:w-10 h-10" rounded="md" />
-                                            <div className="flex-1 space-y-2 pt-1">
-                                                <Skeleton className="w-full h-4" />
-                                                <Skeleton className="w-1/2 h-3 opacity-50" />
+                                            <div className="flex-1 flex flex-col flex-nowrap gap-1.5 min-w-0">
+                                                <Skeleton className="w-full h-[20px] md:h-[24px]" rounded="md" />
+                                                <Skeleton className="w-2/3 h-[14px] md:h-[16px] opacity-50" rounded="md" />
+                                                <div className="mt-1">
+                                                    <Skeleton className="w-1/3 h-[14px] md:h-[15px] opacity-40" rounded="md" />
+                                                </div>
                                             </div>
                                         </div>
                                     </div>

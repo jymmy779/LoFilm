@@ -3,7 +3,8 @@
 import { useRef, useState, useEffect } from "react";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import Container from "@/app/components/UI/Container";
-import Image from "next/image";
+import SmartImage from "@/app/components/UI/Common/SmartImage";
+import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, FreeMode } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
@@ -95,7 +96,7 @@ export default function CategoriesSection({ initialTopics }: { initialTopics?: a
                             <SwiperSlide key={topic.id} className="!w-[200px] md:!w-[240px] lg:!w-[280px]">
                                 <TransitionLink
                                     href={topic.href}
-                                    className={`relative overflow-hidden rounded-[16px] md:rounded-[20px] h-[110px] md:h-[130px] lg:h-[150px] bg-gradient-to-br ${topic.bgColor} group cursor-pointer shadow-lg hover:shadow-2xl transition-[box-shadow,transform] will-change-transform duration-300 hover:-translate-y-1 block border border-white/5`}
+                                    className={`relative overflow-hidden rounded-[16px] md:rounded-[20px] h-[110px] md:h-[130px] lg:h-[150px] bg-gradient-to-br ${topic.bgColor} group cursor-pointer shadow-lg hover:shadow-2xl transition-all will-change-transform duration-300 ease-out hover:-translate-y-1.5 block border border-white/5`}
                                 >
                                     {/* Nửa bên trái: Thông tin */}
                                     <div className="absolute inset-0 z-10 p-3 md:p-4 flex flex-col justify-between h-full w-[65%]">
@@ -115,14 +116,15 @@ export default function CategoriesSection({ initialTopics }: { initialTopics?: a
                                     {/* Nửa bên phải: Hình ảnh có hiệu ứng Fade */}
                                     <div className="absolute right-0 top-0 h-full w-[75%]">
                                         <div
-                                            className="relative w-full h-full opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-[transform,opacity] will-change-transform duration-500"
+                                            className="relative w-full h-full opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all will-change-transform duration-500 ease-out"
                                             style={{
                                                 WebkitMaskImage: "linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%)",
                                                 maskImage: "linear-gradient(to left, rgba(0,0,0,1) 40%, rgba(0,0,0,0) 100%)"
                                             }}
                                         >
-                                            <Image
-                                                src={`https://wsrv.nl/?url=${encodeURIComponent(topic.imageUrl)}&w=400&q=80&output=webp`}
+                                            <SmartImage
+                                                src={getImageUrl(topic.imageUrl, { width: 400, quality: 80 })}
+                                                rawSrc={getRawImageUrl(topic.imageUrl)}
                                                 alt={topic.title}
                                                 fill
                                                 sizes="(max-width: 768px) 50vw, 300px"

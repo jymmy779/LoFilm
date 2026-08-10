@@ -3,7 +3,7 @@
 import { memo } from "react";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
+import { Navigation, Virtual } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
@@ -77,7 +77,8 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
             <div className="row-content">
                 <div className="relative group/slider swiper-carousel-container">
                     <Swiper
-                        modules={[Navigation]}
+                        modules={[Navigation, Virtual]}
+                        virtual={{ enabled: true }}
                         slidesPerView={2}
                         spaceBetween={8}
                         navigation={{
@@ -93,10 +94,10 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
                             1400: { slidesPerView: 7, spaceBetween: 12 },
                             1536: { slidesPerView: 8, spaceBetween: 12 }
                         }}
-                        className="swiper-carousel"
+                        className="swiper-carousel poster-carousel"
                     >
                         {movies.map((movie, index) => (
-                            <SwiperSlide key={movie._id}>
+                            <SwiperSlide key={movie._id} virtualIndex={index}>
                                 <MoviePosterCard
                                     movie={movie}
                                     priority={index < 8}
@@ -118,7 +119,7 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
             </div>
 
             <style jsx global>{`
-                .swiper-carousel .swiper-wrapper {
+                .poster-carousel .swiper-wrapper {
                     padding-bottom: 20px;
                     padding-top: 5px;
                 }

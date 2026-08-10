@@ -3,7 +3,7 @@
 import { memo } from "react";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
+import { Navigation, Virtual } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 
@@ -67,7 +67,8 @@ function WideMovieRow({
             <div className="row-content relative group/slider">
                 <div className="cards-slide-wrapper top-up">
                     <Swiper
-                        modules={[Navigation]}
+                        modules={[Navigation, Virtual]}
+                        virtual={{ enabled: true }}
                         slidesPerView={1.2}
                         spaceBetween={8}
                         breakpoints={{
@@ -89,7 +90,7 @@ function WideMovieRow({
                         className="swiper-carousel"
                     >
                         {movies.map((movie, index) => (
-                            <SwiperSlide key={movie._id}>
+                            <SwiperSlide key={movie._id} virtualIndex={index}>
                                 <div className="block relative group cursor-pointer overflow-hidden rounded-xl md:rounded-2xl bg-slate-900/40 transition-transform duration-300 transform-gpu">
                                     <WideMovieCard movie={movie} priority={index < 2} />
                                 </div>

@@ -4,6 +4,7 @@ import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import React, { useState, useEffect, memo } from "react";
 import { Dices, Play } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
+import { Virtual } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
 import Container from "../../UI/Container";
@@ -154,7 +155,7 @@ function RandomMovieRow() {
                         <SwiperSlide key={mood.id} className="pt-2 pb-2">
                             <button
                                 onClick={() => setSelectedMood(mood)}
-                                className={`w-full group relative rounded-xl p-3 md:p-5 text-left transition-[transform,border-color,background-color] will-change-transform duration-300 border-2 cursor-pointer hover:-translate-y-2 min-h-[95px] md:min-h-[115px] flex flex-col justify-between ${selectedMood.id === mood.id
+                                className={`w-full group relative rounded-xl p-3 md:p-5 text-left transition-all will-change-transform duration-300 ease-out border-2 cursor-pointer hover:-translate-y-2 min-h-[95px] md:min-h-[115px] flex flex-col justify-between ${selectedMood.id === mood.id
                                     ? `${mood.bgColor} border-white shadow-[0_10px_25px_rgba(0,0,0,0.3)] scale-[1.02] z-20`
                                     : `border-white/10 ${mood.bgColor} hover:scale-[1.01] shadow-md opacity-90 hover:opacity-100 z-10`
                                     }`}
@@ -196,6 +197,8 @@ function RandomMovieRow() {
                 ) : movies.length > 0 ? (
                     <div>
                         <Swiper
+                            modules={[Virtual]}
+                            virtual={{ enabled: true }}
                             spaceBetween={8}
                             slidesPerView={2.5}
                             breakpoints={{
@@ -212,7 +215,7 @@ function RandomMovieRow() {
                                 const isPriority = index < 10;
 
                                 return (
-                                    <SwiperSlide key={movie._id}>
+                                    <SwiperSlide key={movie._id} virtualIndex={index}>
                                         <TransitionLink
                                             href={`/phim/${movie.slug}`}
                                             className="group relative block cursor-pointer rounded-lg overflow-hidden bg-[#0F1115] active:scale-95 transition-transform will-change-transform"

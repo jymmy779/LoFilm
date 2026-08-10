@@ -68,6 +68,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                 autoplay={{ delay: 6000, disableOnInteraction: false, pauseOnMouseEnter: false }}
                 thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
                 loop
+                speed={1000}
                 onSlideChange={(s) => setActiveIndex(s.realIndex)}
                 className="w-full h-full"
             >
@@ -259,6 +260,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                             freeMode
                             watchSlidesProgress
                             loop
+                            speed={800}
                             className="w-full"
                         >
                             {movies.map((movie, index) => (

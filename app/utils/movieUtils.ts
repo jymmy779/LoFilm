@@ -264,8 +264,16 @@ export function normalizeImageUrl(url: string | undefined): string {
     return `https://phimimg.com/${cleanPath}`;
 }
 
-export function getImageUrl(url: string | undefined, _options?: { width?: number; quality?: number }): string {
-    return normalizeImageUrl(url);
+export function getImageUrl(url: string | undefined, options?: { width?: number; quality?: number }): string {
+    const normalizedUrl = normalizeImageUrl(url);
+    
+    if (normalizedUrl.includes("phimimg.com") && !normalizedUrl.toLowerCase().includes(".webp")) {
+        const width = options?.width ? `&w=${options.width}` : "";
+        const quality = options?.quality ? `&q=${options.quality}` : "&q=80";
+        return `https://wsrv.nl/?url=${encodeURIComponent(normalizedUrl)}${width}${quality}&output=webp`;
+    }
+    
+    return normalizedUrl;
 }
 
 /**
