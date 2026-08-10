@@ -7,14 +7,48 @@ import { prefetchHomePageData } from "./lib/prefetch-home";
 
 export const dynamic = "force-dynamic"; // Tắt Next.js ISR để luôn lấy data mới nhất từ Redis
 
-import { SITE_URL } from "@/app/config/site";
+import { SITE_URL, getAbsoluteUrl } from "@/app/config/site";
 
 export async function generateMetadata(): Promise<Metadata> {
+    let ogImage = getAbsoluteUrl('/images/lofilm_logo.webp'); // Default
+    
+    try {
+        const homeData = await prefetchHomePageData();
+        const firstHero = homeData?.hero?.[0];
+        if (firstHero && firstHero.thumb_url) {
+            ogImage = firstHero.thumb_url;
+        } else if (firstHero && firstHero.poster_url) {
+            ogImage = firstHero.poster_url;
+        }
+    } catch (e) {
+        console.error("Error fetching hero for OG image", e);
+    }
+
     return {
         title: "LoFilm - Xem Phim Online Chất Lượng Cao, Phim 4K, Vietsub",
         description: "Trải nghiệm xem phim online chất lượng cao 4K, Vietsub tại LoFilm. Kho phim lẻ, phim bộ, anime mới nhất 2026 cập nhật mỗi ngày với tốc độ cực nhanh và không quảng cáo!",
         alternates: {
             canonical: SITE_URL,
+        },
+        openGraph: {
+            title: "LoFilm - Kho Phim Giải Trí Đỉnh Cao, Xem Phim Online 4K, Vietsub",
+            description: "Trải nghiệm xem phim chất lượng cao 4K, Vietsub, thuyết minh hoàn toàn miễn phí tại LoFilm.",
+            url: SITE_URL,
+            siteName: "LoFilm",
+            locale: "vi_VN",
+            type: "website",
+            images: [{
+                url: ogImage,
+                width: 1200,
+                height: 630,
+                alt: "LoFilm - Xem Phim Online Chất Lượng Cao",
+            }],
+        },
+        twitter: {
+            card: 'summary_large_image',
+            title: 'LoFilm - Xem Phim Online Chất Lượng Cao',
+            description: 'Xem phim LoFilm miễn phí, chất lượng 4K, Vietsub.',
+            images: [ogImage],
         },
     };
 }
