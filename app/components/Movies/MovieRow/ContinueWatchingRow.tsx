@@ -354,7 +354,7 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                                                 <button
                                                     onClick={(e) => handleDeleteClick(e, item)}
                                                     disabled={isDeleting === item.id}
-                                                    className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-red-500 text-white rounded-lg transition-all opacity-100 z-30 cursor-pointer border border-white/10 hover:border-white/20 active:scale-90"
+                                                    className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-red-500 text-white rounded-lg transition-[background-color,border-color,transform] will-change-transform opacity-100 z-30 cursor-pointer border border-white/10 hover:border-white/20 active:scale-90"
                                                     title="Xóa khỏi danh sách"
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>

@@ -88,8 +88,7 @@ export default function LazyRow({
             ref={containerRef}
             className={`${className} lazy-section optimize-render`}
             style={{
-                minHeight: isIntersecting ? "auto" : estimatedHeight,
-                containIntrinsicSize: `1px ${estimatedHeight}`
+                minHeight: isIntersecting ? "auto" : estimatedHeight
             }}
         >
             {shouldRender ? (

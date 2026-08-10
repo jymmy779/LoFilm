@@ -23,6 +23,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { logActivity } from "@/app/utils/log-activity";
 import { toast } from "react-hot-toast";
 import Image from "next/image";
+import LoadingSpinner from "@/app/components/UI/Common/LoadingSpinner";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import LogoutModal from "@/app/components/UI/Modals/LogoutModal";
 import ComingSoonModal from "@/app/components/UI/Modals/ComingSoonModal";
@@ -673,7 +674,7 @@ export default function ProfileContent() {
           <label className="absolute top-1/3 md:top-1/4 right-4 md:right-8 -translate-y-1/2 z-20 cursor-pointer flex items-center gap-2 rounded-full bg-black/50 px-4 py-2 text-sm font-medium text-white hover:bg-black/70 transition-all backdrop-blur-md border border-white/10">
             {isUpdatingCover ? (
               <>
-                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+                <LoadingSpinner size="xs" color="white" />
                 Đang tải...
               </>
             ) : (
@@ -702,7 +703,7 @@ export default function ProfileContent() {
               <div className="relative h-36 w-36 md:h-44 md:w-44 rounded-full border-4 border-[#0a0a0f] bg-zinc-900 overflow-hidden shadow-2xl flex items-center justify-center text-5xl font-bold text-zinc-500">
                 {isUpdatingAvatar ? (
                   <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-[#0a0a0f]/80 z-[15]">
-                    <div className="w-8 h-8 border-2 border-orange-500/20 border-t-orange-500 rounded-full animate-spin" />
+                    <LoadingSpinner size="md" color="orange" />
                   </div>
                 ) : pendingAvatarSrc || user?.user_metadata?.avatar_url ? (
                   <Image
@@ -759,7 +760,7 @@ export default function ProfileContent() {
                     className="flex items-center gap-2 px-5 py-2.5 rounded-full border-none text-sm font-semibold transition-all cursor-pointer bg-gradient-to-r from-amber-400 via-orange-500 to-rose-600 hover:from-amber-300 hover:via-orange-400 hover:to-rose-500 shadow-lg shadow-orange-900/40 text-white disabled:opacity-50"
                   >
                     {isUpdatingCover || isUpdatingAvatar ? (
-                      <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                      <LoadingSpinner size="xs" color="black" />
                     ) : "Lưu thay đổi"}
                   </button>
                 </>

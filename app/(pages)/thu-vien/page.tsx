@@ -249,13 +249,9 @@ export default function LibraryPage() {
             </button>
           </div>
         {isLoading ? (
-          <div className="py-20 flex justify-center">
-            <div className="relative flex items-center justify-center">
-              <div className="w-10 h-10 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin" style={{ animationDuration: '0.45s' }} />
-              <div className="absolute w-6 h-6 border-2 border-amber-400/20 border-b-amber-400 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '0.65s' }} />
-              <div className="absolute w-1.5 h-1.5 bg-orange-500 rounded-full" />
+            <div className="py-20 flex justify-center items-center">
+              <LoadingSpinner size="md" color="orange" />
             </div>
-          </div>
         ) : currentData.length > 0 ? (
           <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-x-3 gap-y-3">
             {currentData.map((item) => (

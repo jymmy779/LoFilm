@@ -8,6 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
 import CommonModal from "@/app/components/UI/Modals/CommonModal";
+import LoadingSpinner from "@/app/components/UI/Common/LoadingSpinner";
 
 interface UnifiedNotification {
     id: string;
@@ -266,7 +267,7 @@ export default function NotificationsPage() {
                 <div className="bg-[#0F1115] border border-white/5 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl">
                     {isLoading ? (
                         <div className="py-20 text-center text-zinc-500 flex flex-col items-center">
-                            <div className="w-8 h-8 border-2 border-[#D497FF]/30 border-t-[#D497FF] rounded-full animate-spin mb-4" />
+                            <LoadingSpinner size="md" color="default" className="mb-4" />
                             Đang tải thông báo...
                         </div>
                     ) : notifications.length > 0 ? (

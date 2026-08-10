@@ -264,58 +264,106 @@ export default function Header() {
                 >
                     {/* Left Items */}
                     <div className="flex items-center w-[42%] justify-between pr-2">
-                        <TransitionLink href="/danh-sach/phim-moi" className={`relative flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-xl transition-all duration-300 ${isKhamPhaActive ? 'text-[#D497FF]' : 'text-white/60 hover:text-white'}`}>
-                            <svg className={`transition-transform duration-300 ${isKhamPhaActive ? 'scale-110 -translate-y-1' : 'scale-100'}`} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" /></svg>
-                            <span className={`text-[9px] font-medium tracking-wide transition-all duration-300 ${isKhamPhaActive ? 'opacity-100 -translate-y-0.5' : 'opacity-80'}`}>Khám phá</span>
-                            <div className={`absolute bottom-0 w-1 h-1 rounded-full bg-[#D497FF] transition-all duration-300 ${isKhamPhaActive ? 'opacity-100 shadow-[0_0_8px_#D497FF]' : 'opacity-0 scale-0'}`} />
+                        <TransitionLink href="/danh-sach/phim-moi" className="relative flex flex-col items-center justify-center w-14 h-14 rounded-xl">
+                            {/* Inactive State */}
+                            <div className={`absolute inset-0 flex flex-col items-center justify-center gap-1 transition-opacity duration-300 text-white/60 hover:text-white ${isKhamPhaActive ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                                <svg className="transition-transform duration-300 scale-100" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" /></svg>
+                                <span className="text-[9px] font-medium tracking-wide opacity-80">Khám phá</span>
+                            </div>
+                            {/* Active State */}
+                            <div className={`absolute inset-0 flex flex-col items-center justify-center gap-1 transition-opacity duration-300 text-[#D497FF] will-change-transform ${isKhamPhaActive ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                                <svg className="transition-transform duration-300 scale-110 -translate-y-1" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10" /><polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76" /></svg>
+                                <span className="text-[9px] font-medium tracking-wide -translate-y-0.5">Khám phá</span>
+                                <div className="absolute bottom-0 w-1 h-1 rounded-full bg-[#D497FF] shadow-[0_0_8px_#D497FF]" />
+                            </div>
                         </TransitionLink>
 
-                        <button onClick={() => { if(user) router.push('/thu-vien'); else { setLoginPromptSource("playlist"); setShowLoginPrompt(true); } }} className={`relative flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-xl transition-all duration-300 ${pathname === '/thu-vien' ? 'text-[#D497FF]' : 'text-white/60 hover:text-white'}`}>
-                            <svg className={`transition-transform duration-300 ${pathname === '/thu-vien' ? 'scale-110 -translate-y-1' : 'scale-100'}`} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>
-                            <span className={`text-[9px] font-medium tracking-wide transition-all duration-300 ${pathname === '/thu-vien' ? 'opacity-100 -translate-y-0.5' : 'opacity-80'}`}>Playlist</span>
-                            <div className={`absolute bottom-0 w-1 h-1 rounded-full bg-[#D497FF] transition-all duration-300 ${pathname === '/thu-vien' ? 'opacity-100 shadow-[0_0_8px_#D497FF]' : 'opacity-0 scale-0'}`} />
+                        <button onClick={() => { if(user) router.push('/thu-vien'); else { setLoginPromptSource("playlist"); setShowLoginPrompt(true); } }} className="relative flex flex-col items-center justify-center w-14 h-14 rounded-xl">
+                            {/* Inactive State */}
+                            <div className={`absolute inset-0 flex flex-col items-center justify-center gap-1 transition-opacity duration-300 text-white/60 hover:text-white ${pathname === '/thu-vien' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                                <svg className="transition-transform duration-300 scale-100" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>
+                                <span className="text-[9px] font-medium tracking-wide opacity-80">Playlist</span>
+                            </div>
+                            {/* Active State */}
+                            <div className={`absolute inset-0 flex flex-col items-center justify-center gap-1 transition-opacity duration-300 text-[#D497FF] will-change-transform ${pathname === '/thu-vien' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                                <svg className="transition-transform duration-300 scale-110 -translate-y-1" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m16 6 4 14"/><path d="M12 6v14"/><path d="M8 8v12"/><path d="M4 4v16"/></svg>
+                                <span className="text-[9px] font-medium tracking-wide -translate-y-0.5">Playlist</span>
+                                <div className="absolute bottom-0 w-1 h-1 rounded-full bg-[#D497FF] shadow-[0_0_8px_#D497FF]" />
+                            </div>
                         </button>
                     </div>
 
                     {/* Right Items */}
                     <div className="flex items-center w-[42%] justify-between pl-2">
-                        <TransitionLink href="/danh-sach/phim-chieu-rap" className={`relative flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-xl transition-all duration-300 ${pathname === '/danh-sach/phim-chieu-rap' ? 'text-[#D497FF]' : 'text-white/60 hover:text-white'}`}>
-                            <svg className={`transition-transform duration-300 ${pathname === '/danh-sach/phim-chieu-rap' ? 'scale-110 -translate-y-1' : 'scale-100'}`} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
-                            <span className={`text-[9px] font-medium tracking-wide transition-all duration-300 ${pathname === '/danh-sach/phim-chieu-rap' ? 'opacity-100 -translate-y-0.5' : 'opacity-80'}`}>Lịch chiếu</span>
-                            <div className={`absolute bottom-0 w-1 h-1 rounded-full bg-[#D497FF] transition-all duration-300 ${pathname === '/danh-sach/phim-chieu-rap' ? 'opacity-100 shadow-[0_0_8px_#D497FF]' : 'opacity-0 scale-0'}`} />
+                        <TransitionLink href="/danh-sach/phim-chieu-rap" className="relative flex flex-col items-center justify-center w-14 h-14 rounded-xl">
+                            {/* Inactive State */}
+                            <div className={`absolute inset-0 flex flex-col items-center justify-center gap-1 transition-opacity duration-300 text-white/60 hover:text-white ${pathname === '/danh-sach/phim-chieu-rap' ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                                <svg className="transition-transform duration-300 scale-100" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+                                <span className="text-[9px] font-medium tracking-wide opacity-80">Lịch chiếu</span>
+                            </div>
+                            {/* Active State */}
+                            <div className={`absolute inset-0 flex flex-col items-center justify-center gap-1 transition-opacity duration-300 text-[#D497FF] will-change-transform ${pathname === '/danh-sach/phim-chieu-rap' ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                                <svg className="transition-transform duration-300 scale-110 -translate-y-1" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/><path d="M8 14h.01"/><path d="M12 14h.01"/><path d="M16 14h.01"/><path d="M8 18h.01"/><path d="M12 18h.01"/><path d="M16 18h.01"/></svg>
+                                <span className="text-[9px] font-medium tracking-wide -translate-y-0.5">Lịch chiếu</span>
+                                <div className="absolute bottom-0 w-1 h-1 rounded-full bg-[#D497FF] shadow-[0_0_8px_#D497FF]" />
+                            </div>
                         </TransitionLink>
 
-                        <button onClick={() => { if(user) router.push('/ca-nhan'); else { setLoginPromptSource("account"); setShowLoginPrompt(true); } }} className={`relative flex flex-col items-center justify-center gap-1 w-14 h-14 rounded-xl transition-all duration-300 ${pathname === '/ca-nhan' && !isMenuOpen ? 'text-[#D497FF]' : 'text-white/60 hover:text-white'}`}>
-                            {isMounted && user ? (
-                                user?.user_metadata?.avatar_url ? (
-                                    <div className={`w-[22px] h-[22px] rounded-full overflow-hidden border transition-transform duration-300 ${pathname === '/ca-nhan' && !isMenuOpen ? 'border-[#D497FF] scale-110 -translate-y-1' : 'border-white/40 scale-100'}`}>
-                                        <Image src={user.user_metadata.avatar_url} alt="Avatar" width={22} height={22} className="w-full h-full object-cover" />
-                                    </div>
+                        <button onClick={() => { if(user) router.push('/ca-nhan'); else { setLoginPromptSource("account"); setShowLoginPrompt(true); } }} className="relative flex flex-col items-center justify-center w-14 h-14 rounded-xl">
+                            {/* Inactive State */}
+                            <div className={`absolute inset-0 flex flex-col items-center justify-center gap-1 transition-opacity duration-300 text-white/60 hover:text-white ${pathname === '/ca-nhan' && !isMenuOpen ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                                {isMounted && user ? (
+                                    user?.user_metadata?.avatar_url ? (
+                                        <div className="w-[22px] h-[22px] rounded-full overflow-hidden border border-white/40 scale-100">
+                                            <Image src={user.user_metadata.avatar_url} alt="Avatar" width={22} height={22} className="w-full h-full object-cover" />
+                                        </div>
+                                    ) : (
+                                        <div className="w-[22px] h-[22px] rounded-full overflow-hidden border border-white/40 scale-100 bg-gradient-to-br from-[#D497FF] to-[#8B5CF6] flex items-center justify-center text-black text-[11px] font-bold">
+                                            {(user.user_metadata?.full_name || user.email || "U").charAt(0).toUpperCase()}
+                                        </div>
+                                    )
                                 ) : (
-                                    <div className={`w-[22px] h-[22px] rounded-full overflow-hidden border transition-transform duration-300 ${pathname === '/ca-nhan' && !isMenuOpen ? 'border-[#D497FF] scale-110 -translate-y-1' : 'border-white/40 scale-100'} bg-gradient-to-br from-[#D497FF] to-[#8B5CF6] flex items-center justify-center text-black text-[11px] font-bold`}>
-                                        {(user.user_metadata?.full_name || user.email || "U").charAt(0).toUpperCase()}
-                                    </div>
-                                )
-                            ) : (
-                                <svg className={`transition-transform duration-300 ${pathname === '/ca-nhan' && !isMenuOpen ? 'scale-110 -translate-y-1' : 'scale-100'}`} width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
-                            )}
-                            <span className={`text-[9px] font-medium tracking-wide transition-all duration-300 ${pathname === '/ca-nhan' && !isMenuOpen ? 'opacity-100 -translate-y-0.5' : 'opacity-80'}`}>Cá nhân</span>
-                            <div className={`absolute bottom-0 w-1 h-1 rounded-full bg-[#D497FF] transition-all duration-300 ${pathname === '/ca-nhan' && !isMenuOpen ? 'opacity-100 shadow-[0_0_8px_#D497FF]' : 'opacity-0 scale-0'}`} />
+                                    <svg className="scale-100" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                                )}
+                                <span className="text-[9px] font-medium tracking-wide opacity-80">Cá nhân</span>
+                            </div>
+
+                            {/* Active State */}
+                            <div className={`absolute inset-0 flex flex-col items-center justify-center gap-1 transition-opacity duration-300 text-[#D497FF] will-change-transform ${pathname === '/ca-nhan' && !isMenuOpen ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                                {isMounted && user ? (
+                                    user?.user_metadata?.avatar_url ? (
+                                        <div className="w-[22px] h-[22px] rounded-full overflow-hidden border border-[#D497FF] scale-110 -translate-y-1">
+                                            <Image src={user.user_metadata.avatar_url} alt="Avatar" width={22} height={22} className="w-full h-full object-cover" />
+                                        </div>
+                                    ) : (
+                                        <div className="w-[22px] h-[22px] rounded-full overflow-hidden border border-[#D497FF] scale-110 -translate-y-1 bg-gradient-to-br from-[#D497FF] to-[#8B5CF6] flex items-center justify-center text-black text-[11px] font-bold">
+                                            {(user.user_metadata?.full_name || user.email || "U").charAt(0).toUpperCase()}
+                                        </div>
+                                    )
+                                ) : (
+                                    <svg className="scale-110 -translate-y-1" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
+                                )}
+                                <span className="text-[9px] font-medium tracking-wide -translate-y-0.5">Cá nhân</span>
+                                <div className="absolute bottom-0 w-1 h-1 rounded-full bg-[#D497FF] shadow-[0_0_8px_#D497FF]" />
+                            </div>
                         </button>
                     </div>
                 </div>
                 
                 {/* Center Floating Home Button (Outside the masked pill) */}
                 <div className="absolute left-1/2 -translate-x-1/2 z-20 pointer-events-auto" style={{ top: '-20px' }}>
-                    <TransitionLink href="/" className={`group relative flex items-center justify-center w-[56px] h-[56px] rounded-full transition-all duration-300 ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'scale-110 shadow-[0_8px_24px_rgba(212,151,255,0.5)]' : 'shadow-[0_8px_20px_rgba(0,0,0,0.6)] hover:scale-105'}`}>
+                    <TransitionLink href="/" className={`group relative flex items-center justify-center w-[56px] h-[56px] rounded-full transition-transform duration-300 will-change-transform ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'scale-110' : 'hover:scale-105'}`}>
                         {/* Inactive Background */}
-                        <div className={`absolute inset-0 rounded-full bg-[#2a2e39] border border-white/5 transition-opacity duration-300 ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'opacity-0' : 'opacity-100'}`} />
+                        <div className={`absolute inset-0 rounded-full bg-[#2a2e39] border border-white/5 shadow-[0_8px_20px_rgba(0,0,0,0.6)] transition-opacity duration-300 ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'opacity-0' : 'opacity-100'}`} />
                         
                         {/* Active Gradient Background */}
-                        <div className={`absolute inset-0 rounded-full bg-gradient-to-tr from-[#C084FC] to-[#D497FF] transition-opacity duration-300 ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'opacity-100' : 'opacity-0'}`} />
+                        <div className={`absolute inset-0 rounded-full bg-gradient-to-tr from-[#C084FC] to-[#D497FF] shadow-[0_8px_24px_rgba(212,151,255,0.5)] transition-opacity duration-300 ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'opacity-100' : 'opacity-0'}`} />
                         
-                        {/* Icon */}
-                        <svg className={`relative z-10 transition-colors duration-300 ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'text-black' : 'text-white/90 group-hover:text-[#D497FF]'}`} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+                        {/* Inactive Icon */}
+                        <svg className={`absolute z-10 transition-opacity duration-300 text-white/90 group-hover:text-[#D497FF] ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'opacity-0' : 'opacity-100'}`} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
+
+                        {/* Active Icon */}
+                        <svg className={`absolute z-10 transition-opacity duration-300 text-black ${pathname === '/' && !hasSearchQuery && !isMenuOpen ? 'opacity-100' : 'opacity-0'}`} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z" /><polyline points="9 22 9 12 15 12 15 22" /></svg>
                     </TransitionLink>
                 </div>
             </div>

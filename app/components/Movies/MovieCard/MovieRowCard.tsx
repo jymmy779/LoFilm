@@ -29,7 +29,7 @@ function MovieRowCard({ movie, priority = false, adZone = "movie_row", onClick }
                 onClick={onClick}
                 className="block w-full h-full"
             >
-                <div className="relative aspect-video rounded-xl overflow-hidden mb-3 transition-all bg-[#0F1115] border border-white/10">
+                <div className="relative aspect-video rounded-xl overflow-hidden mb-3 transition-colors bg-[#0F1115] border border-white/10">
                     <SmartImage
                         r2Src={getR2MovieThumbUrl(movie.slug)}
                         src={imgUrl}

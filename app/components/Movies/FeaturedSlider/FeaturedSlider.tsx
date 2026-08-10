@@ -87,9 +87,9 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
                     </h2>
                     <TransitionLink
                         href={viewAllLink || "/"}
-                        className="group/more flex items-center justify-center bg-[#0F1115] border border-white/10 rounded-full h-8 w-8 lg:h-10 lg:w-10 transition-all duration-500 hover:border-[#D497FF]/50 hover:w-[110px] lg:hover:w-[130px] overflow-hidden hover:shadow-lg hover:shadow-[#D497FF]/20"
+                        className="group/more flex items-center justify-center bg-[#0F1115] border border-white/10 rounded-full h-8 w-8 lg:h-10 lg:w-10 transition-[width,border-color,box-shadow] duration-500 hover:border-[#D497FF]/50 hover:w-[110px] lg:hover:w-[130px] overflow-hidden hover:shadow-lg hover:shadow-[#D497FF]/20"
                     >
-                        <span className="max-w-0 overflow-hidden whitespace-nowrap text-[#D497FF] text-[10px] lg:text-xs font-bold transition-all duration-500 group-hover/more:max-w-[80px] group-hover/more:mr-2 leading-none opacity-0 group-hover/more:opacity-100">
+                        <span className="max-w-0 overflow-hidden whitespace-nowrap text-[#D497FF] text-[10px] lg:text-xs font-bold transition-[max-width,margin,opacity] duration-500 group-hover/more:max-w-[80px] group-hover/more:mr-2 leading-none opacity-0 group-hover/more:opacity-100">
                             Xem thêm
                         </span>
                         <svg
@@ -206,7 +206,7 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
                                         <div className="hidden lg:flex items-center gap-8 pt-4">
                                             <TransitionLink
                                                 href={`/phim/${movie.slug}`}
-                                                className="relative hidden lg:flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-15 lg:h-15 rounded-full bg-[#D497FF] text-black ring-4 ring-[#D497FF]/30 shadow-[0_4px_15px_rgba(212,151,255,0.4)] hover:shadow-[0_0_30px_rgba(212,151,255,0.8)] hover:scale-110 active:scale-95 transition-all duration-300 cursor-pointer"
+                                                className="relative hidden lg:flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-15 lg:h-15 rounded-full bg-[#D497FF] text-black ring-4 ring-[#D497FF]/30 shadow-[0_4px_15px_rgba(212,151,255,0.4)] hover:shadow-[0_0_30px_rgba(212,151,255,0.8)] hover:scale-110 active:scale-95 transition-transform duration-300 will-change-transform cursor-pointer"
                                             >
                                                 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="20" height="20" fill="currentColor" className="ml-1 relative z-10">
                                                     <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z" />

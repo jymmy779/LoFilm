@@ -17,6 +17,7 @@ import {
     Share2,
 } from "lucide-react";
 import Link from "next/link";
+import LoadingSpinner from "@/app/components/UI/Common/LoadingSpinner";
 
 interface Activity {
     id: string;
@@ -144,7 +145,7 @@ export default function ActivityTab({ user }: ActivityTabProps) {
     if (loading) {
         return (
             <div className="flex items-center justify-center py-16">
-                <Loader2 size={24} className="animate-spin text-[#D497FF]" />
+                <LoadingSpinner size="md" color="default" />
             </div>
         );
     }

@@ -52,8 +52,8 @@ function WideMovieRow({
                 </h2>
                 <div className="cat-more">
                     <TransitionLink
-                        href={viewAllLink}
-                        className="line-center text-white/50 hover:text-white transition-all flex items-center gap-1.5 text-[11px] md:text-sm font-medium hover:gap-2.5"
+                        href={viewAllLink || '/'}
+                        className="line-center text-white/50 hover:text-white transition-[color,gap] duration-300 flex items-center gap-1.5 text-[11px] md:text-sm font-medium hover:gap-2.5"
                     >
                         <span>Xem thêm</span>
                         <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 320 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
@@ -90,7 +90,7 @@ function WideMovieRow({
                     >
                         {movies.map((movie, index) => (
                             <SwiperSlide key={movie._id}>
-                                <div className="block relative group cursor-pointer overflow-hidden rounded-xl md:rounded-2xl bg-slate-900/40 transition-all duration-300 transform-gpu">
+                                <div className="block relative group cursor-pointer overflow-hidden rounded-xl md:rounded-2xl bg-slate-900/40 transition-transform duration-300 transform-gpu">
                                     <WideMovieCard movie={movie} priority={index < 2} />
                                 </div>
                             </SwiperSlide>

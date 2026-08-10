@@ -45,17 +45,27 @@ export default function DesktopSidebar() {
 
                     const content = (
                         <div className="relative w-[84px] py-4 flex items-center justify-center z-10 cursor-pointer">
-                            <div className={`absolute inset-0 bg-gradient-to-tr from-[#D497FF]/20 to-[#D497FF]/20 rounded-2xl z-[-1] transition-all duration-300 ease-out ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`} />
-                            <div className={`flex flex-col items-center gap-1.5 transition-colors ${isActive ? "text-[#D497FF]" : "text-white/50 group-hover:text-white"}`}>
-                                <Icon size={26} strokeWidth={isActive ? 2.5 : 1.5} className={`mb-0.5 transition-transform duration-300 ${isActive ? 'scale-110 -translate-y-0.5' : 'scale-100'}`} />
-                                <span className={`text-[11px] tracking-wide text-center leading-tight transition-all duration-300 ${isActive ? 'translate-y-0.5 font-bold' : 'font-medium'}`}>
+                            <div className={`absolute inset-0 bg-gradient-to-tr from-[#D497FF]/20 to-[#D497FF]/20 rounded-2xl z-[-1] transition-[opacity,transform] duration-300 ease-out will-change-transform ${isActive ? 'opacity-100 scale-100' : 'opacity-0 scale-75'}`} />
+                            
+                            {/* Inactive Content */}
+                            <div className={`absolute inset-0 flex flex-col items-center justify-center gap-1.5 transition-opacity duration-300 text-white/50 group-hover:text-white ${isActive ? 'opacity-0 pointer-events-none' : 'opacity-100'}`}>
+                                <Icon size={26} strokeWidth={1.5} className="mb-0.5" />
+                                <span className="text-[11px] tracking-wide text-center leading-tight font-medium">
+                                    {item.label}
+                                </span>
+                            </div>
+
+                            {/* Active Content */}
+                            <div className={`flex flex-col items-center gap-1.5 transition-opacity duration-300 text-[#D497FF] will-change-transform ${isActive ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}>
+                                <Icon size={26} strokeWidth={2.5} className={`mb-0.5 transition-transform duration-300 ${isActive ? 'scale-110 -translate-y-0.5' : 'scale-100'}`} />
+                                <span className={`text-[11px] tracking-wide text-center leading-tight transition-transform duration-300 font-bold ${isActive ? 'translate-y-0.5' : ''}`}>
                                     {item.label}
                                 </span>
                             </div>
                         </div>
                     );
 
-                    const className = `group flex items-center justify-center transition-all ${!isActive && "hover:bg-white/5 rounded-2xl"
+                    const className = `group flex items-center justify-center transition-colors duration-300 ${!isActive && "hover:bg-white/5 rounded-2xl"
                         }`;
 
 

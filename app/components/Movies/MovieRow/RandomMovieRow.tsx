@@ -127,7 +127,7 @@ function RandomMovieRow() {
                 </div>
                 <button
                     onClick={handleRandomMood}
-                    className="w-10 h-10 flex cursor-pointer items-center justify-center bg-gradient-to-br from-[#C6ADE8] to-[#9474cc] text-white rounded-full transition-all duration-500 group shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:shadow-[#C6ADE8]/50 z-10"
+                    className="w-10 h-10 flex cursor-pointer items-center justify-center bg-gradient-to-br from-[#C6ADE8] to-[#9474cc] text-white rounded-full transition-[box-shadow,transform] will-change-transform duration-500 group shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:shadow-[#C6ADE8]/50 z-10"
                     title="Ngẫu nhiên tâm trạng"
                 >
                     <Dices size={20} className="group-hover:rotate-180 transition-transform duration-500" />
@@ -154,7 +154,7 @@ function RandomMovieRow() {
                         <SwiperSlide key={mood.id} className="pt-2 pb-2">
                             <button
                                 onClick={() => setSelectedMood(mood)}
-                                className={`w-full group relative rounded-xl p-3 md:p-5 text-left transition-all duration-300 border-2 cursor-pointer hover:-translate-y-2 min-h-[95px] md:min-h-[115px] flex flex-col justify-between ${selectedMood.id === mood.id
+                                className={`w-full group relative rounded-xl p-3 md:p-5 text-left transition-[transform,border-color,background-color] will-change-transform duration-300 border-2 cursor-pointer hover:-translate-y-2 min-h-[95px] md:min-h-[115px] flex flex-col justify-between ${selectedMood.id === mood.id
                                     ? `${mood.bgColor} border-white shadow-[0_10px_25px_rgba(0,0,0,0.3)] scale-[1.02] z-20`
                                     : `border-white/10 ${mood.bgColor} hover:scale-[1.01] shadow-md opacity-90 hover:opacity-100 z-10`
                                     }`}
@@ -215,7 +215,7 @@ function RandomMovieRow() {
                                     <SwiperSlide key={movie._id}>
                                         <TransitionLink
                                             href={`/phim/${movie.slug}`}
-                                            className="group relative block cursor-pointer rounded-lg overflow-hidden bg-[#0F1115] active:scale-95 transition-all"
+                                            className="group relative block cursor-pointer rounded-lg overflow-hidden bg-[#0F1115] active:scale-95 transition-transform will-change-transform"
                                         >
                                             <div className="relative aspect-[2/3]">
                                                 <SmartImage
@@ -230,7 +230,7 @@ function RandomMovieRow() {
                                                     className="object-cover transition-opacity duration-300 group-hover:opacity-60"
                                                 />
 
-                                                <div className="absolute inset-x-0 bottom-0 h-1/2 flex flex-col justify-end p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 translate-y-1 group-hover:translate-y-0">
+                                                <div className="absolute inset-x-0 bottom-0 h-1/2 flex flex-col justify-end p-2 opacity-0 group-hover:opacity-100 transition-[opacity,transform] will-change-transform duration-300 translate-y-1 group-hover:translate-y-0">
                                                     <div className="bg-gradient-to-t from-black/90 via-black/60 to-transparent absolute inset-0 pointer-events-none" />
 
                                                     <div className="relative z-10">

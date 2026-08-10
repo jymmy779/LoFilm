@@ -1,11 +1,11 @@
 "use client";
 
-import LoadingSpinner from "@/app/components/UI/Common/LoadingSpinner";
 import { useEffect, useState } from "react";
 import { ChevronLeft, X, Trash2, Play } from "lucide-react";
 import Image from "next/image";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { createClient } from "@/app/utils/supabase/client";
+import LoadingSpinner from "@/app/components/UI/Common/LoadingSpinner";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
@@ -81,7 +81,7 @@ export default function HistoryPage() {
           groupedMap.set(key, item);
         }
       });
-      
+
       const finalHistory = Array.from(groupedMap.values()).sort((a, b) =>
         new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
       );
@@ -96,7 +96,7 @@ export default function HistoryPage() {
   const deleteHistoryItem = (id: string, e?: React.MouseEvent) => {
     e?.preventDefault();
     e?.stopPropagation();
-    
+
     const itemToDelete = watchHistory.find(i => i.id === id);
     if (!itemToDelete) return;
 
@@ -161,12 +161,12 @@ export default function HistoryPage() {
         try {
           const HISTORY_KEY = `lofilm-watch-history-${user?.id || 'guest'}`;
           localStorage.removeItem(HISTORY_KEY);
-          
+
           if (user) {
             const { error } = await supabase.from('watch_history').delete().eq('user_id', user.id);
             if (error) throw error;
           }
-          
+
           setWatchHistory([]);
           toast.success("Đã xóa toàn bộ lịch sử");
         } catch (e) {
@@ -220,73 +220,67 @@ export default function HistoryPage() {
           )}
         </div>
       </div>
-      
+
       <div className="relative z-20 w-full px-4 xl:pl-[132px] xl:pr-8 -mt-24 py-2 space-y-0">
-          {isLoading ? (
-          <div className="py-20 flex justify-center">
-            <div className="relative flex items-center justify-center">
-              <div className="w-10 h-10 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin" style={{ animationDuration: '0.45s' }} />
-              <div className="absolute w-6 h-6 border-2 border-amber-400/20 border-b-amber-400 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '0.65s' }} />
-              <div className="absolute w-1.5 h-1.5 bg-orange-500 rounded-full" />
-            </div>
-          </div>
-        ) : watchHistory.length > 0 ? (
+        {isLoading ? <div className="py-20 flex justify-center items-center">
+          <LoadingSpinner size="md" color="orange" />
+        </div> : watchHistory.length > 0 ? (
           <>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-x-2 gap-y-4 md:gap-x-4 md:gap-y-6">
               {watchHistory.slice(0, displayLimit).map((item) => (
-              <div key={item.id} className="w-full relative group">
-                <div className="group/item relative block w-full h-full">
-                  <TransitionLink className="block w-full" href={`/phim/${item.movie_slug}/${item.episode_slug || 'tap-full'}`}>
-                    <div className="relative aspect-[2/3] rounded-lg overflow-hidden mb-2 md:mb-3 bg-[#0F1115]">
-                      <SmartImage 
-                        alt={item.movie_name} 
-                        className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover/item:scale-110 transform-gpu ${loadedImages.has(item.id) ? 'opacity-100' : 'opacity-0'}`} 
-                        r2Src={getR2MoviePosterUrl(item.movie_slug)}
-                        src={getImageUrl(item.movie_poster, { width: 300, quality: 70 })}
-                        rawSrc={getRawImageUrl(item.movie_poster)}
-                        fill
-                        sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 15vw"
-                        onLoad={() => markLoaded(item.id)}
-                      />
-                      <div className="absolute bottom-1 left-1 z-10 pointer-events-none">
-                        <div className="flex flex-wrap gap-1">
-                          <span className="rounded-[4px] bg-orange-600/90 px-1 py-[2px] text-[8px] md:text-[10px] font-bold text-white shadow-sm border border-white/10 tracking-wide">
-                            {formatEpisode(item.episode_name)}
-                          </span>
+                <div key={item.id} className="w-full relative group">
+                  <div className="group/item relative block w-full h-full">
+                    <TransitionLink className="block w-full" href={`/phim/${item.movie_slug}/${item.episode_slug || 'tap-full'}`}>
+                      <div className="relative aspect-[2/3] rounded-lg overflow-hidden mb-2 md:mb-3 bg-[#0F1115]">
+                        <SmartImage
+                          alt={item.movie_name}
+                          className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover/item:scale-110 transform-gpu ${loadedImages.has(item.id) ? 'opacity-100' : 'opacity-0'}`}
+                          r2Src={getR2MoviePosterUrl(item.movie_slug)}
+                          src={getImageUrl(item.movie_poster, { width: 300, quality: 70 })}
+                          rawSrc={getRawImageUrl(item.movie_poster)}
+                          fill
+                          sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 15vw"
+                          onLoad={() => markLoaded(item.id)}
+                        />
+                        <div className="absolute bottom-1 left-1 z-10 pointer-events-none">
+                          <div className="flex flex-wrap gap-1">
+                            <span className="rounded-[4px] bg-orange-600/90 px-1 py-[2px] text-[8px] md:text-[10px] font-bold text-white shadow-sm border border-white/10 tracking-wide">
+                              {formatEpisode(item.episode_name)}
+                            </span>
+                          </div>
                         </div>
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 pointer-events-none"></div>
                       </div>
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-transparent to-transparent opacity-80 pointer-events-none"></div>
-                    </div>
-                  </TransitionLink>
-                  <div>
-                    <h3 className="truncate text-[11px] md:text-[14px] font-semibold text-white group-hover:text-orange-400 leading-snug transition-colors" title={item.movie_name}>
-                      {item.movie_name}
-                    </h3>
-                    <div className="mt-1 md:mt-2 flex flex-col gap-1 md:gap-1.5 opacity-90">
-                      <div className="flex items-center justify-between text-[9px] md:text-[10px] font-medium text-zinc-400 leading-none">
-                        <span>{formatMinutes(item.watched_seconds)}p</span>
-                        <span>{formatMinutes(item.duration)}p</span>
-                      </div>
-                      <div className="h-[3px] md:h-1 w-full bg-zinc-700 rounded-full overflow-hidden">
-                        <div className="h-full bg-red-600 rounded-full" style={{ width: `${calculateProgressPercent(item.watched_seconds, item.duration)}%` }}></div>
+                    </TransitionLink>
+                    <div>
+                      <h3 className="truncate text-[11px] md:text-[14px] font-semibold text-white group-hover:text-orange-400 leading-snug transition-colors" title={item.movie_name}>
+                        {item.movie_name}
+                      </h3>
+                      <div className="mt-1 md:mt-2 flex flex-col gap-1 md:gap-1.5 opacity-90">
+                        <div className="flex items-center justify-between text-[9px] md:text-[10px] font-medium text-zinc-400 leading-none">
+                          <span>{formatMinutes(item.watched_seconds)}p</span>
+                          <span>{formatMinutes(item.duration)}p</span>
+                        </div>
+                        <div className="h-[3px] md:h-1 w-full bg-zinc-700 rounded-full overflow-hidden">
+                          <div className="h-full bg-red-600 rounded-full" style={{ width: `${calculateProgressPercent(item.watched_seconds, item.duration)}%` }}></div>
+                        </div>
                       </div>
                     </div>
                   </div>
+                  <button
+                    onClick={(e) => deleteHistoryItem(item.id, e)}
+                    className="absolute top-2 right-2 p-1 bg-black/60 rounded-full hover:bg-red-600/80 transition-colors opacity-100 z-30 backdrop-blur-sm border border-white/10"
+                    title="Xóa khỏi lịch sử"
+                  >
+                    <X className="w-3 h-3 md:w-4 md:h-4 text-white" />
+                  </button>
                 </div>
-                <button 
-                  onClick={(e) => deleteHistoryItem(item.id, e)}
-                  className="absolute top-2 right-2 p-1 bg-black/60 rounded-full hover:bg-red-600/80 transition-colors opacity-100 z-30 backdrop-blur-sm border border-white/10" 
-                  title="Xóa khỏi lịch sử"
-                >
-                  <X className="w-3 h-3 md:w-4 md:h-4 text-white" />
-                </button>
-              </div>
               ))}
             </div>
-            
+
             {watchHistory.length > displayLimit && (
               <div className="flex justify-center mt-6 mb-12">
-                <button 
+                <button
                   onClick={() => setDisplayLimit(prev => prev + 24)}
                   className="px-6 py-2.5 bg-white/5 hover:bg-white/10 border border-white/10 rounded-full text-white/70 hover:text-white text-sm font-medium transition-all"
                 >

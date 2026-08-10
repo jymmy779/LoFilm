@@ -125,12 +125,8 @@ export default function FavoritesPage() {
       
       <div className="relative z-20 w-full px-4 xl:pl-[132px] xl:pr-8 -mt-24 py-2 space-y-0">
           {isLoading ? (
-          <div className="py-20 flex justify-center">
-            <div className="relative flex items-center justify-center">
-              <div className="w-10 h-10 border-4 border-orange-500/20 border-t-orange-500 rounded-full animate-spin" style={{ animationDuration: '0.45s' }} />
-              <div className="absolute w-6 h-6 border-2 border-amber-400/20 border-b-amber-400 rounded-full animate-spin" style={{ animationDirection: 'reverse', animationDuration: '0.65s' }} />
-              <div className="absolute w-1.5 h-1.5 bg-orange-500 rounded-full" />
-            </div>
+          <div className="py-20 flex justify-center items-center">
+            <LoadingSpinner size="md" color="orange" />
           </div>
         ) : favorites.length > 0 ? (
           <>
