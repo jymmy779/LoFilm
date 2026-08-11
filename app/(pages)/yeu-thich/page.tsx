@@ -1,9 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ChevronLeft, Trash2, Play } from "lucide-react";
 import Image from "next/image";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { createClient } from "@/app/utils/supabase/client";
+import useSWR, { mutate } from "swr";
+import { useAuth } from "@/app/components/User/Auth/AuthContext";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
 import LoadingSpinner from "@/app/components/UI/Common/LoadingSpinner";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
@@ -13,10 +15,28 @@ import CommonModal from "@/app/components/UI/Modals/CommonModal";
 
 export default function FavoritesPage() {
   const supabase = createClient();
-  const [user, setUser] = useState<any>(null);
-  const [favorites, setFavorites] = useState<any[]>([]);
+  const { user, isLoading: isAuthLoading } = useAuth();
+  
+  const fetcher = async () => {
+    if (!user) return [];
+    const { data, error } = await supabase
+      .from('favorites')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  };
+
+  const cacheKey = user ? ['favorites', user.id] : null;
+  const { data: favorites = [], isLoading: isSwrLoading } = useSWR(
+    cacheKey, 
+    fetcher, 
+    { revalidateOnFocus: false, revalidateOnReconnect: true }
+  );
+
+  const isLoading = isAuthLoading || isSwrLoading;
   const [displayLimit, setDisplayLimit] = useState(24);
-  const [isLoading, setIsLoading] = useState(true);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
@@ -26,29 +46,7 @@ export default function FavoritesPage() {
     confirmText: ""
   });
 
-  useEffect(() => {
-    const init = async () => {
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      if (!currentUser) {
-        setIsLoading(false);
-        return;
-      }
-      setUser(currentUser);
-
-      const { data, error } = await supabase
-        .from('favorites')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .order('created_at', { ascending: false });
-
-      if (!error && data) {
-        setFavorites(data);
-      }
-      setIsLoading(false);
-    };
-
-    init();
-  }, [supabase]);
+  // setFavorites logic has been replaced by mutate(cacheKey, newData)
 
   const markLoaded = (id: string) => setLoadedImages(prev => new Set(prev).add(id));
 
@@ -68,7 +66,7 @@ export default function FavoritesPage() {
           const { error } = await supabase.from('favorites').delete().eq('user_id', user.id);
           if (error) throw error;
           
-          setFavorites([]);
+          mutate(cacheKey, [], false);
           toast.success("Đã xóa toàn bộ phim yêu thích");
         } catch (e) {
           console.error("Error clearing favorites:", e);
@@ -91,7 +89,8 @@ export default function FavoritesPage() {
       onConfirm: async () => {
         const { error } = await supabase.from('favorites').delete().eq('id', id);
         if (!error) {
-          setFavorites(prev => prev.filter(item => item.id !== id));
+          const newFavorites = favorites.filter((item: any) => item.id !== id);
+          mutate(cacheKey, newFavorites, false);
           toast.success("Đã xóa khỏi yêu thích");
         }
         setConfirmModal(prev => ({ ...prev, isOpen: false }));

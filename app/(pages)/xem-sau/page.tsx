@@ -1,9 +1,11 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ChevronLeft, Trash2, Play, Bookmark } from "lucide-react";
 import Image from "next/image";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { createClient } from "@/app/utils/supabase/client";
+import useSWR, { mutate } from "swr";
+import { useAuth } from "@/app/components/User/Auth/AuthContext";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
 import LoadingSpinner from "@/app/components/UI/Common/LoadingSpinner";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
@@ -13,10 +15,28 @@ import CommonModal from "@/app/components/UI/Modals/CommonModal";
 
 export default function WatchlistPage() {
   const supabase = createClient();
-  const [user, setUser] = useState<any>(null);
-  const [watchlist, setWatchlist] = useState<any[]>([]);
+  const { user, isLoading: isAuthLoading } = useAuth();
+
+  const fetcher = async () => {
+    if (!user) return [];
+    const { data, error } = await supabase
+      .from('watchlist')
+      .select('*')
+      .eq('user_id', user.id)
+      .order('created_at', { ascending: false });
+    if (error) throw error;
+    return data || [];
+  };
+
+  const cacheKey = user ? ['watchlist', user.id] : null;
+  const { data: watchlist = [], isLoading: isSwrLoading } = useSWR(
+    cacheKey,
+    fetcher,
+    { revalidateOnFocus: false, revalidateOnReconnect: true }
+  );
+
+  const isLoading = isAuthLoading || isSwrLoading;
   const [displayLimit, setDisplayLimit] = useState(24);
-  const [isLoading, setIsLoading] = useState(true);
   const [loadedImages, setLoadedImages] = useState<Set<string>>(new Set());
   const [confirmModal, setConfirmModal] = useState({
     isOpen: false,
@@ -26,29 +46,7 @@ export default function WatchlistPage() {
     confirmText: ""
   });
 
-  useEffect(() => {
-    const init = async () => {
-      const { data: { user: currentUser } } = await supabase.auth.getUser();
-      if (!currentUser) {
-        setIsLoading(false);
-        return;
-      }
-      setUser(currentUser);
-
-      const { data, error } = await supabase
-        .from('watchlist')
-        .select('*')
-        .eq('user_id', currentUser.id)
-        .order('created_at', { ascending: false });
-
-      if (!error && data) {
-        setWatchlist(data);
-      }
-      setIsLoading(false);
-    };
-
-    init();
-  }, [supabase]);
+  // setWatchlist logic has been replaced by mutate(cacheKey, newData)
 
   const markLoaded = (id: string) => setLoadedImages(prev => new Set(prev).add(id));
 
@@ -68,8 +66,8 @@ export default function WatchlistPage() {
           const { error } = await supabase.from('watchlist').delete().eq('user_id', user.id);
           if (error) throw error;
           
-          setWatchlist([]);
-          toast.success("Đã xóa toàn bộ danh sách xem sau");
+          mutate(cacheKey, [], false);
+          toast.success("Đã xóa toàn bộ phim xem sau");
         } catch (e) {
           console.error("Error clearing watchlist:", e);
           toast.error("Có lỗi xảy ra khi xóa danh sách");
@@ -91,7 +89,8 @@ export default function WatchlistPage() {
       onConfirm: async () => {
         const { error } = await supabase.from('watchlist').delete().eq('id', id);
         if (!error) {
-          setWatchlist(prev => prev.filter(item => item.id !== id));
+          const newWatchlist = watchlist.filter((item: any) => item.id !== id);
+          mutate(cacheKey, newWatchlist, false);
           toast.success("Đã xóa khỏi danh sách xem sau");
         }
         setConfirmModal(prev => ({ ...prev, isOpen: false }));

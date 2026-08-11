@@ -2,6 +2,7 @@ import { useState, useEffect, Suspense, useRef, memo } from "react";
 import { useSearchParams, usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import axios from "axios";
+import useSWR from "swr";
 import { Movie } from "@/app/types/movie";
 import { usePageTransition } from "@/app/components/UI/Transition/PageTransitionContext";
 import { getImageUrl, getRawImageUrl, getMoviePosterUrl, getMovieRawPosterUrl } from "@/app/utils/movieUtils";
@@ -30,12 +31,10 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
     const { navigateWithTransition } = usePageTransition();
     const searchFromUrl = searchParams.get("search") || "";
     const [searchQuery, setSearchQuery] = useState(searchFromUrl);
-    const [results, setResults] = useState<Movie[]>([]);
-    const [isSearching, setIsSearching] = useState(false);
+    const [debouncedQuery, setDebouncedQuery] = useState("");
     const [showResults, setShowResults] = useState(false);
     const [isFocused, setIsFocused] = useState(false);
     const [activeIndex, setActiveIndex] = useState(-1);
-    const searchCache = useRef<Record<string, Movie[]>>({});
 
     const inputRef = useRef<HTMLInputElement>(null);
     const containerRef = useRef<HTMLDivElement>(null);
@@ -66,7 +65,7 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
         setActiveIndex(-1);
     }, [pathname, searchParams]);
 
-    // Handle debounced search with caching and request cancellation
+    // Focus handling
     useEffect(() => {
         if (autoFocus) {
             setIsFocused(true);
@@ -74,60 +73,39 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
         }
     }, [autoFocus]);
 
+    // Debounce search query
     useEffect(() => {
-        const controller = new AbortController();
-        const query = searchQuery.trim();
-        // Chuẩn hóa và loại bỏ dấu tiếng Việt để đồng nhất cache key khi gõ có/không dấu
-        const normalizedCacheKey = query.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D').toLowerCase();
-
-        const timer = setTimeout(async () => {
-            if (query.length >= 2) {
-                // 1. Kiểm tra cache trước (phản hồi tức thì)
-                if (searchCache.current[normalizedCacheKey]) {
-                    setResults(searchCache.current[normalizedCacheKey]);
-                    setIsSearching(false);
-                    if (isFocused) setShowResults(true);
-                    setActiveIndex(-1);
-                    return;
-                }
-
-                setIsSearching(true);
-                if (isFocused) setShowResults(true);
-                try {
-                    const apiUrl = `/api/search?keyword=${encodeURIComponent(query)}&limit=10`; // API nội bộ trộn cả phim độc quyền và phim thường
-                    const res = await axios.get(apiUrl, {
-                        signal: controller.signal
-                    });
-
-                    if (res.data?.status === "success" || res.data?.status === true) {
-                        const items = res.data.data?.items || [];
-
-                        // Lấy trực tiếp từ API và hiện 8 phim tốt nhất ở dropdown
-                        const finalItems = items.slice(0, 8);
-
-                        setResults(finalItems);
-                        // 2. Lưu vào cache
-                        searchCache.current[normalizedCacheKey] = finalItems;
-                        setActiveIndex(-1);
-                    }
-                } catch (error) {
-                    if (axios.isCancel(error)) return;
-                    console.error("Link search error:", error);
-                } finally {
-                    setIsSearching(false);
-                }
-            } else {
-                setResults([]);
-                setShowResults(false);
-                setActiveIndex(-1);
-            }
+        const timer = setTimeout(() => {
+            setDebouncedQuery(searchQuery.trim());
         }, 150);
+        return () => clearTimeout(timer);
+    }, [searchQuery]);
 
-        return () => {
-            clearTimeout(timer);
-            controller.abort();
-        };
-    }, [searchQuery, isFocused]);
+    // SWR Data Fetching
+    const fetcher = (url: string) => axios.get(url).then(res => res.data);
+    const { data: swrData, isLoading: isSearching } = useSWR(
+        debouncedQuery.length >= 2 ? `/api/search?keyword=${encodeURIComponent(debouncedQuery)}&limit=10` : null,
+        fetcher,
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: true,
+        }
+    );
+
+    const results = (swrData?.status === "success" || swrData?.status === true)
+        ? (swrData.data?.items || []).slice(0, 8)
+        : [];
+
+    // Show/hide results based on state
+    useEffect(() => {
+        if (debouncedQuery.length >= 2 && isFocused) {
+            setShowResults(true);
+            setActiveIndex(-1);
+        } else if (debouncedQuery.length < 2) {
+            setShowResults(false);
+            setActiveIndex(-1);
+        }
+    }, [debouncedQuery, isFocused]);
 
     const handleSearch = () => {
         if (searchQuery.trim()) {

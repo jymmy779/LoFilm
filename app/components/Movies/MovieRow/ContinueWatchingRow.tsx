@@ -1,7 +1,8 @@
 "use client";
 
-import { useEffect, useState, memo } from "react";
+import { useState, memo } from "react";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
+import useSWR, { mutate } from "swr";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Virtual } from "swiper/modules";
 import "swiper/css";
@@ -25,18 +26,112 @@ interface ContinueWatchingRowProps {
 
 import ContinueWatchingRowSkeleton from "./ContinueWatchingRowSkeleton";
 
-// Global cache for ContinueWatchingRow
-let cachedHistory: any[] = [];
-let hasFetchedHistoryOnce = false;
-
 function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
     const { user, isLoading: isAuthLoading } = useAuth();
-    const [history, setHistory] = useState<any[]>(() => {
-        if (cachedHistory.length > 0) return cachedHistory;
-        return initialHistory || [];
-    });
-    const [isLoading, setIsLoading] = useState(() => !hasFetchedHistoryOnce && !initialHistory);
     const supabase = createClient();
+    
+    const fetcher = async () => {
+        let combinedHistory: any[] = [];
+
+        // 1. Lấy từ Supabase nếu đã đăng nhập
+        if (user) {
+            const { data, error } = await supabase
+                .from('watch_history')
+                .select('*')
+                .eq('user_id', user.id)
+                .order('updated_at', { ascending: false })
+                .limit(20);
+            if (!error && data) {
+                combinedHistory = data;
+            }
+        }
+
+        // 2. Lấy dữ liệu từ LocalStorage (cho khách hoặc dự phòng reload)
+        try {
+            const HISTORY_KEY = user ? `lofilm-watch-history-${user.id}` : 'lofilm-guest-watch-history';
+            const localDataStr = localStorage.getItem(HISTORY_KEY);
+            if (localDataStr) {
+                const localHistory = JSON.parse(localDataStr);
+                const now = Date.now();
+                const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+
+                const localItems = Object.values(localHistory)
+                    .filter((item: any) => {
+                        // Lọc mục quá 7 ngày
+                        const isExpired = (now - item.updated_at) > SEVEN_DAYS_MS;
+                        if (isExpired) return false;
+
+                        // Tránh trùng lặp: nếu đã có trong Supabase (đã login) thì không hiện bản local nữa
+                        const isDuplicate = combinedHistory.some(sh =>
+                            sh.movie_slug === item.movie_slug && sh.episode_slug === item.episode_slug
+                        );
+                        return !isDuplicate;
+                    })
+                    .map((item: any) => ({
+                        ...item,
+                        id: `local-${item.movie_slug}-${item.episode_slug}`,
+                        // Convert sang string ISO để đồng bộ kiểu dữ liệu với Supabase
+                        updated_at: new Date(item.updated_at).toISOString()
+                    }));
+
+                combinedHistory = [...combinedHistory, ...localItems];
+            }
+        } catch (e) {
+            console.error("Error loading guest history:", e);
+        }
+
+        // 3. Sắp xếp lại toàn bộ theo thời gian mới nhất
+        combinedHistory.sort((a, b) =>
+            new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        );
+
+        // Helper: parse số thứ tự tập từ episode_slug hoặc episode_name
+        function getEpisodeNumber(item: any): number {
+            const slugMatch = item.episode_slug?.match(/(\d+)/);
+            if (slugMatch) return parseInt(slugMatch[1], 10);
+            const nameMatch = item.episode_name?.match(/(\d+)/);
+            if (nameMatch) return parseInt(nameMatch[1], 10);
+            return 0;
+        }
+
+        // 4. Group by movie_slug TRƯỚC: giữ item có số tập cao nhất (không filter completed)
+        const groupedMap = new Map<string, any>();
+        combinedHistory.forEach(item => {
+            const key = item.movie_slug;
+            const existing = groupedMap.get(key);
+            if (!existing) {
+                groupedMap.set(key, item);
+            } else {
+                const currentEpNum = getEpisodeNumber(item);
+                const existingEpNum = getEpisodeNumber(existing);
+                if (currentEpNum > existingEpNum) {
+                    groupedMap.set(key, item);
+                } else if (currentEpNum === existingEpNum) {
+                    // Cùng số tập thì giữ cái mới hơn
+                    if (new Date(item.updated_at).getTime() > new Date(existing.updated_at).getTime()) {
+                        groupedMap.set(key, item);
+                    }
+                }
+            }
+        });
+        let finalHistory = Array.from(groupedMap.values());
+
+        // 5. Giới hạn 20 phim, sắp xếp lại theo thời gian mới nhất
+        finalHistory = finalHistory.slice(0, 20);
+        finalHistory.sort((a, b) =>
+            new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
+        );
+
+        return finalHistory;
+    };
+
+    const cacheKey = user ? ['watch_history', user.id] : 'watch_history_guest';
+    const { data: history, isLoading: isSwrLoading } = useSWR(
+        isAuthLoading ? null : cacheKey,
+        fetcher,
+        { fallbackData: initialHistory || [], revalidateOnFocus: false, revalidateOnReconnect: true }
+    );
+    const isLoading = isAuthLoading || isSwrLoading;
     const [isDeleting, setIsDeleting] = useState<string | null>(null);
     const [itemToDelete, setItemToDelete] = useState<any>(null);
     const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -60,7 +155,6 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
     const confirmDelete = async () => {
         if (isClearingAll) {
             setShowDeleteModal(false);
-            setIsLoading(true); // Show skeleton during clear
             try {
                 if (user) {
                     const { error } = await supabase.from('watch_history').delete().eq('user_id', user.id);
@@ -69,12 +163,11 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                 } else {
                     localStorage.removeItem('lofilm-guest-watch-history');
                 }
-                setHistory([]);
+                mutate(cacheKey, [], false);
                 toast.success("Đã xóa toàn bộ lịch sử");
             } catch (error) {
                 console.error("Lỗi khi xóa toàn bộ lịch sử:", error);
             } finally {
-                setIsLoading(false);
                 setIsClearingAll(false);
             }
             return;
@@ -122,12 +215,8 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                 } catch (e) { }
             }
 
-            setHistory(prev => {
-                // Filter out ALL items with same movie_slug (không chỉ 1 id)
-                const newHistory = prev.filter(h => h.movie_slug !== item.movie_slug);
-                cachedHistory = newHistory;
-                return newHistory;
-            });
+            const newHistory = history.filter(h => h.movie_slug !== item.movie_slug);
+            mutate(cacheKey, newHistory, false);
             toast.success(isLocal ? "Đã xóa khỏi lịch sử máy" : "Đã xóa khỏi lịch sử");
         } catch (error) {
             console.error("Lỗi khi xóa lịch sử:", error);
@@ -137,113 +226,9 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
         }
     };
 
-    useEffect(() => {
-        const fetchHistory = async () => {
-            // Wait until auth state is determined
-            if (isAuthLoading) return;
-
-            let combinedHistory: any[] = [];
-
-            // 1. Lấy từ Supabase nếu đã đăng nhập
-            if (user) {
-                const { data, error } = await supabase
-                    .from('watch_history')
-                    .select('*')
-                    .eq('user_id', user.id)
-                    .order('updated_at', { ascending: false })
-                    .limit(20);
-                if (!error && data) {
-                    combinedHistory = data;
-                }
-            }
-
-            // 2. Lấy dữ liệu từ LocalStorage (cho khách hoặc dự phòng reload)
-            try {
-                const HISTORY_KEY = user ? `lofilm-watch-history-${user.id}` : 'lofilm-guest-watch-history';
-                const localDataStr = localStorage.getItem(HISTORY_KEY);
-                if (localDataStr) {
-                    const localHistory = JSON.parse(localDataStr);
-                    const now = Date.now();
-                    const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
-
-                    const localItems = Object.values(localHistory)
-                        .filter((item: any) => {
-                            // Lọc mục quá 7 ngày
-                            const isExpired = (now - item.updated_at) > SEVEN_DAYS_MS;
-                            if (isExpired) return false;
-
-                            // Tránh trùng lặp: nếu đã có trong Supabase (đã login) thì không hiện bản local nữa
-                            const isDuplicate = combinedHistory.some(sh =>
-                                sh.movie_slug === item.movie_slug && sh.episode_slug === item.episode_slug
-                            );
-                            return !isDuplicate;
-                        })
-                        .map((item: any) => ({
-                            ...item,
-                            id: `local-${item.movie_slug}-${item.episode_slug}`,
-                            // Convert sang string ISO để đồng bộ kiểu dữ liệu với Supabase
-                            updated_at: new Date(item.updated_at).toISOString()
-                        }));
-
-                    combinedHistory = [...combinedHistory, ...localItems];
-                }
-            } catch (e) {
-                console.error("Error loading guest history:", e);
-            }
-
-            // 3. Sắp xếp lại toàn bộ theo thời gian mới nhất
-            combinedHistory.sort((a, b) =>
-                new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-            );
-
-            // Helper: parse số thứ tự tập từ episode_slug hoặc episode_name
-            function getEpisodeNumber(item: any): number {
-                const slugMatch = item.episode_slug?.match(/(\d+)/);
-                if (slugMatch) return parseInt(slugMatch[1], 10);
-                const nameMatch = item.episode_name?.match(/(\d+)/);
-                if (nameMatch) return parseInt(nameMatch[1], 10);
-                return 0;
-            }
-
-            // 4. Group by movie_slug TRƯỚC: giữ item có số tập cao nhất (không filter completed)
-            const groupedMap = new Map<string, any>();
-            combinedHistory.forEach(item => {
-                const key = item.movie_slug;
-                const existing = groupedMap.get(key);
-                if (!existing) {
-                    groupedMap.set(key, item);
-                } else {
-                    const currentEpNum = getEpisodeNumber(item);
-                    const existingEpNum = getEpisodeNumber(existing);
-                    if (currentEpNum > existingEpNum) {
-                        groupedMap.set(key, item);
-                    } else if (currentEpNum === existingEpNum) {
-                        // Cùng số tập thì giữ cái mới hơn
-                        if (new Date(item.updated_at).getTime() > new Date(existing.updated_at).getTime()) {
-                            groupedMap.set(key, item);
-                        }
-                    }
-                }
-            });
-            let finalHistory = Array.from(groupedMap.values());
-
-            // 5. Giới hạn 20 phim, sắp xếp lại theo thời gian mới nhất
-            finalHistory = finalHistory.slice(0, 20);
-            finalHistory.sort((a, b) =>
-                new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-            );
-
-            setHistory(finalHistory);
-            cachedHistory = finalHistory;
-            hasFetchedHistoryOnce = true;
-            setIsLoading(false);
-        };
-        fetchHistory();
-    }, [user, isAuthLoading, supabase]);
-
     // Fix CLS: Hiển thị Skeleton ngay khi đang load trang hoặc đang load data
     // Chỉ ẩn đi khi chắc chắn không có lịch sử (isLoading = false và history = 0)
-    if ((isLoading || isAuthLoading) && !hasFetchedHistoryOnce) {
+    if (isLoading && (!history || history.length === 0)) {
         // Nếu đã xác định là khách (không login) và không load nữa thì mới return null
         if (!isAuthLoading && !user && !initialHistory && !isLoading) return null;
 

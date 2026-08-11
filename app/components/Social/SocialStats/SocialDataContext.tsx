@@ -1,8 +1,8 @@
 "use client";
 
-import { createContext, useContext, useEffect, useState, ReactNode } from "react";
+import { createContext, useContext, ReactNode } from "react";
 import axios from "axios";
-import { globalCache } from "@/app/utils/globalCache";
+import useSWR from "swr";
 
 // -------------------------------------------------------------------------
 // Types
@@ -51,45 +51,20 @@ interface SocialContextValue {
     loading: boolean;
 }
 
-const CACHE_KEY = "social-combined";
-
 const SocialContext = createContext<SocialContextValue>({ data: null, loading: true });
+
+const fetcher = (url: string) => axios.get(url).then(res => res.data);
 
 // -------------------------------------------------------------------------
 // Provider – makes ONE request, feeds all 4 widgets
 // -------------------------------------------------------------------------
 export function SocialDataProvider({ children }: { children: ReactNode }) {
-    const cached = globalCache.getRaw<SocialData>(CACHE_KEY);
-    const [data, setData] = useState<SocialData | null>(cached || null);
-    const [loading, setLoading] = useState(!cached);
+    const { data, isLoading } = useSWR<SocialData>("/api/social/combined", fetcher, {
+        revalidateOnFocus: false,
+        revalidateOnReconnect: true,
+    });
 
-    useEffect(() => {
-        // If we already have cached data in memory, skip the network call
-        if (data) {
-            setLoading(false);
-            return;
-        }
-
-        const controller = new AbortController();
-
-        axios
-            .get<SocialData>("/api/social/combined", { signal: controller.signal })
-            .then((res) => {
-                if (res.data) {
-                    setData(res.data);
-                    globalCache.set(CACHE_KEY, res.data);
-                }
-            })
-            .catch((err) => {
-                if (!axios.isCancel(err)) {
-                    console.error("[SocialDataProvider] fetch error:", err);
-                }
-            })
-            .finally(() => setLoading(false));
-
-        return () => controller.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, []);
+    const loading = isLoading;
 
     return (
         <SocialContext.Provider value={{ data, loading }}>

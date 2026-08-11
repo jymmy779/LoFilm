@@ -1,8 +1,9 @@
 "use client";
 
-import { memo, useEffect, useState } from "react";
+import { memo } from "react";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import axios from "axios";
+import useSWR from "swr";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Virtual } from "swiper/modules";
 import "swiper/css";
@@ -33,50 +34,24 @@ import TopMovieRowSkeleton from "./TopMovieRowSkeleton";
 
 function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies, titleGradient = "from-white via-[#E9D5FF] to-[#D497FF]" }: TopMovieRowProps) {
     const seeded = !!(initialMovies && initialMovies.length > 0);
-    const [movies, setMovies] = useState<Movie[]>(() => initialMovies ?? []);
-    const [isLoading, setIsLoading] = useState(!seeded);
     const navId = title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
 
-    useEffect(() => {
-        let isMounted = true;
-        const mounted = () => isMounted;
-
-        if (seeded && initialMovies!.length > 0) {
-            setIsLoading(false);
-            return () => { isMounted = false; };
+    const fetcher = async (url: string) => {
+        const response = await axios.get(url);
+        if (response.data?.status === "success" || response.data?.status === true) {
+            return filterDuplicateMovies(response.data.data.items || []).slice(0, 30);
         }
+        return [];
+    };
 
-        const fetchMovies = async (retryCount = 0) => {
-            if (!isMounted) return;
-            try {
-                const response = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`);
-                if (isMounted && (response.data?.status === "success" || response.data?.status === true) && response.data?.data?.items) {
-                    const items: Movie[] = response.data.data.items;
+    const { data: swrMovies, isLoading: isSwrLoading } = useSWR<Movie[]>(
+        seeded ? null : `/api/proxy?url=${encodeURIComponent(apiUrl)}`,
+        fetcher,
+        { revalidateOnFocus: false, revalidateOnReconnect: true, dedupingInterval: 60000 }
+    );
 
-                    const filtered = filterDuplicateMovies(items);
-                    const topItems = filtered.slice(0, 30);
-                    setMovies(topItems);
-                    setIsLoading(false);
-                    return;
-                }
-            } catch (error: any) {
-                if (isMounted) {
-                    if (retryCount < 3 && (error.code === "ERR_NETWORK" || !error.response)) {
-                        console.warn(`Thử lại TopMovieRow lần ${retryCount + 1}...`);
-                        setTimeout(() => fetchMovies(retryCount + 1), 1000 * (retryCount + 1));
-                        return;
-                    }
-                    console.error("Lỗi khi tải top phim:", error);
-                }
-            } finally {
-                if (isMounted) {
-                    setIsLoading(false);
-                }
-            }
-        };
-        fetchMovies();
-        return () => { isMounted = false; };
-    }, [apiUrl, navId, seeded]);
+    const movies = seeded ? initialMovies! : (swrMovies || []);
+    const isLoading = seeded ? false : isSwrLoading;
 
     if (isLoading) {
         return <TopMovieRowSkeleton />;

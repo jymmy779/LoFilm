@@ -10,6 +10,7 @@ import "swiper/css/navigation";
 import Container from "../../UI/Container";
 import SmartImage from "../../UI/Common/SmartImage";
 import axios from "axios";
+import useSWR from "swr";
 import { filterDuplicateMovies, getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 import Skeleton from "../../UI/Skeleton/Skeleton";
@@ -27,79 +28,47 @@ const MOODS = [
 
 import RandomMovieRowSkeleton from "./RandomMovieRowSkeleton";
 
-// Global cache for RandomMovieRow
-let cachedRandomMovies: any[] = [];
-let cachedMood: any = MOODS[0];
-let hasFetchedOnce = false;
-let lastFetchedTime = 0;
-const RANDOM_STALE_TIME = 60 * 60 * 1000; // 1 tiếng
-
 function RandomMovieRow() {
-    const [selectedMood, setSelectedMood] = useState(cachedMood);
-    const [movies, setMovies] = useState<any[]>(cachedRandomMovies);
-    const [isLoading, setIsLoading] = useState(!hasFetchedOnce);
+    const [selectedMood, setSelectedMood] = useState(MOODS[0]);
     const [moodSwiper, setMoodSwiper] = useState<any>(null);
 
-    const fetchMoviesByMood = async (moodId: string, force = false) => {
-        // Kiểm tra cache nếu không phải lệnh force refresh
-        const now = Date.now();
-        if (!force && hasFetchedOnce && selectedMood.id === cachedMood.id && (now - lastFetchedTime < RANDOM_STALE_TIME)) {
-            return;
+    const fetcher = async (moodId: string) => {
+        const p1 = 1;
+        const p2 = 2;
+        const urls = [
+            `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p1}`)}&revalidate=3600`,
+            `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p2}`)}&revalidate=3600`
+        ];
+
+        const pageResponses = await Promise.allSettled(urls.map(url => axios.get(url)));
+        const allMovies = pageResponses
+            .filter((res): res is PromiseFulfilledResult<any> => res.status === 'fulfilled')
+            .flatMap(res => res.value.data?.data?.items || []);
+
+        if (allMovies.length === 0) return [];
+
+        const uniqueMovies = filterDuplicateMovies(allMovies);
+        
+        // Xáo trộn ngẫu nhiên
+        for (let i = uniqueMovies.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [uniqueMovies[i], uniqueMovies[j]] = [uniqueMovies[j], uniqueMovies[i]];
         }
 
-        setIsLoading(true);
-        try {
-            // Lấy 2 trang đầu cố định để tận dụng CACHE tuyệt đối (thay vì random page)
-            const p1 = 1;
-            const p2 = 2;
-
-            const urls = [
-                `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p1}`)}&revalidate=3600`,
-                `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p2}`)}&revalidate=3600`
-            ];
-
-            const pageResponses = await Promise.allSettled(urls.map(url => axios.get(url)));
-            const allMovies = pageResponses
-                .filter((res): res is PromiseFulfilledResult<any> => res.status === 'fulfilled')
-                .flatMap(res => res.value.data?.data?.items || []);
-
-            if (allMovies.length === 0) {
-                if (movies.length === 0) setMovies([]);
-                return;
-            }
-
-            const uniqueMovies = filterDuplicateMovies(allMovies);
-            
-            // Xáo trộn ngẫu nhiên
-            for (let i = uniqueMovies.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [uniqueMovies[i], uniqueMovies[j]] = [uniqueMovies[j], uniqueMovies[i]];
-            }
-
-            // Lấy 32 phim cho phong phú
-            const finalMovies = uniqueMovies.slice(0, 32);
-
-            // Cập nhật cache toàn cục
-            cachedRandomMovies = finalMovies;
-            cachedMood = MOODS.find(m => m.id === moodId) || MOODS[0];
-            hasFetchedOnce = true;
-            lastFetchedTime = Date.now();
-
-            setMovies(finalMovies);
-        } catch (error) {
-            console.error("Lỗi fetch movies theo mood:", error);
-            if (movies.length === 0) setMovies([]);
-        } finally {
-            setIsLoading(false);
-        }
+        return uniqueMovies.slice(0, 32);
     };
 
-    useEffect(() => {
-        const shouldFetch = !hasFetchedOnce || selectedMood.id !== cachedMood.id;
-        if (shouldFetch) {
-            fetchMoviesByMood(selectedMood.id);
+    const { data: movies = [], isLoading } = useSWR<any[]>(
+        `random-movies-${selectedMood.id}`,
+        () => fetcher(selectedMood.id),
+        { 
+            revalidateOnFocus: false, 
+            revalidateOnReconnect: true,
+            dedupingInterval: 60 * 60 * 1000 // 1 tiếng 
         }
+    );
 
+    useEffect(() => {
         if (moodSwiper) {
             const index = MOODS.findIndex(m => m.id === selectedMood.id);
             moodSwiper.slideTo(index);

@@ -1,4 +1,5 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import useSWR from "swr";
 import Image from "next/image";
 import { useFavorites } from "@/app/(pages)/phim/[slug]/[episodeSlug]/hooks/useFavorites";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
@@ -43,43 +44,28 @@ export default function MoviePreviewPopup({
         )) ||
         (movie.episode_total && parseInt(String(movie.episode_total)) > 1);
 
-    const [playUrl, setPlayUrl] = useState(`/phim/${movie.slug}/${isMultiEp ? 'tap-01' : 'tap-full'}`);
-    const [isLoadingPlayUrl, setIsLoadingPlayUrl] = useState(true);
-    const [updatedMetadata, setUpdatedMetadata] = useState<{ episode_current?: string; episode_total?: string } | null>(null);
+    const fetcher = (url: string) => fetch(url).then(res => res.json());
+    const { data: swrData, isLoading: isLoadingPlayUrl } = useSWR(
+        `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}&revalidate=60`,
+        fetcher,
+        {
+            revalidateOnFocus: false,
+            revalidateOnReconnect: true,
+            dedupingInterval: 60000,
+        }
+    );
+
+    const updatedMetadata = swrData?.movie ? {
+        episode_current: swrData.movie.episode_current,
+        episode_total: swrData.movie.episode_total
+    } : null;
+
+    const firstEpSlug = swrData?.episodes?.[0]?.server_data?.[0]?.slug;
+    const playUrl = firstEpSlug 
+        ? `/phim/${movie.slug}/${getFriendlyEpisodeSlug(firstEpSlug)}` 
+        : `/phim/${movie.slug}/${isMultiEp ? 'tap-01' : 'tap-full'}`;
 
     const detailUrl = `/phim/${movie.slug}`;
-
-    useEffect(() => {
-        let isMounted = true;
-        const fetchExactPlayUrl = async () => {
-            try {
-                const res = await fetch(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}&revalidate=60`);
-                const data = await res.json();
-
-                if (isMounted && data?.movie) {
-                    // Cập nhật lại metadata mới nhất (số tập hiện tại/tổng số tập)
-                    setUpdatedMetadata({
-                        episode_current: data.movie.episode_current,
-                        episode_total: data.movie.episode_total
-                    });
-
-                    // Cập nhật URL xem phim chính xác (ưu tiên server đầu tiên, tập đầu tiên)
-                    if (data?.episodes?.[0]?.server_data?.[0]?.slug) {
-                        const firstEpSlug = data.episodes[0].server_data[0].slug;
-                        setPlayUrl(`/phim/${movie.slug}/${getFriendlyEpisodeSlug(firstEpSlug)}`);
-                    }
-                }
-            } catch (error) {
-                console.error("Failed to fetch exact play url", error);
-            } finally {
-                if (isMounted) setIsLoadingPlayUrl(false);
-            }
-        };
-
-        fetchExactPlayUrl();
-
-        return () => { isMounted = false; };
-    }, [movie.slug]);
 
     const { isFavorited, toggleFavorite } = useFavorites(
         movie.slug,

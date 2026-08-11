@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useState } from 'react';
+import useSWR from 'swr';
 
 import {
   User,
@@ -51,15 +52,7 @@ export default function ProfileContent() {
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
-  const [watchHistory, setWatchHistory] = useState<any[]>([]);
-  const [isHistoryLoading, setIsHistoryLoading] = useState(false);
-  const [favorites, setFavorites] = useState<any[]>([]);
-  const [isFavoritesLoading, setIsFavoritesLoading] = useState(false);
-  const [watchlist, setWatchlist] = useState<any[]>([]);
-  const [isWatchlistLoading, setIsWatchlistLoading] = useState(false);
-  const [watchStats, setWatchStats] = useState<any[]>([]);
-  const [watchRank, setWatchRank] = useState<number | null>(null);
-  const [totalWatchTime, setTotalWatchTime] = useState<number>(0);
+  
   const supabase = createClient();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -91,126 +84,109 @@ export default function ProfileContent() {
     fetchUser();
   }, [supabase, router]);
 
-  useEffect(() => {
-    if (user) {
-      const fetchHistory = async () => {
-        setIsHistoryLoading(true);
-        let combinedHistory: any[] = [];
-
-        const { data, error } = await supabase
-          .from('watch_history')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('updated_at', { ascending: false })
-          .limit(40);
-
-        if (!error && data) {
-          combinedHistory = data;
+  // SWR for Watch History
+  const { data: swrHistory, isLoading: isHistoryLoading, mutate: mutateHistory } = useSWR(
+    user ? ['watch_history', user.id] : null,
+    async () => {
+      let combinedHistory: any[] = [];
+      const { data, error } = await supabase
+        .from('watch_history')
+        .select('*')
+        .eq('user_id', user.id)
+        .order('updated_at', { ascending: false })
+        .limit(40);
+      if (!error && data) combinedHistory = data;
+      try {
+        const HISTORY_KEY = `lofilm-watch-history-${user.id}`;
+        const localDataStr = localStorage.getItem(HISTORY_KEY);
+        if (localDataStr) {
+          const localHistory = JSON.parse(localDataStr);
+          const localItems = Object.values(localHistory).filter((item: any) => {
+            return !combinedHistory.some(sh => sh.movie_slug === item.movie_slug && sh.episode_slug === item.episode_slug);
+          }).map((item: any) => ({
+            ...item,
+            id: `local-${item.movie_slug}-${item.episode_slug}`,
+            updated_at: new Date(item.updated_at).toISOString()
+          }));
+          combinedHistory = [...combinedHistory, ...localItems];
         }
+      } catch (e) { }
 
-        try {
-          const HISTORY_KEY = `lofilm-watch-history-${user.id}`;
-          const localDataStr = localStorage.getItem(HISTORY_KEY);
-          if (localDataStr) {
-            const localHistory = JSON.parse(localDataStr);
-            const localItems = Object.values(localHistory)
-              .filter((item: any) => {
-                const isDuplicate = combinedHistory.some(sh =>
-                  sh.movie_slug === item.movie_slug && sh.episode_slug === item.episode_slug
-                );
-                return !isDuplicate;
-              })
-              .map((item: any) => ({
-                ...item,
-                id: `local-${item.movie_slug}-${item.episode_slug}`,
-                updated_at: new Date(item.updated_at).toISOString()
-              }));
-
-            combinedHistory = [...combinedHistory, ...localItems];
-          }
-        } catch (e) {
-          console.error("Error merging local history in profile:", e);
+      const groupedMap = new Map<string, any>();
+      combinedHistory.forEach(item => {
+        const key = item.movie_slug;
+        const existing = groupedMap.get(key);
+        if (!existing || new Date(item.updated_at).getTime() > new Date(existing.updated_at).getTime()) {
+          groupedMap.set(key, item);
         }
+      });
+      combinedHistory = Array.from(groupedMap.values());
+      combinedHistory.sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime());
+      return combinedHistory;
+    },
+    { revalidateOnFocus: false, revalidateOnReconnect: true }
+  );
 
-        combinedHistory.sort((a, b) =>
-          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-        );
-
-        const groupedMap = new Map<string, any>();
-        combinedHistory.forEach(item => {
-          const key = item.movie_slug;
-          const existing = groupedMap.get(key);
-          if (!existing || new Date(item.updated_at).getTime() > new Date(existing.updated_at).getTime()) {
-            groupedMap.set(key, item);
-          }
-        });
-        combinedHistory = Array.from(groupedMap.values());
-        combinedHistory.sort((a, b) =>
-          new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime()
-        );
-
-        setWatchHistory(combinedHistory);
-
-        // Fetch watch stats
-        const { data: statsData, error: statsError } = await supabase
-          .from('daily_watch_time')
-          .select('watch_date, watched_seconds')
-          .eq('user_id', user.id)
-          .order('watch_date', { ascending: true });
-
-        if (!statsError && statsData) {
-          setWatchStats(statsData);
-        }
-
-        // Fetch rank
-        const { data: rankData, error: rankError } = await supabase
-          .from('user_watch_rank')
-          .select('rank_position, total_seconds')
-          .eq('user_id', user.id)
-          .single();
-
-        if (!rankError && rankData) {
-          setWatchRank(rankData.rank_position);
-          setTotalWatchTime(rankData.total_seconds || 0);
-        }
-
-        setIsHistoryLoading(false);
-      };
-      fetchHistory();
-
-      const fetchFavorites = async () => {
-        setIsFavoritesLoading(true);
-        const { data, error } = await supabase
-          .from('favorites')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(40);
-
-        if (!error && data) {
-          setFavorites(data);
-        }
-        setIsFavoritesLoading(false);
-      };
-      fetchFavorites();
-
-      const fetchWatchlist = async () => {
-        setIsWatchlistLoading(true);
-        const { data, error } = await supabase
-          .from('watchlist')
-          .select('*')
-          .eq('user_id', user.id)
-          .order('created_at', { ascending: false })
-          .limit(40);
-
-        if (!error && data) {
-          setWatchlist(data);
-        }
-        setIsWatchlistLoading(false);
-      };
-      fetchWatchlist();
+  const watchHistory = swrHistory || [];
+  const setWatchHistory = (updater: any) => {
+    if (typeof updater === 'function') {
+      mutateHistory((prev = []) => updater(prev), false);
+    } else {
+      mutateHistory(updater, false);
     }
-  }, [user, supabase]);
+  };
+
+  // SWR for Watch Stats & Rank
+  const { data: swrStats } = useSWR(
+    user ? ['watch_stats', user.id] : null,
+    async () => {
+      const { data: statsData } = await supabase.from('daily_watch_time').select('watch_date, watched_seconds').eq('user_id', user.id).order('watch_date', { ascending: true });
+      const { data: rankData } = await supabase.from('user_watch_rank').select('rank_position, total_seconds').eq('user_id', user.id).single();
+      return { stats: statsData || [], rank: rankData?.rank_position || null, totalTime: rankData?.total_seconds || 0 };
+    },
+    { revalidateOnFocus: false, revalidateOnReconnect: true }
+  );
+  const watchStats = swrStats?.stats || [];
+  const watchRank = swrStats?.rank || null;
+  const totalWatchTime = swrStats?.totalTime || 0;
+
+  // SWR for Favorites
+  const { data: swrFavorites, isLoading: isFavoritesLoading, mutate: mutateFavorites } = useSWR(
+    user ? ['favorites', user.id] : null,
+    async () => {
+      const { data } = await supabase.from('favorites').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(40);
+      return data || [];
+    },
+    { revalidateOnFocus: false, revalidateOnReconnect: true }
+  );
+
+  const favorites = swrFavorites || [];
+  const setFavorites = (updater: any) => {
+    if (typeof updater === 'function') {
+      mutateFavorites((prev = []) => updater(prev), false);
+    } else {
+      mutateFavorites(updater, false);
+    }
+  };
+
+  // SWR for Watchlist
+  const { data: swrWatchlist, isLoading: isWatchlistLoading, mutate: mutateWatchlist } = useSWR(
+    user ? ['watchlist', user.id] : null,
+    async () => {
+      const { data } = await supabase.from('watchlist').select('*').eq('user_id', user.id).order('created_at', { ascending: false }).limit(40);
+      return data || [];
+    },
+    { revalidateOnFocus: false, revalidateOnReconnect: true }
+  );
+
+  const watchlist = swrWatchlist || [];
+  const setWatchlist = (updater: any) => {
+    if (typeof updater === 'function') {
+      mutateWatchlist((prev = []) => updater(prev), false);
+    } else {
+      mutateWatchlist(updater, false);
+    }
+  };
 
   const [confirmModal, setConfirmModal] = useState<{
     isOpen: boolean;

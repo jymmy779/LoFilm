@@ -1,8 +1,9 @@
 "use client";
 
-import { useEffect, useState, memo } from "react";
+import { useState, memo } from "react";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import axios from "axios";
+import useSWR from "swr";
 import { Swiper, SwiperSlide } from "swiper/react";
 import { Autoplay, Navigation, Pagination, EffectFade, Thumbs } from "swiper/modules";
 import "swiper/css";
@@ -37,40 +38,24 @@ import FeaturedSliderSkeleton from "./FeaturedSliderSkeleton";
 function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider", initialMovies, titleGradient = "from-white via-[#E9D5FF] to-[#D497FF]" }: FeaturedSliderProps) {
 
     const seeded = !!(initialMovies && initialMovies.length > 0);
-    const [movies, setMovies] = useState<Movie[]>(() => initialMovies ?? []);
-    const [isLoading, setIsLoading] = useState(!seeded);
     const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
 
-
-
-    useEffect(() => {
-        if (seeded) {
-            setIsLoading(false);
-            return;
+    const fetcher = async (url: string) => {
+        const res = await axios.get(url);
+        if (res.data?.status === "success" || res.data?.status === true) {
+            return filterDuplicateMovies(res.data.data.items || []).slice(0, 10);
         }
+        return [];
+    };
 
-        const fetchFeatured = async () => {
-            try {
-                const res = await axios.get(`/api/proxy?url=${encodeURIComponent(apiUrl)}`);
-                if (res.data?.status === "success" || res.data?.status === true) {
-                    const items: Movie[] = res.data.data.items || [];
+    const { data: swrMovies, isLoading: isSwrLoading } = useSWR<Movie[]>(
+        seeded ? null : `/api/proxy?url=${encodeURIComponent(apiUrl)}`,
+        fetcher,
+        { revalidateOnFocus: false, revalidateOnReconnect: true, dedupingInterval: 60000 }
+    );
 
-                    const filtered = filterDuplicateMovies(items);
-                    const slice = filtered.slice(0, 10);
-
-                    setMovies(slice);
-                    setIsLoading(false);
-                } else {
-                    setIsLoading(false);
-                }
-            } catch (error) {
-                console.error("Lỗi tải featured slider:", error);
-                setIsLoading(false);
-            }
-        };
-
-        fetchFeatured();
-    }, [apiUrl, navId, seeded]);
+    const movies = seeded ? initialMovies! : (swrMovies || []);
+    const isLoading = seeded ? false : isSwrLoading;
 
     if (isLoading) {
         return <FeaturedSliderSkeleton />;
