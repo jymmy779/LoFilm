@@ -187,7 +187,7 @@ function RandomMovieRow() {
                                     <SwiperSlide key={movie._id} virtualIndex={index}>
                                         <TransitionLink
                                             href={`/phim/${movie.slug}`}
-                                            className="group relative block cursor-pointer rounded-lg overflow-hidden bg-[#0F1115] active:scale-95 transition-transform will-change-transform"
+                                            className="group relative block cursor-pointer rounded-lg overflow-hidden bg-[#0F1115] active:scale-95 transition-transform duration-300 ease-out will-change-transform"
                                         >
                                             <div className="relative aspect-[2/3]">
                                                 <SmartImage
@@ -199,17 +199,17 @@ function RandomMovieRow() {
                                                     priority={isPriority}
                                                     loading={isPriority ? "eager" : "lazy"}
                                                     sizes="(max-width: 640px) 120px, (max-width: 1024px) 180px, 220px"
-                                                    className="object-cover transition-opacity duration-300 group-hover:opacity-60"
+                                                    className="object-cover transition-opacity duration-300 ease-out group-hover:opacity-60"
                                                 />
 
-                                                <div className="absolute inset-x-0 bottom-0 h-1/2 flex flex-col justify-end p-2 opacity-0 group-hover:opacity-100 transition-[opacity,transform] will-change-transform duration-300 translate-y-1 group-hover:translate-y-0">
+                                                <div className="absolute inset-x-0 bottom-0 h-1/2 flex flex-col justify-end p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out translate-y-2 group-hover:translate-y-0 pointer-events-none">
                                                     <div className="bg-gradient-to-t from-black/90 via-black/60 to-transparent absolute inset-0 pointer-events-none" />
 
                                                     <div className="relative z-10">
                                                         <h5 className="text-white text-[11px] font-bold mb-0.5 line-clamp-1 uppercase tracking-tight leading-tight">{movie.name}</h5>
                                                         <p className="text-[9px] text-white/50 mb-2 line-clamp-1 italic">{movie.origin_name}</p>
 
-                                                        <div className="inline-flex items-center gap-1 bg-[#D497FF] text-black text-[8px] font-black py-1 px-2 rounded-sm uppercase tracking-tighter translate-y-2 group-hover:translate-y-0 transition-transform duration-500 shadow-md shadow-[0_0_15px_rgba(212,151,255,0.4)]">
+                                                        <div className="inline-flex items-center gap-1 bg-[#D497FF] text-black text-[8px] font-black py-1 px-2 rounded-sm uppercase tracking-tighter translate-y-1 group-hover:translate-y-0 transition-transform duration-300 ease-out shadow-md shadow-[0_0_15px_rgba(212,151,255,0.4)]">
                                                             <Play size={8} fill="currentColor" /> Xem
                                                         </div>
                                                     </div>
