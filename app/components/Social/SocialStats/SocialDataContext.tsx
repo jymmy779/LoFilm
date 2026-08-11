@@ -67,7 +67,7 @@ export function SocialDataProvider({ children }: { children: ReactNode }) {
     const loading = isLoading;
 
     return (
-        <SocialContext.Provider value={{ data, loading }}>
+        <SocialContext.Provider value={{ data: data ?? null, loading }}>
             {children}
         </SocialContext.Provider>
     );

@@ -128,9 +128,9 @@ export default function ProfileContent() {
   );
 
   const watchHistory = swrHistory || [];
-  const setWatchHistory = (updater: any) => {
+  const setWatchHistory = (updater: ((prev: any[]) => any[]) | any[]) => {
     if (typeof updater === 'function') {
-      mutateHistory((prev = []) => updater(prev), false);
+      mutateHistory((prev: any[] = []) => updater(prev), false);
     } else {
       mutateHistory(updater, false);
     }
@@ -161,9 +161,9 @@ export default function ProfileContent() {
   );
 
   const favorites = swrFavorites || [];
-  const setFavorites = (updater: any) => {
+  const setFavorites = (updater: ((prev: any[]) => any[]) | any[]) => {
     if (typeof updater === 'function') {
-      mutateFavorites((prev = []) => updater(prev), false);
+      mutateFavorites((prev: any[] = []) => updater(prev), false);
     } else {
       mutateFavorites(updater, false);
     }
@@ -180,9 +180,9 @@ export default function ProfileContent() {
   );
 
   const watchlist = swrWatchlist || [];
-  const setWatchlist = (updater: any) => {
+  const setWatchlist = (updater: ((prev: any[]) => any[]) | any[]) => {
     if (typeof updater === 'function') {
-      mutateWatchlist((prev = []) => updater(prev), false);
+      mutateWatchlist((prev: any[] = []) => updater(prev), false);
     } else {
       mutateWatchlist(updater, false);
     }
@@ -234,7 +234,7 @@ export default function ProfileContent() {
               });
               localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
             }
-            setWatchHistory(prev => prev.filter(item => item.movie_slug !== itemToDelete.movie_slug));
+            setWatchHistory((prev: any[]) => prev.filter((item: any) => item.movie_slug !== itemToDelete.movie_slug));
             toast.success("Đã xóa khỏi lịch sử máy");
           } catch (e) {
             console.error("Error deleting local item:", e);
@@ -242,7 +242,7 @@ export default function ProfileContent() {
         } else {
           const { error } = await supabase.from('watch_history').delete().eq('user_id', user.id).eq('movie_slug', itemToDelete.movie_slug);
           if (!error) {
-            setWatchHistory(prev => prev.filter(item => item.movie_slug !== itemToDelete.movie_slug));
+            setWatchHistory((prev: any[]) => prev.filter((item: any) => item.movie_slug !== itemToDelete.movie_slug));
             try {
               const HISTORY_KEY = `lofilm-watch-history-${user.id}`;
               const localDataStr = localStorage.getItem(HISTORY_KEY);
@@ -291,7 +291,7 @@ export default function ProfileContent() {
       onConfirm: async () => {
         const { error } = await supabase.from('favorites').delete().eq('id', id);
         if (!error) {
-          setFavorites(prev => prev.filter(item => item.id !== id));
+          setFavorites((prev: any[]) => prev.filter((item: any) => item.id !== id));
           toast.success("Đã xóa khỏi yêu thích");
         }
         setConfirmModal(prev => ({ ...prev, isOpen: false }));
@@ -326,7 +326,7 @@ export default function ProfileContent() {
       onConfirm: async () => {
         const { error } = await supabase.from('watchlist').delete().eq('id', id);
         if (!error) {
-          setWatchlist(prev => prev.filter(item => item.id !== id));
+          setWatchlist((prev: any[]) => prev.filter((item: any) => item.id !== id));
           toast.success("Đã xóa khỏi danh sách xem sau");
         }
         setConfirmModal(prev => ({ ...prev, isOpen: false }));

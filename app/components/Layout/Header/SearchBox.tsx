@@ -190,7 +190,6 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                                     e.preventDefault(); // Ngăn việc focus làm nhảy layout
                                     e.stopPropagation();
                                     setSearchQuery("");
-                                    setResults([]);
                                     setShowResults(false);
                                 }}
                                 className="shrink-0 text-white/40 cursor-pointer hover:text-white transition-colors flex items-center"
