@@ -372,9 +372,9 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                 </div>
                             </div>
 
-                            <h2 className="text-xl line-clamp-1 md:text-2xl text-center xl:text-left font-bold text-white mb-1 leading-tight font-montserrat">
+                            <h1 className="text-xl line-clamp-1 md:text-2xl text-center xl:text-left font-bold text-white mb-1 leading-tight font-montserrat">
                                 {decodeHtml(movie.name)}
-                            </h2>
+                            </h1>
                             <div className="text-sm text-white/40 line-clamp-1 text-center xl:text-left mb-5 font-medium">
                                 {decodeHtml(movie.origin_name)}
                             </div>

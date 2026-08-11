@@ -60,7 +60,7 @@ export async function generateMetadata({
             locale: 'vi_VN',
             url: getAbsoluteUrl(`/phim/${slug}`),
             images: [{
-                url: movie.poster_url,
+                url: movie.thumb_url,
                 width: 800,
                 height: 1200,
                 alt: `Xem phim ${movie.name} (${movie.origin_name}) vietsub HD - LoFilm`,
@@ -128,20 +128,23 @@ export default async function MoviePage({
     }
 
 
-    // Schema dữ liệu cấu trúc (JSON-LD) cho SEO - Nâng cấp với đầy đủ thông tin
+    // Schema dữ liệu cấu trúc (JSON-LD) cho SEO - Nâng cấp với đầy đủ thông tin & Breadcrumbs
+    const isSeries = detail.movie.type !== 'single';
+    const primaryCategory = detail.movie.category?.[0];
+
     const jsonLd = {
         "@context": "https://schema.org",
-        "@type": "Movie",
+        "@type": isSeries ? "TVSeries" : "Movie",
         "name": detail.movie.name,
         "alternateName": detail.movie.origin_name,
         "description": (detail.movie.content || "").replace(/<[^>]*>/g, ''),
-        "image": detail.movie.poster_url,
+        "image": [detail.movie.poster_url, detail.movie.thumb_url].filter(Boolean),
         "datePublished": detail.movie.year,
-        "director": (detail.movie.director || []).map(name => ({
+        "director": (detail.movie.director || []).filter(d => d && d !== "Đang cập nhật").map(name => ({
             "@type": "Person",
             "name": name
         })),
-        "actor": (detail.movie.actor || []).map(name => ({
+        "actor": (detail.movie.actor || []).filter(a => a && a !== "Đang cập nhật").map(name => ({
             "@type": "Person",
             "name": name
         })),
@@ -157,11 +160,40 @@ export default async function MoviePage({
         "url": getAbsoluteUrl(`/phim/${slug}`)
     };
 
+    const breadcrumbLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Trang Chủ",
+                "item": getAbsoluteUrl("/")
+            },
+            ...(primaryCategory ? [{
+                "@type": "ListItem",
+                "position": 2,
+                "name": primaryCategory.name,
+                "item": getAbsoluteUrl(`/the-loai/${primaryCategory.slug}`)
+            }] : []),
+            {
+                "@type": "ListItem",
+                "position": primaryCategory ? 3 : 2,
+                "name": detail.movie.name,
+                "item": getAbsoluteUrl(`/phim/${slug}`)
+            }
+        ]
+    };
+
     return (
         <>
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
             />
             <MovieDetailClient
                 movie={detail.movie}

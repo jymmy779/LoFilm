@@ -45,6 +45,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
 
     return (
         <>
+            <h1 className="sr-only">LoFilm - Xem Phim Online Chất Lượng Cao 4K, Vietsub Miễn Phí</h1>
             <div className="xl:-ml-[100px] xl:w-[calc(100%+100px)]">
                 <HeroSlider initialMovies={prefetched.hero} />
             </div>

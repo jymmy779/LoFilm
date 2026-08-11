@@ -328,11 +328,40 @@ async function WatchData({
         }
     };
 
+    const breadcrumbLd = {
+        "@context": "https://schema.org",
+        "@type": "BreadcrumbList",
+        "itemListElement": [
+            {
+                "@type": "ListItem",
+                "position": 1,
+                "name": "Trang Chủ",
+                "item": getAbsoluteUrl("/")
+            },
+            {
+                "@type": "ListItem",
+                "position": 2,
+                "name": movie.name,
+                "item": getAbsoluteUrl(`/phim/${slug}`)
+            },
+            {
+                "@type": "ListItem",
+                "position": 3,
+                "name": `Tập ${currentEpisode.name}`,
+                "item": getAbsoluteUrl(`/phim/${slug}/${episodeSlug}`)
+            }
+        ]
+    };
+
     return (
         <>
             <script
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(videoJsonLd) }}
+            />
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbLd) }}
             />
             <WatchClient
                 key={slug}
