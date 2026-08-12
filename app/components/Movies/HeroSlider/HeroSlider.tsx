@@ -164,9 +164,9 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                                 {currentMovie.quality}
                                             </span>
                                         )}
-                                        {currentMovie.lang && (
+                                        {((currentMovie as any).lang_tag || currentMovie.lang) && (
                                             <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-[#C084FC] text-purple-950 rounded shadow-sm">
-                                                {currentMovie.lang}
+                                                {((currentMovie as any).lang_tag || currentMovie.lang)}
                                             </span>
                                         )}
                                     </div>

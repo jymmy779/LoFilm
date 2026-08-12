@@ -63,6 +63,12 @@ export async function fetchCatalogData(
             items = moviesData.data?.items || moviesData.items || [];
             totalItems = moviesData.data?.params?.pagination?.totalItems || moviesData.pagination?.totalItems || 0;
             pageTitle = moviesData.data?.titlePage || "";
+
+            const { enrichApiDataWithDatabase } = await import("@/app/utils/movieEnricher");
+            const enriched = await enrichApiDataWithDatabase({ data: { items } });
+            if (enriched?.data?.items) {
+                items = enriched.data.items;
+            }
         }
 
         const parseList = (data: any): MenuItem[] => {
@@ -126,6 +132,9 @@ export async function fetchSearchData(
                         year: movie.year || new Date().getFullYear(),
                         episode_current: movie.episode_current || "",
                         episode_total: movie.episode_total || "",
+                        quality: movie.quality || "FHD",
+                        lang: movie.lang_tag || movie.lang || "Vietsub",
+                        lang_tag: movie.lang_tag || movie.lang || "Vietsub",
                         is_copyright: true,
                         sub_docquyen: movie.sub_docquyen ?? false
                     }));
@@ -172,7 +181,14 @@ export async function fetchSearchData(
         // Merge exclusive movies and standard movies, avoiding duplicate slugs
         const exclusiveSlugs = new Set(exclusiveItems.map(item => item.slug));
         const filteredApiItems = apiItems.filter(item => !exclusiveSlugs.has(item.slug));
-        const finalMovies = [...exclusiveItems, ...filteredApiItems];
+        let finalMovies = [...exclusiveItems, ...filteredApiItems];
+
+        // Enrich finalMovies with DB metadata
+        const { enrichApiDataWithDatabase } = await import("@/app/utils/movieEnricher");
+        const enrichedSearchContainer = await enrichApiDataWithDatabase({ data: { items: finalMovies } });
+        if (enrichedSearchContainer?.data?.items) {
+            finalMovies = enrichedSearchContainer.data.items;
+        }
 
         // Adjust total items count if exclusive items were added
         if (page === 1) {

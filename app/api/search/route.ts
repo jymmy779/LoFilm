@@ -77,6 +77,9 @@ export async function GET(request: NextRequest) {
                 year: movie.year || new Date().getFullYear(),
                 episode_current: movie.episode_current || "",
                 episode_total: movie.episode_total || "",
+                quality: movie.quality || "FHD",
+                lang: movie.lang_tag || movie.lang || "Vietsub",
+                lang_tag: movie.lang_tag || movie.lang || "Vietsub",
                 is_copyright: true,
                 sub_docquyen: movie.sub_docquyen ?? false
             }));
@@ -98,6 +101,13 @@ export async function GET(request: NextRequest) {
         // Cắt bớt nếu vượt quá limit
         if (finalItems.length > limit) {
             finalItems = finalItems.slice(0, limit);
+        }
+
+        // Enrich search items with Database
+        const { enrichApiDataWithDatabase } = await import("@/app/utils/movieEnricher");
+        const enrichedContainer = await enrichApiDataWithDatabase({ data: { items: finalItems } });
+        if (enrichedContainer?.data?.items) {
+            finalItems = enrichedContainer.data.items;
         }
 
         // 7. Save merged search results to Redis cache

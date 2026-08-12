@@ -158,10 +158,10 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
                                                     {movie.quality}
                                                 </div>
                                             )}
-                                            {movie.lang && (
-                                                <div className="md:px-2 px-1.5 py-0.5 flex items-center justify-center bg-[#C084FC] text-purple-950 text-[10px] md:text-xs font-bold rounded shadow-sm leading-none">
-                                                    {movie.lang}
-                                                </div>
+                                            {((movie as any).lang_tag || movie.lang) && (
+                                                <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-[#C084FC] text-purple-950 rounded shadow-sm">
+                                                    {((movie as any).lang_tag || movie.lang)}
+                                                </span>
                                             )}
 
                                             <div className="flex flex-wrap gap-2 w-full pt-1">

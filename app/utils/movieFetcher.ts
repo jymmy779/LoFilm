@@ -133,6 +133,27 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                 }
             }
 
+            // Tính toán Language Tag từ các nguồn server có sẵn
+            const detectedLangs = new Set<string>();
+            finalEpisodes.forEach(ep => {
+                const sNameLower = (ep.server_name || "").toLowerCase();
+                if (sNameLower.includes("vietsub")) detectedLangs.add("Vietsub");
+                if (sNameLower.includes("thuyết minh")) detectedLangs.add("Thuyết Minh");
+                if (sNameLower.includes("lồng tiếng")) detectedLangs.add("Lồng Tiếng");
+                if (sNameLower.includes("song ngữ")) detectedLangs.add("Song Ngữ");
+            });
+
+            let calculatedLang = exclusiveMovie.lang || exclusiveMovie.lang_tag || phimApiData?.movie?.lang || "Vietsub";
+            if (detectedLangs.size > 0) {
+                const order = ["Vietsub", "Thuyết Minh", "Lồng Tiếng", "Song Ngữ"];
+                const sortedLangs = Array.from(detectedLangs).sort((a, b) => order.indexOf(a) - order.indexOf(b));
+                calculatedLang = sortedLangs.join(" + ");
+            }
+            
+            if (exclusiveMovie.sub_docquyen && !calculatedLang.toLowerCase().includes("độc quyền")) {
+                calculatedLang += " Độc Quyền";
+            }
+
             // 3. Xây dựng Movie Object
             // Nếu có nhập TMDB ID, ưu tiên gọi TMDB để lấy ảnh siêu nét và diễn viên
             if (exclusiveMovie.tmdb_id) {
@@ -170,7 +191,7 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                         episode_current: calculatedEpisodeCurrent || phimApiData?.movie?.episode_current || exclusiveMovie.episode_current || (exclusiveMovie.type === "single" ? "Full" : `Tập ${publishedEpisodes.length}`),
                         episode_total: phimApiData?.movie?.episode_total || exclusiveMovie.episode_total || (data.number_of_episodes ? data.number_of_episodes.toString() : "1"),
                         quality: phimApiData?.movie?.quality || exclusiveMovie.quality || "HD",
-                        lang: exclusiveMovie.lang || exclusiveMovie.lang_tag || "Vietsub Độc Quyền",
+                        lang: calculatedLang,
                         notify: phimApiData?.movie?.notify || "",
                         showtimes: phimApiData?.movie?.showtimes || "",
                         slug: exclusiveMovie.slug,
@@ -181,7 +202,7 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                         // Ưu tiên dùng category có sẵn trong DB (từ Ophim/Nguonc có sẵn tiếng Việt), nếu không có mới dùng TMDB
                         category: (exclusiveMovie.category && exclusiveMovie.category.length > 0 ? exclusiveMovie.category : (data.genres?.length > 0 ? data.genres.map((g: any) => ({ name: g.name })) : [])) || [],
                         country: exclusiveMovie.country?.length > 0 ? exclusiveMovie.country : [{ name: "Độc quyền" }],
-                        tmdb: { id: exclusiveMovie.tmdb_id, vote_average: data.vote_average, vote_count: data.vote_count, type: tmdbType }
+                        tmdb: { id: exclusiveMovie.tmdb_id, vote_average: phimApiData?.movie?.tmdb?.vote_average || data.vote_average, vote_count: phimApiData?.movie?.tmdb?.vote_count || data.vote_count, type: tmdbType }
                     };
 
                     return {
@@ -211,7 +232,7 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                 episode_current: calculatedEpisodeCurrent || fallbackMovie.episode_current || exclusiveMovie.episode_current || "Tập mới",
                 episode_total: fallbackMovie.episode_total || exclusiveMovie.episode_total || "1",
                 quality: fallbackMovie.quality || exclusiveMovie.quality || "HD",
-                lang: exclusiveMovie.lang || exclusiveMovie.lang_tag || fallbackMovie.lang || "Vietsub Độc Quyền",
+                lang: calculatedLang,
                 year: fallbackMovie.year || exclusiveMovie.year || new Date().getFullYear(),
                 actor: fallbackMovie.actor?.length > 0 ? fallbackMovie.actor : (exclusiveMovie.actor || []),
                 director: fallbackMovie.director?.length > 0 ? fallbackMovie.director : (exclusiveMovie.director || []),

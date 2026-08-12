@@ -7,6 +7,7 @@ import {
 
 import { fetchWithRedis, redis } from "@/app/lib/fetch-with-redis";
 import { createClient } from "@supabase/supabase-js";
+import { enrichApiDataWithDatabase } from "@/app/utils/movieEnricher";
 
 // Client Supabase an toàn cho Background jobs (không dính tới cookies Next.js)
 const supabase = createClient(
@@ -23,7 +24,11 @@ const supabase = createClient(
 const REVALIDATE_SEC = 60; // Đồng bộ 60 giây toàn hệ thống
 
 async function fetchPhimJson(url: string): Promise<unknown> {
-    return await fetchWithRedis(url, { revalidate: REVALIDATE_SEC });
+    const data = await fetchWithRedis(url, { revalidate: REVALIDATE_SEC });
+    if (url.includes('phimapi.com')) {
+        return await enrichApiDataWithDatabase(data);
+    }
+    return data;
 }
 
 function parseV1Items(payload: unknown): Movie[] {
@@ -191,7 +196,8 @@ async function getExclusiveMoviesForHero(): Promise<Movie[]> {
                 year: m.year || new Date().getFullYear(),
                 is_copyright: true,
                 sub_docquyen: m.sub_docquyen ?? false,
-                lang: m.lang || m.lang_tag || "Vietsub Độc Quyền",
+                lang: m.lang_tag || m.lang || "Vietsub Độc Quyền",
+                lang_tag: m.lang_tag || m.lang || "Vietsub Độc Quyền",
                 episode_current: m.episode_current || (m.type === "single" ? "Full" : "Tập mới"),
                 quality: m.quality || "FHD",
                 content: m.content || "",
@@ -223,6 +229,14 @@ async function getExclusiveMoviesForHero(): Promise<Movie[]> {
                         movieObj.tmdb = detail.tmdb || {};
                         if (detail.time) movieObj.time = detail.time;
                         if (detail.episode_total) movieObj.episode_total = detail.episode_total;
+                        
+                        // Quality comparison rank
+                        const qualityRanks: Record<string, number> = { "CAM": 1, "SD": 2, "HD": 3, "FHD": 4, "2K": 5, "4K": 6 };
+                        const getRank = (q: string) => qualityRanks[q?.toUpperCase()] || 0;
+                        if (detail.quality && getRank(detail.quality) > getRank(movieObj.quality)) {
+                            movieObj.quality = detail.quality;
+                        }
+                        
                         return movieObj as Movie; // Đã có đủ data, không cần fetch TMDB
                     }
                 }

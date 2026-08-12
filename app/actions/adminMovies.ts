@@ -534,6 +534,7 @@ export async function importMovieFromApi(apiUrl: string, data: Record<string, an
         ).replace(/\/$/, "");
         const isOPhim = domain.includes("ophim") || (resData.data?.seoOnPage?.og_url?.includes("ophim") ?? false) || (resData.data?.seoOnPage?.seoSchema?.url?.includes("ophim") ?? false);
         const isVsMov = domain.includes("vsmov") || apiUrl.includes("vsmov");
+        const isKkPhim = apiUrl.includes("phimapi.com") || apiUrl.includes("kkphim");
 
         let sourceSuffix = "";
         if (isOPhim || apiUrl.includes("ophim")) {
@@ -598,13 +599,51 @@ export async function importMovieFromApi(apiUrl: string, data: Record<string, an
         const { data: existingMovie } = await supabase.from('exclusive_movies').select('*').eq('slug', movieData.slug).single();
 
         if (existingMovie) {
-            // Chỉ cập nhật tập hiện tại và tổng tập để không làm đè data cũ (như name, thumb, poster, content, etc.)
-            const { data, error } = await supabase.from('exclusive_movies').update({
-                episode_current: movieData.episode_current || movieData.current_episode || "",
-                episode_total: String(movieData.episode_total || movieData.total_episodes || "")
-            }).eq('slug', movieData.slug).select().single();
-            movie = data;
-            insertError = error;
+            // Cập nhật movie hiện tại:
+            // Chỉ ghi đè metadata nếu nguồn hiện tại là KKPhim (ưu tiên metadata KKPhim).
+            // Nếu không phải KKPhim, ta KHÔNG ghi đè metadata cũ (để bảo toàn data của KKPhim hoặc data đã lưu).
+            let updatePayload: any = {};
+
+            if (isKkPhim) {
+                updatePayload = {
+                    episode_current: movieData.episode_current || movieData.current_episode || "",
+                    episode_total: String(movieData.episode_total || movieData.total_episodes || ""),
+                    name: movieData.name,
+                    origin_name: movieData.origin_name || movieData.original_name || movieData.name,
+                    content: movieData.content || movieData.description || "",
+                    time: movieData.time || "",
+                    actor: typeof movieData.actor === 'string' ? movieData.actor.split(',').map((s: string) => s.trim()) : (movieData.actor || movieData.casts?.split(',').map((s: string) => s.trim()) || []),
+                    director: typeof movieData.director === 'string' ? movieData.director.split(',').map((s: string) => s.trim()) : (movieData.director || []),
+                    category: parsedCategory,
+                    country: parsedCountry,
+                    trailer_url: movieData.trailer_url || ""
+                };
+            }
+
+            // Quality ranking logic (Lấy chất lượng cao nhất)
+            const qualityRanks: Record<string, number> = {
+                "CAM": 1,
+                "SD": 2,
+                "HD": 3,
+                "FHD": 4,
+                "2K": 5,
+                "4K": 6
+            };
+            const getRank = (q: string) => qualityRanks[q?.toUpperCase()] || 0;
+            const newQuality = movieData.quality || "";
+            const oldQuality = existingMovie.quality || "";
+            
+            if (getRank(newQuality) > getRank(oldQuality) || (!oldQuality && newQuality)) {
+                updatePayload.quality = newQuality;
+            }
+
+            if (Object.keys(updatePayload).length > 0) {
+                const { data, error } = await supabase.from('exclusive_movies').update(updatePayload).eq('slug', movieData.slug).select().single();
+                movie = data;
+                insertError = error;
+            } else {
+                movie = existingMovie;
+            }
         } else {
             const { data, error } = await supabase.from('exclusive_movies').insert([
                 { 
@@ -672,11 +711,32 @@ export async function importMovieFromApi(apiUrl: string, data: Record<string, an
                 .eq("movie_id", movie.id)
                 .in("server_name", serverNamesArray);
                 
-            // Thêm các tập mới
             const { error: bulkError } = await supabase.from('exclusive_episodes').insert(episodeInserts);
             if (bulkError) {
                 console.error("Lỗi insert episodes", bulkError);
                 return { error: "Lỗi lưu danh sách tập: " + bulkError.message };
+            }
+
+            // Sync lại lang_tag từ TẤT CẢ các tập hiện có của phim này (để Admin UI và List UI hiển thị đúng)
+            const { data: allEpisodes } = await supabase.from('exclusive_episodes').select('server_name').eq('movie_id', movie.id);
+            const detectedLangs = new Set<string>();
+            allEpisodes?.forEach(ep => {
+                const sNameLower = (ep.server_name || "").toLowerCase();
+                if (sNameLower.includes("vietsub")) detectedLangs.add("Vietsub");
+                if (sNameLower.includes("thuyết minh")) detectedLangs.add("Thuyết Minh");
+                if (sNameLower.includes("lồng tiếng")) detectedLangs.add("Lồng Tiếng");
+                if (sNameLower.includes("song ngữ")) detectedLangs.add("Song Ngữ");
+            });
+
+            if (detectedLangs.size > 0) {
+                const order = ["Vietsub", "Thuyết Minh", "Lồng Tiếng", "Song Ngữ"];
+                const sortedLangs = Array.from(detectedLangs).sort((a, b) => order.indexOf(a) - order.indexOf(b));
+                let calculatedLang = sortedLangs.join(" + ");
+                if (movie.sub_docquyen) {
+                    calculatedLang += " Độc Quyền";
+                }
+                await supabase.from('exclusive_movies').update({ lang_tag: calculatedLang }).eq('id', movie.id);
+                movie.lang_tag = calculatedLang;
             }
         }
 

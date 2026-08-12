@@ -21,7 +21,7 @@ export function MovieLangBadge({ movie, className = "" }: MovieBadgeProps) {
     };
     return (
         <div className={`flex items-center justify-center whitespace-nowrap font-bold tracking-tighter leading-none ${className}`}>
-            {formatLang(movie.lang || "Vietsub")}
+            {formatLang((movie as any).lang_tag || movie.lang || "Vietsub")}
         </div>
     );
 }

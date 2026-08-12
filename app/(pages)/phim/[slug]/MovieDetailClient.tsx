@@ -633,7 +633,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                                 { label: 'Trạng thái', value: statusText, color: isCompleted ? 'text-green-400' : 'text-pink-400' },
                                                 { label: 'Số tập', value: `${getEpisodeStatus(movie)} / ${movie.episode_total || '??'} Tập` },
                                                 { label: 'Thời lượng', value: movie.time || 'N/A' },
-                                                { label: 'Chất lượng', value: `${movie.quality || 'HD'} - ${movie.lang || 'Vietsub'}` },
+                                                { label: 'Chất lượng', value: `${movie.quality || 'HD'} - ${(movie as any).lang_tag || movie.lang || 'Vietsub'}` },
                                                 { label: 'Năm', value: String(movie.year) },
                                                 { label: 'Quốc gia', value: movie.country?.map(c => c.name).join(', ') || 'N/A' },
                                                 { label: 'Thể loại', value: movie.category?.map(c => c.name).join(', ') || 'N/A', isCustom: true, items: movie.category },

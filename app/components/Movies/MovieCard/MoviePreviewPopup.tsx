@@ -74,7 +74,8 @@ export default function MoviePreviewPopup({
         movie.thumb_url
     );
 
-    const imdbRating = movie.tmdb?.vote_average ? movie.tmdb.vote_average.toFixed(1) : "N/A";
+    const voteAvg = swrData?.movie?.tmdb?.vote_average || movie.tmdb?.vote_average;
+    const imdbRating = voteAvg ? Number(voteAvg).toFixed(1) : "N/A";
 
     const [position] = useState(() => {
         let top = 0;

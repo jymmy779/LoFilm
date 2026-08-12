@@ -139,7 +139,7 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies, titleGradient 
                                                 {movie.quality || "HD"}
                                             </div>
                                             <div className="h-5 px-1.5 bg-[#C084FC] rounded-md text-purple-950 shadow-sm text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
-                                                {(movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
+                                                {((movie as any).lang_tag || movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
                                             </div>
                                             <div className="h-5 px-1.5 bg-[#A7F3D0] rounded-md text-emerald-950 shadow-sm text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
                                                 {getEpisodeStatus(movie)}

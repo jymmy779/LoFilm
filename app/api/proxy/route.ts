@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchWithRedis } from '@/app/lib/fetch-with-redis';
+import { enrichApiDataWithDatabase } from '@/app/utils/movieEnricher';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
@@ -13,10 +14,15 @@ export async function GET(request: NextRequest) {
     const revalidateParam = searchParams.get('revalidate');
     const revalidate = revalidateParam ? parseInt(revalidateParam) : 60;
 
-    const data = await fetchWithRedis(targetUrl, { revalidate });
+    let data = await fetchWithRedis(targetUrl, { revalidate });
 
     if (!data) {
       throw new Error('Dữ liệu không tồn tại hoặc lỗi kết nối từ nguồn API (TMDB/PhimAPI)');
+    }
+
+    // Enrich KKPhim data with exclusive_movies data from DB
+    if (targetUrl.includes('phimapi.com')) {
+        data = await enrichApiDataWithDatabase(data);
     }
 
     // For long-lived static data (>= 1 hour), allow browser to cache it too.
