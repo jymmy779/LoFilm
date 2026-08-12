@@ -308,6 +308,9 @@ export default function MovieWorkspaceClient({ movie }: { movie: any }) {
                                         <div className="flex-1 overflow-hidden pr-2">
                                             <div className="font-medium text-sm flex items-center gap-2">
                                                 {ep.name} <span className="text-gray-500 text-xs font-mono">#{ep.order_num}</span>
+                                                {ep.server_name && (
+                                                    <span className="bg-blue-500/20 text-blue-400 px-1.5 py-0.5 text-[10px] rounded uppercase font-bold tracking-wider">{ep.server_name}</span>
+                                                )}
                                                 {ep.subtitles && ep.subtitles.length > 1 && (
                                                     <span className="bg-amber-500/20 text-amber-400 px-1.5 py-0.5 text-[10px] rounded uppercase font-bold tracking-wider">Song ngữ</span>
                                                 )}

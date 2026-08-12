@@ -97,6 +97,42 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                 finalEpisodes = [...finalEpisodes, ...apiEpisodes];
             }
 
+            // Tính số tập lớn nhất giữa tất cả các Server (nội bộ và API ngoài)
+            let maxExclusiveCount = 0;
+            exclusiveServers.forEach(srv => {
+                if (srv.server_data && srv.server_data.length > maxExclusiveCount) {
+                    maxExclusiveCount = srv.server_data.length;
+                }
+            });
+
+            let maxApiCount = 0;
+            if (phimApiData && phimApiData.episodes) {
+                phimApiData.episodes.forEach((srv: any) => {
+                    if (srv.server_data && srv.server_data.length > maxApiCount) {
+                        maxApiCount = srv.server_data.length;
+                    }
+                });
+            }
+
+            const maxEpisodesCount = Math.max(maxExclusiveCount, maxApiCount);
+            
+            let calculatedEpisodeCurrent = exclusiveMovie.type === "single" ? "Full" : "";
+            if (exclusiveMovie.type !== "single") {
+                const originalString = phimApiData?.movie?.episode_current || exclusiveMovie.episode_current || "";
+                if (maxEpisodesCount > 0) {
+                    const epStr = String(maxEpisodesCount);
+                    const lowerOriginal = originalString.toLowerCase();
+                    
+                    if (lowerOriginal.includes("hoàn tất") || lowerOriginal.includes("trọn bộ") || lowerOriginal.includes("full")) {
+                        calculatedEpisodeCurrent = originalString;
+                    } else {
+                        calculatedEpisodeCurrent = `Tập ${epStr}`;
+                    }
+                } else {
+                    calculatedEpisodeCurrent = originalString || "Tập mới";
+                }
+            }
+
             // 3. Xây dựng Movie Object
             // Nếu có nhập TMDB ID, ưu tiên gọi TMDB để lấy ảnh siêu nét và diễn viên
             if (exclusiveMovie.tmdb_id) {
@@ -131,7 +167,7 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                         chieurap: false,
                         trailer_url: finalTrailerUrl || exclusiveMovie.trailer_url,
                         time: phimApiData?.movie?.time || (data.runtime ? `${data.runtime} phút` : (exclusiveMovie.time || "Đang cập nhật")),
-                        episode_current: phimApiData?.movie?.episode_current || exclusiveMovie.episode_current || (exclusiveMovie.type === "single" ? "Full" : `Tập ${publishedEpisodes.length}`),
+                        episode_current: calculatedEpisodeCurrent || phimApiData?.movie?.episode_current || exclusiveMovie.episode_current || (exclusiveMovie.type === "single" ? "Full" : `Tập ${publishedEpisodes.length}`),
                         episode_total: phimApiData?.movie?.episode_total || exclusiveMovie.episode_total || (data.number_of_episodes ? data.number_of_episodes.toString() : "1"),
                         quality: phimApiData?.movie?.quality || exclusiveMovie.quality || "HD",
                         lang: exclusiveMovie.lang || exclusiveMovie.lang_tag || "Vietsub Độc Quyền",
@@ -172,7 +208,7 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                 thumb_url: fallbackMovie.thumb_url || exclusiveMovie.thumb_url,
                 poster_url: fallbackMovie.poster_url || exclusiveMovie.poster_url,
                 time: fallbackMovie.time || exclusiveMovie.time || "Đang cập nhật",
-                episode_current: fallbackMovie.episode_current || exclusiveMovie.episode_current || "Tập mới",
+                episode_current: calculatedEpisodeCurrent || fallbackMovie.episode_current || exclusiveMovie.episode_current || "Tập mới",
                 episode_total: fallbackMovie.episode_total || exclusiveMovie.episode_total || "1",
                 quality: fallbackMovie.quality || exclusiveMovie.quality || "HD",
                 lang: exclusiveMovie.lang || exclusiveMovie.lang_tag || fallbackMovie.lang || "Vietsub Độc Quyền",

@@ -592,32 +592,49 @@ export async function importMovieFromApi(apiUrl: string, data: Record<string, an
         }
 
         // 1. Insert/Update movie
-        const { data: movie, error: insertError } = await supabase.from('exclusive_movies').upsert([
-            { 
-                tmdb_id: tmdbId,
-                slug: movieData.slug, 
-                type, 
-                status, 
-                lang_tag: movieData.lang || "Vietsub",
-                sub_docquyen: subDocquyen,
-                name: movieData.name,
-                origin_name: movieData.origin_name || movieData.original_name || movieData.name,
-                thumb_url: parsedThumbUrl,
-                poster_url: parsedPosterUrl,
-                year: year,
-                content: movieData.content || movieData.description || "",
-                time: movieData.time || "",
+        let movie: any = null;
+        let insertError: any = null;
+
+        const { data: existingMovie } = await supabase.from('exclusive_movies').select('*').eq('slug', movieData.slug).single();
+
+        if (existingMovie) {
+            // Chỉ cập nhật tập hiện tại và tổng tập để không làm đè data cũ (như name, thumb, poster, content, etc.)
+            const { data, error } = await supabase.from('exclusive_movies').update({
                 episode_current: movieData.episode_current || movieData.current_episode || "",
-                episode_total: String(movieData.episode_total || movieData.total_episodes || ""),
-                quality: movieData.quality || "",
-                view: movieData.view || 0,
-                actor: typeof movieData.actor === 'string' ? movieData.actor.split(',').map((s: string) => s.trim()) : (movieData.actor || movieData.casts?.split(',').map((s: string) => s.trim()) || []),
-                director: typeof movieData.director === 'string' ? movieData.director.split(',').map((s: string) => s.trim()) : (movieData.director || []),
-                category: parsedCategory,
-                country: parsedCountry,
-                trailer_url: movieData.trailer_url || ""
-            }
-        ], { onConflict: 'slug' }).select().single();
+                episode_total: String(movieData.episode_total || movieData.total_episodes || "")
+            }).eq('slug', movieData.slug).select().single();
+            movie = data;
+            insertError = error;
+        } else {
+            const { data, error } = await supabase.from('exclusive_movies').insert([
+                { 
+                    tmdb_id: tmdbId,
+                    slug: movieData.slug, 
+                    type, 
+                    status, 
+                    lang_tag: movieData.lang || "Vietsub",
+                    sub_docquyen: subDocquyen,
+                    name: movieData.name,
+                    origin_name: movieData.origin_name || movieData.original_name || movieData.name,
+                    thumb_url: parsedThumbUrl,
+                    poster_url: parsedPosterUrl,
+                    year: year,
+                    content: movieData.content || movieData.description || "",
+                    time: movieData.time || "",
+                    episode_current: movieData.episode_current || movieData.current_episode || "",
+                    episode_total: String(movieData.episode_total || movieData.total_episodes || ""),
+                    quality: movieData.quality || "",
+                    view: movieData.view || 0,
+                    actor: typeof movieData.actor === 'string' ? movieData.actor.split(',').map((s: string) => s.trim()) : (movieData.actor || movieData.casts?.split(',').map((s: string) => s.trim()) || []),
+                    director: typeof movieData.director === 'string' ? movieData.director.split(',').map((s: string) => s.trim()) : (movieData.director || []),
+                    category: parsedCategory,
+                    country: parsedCountry,
+                    trailer_url: movieData.trailer_url || ""
+                }
+            ]).select().single();
+            movie = data;
+            insertError = error;
+        }
 
         if (insertError || !movie) {
             return { error: insertError?.message || "Lỗi khi lưu phim vào CSDL" };
@@ -625,10 +642,12 @@ export async function importMovieFromApi(apiUrl: string, data: Record<string, an
 
         // 2. Insert Episodes
         const episodeInserts = [];
+        const newServerNames = new Set<string>();
         for (const server of episodesData) {
             const serverData = server.server_data || server.items || [];
             const baseServerName = server.server_name || "Vietsub #1";
             const finalServerName = baseServerName.endsWith(sourceSuffix) ? baseServerName : `${baseServerName}${sourceSuffix}`;
+            newServerNames.add(finalServerName);
             
             let order = 1;
             for (const ep of serverData) {
@@ -646,8 +665,13 @@ export async function importMovieFromApi(apiUrl: string, data: Record<string, an
         }
 
         if (episodeInserts.length > 0) {
-            // Xóa các tập cũ (nếu update)
-            await supabase.from("exclusive_episodes").delete().eq("movie_id", movie.id);
+            // Xóa các tập cũ của cùng nguồn (nếu update), giữ lại các nguồn khác
+            const serverNamesArray = Array.from(newServerNames);
+            await supabase.from("exclusive_episodes")
+                .delete()
+                .eq("movie_id", movie.id)
+                .in("server_name", serverNamesArray);
+                
             // Thêm các tập mới
             const { error: bulkError } = await supabase.from('exclusive_episodes').insert(episodeInserts);
             if (bulkError) {

@@ -53,6 +53,40 @@ export async function updateCMSMovie(id: string, data: Record<string, string>) {
     return { success: true };
 }
 
+async function syncMovieEpisodeCurrent(supabase: any, movieId: string) {
+    try {
+        const { data: movie } = await supabase.from('exclusive_movies').select('type').eq('id', movieId).single();
+        if (!movie) return;
+
+        if (movie.type === 'single') {
+            await supabase.from('exclusive_movies').update({ episode_current: 'Full' }).eq('id', movieId);
+            return;
+        }
+
+        const { data: episodes } = await supabase.from('exclusive_episodes').select('order_num, name, source_id').eq('movie_id', movieId);
+        if (!episodes || episodes.length === 0) return;
+
+        const sourceMap = new Map<string, number>();
+        for (const ep of episodes) {
+            const key = ep.source_id || 'default';
+            sourceMap.set(key, (sourceMap.get(key) || 0) + 1);
+        }
+
+        let maxCount = 0;
+        for (const count of sourceMap.values()) {
+            if (count > maxCount) maxCount = count;
+        }
+
+        if (maxCount > 0) {
+            const epStr = String(maxCount).padStart(2, '0');
+            const newEpisodeCurrent = `Tập ${epStr}`;
+            await supabase.from('exclusive_movies').update({ episode_current: newEpisodeCurrent }).eq('id', movieId);
+        }
+    } catch (err) {
+        console.error("Lỗi syncMovieEpisodeCurrent:", err);
+    }
+}
+
 export async function addCMSEpisode(movieId: string, data: Record<string, string>) {
     const name = data.name;
     const slug = data.slug;
@@ -89,6 +123,8 @@ export async function addCMSEpisode(movieId: string, data: Record<string, string
             });
             
         if (error) return { error: error.message };
+
+        await syncMovieEpisodeCurrent(supabase, movieId);
     } catch (e: any) {
         return { error: `Lỗi kết nối DB: ${e.message}` };
     }
@@ -133,8 +169,17 @@ export async function updateCMSEpisode(id: string, data: Record<string, string>)
 
 export async function deleteCMSEpisode(id: string) {
     const supabase = await createClient();
+    
+    // Lấy movie_id trước khi xóa
+    const { data: ep } = await supabase.from("exclusive_episodes").select("movie_id").eq("id", id).single();
+    
     const { error } = await supabase.from("exclusive_episodes").delete().eq("id", id);
     if (error) return { error: error.message };
+
+    if (ep?.movie_id) {
+        await syncMovieEpisodeCurrent(supabase, ep.movie_id);
+    }
+
     revalidatePath("/admin", "layout");
     revalidatePath("/", "layout");
     return { success: true };
@@ -185,6 +230,8 @@ export async function bulkAddCMSEpisodes(movieId: string, startEpisode: number, 
     try {
         const { error } = await supabase.from('exclusive_episodes').insert(episodesToInsert);
         if (error) return { error: `Lỗi thêm hàng loạt: ${error.message}` };
+
+        await syncMovieEpisodeCurrent(supabase, movieId);
     } catch (e: any) {
         return { error: `Lỗi kết nối cơ sở dữ liệu: ${e.message}` };
     }
