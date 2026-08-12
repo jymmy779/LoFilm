@@ -57,7 +57,7 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
             const fetchUrl = `${url}${separator}${cacheBuster}`;
 
             const response = await axios.get(fetchUrl, {
-                timeout: 8000, // 8 giây timeout để fail fast và không treo server
+                timeout: 15000, // 15 giây timeout để fail fast và không treo server
                 headers: {
                     'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
                     'Accept': 'application/json',

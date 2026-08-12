@@ -149,7 +149,7 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies, titleGradient 
 
                                     {/* Movie Info */}
                                     <div className="flex gap-2 items-center pr-2">
-                                        <div className="ranking-number md:text-4xl text-3xl lg:text-5xl font-black italic select-none drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] flex-shrink-0 w-6 md:w-8 lg:w-10 flex items-center justify-start"
+                                        <div className={`ranking-number md:text-4xl text-3xl lg:text-5xl font-black italic select-none drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] flex-shrink-0 flex items-center justify-start ${index + 1 >= 20 ? 'w-9 md:w-11 lg:w-[52px]' : index + 1 >= 10 ? 'w-8 md:w-10 lg:w-[46px]' : 'w-6 md:w-8 lg:w-10'}`}
                                             style={{
                                                 color: '#D497FF',
                                                 backgroundImage: 'linear-gradient(135deg, #FFFFFF 0%, #E9D5FF 45%, #D497FF 100%)',
@@ -171,31 +171,37 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies, titleGradient 
                                             </p>
                                             <div className="info-line flex flex-nowrap items-center gap-1 mt-1">
                                                 {(() => {
-                                                    const phanNameMatch = movie.name?.match(/Phần\s+(\d+)/i);
-                                                    if (phanNameMatch) return (
-                                                        <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-bold leading-none whitespace-nowrap">
-                                                            Phần {phanNameMatch[1]}
+                                                    let partNum = "1";
+                                                    const nameStr = `${movie.name || ""} ${movie.origin_name || ""}`;
+                                                    const slugStr = movie.slug || "";
+
+                                                    // 1. Từ khóa rõ ràng: Phần, Mùa, Season, Part, Vol, Volume, Movie, Film
+                                                    const explicitMatch = nameStr.match(/(?:Phần|Phan|Mùa|Mua|Season|Part|Volume|Vol|Movie|Film)\s*[:\-\s]?\s*0*(\d+)/i);
+
+                                                    // 2. Dạng "Tên Phim X: Tên Phụ..." hoặc "Tên Phim X - Tên Phụ..." (loại trừ "Số X")
+                                                    const colonMatch = nameStr.match(/(?<!Số\s*)[\w\s]+\s+([2-9]|\d{2})\s*[:\-]/i);
+
+                                                    // 3. Slug pattern: -phan-X, -mua-X, -season-X, -part-X, -vol-X, -movie-X
+                                                    const slugMatch = slugStr.match(/-(?:phan|mua|season|part|vol|movie)-0*(\d+)/i);
+
+                                                    // 4. Số đơn từ 2-9 ở cuối tên phim (Ví dụ: "Boboiboy 2", "John Wick 4")
+                                                    const endNumberMatch = nameStr.match(/(?<!Số\s*)\b([2-9])\s*$/i);
+
+                                                    if (explicitMatch) {
+                                                        partNum = explicitMatch[1];
+                                                    } else if (colonMatch) {
+                                                        partNum = colonMatch[1];
+                                                    } else if (slugMatch) {
+                                                        partNum = slugMatch[1];
+                                                    } else if (endNumberMatch) {
+                                                        partNum = endNumberMatch[1];
+                                                    }
+
+                                                    return (
+                                                        <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none whitespace-nowrap">
+                                                            Phần {partNum}
                                                         </div>
                                                     );
-                                                    const seasonMatch = movie.origin_name?.match(/Season\s+(\d+)/i);
-                                                    if (seasonMatch) return (
-                                                        <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-bold leading-none whitespace-nowrap">
-                                                            Phần {seasonMatch[1]}
-                                                        </div>
-                                                    );
-                                                    const slugPhanMatch = movie.slug?.match(/-phan-(\d+)/i);
-                                                    if (slugPhanMatch) return (
-                                                        <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-bold leading-none whitespace-nowrap">
-                                                            Phần {slugPhanMatch[1]}
-                                                        </div>
-                                                    );
-                                                    const slugSeasonMatch = movie.slug?.match(/-season-(\d+)/i);
-                                                    if (slugSeasonMatch) return (
-                                                        <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-bold leading-none whitespace-nowrap">
-                                                            Phần {slugSeasonMatch[1]}
-                                                        </div>
-                                                    );
-                                                    return null; // Ẩn tag nếu không có thông tin phần
                                                 })()}
                                                 <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none whitespace-nowrap">
                                                     {movie.year || "2024"}
