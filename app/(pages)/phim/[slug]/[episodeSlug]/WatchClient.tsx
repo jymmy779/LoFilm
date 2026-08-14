@@ -601,11 +601,11 @@ export default function WatchClient({
                     loading: '<img src="/images/ploading.gif">',
                     state: '<img width="150" height="150" src="/images/state.svg">',
                     indicator: '<img width="16" height="16" src="/images/indicator.svg">',
-                    play: '<img style="width: 40px; height: 40px;" class="sm:w-16 sm:h-16" src="https://sf-static.onflixcdn.pics/images/svg/1760902371_play-circle-svgrepo-com.svg">',
-                    pause: '<img style="width: 40px; height: 40px;" class="sm:w-16 sm:h-16" src="https://sf-static.onflixcdn.pics/images/svg/1760902631_pause-circle-svgrepo-com.svg">',
+                    play: '<img style="width: 40px; height: 40px;" class="sm:w-16 sm:h-16" src="https://sf-static.onflixcdn.com/images/svg/1760902371_play-circle-svgrepo-com.svg">',
+                    pause: '<img style="width: 40px; height: 40px;" class="sm:w-16 sm:h-16" src="https://sf-static.onflixcdn.com/images/svg/1760902631_pause-circle-svgrepo-com.svg">',
                     fullscreen: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" class="icon" viewBox="0 0 1024 1024"><path d="M625.778 256H768v142.222h113.778v-256h-256ZM256 398.222V256h142.222V142.222h-256v256Zm512 227.556V768H625.778v113.778h256v-256ZM398.222 768H256V625.778H142.222v256h256Z"></path></svg>',
                     fullscreenExit: '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" class="icon" viewBox="0 0 1024 1024"><path d="M768 298.667h170.667V384h-256V128H768ZM341.333 384h-256v-85.333H256V128h85.333ZM768 725.333V896h-85.333V640h256v85.333ZM341.333 640v256H256V725.333H85.333V640Z"></path></svg>',
-                    setting: '<div style="position:relative;display:flex;align-items:center;justify-content:center;width:32px;height:32px;cursor:pointer;"><img src="https://sf-static.onflixcdn.pics/images/svg/1773141205_setting_flix.svg?v=2" style="width:24px;height:24px;object-fit:contain;opacity:0.85;transition:opacity 0.15s;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0.85\'"></div>',
+                    setting: '<div style="position:relative;display:flex;align-items:center;justify-content:center;width:32px;height:32px;cursor:pointer;"><img src="https://sf-static.onflixcdn.com/images/svg/1773141205_setting_flix.svg?v=2" style="width:24px;height:24px;object-fit:contain;opacity:0.85;transition:opacity 0.15s;" onmouseover="this.style.opacity=\'1\'" onmouseout="this.style.opacity=\'0.85\'"></div>',
                 },
                 customType: {
                     m3u8: function (video, url, art) {
@@ -662,13 +662,13 @@ export default function WatchClient({
                 controls: [
                     {
                         position: 'left',
-                        html: '<div class="art-control-skip desktop-skip-btn"><img class="w-5 h-5 sm:w-6 sm:h-6" src="https://sf-static.onflixcdn.pics/images/svg/1756189000_-10.svg"></div>',
+                        html: '<div class="art-control-skip desktop-skip-btn"><img class="w-5 h-5 sm:w-6 sm:h-6" src="https://sf-static.onflixcdn.com/images/svg/1756189000_-10.svg"></div>',
                         index: 11,
                         click: function () { this.forward = -10; }
                     },
                     {
                         position: 'left',
-                        html: '<div class="art-control-skip desktop-skip-btn"><img class="w-5 h-5 sm:w-6 sm:h-6" src="https://sf-static.onflixcdn.pics/images/svg/1756189026_+10.svg"></div>',
+                        html: '<div class="art-control-skip desktop-skip-btn"><img class="w-5 h-5 sm:w-6 sm:h-6" src="https://sf-static.onflixcdn.com/images/svg/1756189026_+10.svg"></div>',
                         index: 12,
                         click: function () { this.forward = 10; }
                     },
@@ -688,7 +688,7 @@ export default function WatchClient({
                     },
                     ...(nextEpisode ? [{
                         position: 'right',
-                        html: '<div class="art-control art-control-next hint--rounded hint--top" data-index="15" aria-label="Tập tiếp theo"><i class="art-icon" style="display: flex; align-items: center; justify-content: center;"><img class="w-5 h-5 sm:w-6 sm:h-6" src="https://sf-static.onflixcdn.pics/images/svg/1772478616_next-svgrepo-com_flix.svg"></i></div>',
+                        html: '<div class="art-control art-control-next hint--rounded hint--top" data-index="15" aria-label="Tập tiếp theo"><i class="art-icon" style="display: flex; align-items: center; justify-content: center;"><img class="w-5 h-5 sm:w-6 sm:h-6" src="https://sf-static.onflixcdn.com/images/svg/1772478616_next-svgrepo-com_flix.svg"></i></div>',
                         index: 15,
                         click: function () {
                             const event = new CustomEvent('art-next-episode');
