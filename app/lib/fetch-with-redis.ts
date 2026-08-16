@@ -72,9 +72,9 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
                             timestamp: Date.now(),
                             data: data
                         };
-                        // Dùng setex với TTL = 3x revalidate để data tự hết hạn
-                        // Nếu SWR refresh fail thì data cũ vẫn tự xóa sau TTL
-                        const ttlSeconds = revalidate * 3;
+                        // TTL = 72x revalidate (3 ngày cho catalog 60s, đủ buffer khi server nguồn sập)
+                        // Data phim ít thay đổi, stale vài giờ vẫn tốt hơn crash
+                        const ttlSeconds = revalidate * 72;
                         await redis.setex(cacheKey, ttlSeconds, JSON.stringify(payload));
                     } catch (err) {
                         console.error(`[Redis Set Error] ${url}`, err);
@@ -89,7 +89,25 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
                 return _fetchFreshData(retryCount + 1);
             }
             console.error(`[Axios Fetch Error After Retry] ${url}`, error.message);
-            throw new Error(`Fetch failed for ${url}: ${error.message}`); // Ném lỗi để Next.js không cache kết quả rỗng
+
+            // Stale-on-Error: Trước khi throw, thử lấy data cũ từ Redis làm last resort
+            // Giúp trang không crash khi phimapi.com tạm thời sập
+            if (redis) {
+                try {
+                    const staleRaw = await redis.get(cacheKey);
+                    if (staleRaw) {
+                        const staleParsed = JSON.parse(staleRaw);
+                        if (staleParsed?.data) {
+                            console.warn(`[Stale-on-Error] Serving stale cache for: ${url}`);
+                            return staleParsed.data;
+                        }
+                    }
+                } catch (redisErr) {
+                    // Redis cũng lỗi → bỏ qua, throw bình thường
+                }
+            }
+
+            throw new Error(`Fetch failed for ${url}: ${error.message}`);
         }
     };
 

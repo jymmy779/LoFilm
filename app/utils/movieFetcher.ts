@@ -279,8 +279,9 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
         }
 
     } catch (error) {
-        console.error("Error in getMovieDetail:", error);
-        throw error; // Throw để không cache trang 404 nếu là lỗi mạng
+        console.error("[getMovieDetail] API unavailable, returning null:", error);
+        // Trả null thay vì throw → page.tsx sẽ gọi notFound() → hiện 404 đẹp thay vì crash 500
+        return null;
     }
     
     return null;

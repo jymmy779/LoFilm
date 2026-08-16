@@ -86,8 +86,15 @@ export async function fetchCatalogData(
             countries: parseList(countriesData),
         };
     } catch (error) {
-        console.error("Server fetch error:", error);
-        throw error; // Throw để Next.js ngừng build/cache trang này thay vì lưu mảng rỗng
+        console.error("[fetchCatalogData] API unavailable, returning empty state:", error);
+        // Trả về empty state thay vì throw → trang hiện "không có phim" thay vì crash 500
+        return {
+            movies: [],
+            totalPages: 1,
+            pageTitle: "",
+            categories: [],
+            countries: [],
+        };
     }
 }
 
@@ -210,7 +217,13 @@ export async function fetchSearchData(
             countries: parseList(countriesData),
         };
     } catch (error) {
-        console.error("Server search error:", error);
-        throw error; // Throw để Next.js ngừng cache kết quả rỗng
+        console.error("[fetchSearchData] API unavailable, returning empty state:", error);
+        return {
+            movies: [],
+            totalPages: 1,
+            pageTitle: `Tìm kiếm: ${keyword}`,
+            categories: [],
+            countries: [],
+        };
     }
 }
