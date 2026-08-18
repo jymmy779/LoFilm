@@ -110,8 +110,8 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
             newPriority = direction === 'up' ? currentPriority - 1 : currentPriority + 1;
         }
         
-        if (newPriority < 0) {
-            toast.error("Vị trí không thể nhỏ hơn 0 (0 là vị trí hiển thị đầu tiên)");
+        if (newPriority < 1) {
+            toast.error("Vị trí không thể nhỏ hơn 1 (1 là vị trí hiển thị đầu tiên)");
             return;
         }
 
@@ -133,7 +133,7 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
                             if (m.id === id) return { ...m, priority: newPriority };
                             if (m.id === duplicateMovie.id) return { ...m, priority: currentPriority };
                             return m;
-                        }).sort((a, b) => a.priority - b.priority)
+                         }).sort((a, b) => a.priority - b.priority)
                     );
                 }
             } else {
@@ -151,12 +151,12 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
     };
 
     const handleManualEditPriority = (movie: any) => {
-        const input = prompt(`Nhập vị trí ưu tiên mới cho phim "${movie.name}" (0 là cao nhất):`, movie.priority.toString());
+        const input = prompt(`Nhập vị trí ưu tiên mới cho phim "${movie.name}" (1 là cao nhất):`, movie.priority.toString());
         if (!input) return;
         const newPriority = parseInt(input, 10);
         
-        if (isNaN(newPriority)) {
-            toast.error("Vui lòng nhập một số hợp lệ!");
+        if (isNaN(newPriority) || newPriority < 1) {
+            toast.error("Vui lòng nhập một số hợp lệ (từ 1 trở lên)!");
             return;
         }
         

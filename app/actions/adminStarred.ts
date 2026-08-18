@@ -8,10 +8,14 @@ import { redis } from "@/app/lib/fetch-with-redis";
 export async function getStarredMovies() {
     const supabase = await createClient();
     
+    // Tự động dọn dẹp các phim đã hết hạn trong DB
+    await supabase
+        .from("starred_movies")
+        .delete()
+        .lt("expires_at", new Date().toISOString());
+
     // Lấy danh sách phim đã đánh dấu còn hạn (expires_at > now() hoặc null)
-    // Sắp xếp theo priority DESC, created_at DESC
-    
-    // Lưu ý: Supabase client cần được cấu hình múi giờ đúng hoặc so sánh theo UTC
+    // Sắp xếp theo priority ASC (1, 2, 3...)
     const { data, error } = await supabase
         .from("starred_movies")
         .select("*")
@@ -30,6 +34,12 @@ export async function getStarredMovies() {
 export async function addStarredMovie(slug: string, name: string, thumb_url: string, poster_url: string, expires_in_days: number | null) {
     const supabase = await createClient();
     
+    // Dọn dẹp phim hết hạn trước khi tính priority
+    await supabase
+        .from("starred_movies")
+        .delete()
+        .lt("expires_at", new Date().toISOString());
+
     let expires_at = null;
     if (expires_in_days !== null) {
         const date = new Date();
@@ -37,26 +47,27 @@ export async function addStarredMovie(slug: string, name: string, thumb_url: str
         expires_at = date.toISOString();
     }
 
-    // Lấy priority lớn nhất hiện tại
+    // Lấy priority lớn nhất hiện tại của các phim còn hạn
     const { data: maxData } = await supabase
         .from("starred_movies")
         .select("priority")
+        .or(`expires_at.is.null,expires_at.gt.${new Date().toISOString()}`)
         .order("priority", { ascending: false })
         .limit(1)
-        .single();
+        .maybeSingle();
         
     const nextPriority = (maxData?.priority || 0) + 1;
 
     const { data, error } = await supabase
         .from("starred_movies")
-        .insert({
+        .upsert({
             slug,
             name,
             thumb_url,
             poster_url,
             expires_at,
             priority: nextPriority,
-        })
+        }, { onConflict: 'slug' })
         .select("id")
         .single();
 
