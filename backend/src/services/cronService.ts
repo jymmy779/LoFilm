@@ -1,32 +1,32 @@
-import cron from "node-cron";
+ï»¿import cron from "node-cron";
 import { syncTaxonomies, syncIncremental } from "./syncService.js";
 
 let isSyncRunning = false;
 
 /**
- * Kh?i d?ng ti?n trình Cronjob ch?y ng?m
+ * Start background cron jobs
  */
 export function startCronJobs() {
-  const schedule = process.env.SYNC_CRON_SCHEDULE || "*/15 * * * *"; // M?c d?nh m?i 15 phút
+  const schedule = process.env.SYNC_CRON_SCHEDULE || "*/15 * * * *";
 
-  console.log(`? [Cron] Ðã lên l?ch t? d?ng d?ng b? KKPhim v?i t?n su?t: "${schedule}"`);
+  console.log(`[Cron] Auto-sync scheduled with frequency: "${schedule}"`);
 
-  // Ð?ng b? Th? lo?i & Qu?c gia khi server v?a b?t
-  syncTaxonomies().catch((err) => console.error("[Cron Init] L?i sync taxonomies:", err.message));
+  // Initial sync for taxonomies
+  syncTaxonomies().catch((err) => console.error("[Cron Init] Sync taxonomies error:", err.message));
 
-  // Cron d?nh k?
+  // Periodic cronjob
   cron.schedule(schedule, async () => {
     if (isSyncRunning) {
-      console.warn("?? [Cron] Lu?t d?ng b? tru?c dang ch?y, b? qua lu?t này d? tránh trùng l?p.");
+      console.warn("[Cron] Previous sync is still running, skipping this turn.");
       return;
     }
 
     isSyncRunning = true;
     try {
-      console.log(`\n?? [Cron Trigger] B?t d?u d?ng b? t? d?ng lúc: ${new Date().toLocaleTimeString("vi-VN")}`);
-      await syncIncremental(3); // Quét 3 trang m?i nh?t (~72 phim g?n nh?t)
+      console.log(`[Cron Trigger] Auto-sync started at: ${new Date().toLocaleTimeString("vi-VN")}`);
+      await syncIncremental(3);
     } catch (err: any) {
-      console.error("? [Cron Error] L?i trong quá trình d?ng b?:", err.message);
+      console.error("[Cron Error] Error during auto-sync:", err.message);
     } finally {
       isSyncRunning = false;
     }

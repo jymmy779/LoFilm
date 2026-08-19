@@ -1,4 +1,4 @@
-import express from "express";
+ï»¿import express from "express";
 import cors from "cors";
 import dotenv from "dotenv";
 import apiRoutes from "./routes/index.js";
@@ -15,7 +15,7 @@ app.use(cors({
 }));
 app.use(express.json());
 
-// Mount API Routes (h? tr? c? /api/v1 và /v1/api)
+// Mount API Routes
 app.use("/api/v1", apiRoutes);
 app.use("/v1/api", apiRoutes);
 
@@ -29,8 +29,7 @@ app.get("/api/health", (req, res) => {
 });
 
 app.listen(PORT, () => {
-  console.log(`?? [LoFilm Backend] Server running on http://localhost:${PORT}`);
-  console.log(`?? API Endpoints s?n sàng t?i http://localhost:${PORT}/api/v1`);
-  // Kh?i d?ng ti?n trình Cronjob ch?y ng?m
+  console.log(`[LoFilm Backend] Server running on http://localhost:${PORT}`);
+  console.log(`[LoFilm Backend] API ready at http://localhost:${PORT}/api/v1`);
   startCronJobs();
 });

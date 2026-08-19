@@ -1,4 +1,4 @@
-import fs from "fs";
+﻿import fs from "fs";
 import path from "path";
 import { prisma } from "../lib/prisma.js";
 import {
@@ -31,15 +31,15 @@ function saveSyncState(state: SyncState) {
   try {
     fs.writeFileSync(STATE_FILE_PATH, JSON.stringify(state, null, 2), "utf-8");
   } catch (err: any) {
-    console.error("[SyncState] Không th? luu state:", err.message);
+    console.error("[SyncState] KhÃ´ng th? luu state:", err.message);
   }
 }
 
 /**
- * 1. Ð?ng b? Th? Lo?i & Qu?c Gia t? KKPhim
+ * 1. Ã?ng b? Th? Lo?i & Qu?c Gia t? KKPhim
  */
 export async function syncTaxonomies() {
-  console.log("?? [Taxonomies] B?t d?u d?ng b? Th? lo?i & Qu?c gia...");
+  console.log("[Taxonomies] Starting sync categories & countries...");
 
   const [categories, countries] = await Promise.all([
     fetchKKPhimCategories(),
@@ -70,11 +70,11 @@ export async function syncTaxonomies() {
     countryCount++;
   }
 
-  console.log(`? [Taxonomies] Ðã d?ng b? ${catCount} th? lo?i và ${countryCount} qu?c gia.`);
+  console.log(`? [Taxonomies] ÃÃ£ d?ng b? ${catCount} th? lo?i vÃ  ${countryCount} qu?c gia.`);
 }
 
 /**
- * 2. Upsert thông minh 1 b? phim kèm toàn b? Server & T?p phim
+ * 2. Upsert thÃ´ng minh 1 b? phim kÃ¨m toÃ n b? Server & T?p phim
  */
 export async function upsertMovieDetail(detail: KKPhimDetailResponse): Promise<boolean> {
   const { movie: m, episodes: servers } = detail;
@@ -149,7 +149,7 @@ export async function upsertMovieDetail(detail: KKPhimDetailResponse): Promise<b
 
     const movieId = movieRecord.id;
 
-    // 2. Đồng bộ Thể loại (MovieCategory)
+    // 2. Äá»“ng bá»™ Thá»ƒ loáº¡i (MovieCategory)
     const categorySlugsToLink = new Set<string>();
     if (Array.isArray(m.category)) {
       m.category.forEach((cat: any) => { if (cat.slug) categorySlugsToLink.add(cat.slug); });
@@ -180,7 +180,7 @@ export async function upsertMovieDetail(detail: KKPhimDetailResponse): Promise<b
       }
     }
 
-    // 3. Đồng bộ Quốc gia (MovieCountry)
+    // 3. Äá»“ng bá»™ Quá»‘c gia (MovieCountry)
     if (Array.isArray(m.country) && m.country.length > 0) {
       for (const country of m.country) {
         if (!country.slug) continue;
@@ -206,12 +206,12 @@ export async function upsertMovieDetail(detail: KKPhimDetailResponse): Promise<b
       }
     }
 
-    // 4. Ð?ng b? Servers & Episodes
+    // 4. Ã?ng b? Servers & Episodes
     if (Array.isArray(servers) && servers.length > 0) {
       for (const s of servers) {
         if (!s.server_name) continue;
 
-        // Tìm ho?c t?o Server cho phim
+        // TÃ¬m ho?c t?o Server cho phim
         let serverRecord = await prisma.episodeServer.findFirst({
           where: {
             movie_id: movieId,
@@ -275,15 +275,15 @@ export async function upsertMovieDetail(detail: KKPhimDetailResponse): Promise<b
 }
 
 /**
- * 3. Ð?ng b? Tang Cu?ng Ð?nh K? (Incremental Sync)
- * Quét N trang d?u c?a phim-moi-cap-nhat (m?i trang ~24 phim)
+ * 3. Ã?ng b? Tang Cu?ng Ã?nh K? (Incremental Sync)
+ * QuÃ©t N trang d?u c?a phim-moi-cap-nhat (m?i trang ~24 phim)
  */
 export async function syncIncremental(pagesToScan = 2): Promise<{
   created: number;
   updated: number;
   skipped: number;
 }> {
-  console.log(`?? [Sync Incremental] Ðang quét ${pagesToScan} trang m?i nh?t t? KKPhim...`);
+  console.log(`?? [Sync Incremental] Ãang quÃ©t ${pagesToScan} trang m?i nh?t t? KKPhim...`);
   const startTime = new Date();
 
   let created = 0;
@@ -305,33 +305,33 @@ export async function syncIncremental(pagesToScan = 2): Promise<{
       const remoteModifiedTime = item.modified?.time ? new Date(item.modified.time).getTime() : 0;
       const localModifiedTime = existingMovie?.server_modified ? new Date(existingMovie.server_modified).getTime() : 0;
 
-      // N?u phim dã có và th?i gian c?p nh?t c?a server không d?i -> B? qua
+      // N?u phim dÃ£ cÃ³ vÃ  th?i gian c?p nh?t c?a server khÃ´ng d?i -> B? qua
       if (existingMovie && localModifiedTime >= remoteModifiedTime && remoteModifiedTime > 0) {
         skipped++;
         continue;
       }
 
-      // Fetch chi ti?t và c?p nh?t
+      // Fetch chi ti?t vÃ  c?p nh?t
       const detail = await fetchKKPhimMovieDetail(item.slug);
       if (detail) {
         const ok = await upsertMovieDetail(detail);
         if (ok) {
           if (existingMovie) {
             updated++;
-            console.log(`  ?? [C?p nh?t t?p/phim] ${item.name} (${item.slug})`);
+            console.log(`  [Updated] ${item.name} (${item.slug})`);
           } else {
             created++;
-            console.log(`  ? [Phim m?i] ${item.name} (${item.slug})`);
+            console.log(`  [New Movie] ${item.name} (${item.slug})`);
           }
         }
       }
 
-      // Delay nh? 80ms gi?a các request chi ti?t
+      // Delay nh? 80ms gi?a cÃ¡c request chi ti?t
       await new Promise((r) => setTimeout(r, 80));
     }
   }
 
-  // Ghi log vào b?ng SyncLog
+  // Ghi log vÃ o b?ng SyncLog
   await prisma.syncLog.create({
     data: {
       sync_type: "CRON_INCREMENTAL",
@@ -345,14 +345,14 @@ export async function syncIncremental(pagesToScan = 2): Promise<{
   });
 
   console.log(
-    `? [Sync Incremental Hoàn t?t] M?i: ${created} | C?p nh?t: ${updated} | B? qua (không d?i): ${skipped}`
+    `? [Sync Incremental HoÃ n t?t] M?i: ${created} | C?p nh?t: ${updated} | B? qua (khÃ´ng d?i): ${skipped}`
   );
 
   return { created, updated, skipped };
 }
 
 /**
- * 4. Ð?ng b? Toàn B? 30.000 Phim (Bulk Seeder) v?i Concurrency & Resume
+ * 4. Ã?ng b? ToÃ n B? 30.000 Phim (Bulk Seeder) v?i Concurrency & Resume
  */
 export async function syncBulkAll(options?: {
   startPage?: number;
@@ -376,25 +376,25 @@ export async function syncBulkAll(options?: {
   const totalPages = options?.maxPages || firstPageRes?.pagination.totalPages || 1300;
   const totalItems = firstPageRes?.pagination.totalItems || 30000;
 
-  console.log(`?? T?ng s? trang: ${totalPages} | U?c tính phim: ~${totalItems}`);
+  console.log(`?? T?ng s? trang: ${totalPages} | U?c tÃ­nh phim: ~${totalItems}`);
 
-  // 1. Ð?ng b? Taxonomies tru?c
+  // 1. Ã?ng b? Taxonomies tru?c
   await syncTaxonomies();
 
   let totalSynced = state.total_seeded || 0;
 
   for (let page = startPage; page <= totalPages; page++) {
-    console.log(`\n?? [Ðang cào Page ${page}/${totalPages}]...`);
+    console.log(`\n?? [Ãang cÃ o Page ${page}/${totalPages}]...`);
     const pageData = await fetchKKPhimUpdatedPage(page);
 
     if (!pageData || !pageData.items || pageData.items.length === 0) {
-      console.warn(`?? Page ${page} không có d? li?u ho?c l?i m?ng, ti?p t?c trang sau.`);
+      console.warn(`?? Page ${page} khÃ´ng cÃ³ d? li?u ho?c l?i m?ng, ti?p t?c trang sau.`);
       continue;
     }
 
     const items = pageData.items;
 
-    // X? lý theo t?ng chunk concurrency (5 phim cùng lúc)
+    // X? lÃ½ theo t?ng chunk concurrency (5 phim cÃ¹ng lÃºc)
     for (let i = 0; i < items.length; i += concurrency) {
       const chunk = items.slice(i, i + concurrency);
 
@@ -402,7 +402,7 @@ export async function syncBulkAll(options?: {
         chunk.map(async (item) => {
           if (!item.slug) return;
 
-          // Ki?m tra phim dã có và chua thay d?i -> skip
+          // Ki?m tra phim dÃ£ cÃ³ vÃ  chua thay d?i -> skip
           const existing = await prisma.movie.findUnique({
             where: { slug: item.slug },
             select: { id: true, server_modified: true },
@@ -423,11 +423,11 @@ export async function syncBulkAll(options?: {
         })
       );
 
-      // Delay nh? 100ms gi?a các chunk d? an toàn tuy?t d?i
+      // Delay nh? 100ms gi?a cÃ¡c chunk d? an toÃ n tuy?t d?i
       await new Promise((r) => setTimeout(r, 100));
     }
 
-    // Luu tr?ng thái sau m?i trang d? có th? resume n?u cúp di?n/m?t m?ng
+    // Luu tr?ng thÃ¡i sau m?i trang d? cÃ³ th? resume n?u cÃºp di?n/m?t m?ng
     saveSyncState({
       last_seed_page: page + 1,
       total_seeded: totalSynced,
@@ -435,7 +435,7 @@ export async function syncBulkAll(options?: {
     });
 
     const percent = (((page / totalPages) * 100).toFixed(1) + "%");
-    console.log(`  ?? [Ti?n d?: ${percent}] Ðã luu ${totalSynced} phim vào Database.`);
+    console.log(`  ?? [Ti?n d?: ${percent}] ÃÃ£ luu ${totalSynced} phim vÃ o Database.`);
 
     options?.onProgress?.({
       currentPage: page,
@@ -445,6 +445,7 @@ export async function syncBulkAll(options?: {
     });
   }
 
-  console.log(`\n?? [Bulk Seeder] Hoàn thành d?ng b? toàn b? ${totalSynced} phim!`);
+  console.log(`\n?? [Bulk Seeder] HoÃ n thÃ nh d?ng b? toÃ n b? ${totalSynced} phim!`);
 }
+
 
