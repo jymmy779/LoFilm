@@ -22,6 +22,8 @@ export const metadata: Metadata = {
     },
 };
 
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
+
 export default function SeriesPage() {
     return (
         <Suspense fallback={<Loading />}>
@@ -32,7 +34,7 @@ export default function SeriesPage() {
 
 async function SeriesData() {
     const initialData = await fetchCatalogData(
-        "https://phimapi.com/v1/api/danh-sach/phim-bo",
+        `${INTERNAL_API_URL}/danh-sach/phim-bo`,
         1,
         32
     );

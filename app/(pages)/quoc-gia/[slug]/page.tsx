@@ -6,6 +6,7 @@ import CountryClient from "./CountryClient";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 import CatalogSkeleton from "@/app/components/Movies/MovieCatalog/CatalogSkeleton";
 import { fetchCatalogData } from "@/app/utils/serverFetch";
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title = title.charAt(0).toUpperCase() + title.slice(1);
 
     try {
-        const res = await fetchWithRedis("https://phimapi.com/v1/api/quoc-gia", { revalidate: 60 });
+        const res = await fetchWithRedis(`${INTERNAL_API_URL}/quoc-gia`, { revalidate: 60 });
         const countries = (res as any)?.data?.items || (Array.isArray(res) ? res : []);
         const country = countries.find((item: any) => item.slug === slug);
         if (country) title = country.name;
@@ -62,7 +63,7 @@ async function CountryData({ slug }: { slug: string }) {
     countryName = countryName.charAt(0).toUpperCase() + countryName.slice(1);
 
     try {
-        const res = await fetchWithRedis("https://phimapi.com/v1/api/quoc-gia", { revalidate: 60 });
+        const res = await fetchWithRedis(`${INTERNAL_API_URL}/quoc-gia`, { revalidate: 60 });
         const countries = (res as any)?.data?.items || (Array.isArray(res) ? res : []);
         const country = countries.find((item: any) => item.slug === slug);
         if (country) countryName = country.name;
@@ -71,7 +72,7 @@ async function CountryData({ slug }: { slug: string }) {
     }
 
     const initialData = await fetchCatalogData(
-        `https://phimapi.com/v1/api/quoc-gia/${slug}`,
+        `${INTERNAL_API_URL}/quoc-gia/${slug}`,
         1,
         48
     );

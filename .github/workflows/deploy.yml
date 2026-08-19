@@ -19,17 +19,24 @@ jobs:
           script: |
             cd /var/www/lofilm
             
-            # Cập nhật code mới nhất từ nhánh main
+            # 1. Cập nhật code mới nhất từ nhánh main
             git pull origin main
             
-            # (Tùy chọn) Ghi đè file .env từ GitHub Secrets nếu bạn muốn quản lý env trên GitHub
-            # echo "${{ secrets.ENV_FILE }}" > .env
-            
-            # Cài đặt thư viện mới (nếu không có gì mới thì lệnh này chạy rất nhanh)
+            # 2. Cài đặt và build Frontend
             npm install
-            
-            # Build project
             npm run build
             
-            # Khởi động lại pm2
+            # 3. Cài đặt và build Backend
+            if [ -d "backend" ]; then
+              cd backend
+              npm install
+              npx prisma generate
+              npx prisma db push
+              npm run build
+              pm2 startOrReload ecosystem.config.cjs
+              cd ..
+            fi
+            
+            # 4. Khởi động lại toàn bộ tiến trình PM2
             pm2 reload all
+            pm2 save

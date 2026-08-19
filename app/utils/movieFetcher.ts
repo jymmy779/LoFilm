@@ -3,21 +3,21 @@ import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 import { createClient } from "@/app/utils/supabase/server";
 import { MovieDetailResponse } from "@/app/types/movie";
 
-const API_BASE = "https://phimapi.com";
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 export const getMovieDetail = cache(async (slug: string, isPreview: boolean = false): Promise<MovieDetailResponse | null> => {
     try {
         const cleanSlug = typeof slug === "string" ? decodeURIComponent(slug).trim() : slug;
         const supabase = await createClient();
         
-        // Fetch cả 3 nguồn song song để tối ưu tốc độ: Độc quyền, PhimAPI, và View nội bộ
+        // Fetch song song: Độc quyền từ Supabase, Chi tiết từ Backend nội bộ, và View count
         const [exclusiveRes, phimApiRes, viewRes] = await Promise.allSettled([
             supabase
                 .from('exclusive_movies')
                 .select(`*, exclusive_episodes (*)`)
                 .eq('slug', cleanSlug)
                 .single(),
-            fetchWithRedis(`${API_BASE}/phim/${cleanSlug}`),
+            fetchWithRedis(`${INTERNAL_API_URL}/phim/${cleanSlug}`),
             supabase
                 .from('movie_views')
                 .select('view_count')

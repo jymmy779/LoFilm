@@ -25,18 +25,19 @@ export const metadata: Metadata = {
 export default function TVShowsPage() {
     return (
         <Suspense fallback={<Loading />}>
-            <TVShowsData />
+            <TvShowsData />
         </Suspense>
     );
 }
 
-async function TVShowsData() {
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
+
+async function TvShowsData() {
     const initialData = await fetchCatalogData(
-        "https://phimapi.com/v1/api/danh-sach/tv-shows",
+        `${INTERNAL_API_URL}/danh-sach/tv-shows`,
         1,
         32
     );
 
     return <TVShowsClient initialData={initialData} />;
 }
-

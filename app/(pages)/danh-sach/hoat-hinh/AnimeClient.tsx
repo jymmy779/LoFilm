@@ -4,6 +4,8 @@ import MovieCatalogClient from "@/app/components/Movies/MovieCatalog/MovieCatalo
 import { useSearchParams } from "next/navigation";
 import { CatalogInitialData } from "@/app/utils/serverFetch";
 
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
+
 export default function AnimeClient({ initialData }: { initialData?: CatalogInitialData }) {
     const searchParams = useSearchParams();
     const isAnime = searchParams.get('country') === 'nhat-ban';
@@ -11,7 +13,7 @@ export default function AnimeClient({ initialData }: { initialData?: CatalogInit
     return (
         <MovieCatalogClient
             title={isAnime ? "Phim Anime" : "Phim Hoạt Hình"}
-            baseApiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh"
+            baseApiUrl={`${INTERNAL_API_URL}/danh-sach/hoat-hinh`}
             defaultType="hoathinh"
             initialData={initialData}
         />

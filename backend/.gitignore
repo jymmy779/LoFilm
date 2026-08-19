@@ -1,0 +1,7 @@
+node_modules
+dist
+.env
+dev.db
+dev.db-journal
+.sync_state.json
+*.log

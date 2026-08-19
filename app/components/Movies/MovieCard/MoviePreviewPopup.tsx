@@ -9,6 +9,7 @@ import { getCategoryColors } from "@/app/utils/uiUtils";
 import { getEpisodeStatus, getImageUrl, getFriendlyEpisodeSlug, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
 import { getR2MovieThumbUrl, getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 export interface MoviePreviewPopupProps {
     movie: Movie;
@@ -46,7 +47,7 @@ export default function MoviePreviewPopup({
 
     const fetcher = (url: string) => fetch(url).then(res => res.json());
     const { data: swrData, isLoading: isLoadingPlayUrl } = useSWR(
-        `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/phim/${movie.slug}`)}&revalidate=60`,
+        `/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/phim/${movie.slug}`)}&revalidate=60`,
         fetcher,
         {
             revalidateOnFocus: false,

@@ -87,7 +87,23 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
             if (retryCount < 1) {
                 return _fetchFreshData(retryCount + 1);
             }
-            console.error(`[Axios Fetch Error After Retry] ${url}`, error.message);
+            // Fallback 1: Nếu gọi Backend nội bộ thất bại, tự động thử lại với KKPhim API trực tiếp
+            if (url.includes('localhost:5000') || url.includes('/api/v1')) {
+                try {
+                    const fallbackUrl = url
+                        .replace(/http:\/\/localhost:5000\/api\/v1/g, 'https://phimapi.com/v1/api')
+                        .replace(/http:\/\/localhost:5000\/v1\/api/g, 'https://phimapi.com/v1/api')
+                        .replace('https://phimapi.com/v1/api/phim/', 'https://phimapi.com/phim/');
+                    
+                    const fbResponse = await axios.get(fallbackUrl, {
+                        timeout: 10000,
+                        headers: { 'User-Agent': 'Mozilla/5.0' }
+                    });
+                    if (fbResponse.status === 200 && fbResponse.data) {
+                        return fbResponse.data;
+                    }
+                } catch {}
+            }
 
             // Stale-on-Error: API sap that su -> fallback theo thu tu uu tien
             if (redis) {

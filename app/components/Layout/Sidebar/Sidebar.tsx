@@ -191,18 +191,20 @@ interface SidebarProps {
     seriesLimit?: number;
 }
 
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
+
 export default function Sidebar({ weeklyLimit = 10, seriesLimit = 5 }: SidebarProps) {
     return (
         <aside className="w-full space-y-2">
             <SidebarSection
                 title="Top phim tuần"
-                apiUrl="https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3"
+                apiUrl={`${INTERNAL_API_URL}/danh-sach/phim-moi-cap-nhat`}
                 type="rank"
                 limit={weeklyLimit}
             />
             <SidebarSection
                 title="Top phim bộ"
-                apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo"
+                apiUrl={`${INTERNAL_API_URL}/danh-sach/phim-bo`}
                 type="simple"
                 limit={seriesLimit}
             />

@@ -40,9 +40,11 @@ export default async function AnimePage({ searchParams }: { searchParams: Promis
     );
 }
 
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
+
 async function AnimeData({ isAnime }: { isAnime: boolean }) {
     const initialData = await fetchCatalogData(
-        "https://phimapi.com/v1/api/danh-sach/hoat-hinh",
+        `${INTERNAL_API_URL}/danh-sach/hoat-hinh`,
         1,
         32,
         {

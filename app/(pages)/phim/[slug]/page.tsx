@@ -3,10 +3,11 @@ import { notFound } from "next/navigation";
 import MovieDetailClient from "./MovieDetailClient";
 import { MovieDetailResponse, Movie } from "@/app/types/movie";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 export const dynamic = 'force-dynamic';
 
 // API base URL
-const API_BASE = "https://phimapi.com";
+const API_BASE = INTERNAL_API_URL;
 
 import { getMovieDetail } from "@/app/utils/movieFetcher";
 
@@ -109,7 +110,8 @@ export default async function MoviePage({
     } else {
         try {
             // Dùng fetch của Nextjs với cache cực lâu
-            const res = await fetch(`https://phimapi.com/v1/api/phim/${slug}/peoples`, { next: { revalidate: 2592000 } });
+            const INTERNAL_API_URL = process.env.NEXT_PUBLIC_INTERNAL_API_URL || 'http://localhost:5000/api';
+            const res = await fetch(`${INTERNAL_API_URL}/phim/${slug}/peoples`, { next: { revalidate: 2592000 } });
             const data = await res.json();
             if (data.success || data.status === "success") {
                 const peoples = data.data?.peoples;

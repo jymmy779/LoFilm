@@ -7,6 +7,7 @@ import CategoryClient from "./CategoryClient";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 import CatalogSkeleton from "@/app/components/Movies/MovieCatalog/CatalogSkeleton";
 import { fetchCatalogData } from "@/app/utils/serverFetch";
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
@@ -21,7 +22,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     title = title.charAt(0).toUpperCase() + title.slice(1);
 
     try {
-        const res = await fetchWithRedis("https://phimapi.com/v1/api/the-loai", { revalidate: 60 });
+        const res = await fetchWithRedis(`${INTERNAL_API_URL}/the-loai`, { revalidate: 60 });
         const categories = (res as any)?.data?.items || (Array.isArray(res) ? res : []);
         const category = categories.find((cat: any) => cat.slug === slug);
         if (category) title = category.name;
@@ -63,7 +64,7 @@ async function CategoryData({ slug }: { slug: string }) {
     categoryName = categoryName.charAt(0).toUpperCase() + categoryName.slice(1);
 
     try {
-        const res = await fetchWithRedis("https://phimapi.com/v1/api/the-loai", { revalidate: 60 });
+        const res = await fetchWithRedis(`${INTERNAL_API_URL}/the-loai`, { revalidate: 60 });
         const categories = (res as any)?.data?.items || (Array.isArray(res) ? res : []);
         const category = categories.find((cat: any) => cat.slug === slug);
         if (category) categoryName = category.name;
@@ -74,7 +75,7 @@ async function CategoryData({ slug }: { slug: string }) {
     let initialData;
     try {
         initialData = await fetchCatalogData(
-            `https://phimapi.com/v1/api/the-loai/${slug}`,
+            `${INTERNAL_API_URL}/the-loai/${slug}`,
             1,
             48
         );

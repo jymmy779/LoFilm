@@ -4,11 +4,13 @@ import MovieCatalogClient from "@/app/components/Movies/MovieCatalog/MovieCatalo
 
 import { CatalogInitialData } from "@/app/utils/serverFetch";
 
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
+
 export default function MovieListClient({ initialData }: { initialData?: CatalogInitialData }) {
     return (
         <MovieCatalogClient
             title="Danh sách Phim Lẻ"
-            baseApiUrl="https://phimapi.com/v1/api/danh-sach/phim-le"
+            baseApiUrl={`${INTERNAL_API_URL}/danh-sach/phim-le`}
             itemsPerPage={32}
             hideSidebar={true}
             defaultType="single"

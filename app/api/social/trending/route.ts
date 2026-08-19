@@ -90,9 +90,10 @@ export async function GET() {
                         };
                     }
 
-                    const data = await fetchWithRedis(`https://phimapi.com/phim/${slug}`, { revalidate: 60 });
-                    if (data && data.movie) {
-                        const movieData = data.movie;
+                    const INTERNAL_API_URL = process.env.NEXT_PUBLIC_INTERNAL_API_URL || 'http://localhost:5000/api';
+                    const data = await fetchWithRedis(`${INTERNAL_API_URL}/phim/${slug}`, { revalidate: 60 });
+                    const movieData = data?.movie;
+                    if (movieData) {
                         const rawPoster = getImageUrl(movieData.poster_url);
 
                         return {

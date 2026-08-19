@@ -26,7 +26,8 @@ export async function GET() {
             
             // 1. Thử PhimAPI trước
             try {
-                const check = await fetch(`https://phimapi.com/v1/api/phim/${movie.slug}`);
+                const INTERNAL_API_URL = process.env.NEXT_PUBLIC_INTERNAL_API_URL || 'http://localhost:5000/api';
+                const check = await fetch(`${INTERNAL_API_URL}/phim/${movie.slug}`);
                 const checkData = await check.json();
                 if (checkData?.status && checkData.movie) {
                     movieName = checkData.movie.name || "";

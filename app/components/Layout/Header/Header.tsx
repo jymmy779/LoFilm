@@ -18,6 +18,8 @@ import { useAuth } from "@/app/components/User/Auth/AuthContext";
 import LoginPromptModal from "@/app/components/UI/Modals/LoginPromptModal";
 import UtilitySettingsModal from "@/app/components/UI/Modals/UtilitySettingsModal";
 
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
+
 export default function Header() {
     const pathname = usePathname();
     const searchParams = useSearchParams();
@@ -52,17 +54,16 @@ export default function Header() {
         window.addEventListener("scroll", handleScroll, { passive: true });
         window.addEventListener("resize", handleResize, { passive: true });
 
-        axios.get<MenuItem[]>(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/v1/api/the-loai")}&revalidate=86400`)
+        axios.get<MenuItem[]>(`${INTERNAL_API_URL}/the-loai`)
             .then((res) => {
-                // Proxy returns data directly, but we need to handle the format
-                const items = (res.data as any).data?.items || res.data;
+                const items = (res.data as any).data?.items || (res.data as any).items || res.data;
                 setCategories(Array.isArray(items) ? items : []);
             })
             .catch((err) => console.error("Lỗi fetch thể loại:", err));
 
-        axios.get<MenuItem[]>(`/api/proxy?url=${encodeURIComponent("https://phimapi.com/v1/api/quoc-gia")}&revalidate=86400`)
+        axios.get<MenuItem[]>(`${INTERNAL_API_URL}/quoc-gia`)
             .then((res) => {
-                const items = (res.data as any).data?.items || res.data;
+                const items = (res.data as any).data?.items || (res.data as any).items || res.data;
                 setCountries(Array.isArray(items) ? items : []);
             })
             .catch((err) => console.error("Lỗi fetch quốc gia:", err));

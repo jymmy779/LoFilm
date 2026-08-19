@@ -1,13 +1,21 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { fetchWithRedis } from '@/app/lib/fetch-with-redis';
 import { enrichApiDataWithDatabase } from '@/app/utils/movieEnricher';
+import { INTERNAL_API_URL } from '@/app/utils/apiConfig';
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
-  const targetUrl = searchParams.get('url');
+  let targetUrl = searchParams.get('url');
 
   if (!targetUrl) {
     return NextResponse.json({ error: 'URL parameter is missing' }, { status: 400 });
+  }
+
+  // Tự động chuyển hướng từ phimapi.com sang Backend nội bộ
+  if (targetUrl.startsWith('https://phimapi.com/v1/api') || targetUrl.startsWith('https://phimapi.com')) {
+    targetUrl = targetUrl
+      .replace('https://phimapi.com/v1/api', INTERNAL_API_URL)
+      .replace('https://phimapi.com', INTERNAL_API_URL);
   }
 
   try {

@@ -1,7 +1,8 @@
 import { MetadataRoute } from 'next';
 import { SITE_URL } from '@/app/config/site';
+import { INTERNAL_API_URL } from '@/app/utils/apiConfig';
 
-const API_BASE = "https://phimapi.com";
+const API_BASE = INTERNAL_API_URL;
 const BASE_URL = SITE_URL;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

@@ -10,10 +10,12 @@ interface CountryClientProps {
     initialData?: CatalogInitialData;
 }
 
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
+
 export default function CountryClient({ slug, title, initialData }: CountryClientProps) {
     return (
         <MovieCatalogClient
-            baseApiUrl={`https://phimapi.com/v1/api/quoc-gia/${slug}`}
+            baseApiUrl={`${INTERNAL_API_URL}/quoc-gia/${slug}`}
             slug={slug}
             title={title}
             itemsPerPage={48}

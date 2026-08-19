@@ -23,6 +23,7 @@ import {
     generateCategorySlug
 } from "@/app/utils/movieUtils";
 import { getCategoryColor, getCategoryStyles } from "@/app/utils/uiUtils";
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
 import { fetchTotalEpisodesFromTMDB, fetchActorsFromTMDB, TMDBActor } from "@/app/utils/tmdbUtils";
 import Skeleton from "@/app/components/UI/Skeleton/Skeleton";
@@ -141,8 +142,8 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
             if (!firstCategory) return;
 
             try {
-                const res = await axios.get(`/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${firstCategory}?page=1&limit=20`)}&revalidate=60`);
-                const items: Movie[] = res.data?.data?.items || [];
+                const res = await axios.get(`/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/the-loai/${firstCategory}?page=1&limit=20`)}&revalidate=60`);
+                const items: Movie[] = res.data?.data?.items || res.data?.items || [];
                 const filtered = items.filter((m: Movie) => m.slug !== initialMovie.slug).slice(0, 18);
                 if (filtered.length > 0) {
                     setSuggestedMoviesState(filtered);
@@ -186,12 +187,12 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
         correctMainMovie();
     }, [movie.slug, episodes, movie.episode_total]);
 
-    // Effect to fetch Weekly Top movies (Deferred & Desktop-only to limit requests on mobile/mount)
+    // Client-side fetch top weekly movies for sidebar in Detail Page (Lazy loaded)
     useEffect(() => {
         const fetchTopWeekly = async () => {
             try {
                 // Sử dụng API phim bộ đồng nhất với Sidebar
-                const res = await axios.get(`/api/proxy?url=${encodeURIComponent('https://phimapi.com/v1/api/danh-sach/phim-bo?limit=40')}`);
+                const res = await axios.get(`/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/danh-sach/phim-bo?limit=40`)}`);
                 const items = res.data?.data?.items || res.data?.items || [];
 
                 if (items.length > 0) {
@@ -259,7 +260,8 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                         setTmdbActors(actors);
                     }
                 } else {
-                    const res = await fetch(`https://phimapi.com/v1/api/phim/${movie.slug}/peoples`);
+                    const INTERNAL_API_URL = process.env.NEXT_PUBLIC_INTERNAL_API_URL || 'http://localhost:5000/api';
+                    const res = await fetch(`${INTERNAL_API_URL}/phim/${movie.slug}/peoples`);
                     const data = await res.json();
 
                     if (data.success || data.status === "success") {

@@ -9,6 +9,7 @@
 import { Movie } from "@/app/types/movie";
 import { MenuItem } from "@/app/components/Layout/Header/types";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 export interface CatalogInitialData {
     movies: Movie[];
@@ -20,7 +21,7 @@ export interface CatalogInitialData {
 
 /**
  * Fetch catalog data on the server side.
- * @param apiUrl - Full API URL (e.g. https://phimapi.com/v1/api/danh-sach/phim-bo)
+ * @param apiUrl - Full API URL hoặc relative route
  * @param page - Current page number
  * @param limit - Items per page
  * @param filters - Optional filter params (year, category, country)
@@ -36,6 +37,14 @@ export async function fetchCatalogData(
     }
 ): Promise<CatalogInitialData> {
     try {
+        // Chuẩn hóa URL sang Backend nội bộ nếu đang trỏ tới phimapi.com
+        let targetApiUrl = apiUrl;
+        if (targetApiUrl.startsWith("https://phimapi.com/v1/api") || targetApiUrl.startsWith("https://phimapi.com")) {
+            targetApiUrl = targetApiUrl
+                .replace("https://phimapi.com/v1/api", INTERNAL_API_URL)
+                .replace("https://phimapi.com", INTERNAL_API_URL);
+        }
+
         // Build URL with params
         const params = new URLSearchParams();
         params.set("page", page.toString());
@@ -44,14 +53,14 @@ export async function fetchCatalogData(
         if (filters?.category) params.set("category", filters.category);
         if (filters?.country) params.set("country", filters.country);
 
-        const fullUrl = `${apiUrl}?${params.toString()}`;
+        const fullUrl = `${targetApiUrl}?${params.toString()}`;
 
         // Fetch movies + filter lists in parallel using unified cache strategy
         const [moviesData, [categoriesData, countriesData]] = await Promise.all([
             fetchWithRedis(fullUrl, { revalidate: 60 }),
             Promise.all([
-                fetchWithRedis("https://phimapi.com/v1/api/the-loai", { revalidate: 86400 }), // 24 giờ
-                fetchWithRedis("https://phimapi.com/v1/api/quoc-gia", { revalidate: 86400 }), // 24 giờ
+                fetchWithRedis(`${INTERNAL_API_URL}/the-loai`, { revalidate: 86400 }), // 24 giờ
+                fetchWithRedis(`${INTERNAL_API_URL}/quoc-gia`, { revalidate: 86400 }), // 24 giờ
             ])
         ]);
 
@@ -168,13 +177,13 @@ export async function fetchSearchData(
         params.set("sort_field", sortField);
         params.set("sort_type", "desc");
 
-        const fullUrl = `https://phimapi.com/v1/api/tim-kiem?${params.toString()}`;
+        const fullUrl = `${INTERNAL_API_URL}/tim-kiem?${params.toString()}`;
 
         // Use fetchWithRedis for unified caching
         const [searchData, categoriesData, countriesData] = await Promise.all([
             fetchWithRedis(fullUrl, { revalidate: 30 }),
-            fetchWithRedis("https://phimapi.com/v1/api/the-loai", { revalidate: 86400 }), // 24 giờ
-            fetchWithRedis("https://phimapi.com/v1/api/quoc-gia", { revalidate: 86400 }), // 24 giờ
+            fetchWithRedis(`${INTERNAL_API_URL}/the-loai`, { revalidate: 86400 }), // 24 giờ
+            fetchWithRedis(`${INTERNAL_API_URL}/quoc-gia`, { revalidate: 86400 }), // 24 giờ
         ]);
 
         let apiItems: any[] = [];

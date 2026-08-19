@@ -23,6 +23,8 @@ import ReunificationEvent from "./components/Movies/SpecialSections/Reunificatio
 import ReunificationEventSkeleton from "./components/Movies/SpecialSections/ReunificationEventSkeleton";
 import SocialStatsSection from "./components/Social/SocialStats/SocialStatsSection";
 
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
+
 export default function HomeClient({ prefetched, activeEvent, initialTopics }: { prefetched: HomePrefetch, activeEvent?: string, initialTopics?: any[] }) {
     const isEventPeriod = activeEvent === 'reunification';
 
@@ -69,7 +71,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                 <LazyRow id="row-han-quoc" estimatedHeight="370px" skeleton={<MovieRowSkeleton />}>
                     <MovieRow
                         title="Vũ trụ Oppa"
-                        apiUrl="https://phimapi.com/v1/api/quoc-gia/han-quoc?limit=60"
+                        apiUrl={`${INTERNAL_API_URL}/quoc-gia/han-quoc?limit=60`}
                         viewAllLink="/quoc-gia/han-quoc"
                         initialMovies={prefetched.movieRowHan}
                         sortByYear={true}
@@ -80,7 +82,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                 <LazyRow id="row-trung-quoc" estimatedHeight="370px" skeleton={<MovieRowSkeleton />}>
                     <MovieRow
                         title="C-Biz chuẩn gu"
-                        apiUrl="https://phimapi.com/v1/api/quoc-gia/trung-quoc?limit=60"
+                        apiUrl={`${INTERNAL_API_URL}/quoc-gia/trung-quoc?limit=60`}
                         viewAllLink="/quoc-gia/trung-quoc"
                         initialMovies={prefetched.movieRowTrung}
                         sortByYear={true}
@@ -91,7 +93,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                 <LazyRow id="row-au-my" estimatedHeight="370px" skeleton={<MovieRowSkeleton />}>
                     <MovieRow
                         title="Hollywood cực cháy"
-                        apiUrl="https://phimapi.com/v1/api/quoc-gia/au-my?limit=60"
+                        apiUrl={`${INTERNAL_API_URL}/quoc-gia/au-my?limit=60`}
                         viewAllLink="/quoc-gia/au-my"
                         initialMovies={prefetched.movieRowAuMy}
                         sortByYear={true}
@@ -104,7 +106,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                 <LazyRow id="slider-tv-shows" estimatedHeight="650px" skeleton={<FeaturedSliderSkeleton />}>
                     <FeaturedSlider
                         title="Showbiz cực cuốn"
-                        apiUrl="https://phimapi.com/v1/api/danh-sach/tv-shows?limit=60"
+                        apiUrl={`${INTERNAL_API_URL}/danh-sach/tv-shows?limit=60`}
                         viewAllLink="/danh-sach/tv-shows"
                         navId="featured-tv"
                         initialMovies={prefetched.featuredTv}
@@ -115,7 +117,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                 <LazyRow id="poster-chieu-rap" estimatedHeight="540px" skeleton={<MoviePosterRowSkeleton />}>
                     <MoviePosterRow
                         title="Hội mọt phim rạp"
-                        apiUrl="https://phimapi.com/v1/api/danh-sach/phim-chieu-rap?limit=60"
+                        apiUrl={`${INTERNAL_API_URL}/danh-sach/phim-chieu-rap?limit=60`}
                         viewAllLink="/danh-sach/phim-chieu-rap"
                         initialMovies={prefetched.posterChieuRap}
                         sortByYear={true}
@@ -127,7 +129,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                 <LazyRow id="poster-phim-bo" estimatedHeight="540px" skeleton={<MoviePosterRowSkeleton />}>
                     <MoviePosterRow
                         title="Động phim bộ"
-                        apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?year=2024&limit=60"
+                        apiUrl={`${INTERNAL_API_URL}/danh-sach/phim-bo?year=2024&limit=60`}
                         viewAllLink="/danh-sach/phim-bo"
                         initialMovies={prefetched.posterPhimBo}
                         sortByYear={true}
@@ -139,7 +141,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                 <LazyRow id="top-phim-le" estimatedHeight="520px" skeleton={<TopMovieRowSkeleton />}>
                     <TopMovieRow
                         title="Phim lẻ đang lên xu hướng"
-                        apiUrl="https://phimapi.com/v1/api/danh-sach/phim-le?limit=60"
+                        apiUrl={`${INTERNAL_API_URL}/danh-sach/phim-le?limit=60`}
                         viewAllLink="/danh-sach/phim-le"
                         initialMovies={prefetched.topPhimLe}
                         titleGradient="from-white via-rose-200 to-rose-400"
@@ -149,7 +151,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                 <LazyRow id="top-phim-bo" estimatedHeight="520px" skeleton={<TopMovieRowSkeleton />}>
                     <TopMovieRow
                         title="Top phim bộ cực hot"
-                        apiUrl="https://phimapi.com/v1/api/danh-sach/phim-bo?limit=60"
+                        apiUrl={`${INTERNAL_API_URL}/danh-sach/phim-bo?limit=60`}
                         viewAllLink="/danh-sach/phim-bo"
                         initialMovies={prefetched.topPhimBo}
                         titleGradient="from-white via-emerald-200 to-emerald-400"
@@ -169,7 +171,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                 <LazyRow id="slider-anime" estimatedHeight="650px" skeleton={<FeaturedSliderSkeleton />}>
                     <FeaturedSlider
                         title="Hệ WeeBoo chính hiệu"
-                        apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?country=nhat-ban&limit=60"
+                        apiUrl={`${INTERNAL_API_URL}/danh-sach/hoat-hinh?country=nhat-ban&limit=60`}
                         viewAllLink="/danh-sach/hoat-hinh?country=nhat-ban"
                         navId="featured-anime"
                         initialMovies={prefetched.featuredAnime}
@@ -180,7 +182,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                 <LazyRow id="poster-kinh-di" estimatedHeight="540px" skeleton={<MoviePosterRowSkeleton />}>
                     <MoviePosterRow
                         title="Hệ tâm linh cực cháy"
-                        apiUrl="https://phimapi.com/v1/api/the-loai/kinh-di?limit=60"
+                        apiUrl={`${INTERNAL_API_URL}/the-loai/kinh-di?limit=60`}
                         viewAllLink="/the-loai/kinh-di"
                         initialMovies={prefetched.posterKinhDi}
                         titleGradient="from-white via-red-200 to-red-500"
@@ -190,7 +192,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                 <LazyRow id="poster-hoat-hinh" estimatedHeight="540px" skeleton={<MoviePosterRowSkeleton />}>
                     <MoviePosterRow
                         title="Xứ sở hoạt hình"
-                        apiUrl="https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=60"
+                        apiUrl={`${INTERNAL_API_URL}/danh-sach/hoat-hinh?limit=60`}
                         viewAllLink="/danh-sach/hoat-hinh"
                         initialMovies={prefetched.posterHoatHinh}
                         titleGradient="from-white via-cyan-200 to-cyan-400"
@@ -200,7 +202,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                 <LazyRow id="row-phim-ngan" estimatedHeight="410px" skeleton={<WideMovieRowSkeleton />}>
                     <WideMovieRow
                         title="Phim ngắn siêu cuốn"
-                        apiUrl="https://phimapi.com/v1/api/the-loai/phim-ngan?limit=60"
+                        apiUrl={`${INTERNAL_API_URL}/the-loai/phim-ngan?limit=60`}
                         viewAllLink="/the-loai/phim-ngan"
                         initialMovies={prefetched.phimNgan}
                         revalidate={30}

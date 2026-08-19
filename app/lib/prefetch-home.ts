@@ -8,6 +8,7 @@ import {
 import { fetchWithRedis, redis } from "@/app/lib/fetch-with-redis";
 import { createClient } from "@supabase/supabase-js";
 import { enrichApiDataWithDatabase } from "@/app/utils/movieEnricher";
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 // Client Supabase an toàn cho Background jobs (không dính tới cookies Next.js)
 const supabase = createClient(
@@ -39,9 +40,11 @@ function parseV1Items(payload: unknown): Movie[] {
     return p.data.items;
 }
 
-function parseV3HeroItems(payload: unknown): Movie[] {
+function parseHeroItems(payload: unknown): Movie[] {
     if (!payload || typeof payload !== "object") return [];
-    const items = (payload as { items?: Movie[] }).items;
+    // Hỗ trợ cả payload.items lẫn payload.data.items từ backend
+    const p = payload as any;
+    const items = p.items || p.data?.items || [];
     return Array.isArray(items) ? items : [];
 }
 
@@ -103,7 +106,7 @@ async function fetchTop(url: string, limit: number = 30): Promise<Movie[]> {
 }
 
 async function mapHero(payload: unknown): Promise<Movie[]> {
-    const raw = parseV3HeroItems(payload);
+    const raw = parseHeroItems(payload);
     return filterDuplicateMovies(raw).slice(0, 8);
 }
 
@@ -141,7 +144,7 @@ async function getStarredMoviesForHero(): Promise<Movie[]> {
 
             // Fetch thông tin chi tiết từ PhimAPI
             try {
-                const phimApiRes = await fetch(`https://phimapi.com/phim/${m.slug}`, { signal: AbortSignal.timeout(5000) });
+                const phimApiRes = await fetch(`${INTERNAL_API_URL}/phim/${m.slug}`, { signal: AbortSignal.timeout(5000) });
                 if (phimApiRes.ok) {
                     const phimApiData = await phimApiRes.json();
                     const detail = phimApiData?.movie;
@@ -212,7 +215,7 @@ async function getExclusiveMoviesForHero(): Promise<Movie[]> {
 
             // Ưu tiên 1: Lấy data từ PhimAPI (api thứ 3) — tránh bị nhà mạng VN block TMDB
             try {
-                const phimApiRes = await fetch(`https://phimapi.com/phim/${m.slug}`, { signal: AbortSignal.timeout(5000) });
+                const phimApiRes = await fetch(`${INTERNAL_API_URL}/phim/${m.slug}`, { signal: AbortSignal.timeout(5000) });
                 if (phimApiRes.ok) {
                     const phimApiData = await phimApiRes.json();
                     const detail = phimApiData?.movie;
@@ -280,20 +283,20 @@ async function getExclusiveMoviesForHero(): Promise<Movie[]> {
 
 
 const URLS = {
-    hero: "https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?limit=60",
-    categories: "https://phimapi.com/v1/api/the-loai",
-    movieRowHan: "https://phimapi.com/v1/api/quoc-gia/han-quoc?limit=60",
-    movieRowTrung: "https://phimapi.com/v1/api/quoc-gia/trung-quoc?limit=60",
-    movieRowAuMy: "https://phimapi.com/v1/api/quoc-gia/au-my?limit=60",
-    featuredTv: "https://phimapi.com/v1/api/danh-sach/tv-shows?limit=60",
-    posterChieuRap: "https://phimapi.com/v1/api/danh-sach/phim-chieu-rap?limit=60",
-    posterPhimBo: "https://phimapi.com/v1/api/danh-sach/phim-bo?limit=60",
-    topPhimLe: "https://phimapi.com/v1/api/danh-sach/phim-le?limit=60",
-    topPhimBo: "https://phimapi.com/v1/api/danh-sach/phim-bo?limit=60",
-    featuredAnime: "https://phimapi.com/v1/api/danh-sach/hoat-hinh?country=nhat-ban&limit=60",
-    posterKinhDi: "https://phimapi.com/v1/api/the-loai/kinh-di?limit=60",
-    posterHoatHinh: "https://phimapi.com/v1/api/danh-sach/hoat-hinh?limit=60",
-    phimNgan: "https://phimapi.com/v1/api/the-loai/phim-ngan?limit=60",
+    hero: `${INTERNAL_API_URL}/danh-sach/phim-moi-cap-nhat?limit=60`,
+    categories: `${INTERNAL_API_URL}/the-loai`,
+    movieRowHan: `${INTERNAL_API_URL}/quoc-gia/han-quoc?limit=60`,
+    movieRowTrung: `${INTERNAL_API_URL}/quoc-gia/trung-quoc?limit=60`,
+    movieRowAuMy: `${INTERNAL_API_URL}/quoc-gia/au-my?limit=60`,
+    featuredTv: `${INTERNAL_API_URL}/danh-sach/tv-shows?limit=60`,
+    posterChieuRap: `${INTERNAL_API_URL}/danh-sach/phim-chieu-rap?limit=60`,
+    posterPhimBo: `${INTERNAL_API_URL}/danh-sach/phim-bo?limit=60`,
+    topPhimLe: `${INTERNAL_API_URL}/danh-sach/phim-le?limit=60`,
+    topPhimBo: `${INTERNAL_API_URL}/danh-sach/phim-bo?limit=60`,
+    featuredAnime: `${INTERNAL_API_URL}/danh-sach/hoat-hinh?country=nhat-ban&limit=60`,
+    posterKinhDi: `${INTERNAL_API_URL}/the-loai/kinh-di?limit=60`,
+    posterHoatHinh: `${INTERNAL_API_URL}/danh-sach/hoat-hinh?limit=60`,
+    phimNgan: `${INTERNAL_API_URL}/the-loai/phim-ngan?limit=60`,
 } as const;
 
 async function mapNominated(): Promise<Movie[]> {
@@ -377,7 +380,7 @@ async function mapNominated(): Promise<Movie[]> {
                     } as unknown as Movie;
                 }
 
-                const res = await fetchPhimJson(`https://phimapi.com/phim/${slug}`);
+                const res = await fetchPhimJson(`${INTERNAL_API_URL}/phim/${slug}`);
                 const movie = (res as any)?.movie;
                 if (!movie) return null;
                 return {
@@ -416,7 +419,7 @@ async function enrichMovies(movies: Movie[]): Promise<Movie[]> {
     return await Promise.all(
         movies.map(async (m) => {
             try {
-                const res = await fetchPhimJson(`https://phimapi.com/phim/${m.slug}`);
+                const res = await fetchPhimJson(`${INTERNAL_API_URL}/phim/${m.slug}`);
                 const detail = (res as any)?.movie;
                 if (!detail) return m;
                 return {

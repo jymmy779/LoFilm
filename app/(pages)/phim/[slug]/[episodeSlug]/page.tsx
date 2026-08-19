@@ -7,20 +7,22 @@ import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 import { Suspense } from "react";
 import WatchLoading from "./loading";
 
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
+
 export const dynamic = 'force-dynamic';
 
-const API_BASE = "https://phimapi.com";
+const API_BASE = INTERNAL_API_URL;
 
 async function getSuggestedMovies(movie: any): Promise<any[]> {
     try {
         const firstCategory = movie.category?.[0]?.slug;
         if (!firstCategory) return [];
 
-        const data = await fetchWithRedis(`${API_BASE}/v1/api/the-loai/${firstCategory}?page=1&limit=10`, {
+        const data = await fetchWithRedis(`${API_BASE}/the-loai/${firstCategory}?page=1&limit=10`, {
             next: { revalidate: 30 },
         });
 
-        const items = data?.data?.items || [];
+        const items = data?.data?.items || data?.items || [];
         return items.filter((m: any) => m.slug !== movie.slug).slice(0, 10);
     } catch {
         return [];

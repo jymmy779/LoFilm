@@ -10,6 +10,7 @@ import { decodeHtml } from "@/app/utils/textUtils";
 import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import ReunificationEventSkeleton from "./ReunificationEventSkeleton";
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 export default function ReunificationEvent() {
     const [isMounted, setIsMounted] = useState(false);
@@ -36,7 +37,7 @@ export default function ReunificationEvent() {
         try {
             setIsLoading(true);
             // Fetch 6 phim mới nhất từ quốc gia Việt Nam
-            const res = await axios.get("https://phimapi.com/v1/api/quoc-gia/viet-nam?limit=6");
+            const res = await axios.get(`${INTERNAL_API_URL}/quoc-gia/viet-nam?limit=6`);
 
             if (res.data?.status === "success" || res.data?.status === true) {
                 const items = res.data.data?.items || res.data.items || [];

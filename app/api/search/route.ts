@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/app/utils/supabase/server";
 import { redis } from "@/app/lib/fetch-with-redis";
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 export async function GET(request: NextRequest) {
     try {
@@ -52,16 +53,14 @@ export async function GET(request: NextRequest) {
             .order('created_at', { ascending: false })
             .limit(limit);
 
-        // 3. Tìm trên PhimAPI (Truyền toàn bộ params gốc để hỗ trợ page, sort)
-        // Chuyển keyword sang không dấu vì CSDL của PhimAPI bị lỗi encoding NFD với tiếng Việt có dấu
-        const apiKeyword = keyword.normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/đ/g, 'd').replace(/Đ/g, 'D');
-        searchParams.set("keyword", apiKeyword);
-        const phimApiPromise = fetch(`https://phimapi.com/v1/api/tim-kiem?${searchParams.toString()}`)
+        // 3. Tìm trên Backend nội bộ
+        searchParams.set("keyword", keyword);
+        const internalApiPromise = fetch(`${INTERNAL_API_URL}/tim-kiem?${searchParams.toString()}`)
             .then(res => res.json())
             .catch(() => null);
 
-        // Chạy song song cả 2
-        const [supabaseRes, phimApiData] = await Promise.all([supabasePromise, phimApiPromise]);
+        // Chạy song song cả 2 (Supabase độc quyền + Backend nội bộ 30k phim)
+        const [supabaseRes, internalApiData] = await Promise.all([supabasePromise, internalApiPromise]);
 
         // 4. Format dữ liệu từ Supabase cho giống PhimAPI
         let exclusiveItems: any[] = [];
@@ -85,10 +84,10 @@ export async function GET(request: NextRequest) {
             }));
         }
 
-        // 5. Lấy dữ liệu từ PhimAPI
+        // 5. Lấy dữ liệu từ Backend nội bộ
         let apiItems: any[] = [];
-        if (phimApiData && phimApiData.status === "success" && phimApiData.data?.items) {
-            apiItems = phimApiData.data.items;
+        if (internalApiData && (internalApiData.status === "success" || internalApiData.status === true)) {
+            apiItems = internalApiData.data?.items || internalApiData.items || [];
         }
 
         // 6. Gộp kết quả, ưu tiên phim độc quyền xếp trên

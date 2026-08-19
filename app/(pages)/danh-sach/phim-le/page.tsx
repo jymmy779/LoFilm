@@ -22,21 +22,22 @@ export const metadata: Metadata = {
     },
 };
 
-export default function MovieListPage() {
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
+
+export default function SingleMoviePage() {
     return (
         <Suspense fallback={<Loading />}>
-            <MovieListData />
+            <SingleMovieData />
         </Suspense>
     );
 }
 
-async function MovieListData() {
+async function SingleMovieData() {
     const initialData = await fetchCatalogData(
-        "https://phimapi.com/v1/api/danh-sach/phim-le",
+        `${INTERNAL_API_URL}/danh-sach/phim-le`,
         1,
         32
     );
 
     return <MovieListClient initialData={initialData} />;
 }
-

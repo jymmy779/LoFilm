@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { fetchWithRedis } from '@/app/lib/fetch-with-redis';
+import { INTERNAL_API_URL } from '@/app/utils/apiConfig';
 
 export async function GET(request: Request) {
     const { searchParams } = new URL(request.url);
@@ -9,16 +10,15 @@ export async function GET(request: Request) {
     try {
         const moviesToWarm: string[] = [];
 
-
-        // 1. Lấy danh sách phim để lấy slug
+        // 1. Lấy danh sách phim để lấy slug từ Backend nội bộ
         for (let i = 1; i <= pages; i++) {
-            let listUrl = `https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?page=${i}`;
+            let listUrl = `${INTERNAL_API_URL}/danh-sach/phim-moi-cap-nhat?page=${i}`;
 
             // Hỗ trợ nạp theo danh sách khác nếu cần
             if (type === 'phim-bo') {
-                listUrl = `https://phimapi.com/v1/api/danh-sach/phim-bo?page=${i}`;
+                listUrl = `${INTERNAL_API_URL}/danh-sach/phim-bo?page=${i}`;
             } else if (type === 'phim-le') {
-                listUrl = `https://phimapi.com/v1/api/danh-sach/phim-le?page=${i}`;
+                listUrl = `${INTERNAL_API_URL}/danh-sach/phim-le?page=${i}`;
             }
 
             const res = await fetch(listUrl);
@@ -39,7 +39,7 @@ export async function GET(request: Request) {
         for (let i = 0; i < moviesToWarm.length; i += CHUNK_SIZE) {
             const chunk = moviesToWarm.slice(i, i + CHUNK_SIZE);
             await Promise.all(chunk.map(async (slug) => {
-                const detailUrl = `https://phimapi.com/phim/${slug}`;
+                const detailUrl = `${INTERNAL_API_URL}/phim/${slug}`;
                 // Gọi fetchWithRedis sẽ tự động lưu vào memoryCache
                 await fetchWithRedis(detailUrl, { revalidate: 86400 }); // Lưu 24h
             }));

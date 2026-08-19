@@ -1,0 +1,120 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Movie {
+  id                String          @id @default(uuid())
+  slug              String          @unique
+  name              String
+  origin_name       String?
+  content           String?
+  type              String?         // single, series, hoathinh, tvshows
+  status            String?         // completed, ongoing, trailer
+  thumb_url         String?
+  poster_url        String?
+  is_copyright      Boolean         @default(false)
+  sub_docquyen      Boolean         @default(false)
+  chieurap          Boolean         @default(false)
+  trailer_url       String?
+  time              String?
+  episode_current   String?
+  episode_total     String?
+  quality           String?
+  lang              String?
+  notify            String?
+  showtimes         String?
+  year              Int?
+  view_count        Int             @default(0)
+  tmdb_id           String?
+  tmdb_type         String?
+  tmdb_vote_average Float?
+  tmdb_vote_count   Int?
+  actors            String          @default("[]")
+  directors         String          @default("[]")
+  is_exclusive      Boolean         @default(false)
+  server_modified   DateTime?
+  created_at        DateTime        @default(now())
+  updated_at        DateTime        @updatedAt
+
+  categories        MovieCategory[]
+  countries         MovieCountry[]
+  episodes          EpisodeServer[]
+
+  @@index([type])
+  @@index([year])
+  @@index([updated_at])
+  @@index([view_count])
+}
+
+model Category {
+  id     String          @id @default(uuid())
+  name   String
+  slug   String          @unique
+  movies MovieCategory[]
+}
+
+model Country {
+  id     String         @id @default(uuid())
+  name   String
+  slug   String         @unique
+  movies MovieCountry[]
+}
+
+model MovieCategory {
+  movie_id    String
+  category_id String
+  movie       Movie    @relation(fields: [movie_id], references: [id], onDelete: Cascade)
+  category    Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
+
+  @@id([movie_id, category_id])
+}
+
+model MovieCountry {
+  movie_id   String
+  country_id String
+  movie      Movie   @relation(fields: [movie_id], references: [id], onDelete: Cascade)
+  country    Country @relation(fields: [country_id], references: [id], onDelete: Cascade)
+
+  @@id([movie_id, country_id])
+}
+
+model EpisodeServer {
+  id          String    @id @default(uuid())
+  movie_id    String
+  server_name String
+  movie       Movie     @relation(fields: [movie_id], references: [id], onDelete: Cascade)
+  server_data Episode[]
+
+  @@index([movie_id])
+}
+
+model Episode {
+  id         String        @id @default(uuid())
+  server_id  String
+  name       String
+  slug       String
+  filename   String?
+  link_embed String?
+  link_m3u8  String?
+  server     EpisodeServer @relation(fields: [server_id], references: [id], onDelete: Cascade)
+
+  @@index([server_id])
+  @@index([slug])
+}
+
+model SyncLog {
+  id             String    @id @default(uuid())
+  sync_type      String    // CRON_INCREMENTAL, MANUAL, SEED
+  status         String    // SUCCESS, FAILED, RUNNING
+  pages_crawled  Int       @default(0)
+  movies_updated Int       @default(0)
+  movies_created Int       @default(0)
+  error_message  String?
+  started_at     DateTime  @default(now())
+  finished_at    DateTime?
+}

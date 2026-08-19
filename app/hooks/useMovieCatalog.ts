@@ -8,6 +8,7 @@ import { FilterState } from "@/app/components/Movies/MovieCatalog/MovieFilter";
 import { MenuItem } from "@/app/components/Layout/Header/types";
 import { CatalogInitialData } from "@/app/utils/serverFetch";
 import { globalCache } from "@/app/utils/globalCache";
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 interface UseMovieCatalogProps {
     baseApiUrl: string;
@@ -147,8 +148,8 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
         const fetchFilters = async () => {
             try {
                 const [catRes, counRes] = await Promise.all([
-                    axios.get<MenuItem[]>("https://phimapi.com/v1/api/the-loai"),
-                    axios.get<MenuItem[]>("https://phimapi.com/v1/api/quoc-gia")
+                    axios.get<MenuItem[]>(`${INTERNAL_API_URL}/the-loai`),
+                    axios.get<MenuItem[]>(`${INTERNAL_API_URL}/quoc-gia`)
                 ]);
                 const extractArray = (data: any) => {
                     if (Array.isArray(data)) return data;
@@ -226,19 +227,19 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                 // Priority Logic: Type > Category > Country > Year
                 if (type) {
                     const typeSlug = typeMap[type] || "phim-moi";
-                    apiUrl = `https://phimapi.com/v1/api/danh-sach/${typeSlug}`;
+                    apiUrl = `${INTERNAL_API_URL}/danh-sach/${typeSlug}`;
                     if (category) params.set("category", category);
                     if (country) params.set("country", country);
                     if (year) params.set("year", year);
                 } else if (category) {
-                    apiUrl = `https://phimapi.com/v1/api/the-loai/${category}`;
+                    apiUrl = `${INTERNAL_API_URL}/the-loai/${category}`;
                     if (country) params.set("country", country);
                     if (year) params.set("year", year);
                 } else if (country) {
-                    apiUrl = `https://phimapi.com/v1/api/quoc-gia/${country}`;
+                    apiUrl = `${INTERNAL_API_URL}/quoc-gia/${country}`;
                     if (year) params.set("year", year);
                 } else if (year) {
-                    apiUrl = `https://phimapi.com/v1/api/nam/${year}`;
+                    apiUrl = `${INTERNAL_API_URL}/movies?year=${year}`;
                 } else {
                     // Default Page: Use baseApiUrl (usually phim-moi-cap-nhat)
                     apiUrl = baseApiUrl;

@@ -31,13 +31,14 @@ export default function TheaterMoviesPage() {
     );
 }
 
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
+
 async function TheaterMoviesData() {
     const initialData = await fetchCatalogData(
-        "https://phimapi.com/v1/api/danh-sach/phim-chieu-rap",
+        `${INTERNAL_API_URL}/danh-sach/phim-chieu-rap`,
         1,
         32
     );
 
     return <TheatersClient initialData={initialData} />;
 }
-

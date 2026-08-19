@@ -183,7 +183,8 @@ export default function NewMoviePage() {
         const timer = setTimeout(async () => {
             setPhimApiStatus("checking");
             try {
-                const res = await fetch(`https://phimapi.com/v1/api/phim/${slug.trim()}`);
+                const INTERNAL_API_URL = process.env.NEXT_PUBLIC_INTERNAL_API_URL || 'http://localhost:5000/api';
+                const res = await fetch(`${INTERNAL_API_URL}/phim/${slug.trim()}`);
                 const data = await res.json();
                 if (data.status) {
                     setPhimApiStatus("found");

@@ -10,6 +10,7 @@ import { useAuth } from "@/app/components/User/Auth/AuthContext";
 import LoginPromptModal from "@/app/components/UI/Modals/LoginPromptModal";
 import CountryFlag from "@/app/components/UI/Common/CountryFlag";
 import { getCategoryColor } from "@/app/utils/uiUtils";
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 interface Props {
     isOpen: boolean;
@@ -31,7 +32,7 @@ export default function MobileBottomSheet({ isOpen, onClose, categories, countri
         try {
             toast.loading("Đang tìm phim ngẫu nhiên...", { id: "random-movie" });
             const randomPage = Math.floor(Math.random() * 50) + 1;
-            const res = await fetch(`https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3?page=${randomPage}&limit=10`);
+            const res = await fetch(`${INTERNAL_API_URL}/danh-sach/phim-moi-cap-nhat?page=${randomPage}&limit=10`);
             const data = await res.json();
             const items = data.items || data.data?.items || [];
             if (items.length > 0) {

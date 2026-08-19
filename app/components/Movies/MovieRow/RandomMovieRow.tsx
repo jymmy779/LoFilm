@@ -28,22 +28,22 @@ const MOODS = [
 
 import RandomMovieRowSkeleton from "./RandomMovieRowSkeleton";
 
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
+
 function RandomMovieRow() {
     const [selectedMood, setSelectedMood] = useState(MOODS[0]);
     const [moodSwiper, setMoodSwiper] = useState<any>(null);
 
     const fetcher = async (moodId: string) => {
-        const p1 = 1;
-        const p2 = 2;
         const urls = [
-            `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p1}`)}&revalidate=3600`,
-            `/api/proxy?url=${encodeURIComponent(`https://phimapi.com/v1/api/the-loai/${moodId}?page=${p2}`)}&revalidate=3600`
+            `/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/the-loai/${moodId}?page=1&limit=24`)}&revalidate=120`,
+            `/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/the-loai/${moodId}?page=2&limit=24`)}&revalidate=120`
         ];
 
         const pageResponses = await Promise.allSettled(urls.map(url => axios.get(url)));
         const allMovies = pageResponses
             .filter((res): res is PromiseFulfilledResult<any> => res.status === 'fulfilled')
-            .flatMap(res => res.value.data?.data?.items || []);
+            .flatMap(res => res.value.data?.data?.items || res.value.data?.items || []);
 
         if (allMovies.length === 0) return [];
 

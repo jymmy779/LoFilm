@@ -64,7 +64,8 @@ export async function addExclusiveMovie(data: Record<string, string>) {
     // LUÔN ƯU TIÊN KIỂM TRA PHIMAPI TRƯỚC (Vì TMDB hay bị block ở VN)
     let fetchedFromPhimApi = false;
     try {
-        const check = await axios.get(`https://phimapi.com/phim/${slug.toLowerCase().trim()}`, AXIOS_OPTIONS);
+        const INTERNAL_API_URL = process.env.NEXT_PUBLIC_INTERNAL_API_URL || 'http://localhost:5000/api';
+        const check = await axios.get(`${INTERNAL_API_URL}/phim/${slug.toLowerCase().trim()}`, AXIOS_OPTIONS);
         const checkData = check.data;
         if (checkData && checkData.status && checkData.movie) {
             fetchedFromPhimApi = true;
@@ -240,7 +241,8 @@ export async function updateExclusiveMovie(id: string, data: Record<string, stri
 
     if (!tmdbId.trim()) {
         try {
-            const check = await axios.get(`https://phimapi.com/phim/${slug.toLowerCase().trim()}`, AXIOS_OPTIONS);
+            const INTERNAL_API_URL = process.env.NEXT_PUBLIC_INTERNAL_API_URL || 'http://localhost:5000/api';
+            const check = await axios.get(`${INTERNAL_API_URL}/phim/${slug.toLowerCase().trim()}`, AXIOS_OPTIONS);
             const checkData = check.data;
             if (checkData?.status && checkData.movie?.tmdb?.id) {
                 tmdbId = checkData.movie.tmdb.id;

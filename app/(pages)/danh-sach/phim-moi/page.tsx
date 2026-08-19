@@ -30,13 +30,14 @@ export default function NewMoviesPage() {
     );
 }
 
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
+
 async function NewMoviesData() {
     const initialData = await fetchCatalogData(
-        "https://phimapi.com/danh-sach/phim-moi-cap-nhat-v3",
+        `${INTERNAL_API_URL}/danh-sach/phim-moi-cap-nhat`,
         1,
         32
     );
 
     return <NewMoviesClient initialData={initialData} />;
 }
-
