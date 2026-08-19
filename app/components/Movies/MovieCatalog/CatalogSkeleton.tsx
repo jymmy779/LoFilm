@@ -29,7 +29,7 @@ export default function CatalogSkeleton({ hideSidebar = false }: { hideSidebar?:
                         {/* Main Content */}
                         <div className="flex-grow w-full lg:min-w-0">
                             <div className={`grid gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 ${hideSidebar
-                                ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8"
+                                ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8"
                                 : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
                                 }`}>
                                 {[...Array(18)].map((_, i) => (

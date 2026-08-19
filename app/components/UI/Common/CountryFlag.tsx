@@ -1,7 +1,5 @@
 "use client";
 
-import Image from "next/image";
-
 interface CountryFlagProps {
     name: string;
     className?: string;
@@ -79,14 +77,15 @@ export default function CountryFlag({ name, className = "w-6 h-4" }: CountryFlag
     }
     const ext = code === "un" ? "svg" : "png";
     return (
-        <Image
+        // eslint-disable-next-line @next/next/no-img-element
+        <img
             src={`/images/flags/${code}.${ext}`}
             alt={name}
-            width={24}
-            height={16}
-            unoptimized
-            style={{ width: '24px', height: '16px', display: 'inline-block' }}
-            className={`object-cover rounded-[3px] border border-white/10 shadow-sm shrink-0 ${className}`}
+            width={20}
+            height={14}
+            loading="eager"
+            decoding="sync"
+            className={`object-cover rounded-[3px] border border-white/10 shadow-sm shrink-0 inline-block ${className}`}
         />
     );
 }

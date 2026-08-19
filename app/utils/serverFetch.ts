@@ -193,13 +193,6 @@ export async function fetchSearchData(
         const filteredApiItems = apiItems.filter(item => !exclusiveSlugs.has(item.slug));
         let finalMovies = [...exclusiveItems, ...filteredApiItems];
 
-        // Enrich finalMovies with DB metadata
-        const { enrichApiDataWithDatabase } = await import("@/app/utils/movieEnricher");
-        const enrichedSearchContainer = await enrichApiDataWithDatabase({ data: { items: finalMovies } });
-        if (enrichedSearchContainer?.data?.items) {
-            finalMovies = enrichedSearchContainer.data.items;
-        }
-
         // Adjust total items count if exclusive items were added
         if (page === 1) {
             totalItems += exclusiveItems.length;

@@ -31,8 +31,9 @@ export default function MobileBottomSheet({ isOpen, onClose, categories, countri
     const handleRandomMovie = async () => {
         try {
             toast.loading("Đang tìm phim ngẫu nhiên...", { id: "random-movie" });
-            const randomPage = Math.floor(Math.random() * 50) + 1;
-            const res = await fetch(`${INTERNAL_API_URL}/danh-sach/phim-moi-cap-nhat?page=${randomPage}&limit=10`);
+            const randomPage = Math.floor(Math.random() * 30) + 1;
+            const url = `/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/danh-sach/phim-moi-cap-nhat?page=${randomPage}&limit=10`)}&revalidate=3600`;
+            const res = await fetch(url);
             const data = await res.json();
             const items = data.items || data.data?.items || [];
             if (items.length > 0) {
