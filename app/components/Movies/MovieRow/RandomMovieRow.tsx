@@ -58,12 +58,13 @@ function RandomMovieRow() {
         return uniqueMovies.slice(0, 32);
     };
 
-    const { data: movies = [], isLoading } = useSWR<any[]>(
+    const { data: movies = [], isLoading, isValidating } = useSWR<any[]>(
         `random-movies-${selectedMood.id}`,
         () => fetcher(selectedMood.id),
         { 
             revalidateOnFocus: false, 
             revalidateOnReconnect: true,
+            keepPreviousData: true,
             dedupingInterval: 60 * 60 * 1000 // 1 tiếng 
         }
     );
@@ -80,10 +81,6 @@ function RandomMovieRow() {
         const random = otherMoods[Math.floor(Math.random() * otherMoods.length)];
         setSelectedMood(random);
     };
-
-    if (isLoading && movies.length === 0) {
-        return <RandomMovieRowSkeleton />;
-    }
 
     return (
         <Container as="section" className="relative z-30">
@@ -142,8 +139,8 @@ function RandomMovieRow() {
             </div>
 
             {/* Movies Swiper */}
-            <div className="relative ">
-                {isLoading ? (
+            <div className="relative">
+                {isLoading && movies.length === 0 ? (
                     <div className="w-full">
                         <Swiper
                             spaceBetween={8}
@@ -164,7 +161,7 @@ function RandomMovieRow() {
                         </Swiper>
                     </div>
                 ) : movies.length > 0 ? (
-                    <div>
+                    <div className={`transition-opacity duration-300 ${isValidating ? "opacity-75" : "opacity-100"}`}>
                         <Swiper
                             modules={[Virtual]}
                             virtual={{ enabled: true }}
