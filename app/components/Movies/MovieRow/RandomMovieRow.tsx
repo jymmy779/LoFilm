@@ -30,44 +30,89 @@ import RandomMovieRowSkeleton from "./RandomMovieRowSkeleton";
 
 import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
+const moodCache: Record<string, any[]> = {};
+
 function RandomMovieRow() {
     const [selectedMood, setSelectedMood] = useState(MOODS[0]);
     const [moodSwiper, setMoodSwiper] = useState<any>(null);
+    const [displayMovies, setDisplayMovies] = useState<any[]>(moodCache[MOODS[0].id] || []);
+    const [isFetching, setIsFetching] = useState(!moodCache[MOODS[0].id]);
+    const [isInitialLoad, setIsInitialLoad] = useState(!moodCache[MOODS[0].id]);
 
-    const fetcher = async (moodId: string) => {
-        const urls = [
-            `/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/the-loai/${moodId}?page=1&limit=24`)}&revalidate=120`,
-            `/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/the-loai/${moodId}?page=2&limit=24`)}&revalidate=120`
-        ];
-
-        const pageResponses = await Promise.allSettled(urls.map(url => axios.get(url)));
-        const allMovies = pageResponses
-            .filter((res): res is PromiseFulfilledResult<any> => res.status === 'fulfilled')
-            .flatMap(res => res.value.data?.data?.items || res.value.data?.items || []);
-
-        if (allMovies.length === 0) return [];
-
-        const uniqueMovies = filterDuplicateMovies(allMovies);
-        
-        // Xáo trộn ngẫu nhiên
-        for (let i = uniqueMovies.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [uniqueMovies[i], uniqueMovies[j]] = [uniqueMovies[j], uniqueMovies[i]];
+    const fetchMoodMovies = async (moodId: string, shuffle: boolean = true) => {
+        if (moodCache[moodId] && moodCache[moodId].length > 0) {
+            const list = [...moodCache[moodId]];
+            if (shuffle) {
+                for (let i = list.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [list[i], list[j]] = [list[j], list[i]];
+                }
+            }
+            return list;
         }
 
-        return uniqueMovies.slice(0, 32);
+        try {
+            const url = `/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/the-loai/${moodId}?page=1&limit=40`)}&revalidate=86400`;
+            const res = await axios.get(url);
+            const items = res.data?.data?.items || res.data?.items || [];
+            const unique = filterDuplicateMovies(items);
+            moodCache[moodId] = unique;
+
+            const list = [...unique];
+            if (shuffle) {
+                for (let i = list.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [list[i], list[j]] = [list[j], list[i]];
+                }
+            }
+            return list.slice(0, 32);
+        } catch {
+            return [];
+        }
     };
 
-    const { data: movies = [], isLoading, isValidating } = useSWR<any[]>(
-        `random-movies-${selectedMood.id}`,
-        () => fetcher(selectedMood.id),
-        { 
-            revalidateOnFocus: false, 
-            revalidateOnReconnect: true,
-            keepPreviousData: true,
-            dedupingInterval: 60 * 60 * 1000 // 1 tiếng 
+    // Load selected mood
+    useEffect(() => {
+        let isMounted = true;
+
+        if (moodCache[selectedMood.id] && moodCache[selectedMood.id].length > 0) {
+            const list = [...moodCache[selectedMood.id]];
+            for (let i = list.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [list[i], list[j]] = [list[j], list[i]];
+            }
+            setDisplayMovies(list);
+            setIsFetching(false);
+            setIsInitialLoad(false);
+            return;
         }
-    );
+
+        setIsFetching(true);
+        fetchMoodMovies(selectedMood.id).then((movies) => {
+            if (isMounted) {
+                setDisplayMovies(movies);
+                setIsFetching(false);
+                setIsInitialLoad(false);
+            }
+        });
+
+        return () => {
+            isMounted = false;
+        };
+    }, [selectedMood.id]);
+
+    // Prefetch remaining moods in background after initial load
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            MOODS.forEach((m) => {
+                if (!moodCache[m.id]) {
+                    fetchMoodMovies(m.id, false).catch(() => {});
+                }
+            });
+        }, 1200);
+
+        return () => clearTimeout(timer);
+    }, []);
 
     useEffect(() => {
         if (moodSwiper) {
@@ -81,6 +126,10 @@ function RandomMovieRow() {
         const random = otherMoods[Math.floor(Math.random() * otherMoods.length)];
         setSelectedMood(random);
     };
+
+    if (isInitialLoad && displayMovies.length === 0) {
+        return <RandomMovieRowSkeleton />;
+    }
 
     return (
         <Container as="section" className="relative z-30">
@@ -140,7 +189,7 @@ function RandomMovieRow() {
 
             {/* Movies Swiper */}
             <div className="relative">
-                {isLoading && movies.length === 0 ? (
+                {isFetching && displayMovies.length === 0 ? (
                     <div className="w-full">
                         <Swiper
                             spaceBetween={8}
@@ -160,8 +209,8 @@ function RandomMovieRow() {
                             ))}
                         </Swiper>
                     </div>
-                ) : movies.length > 0 ? (
-                    <div className={`transition-opacity duration-300 ${isValidating ? "opacity-75" : "opacity-100"}`}>
+                ) : displayMovies.length > 0 ? (
+                    <div className={`transition-opacity duration-200 ${isFetching ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
                         <Swiper
                             modules={[Virtual]}
                             virtual={{ enabled: true }}
@@ -176,7 +225,7 @@ function RandomMovieRow() {
                             }}
                             className="rounded-xl overflow-visible"
                         >
-                            {movies.map((movie, index) => {
+                            {displayMovies.map((movie, index) => {
                                 const imgUrl = getImageUrl(movie.poster_url || movie.thumb_url, { width: 180, quality: 70 });
                                 const isPriority = index < 10;
 
