@@ -5,9 +5,20 @@ import { MovieDetailResponse } from "@/app/types/movie";
 
 import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
+const detailMemoryCache = new Map<string, { data: MovieDetailResponse | null; expires: number }>();
+
 export const getMovieDetail = cache(async (slug: string, isPreview: boolean = false): Promise<MovieDetailResponse | null> => {
     try {
         const cleanSlug = typeof slug === "string" ? decodeURIComponent(slug).trim() : slug;
+        const cacheKey = `${cleanSlug}:${isPreview}`;
+
+        if (!isPreview) {
+            const cached = detailMemoryCache.get(cacheKey);
+            if (cached && Date.now() < cached.expires) {
+                return cached.data;
+            }
+        }
+
         const supabase = await createClient();
         
         // Fetch song song: Độc quyền từ Supabase, Chi tiết từ Backend nội bộ, và View count
@@ -252,31 +263,34 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
         }
 
         // KỊCH BẢN 2: CHỈ CÓ TRÊN PHIMAPI (Không có bản độc quyền)
-        if (phimApiData && phimApiData.status) {
-            if (localViewCount && phimApiData.movie) {
-                // Ưu tiên lấy view nội bộ, nếu không có thì xài của PhimAPI
-                phimApiData.movie.view = localViewCount;
-            }
-            if (phimApiData.episodes) {
-                phimApiData.episodes = phimApiData.episodes.map((epServer: any) => {
-                    let sName = epServer.server_name;
-                    if (!sName.includes(' OP') && !sName.includes(' KK') && !sName.includes(' NC') && !sName.includes(' VS')) {
-                        const sampleUrl = (epServer.server_data?.[0]?.link_m3u8 || epServer.server_data?.[0]?.link_embed || '').toLowerCase();
-                        if (sampleUrl.includes('ophim') || sampleUrl.includes('opstream')) {
-                            sName += ' OP';
-                        } else if (sampleUrl.includes('vsmov')) {
-                            sName += ' VS';
-                        } else if (sampleUrl.includes('nguonc')) {
-                            sName += ' NC';
-                        } else {
-                            sName += ' KK'; // phimapi default is KKPhim
+            if (phimApiData && phimApiData.status) {
+                if (localViewCount && phimApiData.movie) {
+                    // Ưu tiên lấy view nội bộ, nếu không có thì xài của PhimAPI
+                    phimApiData.movie.view = localViewCount;
+                }
+                if (phimApiData.episodes) {
+                    phimApiData.episodes = phimApiData.episodes.map((epServer: any) => {
+                        let sName = epServer.server_name;
+                        if (!sName.includes(' OP') && !sName.includes(' KK') && !sName.includes(' NC') && !sName.includes(' VS')) {
+                            const sampleUrl = (epServer.server_data?.[0]?.link_m3u8 || epServer.server_data?.[0]?.link_embed || '').toLowerCase();
+                            if (sampleUrl.includes('ophim') || sampleUrl.includes('opstream')) {
+                                sName += ' OP';
+                            } else if (sampleUrl.includes('vsmov')) {
+                                sName += ' VS';
+                            } else if (sampleUrl.includes('nguonc')) {
+                                sName += ' NC';
+                            } else {
+                                sName += ' KK'; // phimapi default is KKPhim
+                            }
                         }
-                    }
-                    return { ...epServer, server_name: sName };
-                });
+                        return { ...epServer, server_name: sName };
+                    });
+                }
+                if (!isPreview) {
+                    detailMemoryCache.set(cacheKey, { data: phimApiData, expires: Date.now() + 60000 });
+                }
+                return phimApiData;
             }
-            return phimApiData;
-        }
 
     } catch (error) {
         console.error("[getMovieDetail] API unavailable, returning null:", error);

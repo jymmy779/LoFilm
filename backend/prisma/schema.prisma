@@ -47,8 +47,12 @@ model Movie {
 
   @@index([type])
   @@index([year])
+  @@index([server_modified])
+  @@index([type, server_modified])
   @@index([updated_at])
   @@index([view_count])
+  @@index([chieurap, server_modified])
+  @@index([sub_docquyen, server_modified])
 }
 
 model Category {
@@ -72,6 +76,7 @@ model MovieCategory {
   category    Category @relation(fields: [category_id], references: [id], onDelete: Cascade)
 
   @@id([movie_id, category_id])
+  @@index([category_id])
 }
 
 model MovieCountry {
@@ -81,6 +86,7 @@ model MovieCountry {
   country    Country @relation(fields: [country_id], references: [id], onDelete: Cascade)
 
   @@id([movie_id, country_id])
+  @@index([country_id])
 }
 
 model EpisodeServer {

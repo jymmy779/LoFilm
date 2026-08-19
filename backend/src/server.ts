@@ -2,6 +2,7 @@
 import cors from "cors";
 import dotenv from "dotenv";
 import apiRoutes from "./routes/index.js";
+import { prisma } from "./lib/prisma.js";
 import { startCronJobs } from "./services/cronService.js";
 
 dotenv.config();
@@ -28,8 +29,22 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-app.listen(PORT, () => {
+async function initSqlitePragma() {
+  try {
+    await prisma.$executeRawUnsafe(`PRAGMA journal_mode = WAL;`);
+    await prisma.$executeRawUnsafe(`PRAGMA synchronous = NORMAL;`);
+    await prisma.$executeRawUnsafe(`PRAGMA cache_size = -64000;`);
+    await prisma.$executeRawUnsafe(`PRAGMA temp_store = MEMORY;`);
+    await prisma.$executeRawUnsafe(`PRAGMA mmap_size = 268435456;`);
+    console.log("[Database] SQLite WAL & memory-mapped I/O initialized.");
+  } catch (err: any) {
+    console.error("[Database] Pragma error:", err.message);
+  }
+}
+
+app.listen(PORT, async () => {
   console.log(`[LoFilm Backend] Server running on http://localhost:${PORT}`);
   console.log(`[LoFilm Backend] API ready at http://localhost:${PORT}/api/v1`);
+  await initSqlitePragma();
   startCronJobs();
 });

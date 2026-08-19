@@ -2,6 +2,35 @@ import { Request, Response } from "express";
 import { prisma } from "../lib/prisma.js";
 import { Prisma } from "@prisma/client";
 
+// High-speed In-Memory Cache (RAM)
+interface CacheEntry {
+  data: any;
+  expires: number;
+}
+const apiMemoryCache = new Map<string, CacheEntry>();
+
+export function getCached(key: string): any | null {
+  const item = apiMemoryCache.get(key);
+  if (!item) return null;
+  if (Date.now() > item.expires) {
+    apiMemoryCache.delete(key);
+    return null;
+  }
+  return item.data;
+}
+
+export function setCache(key: string, data: any, ttlSec: number = 60) {
+  if (apiMemoryCache.size > 3000) {
+    const firstKey = apiMemoryCache.keys().next().value;
+    if (firstKey) apiMemoryCache.delete(firstKey);
+  }
+  apiMemoryCache.set(key, { data, expires: Date.now() + ttlSec * 1000 });
+}
+
+export function clearApiMemoryCache() {
+  apiMemoryCache.clear();
+}
+
 // Helper chuyển đổi Movie record từ DB sang format tương thích LoFilm
 function formatMovieSummary(m: any) {
   return {
@@ -54,6 +83,12 @@ export async function getMovieDetail(req: Request, res: Response) {
     const { slug } = req.params;
     if (!slug) {
       return res.status(400).json({ status: false, msg: "Thiếu slug phim" });
+    }
+
+    const cacheKey = `movie_detail:${slug}`;
+    const cached = getCached(cacheKey);
+    if (cached) {
+      return res.json(cached);
     }
 
     const movie = await prisma.movie.findUnique({
@@ -140,12 +175,17 @@ export async function getMovieDetail(req: Request, res: Response) {
       })),
     }));
 
-    return res.json({
+    const result = {
       status: true,
       msg: "Thành công",
       movie: formattedMovie,
       episodes: formattedEpisodes,
-    });
+    };
+
+    // Cache in RAM for 120 seconds
+    setCache(cacheKey, result, 120);
+
+    return res.json(result);
   } catch (error: any) {
     console.error("[API Movie Detail] Lỗi:", error.message);
     return res.status(500).json({ status: false, msg: error.message });
@@ -170,6 +210,12 @@ export async function getCatalog(req: Request, res: Response) {
     const status = req.query.status as string;
     const sortField = (req.query.sort_field as string) || "updated_at";
     const sortType = (req.query.sort_type as string)?.toLowerCase() === "asc" ? "asc" : "desc";
+
+    const cacheKey = `catalog:${type || ''}:${slug || ''}:${page}:${limit}:${queryType || ''}:${categorySlug || ''}:${countrySlug || ''}:${year || ''}:${status || ''}:${sortField}:${sortType}`;
+    const cached = getCached(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
 
     const where: Prisma.MovieWhereInput = {};
 
@@ -253,7 +299,7 @@ export async function getCatalog(req: Request, res: Response) {
     const totalPages = Math.ceil(totalItems / limit) || 1;
     const formattedItems = movies.map(formatMovieSummary);
 
-    return res.json({
+    const result = {
       status: "success",
       message: "Thành công",
       data: {
@@ -272,7 +318,12 @@ export async function getCatalog(req: Request, res: Response) {
         },
         APP_DOMAIN_CDN_IMAGE: "",
       },
-    });
+    };
+
+    // Cache in RAM for 60 seconds
+    setCache(cacheKey, result, 60);
+
+    return res.json(result);
   } catch (error: any) {
     console.error("[API Catalog] Lỗi:", error.message);
     return res.status(500).json({ status: "error", message: error.message });
@@ -311,17 +362,34 @@ export async function searchMovies(req: Request, res: Response) {
       });
     }
 
-    const unaccented = removeVietnameseTones(keyword).toLowerCase().trim();
-    const slugFromKeyword = unaccented.replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "");
+    const cacheKey = `search:${keyword.toLowerCase()}:${page}:${limit}`;
+    const cached = getCached(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
+
+    const rawKeyword = keyword.toLowerCase();
+    const normalizedKeyword = removeVietnameseTones(keyword).toLowerCase();
+    const slugKeyword = normalizedKeyword.replace(/\s+/g, "-");
+
+    const searchConditions: Prisma.MovieWhereInput[] = [
+      { name: { contains: keyword } },
+      { origin_name: { contains: keyword } },
+      { slug: { contains: slugKeyword } },
+    ];
+
+    if (rawKeyword !== keyword) {
+      searchConditions.push({ name: { contains: rawKeyword } });
+      searchConditions.push({ origin_name: { contains: rawKeyword } });
+    }
+
+    if (normalizedKeyword !== rawKeyword) {
+      searchConditions.push({ name: { contains: normalizedKeyword } });
+      searchConditions.push({ origin_name: { contains: normalizedKeyword } });
+    }
 
     const where: Prisma.MovieWhereInput = {
-      OR: [
-        { name: { contains: keyword } },
-        { origin_name: { contains: keyword } },
-        { origin_name: { contains: unaccented } },
-        { slug: { contains: slugFromKeyword } },
-        { slug: { contains: unaccented.replace(/\s+/g, "-") } },
-      ],
+      OR: searchConditions,
     };
 
     const [totalItems, movies] = await Promise.all([
@@ -330,7 +398,7 @@ export async function searchMovies(req: Request, res: Response) {
         where,
         skip,
         take: limit,
-        orderBy: { updated_at: "desc" },
+        orderBy: [{ server_modified: "desc" }, { updated_at: "desc" }, { view_count: "desc" }],
         include: {
           categories: { include: { category: true } },
           countries: { include: { country: true } },
@@ -340,7 +408,7 @@ export async function searchMovies(req: Request, res: Response) {
 
     const totalPages = Math.ceil(totalItems / limit) || 1;
 
-    return res.json({
+    const result = {
       status: "success",
       message: "Thành công",
       data: {
@@ -355,7 +423,11 @@ export async function searchMovies(req: Request, res: Response) {
           },
         },
       },
-    });
+    };
+
+    setCache(cacheKey, result, 60);
+
+    return res.json(result);
   } catch (error: any) {
     console.error("[API Search] Lỗi:", error.message);
     return res.status(500).json({ status: "error", message: error.message });
@@ -368,6 +440,12 @@ export async function searchMovies(req: Request, res: Response) {
  */
 export async function getHomeBundle(req: Request, res: Response) {
   try {
+    const cacheKey = 'home_bundle';
+    const cached = getCached(cacheKey);
+    if (cached) {
+      return res.json(cached);
+    }
+
     const selectSummary = {
       id: true,
       name: true,
@@ -445,7 +523,7 @@ export async function getHomeBundle(req: Request, res: Response) {
       }),
     ]);
 
-    return res.json({
+    const result = {
       status: "success",
       message: "Thành công",
       data: {
@@ -457,7 +535,11 @@ export async function getHomeBundle(req: Request, res: Response) {
         tvShows: tvShows.map(formatMovieSummary),
         topView: topView.map(formatMovieSummary),
       },
-    });
+    };
+
+    setCache(cacheKey, result, 60);
+
+    return res.json(result);
   } catch (error: any) {
     console.error("[API Home Bundle] Lỗi:", error.message);
     return res.status(500).json({ status: "error", message: error.message });
