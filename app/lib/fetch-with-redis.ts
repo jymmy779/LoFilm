@@ -4,170 +4,200 @@ import axios from 'axios';
 
 const DEFAULT_REVALIDATE_SEC = 60;
 
-const globalForRedis = global as unknown as { redis: Redis };
+// L1 IN-MEMORY RAM CACHE (0.001ms latency - Zero Network Overhead)
+interface MemoryCacheEntry {
+  data: any;
+  timestamp: number;
+  expires: number;
+}
+const localRamCache = new Map<string, MemoryCacheEntry>();
+
+function getL1Cache(key: string): any | null {
+  const item = localRamCache.get(key);
+  if (!item) return null;
+  if (Date.now() > item.expires) {
+    localRamCache.delete(key);
+    return null;
+  }
+  return item.data;
+}
+
+function setL1Cache(key: string, data: any, ttlSec: number = 60) {
+  if (localRamCache.size > 2000) {
+    const firstKey = localRamCache.keys().next().value;
+    if (firstKey) localRamCache.delete(firstKey);
+  }
+  localRamCache.set(key, {
+    data,
+    timestamp: Date.now(),
+    expires: Date.now() + ttlSec * 1000,
+  });
+}
+
+const globalForRedis = global as unknown as { redis: Redis | null };
 
 export const redis =
   globalForRedis.redis ||
   (process.env.REDIS_URL
     ? new Redis(process.env.REDIS_URL, {
         maxRetriesPerRequest: 1,
-        connectTimeout: 2000,
-        commandTimeout: 3000,
-        enableOfflineQueue: true,
+        connectTimeout: 500,
+        commandTimeout: 500,
+        enableOfflineQueue: false, // DO NOT HANG requests when Redis is unavailable
+        lazyConnect: true,
         keepAlive: 10000,
       })
     : null);
 
 if (redis && !(globalForRedis as any)._redisInitialized) {
-    (globalForRedis as any)._redisInitialized = true;
-    redis.on('error', (err) => console.error('[Redis Error]', err.message));
-    redis.on('ready', () => console.log('? [REDIS FOUND] Connected successfully'));
+  (globalForRedis as any)._redisInitialized = true;
+  redis.on('error', (err) => {
+    // Non-blocking warning only
+  });
+  redis.on('ready', () => console.log('✓ [REDIS] Connected successfully'));
 }
 
 if (process.env.NODE_ENV !== "production") {
-    globalForRedis.redis = redis as Redis;
+  globalForRedis.redis = redis;
 }
 
 /**
- * fetchWithRedis: Dual-Key Cache Strategy
- *
- * KEY CHINH  `swr:{url}`      TTL = revalidate * 3  (~3 phut cho catalog 60s)
- *   -> Freshness: key tu het han -> next visitor buoc fetch moi -> data luon tuoi
- *   -> SWR background refresh giu data fresh khi co traffic lien tuc
- *
- * KEY EMERGENCY `emg:{url}`   TTL = 86400s (24 gio)
- *   -> Resilience: CHI doc khi API that su sap (fetch fail sau 2 retry)
- *   -> Khong dung cho traffic binh thuong -> khong gay badge inconsistency
+ * fetchWithRedis: Ultra-fast L1 RAM Cache + SWR Strategy
  */
 export const fetchWithRedis = cache(async (url: string, options?: RequestInit & { revalidate?: number | false }): Promise<any> => {
-    const rawRevalidate = options?.revalidate ?? (options as any)?.next?.revalidate ?? DEFAULT_REVALIDATE_SEC;
-    const revalidate = typeof rawRevalidate === 'number' ? rawRevalidate : DEFAULT_REVALIDATE_SEC;
-    const cacheKey = `swr:${url}`;
-    const emergencyKey = `emg:${url}`;
+  const rawRevalidate = options?.revalidate ?? (options as any)?.next?.revalidate ?? DEFAULT_REVALIDATE_SEC;
+  const revalidate = typeof rawRevalidate === 'number' ? rawRevalidate : DEFAULT_REVALIDATE_SEC;
+  const cacheKey = `swr:${url}`;
+  const emergencyKey = `emg:${url}`;
 
-    const globalForPromises = global as unknown as { pendingFetches: Map<string, Promise<any>> };
-    if (!globalForPromises.pendingFetches) {
-        globalForPromises.pendingFetches = new Map();
-    }
-    const pendingFetches = globalForPromises.pendingFetches;
+  // 1. FAST PATH: Check L1 RAM Cache (0.001ms)
+  const l1Data = getL1Cache(cacheKey);
+  if (l1Data) {
+    return l1Data;
+  }
 
-    const _fetchFreshData = async (retryCount = 0): Promise<any> => {
+  const globalForPromises = global as unknown as { pendingFetches: Map<string, Promise<any>> };
+  if (!globalForPromises.pendingFetches) {
+    globalForPromises.pendingFetches = new Map();
+  }
+  const pendingFetches = globalForPromises.pendingFetches;
+
+  const _fetchFreshData = async (retryCount = 0): Promise<any> => {
+    try {
+      const safeRevalidate = revalidate && revalidate > 0 ? revalidate : 60;
+      const separator = url.includes('?') ? '&' : '?';
+      const cacheBuster = `_t=${Math.floor(Date.now() / 1000 / safeRevalidate)}`;
+      const fetchUrl = `${url}${separator}${cacheBuster}`;
+
+      const response = await axios.get(fetchUrl, {
+        timeout: 4000, // Fast 4s timeout for local/backend calls
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
+          'Accept': 'application/json',
+        }
+      });
+
+      if (response.status === 200 && response.data) {
+        const data = response.data;
+        // Save to L1 RAM Cache immediately
+        setL1Cache(cacheKey, data, revalidate * 2);
+
+        // Save to Redis asynchronously without blocking
+        if (redis && redis.status === 'ready') {
+          const payload = JSON.stringify({ timestamp: Date.now(), data });
+          redis.setex(cacheKey, revalidate * 3, payload).catch(() => {});
+          redis.setex(emergencyKey, 86400, payload).catch(() => {});
+        }
+        return data;
+      } else {
+        throw new Error(`API returned status ${response.status}`);
+      }
+    } catch (error: any) {
+      if (retryCount < 1) {
+        return _fetchFreshData(retryCount + 1);
+      }
+
+      // Check L1 stale cache on error
+      const staleL1 = localRamCache.get(cacheKey);
+      if (staleL1?.data) {
+        return staleL1.data;
+      }
+
+      // Fallback: Nếu gọi Backend nội bộ thất bại, tự động thử lại với KKPhim API trực tiếp
+      if (url.includes('localhost:5000') || url.includes('127.0.0.1:5000') || url.includes('/api/v1')) {
         try {
-            const safeRevalidate = revalidate && revalidate > 0 ? revalidate : 60;
-            const separator = url.includes('?') ? '&' : '?';
-            const cacheBuster = `_t=${Math.floor(Date.now() / 1000 / safeRevalidate)}`;
-            const fetchUrl = `${url}${separator}${cacheBuster}`;
+          const fallbackUrl = url
+            .replace(/http:\/\/127\.0\.0\.1:5000\/api\/v1/g, 'https://phimapi.com/v1/api')
+            .replace(/http:\/\/localhost:5000\/api\/v1/g, 'https://phimapi.com/v1/api')
+            .replace(/http:\/\/127\.0\.0\.1:5000\/v1\/api/g, 'https://phimapi.com/v1/api')
+            .replace(/http:\/\/localhost:5000\/v1\/api/g, 'https://phimapi.com/v1/api')
+            .replace('https://phimapi.com/v1/api/phim/', 'https://phimapi.com/phim/');
 
-            const response = await axios.get(fetchUrl, {
-                timeout: 15000,
-                headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
-                    'Accept': 'application/json',
-                }
-            });
+          const fbResponse = await axios.get(fallbackUrl, {
+            timeout: 5000,
+            headers: { 'User-Agent': 'Mozilla/5.0' }
+          });
+          if (fbResponse.status === 200 && fbResponse.data) {
+            setL1Cache(cacheKey, fbResponse.data, revalidate);
+            return fbResponse.data;
+          }
+        } catch {}
+      }
 
-            if (response.status === 200 && response.data) {
-                const data = response.data;
-                if (redis && data) {
-                    try {
-                        const payload = JSON.stringify({ timestamp: Date.now(), data });
-                        // Key chinh: TTL ngan (*3) dam bao freshness
-                        await redis.setex(cacheKey, revalidate * 3, payload);
-                        // Emergency key: TTL 24h, chi doc khi API that su sap
-                        await redis.setex(emergencyKey, 86400, payload);
-                    } catch (err) {
-                        console.error(`[Redis Set Error] ${url}`, err);
-                    }
-                }
-                return data;
-            } else {
-                throw new Error(`API returned status ${response.status}`);
-            }
-        } catch (error: any) {
-            if (retryCount < 1) {
-                return _fetchFreshData(retryCount + 1);
-            }
-            // Fallback 1: Nếu gọi Backend nội bộ thất bại, tự động thử lại với KKPhim API trực tiếp
-            if (url.includes('localhost:5000') || url.includes('/api/v1')) {
-                try {
-                    const fallbackUrl = url
-                        .replace(/http:\/\/localhost:5000\/api\/v1/g, 'https://phimapi.com/v1/api')
-                        .replace(/http:\/\/localhost:5000\/v1\/api/g, 'https://phimapi.com/v1/api')
-                        .replace('https://phimapi.com/v1/api/phim/', 'https://phimapi.com/phim/');
-                    
-                    const fbResponse = await axios.get(fallbackUrl, {
-                        timeout: 10000,
-                        headers: { 'User-Agent': 'Mozilla/5.0' }
-                    });
-                    if (fbResponse.status === 200 && fbResponse.data) {
-                        return fbResponse.data;
-                    }
-                } catch {}
-            }
-
-            // Stale-on-Error: API sap that su -> fallback theo thu tu uu tien
-            if (redis) {
-                try {
-                    const mainRaw = await redis.get(cacheKey);
-                    if (mainRaw) {
-                        const parsed = JSON.parse(mainRaw);
-                        if (parsed?.data) {
-                            console.warn(`[Stale-on-Error] Main key fallback: ${url}`);
-                            return parsed.data;
-                        }
-                    }
-                    const emergencyRaw = await redis.get(emergencyKey);
-                    if (emergencyRaw) {
-                        const parsed = JSON.parse(emergencyRaw);
-                        if (parsed?.data) {
-                            console.warn(`[Stale-on-Error] Emergency key fallback: ${url}`);
-                            return parsed.data;
-                        }
-                    }
-                } catch (redisErr) {
-                    // Redis cung loi -> throw binh thuong
-                }
-            }
-
-            throw new Error(`Fetch failed for ${url}: ${error.message}`);
-        }
-    };
-
-    const fetchFreshData = () => {
-        if (pendingFetches.has(url)) {
-            return pendingFetches.get(url)!;
-        }
-        const promise = _fetchFreshData().finally(() => {
-            pendingFetches.delete(url);
-        });
-        pendingFetches.set(url, promise);
-        return promise;
-    };
-
-    if (redis) {
+      // Check Redis cache on error
+      if (redis && redis.status === 'ready') {
         try {
-            const cachedData = await redis.get(cacheKey);
-            if (cachedData) {
-                const parsed = JSON.parse(cachedData);
-                if (parsed && parsed.timestamp && parsed.data) {
-                    const ageMs = Date.now() - parsed.timestamp;
-                    const maxAgeMs = revalidate * 1000;
-                    if (ageMs > maxAgeMs) {
-                        fetchFreshData().catch((err) => console.error("SWR Update Failed", err));
-                    }
-                    return parsed.data;
-                }
-            }
-        } catch (err) {
-            console.error(`[Redis Get Error] ${url}`, err);
-        }
-    }
+          const mainRaw = await redis.get(cacheKey);
+          if (mainRaw) {
+            const parsed = JSON.parse(mainRaw);
+            if (parsed?.data) return parsed.data;
+          }
+        } catch {}
+      }
 
-    return fetchFreshData();
+      throw new Error(`Fetch failed for ${url}: ${error.message}`);
+    }
+  };
+
+  const fetchFreshData = () => {
+    if (pendingFetches.has(url)) {
+      return pendingFetches.get(url)!;
+    }
+    const promise = _fetchFreshData().finally(() => {
+      pendingFetches.delete(url);
+    });
+    pendingFetches.set(url, promise);
+    return promise;
+  };
+
+  // Check Redis asynchronously only if connected
+  if (redis && redis.status === 'ready') {
+    try {
+      const cachedData = await redis.get(cacheKey);
+      if (cachedData) {
+        const parsed = JSON.parse(cachedData);
+        if (parsed && parsed.timestamp && parsed.data) {
+          setL1Cache(cacheKey, parsed.data, revalidate);
+          const ageMs = Date.now() - parsed.timestamp;
+          const maxAgeMs = revalidate * 1000;
+          if (ageMs > maxAgeMs) {
+            fetchFreshData().catch(() => {});
+          }
+          return parsed.data;
+        }
+      }
+    } catch {}
+  }
+
+  return fetchFreshData();
 });
 
 export const flushMemoryCache = async () => {
-    if (redis) {
-        await redis.flushdb();
-    }
+  localRamCache.clear();
+  if (redis && redis.status === 'ready') {
+    try {
+      await redis.flushdb();
+    } catch {}
+  }
 };
+

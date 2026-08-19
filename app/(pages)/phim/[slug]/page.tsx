@@ -4,7 +4,7 @@ import MovieDetailClient from "./MovieDetailClient";
 import { MovieDetailResponse, Movie } from "@/app/types/movie";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
-export const dynamic = 'force-dynamic';
+export const revalidate = 60; // Cache page for 60 seconds (ISR) for instant loads
 
 // API base URL
 const API_BASE = INTERNAL_API_URL;

@@ -72,12 +72,6 @@ export async function fetchCatalogData(
             items = moviesData.data?.items || moviesData.items || [];
             totalItems = moviesData.data?.params?.pagination?.totalItems || moviesData.pagination?.totalItems || 0;
             pageTitle = moviesData.data?.titlePage || "";
-
-            const { enrichApiDataWithDatabase } = await import("@/app/utils/movieEnricher");
-            const enriched = await enrichApiDataWithDatabase({ data: { items } });
-            if (enriched?.data?.items) {
-                items = enriched.data.items;
-            }
         }
 
         const parseList = (data: any): MenuItem[] => {

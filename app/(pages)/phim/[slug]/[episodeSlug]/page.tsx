@@ -9,7 +9,7 @@ import WatchLoading from "./loading";
 
 import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60; // Cache watch page for 60 seconds (ISR)
 
 const API_BASE = INTERNAL_API_URL;
 
