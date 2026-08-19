@@ -24,6 +24,11 @@ jobs:
           NEXT_PUBLIC_SITE_URL: "https://www.munos.store"
           NEXT_PUBLIC_INTERNAL_API_URL: "http://127.0.0.1:5000/api/v1"
           INTERNAL_API_URL: "http://127.0.0.1:5000/api/v1"
+          NEXT_PUBLIC_SUPABASE_URL: "https://nskgkpfmvbmtmnxlbnjb.supabase.co"
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5za2drcGZtdmJtdG1ueGxibmpiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzUzNzIwNzAsImV4cCI6MjA5MDk0ODA3MH0.YHGDZ4gtuLj57C1FuSwsZLNr3VK2rKy4Sm9VzqQwUwI"
+          SUPABASE_SERVICE_ROLE_KEY: "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5za2drcGZtdmJtdG1ueGxibmpiIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImlhdCI6MTc3NTM3MjA3MCwiZXhwIjoyMDkwOTQ4MDcwfQ.RuzNpZQZvkUf_gV_Sxc5x9AIandfZoxMWDQV-nck6Yw"
+          NEXT_PUBLIC_TURNSTILE_SITE_KEY: "0x4AAAAAAD9PuZluRafwPCpv"
+          NEXT_PUBLIC_R2_PUBLIC_URL: "https://pub-2a7f4f3fc8d74800bc2deccab434bd65.r2.dev"
         run: |
           npm ci || npm install
           npm run build
