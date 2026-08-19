@@ -191,7 +191,19 @@ export default function WatchClient({
     const setIsExpanded = (val: boolean) => { if (val !== settings.theaterMode) settings.toggleTheaterMode(); };
     const setIsTheaterMode = (val: boolean) => { if (val !== settings.theaterMode) settings.toggleTheaterMode(); };
     const setIsAutoNext = (val: boolean) => { if (val !== settings.autoNext) settings.toggleAutoNext(); };
-    const [activeServerIndex, setActiveServerIndex] = useState(0);
+    // Persist server selection per movie slug (survives episode navigation within same movie)
+    const SERVER_PREF_KEY = `lofilm-server:${slug}`;
+    const [activeServerIndex, setActiveServerIndex] = useState(() => {
+        if (typeof window === 'undefined') return 0;
+        try {
+            const saved = sessionStorage.getItem(SERVER_PREF_KEY);
+            if (saved !== null) {
+                const idx = parseInt(saved, 10);
+                return isNaN(idx) ? 0 : idx;
+            }
+        } catch { }
+        return 0;
+    });
     const [hasError, setHasError] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
@@ -245,12 +257,13 @@ export default function WatchClient({
 
     const handleServerChange = useCallback((index: number) => {
         setActiveServerIndex(index);
+        try { sessionStorage.setItem(SERVER_PREF_KEY, String(index)); } catch { }
         if (containerNode) {
             containerNode.scrollIntoView({ behavior: 'smooth', block: 'center' });
         } else {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
-    }, [containerNode]);
+    }, [containerNode, SERVER_PREF_KEY]);
     const videoRef = useRef<HTMLVideoElement>(null);
     const hlsRef = useRef<Hls | null>(null);
     const artRef = useRef<Artplayer | null>(null);
@@ -491,23 +504,36 @@ export default function WatchClient({
         const newUrl = `/phim/${slug}/${epSlug}`;
         window.history.replaceState(null, '', newUrl);
 
-        // Find new episode data from processedEpisodes
+        // Ưu tiên tìm tập trong server ĐANG ACTIVE để giữ nguyên lựa chọn server
         let newEpisode = null;
-        let foundServerIndex = 0;
-        for (let i = 0; i < processedEpisodes.length; i++) {
-            const server = processedEpisodes[i];
-            const found = server.server_data.find((ep: any) => getFriendlyEpisodeSlug(ep.slug) === epSlug);
+        let targetServerIndex = activeServerIndex;
+
+        const currentServer = processedEpisodes[activeServerIndex];
+        if (currentServer) {
+            const found = currentServer.server_data.find((ep: any) => getFriendlyEpisodeSlug(ep.slug) === epSlug);
             if (found) {
                 newEpisode = found;
-                foundServerIndex = i;
-                break;
+                // Giữ nguyên targetServerIndex = activeServerIndex
+            }
+        }
+
+        // Fallback: tìm ở các server khác nếu server hiện tại không có tập này
+        if (!newEpisode) {
+            for (let i = 0; i < processedEpisodes.length; i++) {
+                if (i === activeServerIndex) continue; // đã thử rồi
+                const server = processedEpisodes[i];
+                const found = server.server_data.find((ep: any) => getFriendlyEpisodeSlug(ep.slug) === epSlug);
+                if (found) {
+                    newEpisode = found;
+                    targetServerIndex = i;
+                    break;
+                }
             }
         }
 
         if (!newEpisode) return;
 
-        // If it's on a different server, switch server too
-        setActiveServerIndex(foundServerIndex);
+        setActiveServerIndex(targetServerIndex);
         setIsChangingEpisode(true);
         setCurrentEpisodeSlug(epSlug);
         setCurrentEpisode({
@@ -516,7 +542,7 @@ export default function WatchClient({
             link_vtt: (newEpisode as any).link_vtt || '',
             subtitles: (newEpisode as any).subtitles || [],
         });
-    }, [slug, currentEpisodeSlug, processedEpisodes]);
+    }, [slug, currentEpisodeSlug, processedEpisodes, activeServerIndex]);
 
     // Navigate to next episode (auto-next)
     const goToNextEpisode = useCallback(() => {

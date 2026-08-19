@@ -48,7 +48,12 @@ interface MovieDetailClientProps {
 export default function MovieDetailClient({ movie: initialMovie, episodes, suggestedMovies, slug, initialActors }: MovieDetailClientProps) {
     const [movie, setMovie] = useState<Movie>(initialMovie);
     const [activeTab, setActiveTab] = useState('Tập phim');
+    const SERVER_PREF_KEY = `lofilm-server:${slug}`;
     const [activeServerIndex, setActiveServerIndex] = useState(0);
+    const handleServerChange = useCallback((index: number) => {
+        setActiveServerIndex(index);
+        try { sessionStorage.setItem(SERVER_PREF_KEY, String(index)); } catch { }
+    }, [SERVER_PREF_KEY]);
     const [isChangingEpisode, setIsChangingEpisode] = useState(false);
     const handleEpisodeClick = useCallback(() => setIsChangingEpisode(true), []);
     const [suggestedMoviesState, setSuggestedMoviesState] = useState<Movie[]>(suggestedMovies);
@@ -619,7 +624,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                                         currentEpisode=""
                                         episodes={processedEpisodes}
                                         activeServer={activeServerIndex}
-                                        onServerChange={setActiveServerIndex}
+                                        onServerChange={handleServerChange}
                                         onEpisodeClick={handleEpisodeClick}
                                         showServers={true}
                                     />
