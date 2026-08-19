@@ -2,9 +2,8 @@ import { cache } from 'react';
 import Redis from 'ioredis';
 import axios from 'axios';
 
-const DEFAULT_REVALIDATE_SEC = 60; // Cache 60 giây theo ý bạn
+const DEFAULT_REVALIDATE_SEC = 60;
 
-// Khởi tạo Redis client (Singleton) an toàn cho Next.js HMR
 const globalForRedis = global as unknown as { redis: Redis };
 
 export const redis =
@@ -14,7 +13,7 @@ export const redis =
         maxRetriesPerRequest: 1,
         connectTimeout: 2000,
         commandTimeout: 3000,
-        enableOfflineQueue: true, // Sửa thành true (hoặc xóa) để chờ kết nối xong mới query
+        enableOfflineQueue: true,
         keepAlive: 10000,
       })
     : null);
@@ -22,7 +21,7 @@ export const redis =
 if (redis && !(globalForRedis as any)._redisInitialized) {
     (globalForRedis as any)._redisInitialized = true;
     redis.on('error', (err) => console.error('[Redis Error]', err.message));
-    redis.on('ready', () => console.log('✅ [REDIS FOUND] Connected successfully'));
+    redis.on('ready', () => console.log('? [REDIS FOUND] Connected successfully'));
 }
 
 if (process.env.NODE_ENV !== "production") {
@@ -30,36 +29,39 @@ if (process.env.NODE_ENV !== "production") {
 }
 
 /**
- * fetchWithRedis: Sử dụng Redis RAM Cache để tăng tốc tối đa.
- * Nếu Redis lỗi, sẽ tự động dùng axios thông thường (Fallback).
+ * fetchWithRedis: Dual-Key Cache Strategy
+ *
+ * KEY CHINH  `swr:{url}`      TTL = revalidate * 3  (~3 phut cho catalog 60s)
+ *   -> Freshness: key tu het han -> next visitor buoc fetch moi -> data luon tuoi
+ *   -> SWR background refresh giu data fresh khi co traffic lien tuc
+ *
+ * KEY EMERGENCY `emg:{url}`   TTL = 86400s (24 gio)
+ *   -> Resilience: CHI doc khi API that su sap (fetch fail sau 2 retry)
+ *   -> Khong dung cho traffic binh thuong -> khong gay badge inconsistency
  */
 export const fetchWithRedis = cache(async (url: string, options?: RequestInit & { revalidate?: number | false }): Promise<any> => {
-    const rawRevalidate = options?.revalidate ?? options?.next?.revalidate ?? DEFAULT_REVALIDATE_SEC;
-    // Đảm bảo revalidate luôn là số giây (nếu là false thì dùng mặc định)
+    const rawRevalidate = options?.revalidate ?? (options as any)?.next?.revalidate ?? DEFAULT_REVALIDATE_SEC;
     const revalidate = typeof rawRevalidate === 'number' ? rawRevalidate : DEFAULT_REVALIDATE_SEC;
-    // Đổi prefix để phân biệt với cache cũ, tránh lỗi format
     const cacheKey = `swr:${url}`;
+    const emergencyKey = `emg:${url}`;
 
-    // Deduplicator (chống Cache Stampede)
     const globalForPromises = global as unknown as { pendingFetches: Map<string, Promise<any>> };
     if (!globalForPromises.pendingFetches) {
         globalForPromises.pendingFetches = new Map();
     }
     const pendingFetches = globalForPromises.pendingFetches;
 
-    // Hàm gọi API gốc
     const _fetchFreshData = async (retryCount = 0): Promise<any> => {
         try {
-            // Thêm cache-buster để bypass cache của Cloudflare/CDN bên thứ 3
             const safeRevalidate = revalidate && revalidate > 0 ? revalidate : 60;
             const separator = url.includes('?') ? '&' : '?';
             const cacheBuster = `_t=${Math.floor(Date.now() / 1000 / safeRevalidate)}`;
             const fetchUrl = `${url}${separator}${cacheBuster}`;
 
             const response = await axios.get(fetchUrl, {
-                timeout: 15000, // 15 giây timeout để fail fast và không treo server
+                timeout: 15000,
                 headers: {
-                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+                    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36',
                     'Accept': 'application/json',
                 }
             });
@@ -68,14 +70,11 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
                 const data = response.data;
                 if (redis && data) {
                     try {
-                        const payload = {
-                            timestamp: Date.now(),
-                            data: data
-                        };
-                        // TTL = 72x revalidate (3 ngày cho catalog 60s, đủ buffer khi server nguồn sập)
-                        // Data phim ít thay đổi, stale vài giờ vẫn tốt hơn crash
-                        const ttlSeconds = revalidate * 72;
-                        await redis.setex(cacheKey, ttlSeconds, JSON.stringify(payload));
+                        const payload = JSON.stringify({ timestamp: Date.now(), data });
+                        // Key chinh: TTL ngan (*3) dam bao freshness
+                        await redis.setex(cacheKey, revalidate * 3, payload);
+                        // Emergency key: TTL 24h, chi doc khi API that su sap
+                        await redis.setex(emergencyKey, 86400, payload);
                     } catch (err) {
                         console.error(`[Redis Set Error] ${url}`, err);
                     }
@@ -85,25 +84,32 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
                 throw new Error(`API returned status ${response.status}`);
             }
         } catch (error: any) {
-            if (retryCount < 1) { // Thử lại 1 lần nữa nếu lỗi
+            if (retryCount < 1) {
                 return _fetchFreshData(retryCount + 1);
             }
             console.error(`[Axios Fetch Error After Retry] ${url}`, error.message);
 
-            // Stale-on-Error: Trước khi throw, thử lấy data cũ từ Redis làm last resort
-            // Giúp trang không crash khi phimapi.com tạm thời sập
+            // Stale-on-Error: API sap that su -> fallback theo thu tu uu tien
             if (redis) {
                 try {
-                    const staleRaw = await redis.get(cacheKey);
-                    if (staleRaw) {
-                        const staleParsed = JSON.parse(staleRaw);
-                        if (staleParsed?.data) {
-                            console.warn(`[Stale-on-Error] Serving stale cache for: ${url}`);
-                            return staleParsed.data;
+                    const mainRaw = await redis.get(cacheKey);
+                    if (mainRaw) {
+                        const parsed = JSON.parse(mainRaw);
+                        if (parsed?.data) {
+                            console.warn(`[Stale-on-Error] Main key fallback: ${url}`);
+                            return parsed.data;
+                        }
+                    }
+                    const emergencyRaw = await redis.get(emergencyKey);
+                    if (emergencyRaw) {
+                        const parsed = JSON.parse(emergencyRaw);
+                        if (parsed?.data) {
+                            console.warn(`[Stale-on-Error] Emergency key fallback: ${url}`);
+                            return parsed.data;
                         }
                     }
                 } catch (redisErr) {
-                    // Redis cũng lỗi → bỏ qua, throw bình thường
+                    // Redis cung loi -> throw binh thuong
                 }
             }
 
@@ -122,25 +128,17 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
         return promise;
     };
 
-    // 1. Lục trong Redis trước
     if (redis) {
         try {
             const cachedData = await redis.get(cacheKey);
             if (cachedData) {
                 const parsed = JSON.parse(cachedData);
-
-                // Kiểm tra xem data có đúng chuẩn SWR mới không
                 if (parsed && parsed.timestamp && parsed.data) {
                     const ageMs = Date.now() - parsed.timestamp;
                     const maxAgeMs = revalidate * 1000;
-
-                    // Nếu quá hạn (Stale), kích hoạt fetch ngầm để cập nhật cho lần sau
                     if (ageMs > maxAgeMs) {
-                        // Bỏ await để KHÔNG BLOCK - Dữ liệu cũ được trả về ngay lập tức (True SWR)
                         fetchFreshData().catch((err) => console.error("SWR Update Failed", err));
                     }
-
-                    // Luôn luôn trả về data ngay lập tức (dù cũ hay mới)
                     return parsed.data;
                 }
             }
@@ -149,16 +147,11 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
         }
     }
 
-    // 2. Nếu chưa từng lưu Cache (lần truy cập đầu tiên), bắt buộc phải chờ fetch
     return fetchFreshData();
 });
 
-/**
- * Utility để xóa toàn bộ cache khi cần
- */
 export const flushMemoryCache = async () => {
     if (redis) {
         await redis.flushdb();
     }
 };
-
