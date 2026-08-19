@@ -148,8 +148,8 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
         const fetchFilters = async () => {
             try {
                 const [catRes, counRes] = await Promise.all([
-                    axios.get<MenuItem[]>(`${INTERNAL_API_URL}/the-loai`),
-                    axios.get<MenuItem[]>(`${INTERNAL_API_URL}/quoc-gia`)
+                    axios.get<MenuItem[]>(`/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/the-loai`)}&revalidate=86400`),
+                    axios.get<MenuItem[]>(`/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/quoc-gia`)}&revalidate=86400`)
                 ]);
                 const extractArray = (data: any) => {
                     if (Array.isArray(data)) return data;

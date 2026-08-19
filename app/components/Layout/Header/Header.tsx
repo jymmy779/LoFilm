@@ -54,14 +54,14 @@ export default function Header() {
         window.addEventListener("scroll", handleScroll, { passive: true });
         window.addEventListener("resize", handleResize, { passive: true });
 
-        axios.get<MenuItem[]>(`${INTERNAL_API_URL}/the-loai`)
+        axios.get<MenuItem[]>(`/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/the-loai`)}&revalidate=86400`)
             .then((res) => {
                 const items = (res.data as any).data?.items || (res.data as any).items || res.data;
                 setCategories(Array.isArray(items) ? items : []);
             })
             .catch((err) => console.error("Lỗi fetch thể loại:", err));
 
-        axios.get<MenuItem[]>(`${INTERNAL_API_URL}/quoc-gia`)
+        axios.get<MenuItem[]>(`/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/quoc-gia`)}&revalidate=86400`)
             .then((res) => {
                 const items = (res.data as any).data?.items || (res.data as any).items || res.data;
                 setCountries(Array.isArray(items) ? items : []);
