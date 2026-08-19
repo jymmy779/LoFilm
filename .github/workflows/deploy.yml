@@ -3,40 +3,81 @@ name: Deploy to Server
 on:
   push:
     branches:
-      - main # Chạy khi có code push lên nhánh main
+      - main
 
 jobs:
-  deploy:
+  build-and-deploy:
     runs-on: ubuntu-latest
     
     steps:
-      - name: Deploy to Server via SSH
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: "npm"
+
+      - name: Install Frontend Dependencies & Build Next.js
+        env:
+          NEXT_PUBLIC_SITE_URL: "https://www.munos.store"
+          NEXT_PUBLIC_INTERNAL_API_URL: "http://127.0.0.1:5000/api/v1"
+          INTERNAL_API_URL: "http://127.0.0.1:5000/api/v1"
+        run: |
+          npm ci || npm install
+          npm run build
+
+      - name: Install Backend Dependencies & Build TypeScript
+        run: |
+          cd backend
+          npm ci || npm install
+          npx prisma generate
+          npm run build
+          cd ..
+
+      - name: Archive Built Artifacts
+        run: |
+          tar -czf build-artifacts.tar.gz .next backend/dist
+
+      - name: Upload Artifacts to VPS via SCP
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          password: ${{ secrets.SERVER_PASSWORD }}
+          source: "build-artifacts.tar.gz"
+          target: "/var/www/lofilm"
+          rm: false
+
+      - name: Deploy and Reload PM2 on VPS
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SERVER_HOST }}
           username: ${{ secrets.SERVER_USER }}
           password: ${{ secrets.SERVER_PASSWORD }}
+          command_timeout: 10m
           script: |
             cd /var/www/lofilm
             
-            # 1. Cập nhật code mới nhất từ nhánh main
+            # 1. Kéo code cấu hình/file tĩnh mới nhất
             git pull origin main
             
-            # 2. Cài đặt và build Frontend
-            npm install
-            npm run build
+            # 2. Giải nén bản build từ GitHub Runner
+            tar -xzf build-artifacts.tar.gz
+            rm -f build-artifacts.tar.gz
             
-            # 3. Cài đặt và build Backend
+            # 3. Đồng bộ schema Prisma và reload Backend
             if [ -d "backend" ]; then
               cd backend
-              npm install
+              npm install --omit=dev --no-audit
               npx prisma generate
               npx prisma db push
-              npm run build
               pm2 startOrReload ecosystem.config.cjs
               cd ..
             fi
             
-            # 4. Khởi động lại toàn bộ tiến trình PM2
+            # 4. Khởi động lại toàn bộ tiến trình
             pm2 reload all
             pm2 save
+
