@@ -241,24 +241,24 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                         {/* 2. Meta Badges & Rating */}
                         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 animate-[heroFadeInUp_0.75s_cubic-bezier(0.22,1,0.36,1)_0.08s_both]">
                             {(currentMovie.tmdb?.vote_average || 0) > 0 && (
-                                <div className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-black bg-gradient-to-r from-pink-500 to-rose-400 text-white rounded-md shadow-sm flex items-center gap-1 leading-none">
+                                <div className="px-2.5 py-1 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-black bg-gradient-to-r from-pink-500 to-rose-400 text-white rounded-md shadow-sm flex items-center gap-1 leading-none">
                                     <span>★</span>
                                     <span>{(currentMovie.tmdb?.vote_average || 0).toFixed(1)}</span>
                                 </div>
                             )}
-                            <div className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-bold bg-[#A7F3D0] text-emerald-950 rounded-md shadow-sm leading-none">
+                            <div className="px-2.5 py-1 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-bold bg-[#A7F3D0] text-emerald-950 rounded-md shadow-sm leading-none">
                                 {currentMovie.year || "2024"}
                             </div>
-                            <div className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-bold bg-[#F5CAE3] text-pink-950 rounded-md shadow-sm leading-none">
+                            <div className="px-2.5 py-1 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-bold bg-[#F5CAE3] text-pink-950 rounded-md shadow-sm leading-none">
                                 {getEpisodeStatus(currentMovie)}
                             </div>
                             {currentMovie.quality && (
-                                <div className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-bold bg-[#FAD078] text-amber-950 rounded-md shadow-sm leading-none">
+                                <div className="px-2.5 py-1 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-bold bg-[#FAD078] text-amber-950 rounded-md shadow-sm leading-none">
                                     {currentMovie.quality}
                                 </div>
                             )}
                             {((currentMovie as any).lang_tag || currentMovie.lang) && (
-                                <div className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-bold bg-[#C084FC] text-purple-950 rounded-md shadow-sm leading-none">
+                                <div className="px-2.5 py-1 sm:px-3 sm:py-1 text-[11px] sm:text-xs font-bold bg-[#C084FC] text-purple-950 rounded-md shadow-sm leading-none">
                                     {((currentMovie as any).lang_tag || currentMovie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
                                 </div>
                             )}
@@ -275,7 +275,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                         <TransitionLink
                                             key={slugs[i] || i}
                                             href={`/the-loai/${slugs[i]}`}
-                                            className={`px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-[11px] md:text-xs font-semibold bg-white/5 hover:bg-white/15 border border-white/10 ${styles[i]?.text || 'text-white/80'} rounded-full transition-all`}
+                                            className={`px-2.5 sm:px-3 py-1 text-[11px] sm:text-xs font-semibold bg-white/5 hover:bg-white/15 border border-white/10 ${styles[i]?.text || 'text-white/80'} rounded-full transition-all`}
                                         >
                                             {cat.name}
                                         </TransitionLink>

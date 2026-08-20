@@ -157,17 +157,17 @@ function FeaturedSlider({
 
                                     {/* Top Badges */}
                                     <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-wrap items-center gap-1.5 sm:gap-2 z-20 pointer-events-none">
-                                        <div className="px-2 py-0.5 flex items-center justify-center bg-gradient-to-r from-pink-500 to-rose-400 text-white text-[10px] sm:text-xs font-bold rounded shadow-sm leading-none">
+                                        <div className="px-2 py-0.5 sm:px-2.5 sm:py-0.5 lg:px-3 lg:py-1 flex items-center justify-center bg-gradient-to-r from-pink-500 to-rose-400 text-white text-[10px] sm:text-[11px] lg:text-xs font-bold rounded shadow-sm leading-none">
                                             ★ {(movie.tmdb?.vote_average || 8.0).toFixed(1)}
                                         </div>
-                                        <div className="px-2 py-0.5 flex items-center justify-center bg-[#A7F3D0] text-emerald-950 text-[10px] sm:text-xs font-bold rounded shadow-sm leading-none">
+                                        <div className="px-2 py-0.5 sm:px-2.5 sm:py-0.5 lg:px-3 lg:py-1 flex items-center justify-center bg-[#A7F3D0] text-emerald-950 text-[10px] sm:text-[11px] lg:text-xs font-bold rounded shadow-sm leading-none">
                                             {movie.year || 2024}
                                         </div>
-                                        <div className="px-2 py-0.5 flex items-center justify-center bg-[#F5CAE3] text-pink-950 text-[10px] sm:text-xs font-bold rounded shadow-sm leading-none">
+                                        <div className="px-2 py-0.5 sm:px-2.5 sm:py-0.5 lg:px-3 lg:py-1 flex items-center justify-center bg-[#F5CAE3] text-pink-950 text-[10px] sm:text-[11px] lg:text-xs font-bold rounded shadow-sm leading-none">
                                             {getEpisodeStatus(movie)}
                                         </div>
                                         {movie.quality && (
-                                            <div className="px-2 py-0.5 flex items-center justify-center bg-[#FAD078] text-amber-950 text-[10px] sm:text-xs font-bold rounded shadow-sm leading-none">
+                                            <div className="px-2 py-0.5 sm:px-2.5 sm:py-0.5 lg:px-3 lg:py-1 flex items-center justify-center bg-[#FAD078] text-amber-950 text-[10px] sm:text-[11px] lg:text-xs font-bold rounded shadow-sm leading-none">
                                                 {movie.quality}
                                             </div>
                                         )}

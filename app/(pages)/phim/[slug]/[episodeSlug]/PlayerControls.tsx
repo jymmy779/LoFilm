@@ -106,6 +106,14 @@ const PlayerControls = ({
                         <Play size={11} fill={isActive ? "currentColor" : "none"} className={isActive ? "text-[#D497FF]" : "text-white/30"} />
                         <span>{displayName}</span>
                       </div>
+                      {isActive && (
+                        <div className="flex items-center gap-1.5 pl-2">
+                          <span className="relative flex h-2 w-2">
+                            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#D497FF] opacity-75"></span>
+                            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#D497FF]"></span>
+                          </span>
+                        </div>
+                      )}
                     </button>
                   );
                 })}

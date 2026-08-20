@@ -145,3 +145,35 @@ export async function fetchLogoFromTMDB(
         return null;
     }
 }
+
+/**
+ * Fetch episode still images from TMDB for a TV show season
+ * Returns mapping: episode_number -> image URL (e.g. { 1: "https://image.tmdb.org/t/p/w300/abc.jpg" })
+ */
+export async function fetchSeasonEpisodesFromTMDB(
+    tmdbId: string | number,
+    seasonNumber: number = 1
+): Promise<Record<number, string>> {
+    if (!tmdbId) return {};
+
+    try {
+        const endpoint = `${TMDB_BASE_URL}/tv/${tmdbId}/season/${seasonNumber}?api_key=${getRandomKey()}&language=vi-VN`;
+        const proxyUrl = `/api/proxy?url=${encodeURIComponent(endpoint)}&revalidate=2592000`;
+        const response = await axios.get(proxyUrl);
+
+        if (response.data && Array.isArray(response.data.episodes)) {
+            const map: Record<number, string> = {};
+            response.data.episodes.forEach((ep: any) => {
+                if (ep.episode_number && ep.still_path) {
+                    const rawUrl = `https://image.tmdb.org/t/p/w300${ep.still_path}`;
+                    map[ep.episode_number] = `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}&w=300&q=75&output=webp`;
+                }
+            });
+            return map;
+        }
+        return {};
+    } catch {
+        return {};
+    }
+}
+

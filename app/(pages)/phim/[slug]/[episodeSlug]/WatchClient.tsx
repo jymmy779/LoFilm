@@ -39,14 +39,13 @@ import MovieInfo from "./MovieInfo";
 import CommentSection from "@/app/components/Social/Comments/CommentSection";
 import ReportModal from "@/app/components/UI/Common/ReportModal";
 import ShareModal from "@/app/components/Movies/Movie/ShareModal";
-import MoviePosterCard from "@/app/components/Movies/MovieCard/MoviePosterCard";
-import { getImageUrl, getRawImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
+import { getImageUrl, getRawImageUrl, getFriendlyEpisodeSlug, parseEpNumber } from "@/app/utils/movieUtils";
 import LazyRow from "@/app/components/UI/Common/LazyRow";
 import Skeleton from "@/app/components/UI/Skeleton/Skeleton";
 
 import SmartImage from "@/app/components/UI/Common/SmartImage";
-import { fetchTotalEpisodesFromTMDB, fetchActorsFromTMDB, TMDBActor } from "@/app/utils/tmdbUtils";
-import { getR2ActorUrl, getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
+import { fetchTotalEpisodesFromTMDB, fetchActorsFromTMDB, fetchSeasonEpisodesFromTMDB, TMDBActor } from "@/app/utils/tmdbUtils";
+import { getR2ActorUrl, getR2MoviePosterUrl, getR2MovieThumbUrl } from "@/app/utils/r2ImageUrl";
 import { useAuth } from "@/app/components/User/Auth/AuthContext";
 import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 import { toast } from "react-hot-toast";
@@ -447,6 +446,22 @@ export default function WatchClient({
 
     // Bỏ localStorage cũ của autoNext vì đã dùng Zustand
 
+
+    // State lưu trữ mapping ảnh từng tập từ TMDB: { [episode_number]: still_image_url }
+    const [episodeThumbnails, setEpisodeThumbnails] = useState<Record<number, string>>({});
+
+    useEffect(() => {
+        const loadEpisodeThumbnails = async () => {
+            if (!movie?.tmdb?.id) return;
+            const tmdbId = movie.tmdb.id;
+            const season = movie.tmdb.season || 1;
+            const thumbs = await fetchSeasonEpisodesFromTMDB(tmdbId, season);
+            if (thumbs && Object.keys(thumbs).length > 0) {
+                setEpisodeThumbnails(thumbs);
+            }
+        };
+        loadEpisodeThumbnails();
+    }, [slug, movie?.tmdb?.id, movie?.tmdb?.season]);
 
     useEffect(() => {
         const correctMainMovie = async () => {
@@ -1534,6 +1549,8 @@ export default function WatchClient({
                                         {processedEpisodes[activeServerIndex]?.server_data?.map((ep, idx) => {
                                             const epSlug = getFriendlyEpisodeSlug(ep.slug);
                                             const isActive = epSlug === currentEpisodeSlug;
+                                            const epNum = parseEpNumber(ep.name);
+                                            const epThumb = typeof epNum === 'number' && episodeThumbnails[epNum] ? episodeThumbnails[epNum] : null;
 
                                             return (
                                                 <button
@@ -1549,13 +1566,17 @@ export default function WatchClient({
                                                     className={`group flex items-center w-full flex-shrink-0 gap-1.5 lg:gap-3 p-1 sm:p-2 lg:p-3 rounded-md lg:rounded-xl transition-all duration-300 relative overflow-hidden cursor-pointer ${isActive ? 'bg-[#D497FF]/10 border border-[#D497FF]/20' : 'hover:bg-white/5 border border-transparent'}`}
                                                 >
                                                     <div className="relative w-12 sm:w-20 lg:w-28 aspect-video rounded sm:rounded-lg overflow-hidden flex-shrink-0 bg-white/5">
-                                                        <img
-                                                            src={getImageUrl(movie.thumb_url || movie.poster_url, { width: 300, quality: 75 })}
+                                                        <SmartImage
+                                                            r2Src={epThumb ? undefined : getR2MovieThumbUrl(slug)}
+                                                            src={epThumb || getImageUrl(movie.thumb_url || movie.poster_url, { width: 300, quality: 75 })}
+                                                            rawSrc={epThumb || getRawImageUrl(movie.thumb_url || movie.poster_url)}
                                                             alt={ep.name}
+                                                            fill
                                                             className={`object-cover w-full h-full transition-transform duration-500 ${isActive ? 'scale-105' : 'group-hover:scale-110'}`}
+                                                            sizes="(max-width: 640px) 48px, (max-width: 1024px) 80px, 112px"
                                                         />
                                                         {isActive && (
-                                                            <div className="absolute inset-0 bg-[#D497FF]/20 flex items-center justify-center">
+                                                            <div className="absolute inset-0 bg-[#D497FF]/20 flex items-center justify-center z-10">
                                                                 <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 lg:w-2 lg:h-2 rounded-full bg-[#D497FF] animate-ping" />
                                                             </div>
                                                         )}
