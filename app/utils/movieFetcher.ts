@@ -330,4 +330,4 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
     }
 
     return null;
-};
+});
