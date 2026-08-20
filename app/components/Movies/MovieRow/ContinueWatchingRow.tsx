@@ -240,31 +240,31 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
 
     return (
         <Container as="section" className="continue-watching-section relative z-30">
-            <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/40 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 relative overflow-hidden">
-                {/* Background Decor subtle */}
-                <div className="absolute top-0 left-0 w-32 h-32 bg-[#D497FF]/5 blur-[100px] pointer-events-none"></div>
-
-                {/* Header */}
-                <div className="w-full xl:w-[260px] xl:flex-shrink-0 flex xl:flex-col justify-between xl:justify-center gap-4">
-                    <div>
-                        <h2 className="text-[20px] lg:text-[28px] font-bold !leading-tight text-white">
-                            Xem Tiếp
-                        </h2>
-                        <p className="text-white/40 text-[10px] font-medium mt-1 tracking-[0.2em]">Lịch sử của bạn</p>
+            <div className="flex flex-col xl:flex-row gap-4 md:gap-5 lg:gap-6 bg-[#12151C]/60 p-4 sm:p-5 md:p-6 rounded-3xl border border-white/10 relative">
+                {/* Header Panel */}
+                <div className="w-full xl:w-[230px] xl:flex-shrink-0 flex items-center xl:items-start xl:flex-col justify-between xl:justify-center gap-3 pb-3 xl:pb-0 border-b border-white/5 xl:border-b-0">
+                    <div className="shrink-0">
+                        <div className="flex items-center gap-2 mb-0.5">
+                            <div className="w-1.5 h-4 sm:h-5 bg-[#D497FF] rounded-full shrink-0" />
+                            <h2 className="text-base sm:text-xl lg:text-2xl font-black text-white uppercase tracking-wider whitespace-nowrap">
+                                Xem Tiếp
+                            </h2>
+                        </div>
+                        <p className="text-white/40 text-[11px] sm:text-xs font-medium pl-3.5 whitespace-nowrap">Lịch sử xem của bạn</p>
                     </div>
 
-                    <div className="flex xl:flex-col gap-3">
+                    <div className="flex items-center xl:flex-col gap-2 shrink-0">
                         <TransitionLink
-                                href="/lich-su"
-                                className="text-[#D497FF]/80 font-medium hover:text-[#D497FF] transition-colors flex items-center gap-2 text-[10px] md:text-sm tracking-widest w-max"
-                            >
-                                Tất cả lịch sử
-                            </TransitionLink>
+                            href="/lich-su"
+                            className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 hover:border-white/20 text-[#D497FF] font-semibold transition-all text-[11px] sm:text-xs whitespace-nowrap inline-flex items-center justify-center"
+                        >
+                            Tất cả lịch sử
+                        </TransitionLink>
 
                         {history.length > 0 && (
                             <button
                                 onClick={handleClearAllClick}
-                                className="text-white/20 hover:text-red-400 font-medium transition-colors flex items-center gap-2 text-[10px] md:text-sm tracking-widest w-max cursor-pointer"
+                                className="px-2.5 sm:px-3 py-1.5 rounded-lg bg-white/5 hover:bg-red-500/15 border border-white/10 hover:border-red-500/30 text-white/50 hover:text-red-400 font-semibold transition-all text-[11px] sm:text-xs cursor-pointer whitespace-nowrap inline-flex items-center justify-center"
                             >
                                 Xóa toàn bộ
                             </button>
@@ -272,8 +272,8 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                     </div>
                 </div>
 
-                {/* Swiper */}
-                <div className="w-full xl:w-[calc(100%-292px)] relative group/slider">
+                {/* Swiper Slider */}
+                <div className="w-full xl:w-[calc(100%-264px)] relative group/slider">
                     <Swiper
                         modules={[Navigation, Virtual]}
                         virtual={{ enabled: true }}
@@ -304,7 +304,7 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                                             href={`/phim/${item.movie_slug}/${item.episode_slug}`}
                                             className="block w-full group/item relative"
                                         >
-                                            <div className="relative aspect-video w-full overflow-hidden rounded-2xl bg-zinc-800 relative z-0 transition-opacity duration-300">
+                                            <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-[#12151C] border border-white/10 group-hover/item:border-[#D497FF]/40 relative z-0 transition-all duration-300 shadow-md">
                                                 <SmartImage
                                                     r2Src={getR2MovieThumbUrl(item.movie_slug)}
                                                     src={getImageUrl(item.movie_poster, { width: 320, quality: 75 })}
@@ -314,20 +314,20 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                                                     priority={false}
                                                     loading="lazy"
                                                     sizes="(max-width: 768px) 160px, (max-width: 1024px) 180px, 200px"
-                                                    className="h-full w-full object-cover transition-transform duration-700 group-hover/item:scale-110"
+                                                    className="h-full w-full object-cover transition-transform duration-500 group-hover/item:scale-105"
                                                 />
 
                                                 {/* Play overlay on hover */}
                                                 <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/item:opacity-100 transition-opacity flex items-center justify-center pointer-events-none">
-                                                    <div className="w-12 h-12 rounded-full bg-[#D497FF] flex items-center justify-center text-black shadow-lg shadow-[#D497FF]/50 transform scale-75 group-hover/item:scale-100 transition-transform">
-                                                        <Play size={24} fill="currentColor" />
+                                                    <div className="w-10 h-10 rounded-full bg-[#D497FF] flex items-center justify-center text-black shadow-lg shadow-[#D497FF]/50 transform scale-75 group-hover/item:scale-100 transition-transform">
+                                                        <Play size={18} fill="currentColor" className="ml-0.5" />
                                                     </div>
                                                 </div>
 
-                                                <div className="absolute bottom-1 left-1 z-10 pointer-events-none transition-opacity duration-200 opacity-100">
+                                                <div className="absolute bottom-1.5 left-1.5 z-10 pointer-events-none transition-opacity duration-200 opacity-100">
                                                     <div className="flex flex-wrap gap-1">
                                                         {item.episode_name && (
-                                                            <span className="rounded-[4px] bg-[#F5CAE3] px-1 py-[2px] text-[8px] md:text-[11px] font-bold text-pink-950 shadow-sm border border-pink-500/20 tracking-wide">
+                                                            <span className="rounded-md bg-[#F5CAE3] px-1.5 py-[2px] text-[9px] md:text-[10.5px] font-bold text-pink-950 shadow-sm border border-pink-500/20 tracking-wide">
                                                                 {item.episode_name.toLowerCase().includes('tập') ? item.episode_name : `Tập ${item.episode_name}`}
                                                             </span>
                                                         )}
@@ -340,7 +340,7 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                                                 <button
                                                     onClick={(e) => handleDeleteClick(e, item)}
                                                     disabled={isDeleting === item.id}
-                                                    className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-red-500 text-white rounded-lg transition-[background-color,border-color,transform] will-change-transform opacity-100 z-30 cursor-pointer border border-white/10 hover:border-white/20 active:scale-90"
+                                                    className="absolute top-2 right-2 p-1.5 bg-black/60 hover:bg-red-500 text-white rounded-lg transition-all opacity-100 z-30 cursor-pointer border border-white/10 hover:border-white/20 active:scale-90"
                                                     title="Xóa khỏi danh sách"
                                                 >
                                                     <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
@@ -348,19 +348,19 @@ function ContinueWatchingRow({ initialHistory }: ContinueWatchingRowProps) {
                                             </div>
                                         </TransitionLink>
 
-                                        <div className="mt-2.5 px-0.5 transition-opacity duration-200 opacity-100">
+                                        <div className="mt-2 px-0.5 transition-opacity duration-200 opacity-100">
                                             <h3 className="truncate text-[13px] font-semibold text-zinc-100 leading-snug hover:text-[#D497FF] transition-colors cursor-pointer" title={item.movie_name}>
                                                 <TransitionLink href={`/phim/${item.movie_slug}/${item.episode_slug}`}>
                                                     {item.movie_name}
                                                 </TransitionLink>
                                             </h3>
-                                            <div className="mt-2 flex flex-col gap-1.5 opacity-90">
+                                            <div className="mt-1.5 flex flex-col gap-1.5 opacity-90">
                                                 <div className="flex items-center justify-between text-[10px] font-medium text-zinc-400 leading-none">
                                                     <span>Đã xem: {Math.floor(item.watched_seconds / 60)}p</span>
                                                     <span>{Math.floor(item.duration / 60)}p</span>
                                                 </div>
-                                                <div className="h-1 w-full bg-zinc-700 rounded-full overflow-hidden">
-                                                    <div className="h-full bg-red-600 rounded-full" style={{ width: `${Math.min(Math.max(progress, 0), 100)}%` }}></div>
+                                                <div className="h-1 w-full bg-zinc-700/80 rounded-full overflow-hidden">
+                                                    <div className="h-full bg-gradient-to-r from-[#D497FF] to-pink-400 rounded-full" style={{ width: `${Math.min(Math.max(progress, 0), 100)}%` }}></div>
                                                 </div>
                                             </div>
                                         </div>

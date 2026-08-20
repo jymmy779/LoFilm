@@ -1,34 +1,31 @@
 "use client";
 
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
-import React, { useState, useEffect, memo } from "react";
-import { Dices, Play } from "lucide-react";
+import React, { useState, useEffect, memo, useRef } from "react";
+import { Dices, Play, Sparkles } from "lucide-react";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Virtual } from "swiper/modules";
+import { Virtual, FreeMode } from "swiper/modules";
 import "swiper/css";
-import "swiper/css/navigation";
+import "swiper/css/free-mode";
 import Container from "../../UI/Container";
 import SmartImage from "../../UI/Common/SmartImage";
 import axios from "axios";
-import useSWR from "swr";
-import { filterDuplicateMovies, getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
+import { filterDuplicateMovies, getEpisodeStatus, getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
-import Skeleton from "../../UI/Skeleton/Skeleton";
+import { decodeHtml } from "@/app/utils/textUtils";
+import RandomMovieRowSkeleton from "./RandomMovieRowSkeleton";
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 const MOODS = [
-    { id: 'hanh-dong', title: 'Combat cháy máy', sub: 'Đánh đấm mãn nhãn', bgColor: 'bg-[#818cf8]' },
-    { id: 'tinh-cam', title: 'Cẩu lương ngập mặt', sub: 'Ngọt hơn đường phèn', bgColor: 'bg-[#f472b6]' },
-    { id: 'tam-ly', title: 'Thao túng tâm lý', sub: 'Xoắn não đêm khuya', bgColor: 'bg-[#60a5fa]' },
-    { id: 'vo-thuat', title: 'Cước pháp phi phàm', sub: 'Đấm không trượt phát nào', bgColor: 'bg-[#4ade80]' },
-    { id: 'gia-dinh', title: 'Trạm sạc chữa lành', sub: 'Khóc trôi muộn phiền', bgColor: 'bg-[#fb923c]' },
-    { id: 'kinh-di', title: 'Đóng bỉm cày đêm', sub: 'Yếu tim xin tự trọng', bgColor: 'bg-[#38bdf8]' },
-    { id: 'hai-huoc', title: 'Hệ tư tưởng tấu hài', sub: 'Cười văng cả hàm', bgColor: 'bg-[#fbbf24]' },
-    { id: 'phieu-luu', title: 'Chạy trốn thực tại', sub: 'Đi vào dĩ vãng', bgColor: 'bg-[#D497FF]' },
+    { id: 'hanh-dong', emoji: '💥', title: 'Combat cháy máy', sub: 'Đánh đấm mãn nhãn', gradient: 'from-[#4338CA] to-[#312E81]' },
+    { id: 'tinh-cam', emoji: '💖', title: 'Cẩu lương ngập mặt', sub: 'Ngọt hơn đường phèn', gradient: 'from-[#BE185D] to-[#831843]' },
+    { id: 'tam-ly', emoji: '🧠', title: 'Thao túng tâm lý', sub: 'Xoắn não đêm khuya', gradient: 'from-[#1D4ED8] to-[#1E3A8A]' },
+    { id: 'vo-thuat', emoji: '🥋', title: 'Cước pháp phi phàm', sub: 'Đấm không trượt phát nào', gradient: 'from-[#047857] to-[#064E3B]' },
+    { id: 'gia-dinh', emoji: '🍃', title: 'Trạm sạc chữa lành', sub: 'Khóc trôi muộn phiền', gradient: 'from-[#C2410C] to-[#7C2D12]' },
+    { id: 'kinh-di', emoji: '👻', title: 'Đóng bỉm cày đêm', sub: 'Yếu tim xin tự trọng', gradient: 'from-[#0E7490] to-[#164E63]' },
+    { id: 'hai-huoc', emoji: '😂', title: 'Hệ tư tưởng tấu hài', sub: 'Cười văng cả hàm', gradient: 'from-[#B45309] to-[#78350F]' },
+    { id: 'phieu-luu', emoji: '🚀', title: 'Chạy trốn thực tại', sub: 'Đi vào dĩ vãng', gradient: 'from-[#7E22CE] to-[#581C87]' },
 ];
-
-import RandomMovieRowSkeleton from "./RandomMovieRowSkeleton";
-
-import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 const moodCache: Record<string, any[]> = {};
 
@@ -38,6 +35,7 @@ function RandomMovieRow() {
     const [displayMovies, setDisplayMovies] = useState<any[]>(moodCache[MOODS[0].id] || []);
     const [isFetching, setIsFetching] = useState(!moodCache[MOODS[0].id]);
     const [isInitialLoad, setIsInitialLoad] = useState(!moodCache[MOODS[0].id]);
+    const [isRolling, setIsRolling] = useState(false);
 
     const fetchMoodMovies = async (moodId: string, shuffle: boolean = true) => {
         if (moodCache[moodId] && moodCache[moodId].length > 0) {
@@ -71,7 +69,6 @@ function RandomMovieRow() {
         }
     };
 
-    // Load selected mood
     useEffect(() => {
         let isMounted = true;
 
@@ -101,7 +98,6 @@ function RandomMovieRow() {
         };
     }, [selectedMood.id]);
 
-    // Prefetch remaining moods in background after initial load
     useEffect(() => {
         const timer = setTimeout(() => {
             MOODS.forEach((m) => {
@@ -116,15 +112,17 @@ function RandomMovieRow() {
 
     useEffect(() => {
         if (moodSwiper) {
-            const index = MOODS.findIndex(m => m.id === selectedMood.id);
+            const index = MOODS.findIndex((m) => m.id === selectedMood.id);
             moodSwiper.slideTo(index);
         }
     }, [selectedMood, moodSwiper]);
 
     const handleRandomMood = () => {
-        const otherMoods = MOODS.filter(m => m.id !== selectedMood.id);
+        setIsRolling(true);
+        const otherMoods = MOODS.filter((m) => m.id !== selectedMood.id);
         const random = otherMoods[Math.floor(Math.random() * otherMoods.length)];
         setSelectedMood(random);
+        setTimeout(() => setIsRolling(false), 600);
     };
 
     if (isInitialLoad && displayMovies.length === 0) {
@@ -133,109 +131,135 @@ function RandomMovieRow() {
 
     return (
         <Container as="section" className="relative z-30">
-            {/* Header */}
-            <div className="flex items-center justify-between mb-8 border-b border-white/5 pb-5">
+            {/* Section Header */}
+            <div className="flex items-center justify-between mb-5 border-b border-white/5 pb-4">
                 <div className="flex items-center gap-3">
-                    <h3 className="text-lg font-bold md:text-xl tracking-widest uppercase relative italic text-transparent bg-clip-text bg-gradient-to-r from-purple-200 via-purple-100 to-white drop-shadow-sm">
-                        Mood nào phim nấy
-                        <div className="absolute -bottom-[21px] left-0 w-full h-0.5 bg-gradient-to-r from-purple-200 to-transparent opacity-70" />
-                    </h3>
+                    <h2 className="text-[20px] lg:text-[28px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r from-white via-rose-200 to-pink-400 drop-shadow-sm flex items-center gap-2.5">
+                        Mood Nào Phim Nấy
+                        <span className="text-xs font-normal px-2.5 py-1 rounded-full bg-white/10 text-white/80 border border-white/10 hidden sm:inline-flex items-center gap-1.5 shadow-sm">
+                            <span>{selectedMood.emoji}</span>
+                            <span>{selectedMood.title}</span>
+                        </span>
+                    </h2>
                 </div>
+
+                {/* Dice Button */}
                 <button
                     onClick={handleRandomMood}
-                    className="w-10 h-10 flex cursor-pointer items-center justify-center bg-gradient-to-br from-[#C6ADE8] to-[#9474cc] text-white rounded-full transition-[box-shadow,transform] will-change-transform duration-500 group shadow-[0_0_15px_rgba(0,0,0,0.2)] hover:shadow-[#C6ADE8]/50 z-10"
-                    title="Ngẫu nhiên tâm trạng"
+                    className="flex items-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full bg-white/10 hover:bg-[#D497FF] text-white hover:text-black font-bold text-xs transition-all duration-300 border border-white/10 hover:border-transparent cursor-pointer shadow-sm active:scale-95 group"
+                    title="Đổi tâm trạng ngẫu nhiên"
                 >
-                    <Dices size={20} className="group-hover:rotate-180 transition-transform duration-500" />
+                    <Dices
+                        size={16}
+                        className={`transition-transform duration-500 ${isRolling ? "rotate-[360deg] scale-110" : "group-hover:rotate-180"}`}
+                    />
+                    <span className="hidden sm:inline">Đổi Mood</span>
                 </button>
             </div>
 
-            {/* Mood Tabs Swiper */}
+            {/* Mood Selector Tabs */}
             <div className="mb-6">
                 <Swiper
+                    modules={[FreeMode]}
                     onSwiper={setMoodSwiper}
+                    freeMode={true}
                     spaceBetween={8}
-                    slidesPerView={2.5}
-                    slidesOffsetBefore={4}
-                    slidesOffsetAfter={4}
+                    slidesPerView="auto"
                     breakpoints={{
-                        640: { slidesPerView: 3.3, spaceBetween: 10 },
-                        768: { slidesPerView: 4.2, spaceBetween: 12 },
-                        1280: { slidesPerView: 5.2, spaceBetween: 14 },
-                        1480: { slidesPerView: 6.2, spaceBetween: 14 },
+                        640: { spaceBetween: 10 },
+                        1024: { spaceBetween: 12 },
                     }}
-                    className="rounded-xl overflow-visible"
+                    className="w-full"
                 >
-                    {MOODS.map((mood) => (
-                        <SwiperSlide key={mood.id} className="pt-2 pb-2">
-                            <button
-                                onClick={() => setSelectedMood(mood)}
-                                className={`w-full group relative rounded-xl p-3 md:p-5 text-left transition-all will-change-transform duration-300 ease-out border-2 cursor-pointer hover:-translate-y-2 min-h-[95px] md:min-h-[115px] flex flex-col justify-between ${selectedMood.id === mood.id
-                                    ? `${mood.bgColor} border-white shadow-[0_10px_25px_rgba(0,0,0,0.3)] scale-[1.02] z-20`
-                                    : `border-white/10 ${mood.bgColor} hover:scale-[1.01] shadow-md opacity-90 hover:opacity-100 z-10`
+                    {MOODS.map((mood) => {
+                        const isSelected = selectedMood.id === mood.id;
+                        return (
+                            <SwiperSlide key={mood.id} className="!w-auto py-1">
+                                <button
+                                    onClick={() => setSelectedMood(mood)}
+                                    className={`relative flex items-center gap-3 px-4 py-3 sm:px-5 sm:py-3.5 rounded-2xl text-left bg-gradient-to-br ${mood.gradient} transition-all duration-300 cursor-pointer min-w-[190px] sm:min-w-[220px] select-none border ${
+                                        isSelected
+                                            ? "border-white/60"
+                                            : "border-white/10 hover:border-white/30"
                                     }`}
-                            >
-                                <h3 className="text-sm lg:text-lg font-bold text-white leading-tight uppercase tracking-wide drop-shadow-sm">
-                                    {mood.title}
-                                </h3>
-                                <p className="text-[10px] lg:text-[12px] text-white/90 font-semibold italic line-clamp-1">
-                                    {mood.sub}
-                                </p>
-                            </button>
-                        </SwiperSlide>
-                    ))}
+                                >
+                                    {/* Emoji Container */}
+                                    <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-black/25 flex items-center justify-center text-xl sm:text-2xl flex-shrink-0">
+                                        {mood.emoji}
+                                    </div>
+
+                                    {/* Content */}
+                                    <div className="flex flex-col min-w-0 flex-1">
+                                        <span className="text-xs sm:text-sm font-extrabold leading-tight text-white truncate">
+                                            {mood.title}
+                                        </span>
+                                        <span className="text-[10.5px] sm:text-xs text-white/80 font-medium italic truncate mt-0.5">
+                                            {mood.sub}
+                                        </span>
+                                    </div>
+                                </button>
+                            </SwiperSlide>
+                        );
+                    })}
                 </Swiper>
             </div>
 
-            {/* Movies Swiper */}
+            {/* Movies Carousel */}
             <div className="relative">
                 {isFetching && displayMovies.length === 0 ? (
                     <div className="w-full">
                         <Swiper
-                            spaceBetween={8}
-                            slidesPerView={2.5}
+                            spaceBetween={10}
+                            slidesPerView={2.3}
                             breakpoints={{
-                                640: { slidesPerView: 3.5, spaceBetween: 10 },
-                                768: { slidesPerView: 4.5, spaceBetween: 10 },
-                                1024: { slidesPerView: 6.5, spaceBetween: 10 },
-                                1280: { slidesPerView: 8.5, spaceBetween: 12 },
-                                1536: { slidesPerView: 10.5, spaceBetween: 12 },
+                                480: { slidesPerView: 2.8, spaceBetween: 10 },
+                                640: { slidesPerView: 3.5, spaceBetween: 12 },
+                                768: { slidesPerView: 4.5, spaceBetween: 12 },
+                                1024: { slidesPerView: 5.5, spaceBetween: 14 },
+                                1280: { slidesPerView: 6.5, spaceBetween: 14 },
+                                1536: { slidesPerView: 7.5, spaceBetween: 16 },
                             }}
                         >
-                            {[...Array(12)].map((_, i) => (
+                            {[...Array(8)].map((_, i) => (
                                 <SwiperSlide key={i}>
-                                    <Skeleton className="aspect-[2/3]" rounded="lg" />
+                                    <div className="space-y-2">
+                                        <div className="aspect-[2/3] w-full bg-white/5 rounded-xl animate-pulse" />
+                                        <div className="w-full h-4 bg-white/5 rounded animate-pulse" />
+                                        <div className="w-2/3 h-3 bg-white/5 rounded animate-pulse" />
+                                    </div>
                                 </SwiperSlide>
                             ))}
                         </Swiper>
                     </div>
                 ) : displayMovies.length > 0 ? (
-                    <div className={`transition-opacity duration-200 ${isFetching ? 'opacity-50 pointer-events-none' : 'opacity-100'}`}>
+                    <div className={`transition-opacity duration-300 ${isFetching ? "opacity-40 pointer-events-none" : "opacity-100"}`}>
                         <Swiper
                             modules={[Virtual]}
                             virtual={{ enabled: true }}
-                            spaceBetween={8}
-                            slidesPerView={2.5}
+                            spaceBetween={10}
+                            slidesPerView={2.3}
                             breakpoints={{
-                                640: { slidesPerView: 3.5, spaceBetween: 10 },
-                                768: { slidesPerView: 4.5, spaceBetween: 10 },
-                                1024: { slidesPerView: 6.5, spaceBetween: 10 },
-                                1280: { slidesPerView: 8.5, spaceBetween: 12 },
-                                1536: { slidesPerView: 10.5, spaceBetween: 12 },
+                                480: { slidesPerView: 2.8, spaceBetween: 10 },
+                                640: { slidesPerView: 3.5, spaceBetween: 12 },
+                                768: { slidesPerView: 4.5, spaceBetween: 12 },
+                                1024: { slidesPerView: 5.5, spaceBetween: 14 },
+                                1280: { slidesPerView: 6.5, spaceBetween: 14 },
+                                1536: { slidesPerView: 7.5, spaceBetween: 16 },
                             }}
-                            className="rounded-xl overflow-visible"
+                            className="w-full"
                         >
                             {displayMovies.map((movie, index) => {
-                                const imgUrl = getImageUrl(movie.poster_url || movie.thumb_url, { width: 180, quality: 70 });
-                                const isPriority = index < 10;
+                                const imgUrl = getImageUrl(movie.poster_url || movie.thumb_url, { width: 220, quality: 75 });
+                                const isPriority = index < 8;
 
                                 return (
                                     <SwiperSlide key={movie._id} virtualIndex={index}>
-                                        <TransitionLink
-                                            href={`/phim/${movie.slug}`}
-                                            className="group relative block cursor-pointer rounded-lg overflow-hidden bg-[#0F1115] active:scale-95 transition-transform duration-300 ease-out will-change-transform"
-                                        >
-                                            <div className="relative aspect-[2/3]">
+                                        <div className="group flex flex-col h-full cursor-pointer">
+                                            {/* Poster Thumbnail */}
+                                            <TransitionLink
+                                                href={`/phim/${movie.slug}`}
+                                                className="relative aspect-[2/3] rounded-lg overflow-hidden bg-[#0F1115] border border-white/5 group-hover:border-[#D497FF]/50 transition-all duration-300 block"
+                                            >
                                                 <SmartImage
                                                     r2Src={getR2MoviePosterUrl(movie.slug)}
                                                     src={imgUrl}
@@ -244,32 +268,57 @@ function RandomMovieRow() {
                                                     fill
                                                     priority={isPriority}
                                                     loading={isPriority ? "eager" : "lazy"}
-                                                    sizes="(max-width: 640px) 120px, (max-width: 1024px) 180px, 220px"
-                                                    className="object-cover transition-opacity duration-300 ease-out group-hover:opacity-60"
+                                                    sizes="(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 180px"
+                                                    className="object-cover group-hover:scale-105 transition-transform duration-500 transform-gpu"
                                                 />
 
-                                                <div className="absolute inset-x-0 bottom-0 h-1/2 flex flex-col justify-end p-2 opacity-0 group-hover:opacity-100 transition-all duration-300 ease-out translate-y-2 group-hover:translate-y-0 pointer-events-none">
-                                                    <div className="bg-gradient-to-t from-black/90 via-black/60 to-transparent absolute inset-0 pointer-events-none" />
 
-                                                    <div className="relative z-10">
-                                                        <h5 className="text-white text-[11px] font-bold mb-0.5 line-clamp-1 uppercase tracking-tight leading-tight">{movie.name}</h5>
-                                                        <p className="text-[9px] text-white/50 mb-2 line-clamp-1 italic">{movie.origin_name}</p>
 
-                                                        <div className="inline-flex items-center gap-1 bg-[#D497FF] text-black text-[8px] font-black py-1 px-2 rounded-sm uppercase tracking-tighter translate-y-1 group-hover:translate-y-0 transition-transform duration-300 ease-out shadow-md shadow-[0_0_15px_rgba(212,151,255,0.4)]">
-                                                            <Play size={8} fill="currentColor" /> Xem
-                                                        </div>
-                                                    </div>
+                                                {/* Solid Badges (High Contrast, Zero Blur) */}
+                                                <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between gap-1 pointer-events-none z-10">
+                                                    <span className="h-4.5 px-1.5 bg-[#FAD078] rounded text-amber-950 shadow-sm text-[9px] font-bold flex items-center justify-center leading-none">
+                                                        {movie.quality || "HD"}
+                                                    </span>
+                                                    <span className="h-4.5 px-1.5 bg-[#A7F3D0] rounded text-emerald-950 shadow-sm text-[9px] font-bold flex items-center justify-center leading-none truncate max-w-[65%]">
+                                                        {getEpisodeStatus(movie)}
+                                                    </span>
+                                                </div>
+                                            </TransitionLink>
+
+                                            {/* Movie Info (Fixed Height to prevent layout shift) */}
+                                            <div className="pt-2 space-y-1 flex flex-col justify-between">
+                                                <div>
+                                                    <TransitionLink
+                                                        href={`/phim/${movie.slug}`}
+                                                        className="text-white text-xs sm:text-sm font-bold line-clamp-2 group-hover:text-[#D497FF] transition-colors leading-tight block h-[32px] sm:h-[36px]"
+                                                        title={movie.name}
+                                                    >
+                                                        {decodeHtml(movie.name)}
+                                                    </TransitionLink>
+                                                    <p
+                                                        className="text-white/40 text-[10px] sm:text-[11px] line-clamp-1 font-medium italic mt-0.5 h-[16px]"
+                                                        title={movie.origin_name}
+                                                    >
+                                                        {decodeHtml(movie.origin_name)}
+                                                    </p>
+                                                </div>
+                                                <div className="flex items-center gap-1.5 text-[10px] text-white/50 pt-0.5 h-[16px]">
+                                                    {movie.year && <span>{movie.year}</span>}
+                                                    {movie.year && <span>•</span>}
+                                                    <span className="text-[#D497FF]/80 font-semibold truncate">
+                                                        {((movie as any).lang_tag || movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
+                                                    </span>
                                                 </div>
                                             </div>
-                                        </TransitionLink>
+                                        </div>
                                     </SwiperSlide>
                                 );
                             })}
                         </Swiper>
                     </div>
                 ) : (
-                    <div className="flex flex-col items-center justify-center py-20 text-white/40">
-                        <p className="italic text-sm">Hiện chưa có phim nào cho tâm trạng này, hãy thử cái khác nhé!</p>
+                    <div className="flex flex-col items-center justify-center py-16 text-white/40">
+                        <p className="italic text-sm">Hiện chưa có phim nào cho tâm trạng này, hãy thử tâm trạng khác nhé!</p>
                     </div>
                 )}
             </div>
@@ -278,5 +327,3 @@ function RandomMovieRow() {
 }
 
 export default memo(RandomMovieRow);
-
-

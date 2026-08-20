@@ -3,10 +3,10 @@ import Skeleton from '@/app/components/UI/Skeleton/Skeleton';
 
 export default function WideMovieCardSkeleton() {
     return (
-        <div className="flex flex-col h-full">
+        <div className="flex flex-col h-full bg-[#12151C]/80 border border-white/10 rounded-2xl overflow-hidden shadow-md">
             {/* Top Thumbnail (aspect 21/9) */}
             <div className="relative w-full aspect-[21/9] overflow-hidden rounded-xl bg-[#0F1115]">
-                <Skeleton className="absolute inset-0" rounded="none" />
+                <Skeleton className="absolute inset-0" rounded="xl" />
             </div>
 
             {/* Bottom Info Section */}

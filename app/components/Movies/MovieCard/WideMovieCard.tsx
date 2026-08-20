@@ -25,7 +25,7 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
         >
             <TransitionLink
                 href={`/phim/${movie.slug}`}
-                className="block w-full bg-[#12151C] h-full flex flex-col group/link"
+                className="block w-full bg-[#12151C]/80 h-full flex flex-col group/link border border-white/10 hover:border-[#D497FF]/40 rounded-2xl overflow-hidden shadow-md transition-all duration-300"
             >
                 {/* Top Thumbnail (aspect 21/9) */}
                 <div className="relative w-full aspect-[21/9] overflow-hidden rounded-xl bg-[#12151C]">
@@ -37,7 +37,7 @@ export default function WideMovieCard({ movie, priority = false, adZone = "wide_
                         fill
                         priority={priority}
                         sizes="(max-width: 640px) 90vw, (max-width: 1024px) 50vw, 30vw"
-                        className="object-cover transition-transform duration-700 group-hover/link:scale-105"
+                        className="object-cover transition-transform duration-500 group-hover/link:scale-105"
                     />
                 </div>
 

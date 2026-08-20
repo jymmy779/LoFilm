@@ -5,9 +5,10 @@ import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml } from "@/app/utils/textUtils";
-import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
+import { getImageUrl, getRawImageUrl, getEpisodeStatus } from "@/app/utils/movieUtils";
 import { getR2MovieThumbUrl } from "@/app/utils/r2ImageUrl";
 import MoviePreviewWrapper from "./MoviePreviewWrapper";
+import { Play } from "lucide-react";
 
 interface MovieRowCardProps {
     movie: Movie;
@@ -17,58 +18,68 @@ interface MovieRowCardProps {
 }
 
 function MovieRowCard({ movie, priority = false, adZone = "movie_row", onClick }: MovieRowCardProps) {
-    const imgUrl = getImageUrl(movie.thumb_url, { width: 300, quality: 75 });
+    const imgUrl = getImageUrl(movie.thumb_url || movie.poster_url, { width: 400, quality: 75 });
+
     return (
         <MoviePreviewWrapper
             movie={movie}
             adZone={adZone}
-            className="block group/item cursor-pointer optimize-render transform-gpu"
+            className="block group/item cursor-pointer transform-gpu h-full"
         >
             <TransitionLink
                 href={`/phim/${movie.slug}`}
                 onClick={onClick}
-                className="block w-full h-full"
+                className="block w-full h-full flex flex-col justify-between"
             >
-                <div className="relative aspect-video rounded-xl overflow-hidden mb-3 transition-colors bg-[#0F1115] border border-white/10">
+                {/* 16:10 Cinematic Landscape Proportion */}
+                <div className="relative aspect-[16/10] rounded-lg overflow-hidden mb-2.5 bg-[#0F1115] border border-white/10 group-hover/item:border-[#D497FF]/50 transition-all duration-300">
                     <SmartImage
                         r2Src={getR2MovieThumbUrl(movie.slug)}
                         src={imgUrl}
-                        rawSrc={getRawImageUrl(movie.thumb_url)}
+                        rawSrc={getRawImageUrl(movie.thumb_url || movie.poster_url)}
                         alt={movie.name}
                         fill
                         priority={priority}
                         loading={priority ? "eager" : "lazy"}
-                        sizes="(max-width: 768px) 160px, (max-width: 1024px) 240px, 280px"
-                        className="object-cover transition-transform duration-700 group-hover/item:scale-110 transform-gpu"
+                        sizes="(max-width: 640px) 180px, (max-width: 1024px) 260px, 300px"
+                        className="object-cover transition-transform duration-500 group-hover/item:scale-105 transform-gpu"
                     />
 
-                    {/* Play Icon Highlight */}
-                    <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 bg-black/30">
-                        <div className="w-10 h-10 rounded-full bg-[#D497FF] text-black flex items-center justify-center shadow-[0_0_15px_rgba(212,151,255,0.5)] transform scale-90 group-hover/item:scale-100 transition-transform duration-300">
-                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 ml-0.5">
-                                <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.54-2.33 2.77-1.613l11.74 6.813a1.614 1.614 0 010 2.825L7.27 20.493c-1.23.717-2.77-.187-2.77-1.613V5.653z" clipRule="evenodd" />
-                            </svg>
-                        </div>
-                    </div>
 
 
-
-                    {movie.episode_current && (
-                        <div className="absolute bottom-2 left-2 h-5 flex items-center justify-center px-1.5 bg-[#A7F3D0] rounded-md z-20 shadow-md">
-                            <span className="text-[9px] md:text-xs font-bold text-emerald-950 tracking-tighter leading-none">
-                                {movie.episode_current}
+                    {/* Solid Badges (High Contrast, Zero Blur) */}
+                    <div className="absolute bottom-2 left-2 right-2 flex items-center justify-between gap-1 pointer-events-none z-10">
+                        {movie.quality ? (
+                            <span className="h-4.5 px-1.5 bg-[#FAD078] rounded text-amber-950 shadow-sm text-[9px] font-bold flex items-center justify-center leading-none">
+                                {movie.quality}
                             </span>
-                        </div>
-                    )}
+                        ) : <div />}
+                        {movie.episode_current && (
+                            <span className="h-4.5 px-1.5 bg-[#A7F3D0] rounded text-emerald-950 shadow-sm text-[9px] font-bold flex items-center justify-center leading-none truncate max-w-[70%]">
+                                {getEpisodeStatus(movie)}
+                            </span>
+                        )}
+                    </div>
                 </div>
 
-                <div className="space-y-0.5">
-                    <h3 className="text-white md:text-left text-center font-bold text-xs md:text-sm line-clamp-1 group-hover/item:text-[#D497FF] transition-colors duration-300">
-                        {decodeHtml(movie.name)}
-                    </h3>
-                    <p className="text-white/40 text-[10px] md:text-left text-center md:text-[11px] line-clamp-1 font-medium group-hover/item:text-white/60 transition-colors">
-                        {decodeHtml(movie.origin_name)}
-                    </p>
+                {/* Movie Info (Fixed Height to prevent any layout shift) */}
+                <div className="space-y-0.5 flex-1 flex flex-col justify-between">
+                    <div>
+                        <h3 className="text-white text-xs sm:text-sm font-bold line-clamp-2 group-hover/item:text-[#D497FF] transition-colors leading-snug h-[32px] sm:h-[36px]">
+                            <span title={movie.name}>{decodeHtml(movie.name)}</span>
+                        </h3>
+                        <p className="text-white/40 text-[10.5px] sm:text-[11px] line-clamp-1 font-medium italic mt-0.5 h-[16px] truncate">
+                            <span title={movie.origin_name}>{decodeHtml(movie.origin_name)}</span>
+                        </p>
+                    </div>
+
+                    <div className="flex items-center gap-1.5 text-[10px] text-white/50 pt-1 h-[16px]">
+                        {movie.year && <span>{movie.year}</span>}
+                        {movie.year && <span>•</span>}
+                        <span className="text-[#D497FF]/80 font-semibold truncate">
+                            {((movie as any).lang_tag || movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
+                        </span>
+                    </div>
                 </div>
             </TransitionLink>
         </MoviePreviewWrapper>
@@ -76,4 +87,3 @@ function MovieRowCard({ movie, priority = false, adZone = "movie_row", onClick }
 }
 
 export default memo(MovieRowCard);
-

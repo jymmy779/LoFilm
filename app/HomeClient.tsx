@@ -22,6 +22,8 @@ import WideMovieRowSkeleton from "./components/Movies/MovieRow/WideMovieRowSkele
 import ReunificationEvent from "./components/Movies/SpecialSections/ReunificationEvent";
 import ReunificationEventSkeleton from "./components/Movies/SpecialSections/ReunificationEventSkeleton";
 import SocialStatsSection from "./components/Social/SocialStats/SocialStatsSection";
+import EditorChoiceRow from "./components/Movies/EditorChoiceRow/EditorChoiceRow";
+import EditorChoiceRowSkeleton from "./components/Movies/EditorChoiceRow/EditorChoiceRowSkeleton";
 
 import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
@@ -158,13 +160,11 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                     />
                 </LazyRow>
 
-                <LazyRow id="lofilm-nominated" estimatedHeight="520px" skeleton={<TopMovieRowSkeleton />}>
-                    <TopMovieRow
-                        title="Editor's choice"
-                        apiUrl=""
+                <LazyRow id="lofilm-nominated" estimatedHeight="460px" skeleton={<EditorChoiceRowSkeleton />}>
+                    <EditorChoiceRow
+                        title="Editor's Choice"
                         viewAllLink="/danh-sach/phim-moi"
                         initialMovies={prefetched.nominated}
-                        titleGradient="from-white via-indigo-200 to-indigo-400"
                     />
                 </LazyRow>
 

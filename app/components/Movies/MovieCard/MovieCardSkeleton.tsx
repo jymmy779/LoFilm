@@ -5,7 +5,7 @@ export default function MovieCardSkeleton() {
   return (
     <div className="sw-item relative block">
       {/* Poster area */}
-      <Skeleton className="v-thumbnail relative aspect-[2/3] mb-3" rounded="2xl" />
+      <Skeleton className="v-thumbnail relative aspect-[2/3] mb-3" rounded="lg" />
       
       {/* Info area */}
       <div className="info text-center space-y-0.5 mt-auto">

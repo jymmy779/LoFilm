@@ -8,13 +8,12 @@ import "swiper/css";
 import "swiper/css/navigation";
 
 import { Movie } from "@/app/types/movie";
-import { getImageUrl } from "@/app/utils/movieUtils";
 import Container from "@/app/components/UI/Container";
 import MoviePosterCard from "@/app/components/Movies/MovieCard/MoviePosterCard";
-import MovieCardSkeleton from "@/app/components/Movies/MovieCard/MovieCardSkeleton";
 import { useMovies } from "@/app/hooks/useMovies";
 import SwiperNavButtons from "@/app/components/UI/Common/SwiperNavButtons";
 import { useAuth } from "@/app/components/User/Auth/AuthContext";
+import MoviePosterRowSkeleton from "./MoviePosterRowSkeleton";
 
 interface MoviePosterRowProps {
     title: string;
@@ -25,8 +24,6 @@ interface MoviePosterRowProps {
     revalidate?: number;
     titleGradient?: string;
 }
-
-import MoviePosterRowSkeleton from "./MoviePosterRowSkeleton";
 
 function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear = false, revalidate, titleGradient = "from-white via-[#E9D5FF] to-[#D497FF]" }: MoviePosterRowProps) {
     const navId = title.toLowerCase().replace(/\s+/g, "-").replace(/[^\w-]/g, "");
@@ -74,63 +71,47 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
                 </div>
             </div>
 
-            <div className="row-content">
-                <div className="relative group/slider swiper-carousel-container">
-                    <Swiper
-                        modules={[Navigation, Virtual]}
-                        virtual={{ enabled: true }}
-                        slidesPerView={2}
-                        spaceBetween={8}
-                        navigation={{
-                            nextEl: `.sw-next-${navId}`,
-                            prevEl: `.sw-prev-${navId}`,
-                        }}
-                        breakpoints={{
-                            // Cấu hình responsive cho số lượng slide...
-                            640: { slidesPerView: 3, spaceBetween: 10 },
-                            768: { slidesPerView: 4, spaceBetween: 10 },
-                            1024: { slidesPerView: 5, spaceBetween: 10 },
-                            1200: { slidesPerView: 6, spaceBetween: 10 },
-                            1400: { slidesPerView: 7, spaceBetween: 12 },
-                            1536: { slidesPerView: 8, spaceBetween: 12 }
-                        }}
-                        className="swiper-carousel poster-carousel"
-                    >
-                        {movies.map((movie, index) => (
-                            <SwiperSlide key={movie._id} virtualIndex={index}>
-                                <MoviePosterCard
-                                    movie={movie}
-                                    priority={index < 8}
-                                    isFirst={index === 0}
-                                    isLast={index === movies.length - 1}
-                                    user={user}
-                                    adZone="movie_poster_row"
-                                />
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
+            <div className="row-content relative group/slider">
+                <Swiper
+                    modules={[Navigation, Virtual]}
+                    virtual={{ enabled: true }}
+                    spaceBetween={10}
+                    slidesPerView={2.3}
+                    navigation={{
+                        nextEl: `.sw-next-${navId}`,
+                        prevEl: `.sw-prev-${navId}`,
+                    }}
+                    breakpoints={{
+                        480: { slidesPerView: 2.8, spaceBetween: 10 },
+                        640: { slidesPerView: 3.5, spaceBetween: 12 },
+                        768: { slidesPerView: 4.5, spaceBetween: 12 },
+                        1024: { slidesPerView: 5.5, spaceBetween: 14 },
+                        1280: { slidesPerView: 6.5, spaceBetween: 14 },
+                        1536: { slidesPerView: 7.5, spaceBetween: 16 },
+                    }}
+                    className="w-full"
+                >
+                    {movies.map((movie, index) => (
+                        <SwiperSlide key={movie._id} virtualIndex={index}>
+                            <MoviePosterCard
+                                movie={movie}
+                                priority={index < 8}
+                                isFirst={index === 0}
+                                isLast={index === movies.length - 1}
+                                user={user}
+                                adZone="movie_poster_row"
+                            />
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
 
-                    <SwiperNavButtons
-                        prevClassName={`sw-prev-${navId}`}
-                        nextClassName={`sw-next-${navId}`}
-                        variant="ghost"
-                    />
-                </div>
+                <SwiperNavButtons
+                    prevClassName={`sw-prev-${navId}`}
+                    nextClassName={`sw-next-${navId}`}
+                />
             </div>
-
-            <style jsx global>{`
-                .poster-carousel .swiper-wrapper {
-                    padding-bottom: 20px;
-                    padding-top: 5px;
-                }
-                @keyframes top-movie-shake {
-                    0%, 100% { transform: rotate(0.2deg); }
-                    50% { transform: rotate(-0.2deg); }
-                }
-            `}</style>
         </Container>
     );
 }
 
 export default memo(MoviePosterRow);
-

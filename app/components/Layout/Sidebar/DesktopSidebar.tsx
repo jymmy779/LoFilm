@@ -50,7 +50,7 @@ export default function DesktopSidebar() {
                         : false;
 
                     const content = (
-                        <div className={`relative w-[88px] py-3.5 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-colors duration-250 ${
+                        <div className={`relative w-[88px] py-3.5 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-colors duration-100 ${
                             isActive
                                 ? "text-[#D497FF] font-semibold"
                                 : "text-white/70 group-hover:text-white font-medium"
@@ -59,14 +59,14 @@ export default function DesktopSidebar() {
                             {isActive && (
                                 <div className="absolute inset-0 bg-[#D497FF]/15 rounded-2xl animate-bubble-pop" />
                             )}
-                            <Icon size={25} strokeWidth={isActive ? 2.3 : 1.8} className="relative z-10 transition-colors duration-250" />
+                            <Icon size={25} strokeWidth={isActive ? 2.3 : 1.8} className="relative z-10" />
                             <span className="relative z-10 text-[13.5px] tracking-normal text-center leading-tight whitespace-nowrap">
                                 {item.label}
                             </span>
                         </div>
                     );
 
-                    const className = `group flex items-center justify-center transition-colors duration-250 ${
+                    const className = `group flex items-center justify-center transition-colors duration-150 ${
                         !isActive && "hover:bg-white/5 rounded-2xl"
                     }`;
 

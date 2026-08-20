@@ -408,3 +408,12 @@ export function getYoutubeEmbedUrl(url?: string): string {
     const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([a-zA-Z0-9_-]+)/);
     return match ? `https://www.youtube.com/embed/${match[1]}` : '';
 }
+
+/**
+ * Get direct Watch URL for a movie (e.g. /phim/slug/tap-01 or /phim/slug/tap-full)
+ */
+export function getMovieWatchUrl(movie?: Partial<Movie> | { slug: string; type?: string; episode_total?: string } | null): string {
+    if (!movie || !movie.slug) return "/";
+    const isSingle = movie.type === "single" || movie.episode_total === "1 Tập" || movie.episode_total === "1";
+    return `/phim/${movie.slug}/${isSingle ? "tap-full" : "tap-01"}`;
+}

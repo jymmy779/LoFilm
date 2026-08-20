@@ -14,10 +14,8 @@ interface MovieHeaderProps {
 
 const MovieHeader = ({ slug, movieName, episodeName }: MovieHeaderProps) => {
   return (
-    <div
-      className="overflow-hidden mb-6 animate-fade-in"
-    >
-      <Container>
+    <div className="overflow-hidden mb-3.5 sm:mb-4.5 animate-fade-in">
+      <div className="w-full max-w-[1440px] 2xl:max-w-[1560px] px-3 sm:px-5 lg:px-8 mx-auto">
         <div className="flex items-center gap-3">
           <TransitionLink
             href={`/phim/${slug}`}
@@ -29,7 +27,7 @@ const MovieHeader = ({ slug, movieName, episodeName }: MovieHeaderProps) => {
             Xem phim {movieName} - {episodeName}
           </h2>
         </div>
-      </Container>
+      </div>
     </div>
   );
 };

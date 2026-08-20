@@ -1,15 +1,12 @@
 "use client";
 
 import { useState, useMemo, useEffect, useCallback } from "react";
-
 import axios from "axios";
-import Image from "next/image";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import Container from "@/app/components/UI/Container";
-import MoviePosterCard from "@/app/components/Movies/MovieCard/MoviePosterCard";
 import FavoriteButton from "@/app/components/UI/Common/FavoriteButton";
 import WatchlistButton from "@/app/components/UI/Common/WatchlistButton";
-import { MessageSquare } from "lucide-react";
+import { MessageSquare, Play, Video, Share2, Star, Clock, Globe, Film, Sparkles, CheckCircle2, ChevronRight, User, X } from "lucide-react";
 import { Movie, EpisodeServer } from "@/app/types/movie";
 import {
     getImageUrl,
@@ -18,23 +15,23 @@ import {
     isMovieCompleted,
     getFriendlyEpisodeSlug,
     filterDuplicateMovies,
-    parseEpNumber,
     getYoutubeEmbedUrl,
     generateCategorySlug
 } from "@/app/utils/movieUtils";
-import { getCategoryColor, getCategoryStyles } from "@/app/utils/uiUtils";
+import { getCategoryStyles } from "@/app/utils/uiUtils";
 import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
-import { fetchTotalEpisodesFromTMDB, fetchActorsFromTMDB, TMDBActor } from "@/app/utils/tmdbUtils";
+import { fetchActorsFromTMDB, TMDBActor } from "@/app/utils/tmdbUtils";
 import Skeleton from "@/app/components/UI/Skeleton/Skeleton";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import dynamic from "next/dynamic";
-import { globalCache } from "@/app/utils/globalCache";
 import EpisodeList from "./[episodeSlug]/EpisodeList";
-import LazyRow from "@/app/components/UI/Common/LazyRow";
 import { getR2ActorUrl, getR2MoviePosterUrl, getR2MovieThumbUrl } from "@/app/utils/r2ImageUrl";
+import MoviePosterCard from "@/app/components/Movies/MovieCard/MoviePosterCard";
+import ShareModal from "@/app/components/Movies/Movie/ShareModal";
+
 const CommentSection = dynamic(() => import("@/app/components/Social/Comments/CommentSection"), {
-    loading: () => <Skeleton className="h-40" rounded="2xl" />,
+    loading: () => <Skeleton className="h-40" rounded="lg" />,
     ssr: false
 });
 
@@ -46,36 +43,41 @@ interface MovieDetailClientProps {
     initialActors?: TMDBActor[];
 }
 
-export default function MovieDetailClient({ movie: initialMovie, episodes, suggestedMovies, slug, initialActors }: MovieDetailClientProps) {
+export default function MovieDetailClient({
+    movie: initialMovie,
+    episodes,
+    suggestedMovies,
+    slug,
+    initialActors
+}: MovieDetailClientProps) {
     const [movie, setMovie] = useState<Movie>(initialMovie);
-    const [activeTab, setActiveTab] = useState('Tập phim');
     const SERVER_PREF_KEY = `lofilm-server:${slug}`;
     const [activeServerIndex, setActiveServerIndex] = useState(0);
+    const [suggestedMoviesState, setSuggestedMoviesState] = useState<Movie[]>(suggestedMovies);
+    const filteredSuggestions = useMemo(() => filterDuplicateMovies(suggestedMoviesState), [suggestedMoviesState]);
+    const [tmdbActors, setTmdbActors] = useState<TMDBActor[]>(initialActors || []);
+    const [isLoadingActors, setIsLoadingActors] = useState(false);
+    const [hasFetchedSuggestions, setHasFetchedSuggestions] = useState(false);
+    const [hasFetchedActors, setHasFetchedActors] = useState(!!initialActors && initialActors.length > 0);
+    const [showTrailerModal, setShowTrailerModal] = useState(false);
+    const [showShareModal, setShowShareModal] = useState(false);
+    const [isSynopsisExpanded, setIsSynopsisExpanded] = useState(false);
+
     const handleServerChange = useCallback((index: number) => {
         setActiveServerIndex(index);
         try { sessionStorage.setItem(SERVER_PREF_KEY, String(index)); } catch { }
     }, [SERVER_PREF_KEY]);
-    const [isChangingEpisode, setIsChangingEpisode] = useState(false);
-    const handleEpisodeClick = useCallback(() => setIsChangingEpisode(true), []);
-    const [suggestedMoviesState, setSuggestedMoviesState] = useState<Movie[]>(suggestedMovies);
-    const filteredSuggestions = useMemo(() => filterDuplicateMovies(suggestedMoviesState), [suggestedMoviesState]);
-    const [weeklyMovies, setWeeklyMovies] = useState<Movie[]>(() => globalCache.getRaw<Movie[]>("top_weekly_detail") || []);
-    const [isLoadingWeekly, setIsLoadingWeekly] = useState(!globalCache.has("top_weekly_detail"));
-    const [tmdbActors, setTmdbActors] = useState<TMDBActor[]>(initialActors || []);
-    const [isLoadingActors, setIsLoadingActors] = useState(false);
-    const [isThumbLoaded, setIsThumbLoaded] = useState(false);
-    const [hasFetchedSuggestions, setHasFetchedSuggestions] = useState(false);
-    const [hasFetchedActors, setHasFetchedActors] = useState(!!initialActors && initialActors.length > 0);
 
+    // Process episode servers
     const processedEpisodes = useMemo(() => {
         if (!episodes) return [];
         const list: typeof episodes = [];
         const counts: Record<string, number> = {};
-        
+
         episodes.forEach(server => {
             let originalName = server.server_name.toLowerCase();
             let cleanName = "Vietsub";
-            
+
             if (originalName.includes('thuyết minh') || originalName.includes(' tm') || originalName === 'tm') {
                 cleanName = 'Thuyết Minh';
             } else if (originalName.includes('lồng tiếng') || originalName.includes(' lt') || originalName === 'lt') {
@@ -118,12 +120,12 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
         return list;
     }, [episodes]);
 
-    // Đảm bảo luôn cuộn lên đầu khi vào chi tiết phim
+    // Reset when slug changes
     useEffect(() => {
         window.scrollTo({ top: 0, behavior: 'instant' });
-        setMovie(initialMovie); // Reset when prop changes
-        setIsThumbLoaded(false); // Reset loading state when movie changes
+        setMovie(initialMovie);
         setHasFetchedSuggestions(false);
+        setIsSynopsisExpanded(false);
         if (!initialActors || initialActors.length === 0) {
             setHasFetchedActors(false);
             setTmdbActors([]);
@@ -133,10 +135,9 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
         }
     }, [initialMovie.slug, initialActors]);
 
-    // Client-side fetch suggested movies (Lazy loaded when tab becomes active)
+    // Fetch suggestions if not provided
     useEffect(() => {
-        if (activeTab !== 'Đề xuất' || hasFetchedSuggestions) return;
-
+        if (hasFetchedSuggestions) return;
         const fetchSuggestions = async () => {
             const firstCategory = initialMovie.category?.[0]?.slug;
             if (!firstCategory) return;
@@ -144,7 +145,7 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
             try {
                 const res = await axios.get(`/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/the-loai/${firstCategory}?page=1&limit=20`)}&revalidate=60`);
                 const items: Movie[] = res.data?.data?.items || res.data?.items || [];
-                const filtered = items.filter((m: Movie) => m.slug !== initialMovie.slug).slice(0, 18);
+                const filtered = items.filter((m: Movie) => m.slug !== initialMovie.slug).slice(0, 14);
                 if (filtered.length > 0) {
                     setSuggestedMoviesState(filtered);
                 }
@@ -154,98 +155,16 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
             }
         };
 
-        // Chỉ fetch nếu server không truyền sẵn
         if (suggestedMovies.length === 0) {
             fetchSuggestions();
         } else {
             setHasFetchedSuggestions(true);
         }
-    }, [activeTab, initialMovie.slug, initialMovie.category, suggestedMovies, hasFetchedSuggestions]);
+    }, [initialMovie.slug, initialMovie.category, suggestedMovies, hasFetchedSuggestions]);
 
-    const CHUNK_SIZE = 100;
-
-
-    // Effect to correct the MAIN movie metadata if inaccurate
+    // Fetch Actors from TMDB
     useEffect(() => {
-        const correctMainMovie = () => {
-            const episodesList = episodes?.[0]?.server_data || [];
-            const realEpisodesCount = episodesList.length;
-
-            // Lấy số từ episode_total (ví dụ "169" từ "Tập 169" hoặc "169")
-            // episode_total có thể là number (sau update API kkphim), dùng String() để an toàn
-            const totNum = parseInt(String(movie.episode_total ?? "").match(/\d+/)?.[0] || "0");
-
-            // Nếu số tập thực tế có sẵn lớn hơn episode_total hiển thị, 
-            // hoặc episode_total không phải là số hợp lệ
-            if (realEpisodesCount > 0 && (realEpisodesCount > totNum || !totNum)) {
-                setMovie(prev => ({
-                    ...prev,
-                    episode_total: realEpisodesCount.toString()
-                }));
-            }
-        };
-        correctMainMovie();
-    }, [movie.slug, episodes, movie.episode_total]);
-
-    // Client-side fetch top weekly movies for sidebar in Detail Page (Lazy loaded)
-    useEffect(() => {
-        const fetchTopWeekly = async () => {
-            try {
-                // Sử dụng API phim bộ đồng nhất với Sidebar
-                const res = await axios.get(`/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/danh-sach/phim-bo?limit=40`)}`);
-                const items = res.data?.data?.items || res.data?.items || [];
-
-                if (items.length > 0) {
-                    // 1. Lọc trùng (mỗi phim chỉ hiện 1 phần) và chuẩn hóa dữ liệu
-                    const seenNames = new Set();
-                    const processed = items
-                        .map((m: any) => ({
-                            ...m,
-                            rating: m.tmdb?.vote_average || 0
-                        }))
-                        .filter((m: any) => {
-                            const name = m.name?.split(' (')[0]?.split(' - ')[0]?.trim() || m.name;
-                            if (seenNames.has(name)) return false;
-                            seenNames.add(name);
-                            return true;
-                        });
-
-                    // 2. Sắp xếp theo đánh giá (TMDB Rating) - Đồng bộ với Top phim bộ ở Sidebar
-                    processed.sort((a: any, b: any) => b.rating - a.rating);
-
-                    // 3. Lấy 10 phim đứng đầu cho trang chi tiết
-                    const finalItems = processed.slice(0, 10);
-                    setWeeklyMovies(finalItems);
-                    globalCache.set("top_weekly_detail", finalItems);
-                }
-            } catch (err) {
-                console.error("Error fetching top weekly (synced with sidebar):", err);
-            } finally {
-                setIsLoadingWeekly(false);
-            }
-        };
-
-        const isDesktop = typeof window !== 'undefined' && window.innerWidth >= 1280;
-        if (!isDesktop) {
-            setIsLoadingWeekly(false);
-            return;
-        }
-
-        // Defer sidebar request by 1.5 seconds to prioritize main content loading
-        const timer = setTimeout(() => {
-            if (!globalCache.get("top_weekly_detail")) {
-                fetchTopWeekly();
-            } else {
-                setIsLoadingWeekly(false);
-            }
-        }, 1500);
-
-        return () => clearTimeout(timer);
-    }, []);
-
-    // Effect to fetch Actors images (Lazy loaded when tab becomes active)
-    useEffect(() => {
-        if (activeTab !== 'Diễn viên' || hasFetchedActors) return;
+        if (hasFetchedActors) return;
         if (!movie.slug) return;
 
         const getActors = async () => {
@@ -260,10 +179,8 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                         setTmdbActors(actors);
                     }
                 } else {
-                    const INTERNAL_API_URL = process.env.NEXT_PUBLIC_INTERNAL_API_URL || 'http://localhost:5000/api';
-                    const res = await fetch(`${INTERNAL_API_URL}/phim/${movie.slug}/peoples`);
+                    const res = await fetch(`/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/phim/${movie.slug}/peoples`)}`);
                     const data = await res.json();
-
                     if (data.success || data.status === "success") {
                         const peoples = data.data?.peoples;
                         if (peoples && Array.isArray(peoples)) {
@@ -281,28 +198,17 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
                 }
                 setHasFetchedActors(true);
             } catch (error) {
-                console.error("Failed to fetch actors images:", error);
+                console.error("Failed to fetch actors:", error);
             } finally {
                 setIsLoadingActors(false);
             }
         };
 
         getActors();
-    }, [activeTab, movie.slug, movie.tmdb?.id, movie.tmdb?.type, hasFetchedActors]);
+    }, [movie.slug, movie.tmdb?.id, movie.tmdb?.type, hasFetchedActors]);
 
-    // Build tabs dynamically based on available data
-    const tabs = useMemo(() => {
-        const t = ['Tập phim', 'Tổng quan'];
-        if (movie.trailer_url) t.push('Trailer');
-        if (movie.actor && movie.actor.length > 0) t.push('Diễn viên');
-        // Luôn hiện tab Đề xuất — data sẽ load client-side
-        t.push('Đề xuất');
-        return t;
-    }, [movie.trailer_url, movie.actor]);
-
-    // Get first server episodes
+    // First server episodes & initial watch URL
     const firstServerEpisodes = episodes?.[0]?.server_data || [];
-
     const isTrailerOnly = useMemo(() => {
         return (movie.episode_current || '').toLowerCase().includes('trailer') ||
             (movie.quality || '').toLowerCase().includes('trailer');
@@ -313,487 +219,387 @@ export default function MovieDetailClient({ movie: initialMovie, episodes, sugge
         return getFriendlyEpisodeSlug(firstServerEpisodes[0]?.slug || 'tap-01');
     }, [isTrailerOnly, firstServerEpisodes]);
 
-    // Status text
-    // Status logic: Check both API status and common sense (episode count)
     const isCompleted = isMovieCompleted(movie);
-    const statusText = isCompleted ? 'Hoàn thành' : 'Đang cập nhật';
-
-    // TMDB rating
+    const statusText = isCompleted ? 'Đã hoàn thành' : 'Đang cập nhật';
     const rating = movie.tmdb?.vote_average ? movie.tmdb.vote_average.toFixed(1) : null;
+    const categoryStyles = useMemo(() => {
+        if (!movie.category || movie.category.length === 0) return [];
+        return getCategoryStyles(movie.category.map(c => c.slug));
+    }, [movie.category]);
 
     return (
-        <main className="min-h-screen pb-20 animate-fade-in">
-            {/* Background Cover */}
-            <div className="relative w-full h-[40vh] md:h-[50vh] xl:h-[80vh] overflow-hidden transform-gpu xl:-ml-[100px] xl:w-[calc(100%+100px)]">
-                <div className="absolute inset-0 scale-105 will-change-transform">
-                    {/* Instant blurred placeholder - priority must be TRUE for 0s loading */}
-                    <SmartImage
-                        r2Src={getR2MoviePosterUrl(movie.slug)}
-                        className="absolute opacity-20 inset-0 w-full h-full object-cover object-top"
-                        src={getImageUrl(movie.poster_url, { width: 300, quality: 80 })}
-                        rawSrc={getRawImageUrl(movie.poster_url)}
-                        alt={movie.name}
-                        fill
-                        sizes="(max-width: 768px) 120px, 160px"
-                    />
-
-                    {/* Main Background Thumb - Sharp image that fades in on top */}
+        <div className="min-h-screen pb-24 bg-[#0F1115] text-white">
+            {/* === 1. CINEMATIC HERO PANORAMA === */}
+            <div className="relative w-full min-h-[580px] sm:min-h-[640px] lg:min-h-[660px] xl:min-h-[700px] overflow-hidden flex items-end xl:-ml-[100px] xl:w-[calc(100%+100px)] bg-[#0F1115]">
+                {/* Backdrop Image with Multi-layer Scrim */}
+                <div className="absolute inset-0 z-0">
                     <SmartImage
                         r2Src={getR2MovieThumbUrl(movie.slug)}
-                        src={getImageUrl(movie.thumb_url, { width: 1200, quality: 75 })}
+                        src={getImageUrl(movie.thumb_url, { width: 1920, quality: 80 })}
                         rawSrc={getRawImageUrl(movie.thumb_url)}
-                        alt=""
+                        fallbackSrc={movie.poster_url ? getImageUrl(movie.poster_url, { width: 1200, quality: 75 }) : undefined}
+                        alt={movie.name}
                         fill
                         priority
                         sizes="100vw"
-                        className="object-cover object-top transform-gpu"
+                        className="object-cover object-top filter brightness-95"
                     />
-                    <div className="absolute inset-0 bg-black/40" />
-                    <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,0,0,0.35)_0.8px,transparent_0.8px)] [background-size:3px_3px] opacity-30 z-10 pointer-events-none" />
+                    {/* Cinematic Clean Overlays (Keeping 75% of backdrop clear & bright) */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-[#0F1115] via-[#0F1115]/60 via-30% to-transparent z-10 pointer-events-none" />
+                    <div className="absolute inset-0 bg-gradient-to-r from-[#0F1115]/75 via-[#0F1115]/20 via-45% to-transparent z-10 pointer-events-none" />
+                    <div className="absolute inset-x-0 top-0 h-28 bg-gradient-to-b from-[#0F1115]/60 to-transparent z-10 pointer-events-none" />
                 </div>
-                {/* Balanced Spotlight: Soft natural darkness on sides, bright center */}
-                <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_45%,#0F1115_100%)] z-10 opacity-85" />
-                <div className="absolute inset-x-0 bottom-0 h-[35%] bg-gradient-to-t from-[#0F1115] via-[#0F1115]/80 to-transparent z-10" />
-                <div className="absolute inset-x-0 top-0 h-[15%] bg-gradient-to-b from-[#0F1115]/40 to-transparent z-10" />
+
+                {/* Hero Content Showcase */}
+                <Container className="relative z-20 w-full pt-36 sm:pt-40 md:pt-32 lg:pt-36 pb-8 lg:pb-12 xl:pl-[120px]">
+                    <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-center md:items-end">
+                        {/* Poster Card */}
+                        <div className="flex-shrink-0 w-[140px] sm:w-[180px] md:w-[200px] lg:w-[230px] aspect-[2/3] rounded-lg overflow-hidden border border-white/15 shadow-[0_12px_40px_rgba(0,0,0,0.8)] bg-[#12151C] relative group">
+                            <SmartImage
+                                r2Src={getR2MoviePosterUrl(movie.slug)}
+                                src={getImageUrl(movie.poster_url || movie.thumb_url, { width: 380, quality: 85 })}
+                                rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url)}
+                                alt={movie.name}
+                                fill
+                                priority
+                                sizes="(max-width: 768px) 180px, 230px"
+                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                            />
+                            {/* Subtle Glass Border Highlight */}
+                            <div className="absolute inset-0 border border-white/10 rounded-lg pointer-events-none" />
+                        </div>
+
+                        {/* Title & Metadata Info */}
+                        <div className="flex-1 min-w-0 space-y-3 sm:space-y-4 text-center md:text-left">
+                            {/* Badges System */}
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-2">
+                                {rating && (
+                                    <div className="px-2.5 py-1 text-xs font-black bg-gradient-to-r from-pink-500 to-rose-400 text-white rounded-md shadow-sm flex items-center gap-1 leading-none">
+                                        <span>★</span>
+                                        <span>{rating}</span>
+                                    </div>
+                                )}
+                                <div className="px-2.5 py-1 text-xs font-bold bg-[#A7F3D0] text-emerald-950 rounded-md shadow-sm leading-none">
+                                    {movie.year || "2024"}
+                                </div>
+                                <div className="px-2.5 py-1 text-xs font-bold bg-[#F5CAE3] text-pink-950 rounded-md shadow-sm leading-none">
+                                    {getEpisodeStatus(movie)}
+                                </div>
+                                {movie.quality && (
+                                    <div className="px-2.5 py-1 text-xs font-bold bg-[#FAD078] text-amber-950 rounded-md shadow-sm leading-none">
+                                        {movie.quality}
+                                    </div>
+                                )}
+                                <div className="px-2.5 py-1 text-xs font-bold bg-[#C084FC] text-purple-950 rounded-md shadow-sm leading-none">
+                                    {((movie as any).lang_tag || movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
+                                </div>
+                            </div>
+
+                            {/* Titles */}
+                            <div className="space-y-1">
+                                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-tight font-montserrat tracking-tight drop-shadow-md">
+                                    {decodeHtml(movie.name)}
+                                </h1>
+                                <p className="text-white/60 text-sm sm:text-base font-medium italic">
+                                    {decodeHtml(movie.origin_name)}
+                                </p>
+                            </div>
+
+                            {/* Genres */}
+                            {movie.category && movie.category.length > 0 && (
+                                <div className="flex flex-wrap items-center justify-center md:justify-start gap-1.5 sm:gap-2 pt-0.5">
+                                    {movie.category.map((cat, idx) => {
+                                        const finalSlug = generateCategorySlug(cat.slug, cat.name);
+                                        return (
+                                            <TransitionLink
+                                                key={finalSlug || idx}
+                                                href={`/the-loai/${finalSlug}`}
+                                                className={`px-3 py-1 text-xs font-semibold bg-white/5 hover:bg-white/15 border border-white/10 ${categoryStyles[idx]?.text || 'text-white/80'} rounded-full transition-all`}
+                                            >
+                                                {cat.name}
+                                            </TransitionLink>
+                                        );
+                                    })}
+                                </div>
+                            )}
+
+                            {/* CTA Action Buttons */}
+                            <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-2">
+                                {/* Watch Now */}
+                                <TransitionLink
+                                    href={`/phim/${movie.slug}/${watchEpisodeSlug}`}
+                                    className="h-11 sm:h-12 px-6 sm:px-8 rounded-full bg-[#D497FF] hover:brightness-110 text-black font-extrabold text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(212,151,255,0.35)] hover:shadow-[0_0_30px_rgba(212,151,255,0.6)] transition-all duration-300 transform-gpu active:scale-95 cursor-pointer"
+                                >
+                                    <Play size={16} fill="currentColor" className="ml-0.5" />
+                                    <span>Xem Ngay</span>
+                                </TransitionLink>
+
+                                {/* Trailer Button */}
+                                {movie.trailer_url && (
+                                    <button
+                                        onClick={() => setShowTrailerModal(true)}
+                                        className="h-11 sm:h-12 px-5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-sm flex items-center justify-center gap-2 transition-all cursor-pointer"
+                                    >
+                                        <Video size={16} />
+                                        <span>Trailer</span>
+                                    </button>
+                                )}
+                                <div className="flex items-center gap-3">
+                                    {/* Favorite Button */}
+                                    <div className="h-11 sm:h-12 w-11 sm:w-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center transition-all">
+                                        <FavoriteButton movie={movie} iconSize={18} />
+                                    </div>
+
+                                    {/* Watchlist Button */}
+                                    <div className="h-11 sm:h-12 w-11 sm:w-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center transition-all">
+                                        <WatchlistButton movie={movie} iconSize={18} />
+                                    </div>
+
+                                    {/* Share Button */}
+                                    <button
+                                        onClick={() => setShowShareModal(true)}
+                                        className="h-11 sm:h-12 w-11 sm:w-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white/80 hover:text-white transition-all cursor-pointer"
+                                        title="Chia sẻ"
+                                    >
+                                        <Share2 size={18} />
+                                    </button>
+
+                                    {/* Scroll to Comment */}
+                                    <button
+                                        onClick={() => {
+                                            document.getElementById('comment-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                                        }}
+                                        className="h-11 sm:h-12 w-11 sm:w-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white/80 hover:text-white transition-all cursor-pointer"
+                                        title="Bình luận"
+                                    >
+                                        <MessageSquare size={18} />
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </Container>
             </div>
 
-            {/* Main Content Container */}
-            <Container className="lg:-mt-32 -mt-45 p-[20px] lg:-mt-48 relative z-30">
-                <div className="flex flex-col xl:flex-row gap-6 md:gap-8">
+            {/* === 2. MAIN CONTENT BODY === */}
+            <Container className="mt-6 lg:mt-8 space-y-10 lg:space-y-12">
+                {/* 2.1. EPISODE HUB (Khu vực Chọn tập phim) */}
+                <section className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl">
+                    <EpisodeList
+                        slug={slug}
+                        movieName={movie.name}
+                        currentEpisode=""
+                        episodes={processedEpisodes}
+                        activeServer={activeServerIndex}
+                        onServerChange={handleServerChange}
+                        showServers={true}
+                    />
+                </section>
 
-                    {/* DC SIDE - Movie Info Column */}
-                    <div className="dc-side w-full xl:w-[440px] shrink-0">
-                        <div className="ds-info p-[20px] lg:p-[40px] bg-[#0F1115]/50 border border-white/5 rounded-3xl relative transform-gpu will-change-[filter]">
-
-                            <div className="v-thumb-l xl:block flex justify-center mb-6">
-                                <div className="v-thumbnail relative w-[120px] h-[180px] lg:w-[160px] lg:h-[240px] rounded-2xl overflow-hidden transform-gpu">
-                                    <SmartImage
-                                        r2Src={getR2MoviePosterUrl(movie.slug)}
-                                        className="absolute inset-0 w-full h-full object-cover object-top"
-                                        src={getImageUrl(movie.poster_url, { width: 300, quality: 80 })}
-                                        rawSrc={getRawImageUrl(movie.poster_url)}
-                                        alt={movie.name}
-                                        fill
-                                        sizes="(max-width: 768px) 120px, 160px"
-                                    />
-                                </div>
-                            </div>
-
-                            <h1 className="text-xl line-clamp-1 md:text-2xl text-center xl:text-left font-bold text-white mb-1 leading-tight font-montserrat">
-                                {decodeHtml(movie.name)}
-                            </h1>
-                            <div className="text-sm text-white/40 line-clamp-1 text-center xl:text-left mb-5 font-medium">
-                                {decodeHtml(movie.origin_name)}
-                            </div>
-
-                            <div className="detail-more xl:block hidden space-y-5">
-                                <div className="hl-tags flex flex-wrap gap-2">
-                                    {rating && (
-                                        <div className="flex items-center gap-1.5 px-2 py-1 bg-[#f5c518] rounded-md text-black font-bold text-[10px]">
-                                            <span className="text-[9px]">★</span>
-                                            <span>{rating}</span>
-                                        </div>
-                                    )}
-                                    <div className="px-2 py-1 bg-[#A7F3D0] rounded-md text-emerald-950 text-[11px] font-bold">{movie.year}</div>
-                                    <div className="px-2 py-1 bg-[#F5CAE3] rounded-md text-pink-950 text-[11px] font-bold">{getEpisodeStatus(movie)}</div>
-                                </div>
-
-                                {movie.category && movie.category.length > 0 && (() => {
-                                    const styles = getCategoryStyles(movie.category.map((c) => c.slug));
-                                    return (
-                                        <div className="hl-tags flex flex-wrap gap-2">
-                                            {movie.category.map((cat, idx) => {
-                                                const finalSlug = generateCategorySlug(cat.slug, cat.name);
-                                                return (
-                                                <TransitionLink key={finalSlug || idx} href={`/the-loai/${finalSlug}`} className={`px-3 py-1 bg-white/5 ${styles[idx].text} border-white/10 border rounded-full text-[11px] font-bold hover:brightness-110 transition-all`}>
-                                                    {cat.name}
-                                                </TransitionLink>
-                                                )
-                                            })}
-                                        </div>
-                                    );
-                                })()}
-
-                                <div className={`status-box p-3 ${isCompleted ? 'bg-green-500/10 border-green-500/20 text-green-400' : 'bg-pink-500/10 border-pink-500/20 text-pink-400'} border rounded-xl flex items-center gap-3`}>
-                                    {isCompleted && (
-                                        <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" height="18" width="18"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM369 209L241 337c-9.4 9.4-24.6 9.4-33.9 0l-64-64c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l47 47L335 175c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9z"></path></svg>
-                                    )}
-                                    <span className="text-xs font-bold leading-none">
-                                        {statusText}: {getEpisodeStatus(movie)} / {movie.episode_total || '??'} Tập
-                                    </span>
-                                </div>
-
-                                {movie.content && (
-                                    <div className="detail-line">
-                                        <div className="text-white/40 text-xs font-bold uppercase tracking-wider mb-2">Giới thiệu:</div>
-                                        <p className="text-[13px] text-white/70 leading-relaxed line-clamp-4">
-                                            {cleanContent(movie.content)}
-                                        </p>
-                                    </div>
-                                )}
-
-                                <div className="space-y-3 pt-2">
-                                    {movie.time && (
-                                        <div className="flex items-center justify-between text-xs">
-                                            <span className="text-white/40 font-medium font-bold uppercase tracking-wider">Thời lượng:</span>
-                                            <span className="text-white font-medium">{movie.time}</span>
-                                        </div>
-                                    )}
-                                    {movie.country && movie.country.length > 0 && (
-                                        <div className="flex items-center justify-between text-xs">
-                                            <span className="text-white/40 font-medium font-bold uppercase tracking-wider">Quốc gia:</span>
-                                            <div className="flex gap-2">
-                                                {movie.country.map((c) => (
-                                                    <TransitionLink key={c.slug} href={`/quoc-gia/${c.slug}`} className="text-[#D497FF] font-medium hover:underline">
-                                                        {c.name}
-                                                    </TransitionLink>
-                                                ))}
-                                            </div>
-                                        </div>
-                                    )}
-                                </div>
-
-                                {movie.director && movie.director.length > 0 && movie.director[0] !== '' && (
-                                    <div className="detail-line pt-2">
-                                        <div className="text-white/40 text-xs font-bold uppercase tracking-wider mb-3">Đạo diễn:</div>
-                                        <div className="flex flex-wrap gap-2">
-                                            {movie.director.map((d, idx) => (
-                                                <span key={idx} className="px-3 py-1.5 bg-white/5 hover:bg-white/10 rounded-lg text-[10px] text-white/50 transition-all">{d}</span>
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Top phim tuần này - Added as requested */}
-                        {!isLoadingWeekly && weeklyMovies.length > 0 && (
-                            <div className="hidden xl:block child-box child-top mt-6 bg-[#0F1115]/50 border border-white/5 rounded-3xl overflow-hidden relative transform-gpu">
-                                <div className="child-header flex items-center gap-3 px-6 py-5 border-b border-white/5 bg-white/5">
-                                    <div className="inc-icon">
-                                        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 25" fill="none">
-                                            <g clipPath="url(#clip0_137_1522)">
-                                                <path fillRule="evenodd" clipRule="evenodd" d="M1.88063 16.9893C1.85433 14.5926 3.02764 11.8941 5.01236 10.0083C6.37475 8.71478 9.24978 6.77138 13.4408 7.83575L12.9199 8.87882C12.8072 9.09921 12.5893 9.25197 12.3376 9.28829L8.75391 9.81296C8.44337 9.84426 8.15161 9.98951 7.93247 10.2199C7.67577 10.4879 7.53929 10.8385 7.54805 11.2092C7.55682 11.5761 7.70708 11.9154 7.97004 12.1646L10.5758 14.6715C10.7536 14.838 10.835 15.0847 10.7937 15.3289L10.7499 15.5793C8.00009 14.1844 4.54279 15.2888 1.88063 16.9893ZM23.5748 12.1671C23.799 11.9555 23.9455 11.6675 23.988 11.3532C24.0356 10.9863 23.938 10.6244 23.7151 10.3351C23.4909 10.0459 23.1666 9.86054 22.8047 9.81421L19.2097 9.28829C18.958 9.25197 18.7401 9.09921 18.6299 8.88133L17.0221 5.66319L17.0208 5.66069C16.8869 5.39773 16.6777 5.19112 16.4198 5.06214C16.0867 4.88934 15.7085 4.85678 15.3517 4.96823C14.9935 5.07967 14.7018 5.32635 14.5277 5.66319L14.2986 6.12275C10.4356 5.00955 6.58762 5.92114 3.71885 8.64591C0.810006 11.4095 -0.591196 15.5255 0.233998 18.8876C0.310382 19.1982 0.539533 19.4473 0.841311 19.5513C0.941486 19.5863 1.04417 19.6026 1.14685 19.6026C1.35471 19.6026 1.56132 19.5325 1.72912 19.3998C3.68629 17.8521 7.69831 15.7096 10.3216 17.4977C10.3492 17.5165 10.3805 17.519 10.4093 17.5352L10.1776 18.8601C10.1275 19.1493 10.1776 19.4599 10.3216 19.7366C10.6797 20.4128 11.5225 20.672 12.2012 20.3189L15.4143 18.6547C15.6384 18.537 15.9101 18.5357 16.1343 18.6535L19.3562 20.3226C19.5703 20.4266 19.7919 20.4792 20.0098 20.4792C20.0812 20.4792 20.1513 20.4729 20.2202 20.4616C20.9778 20.3326 21.4949 19.6164 21.371 18.8601L20.7574 15.3289C20.7148 15.0835 20.795 14.838 20.9765 14.669L23.5748 12.1671Z" fill="currentColor"></path>
-                                            </g>
-                                            <defs>
-                                                <clipPath id="clip0_137_1522">
-                                                    <rect width="24" height="24" fill="white" transform="translate(0 0.5)"></rect>
-                                                </clipPath>
-                                            </defs>
-                                        </svg>
-                                    </div>
-                                    <span className="text-[14px] font-bold uppercase tracking-wider text-white/90">Top phim tuần này</span>
-                                </div>
-                                <div className="child-content p-5">
-                                    <div className="cc-top space-y-5">
-                                        {weeklyMovies.map((m, index) => (
-                                            <div key={m._id} className="item flex items-center gap-2 group border-b border-white/5 pb-4 last:border-0">
-                                                <div className="position-outline flex-shrink-0 w-[45px] text-left leading-none select-none transition-transform duration-500 group-hover:scale-110"
-                                                    style={{
-                                                        fontSize: '2.5em',
-                                                        fontWeight: 900,
-                                                        color: 'transparent',
-                                                        WebkitTextStroke: index === 0 ? '1.5px #ef4444' :
-                                                            index === 1 ? '1.5px #eab308' :
-                                                                index === 2 ? '1.5px #3b82f6' :
-                                                                    '1px rgba(255,255,255,0.4)',
-                                                        textShadow: index === 0 ? '0 0 12px rgba(239, 68, 68, 0.4)' :
-                                                            index === 1 ? '0 0 12px rgba(234, 179, 8, 0.4)' :
-                                                                index === 2 ? '0 0 12px rgba(59, 130, 246, 0.4)' : 'none',
-                                                        fontFamily: 'var(--font-montserrat), sans-serif',
-                                                        opacity: index < 3 ? 1 : 0.45
-                                                    }}>
-                                                    {index + 1}
-                                                </div>
-                                                <div className="h-item flex flex-1 gap-4 overflow-hidden">
-                                                    <TransitionLink href={`/phim/${m.slug}`} className="v-thumb-m relative w-[52px] h-[72px] shrink-0 rounded-xl overflow-hidden bg-white/5">
-                                                        <SmartImage
-                                                            src={getImageUrl(m.poster_url || m.thumb_url || "", { width: 120, quality: 70 })}
-                                                            rawSrc={getRawImageUrl(m.poster_url || m.thumb_url || "")}
-                                                            alt={m.name}
-                                                            fill
-                                                            sizes="52px"
-                                                            className="absolute inset-0 w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
-                                                        />
-                                                        <div className="absolute inset-0 bg-black/20 group-hover:bg-transparent transition-colors" />
-                                                    </TransitionLink>
-                                                    <div className="info flex-1 min-w-0 flex flex-col justify-center">
-                                                        <h4 className="item-title truncate text-[14px] font-bold text-white group-hover:text-[#D497FF] transition-colors mb-0.5">
-                                                            <TransitionLink href={`/phim/${m.slug}`} title={m.name}>{decodeHtml(m.name)}</TransitionLink>
-                                                        </h4>
-                                                        <div className="alias-title text-[11px] text-white/40 font-medium italic truncate mb-2">{decodeHtml(m.origin_name)}</div>
-                                                        <div className="info-line flex gap-2">
-                                                            <div className="tag-small px-1.5 py-0.5 bg-white/5 rounded text-[9.5px] font-bold text-white/30">{m.year}</div>
-                                                            <div className="tag-small px-1.5 py-0.5 bg-[#D497FF]/10 rounded text-[#D497FF] text-[9.5px] font-bold tracking-tighter">
-                                                                {(() => {
-                                                                    const cur = m.episode_current || "";
-                                                                    const slashMatch = cur.match(/(\d+\/\d+)/);
-                                                                    if (slashMatch) return `HT (${slashMatch[1]})`;
-                                                                    if (cur.toLowerCase().includes('hoàn tất') || cur.toLowerCase().includes('full')) {
-                                                                        const numMatch = cur.match(/\d+/);
-                                                                        return numMatch ? `HT (${numMatch[0]}/${numMatch[0]})` : "HT (Full)";
-                                                                    }
-                                                                    const numOnly = cur.match(/\d+/);
-                                                                    return numOnly ? `Tập ${numOnly[0]}` : (m.quality || "HD");
-                                                                })()}
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        ))}
-                                    </div>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-
-                    {/* Right Column - Tabs Content */}
-                    <div className="dc-side w-full flex-1 shrink-0">
-                        <div className="ds-info p-[20px] lg:p-[40px] bg-[#0F1115]/50 border border-white/5 rounded-3xl relative transform-gpu will-change-[filter]">
-                            {/* DM Bar: Watch Now & Rating */}
-                            <div className="flex flex-wrap items-center justify-between gap-6 mb-10">
-                                <div className="flex flex-wrap items-center gap-3">
-                                    <TransitionLink
-                                        href={`/phim/${movie.slug}/${watchEpisodeSlug}`}
-                                        className="relative overflow-hidden group flex items-center gap-3 bg-gradient-to-r from-[#D497FF] to-[#D497FF] hover:brightness-110 text-black py-2 px-6 md:py-4 md:px-8 rounded-full font-bold transition-transform duration-200 active:scale-95 cursor-pointer shadow-[0_0_20px_rgba(212,151,255,0.4)] hover:shadow-[0_0_30px_rgba(212,151,255,0.6)]"
-                                    >
-                                        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/30 to-transparent animate-btn-shine pointer-events-none" />
-                                        <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center group-hover:bg-white/30 transition-colors z-10">
-                                            <i className="fa-solid fa-play text-sm ml-0.5"></i>
-                                        </div>
-                                        <span className="tracking-wider text-lg">Xem Ngay</span>
-                                    </TransitionLink>
-
-                                    <div className="flex items-center gap-3">
-                                        <FavoriteButton
-                                            movie={movie}
-                                            className="cursor-pointer transition-transform duration-200 active:scale-90 flex items-center justify-center w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-rose-500/20 hover:text-rose-400 hover:border-rose-500/50 text-white border border-white/10 shadow-lg group-hover:animate-pulse"
-                                            iconSize={18}
-                                        />
-
-                                        <WatchlistButton
-                                            movie={movie}
-                                            className="cursor-pointer transition-transform duration-200 active:scale-90 flex items-center justify-center w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-amber-500/20 hover:text-amber-400 hover:border-amber-500/50 text-white border border-white/10 shadow-lg"
-                                            iconSize={18}
-                                        />
-
-                                        <button
-                                            onClick={() => {
-                                                document.getElementById('comment-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                            }}
-                                            className="w-10 h-10 md:w-[50px] md:h-[50px] rounded-full bg-white/5 hover:bg-white/10 flex items-center justify-center text-white border border-white/10 transition-all duration-200 active:scale-90 cursor-pointer group"
-                                            title="Bình luận"
-                                        >
-                                            <MessageSquare size={18} className="group-hover:scale-110 transition-transform" />
-                                        </button>
-                                    </div>
-                                </div>
-                                <div className="flex items-center gap-2 md:gap-4 bg-white/5 md:px-4 md:py-2 px-2 py-1 rounded-2xl border border-white/10">
-                                    <div className="flex items-center gap-1 md:gap-2">
-                                        <i className="text-[#f5c518] text-xl">★</i>
-                                        <span className="text-sm font-black text-white tracking-tighter">
-                                            {rating || 'N/A'}
-                                        </span>
-                                    </div>
-                                    <div className="h-8 w-px bg-white/10"></div>
-                                    <span className="text-gray-400 text-xs tracking-widest">Đánh giá</span>
-                                </div>
-                            </div>
-
-                            <div className="flex overflow-none items-center flex-wrap gap-4 lg:gap-8 xl:gap-12 border-b border-white/5 mb-8 pb-2 md:pb-1">
-                                {tabs.map((tab) => (
-                                    <button
-                                        key={tab}
-                                        onClick={() => setActiveTab(tab)}
-                                        className={`pb-2 md:pb-4 text-xs font-bold cursor-pointer uppercase tracking-[0.2em] transition-all relative shrink-0 ${activeTab === tab ? 'text-[#D497FF]' : 'text-gray-500 hover:text-white'
-                                            }`}
-                                    >
-                                        {tab}
-                                        {activeTab === tab && (
-                                            <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#D497FF] rounded-full" />
-                                        )}
-                                    </button>
-                                ))}
-                            </div>
-
-                            <div className="tab-content">
-                                {/* Episodes Tab */}
-                                {activeTab === 'Tập phim' && (
-                                    <EpisodeList
-                                        slug={slug}
-                                        movieName={movie.name}
-                                        currentEpisode=""
-                                        episodes={processedEpisodes}
-                                        activeServer={activeServerIndex}
-                                        onServerChange={handleServerChange}
-                                        onEpisodeClick={handleEpisodeClick}
-                                        showServers={true}
-                                    />
-                                )}
-
-                                {/* Overview Tab */}
-                                {activeTab === 'Tổng quan' && (
-                                    <div className="space-y-6">
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-4">
-                                            {([
-                                                { label: 'Trạng thái', value: statusText, color: isCompleted ? 'text-green-400' : 'text-pink-400' },
-                                                { label: 'Số tập', value: `${getEpisodeStatus(movie)} / ${movie.episode_total || '??'} Tập` },
-                                                { label: 'Thời lượng', value: movie.time || 'N/A' },
-                                                { label: 'Chất lượng', value: `${movie.quality || 'HD'} - ${(movie as any).lang_tag || movie.lang || 'Vietsub'}` },
-                                                { label: 'Năm', value: String(movie.year) },
-                                                { label: 'Quốc gia', value: movie.country?.map(c => c.name).join(', ') || 'N/A' },
-                                                { label: 'Thể loại', value: movie.category?.map(c => c.name).join(', ') || 'N/A', isCustom: true, items: movie.category },
-                                                { label: 'Đạo diễn', value: movie.director?.filter(d => d !== '').join(', ') || 'N/A' }
-                                            ] as any[]).map((item, idx) => (
-                                                <div key={idx} className="flex items-start justify-between border-b border-white/5 pb-3 gap-4">
-                                                    <span className="text-gray-500 text-[11px] font-bold uppercase tracking-widest whitespace-nowrap shrink-0 pt-0.5">{item.label}</span>
-                                                    {item.isTag ? (
-                                                        <span className="px-2 py-0.5 bg-white/10 rounded text-[11px] text-white/80 text-right">{item.value}</span>
-                                                    ) : item.isCustom ? (
-                                                        <div className="flex flex-wrap gap-1 justify-end text-sm font-medium text-white/80">
-                                                            {item.items && item.items.length > 0 ? item.items.map((c: any, i: number) => {
-                                                                const finalSlug = generateCategorySlug(c.slug, c.name);
-                                                                return (
-                                                                    <TransitionLink key={i} href={`/the-loai/${finalSlug}`} className="hover:text-[#D497FF] hover:underline transition-colors text-right">
-                                                                        {c.name}{i < item.items.length - 1 ? ', ' : ''}
-                                                                    </TransitionLink>
-                                                                )
-                                                            }) : 'N/A'}
-                                                        </div>
-                                                    ) : item.isLink ? (
-                                                        <span className="text-[#D497FF] text-sm font-medium hover:underline cursor-pointer text-right">{item.value}</span>
-                                                    ) : (
-                                                        <span className={`text-sm font-medium ${item.color || 'text-white/80'} text-right`}>{item.value}</span>
-                                                    )}
-                                                </div>
-                                            ))}
-                                        </div>
-                                        {movie.content && (
-                                            <div className="pt-4 mt-6 border-t border-white/5">
-                                                <div className="flex items-center gap-2 mb-4">
-                                                    <div className="w-1 h-4 bg-[#D497FF] rounded-full"></div>
-                                                    <h3 className="text-sm font-bold text-white uppercase tracking-widest">Nội dung phim</h3>
-                                                </div>
-                                                <p className="text-gray-400 leading-8 text-[15px] font-light">
-                                                    {cleanContent(movie.content)}
-                                                </p>
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
-                                {/* Trailer Tab */}
-                                {activeTab === 'Trailer' && movie.trailer_url && (
-                                    <div className="relative aspect-video rounded-3xl overflow-hidden">
-                                        <iframe
-                                            src={getYoutubeEmbedUrl(movie.trailer_url)}
-                                            className="absolute inset-0 w-full h-full"
-                                            allowFullScreen
-                                            allow="autoplay; encrypted-media"
-                                        />
-                                    </div>
-                                )}
-
-                                {/* Actors Tab */}
-                                {activeTab === 'Diễn viên' && (
-                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 gap-3">
-                                        {isLoadingActors ? (
-                                            Array.from({ length: 6 }).map((_, idx) => (
-                                                <div key={idx} className="group w-full">
-                                                    <div className="aspect-[3/4] bg-white/5 rounded-2xl mb-3 overflow-hidden relative">
-                                                        <Skeleton className="absolute inset-0" rounded="none" />
-                                                    </div>
-                                                    <div className="w-2/3 h-3 bg-white/10 rounded mx-auto mb-1.5" />
-                                                    <div className="w-1/2 h-2.5 bg-white/5 rounded mx-auto" />
-                                                </div>
-                                            ))
-                                        ) : tmdbActors.length > 0 ? (
-                                            tmdbActors.map((actor) => (
-                                                <div key={actor.id} className="group w-full cursor-pointer">
-                                                    <div className="aspect-[3/4] bg-white/5 rounded-2xl mb-3 flex items-center justify-center group-hover:border-[#f5a623]/30 transition-all overflow-hidden relative">
-                                                        {actor.profile_path ? (
-                                                            <SmartImage
-                                                                r2Src={getR2ActorUrl(actor.id)}
-                                                                src={getImageUrl(`https://image.tmdb.org/t/p/w200${actor.profile_path}`, { width: 160, quality: 75 })}
-                                                                rawSrc={`https://image.tmdb.org/t/p/w200${actor.profile_path}`}
-                                                                alt={actor.name}
-                                                                fill
-                                                                className="object-cover transition-transform duration-500"
-                                                                sizes="(max-width: 160px) 100px, 150px"
-                                                            />
-                                                        ) : (
-                                                            <i className="fa-solid fa-user text-3xl text-white/10 group-hover:text-[#f5a623]/30 transition-colors"></i>
-                                                        )}
-                                                    </div>
-                                                    <div className="text-center">
-                                                        <div className="text-xs font-bold text-gray-200 group-hover:text-[#f5a623] transition-colors truncate px-1">
-                                                            {actor.name}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))
-                                        ) : movie.actor && movie.actor.length > 0 ? (
-                                            // Fallback to name-only if TMDB fails after loading
-                                            movie.actor.map((actor, idx) => (
-                                                <div key={idx} className="group cursor-pointer">
-                                                    <div className="aspect-[3/4] bg-white/5 rounded-2xl mb-3 flex items-center justify-center border border-white/5 group-hover:border-[#f5a623]/30 transition-all overflow-hidden relative">
-                                                        <i className="fa-solid fa-user text-3xl text-white/10 group-hover:text-[#f5a623]/30 transition-colors"></i>
-                                                    </div>
-                                                    <div className="text-center">
-                                                        <div className="text-xs font-bold text-gray-400 group-hover:text-white transition-colors truncate px-1">
-                                                            {actor}
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            ))
-                                        ) : (
-                                            <div className="col-span-full py-10 text-center text-gray-500">
-                                                Chưa cập nhật thông tin diễn viên.
-                                            </div>
-                                        )}
-                                    </div>
-                                )}
-
-                                {/* Suggestions Tab */}
-                                {activeTab === 'Đề xuất' && (
-                                    filteredSuggestions.length > 0 ? (
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-x-2 gap-y-8 md:gap-x-3 md:gap-y-10">
-                                            {filteredSuggestions.map((m) => (
-                                                <div key={m._id} className="transform hover:scale-[1.02] transition-transform">
-                                                    <MoviePosterCard movie={m} />
-                                                </div>
-                                            ))}
-                                        </div>
-                                    ) : (
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 2xl:grid-cols-6 gap-x-2 gap-y-8 md:gap-x-3 md:gap-y-10">
-                                            {[...Array(6)].map((_, i) => (
-                                                <div key={i} className="space-y-3">
-                                                    <Skeleton className="aspect-[2/3]" rounded="2xl" />
-                                                    <Skeleton className="h-4 w-3/4 mx-auto" />
-                                                    <Skeleton className="h-3 w-1/2 mx-auto opacity-50" />
-                                                </div>
-                                            ))}
-                                        </div>
-                                    )
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Phần bình luận */}
-                        <div id="comment-section" className="mt-8 pt-8 border-t border-white/5">
-                            <LazyRow
-                                id={`comments-${movie.slug}`}
-                                estimatedHeight="200px"
-                                skeleton={<Skeleton className="h-40" rounded="2xl" />}
+                {/* 2.2. BENTO METADATA & STORY SYNOPSIS */}
+                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    {/* Left 2 Cols: Synopsis Story */}
+                    <div className="lg:col-span-2 bg-[#12151C]/60 border border-white/10 rounded-2xl p-5 sm:p-7 flex flex-col justify-between transition-all">
+                        <div className="space-y-3">
+                            {/* Header có toggle trên Mobile & Tablet */}
+                            <div
+                                onClick={() => setIsSynopsisExpanded(!isSynopsisExpanded)}
+                                className="flex items-center justify-between cursor-pointer lg:cursor-default select-none"
                             >
-                                <CommentSection movieSlug={movie.slug} />
-                            </LazyRow>
+                                <div className="flex items-center gap-2">
+                                    <div className="w-1.5 h-4 bg-[#D497FF] rounded-full" />
+                                    <h3 className="text-base font-bold text-white uppercase tracking-wider">
+                                        Nội Dung Phim
+                                    </h3>
+                                </div>
+
+                                {/* Nút bấm mở/thu gọn chỉ hiện trên Mobile & Tablet */}
+                                <div className="flex items-center gap-1 text-xs font-bold text-[#D497FF] lg:hidden">
+                                    <span>{isSynopsisExpanded ? "Thu gọn" : "Xem nội dung"}</span>
+                                    <ChevronRight
+                                        size={16}
+                                        className={`transform transition-transform duration-300 ${isSynopsisExpanded ? "-rotate-90" : "rotate-90"}`}
+                                    />
+                                </div>
+                            </div>
+
+                            {/* Nội dung phim: Desktop luôn hiện full, Mobile/Tablet ẩn hoàn toàn khi đóng và hiện full khi mở */}
+                            <div className={`${isSynopsisExpanded ? "block animate-fade-in" : "hidden lg:block"} pt-1`}>
+                                <p className="text-white/75 text-sm sm:text-base leading-relaxed">
+                                    {cleanContent(movie.content) || "Bộ phim hấp dẫn đang được phát sóng với chất lượng cao trên LoFilm..."}
+                                </p>
+                            </div>
                         </div>
                     </div>
 
+                    {/* Right 1 Col: Quick Bento Info */}
+                    <div className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-6 space-y-4">
+                        <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                            <div className="w-1.5 h-4 bg-[#A7F3D0] rounded-full" />
+                            <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                                Thông Tin Chi Tiết
+                            </h3>
+                        </div>
+
+                        <div className="space-y-3 text-xs sm:text-sm">
+                            <div className="flex items-center justify-between">
+                                <span className="text-white/50 font-medium">Trạng thái:</span>
+                                <span className={`font-bold ${isCompleted ? 'text-emerald-400' : 'text-pink-400'}`}>
+                                    {statusText}
+                                </span>
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                                <span className="text-white/50 font-medium">Thời lượng:</span>
+                                <span className="text-white font-semibold">{movie.time || "Đang cập nhật"}</span>
+                            </div>
+
+                            <div className="flex items-center justify-between">
+                                <span className="text-white/50 font-medium">Quốc gia:</span>
+                                <div className="flex gap-1.5">
+                                    {movie.country && movie.country.length > 0 ? (
+                                        movie.country.map((c) => (
+                                            <TransitionLink key={c.slug} href={`/quoc-gia/${c.slug}`} className="text-[#D497FF] font-semibold hover:underline">
+                                                {c.name}
+                                            </TransitionLink>
+                                        ))
+                                    ) : (
+                                        <span className="text-white font-semibold">Đang cập nhật</span>
+                                    )}
+                                </div>
+                            </div>
+
+                            {movie.director && movie.director.length > 0 && movie.director[0] !== "" && (
+                                <div className="flex items-start justify-between gap-2 pt-1 border-t border-white/5">
+                                    <span className="text-white/50 font-medium whitespace-nowrap">Đạo diễn:</span>
+                                    <span className="text-white/90 font-semibold text-right">{movie.director.join(", ")}</span>
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 </div>
+
+                {/* 2.3. CAST & CREW (Dàn Diễn Viên) */}
+                <section className="space-y-4">
+                    <div className="flex items-center gap-2.5">
+                        <div className="w-1.5 h-5 bg-[#FAD078] rounded-full" />
+                        <h2 className="text-lg sm:text-xl font-extrabold text-white uppercase tracking-wider">
+                            Dàn Diễn Viên
+                        </h2>
+                    </div>
+
+                    {isLoadingActors ? (
+                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+                            {Array.from({ length: 8 }).map((_, idx) => (
+                                <div key={idx} className="space-y-2">
+                                    <Skeleton className="aspect-[3/4] w-full" rounded="lg" />
+                                    <Skeleton className="h-3 w-3/4 mx-auto" rounded="md" />
+                                </div>
+                            ))}
+                        </div>
+                    ) : tmdbActors.length > 0 ? (
+                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+                            {tmdbActors.slice(0, 16).map((actor) => (
+                                <div key={actor.id} className="group flex flex-col items-center text-center space-y-1.5">
+                                    <div className="relative aspect-[3/4] w-full rounded-lg overflow-hidden bg-[#12151C] border border-white/10 group-hover:border-[#D497FF]/50 transition-all duration-300 shadow-md">
+                                        {actor.profile_path ? (
+                                            <SmartImage
+                                                r2Src={getR2ActorUrl(actor.id)}
+                                                src={getImageUrl(`https://image.tmdb.org/t/p/w200${actor.profile_path}`, { width: 160, quality: 75 })}
+                                                rawSrc={`https://image.tmdb.org/t/p/w200${actor.profile_path}`}
+                                                alt={actor.name}
+                                                fill
+                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                sizes="(max-width: 768px) 30vw, 150px"
+                                            />
+                                        ) : (
+                                            <div className="w-full h-full flex items-center justify-center text-white/20">
+                                                <User size={32} />
+                                            </div>
+                                        )}
+                                    </div>
+                                    <span className="text-xs font-bold text-white/90 group-hover:text-[#D497FF] transition-colors truncate w-full px-1">
+                                        {actor.name}
+                                    </span>
+                                    {actor.character && (
+                                        <span className="text-[10px] text-white/40 truncate w-full px-1">
+                                            {actor.character}
+                                        </span>
+                                    )}
+                                </div>
+                            ))}
+                        </div>
+                    ) : movie.actor && movie.actor.length > 0 ? (
+                        <div className="flex flex-wrap gap-2">
+                            {movie.actor.map((act, i) => (
+                                <span key={i} className="px-3 py-1.5 bg-[#12151C] border border-white/10 rounded-lg text-xs font-semibold text-white/80">
+                                    {act}
+                                </span>
+                            ))}
+                        </div>
+                    ) : (
+                        <p className="text-xs text-white/40 italic">Đang cập nhật danh sách diễn viên...</p>
+                    )}
+                </section>
+
+                {/* 2.4. RECOMMENDED MOVIES (Phim Cùng Thể Loại) */}
+                {filteredSuggestions.length > 0 && (
+                    <section className="space-y-4 pt-4 border-t border-white/5">
+                        <div className="flex items-center gap-2.5">
+                            <div className="w-1.5 h-5 bg-[#D497FF] rounded-full" />
+                            <h2 className="text-lg sm:text-xl font-extrabold text-white uppercase tracking-wider">
+                                Phim Cùng Thể Loại Có Thể Bạn Thích
+                            </h2>
+                        </div>
+
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3 sm:gap-4">
+                            {filteredSuggestions.slice(0, 7).map((sug) => (
+                                <MoviePosterCard key={sug._id} movie={sug} priority={false} />
+                            ))}
+                        </div>
+                    </section>
+                )}
+
+                {/* 2.5. COMMUNITY COMMENTS (Bình Luận) */}
+                <section id="comment-section" className="pt-4 border-t border-white/5">
+                    <CommentSection movieSlug={movie.slug} />
+                </section>
             </Container>
-        </main >
+
+            {/* === TRAILER POPUP MODAL === */}
+            {showTrailerModal && movie.trailer_url && (
+                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
+                    <div className="relative w-full max-w-4xl bg-[#0F1115] border border-white/15 rounded-2xl overflow-hidden shadow-2xl">
+                        <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[#12151C]">
+                            <h3 className="text-sm sm:text-base font-bold text-white truncate">
+                                Trailer: {decodeHtml(movie.name)}
+                            </h3>
+                            <button
+                                onClick={() => setShowTrailerModal(false)}
+                                className="p-1 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-colors"
+                            >
+                                <X size={20} />
+                            </button>
+                        </div>
+                        <div className="relative aspect-video w-full">
+                            <iframe
+                                src={getYoutubeEmbedUrl(movie.trailer_url)}
+                                className="absolute inset-0 w-full h-full"
+                                allowFullScreen
+                                allow="autoplay; encrypted-media"
+                            />
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* === SHARE MODAL === */}
+            <ShareModal
+                isOpen={showShareModal}
+                onClose={() => setShowShareModal(false)}
+                movieName={movie.name}
+                shareUrl={typeof window !== "undefined" ? window.location.href : `https://lofilm.fun/phim/${movie.slug}`}
+            />
+        </div>
     );
 }

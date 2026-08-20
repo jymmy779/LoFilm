@@ -7,21 +7,20 @@ import "swiper/css";
 export default function ContinueWatchingRowSkeleton() {
     return (
         <Container as="section" className="continue-watching-section relative z-30">
-            <div className="flex flex-col xl:flex-row gap-4 md:gap-6 lg:gap-8 bg-black/40 p-4 md:p-6 lg:p-8 rounded-2xl border border-white/5 relative overflow-hidden">
-                {/* Background Decor subtle */}
-                <div className="absolute top-0 left-0 w-32 h-32 bg-[#D497FF]/5 blur-[100px] pointer-events-none"></div>
-
+            <div className="flex flex-col xl:flex-row gap-4 md:gap-5 lg:gap-6 bg-[#12151C]/60 p-4 sm:p-5 md:p-6 rounded-3xl border border-white/10 relative">
                 {/* Header */}
-                <div className="w-full xl:w-[260px] xl:flex-shrink-0 flex xl:flex-col justify-between xl:justify-center gap-4">
-                    <div className="space-y-2">
-                        <Skeleton className="w-[120px] h-7" rounded="lg" />
-                        <Skeleton className="w-20 h-3 opacity-50" rounded="sm" />
+                <div className="w-full xl:w-[230px] xl:flex-shrink-0 flex items-center xl:items-start xl:flex-col justify-between xl:justify-center gap-3 pb-3 xl:pb-0 border-b border-white/5 xl:border-b-0">
+                    <div className="space-y-1.5">
+                        <Skeleton className="w-[100px] sm:w-[120px] h-5 sm:h-7" rounded="lg" />
+                        <Skeleton className="w-16 sm:w-20 h-2.5 sm:h-3 opacity-50" rounded="sm" />
                     </div>
-                    <Skeleton className="w-24 h-4 opacity-50" rounded="md" />
+                    <div className="flex xl:flex-col gap-2">
+                        <Skeleton className="w-20 sm:w-24 h-6 sm:h-7 opacity-50" rounded="md" />
+                    </div>
                 </div>
 
                 {/* Content */}
-                <div className="w-full xl:w-[calc(100%-292px)] relative">
+                <div className="w-full xl:w-[calc(100%-264px)] relative">
                     <Swiper
                         slidesPerView={2}
                         spaceBetween={8}
@@ -37,7 +36,7 @@ export default function ContinueWatchingRowSkeleton() {
                             <SwiperSlide key={i}>
                                 <div className="block w-full">
                                     {/* Video poster card (aspect 16:9 landscape) */}
-                                    <Skeleton className="aspect-video w-full" rounded="2xl" />
+                                    <Skeleton className="aspect-video w-full" rounded="xl" />
 
                                     {/* Title & Progress info */}
                                     <div className="mt-2.5 px-0.5 space-y-2">

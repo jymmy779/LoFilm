@@ -1,26 +1,25 @@
 "use client";
 
-import { useState, memo } from "react";
+import { memo } from "react";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import axios from "axios";
 import useSWR from "swr";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, Navigation, Pagination, EffectFade, Thumbs } from "swiper/modules";
+import { EffectCoverflow, Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import "swiper/css/pagination";
-import "swiper/css/effect-fade";
-import "swiper/css/thumbs";
+import "swiper/css/effect-coverflow";
 
 import { Movie } from "@/app/types/movie";
-import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
-import { filterDuplicateMovies, getImageUrl, getRawImageUrl, getEpisodeStatus, generateCategorySlug } from "@/app/utils/movieUtils";
-import { getR2MovieThumbUrl, getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
-
+import { decodeHtml } from "@/app/utils/textUtils";
+import { filterDuplicateMovies, getImageUrl, getRawImageUrl, getEpisodeStatus, getMovieWatchUrl } from "@/app/utils/movieUtils";
+import { getR2MovieThumbUrl } from "@/app/utils/r2ImageUrl";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
-import { getCategoryStyles } from "@/app/utils/uiUtils";
 import FavoriteButton from "@/app/components/UI/Common/FavoriteButton";
 import Container from "@/app/components/UI/Container";
+import { Play, ChevronLeft, ChevronRight } from "lucide-react";
+import FeaturedSliderSkeleton from "./FeaturedSliderSkeleton";
+import SwiperNavButtons from "@/app/components/UI/Common/SwiperNavButtons";
 
 interface FeaturedSliderProps {
     title: string;
@@ -31,14 +30,15 @@ interface FeaturedSliderProps {
     titleGradient?: string;
 }
 
-
-
-import FeaturedSliderSkeleton from "./FeaturedSliderSkeleton";
-
-function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider", initialMovies, titleGradient = "from-white via-[#E9D5FF] to-[#D497FF]" }: FeaturedSliderProps) {
-
+function FeaturedSlider({
+    title,
+    apiUrl,
+    viewAllLink,
+    navId = "featured-coverflow",
+    initialMovies,
+    titleGradient = "from-white via-[#E9D5FF] to-[#D497FF]"
+}: FeaturedSliderProps) {
     const seeded = !!(initialMovies && initialMovies.length > 0);
-    const [thumbsSwiper, setThumbsSwiper] = useState<any>(null);
 
     const fetcher = async (url: string) => {
         const res = await axios.get(url);
@@ -54,7 +54,7 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
         { revalidateOnFocus: false, revalidateOnReconnect: true, dedupingInterval: 60000 }
     );
 
-    const movies = seeded ? initialMovies! : (swrMovies || []);
+    const movies = (seeded ? initialMovies! : (swrMovies || [])).slice(0, 10);
     const isLoading = seeded ? false : isSwrLoading;
 
     if (isLoading) {
@@ -64,265 +64,162 @@ function FeaturedSlider({ title, apiUrl, viewAllLink, navId = "featured-slider",
     if (movies.length === 0) return null;
 
     return (
-        <Container as="section" className="relative">
-            <div className="row-header flex items-center justify-between mb-6">
-                <div className="flex items-center gap-4">
-                    <h2 className={`text-[20px] lg:text-[28px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r ${titleGradient} drop-shadow-sm`}>
+        <Container as="section" className="relative select-none overflow-hidden">
+            {/* Header */}
+            <div className="row-header flex items-center justify-between mb-4 sm:mb-6">
+                <div className="flex items-center gap-3 sm:gap-4">
+                    <h2 className={`text-xl sm:text-2xl lg:text-[28px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r ${titleGradient} drop-shadow-sm`}>
                         {title}
                     </h2>
                     <TransitionLink
                         href={viewAllLink || "/"}
-                        className="group/more flex items-center justify-center bg-[#0F1115] border border-white/10 rounded-full h-8 w-8 lg:h-10 lg:w-10 transition-[width,border-color,box-shadow] duration-500 hover:border-[#D497FF]/50 hover:w-[110px] lg:hover:w-[130px] overflow-hidden hover:shadow-lg hover:shadow-[#D497FF]/20"
+                        className="group/more flex items-center justify-center bg-[#0F1115] border border-white/10 rounded-full h-8 w-8 lg:h-9 lg:w-9 transition-[width,border-color,box-shadow] duration-300 hover:border-[#D497FF]/50 hover:w-[110px] lg:hover:w-[125px] overflow-hidden hover:shadow-lg hover:shadow-[#D497FF]/20"
                     >
-                        <span className="max-w-0 overflow-hidden whitespace-nowrap text-[#D497FF] text-[10px] lg:text-xs font-bold transition-[max-width,margin,opacity] duration-500 group-hover/more:max-w-[80px] group-hover/more:mr-2 leading-none opacity-0 group-hover/more:opacity-100">
+                        <span className="max-w-0 overflow-hidden whitespace-nowrap text-[#D497FF] text-[10px] lg:text-xs font-bold transition-[max-width,margin,opacity] duration-300 group-hover/more:max-w-[75px] group-hover/more:mr-1.5 leading-none opacity-0 group-hover/more:opacity-100">
                             Xem thêm
                         </span>
-                        <svg
-                            xmlns="http://www.w3.org/2000/svg"
-                            viewBox="0 0 320 512"
-                            width="10"
-                            height="10"
-                            fill="currentColor"
-                            className="text-[#D497FF] transform transition-transform duration-300 group-hover/more:translate-x-0.5 flex-shrink-0"
-                        >
-                            <path d="M278.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-160 160c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L210.7 256 73.4 118.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l160 160z"></path>
-                        </svg>
+                        <ChevronRight size={14} className="text-[#D497FF] transform transition-transform duration-300 group-hover/more:translate-x-0.5 flex-shrink-0" />
                     </TransitionLink>
+                </div>
+
+                {/* Navigation Buttons */}
+                <div className="flex items-center gap-2">
+                    <button
+                        className={`btn-prev-${navId} w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#12151C] hover:bg-[#D497FF] text-white hover:text-black border border-white/10 hover:border-transparent flex items-center justify-center transition-all duration-300 shadow-md cursor-pointer active:scale-90`}
+                        aria-label="Previous slide"
+                    >
+                        <ChevronLeft size={18} />
+                    </button>
+                    <button
+                        className={`btn-next-${navId} w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#12151C] hover:bg-[#D497FF] text-white hover:text-black border border-white/10 hover:border-transparent flex items-center justify-center transition-all duration-300 shadow-md cursor-pointer active:scale-90`}
+                        aria-label="Next slide"
+                    >
+                        <ChevronRight size={18} />
+                    </button>
                 </div>
             </div>
 
-            <div className="relative mb-20 xl:mb-30 group">
+            {/* 3D Coverflow Stage */}
+            <div className="relative py-2 sm:py-4">
                 <Swiper
-                    modules={[Autoplay, Navigation, Pagination, EffectFade, Thumbs]}
-                    effect="fade"
-                    fadeEffect={{ crossFade: true }}
+                    modules={[EffectCoverflow, Navigation, Autoplay]}
+                    effect="coverflow"
+                    grabCursor={true}
+                    centeredSlides={true}
+                    slidesPerView="auto"
                     loop={true}
-                    autoplay={{ delay: 6000, disableOnInteraction: false, pauseOnMouseEnter: false }}
-                    thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
-                    className="featured-section-slider rounded-[30px] overflow-hidden"
+                    speed={600}
+                    autoplay={{
+                        delay: 5000,
+                        disableOnInteraction: false,
+                        pauseOnMouseEnter: true
+                    }}
+                    coverflowEffect={{
+                        rotate: 15,
+                        stretch: 0,
+                        depth: 120,
+                        modifier: 1.2,
+                        slideShadows: false,
+                    }}
+                    navigation={{
+                        nextEl: `.btn-next-${navId}`,
+                        prevEl: `.btn-prev-${navId}`,
+                    }}
+                    className="featured-coverflow-swiper !overflow-visible"
                 >
-                    {movies.map((movie, index) => (
-                        <SwiperSlide key={movie._id}>
-                            <div className="relative w-full aspect-[21/9] md:aspect-[21/7] lg:aspect-[21/6] xl:aspect-[21/5] min-h-[500px] bg-[#0F1115]">
+                    {movies.map((movie, index) => {
+                        const imgUrl = getImageUrl(movie.thumb_url, { width: 1280, quality: index < 3 ? 85 : 80 });
 
-                                {/* Background Image Area */}
-                                <div className="absolute top-0 right-0 w-full xl:w-[75%] h-full z-0 select-none pointer-events-none">
+                        return (
+                            <SwiperSlide
+                                key={`coverflow-${movie._id || index}`}
+                                className="!w-[82vw] sm:!w-[520px] md:!w-[640px] lg:!w-[760px] xl:!w-[860px] transition-all duration-500"
+                            >
+                                <div className="group/card relative aspect-[16/9] sm:aspect-[16/9.2] rounded-3xl overflow-hidden bg-[#0F1115] border border-white/10 shadow-2xl transition-all duration-500">
+                                    {/* Backdrop Image */}
                                     <SmartImage
                                         r2Src={getR2MovieThumbUrl(movie.slug)}
-                                        src={getImageUrl(movie.thumb_url, { width: 1920, quality: index === 0 ? 80 : 75 })}
+                                        src={imgUrl}
                                         rawSrc={getRawImageUrl(movie.thumb_url)}
-                                        fallbackSrc={movie.poster_url ? getImageUrl(movie.poster_url, { width: 1200, quality: 75 }) : undefined}
+                                        fallbackSrc={movie.poster_url ? getImageUrl(movie.poster_url, { width: 1000, quality: 75 }) : undefined}
                                         alt={movie.name}
                                         fill
-                                        priority={index === 0}
-                                        loading={index === 0 ? "eager" : "lazy"}
-                                        fetchPriority={index === 0 ? "high" : "auto"}
-                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
-                                        className="object-cover object-top"
+                                        priority={index < 2}
+                                        loading={index < 2 ? "eager" : "lazy"}
+                                        sizes="(max-width: 640px) 85vw, (max-width: 1024px) 640px, 860px"
+                                        className="object-cover object-top transition-transform duration-700 group-hover/card:scale-105 transform-gpu"
                                     />
-                                </div>
 
-                                {/* Hiệu ứng chấm bi bao phủ FULL SECTION (cả ảnh và mảng màu chữ) */}
-                                <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,0,0,0.35)_0.8px,transparent_0.8px)] [background-size:3px_3px] opacity-30 z-[15] pointer-events-none" />
+                                    {/* Clean Scrim at bottom only (Keeping 70% of image 100% bright) */}
+                                    <div className="absolute inset-0 bg-gradient-to-t from-[#0F1115] via-[#0F1115]/60 via-35% to-transparent pointer-events-none" />
 
-                                {/* Separate Overlay to stay fixed while image moves - Giới hạn độ phủ chỉ 30-50% để ảnh sáng đẹp */}
-                                <div className="absolute inset-0 bg-gradient-to-t xl:bg-gradient-to-r from-[#12151C] from-[30%] xl:from-[30%] to-transparent to-[75%] xl:to-[45%] z-10 pointer-events-none" />
 
-                                {/* Content Area */}
-                                <div className="absolute inset-0 z-20 w-full xl:w-[60%] flex items-end xl:items-center pt-30 xl:pt-0 px-5 md:px-10 lg:pb-30 xl:pb-0 text-left supports-[(-webkit-touch-callout:none)]:h-full">
-                                    <div className=" lg:max-w-lg xl:max-w-2xl xl:mb-0 mb-[20px] w-full space-y-4 lg:space-y-5">
-                                        <div className="space-y-1">
+
+                                    {/* Top Badges */}
+                                    <div className="absolute top-3 left-3 sm:top-4 sm:left-4 flex flex-wrap items-center gap-1.5 sm:gap-2 z-20 pointer-events-none">
+                                        <div className="px-2 py-0.5 flex items-center justify-center bg-gradient-to-r from-pink-500 to-rose-400 text-white text-[10px] sm:text-xs font-bold rounded shadow-sm leading-none">
+                                            ★ {(movie.tmdb?.vote_average || 8.0).toFixed(1)}
+                                        </div>
+                                        <div className="px-2 py-0.5 flex items-center justify-center bg-[#A7F3D0] text-emerald-950 text-[10px] sm:text-xs font-bold rounded shadow-sm leading-none">
+                                            {movie.year || 2024}
+                                        </div>
+                                        <div className="px-2 py-0.5 flex items-center justify-center bg-[#F5CAE3] text-pink-950 text-[10px] sm:text-xs font-bold rounded shadow-sm leading-none">
+                                            {getEpisodeStatus(movie)}
+                                        </div>
+                                        {movie.quality && (
+                                            <div className="px-2 py-0.5 flex items-center justify-center bg-[#FAD078] text-amber-950 text-[10px] sm:text-xs font-bold rounded shadow-sm leading-none">
+                                                {movie.quality}
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    {/* Bottom Info Content */}
+                                    <div className="absolute bottom-0 inset-x-0 p-3 sm:p-5 md:p-7 z-20 flex items-end justify-between gap-2.5 sm:gap-4">
+                                        <div className="flex-1 min-w-0 space-y-0.5 sm:space-y-1">
                                             <TransitionLink
                                                 href={`/phim/${movie.slug}`}
-                                                className="text-xl md:text-2xl lg:text-3xl font-bold text-white group-hover:text-[#D497FF] transition-colors line-clamp-1 [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)] cursor-pointer"
+                                                className="text-[13px] sm:text-lg md:text-2xl lg:text-3xl font-bold text-white group-hover/card:text-[#D497FF] transition-colors leading-tight block drop-shadow-md"
+                                                title={movie.name}
                                             >
-                                                {movie.name}
+                                                {decodeHtml(movie.name)}
                                             </TransitionLink>
-                                            <p className="text-sm md:text-base font-medium text-white/70 italic line-clamp-1 mt-1 [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)]">
-                                                {movie.origin_name}
+                                            <p
+                                                className="text-[10px] sm:text-xs md:text-sm text-white/70 font-medium italic truncate block"
+                                                title={movie.origin_name}
+                                            >
+                                                {decodeHtml(movie.origin_name)}
                                             </p>
                                         </div>
 
-                                        <div className="flex flex-wrap items-center gap-3">
-                                            <div className="md:px-2 px-1.5 py-0.5 flex items-center justify-center bg-gradient-to-r from-pink-500 to-rose-400 text-white text-[10px] md:text-xs font-bold rounded shadow-[0_2px_10px_rgba(244,63,94,0.3)] border border-transparent leading-none">
-                                                ★ {(movie.tmdb?.vote_average || 8.0).toFixed(1)}
-                                            </div>
-                                            <div className="md:px-2 px-1.5 py-0.5 flex items-center justify-center bg-[#A7F3D0] text-emerald-950 text-[10px] md:text-xs font-bold rounded shadow-sm leading-none">
-                                                {movie.year || 2024}
-                                            </div>
-                                            <div className="md:px-2 px-1.5 py-0.5 flex items-center justify-center bg-[#F5CAE3] text-pink-950 text-[10px] md:text-xs font-bold rounded shadow-sm leading-none">
-                                                {getEpisodeStatus(movie)}
-                                            </div>
-                                            {movie.quality && (
-                                                <div className="md:px-2 px-1.5 py-0.5 flex items-center justify-center bg-[#FAD078] text-amber-950 text-[10px] md:text-xs font-bold rounded shadow-sm leading-none">
-                                                    {movie.quality}
-                                                </div>
-                                            )}
-                                            {((movie as any).lang_tag || movie.lang) && (
-                                                <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-[#C084FC] text-purple-950 rounded shadow-sm">
-                                                    {((movie as any).lang_tag || movie.lang)}
-                                                </span>
-                                            )}
-
-                                            <div className="flex flex-wrap gap-2 w-full pt-1">
-                                                {(() => {
-                                                    const cats = movie.category?.slice(0, 3) || [];
-                                                    const slugs = cats.map((c: any) => generateCategorySlug(c.slug, c.name));
-                                                    const styles = getCategoryStyles(slugs);
-                                                    return cats.map((cat: any, i: number) => (
-                                                        <TransitionLink
-                                                            key={slugs[i] || cat.id || i}
-                                                            href={`/the-loai/${slugs[i]}`}
-                                                            className={`px-2.5 py-1 text-[10px] lg:text-xs font-medium flex items-center justify-center bg-white/10 border border-white/10 hover:border-[#D497FF]/50 ${styles[i]?.text || 'text-white'} rounded-md transition-[border-color,color]`}
-                                                        >
-                                                            {cat.name}
-                                                        </TransitionLink>
-                                                    ));
-                                                })()}
-                                            </div>
-                                        </div>
-
-                                        <div className="xl:mb-auto mb-0 min-h-[40px] md:min-h-[48px] flex items-center">
-                                            <p className="text-white/70 text-xs md:text-sm leading-relaxed line-clamp-2">
-                                                {cleanContent(movie.content) || "Nội dung phim đang được cập nhật..."}
-                                            </p>
-                                        </div>
-
-                                        <div className="hidden lg:flex items-center gap-8 pt-4">
+                                        <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                                            <FavoriteButton
+                                                movie={movie}
+                                                iconSize={16}
+                                                className="w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white transition-colors cursor-pointer"
+                                            />
                                             <TransitionLink
-                                                href={`/phim/${movie.slug}`}
-                                                className="relative hidden lg:flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-15 lg:h-15 rounded-full bg-[#D497FF] text-black ring-4 ring-[#D497FF]/30 shadow-[0_4px_15px_rgba(212,151,255,0.4)] hover:shadow-[0_0_30px_rgba(212,151,255,0.8)] hover:scale-110 active:scale-95 transition-transform duration-300 will-change-transform cursor-pointer"
+                                                href={getMovieWatchUrl(movie)}
+                                                className="h-8 sm:h-10 md:h-11 px-3 sm:px-5 md:px-6 rounded-full bg-[#D497FF] hover:brightness-110 text-black font-extrabold text-[11px] sm:text-xs md:text-sm flex items-center justify-center gap-1.5 shadow-[0_0_20px_rgba(212,151,255,0.35)] hover:shadow-[0_0_30px_rgba(212,151,255,0.6)] transition-all duration-300 transform-gpu active:scale-95 cursor-pointer flex-shrink-0"
                                             >
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="20" height="20" fill="currentColor" className="ml-1 relative z-10">
-                                                    <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z" />
-                                                </svg>
+                                                <Play size={13} fill="currentColor" />
+                                                <span>Xem ngay</span>
                                             </TransitionLink>
-
-                                            <div className="flex items-center bg-white/10 hover:bg-white/20 rounded-full border border-white/10 overflow-hidden transition-colors duration-300">
-                                                <FavoriteButton
-                                                    movie={movie}
-                                                    iconSize={18}
-                                                    className="p-3 px-5 h-full border-r border-white/10 hover:bg-white/5 transition-colors"
-                                                />
-                                                <TransitionLink
-                                                    href={`/phim/${movie.slug}`}
-                                                    className="p-3 px-7 h-full flex items-center justify-center text-white cursor-pointer hover:text-[#D497FF] transition-colors"
-                                                >
-                                                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="18" height="18" fill="currentColor">
-                                                        <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336h24V272H216c-13.3 0-24-10.7-24-24s10.7-24 24-24h48c13.3 0 24 10.7 24 24v88h8c13.3 0 24 10.7 24 24s-10.7 24-24 24H216c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z" />
-                                                    </svg>
-                                                </TransitionLink>
-                                            </div>
                                         </div>
                                     </div>
                                 </div>
-                            </div>
-                        </SwiperSlide>
-                    ))}
+                            </SwiperSlide>
+                        );
+                    })}
                 </Swiper>
 
-                {/* Thumbnail Slider Overlapping */}
-                <div className="featured-thumbs-container absolute -bottom-10 lg:bottom-15 xl:bottom-0 left-1/2 lg:left-[390px] xl:left-1/2 -translate-x-1/2 translate-y-1/2 z-40 w-full lg:max-w-3xl xl:max-w-7xl px-4 pointer-events-auto">
-                    <Swiper
-                        onSwiper={setThumbsSwiper}
-                        loop={false}
-                        spaceBetween={14}
-                        slidesPerView={"auto"}
-                        watchSlidesProgress={true}
-                        breakpoints={{
-                            1024: { slidesPerView: 10, spaceBetween: 16 }
-                        }}
-                        freeMode={false}
-                        modules={[Navigation, Thumbs]}
-                        className="featured-thumbs-slider !px-1"
-                    >
-                        {movies.map((movie) => (
-                            <SwiperSlide key={`thumb-${movie._id}`} className="cursor-pointer flex items-center justify-center lg:block">
-                                <div className="thumb-item flex-shrink-0 transition-[width,height,background-color,border-color] duration-300 relative w-2.5 h-2.5 lg:w-full lg:h-auto aspect-square xl:aspect-[2/3] rounded-full xl:rounded-lg overflow-hidden lg:border-2 border-[#12151C] lg:shadow-md bg-white/70 lg:bg-transparent">
-                                    <SmartImage
-                                        r2Src={getR2MoviePosterUrl(movie.slug)}
-                                        src={getImageUrl(movie.poster_url || movie.thumb_url, { width: 120, quality: 70 })}
-                                        rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url)}
-                                        alt={movie.name}
-                                        fill
-                                        sizes="100px"
-                                        loading="lazy"
-                                        className="hidden lg:block object-cover"
-                                    />
-                                    <div className="thumb-overlay absolute inset-0 bg-[#12151C]/40 lg:bg-[#12151C]/30 transition-opacity duration-300"></div>
-                                </div>
-                            </SwiperSlide>
-                        ))}
-                    </Swiper>
-                </div>
+                <SwiperNavButtons
+                    prevClassName={`btn-prev-${navId}`}
+                    nextClassName={`btn-next-${navId}`}
+                    variant="ghost"
+                />
             </div>
-
-            <style jsx global>{`
-                /* Dưới 1024px: Swiper Slide chỉ rộng bằng dấu chấm */
-                @media (max-width: 1023px) {
-                    .featured-thumbs-slider .swiper-slide {
-                        width: auto !important;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                    }
-                    /* Điều chỉnh container (.swiper-wrapper) tập trung các chấm vào giữa */
-                    .featured-thumbs-slider .swiper-wrapper {
-                        justify-content: center;
-                        align-items: center;
-                    }
-                    /* Chấm active trên mobile to ra một xíu mà không bị méo */
-                    .featured-thumbs-slider .swiper-slide-thumb-active .thumb-item {
-                        width: 12px !important;
-                        height: 12px !important;
-                        background-color: #D497FF;
-                        transform: none !important;
-                    }
-                }
-
-                /* Dưới 1024px: Active biến thành chấm phát sáng (Dự phòng) */
-                /* Dot color for inactive state - brighter white/gray */
-                .featured-thumbs-slider .thumb-item {
-                    opacity: 1 !important;
-                    background-color: rgba(255, 255, 255, 1);
-                }
-
-                /* Active dot color - must be below to override */
-                .featured-thumbs-slider .swiper-slide-thumb-active .thumb-item {
-                    background-color: #D497FF !important;
-                    transform: scale(1.1);
-                }
-                
-                /* Overlay mặc định mờ mờ, khi Active hoặc Hover mới biến mất */
-                .featured-thumbs-slider .thumb-overlay {
-                    opacity: 1;
-                    transition: opacity 0.3s ease;
-                }
-
-                .featured-thumbs-slider .swiper-slide-thumb-active .thumb-overlay,
-                .featured-thumbs-slider .swiper-slide:hover .thumb-overlay {
-                    opacity: 0 !important;
-                }
-                
-                /* Từ 1024px trở lên: Giữ nguyên y hệt code của bạn */
-                @media (min-width: 1024px) {
-                   
-                    .featured-thumbs-slider .swiper-slide-thumb-active .thumb-item {
-                        border-color: #D497FF;
-                        background-color: transparent;
-                        transform: none;
-                        z-index: 10;
-                    }
-                    .featured-thumbs-slider .swiper-slide-thumb-active .thumb-overlay {
-                        opacity: 0;
-                    }
-                }
-            `}</style>
         </Container>
     );
 }
 
 export default memo(FeaturedSlider);
-
-
-

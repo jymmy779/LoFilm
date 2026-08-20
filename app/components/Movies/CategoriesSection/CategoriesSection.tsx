@@ -47,7 +47,7 @@ export default function CategoriesSection({ initialTopics }: { initialTopics?: a
 
     if (!mounted) {
         return (
-            <Container as="section" className="relative z-30 -mt-[90px] md:-mt-[120px] pointer-events-none mb-10">
+            <Container as="section" className="relative z-30 mt-4 sm:mt-6 md:mt-8 mb-10">
                 <div className="h-8 w-[250px] bg-white/10 rounded-lg animate-pulse mb-6"></div>
                 <div className="flex gap-2 sm:gap-3 lg:gap-[14px] overflow-hidden">
                     {[...Array(5)].map((_, i) => (
@@ -59,9 +59,9 @@ export default function CategoriesSection({ initialTopics }: { initialTopics?: a
     }
 
     return (
-        <Container as="section" className="relative z-30 -mt-[90px] md:-mt-[120px] pointer-events-none">
+        <Container as="section" className="relative z-30 mt-4 sm:mt-6 md:mt-8">
             {/* Header Section */}
-            <div className="flex items-center justify-between mb-4 pointer-events-auto">
+            <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl lg:text-[32px] font-bold text-transparent bg-clip-text bg-gradient-to-r from-white via-[#E9D5FF] to-[#D497FF] tracking-tight drop-shadow-sm">Bạn Đang Quan Tâm Gì?</h2>
             </div>
 
@@ -100,7 +100,7 @@ export default function CategoriesSection({ initialTopics }: { initialTopics?: a
                                 >
                                     {/* Nửa bên trái: Thông tin */}
                                     <div className="absolute inset-0 z-10 p-3 md:p-4 flex flex-col justify-between h-full w-[65%]">
-                                        <div className={`w-7 h-7 md:w-8 md:h-8 rounded-lg bg-black/20 border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform backdrop-blur-sm shadow-sm`}>
+                                        <div className={`w-7 h-7 md:w-8 md:h-8 rounded-lg bg-black/40 border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm`}>
                                             <Icon size={16} strokeWidth={2.5} className="text-white/90" />
                                         </div>
                                         <div className="mt-auto">

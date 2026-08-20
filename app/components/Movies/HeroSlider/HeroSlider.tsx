@@ -1,290 +1,277 @@
-"use client"
+"use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState, useCallback } from "react";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { getCategoryStyles } from "@/app/utils/uiUtils";
-import { generateCategorySlug } from "@/app/utils/movieUtils";
 import { Swiper, SwiperSlide } from "swiper/react";
-import { Autoplay, EffectFade, Thumbs, FreeMode } from "swiper/modules";
+import { Autoplay, EffectFade } from "swiper/modules";
 import type { Swiper as SwiperType } from "swiper";
 
 import "swiper/css";
 import "swiper/css/effect-fade";
-import "swiper/css/thumbs";
-import "swiper/css/free-mode";
 import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
-import { getImageUrl, getRawImageUrl, filterDuplicateMovies } from "@/app/utils/movieUtils";
+import { getImageUrl, getRawImageUrl, getEpisodeStatus, generateCategorySlug, getMovieWatchUrl } from "@/app/utils/movieUtils";
 import { getR2MovieThumbUrl, getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 import Container from "@/app/components/UI/Container";
 import Skeleton from "@/app/components/UI/Skeleton/Skeleton";
 import FavoriteButton from "@/app/components/UI/Common/FavoriteButton";
-
-// Removed MotionSmartImage
+import HeroSliderSkeleton from "./HeroSliderSkeleton";
 
 interface HeroSliderProps {
     initialMovies?: Movie[];
 }
 
-
-import HeroSliderSkeleton from "./HeroSliderSkeleton";
-
-// Global cache for HeroSlider
 let cachedHeroMovies: Movie[] = [];
-let hasFetchedHeroOnce = false;
+
+const AUTOPLAY_DELAY = 6500;
 
 export default function HeroSlider({ initialMovies }: HeroSliderProps) {
     const [movies, setMovies] = useState<Movie[]>(() => {
         if (cachedHeroMovies.length > 0) return cachedHeroMovies;
         return initialMovies && initialMovies.length > 0 ? initialMovies : [];
     });
-    const [thumbsSwiper, setThumbsSwiper] = useState<SwiperType | null>(null);
     const [activeIndex, setActiveIndex] = useState(0);
-
-
+    const swiperRef = useRef<SwiperType | null>(null);
 
     useEffect(() => {
         if (initialMovies && initialMovies.length > 0) {
             setMovies(initialMovies);
             cachedHeroMovies = initialMovies;
-            hasFetchedHeroOnce = true;
         }
     }, [initialMovies]);
+
+    const handleSelectSlide = useCallback((index: number) => {
+        if (swiperRef.current) {
+            swiperRef.current.slideToLoop(index);
+        }
+    }, []);
 
     if (movies.length === 0) {
         return <HeroSliderSkeleton />;
     }
 
-    const currentMovie = movies[activeIndex];
+    const currentMovie = movies[activeIndex] || movies[0];
+    const displayMovies = movies.slice(0, 8); // Top 8 movies for progress pills
 
     return (
-        <section id="top_slider" className="w-full relative h-[500px] md:h-[700px] lg:h-[850px] overflow-hidden">
-            {/* === MAIN SWIPER (Background only) === */}
+        <section id="top_slider" className="w-full relative h-[520px] sm:h-[580px] md:h-[680px] lg:h-[780px] xl:h-[840px] overflow-hidden select-none bg-[#0F1115]">
+            {/* === MAIN BACKGROUND SWIPER === */}
             <Swiper
-                modules={[Autoplay, EffectFade, Thumbs]}
+                modules={[Autoplay, EffectFade]}
                 effect="fade"
                 fadeEffect={{ crossFade: true }}
-                autoplay={{ delay: 6000, disableOnInteraction: false, pauseOnMouseEnter: false }}
-                thumbs={{ swiper: thumbsSwiper && !thumbsSwiper.destroyed ? thumbsSwiper : null }}
+                autoplay={{ delay: AUTOPLAY_DELAY, disableOnInteraction: false }}
                 loop
-                speed={1000}
+                speed={1100}
+                onSwiper={(swiper) => (swiperRef.current = swiper)}
                 onSlideChange={(s) => setActiveIndex(s.realIndex)}
                 className="w-full h-full"
             >
                 {movies.map((movie, index) => (
-                    <SwiperSlide key={movie._id}>
-                        {({ isActive }) => (
-                            <>
-                                <div className="absolute inset-0 [mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] [-webkit-mask-image:linear-gradient(to_bottom,black_70%,transparent_100%)] lg:overflow-hidden [transform:translateZ(0)]">
-                                    <SmartImage
-                                        r2Src={getR2MovieThumbUrl(movie.slug)}
-                                        src={getImageUrl(movie.thumb_url, { width: 1920, quality: 85 })}
-                                        rawSrc={getRawImageUrl(movie.thumb_url)}
-                                        fallbackSrc={movie.poster_url ? getImageUrl(movie.poster_url, { width: 1200, quality: 75 }) : undefined}
-                                        alt={movie.name}
-                                        priority={index === 0}
-                                        loading={index === 0 ? "eager" : "lazy"}
-                                        fetchPriority={index === 0 ? "high" : "auto"}
-                                        fill
-                                        sizes="(max-width: 768px) 100vw, (max-width: 1200px) 100vw, 100vw"
-                                        quality={index === 0 ? 80 : 75}
-                                        className="object-cover object-top"
-                                    />
+                    <SwiperSlide key={movie._id || index}>
+                        <div className="absolute inset-0">
+                            {/* Backdrop Image */}
+                            <SmartImage
+                                r2Src={getR2MovieThumbUrl(movie.slug)}
+                                src={getImageUrl(movie.thumb_url, { width: 1920, quality: 85 })}
+                                rawSrc={getRawImageUrl(movie.thumb_url)}
+                                fallbackSrc={movie.poster_url ? getImageUrl(movie.poster_url, { width: 1200, quality: 75 }) : undefined}
+                                alt={movie.name}
+                                priority={index === 0}
+                                loading={index === 0 ? "eager" : "lazy"}
+                                fetchPriority={index === 0 ? "high" : "auto"}
+                                fill
+                                sizes="100vw"
+                                quality={index === 0 ? 80 : 75}
+                                className="object-cover object-top md:object-center transform-gpu"
+                            />
 
-                                    {/* Dotted Texture Overlay */}
-                                    <div className="absolute inset-0 bg-[radial-gradient(circle,rgba(0,0,0,0.35)_0.8px,transparent_0.8px)] [background-size:3px_3px] opacity-30 z-10 pointer-events-none" />
-                                    {/* Cinematic Vignette Overlay (Netflix Scrim style) */}
-                                    {/* Loại bỏ radial-gradient để ảnh tự nhiên hơn */}
+                            {/* Cinematic Scrim Gradients (Lightweight pure CSS) */}
+                            {/* Bottom Fade: Chỉ phủ phần đáy vừa đủ để đọc chữ, giữ 60% phần ảnh bên trên sáng trong */}
+                            <div className="absolute inset-x-0 bottom-0 h-[65%] sm:h-[60%] md:h-[65%] bg-gradient-to-t from-[#0F1115] via-[#0F1115]/70 to-transparent pointer-events-none z-10" />
 
-                                    {/* Additional subtle fades for text readability (Netflix-inspired Scrims) */}
-                                    <div className="absolute inset-x-0 top-0 h-25 md:h-32 bg-gradient-to-b from-[#0F1115]/90 via-[#0F1115]/40 to-transparent z-20 pointer-events-none" />
-                                    <div className="absolute inset-x-0 bottom-0 md:h-1/3 h-2/3 bg-gradient-to-t from-[#0F1115] via-[#0F1115]/40 to-transparent z-20 pointer-events-none" />
-                                    <div className="absolute inset-y-0 left-0 w-1 md:w-1/2 bg-gradient-to-r from-[#0F1115]/95 via-[#0F1115]/40 to-transparent z-20 pointer-events-none" />
-                                    <div className="absolute inset-y-0 right-0 w-1 md:w-1/3 bg-gradient-to-l from-[#0F1115]/80 via-[#0F1115]/20 to-transparent z-20 pointer-events-none" />
-                                </div>
-                            </>
-                        )}
+                            {/* Left Fade: Chỉ hiển thị trên Desktop khi text nằm bên trái, không phủ trên mobile/tablet */}
+                            <div className="hidden md:block absolute inset-y-0 left-0 w-3/5 lg:w-1/2 bg-gradient-to-r from-[#0F1115]/90 via-[#0F1115]/40 to-transparent pointer-events-none z-10" />
+
+                            {/* Top Header Fade: Đủ tối và sâu để Header/Menu/Logo luôn nổi rõ ràng trên mọi hình ảnh */}
+                            <div className="absolute inset-x-0 top-0 h-28 md:h-36 bg-gradient-to-b from-[#0F1115]/90 via-[#0F1115]/40 to-transparent pointer-events-none z-10" />
+                        </div>
                     </SwiperSlide>
                 ))}
             </Swiper>
 
-            {/* === COMBINED CONTENT & THUMBS OVERLAY === */}
-            <Container className="absolute inset-x-0 bottom-0 z-30 pb-16 pointer-events-none left-1/2 -translate-x-1/2 xl:pl-[100px]">
-                <div className="relative top-[-65px] md:top-[-150px] flex flex-col min-[700px]:flex-row items-center min-[700px]:items-end justify-center min-[700px]:justify-between w-full gap-4 lg:gap-8 xl:gap-12">
+            {/* Style animations */}
+            <style jsx global>{`
+                @keyframes heroFadeInUp {
+                    0% {
+                        opacity: 0;
+                        transform: translateY(22px);
+                    }
+                    100% {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            `}</style>
 
-                    {/* Content (Left side on Desktop, Top on Mobile) */}
-                    <div className="w-full max-w-[300px] md:max-w-md xl:max-w-2xl pointer-events-auto text-center min-[700px]:text-left">
-                        {currentMovie && (
-                            <div
-                                key={activeIndex}
-                                className="space-y-4"
-                            >
-                                {/* Title */}
-                                <div 
-                                    className="min-h-[76px] m-0 md:mb-[16px] flex items-end justify-center min-[700px]:justify-start"
-                                    style={{ animation: 'cssFadeInUp 0.6s ease-out forwards', opacity: 0 }}
-                                >
-                                    <TransitionLink
-                                        href={`/phim/${currentMovie.slug}`}
-                                        className="block"
-                                    >
-                                        <h2 className="text-2xl xl:text-4xl font-bold text-white leading-tight drop-shadow-2xl [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)] line-clamp-1 md:line-clamp-2 hover:text-[#D497FF] transition-colors">
-                                            {decodeHtml(currentMovie.name)}
-                                        </h2>
-                                    </TransitionLink>
+            {/* === FOREGROUND CONTENT OVERLAY === */}
+            <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-end">
+                <Container className="w-full pb-6 sm:pb-8 md:pb-12 xl:pb-14 xl:pl-[100px]">
+                    <div
+                        key={currentMovie.slug || activeIndex}
+                        className="max-w-2xl lg:max-w-3xl xl:max-w-4xl space-y-3 sm:space-y-4 md:space-y-5 pointer-events-auto"
+                    >
+                        
+                        {/* 1. Meta Badges & Rating (Synced with FeaturedSlider) */}
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 animate-[heroFadeInUp_0.7s_cubic-bezier(0.22,1,0.36,1)_both]">
+                            {(currentMovie.tmdb?.vote_average || 0) > 0 && (
+                                <div className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-black bg-gradient-to-r from-pink-500 to-rose-400 text-white rounded-md shadow-sm flex items-center gap-1 leading-none">
+                                    <span>★</span>
+                                    <span>{(currentMovie.tmdb?.vote_average || 0).toFixed(1)}</span>
                                 </div>
-
-                                {/* Origin name & Tags */}
-                                <div 
-                                    className="space-y-2 md:mb-[16px] mb-0"
-                                    style={{ animation: 'cssFadeInUp 0.6s ease-out 0.1s forwards', opacity: 0 }}
-                                >
-                                    <p className="font-bold text-xs md:text-sm md:mb-[16px] mb-0 italic h-5 truncate [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)]">
-                                        {decodeHtml(currentMovie.origin_name)}
-                                    </p>
-
-                                    {/* Tags */}
-                                    <div className="flex flex-wrap items-center justify-center min-[700px]:justify-start gap-1.5 md:gap-2">
-                                        {(currentMovie.tmdb?.vote_average || 0) > 0 && (
-                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-rose-500 text-white rounded shadow-sm">
-                                                ★ {(currentMovie.tmdb?.vote_average || 0).toFixed(1)}
-                                            </span>
-                                        )}
-                                        <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-[#A7F3D0] text-emerald-950 rounded shadow-sm">
-                                            {currentMovie.year}
-                                        </span>
-                                        {currentMovie.episode_current && (
-                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-[#F5CAE3] text-pink-950 rounded shadow-sm">
-                                                {currentMovie.episode_current}
-                                            </span>
-                                        )}
-                                        {currentMovie.quality && (
-                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-[#FAD078] text-amber-950 rounded shadow-sm">
-                                                {currentMovie.quality}
-                                            </span>
-                                        )}
-                                        {((currentMovie as any).lang_tag || currentMovie.lang) && (
-                                            <span className="lg:px-2 lg:py-1 px-1.5 py-0.5 text-[10px] lg:text-xs font-bold bg-[#C084FC] text-purple-950 rounded shadow-sm">
-                                                {((currentMovie as any).lang_tag || currentMovie.lang)}
-                                            </span>
-                                        )}
-                                    </div>
+                            )}
+                            <div className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-bold bg-[#A7F3D0] text-emerald-950 rounded-md shadow-sm leading-none">
+                                {currentMovie.year || "2024"}
+                            </div>
+                            <div className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-bold bg-[#F5CAE3] text-pink-950 rounded-md shadow-sm leading-none">
+                                {getEpisodeStatus(currentMovie)}
+                            </div>
+                            {currentMovie.quality && (
+                                <div className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-bold bg-[#FAD078] text-amber-950 rounded-md shadow-sm leading-none">
+                                    {currentMovie.quality}
                                 </div>
-
-                                {/* Categories */}
-                                {currentMovie.category && currentMovie.category.length > 0 && (
-                                    <div 
-                                        className="min-[700px]:flex flex-wrap hidden justify-center min-[700px]:justify-start gap-2"
-                                        style={{ animation: 'cssFadeInUp 0.6s ease-out 0.2s forwards', opacity: 0 }}
-                                    >
-                                        {(() => {
-                                            const cats = currentMovie.category.slice(0, 3);
-                                            const slugs = cats.map(c => generateCategorySlug(c.slug, c.name));
-                                            const styles = getCategoryStyles(slugs);
-                                            return cats.map((cat, i) => (
-                                                <TransitionLink
-                                                    key={slugs[i] || i}
-                                                    href={`/the-loai/${slugs[i]}`}
-                                                    className={`px-2.5 py-1 text-[10px] lg:text-xs font-medium flex items-center justify-center bg-white/10 border border-white/10 hover:border-[#D497FF]/50 ${styles[i]?.text || 'text-white'} rounded transition-[border-color,color] duration-300 leading-none`}
-                                                >
-                                                    {cat.name}
-                                                </TransitionLink>
-                                            ));
-                                        })()}
-                                    </div>
-                                )}
-
-                                {/* Description */}
-                                <div 
-                                    className="min-h-[60px] lg:block hidden max-w-lg mx-auto lg:mx-0"
-                                    style={{ animation: 'cssFadeInUp 0.6s ease-out 0.3s forwards', opacity: 0 }}
-                                >
-                                    {currentMovie.content ? (
-                                        <p className=" text-xs xl:text-sm leading-relaxed drop-shadow-2xl [text-shadow:2px_2px_4px_rgba(0,0,0,0.8)] line-clamp-3">
-                                            {cleanContent(currentMovie.content) || "Nội dung phim đang được cập nhật..."}
-                                        </p>
-                                    ) : (
-                                        <div className="flex flex-col gap-2">
-                                            <Skeleton className="w-full h-4" />
-                                            <Skeleton className="w-full h-4" />
-                                            <Skeleton className="w-2/3 h-4" />
-                                        </div>
-                                    )}
+                            )}
+                            {((currentMovie as any).lang_tag || currentMovie.lang) && (
+                                <div className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-bold bg-[#C084FC] text-purple-950 rounded-md shadow-sm leading-none">
+                                    {((currentMovie as any).lang_tag || currentMovie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
                                 </div>
+                            )}
+                        </div>
 
-                                {/* Buttons */}
-                                <div 
-                                    className="flex min-[700px]:flex hidden items-center justify-center min-[700px]:justify-start gap-8 pt-4"
-                                    style={{ animation: 'cssFadeInUp 0.6s ease-out 0.4s forwards', opacity: 0 }}
-                                >
-                                    <TransitionLink
-                                        href={`/phim/${currentMovie.slug}`}
-                                        className="relative flex items-center justify-center w-10 h-10 md:w-12 md:h-12 lg:w-15 lg:h-15 rounded-full bg-[#D497FF] text-black ring-4 ring-[#D497FF]/30 shadow-[0_4px_15px_rgba(212,151,255,0.4)] hover:shadow-[0_0_30px_rgba(212,151,255,0.8)] hover:scale-110 active:scale-95 transition-transform duration-300 will-change-transform cursor-pointer"
-                                    >
-                                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="20" height="20" fill="currentColor" className="ml-1 relative z-10">
-                                            <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z" />
-                                        </svg>
-                                    </TransitionLink>
-                                    <div className="flex items-center bg-white/10 hover:bg-white/20 rounded-full border border-white/10 overflow-hidden transition-colors duration-300">
-                                        <FavoriteButton
-                                            movie={currentMovie}
-                                            iconSize={18}
-                                            className="p-3 px-5 h-full border-r border-white/10 hover:bg-white/5 transition-colors"
-                                        />
+                        {/* 2. Movie Title */}
+                        <div className="space-y-1 animate-[heroFadeInUp_0.75s_cubic-bezier(0.22,1,0.36,1)_0.08s_both]">
+                            <TransitionLink href={`/phim/${currentMovie.slug}`} className="block group">
+                                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-[1.15] font-montserrat tracking-tight group-hover:text-[#D497FF] transition-colors line-clamp-2 drop-shadow-md">
+                                    {decodeHtml(currentMovie.name)}
+                                </h2>
+                            </TransitionLink>
+                            <p className="text-white/50 text-xs sm:text-sm md:text-base font-medium truncate italic">
+                                {decodeHtml(currentMovie.origin_name)}
+                            </p>
+                        </div>
+
+                        {/* 3. Categories (Tablet & Desktop) */}
+                        {currentMovie.category && currentMovie.category.length > 0 && (
+                            <div className="hidden sm:flex flex-wrap gap-1.5 sm:gap-2 animate-[heroFadeInUp_0.8s_cubic-bezier(0.22,1,0.36,1)_0.16s_both]">
+                                {(() => {
+                                    const cats = currentMovie.category.slice(0, 4);
+                                    const slugs = cats.map(c => generateCategorySlug(c.slug, c.name));
+                                    const styles = getCategoryStyles(slugs);
+                                    return cats.map((cat, i) => (
                                         <TransitionLink
-                                            href={`/phim/${currentMovie.slug}`}
-                                            className="p-3 px-7 h-full flex items-center justify-center text-white cursor-pointer hover:text-[#D497FF] transition-colors"
+                                            key={slugs[i] || i}
+                                            href={`/the-loai/${slugs[i]}`}
+                                            className={`px-2.5 py-1 text-[11px] md:text-xs font-semibold bg-white/5 hover:bg-white/15 border border-white/10 ${styles[i]?.text || 'text-white/80'} rounded-full transition-all`}
                                         >
-                                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="18" height="18" fill="currentColor">
-                                                <path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM216 336h24V272H216c-13.3 0-24-10.7-24-24s10.7-24 24-24h48c13.3 0 24 10.7 24 24v88h8c13.3 0 24 10.7 24 24s-10.7 24-24 24H216c-13.3 0-24-10.7-24-24s10.7-24 24-24zm40-208a32 32 0 1 1 0 64 32 32 0 1 1 0-64z" />
-                                            </svg>
+                                            {cat.name}
                                         </TransitionLink>
-                                    </div>
-                                </div>
+                                    ));
+                                })()}
                             </div>
                         )}
+
+                        {/* 4. Description (Desktop only) */}
+                        <div className="hidden md:block max-w-xl lg:max-w-2xl animate-[heroFadeInUp_0.85s_cubic-bezier(0.22,1,0.36,1)_0.24s_both]">
+                            <p className="text-white/70 text-xs sm:text-sm leading-relaxed line-clamp-2 lg:line-clamp-3">
+                                {cleanContent(currentMovie.content) || "Bộ phim hấp dẫn đang được phát sóng với chất lượng cao trên LoFilm..."}
+                            </p>
+                        </div>
+
+                        {/* 5. CTA Action Buttons */}
+                        <div className="flex items-center gap-2.5 sm:gap-3 pt-1 sm:pt-2 animate-[heroFadeInUp_0.9s_cubic-bezier(0.22,1,0.36,1)_0.32s_both]">
+                            {/* Watch Now Button */}
+                            <TransitionLink
+                                href={getMovieWatchUrl(currentMovie)}
+                                className="h-10 sm:h-12 px-5 sm:px-7 rounded-full bg-[#D497FF] hover:brightness-110 text-black font-extrabold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-[0_0_20px_rgba(212,151,255,0.35)] hover:shadow-[0_0_30px_rgba(212,151,255,0.6)] transition-all duration-300 transform-gpu active:scale-95 cursor-pointer"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="14" height="14" fill="currentColor">
+                                    <path d="M73 39c-14.8-9.1-33.4-9.4-48.5-.9S0 62.6 0 80V432c0 17.4 9.4 33.4 24.5 41.9s33.7 8.1 48.5-.9L361 297c14.3-8.7 23-24.2 23-41s-8.7-32.2-23-41L73 39z" />
+                                </svg>
+                                <span>Xem Ngay</span>
+                            </TransitionLink>
+
+                            {/* Detail Button */}
+                            <TransitionLink
+                                href={`/phim/${currentMovie.slug}`}
+                                className="h-10 sm:h-12 px-4 sm:px-5 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-1.5 transition-all cursor-pointer"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="w-4 h-4">
+                                    <circle cx="12" cy="12" r="10" />
+                                    <path d="M12 16v-4" />
+                                    <path d="M12 8h.01" />
+                                </svg>
+                                <span className="hidden sm:inline">Chi tiết</span>
+                            </TransitionLink>
+
+                            {/* Favorite Button */}
+                            <div className="h-10 sm:h-12 w-10 sm:w-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center transition-all">
+                                <FavoriteButton movie={currentMovie} iconSize={18} />
+                            </div>
+                        </div>
+
                     </div>
 
-                    {/* Thumbnail Swiper (Right side on Desktop, Bottom on Mobile) */}
-                    <div className="w-[340px] min-[700px]:w-[400px] lg:w-[480px] min-h-[44px] min-[700px]:min-h-[32px] lg:min-h-[52px] pointer-events-auto">
-                        <Swiper
-                            modules={[FreeMode, Thumbs]}
-                            onSwiper={setThumbsSwiper}
-                            spaceBetween={8}
-                            slidesPerView={8}
-                            breakpoints={{
-                                640: { slidesPerView: 7.5 },
-                                1024: { slidesPerView: 5 },
-                            }}
-                            freeMode
-                            watchSlidesProgress
-                            loop
-                            speed={800}
-                            className="w-full"
-                        >
-                            {movies.map((movie, index) => (
-                                <SwiperSlide key={movie._id}>
-                                    <div className="relative cursor-pointer rounded-full min-[700px]:rounded overflow-hidden aspect-square min-[700px]:aspect-video border-2 border-white/20 hover:border-white/40 [.swiper-slide-thumb-active_&]:border-[#D497FF] transition-[border-color,opacity] duration-300 opacity-60 hover:opacity-90 [.swiper-slide-thumb-active_&]:opacity-100 bg-[#0F1115]/40">
-                                        <SmartImage
-                                            r2Src={getR2MovieThumbUrl(movie.slug)}
-                                            src={getImageUrl(movie.thumb_url, { width: 100, quality: 60 })}
-                                            rawSrc={getRawImageUrl(movie.thumb_url)}
-                                            alt={movie.name}
-                                            fill
-                                            sizes="100px"
-                                            className="object-cover"
-                                        />
-                                    </div>
-                                </SwiperSlide>
-                            ))}
-                        </Swiper>
+                    {/* === BOTTOM INTERACTIVE PILLS === */}
+                    <div className="mt-5 sm:mt-7 pt-1">
+                        {/* Desktop & Tablet: Clean Movie Tabs */}
+                        <div className="hidden sm:flex items-center gap-1.5 md:gap-2 overflow-x-auto no-scrollbar pointer-events-auto">
+                            {displayMovies.map((movie, idx) => {
+                                const isCurrent = idx === (activeIndex % displayMovies.length);
+                                return (
+                                    <button
+                                        key={movie._id || idx}
+                                        onClick={() => handleSelectSlide(idx)}
+                                        className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 md:py-2 rounded-lg text-left border transition-all duration-200 cursor-pointer flex-1 min-w-[120px] max-w-[190px] ${
+                                            isCurrent
+                                                ? "bg-white/15 border-[#D497FF]/60 text-white shadow-sm"
+                                                : "bg-black/40 hover:bg-white/10 border-white/10 text-white/60 hover:text-white/90"
+                                        }`}
+                                    >
+                                        {/* Slide Number */}
+                                        <span className={`text-[11px] font-black italic ${isCurrent ? 'text-[#D497FF]' : 'text-white/40'}`}>
+                                            0{idx + 1}
+                                        </span>
+
+                                        {/* Movie Mini Title */}
+                                        <span className="text-xs font-bold truncate flex-1">
+                                            {decodeHtml(movie.name)}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+                        </div>
+
+                        {/* Mobile: Clean Indicators */}
+                        <div className="flex sm:hidden items-center justify-center gap-1.5 pointer-events-auto">
+                            {displayMovies.map((_, idx) => {
+                                const isCurrent = idx === (activeIndex % displayMovies.length);
+                                return (
+                                    <button
+                                        key={idx}
+                                        onClick={() => handleSelectSlide(idx)}
+                                        className={`h-1.5 rounded-full transition-all duration-300 ${
+                                            isCurrent ? "w-7 bg-[#D497FF]" : "w-2 bg-white/20"
+                                        }`}
+                                    />
+                                );
+                            })}
+                        </div>
                     </div>
 
-                </div>
-            </Container>
+                </Container>
+            </div>
         </section>
     );
 }
-
-

@@ -147,7 +147,7 @@ const SidebarSection = ({ title, apiUrl, type, limit = 10 }: SidebarSectionProps
                                         {index + 1}.
                                     </span>
                                 )}
-                                <div className={`relative shrink-0 overflow-hidden rounded-lg ${type === 'rank' ? 'w-11 h-15' : 'w-12 h-16'}`}>
+                                <div className={`relative shrink-0 overflow-hidden rounded-lg bg-[#12151C] border border-white/10 group-hover:border-[#D497FF]/40 transition-all ${type === 'rank' ? 'w-11 h-15' : 'w-12 h-16'}`}>
                                     <SmartImage
                                         src={getImageUrl(movie.poster_url || movie.thumb_url || "", { width: 100, quality: 60 })}
                                         rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url)}

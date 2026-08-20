@@ -166,14 +166,22 @@ const EpisodeList = ({
 
   return (
     <div className="w-full">
-      {/* Header with "Danh sách tập" on left, Search/Sort on right */}
-      <div className="flex items-center justify-between gap-3 mb-0 pb-4">
-        <h3 className="text-xs md:text-sm font-bold text-gray-400 uppercase tracking-widest">Danh sách tập</h3>
+      {/* Header with Title and Search/Sort Controls */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-white/5">
+        <div className="flex items-center gap-2.5">
+          <div className="w-1.5 h-5 bg-[#D497FF] rounded-full" />
+          <h3 className="text-base sm:text-lg font-extrabold text-white uppercase tracking-wider">
+            Danh Sách Tập Phim
+          </h3>
+          <span className="text-xs text-white/40 font-medium">
+            ({displayedEpisodes.length} tập)
+          </span>
+        </div>
 
         {/* Search & Sort Bar */}
-        <div className="flex items-center gap-3 flex-1 md:flex-none min-w-0 justify-end">
-          <div className="relative w-27">
-            <Search size={12} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 pointer-events-none" />
+        <div className="flex items-center gap-2 sm:gap-3">
+          <div className="relative w-32 sm:w-40">
+            <Search size={13} className="absolute left-3 top-1/2 -translate-y-1/2 text-white/40 pointer-events-none" />
             <input
               type="text"
               value={searchQuery}
@@ -181,70 +189,80 @@ const EpisodeList = ({
                 setSearchQuery(e.target.value);
                 setActiveRangeIndex(0);
               }}
-              placeholder="Tìm tập..."
-              className="w-full bg-white/5 border border-white/10 rounded-lg pl-9 pr-3 py-2 text-[10px] md:text-xs text-white placeholder-gray-500 focus:outline-none focus:border-[#D497FF]/50 focus:bg-white/10 transition-all"
+              placeholder="Tìm số tập..."
+              className="w-full bg-white/5 border border-white/10 rounded-xl pl-8 sm:pl-9 pr-3 py-1.5 sm:py-2 text-xs text-white placeholder-white/40 focus:outline-none focus:border-[#D497FF]/60 focus:bg-white/10 transition-all"
             />
           </div>
           <button
             onClick={toggleSortOrder}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all cursor-pointer border bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white whitespace-nowrap flex-shrink-0"
-            title={sortOrder === 'asc' ? 'Tăng dần' : 'Giảm dần'}
+            className="flex items-center gap-1.5 px-3 py-1.5 sm:py-2 rounded-xl text-xs font-bold transition-all cursor-pointer border bg-white/5 text-white/70 border-white/10 hover:bg-white/10 hover:text-white whitespace-nowrap flex-shrink-0"
+            title={sortOrder === 'asc' ? 'Sắp xếp Tăng dần' : 'Sắp xếp Giảm dần'}
           >
-            <ArrowUpDown size={12} />
-            {sortOrder === 'asc' ? 'Tăng dần' : 'Giảm dần'}
+            <ArrowUpDown size={13} />
+            <span className="hidden sm:inline">{sortOrder === 'asc' ? 'Tăng dần' : 'Giảm dần'}</span>
           </button>
         </div>
       </div>
 
-      {/* Server buttons - full width inside collapsed area */}
+      {/* Server Selection Pills */}
       {showServers && episodes.length > 0 && (
-        <div className="flex items-center gap-2 flex-wrap mb-4">
-          {episodes.map((server, index) => (
-            <button
-              key={index}
-              onClick={() => {
-                onServerChange?.(index);
-                setActiveRangeIndex(0);
-                setSearchQuery("");
-              }}
-              className={`flex items-center gap-2 px-3 py-1.5 rounded-lg text-[10px] md:text-xs tracking-wider transition-all cursor-pointer font-medium whitespace-nowrap focus:outline-none ${activeServer === index
-                ? "bg-gradient-to-r from-[#D497FF] to-[#D497FF] text-black shadow-lg shadow-[#D497FF]/20 border border-transparent"
-                : "bg-white/5 text-gray-500 hover:text-white border border-transparent"
+        <div className="flex items-center gap-2 flex-wrap mb-5">
+          {episodes.map((server, index) => {
+            const isServerActive = activeServer === index;
+            const cleanName = server.server_name
+              .replace(/Thuyết Minh/gi, "Thuyết Minh")
+              .replace(/Lồng Tiếng/gi, "Lồng Tiếng");
+
+            return (
+              <button
+                key={index}
+                onClick={() => {
+                  onServerChange?.(index);
+                  setActiveRangeIndex(0);
+                  setSearchQuery("");
+                }}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer whitespace-nowrap border ${
+                  isServerActive
+                    ? "bg-[#D497FF] border-[#D497FF] text-black shadow-[0_0_15px_rgba(212,151,255,0.3)] scale-102"
+                    : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10 hover:text-white"
                 }`}
-            >
-              <Server size={12} />
-              {server.server_name}
-            </button>
-          ))}
+              >
+                <Server size={13} />
+                <span>{cleanName}</span>
+              </button>
+            );
+          })}
         </div>
       )}
 
-
-      {/* Latest Episode Link */}
+      {/* Latest Episode Alert Link */}
       {latestEpisode && !searchQuery.trim() && (
-        <div className="mb-4 text-[12px] flex gap-1 items-center md:text-sm text-gray-400">
-          <span>Xem tập mới nhất tại</span>
-          <TransitionLink
-            href={`/phim/${slug}/${getFriendlyEpisodeSlug(latestEpisode.slug)}`}
-            className="inline-flex items-center gap-1 text-[#D497FF] hover:text-[#D497FF] transition-colors group font-bold"
-          >
-            <span className="">👉</span>
-            <span>{movieName} - Tập {latestEpisode.name.replace(/Tập\s*/i, "").trim()}</span>
-          </TransitionLink>
+        <div className="mb-4 px-3.5 py-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-between text-xs sm:text-sm text-white/60">
+          <div className="flex items-center gap-2 truncate">
+            <span className="text-[#D497FF]">⚡</span>
+            <span>Xem tập mới nhất:</span>
+            <TransitionLink
+              href={`/phim/${slug}/${getFriendlyEpisodeSlug(latestEpisode.slug)}`}
+              className="text-[#D497FF] hover:underline font-bold truncate"
+            >
+              Tập {latestEpisode.name.replace(/Tập\s*/i, "").trim()}
+            </TransitionLink>
+          </div>
         </div>
       )}
 
       {/* Episode Ranges Selection (hide when searching) */}
       {episodeRanges.length > 0 && !searchQuery.trim() && (
-        <div className="flex flex-wrap gap-2 mb-6 pt-2">
+        <div className="flex flex-wrap gap-2 mb-5">
           {episodeRanges.map((range, idx) => (
             <button
               key={idx}
               onClick={() => setActiveRangeIndex(idx)}
-              className={`px-4 py-2 rounded-lg text-[10px] md:text-xs font-bold transition-all cursor-pointer border ${activeRangeIndex === idx
-                ? 'bg-[#D497FF]/20 text-[#D497FF] border-[#D497FF]/50'
-                : 'bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white'
-                }`}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
+                activeRangeIndex === idx
+                  ? 'bg-[#D497FF]/20 text-[#D497FF] border-[#D497FF]/50 shadow-sm'
+                  : 'bg-white/5 text-white/60 border-white/10 hover:bg-white/10 hover:text-white'
+              }`}
             >
               {range.label}
             </button>
@@ -254,14 +272,15 @@ const EpisodeList = ({
 
       {/* No results message */}
       {displayedEpisodes.length === 0 && (
-        <div className="text-center py-8 text-gray-500 text-xs md:text-sm">
-          Không tìm thấy tập nào
+        <div className="text-center py-10 text-white/40 text-sm">
+          Không tìm thấy tập phim nào phù hợp với từ khóa &ldquo;{searchQuery}&rdquo;
         </div>
       )}
 
+      {/* Episode Matrix Grid */}
       <div
         key={activeRangeIndex + searchQuery + sortOrder}
-        className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3 pt-2 animate-fade-in"
+        className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 lg:grid-cols-10 xl:grid-cols-12 gap-2 sm:gap-2.5 animate-fade-in"
       >
         {displayedEpisodes.map((ep, i) => {
           const rawName = ep.name || "";
@@ -287,14 +306,14 @@ const EpisodeList = ({
                 }
               }}
               className={`
-                  py-3 md:py-4 flex items-center justify-center rounded-xl text-sm transition-all transform border font-bold
-                  ${isActive
-                  ? "bg-gradient-to-r from-[#D497FF] to-[#D497FF] text-black border-transparent shadow-lg shadow-[#D497FF]/20 z-10"
-                  : "bg-white/5 text-gray-400 border-white/5 hover:bg-white/10 hover:text-white hover:border-white/20"
+                h-10 sm:h-11 flex items-center justify-center rounded-xl text-xs sm:text-sm font-bold transition-all cursor-pointer border relative overflow-hidden group
+                ${isActive
+                  ? "bg-[#D497FF] border-[#D497FF] text-black shadow-[0_0_20px_rgba(212,151,255,0.4)] scale-102 z-10"
+                  : "bg-white/5 text-white/70 border-white/10 hover:bg-white/10 hover:text-white hover:border-white/20 active:scale-95"
                 }
-                `}
+              `}
             >
-              {isTrailerEp ? "Trailer" : displayName.replace(/^0+(?=\d)/, "")}
+              <span>{isTrailerEp ? "Trailer" : displayName.replace(/^0+(?=\d)/, "")}</span>
             </TransitionLink>
           );
         })}

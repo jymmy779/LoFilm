@@ -7,12 +7,12 @@ import { SocialDataProvider } from "./SocialDataContext";
 export default function SocialStatsSection() {
     return (
         <SocialDataProvider>
-            <Container as="section" className="relative z-30 py-4 sm:py-6 md:py-8">
-                <div className="border border-white/5 rounded-2xl sm:rounded-3xl md:rounded-[2rem] relative group">
-                    <div className="relative z-10 p-4 sm:p-6 md:p-8">
+            <Container as="section" className="relative z-30">
+                <div className="bg-[#12151C]/60 border border-white/10 rounded-3xl relative group overflow-hidden shadow-xl">
+                    <div className="relative z-10 p-4 sm:p-5 md:p-6 lg:p-8">
                         <TopCommentsSlider />
                         
-                        <div className="mt-6 pt-6 sm:mt-8 sm:pt-8 md:mt-12 md:pt-10 border-t border-white/5 relative">
+                        <div className="mt-6 pt-6 sm:mt-8 sm:pt-8 md:mt-10 md:pt-8 border-t border-white/10 relative">
                             <StatsGrid />
                         </div>
                     </div>

@@ -17,6 +17,7 @@ import Container from "@/app/components/UI/Container";
 import MoviePreviewWrapper from "@/app/components/Movies/MovieCard/MoviePreviewWrapper";
 import SwiperNavButtons from "@/app/components/UI/Common/SwiperNavButtons";
 import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
+import TopMovieRowSkeleton from "./TopMovieRowSkeleton";
 
 interface TopMovieRowProps {
     title: string;
@@ -25,12 +26,6 @@ interface TopMovieRowProps {
     initialMovies?: Movie[];
     titleGradient?: string;
 }
-
-// Sawtooth clip-path constants (hoisted outside)
-const CLIP_PATH_EVEN = 'polygon(0% calc(5% + 16px), 1.2px calc(5% + 9.9px), 4.7px calc(5% + 4.7px), 9.9px calc(5% + 1.2px), 16px 5%, 100% 0, 100% 100%, 0% 100%)';
-const CLIP_PATH_ODD = 'polygon(0 0, calc(100% - 16px) 5%, calc(100% - 9.9px) calc(5% + 1.2px), calc(100% - 4.7px) calc(5% + 4.7px), calc(100% - 1.2px) calc(5% + 9.9px), 100% calc(5% + 16px), 100% 100%, 0% 100%)';
-
-import TopMovieRowSkeleton from "./TopMovieRowSkeleton";
 
 function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies, titleGradient = "from-white via-[#E9D5FF] to-[#D497FF]" }: TopMovieRowProps) {
     const seeded = !!(initialMovies && initialMovies.length > 0);
@@ -61,7 +56,7 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies, titleGradient 
 
     return (
         <Container as="section" className="top-movie-row-section relative z-30">
-            <div className="row-header flex items-center justify-between mb-8">
+            <div className="row-header flex items-center justify-between mb-6">
                 <h2 className={`text-[22px] lg:text-[32px] font-bold !leading-tight text-transparent bg-clip-text bg-gradient-to-r ${titleGradient} drop-shadow-sm flex items-center gap-4`}>
                     {title}
                 </h2>
@@ -71,144 +66,134 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies, titleGradient 
                 <Swiper
                     modules={[Navigation, Virtual]}
                     virtual={{ enabled: true }}
-                    spaceBetween={8}
+                    spaceBetween={10}
                     navigation={{
                         nextEl: `.sw-next-${navId}`,
                         prevEl: `.sw-prev-${navId}`,
                     }}
+                    slidesPerView={2.3}
                     breakpoints={{
-                        0: { slidesPerView: 2, spaceBetween: 8 },
-                        480: { slidesPerView: 2.5, spaceBetween: 10 },
-                        640: { slidesPerView: 3, spaceBetween: 10 },
-                        768: { slidesPerView: 4, spaceBetween: 10 },
-                        1024: { slidesPerView: 5, spaceBetween: 10 },
-                        1200: { slidesPerView: 6, spaceBetween: 10 },
-                        1400: { slidesPerView: 7, spaceBetween: 12 },
-                        1536: { slidesPerView: 8, spaceBetween: 12 }
+                        480: { slidesPerView: 2.8, spaceBetween: 10 },
+                        640: { slidesPerView: 3.5, spaceBetween: 12 },
+                        768: { slidesPerView: 4.5, spaceBetween: 12 },
+                        1024: { slidesPerView: 5.5, spaceBetween: 14 },
+                        1280: { slidesPerView: 6.5, spaceBetween: 14 },
+                        1536: { slidesPerView: 7.5, spaceBetween: 16 },
                     }}
-                    className="swiper-carousel top-movie-carousel"
+                    className="w-full"
                 >
                     {movies.map((movie, index) => {
-                        const isEven = index % 2 !== 0;
+                        const rankNumber = index + 1;
 
                         return (
-                            <SwiperSlide key={movie._id} virtualIndex={index} className="transform-gpu">
+                            <SwiperSlide key={movie._id} virtualIndex={index}>
                                 <MoviePreviewWrapper
                                     movie={movie}
                                     adZone="top_movie"
-                                    className="sw-item group/item cursor-pointer mt-4 transform-gpu flex flex-col h-full"
+                                    className="group flex flex-col h-full cursor-pointer w-full"
                                 >
-                                    <TransitionLink
-                                        href={`/phim/${movie.slug}`}
-                                        className="v-thumbnail relative block aspect-[2/3] rounded-2xl overflow-hidden mb-4 bg-[#0F1115] transition-[box-shadow] duration-500 ease-out transform-gpu cursor-pointer"
-                                        style={{
-                                            WebkitClipPath: isEven ? CLIP_PATH_EVEN : CLIP_PATH_ODD,
-                                            clipPath: isEven ? CLIP_PATH_EVEN : CLIP_PATH_ODD
-                                        }}
-                                    >
-                                        <div className="w-full h-full transition-transform duration-700 ease-out group-hover/item:scale-110">
-                                            <div className="w-full h-full relative">
-                                                <SmartImage
-                                                    r2Src={getR2MoviePosterUrl(movie.slug)}
-                                                    src={getImageUrl(movie.poster_url, { width: 250, quality: 75 })}
-                                                    rawSrc={getRawImageUrl(movie.poster_url)}
-                                                    alt={movie.name}
-                                                    fill
-                                                    priority={false}
-                                                    loading="lazy"
-                                                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 200px"
-                                                    className="object-cover transform-gpu"
-                                                />
-                                            </div>
-                                        </div>
+                                    {/* Poster Container */}
+                                    <div className="relative w-full flex-shrink-0">
+                                        <TransitionLink
+                                            href={`/phim/${movie.slug}`}
+                                            className="relative aspect-[2/3] rounded-lg overflow-hidden bg-[#0F1115] border border-white/5 group-hover:border-[#D497FF]/40 transition-all duration-300 block w-full cursor-pointer"
+                                        >
+                                            <SmartImage
+                                                r2Src={getR2MoviePosterUrl(movie.slug)}
+                                                src={getImageUrl(movie.poster_url, { width: 340, quality: 75 })}
+                                                rawSrc={getRawImageUrl(movie.poster_url)}
+                                                alt={movie.name}
+                                                fill
+                                                priority={false}
+                                                loading="lazy"
+                                                sizes="(max-width: 640px) 45vw, (max-width: 1024px) 25vw, 240px"
+                                                className="object-cover group-hover:scale-105 transition-transform duration-500 transform-gpu"
+                                            />
 
-                                        {/* Play Icon Highlight */}
-                                        <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover/item:opacity-100 transition-opacity duration-300 bg-black/30 z-10">
-                                            <div className="w-10 h-10 rounded-full bg-[#D497FF] text-black flex items-center justify-center shadow-lg shadow-[#D497FF]/50 transform scale-90 group-hover/item:scale-100 transition-transform duration-300">
-                                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="w-5 h-5 ml-0.5">
-                                                    <path fillRule="evenodd" d="M4.5 5.653c0-1.426 1.54-2.33 2.77-1.613l11.74 6.813a1.614 1.614 0 010 2.825L7.27 20.493c-1.23.717-2.77-.187-2.77-1.613V5.653z" clipRule="evenodd" />
-                                                </svg>
-                                            </div>
-                                        </div>
+                                            {/* Bottom Gradient Shadow */}
+                                            <div className="absolute inset-x-0 bottom-0 h-2/3 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none z-10" />
 
 
+                                            {/* Badges on Bottom Right */}
+                                            <div className="absolute bottom-2 right-2 flex flex-col items-end gap-1 z-20 pointer-events-none">
+                                                <div className="h-4.5 px-1.5 bg-[#FAD078] rounded text-amber-950 shadow-sm text-[9px] font-bold flex items-center justify-center leading-none">
+                                                    {movie.quality || "HD"}
+                                                </div>
+                                                <div className="h-4.5 px-1.5 bg-[#A7F3D0] rounded text-emerald-950 shadow-sm text-[9px] font-bold flex items-center justify-center leading-none">
+                                                    {getEpisodeStatus(movie)}
+                                                </div>
+                                            </div>
+                                        </TransitionLink>
 
-                                        {/* Glassmorphism Badges */}
-                                        <div className="absolute bottom-2 left-0 right-0 flex items-center justify-center flex-wrap gap-1 px-2 z-20 translate-y-1 group-hover/item:translate-y-0 transition-transform duration-300 transform-gpu">
-                                            <div className="h-5 px-1.5 bg-[#FAD078] rounded-md text-amber-950 shadow-sm text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
-                                                {movie.quality || "HD"}
-                                            </div>
-                                            <div className="h-5 px-1.5 bg-[#C084FC] rounded-md text-purple-950 shadow-sm text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
-                                                {((movie as any).lang_tag || movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
-                                            </div>
-                                            <div className="h-5 px-1.5 bg-[#A7F3D0] rounded-md text-emerald-950 shadow-sm text-[9px] font-bold flex items-center justify-center whitespace-nowrap tracking-tighter leading-none">
-                                                {getEpisodeStatus(movie)}
-                                            </div>
-                                        </div>
-                                    </TransitionLink>
-
-                                    {/* Movie Info */}
-                                    <div className="flex gap-2 items-center pr-2">
-                                        <div className={`ranking-number md:text-4xl text-3xl lg:text-5xl font-black italic select-none drop-shadow-[0_4px_8px_rgba(0,0,0,0.5)] flex-shrink-0 flex items-center justify-start ${index + 1 >= 20 ? 'w-9 md:w-11 lg:w-[52px]' : index + 1 >= 10 ? 'w-8 md:w-10 lg:w-[46px]' : 'w-6 md:w-8 lg:w-10'}`}
+                                        {/* Netflix 3D Layered Rank Number */}
+                                        <div
+                                            className={`ranking-number absolute -bottom-2 sm:-bottom-3 -left-1.5 sm:-left-2 z-20 font-black italic select-none pointer-events-none leading-none tracking-tighter ${
+                                                rankNumber >= 10
+                                                    ? "text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
+                                                    : "text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
+                                            }`}
                                             style={{
-                                                color: '#D497FF',
-                                                backgroundImage: 'linear-gradient(135deg, #FFFFFF 0%, #E9D5FF 45%, #D497FF 100%)',
+                                                backgroundImage: rankNumber === 1
+                                                    ? 'linear-gradient(180deg, #FFFBEB 0%, #FBBF24 60%, #D97706 100%)'
+                                                    : rankNumber === 2
+                                                    ? 'linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 50%, #94A3B8 100%)'
+                                                    : rankNumber === 3
+                                                    ? 'linear-gradient(180deg, #FFF1F2 0%, #FB7185 60%, #E11D48 100%)'
+                                                    : 'linear-gradient(180deg, #FFFFFF 0%, #E9D5FF 50%, #D497FF 100%)',
                                                 WebkitBackgroundClip: 'text',
                                                 WebkitTextFillColor: 'transparent',
-                                                opacity: 1
-                                            }}>
-                                            {index + 1}
+                                                filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.9))'
+                                            }}
+                                        >
+                                            {rankNumber}
                                         </div>
-                                        <div className="flex flex-col flex-nowrap gap-1.5 min-w-0">
+                                    </div>
+
+                                    {/* Movie Info (Fixed Height to prevent layout shift) */}
+                                    <div className="pt-2 space-y-1 flex flex-col justify-between">
+                                        <div>
                                             <TransitionLink
                                                 href={`/phim/${movie.slug}`}
-                                                className="text-white text-sm md:text-base leading-tight hover:text-[#D497FF] transition-colors line-clamp-1 lg:font-bold cursor-pointer"
+                                                className="text-white text-xs sm:text-sm font-bold leading-tight hover:text-[#D497FF] transition-colors line-clamp-2 cursor-pointer block h-[32px] sm:h-[36px]"
+                                                title={movie.name}
                                             >
                                                 {decodeHtml(movie.name)}
                                             </TransitionLink>
-                                            <p className="text-white/40 text-[10px] md:text-xs truncate font-medium">
+                                            <p
+                                                className="text-white/40 text-[10px] sm:text-[11px] line-clamp-1 font-medium italic mt-0.5 h-[16px]"
+                                                title={movie.origin_name}
+                                            >
                                                 {decodeHtml(movie.origin_name)}
                                             </p>
-                                            <div className="info-line flex flex-nowrap items-center gap-1 mt-1">
-                                                {(() => {
-                                                    let partNum = "1";
-                                                    const nameStr = `${movie.name || ""} ${movie.origin_name || ""}`;
-                                                    const slugStr = movie.slug || "";
+                                        </div>
 
-                                                    // 1. Từ khóa rõ ràng: Phần, Mùa, Season, Part, Vol, Volume, Movie, Film
-                                                    const explicitMatch = nameStr.match(/(?:Phần|Phan|Mùa|Mua|Season|Part|Volume|Vol|Movie|Film)\s*[:\-\s]?\s*0*(\d+)/i);
+                                        <div className="info-line flex flex-wrap items-center gap-1 pt-0.5 h-[16px]">
+                                            {(() => {
+                                                let partNum = "1";
+                                                const nameStr = `${movie.name || ""} ${movie.origin_name || ""}`;
+                                                const slugStr = movie.slug || "";
 
-                                                    // 2. Dạng "Tên Phim X: Tên Phụ..." hoặc "Tên Phim X - Tên Phụ..." (loại trừ "Số X")
-                                                    const colonMatch = nameStr.match(/(?<!Số\s*)[\w\s]+\s+([2-9]|\d{2})\s*[:\-]/i);
+                                                const explicitMatch = nameStr.match(/(?:Phần|Phan|Mùa|Mua|Season|Part|Volume|Vol|Movie|Film)\s*[:\-\s]?\s*0*(\d+)/i);
+                                                const colonMatch = nameStr.match(/(?<!Số\s*)[\w\s]+\s+([2-9]|\d{2})\s*[:\-]/i);
+                                                const slugMatch = slugStr.match(/-(?:phan|mua|season|part|vol|movie)-0*(\d+)/i);
+                                                const endNumberMatch = nameStr.match(/(?<!Số\s*)\b([2-9])\s*$/i);
 
-                                                    // 3. Slug pattern: -phan-X, -mua-X, -season-X, -part-X, -vol-X, -movie-X
-                                                    const slugMatch = slugStr.match(/-(?:phan|mua|season|part|vol|movie)-0*(\d+)/i);
+                                                if (explicitMatch) partNum = explicitMatch[1];
+                                                else if (colonMatch) partNum = colonMatch[1];
+                                                else if (slugMatch) partNum = slugMatch[1];
+                                                else if (endNumberMatch) partNum = endNumberMatch[1];
 
-                                                    // 4. Số đơn từ 2-9 ở cuối tên phim (Ví dụ: "Boboiboy 2", "John Wick 4")
-                                                    const endNumberMatch = nameStr.match(/(?<!Số\s*)\b([2-9])\s*$/i);
-
-                                                    if (explicitMatch) {
-                                                        partNum = explicitMatch[1];
-                                                    } else if (colonMatch) {
-                                                        partNum = colonMatch[1];
-                                                    } else if (slugMatch) {
-                                                        partNum = slugMatch[1];
-                                                    } else if (endNumberMatch) {
-                                                        partNum = endNumberMatch[1];
-                                                    }
-
-                                                    return (
-                                                        <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none whitespace-nowrap">
-                                                            Phần {partNum}
-                                                        </div>
-                                                    );
-                                                })()}
-                                                <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none whitespace-nowrap">
-                                                    {movie.year || "2024"}
-                                                </div>
-                                                <div className="tag-small px-1.5 py-0.5 bg-[#0F1115]/80 rounded text-[9.5px] md:text-[10.5px] text-white/50 font-medium leading-none whitespace-nowrap">
-                                                    {getEpisodeStatus(movie)}
-                                                </div>
+                                                return (
+                                                    <div className="tag-small px-1.5 py-0.5 bg-white/5 border border-white/5 rounded text-[9px] sm:text-[9.5px] text-white/50 font-medium leading-none whitespace-nowrap">
+                                                        Phần {partNum}
+                                                    </div>
+                                                );
+                                            })()}
+                                            <div className="tag-small px-1.5 py-0.5 bg-white/5 border border-white/5 rounded text-[9px] sm:text-[9.5px] text-white/50 font-medium leading-none whitespace-nowrap">
+                                                {movie.year || "2024"}
+                                            </div>
+                                            <div className="tag-small px-1.5 py-0.5 bg-purple-500/10 border border-purple-500/20 rounded text-[9px] sm:text-[9.5px] text-[#D497FF] font-medium leading-none whitespace-nowrap truncate">
+                                                {((movie as any).lang_tag || movie.lang || "Vietsub").replace(/Lồng Tiếng/g, "LT").replace(/Thuyết Minh/g, "TM")}
                                             </div>
                                         </div>
                                     </div>
@@ -224,20 +209,8 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies, titleGradient 
                     variant="ghost"
                 />
             </div>
-
-            <style jsx global>{`
-                .top-movie-carousel .swiper-wrapper {
-                    padding-bottom: 20px;
-                    padding-top: 5px;
-                }
-                @keyframes top-movie-shake {
-                    0%, 100% { transform: rotate(0.2deg); }
-                    50% { transform: rotate(-0.2deg); }
-                }
-            `}</style>
         </Container>
     );
 }
 
 export default memo(TopMovieRow);
-

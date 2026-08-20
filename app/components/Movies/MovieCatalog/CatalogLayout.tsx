@@ -80,20 +80,20 @@ export default function CatalogLayout({
                                     <div className="w-full">
                                         {isLoading || isPageLoading ? (
                                             <div
-                                                className={`grid gap-x-2 gap-y-8 md:gap-x-3 md:gap-y-10 ${hideSidebar
-                                                    ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8"
+                                                className={`grid gap-x-2.5 gap-y-6 sm:gap-x-3 sm:gap-y-8 md:gap-x-3.5 md:gap-y-10 ${hideSidebar
+                                                    ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7"
                                                     : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
                                                     }`}
                                             >
-                                                {[...Array(24)].map((_, i) => (
+                                                {[...Array(21)].map((_, i) => (
                                                     <MovieCardSkeleton key={i} />
                                                 ))}
                                             </div>
                                         ) : (
                                             <div key="content" className="animate-fade-in">
                                                 {movies.length > 0 ? (
-                                                    <div className={`grid gap-x-2 gap-y-8 md:gap-x-3 md:gap-y-10 ${hideSidebar
-                                                        ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-8"
+                                                    <div className={`grid gap-x-2.5 gap-y-6 sm:gap-x-3 sm:gap-y-8 md:gap-x-3.5 md:gap-y-10 ${hideSidebar
+                                                        ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7"
                                                         : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
                                                         }`}>
                                                         {movies.map((movie, index) => (

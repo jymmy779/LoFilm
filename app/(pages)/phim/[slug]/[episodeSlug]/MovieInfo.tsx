@@ -1,10 +1,9 @@
 "use client";
 
-import React from "react";
-
+import React, { useMemo } from "react";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
-import { ChevronRight } from "lucide-react";
-import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
+import { getImageUrl, getRawImageUrl, generateCategorySlug } from "@/app/utils/movieUtils";
+import { getCategoryStyles } from "@/app/utils/uiUtils";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
 import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 
@@ -14,8 +13,15 @@ interface MovieInfoProps {
     name: string;
     origin_name: string;
     poster_url: string;
+    thumb_url?: string;
     content: string;
     quality: string;
+    year?: number | string;
+    category?: Array<{
+      id?: string;
+      name: string;
+      slug: string;
+    }>;
     tmdb?: {
       id?: string;
       type?: string;
@@ -30,55 +36,70 @@ interface MovieInfoProps {
 const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
   const rating = movie.tmdb?.vote_average && movie.tmdb.vote_average > 0
     ? movie.tmdb.vote_average.toFixed(1)
-    : "N/A";
+    : null;
+
+  const categoryStyles = useMemo(() => {
+    if (!movie.category || movie.category.length === 0) return [];
+    return getCategoryStyles(movie.category.map((c) => c.slug));
+  }, [movie.category]);
 
   return (
-    <div className="flex md:flex-row gap-6 pb-10 border-b border-b-white/10">
-      <div className="v-thumb-l flex justify-center flex-shrink-0">
-        <div className="v-thumbnail relative w-[100px] h-[150px] rounded-xl overflow-hidden transform-gpu">
-          <SmartImage
-            r2Src={getR2MoviePosterUrl(slug)}
-            src={getImageUrl(movie.poster_url, { width: 200, quality: 75 })}
-            rawSrc={getRawImageUrl(movie.poster_url)}
-            alt={movie.name}
-            fill
-            sizes="100px"
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        </div>
+    <div className="flex flex-col sm:flex-row gap-4 sm:gap-6 items-start">
+      {/* Poster Thumbnail */}
+      <div className="flex-shrink-0 w-[90px] sm:w-[105px] md:w-[120px] aspect-[2/3] rounded-xl overflow-hidden border border-white/15 bg-[#12151C] shadow-lg relative group">
+        <SmartImage
+          r2Src={getR2MoviePosterUrl(slug)}
+          src={getImageUrl(movie.poster_url || movie.thumb_url, { width: 240, quality: 80 })}
+          rawSrc={getRawImageUrl(movie.poster_url || movie.thumb_url)}
+          alt={movie.name}
+          fill
+          sizes="(max-width: 768px) 105px, 120px"
+          className="object-cover group-hover:scale-105 transition-transform duration-500"
+        />
       </div>
 
-      <div className="flex-1 min-w-0">
-        <h1 className="text-lg md:text-xl font-bold text-white mb-1 font-montserrat tracking-tight leading-tight">
-          <TransitionLink href={`/phim/${slug}`} className="hover:text-[#D497FF] transition-colors">
-            {movie.name}
-          </TransitionLink>
-        </h1>
-        <div className="text-[12px] text-white/40 mb-3 font-medium italic leading-none">{movie.origin_name}</div>
-
-        <div className="flex flex-wrap items-center gap-3 md:gap-5 mb-5 md:mb-6">
-          <div className="flex flex-wrap gap-2">
-            <div className="flex items-center gap-1.5 px-1.5 py-0.5 bg-rose-500 rounded text-white text-[9px] font-bold">
-              <span className="text-[8px]">★</span>
-              <span>{rating}</span>
-            </div>
-            <div className="px-1.5 py-0.5 bg-[#FAD078] rounded flex items-center justify-center text-amber-950 text-[9px] font-bold tracking-wider">{movie.quality}</div>
-            <div className="px-1.5 py-0.5 bg-[#F5CAE3] flex items-center justify-center rounded text-pink-950 text-[9px] tracking-tight font-bold">{episode.name || "Trailer"}</div>
+      {/* Main Info */}
+      <div className="flex-1 min-w-0 flex flex-col justify-between">
+        <div>
+          <div className="flex items-center gap-2 mb-2 flex-wrap">
+            {rating && (
+              <div className="flex items-center gap-1 px-2.5 py-1 bg-gradient-to-r from-pink-500 to-rose-400 rounded-md text-white text-xs font-black shadow-sm leading-none">
+                <span className="text-[10px]">★</span>
+                <span>{rating}</span>
+              </div>
+            )}
+            {movie.year && (
+              <span className="px-2.5 py-1 bg-[#A7F3D0] text-emerald-950 text-xs font-bold rounded-md shadow-sm leading-none">
+                {movie.year}
+              </span>
+            )}
+            {movie.quality && (
+              <span className="px-2.5 py-1 bg-[#FAD078] text-amber-950 text-xs font-bold rounded-md shadow-sm leading-none">
+                {movie.quality}
+              </span>
+            )}
+            <span className="px-2.5 py-1 bg-[#F5CAE3] text-pink-950 text-xs font-bold rounded-md shadow-sm leading-none">
+              {episode.name || "Trailer"}
+            </span>
           </div>
-        </div>
-      </div>
 
-      <div className="flex-1 lg:block hidden min-w-0 md:pl-6 md:border-l border-white/5 flex flex-col justify-start">
-        <div className="text-[13.5px] text-white/40 leading-relaxed line-clamp-4 font-light">
-          <div dangerouslySetInnerHTML={{ __html: movie.content }} />
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-black text-white mb-1 tracking-tight leading-snug">
+            <TransitionLink href={`/phim/${slug}`} className="hover:text-[#D497FF] transition-colors">
+              {movie.name}
+            </TransitionLink>
+          </h1>
+          <p className="text-xs sm:text-sm text-white/40 font-medium italic mb-2.5">
+            {movie.origin_name}
+          </p>
         </div>
-        <TransitionLink
-          href={`/phim/${slug}`}
-          className="inline-flex items-center gap-1 mt-8 text-[#D497FF] hover:text-[#D497FF] text-[13px] transition-colors group font-bold"
-        >
-          Thông tin phim
-          <ChevronRight size={10} className="mt-[3px] group-hover:translate-x-0.5 transition-transform" />
-        </TransitionLink>
+
+        {/* Synopsis content */}
+        {movie.content && (
+          <div
+            className="text-xs sm:text-sm text-white/70 leading-relaxed font-light mt-1"
+            dangerouslySetInnerHTML={{ __html: movie.content }}
+          />
+        )}
       </div>
     </div>
   );

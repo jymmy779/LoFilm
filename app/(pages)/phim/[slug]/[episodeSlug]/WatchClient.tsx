@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import LoadingSpinner from "@/app/components/UI/Common/LoadingSpinner";
-import { AlertTriangle, RefreshCcw, List, X } from "lucide-react";
+import { AlertTriangle, RefreshCcw, List, X, User, MessageSquare, Info, Users, Sparkles, Tag, Play } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import Hls from "hls.js";
@@ -34,19 +34,21 @@ import Container from "@/app/components/UI/Container";
 import PlayerControls from "./PlayerControls";
 import EpisodeList from "./EpisodeList";
 import DualSubtitleMenu from "./DualSubtitleMenu";
-import Sidebar from "./Sidebar";
 import MovieHeader from "./MovieHeader";
 import MovieInfo from "./MovieInfo";
 import CommentSection from "@/app/components/Social/Comments/CommentSection";
 import ReportModal from "@/app/components/UI/Common/ReportModal";
 import ShareModal from "@/app/components/Movies/Movie/ShareModal";
+import MoviePosterCard from "@/app/components/Movies/MovieCard/MoviePosterCard";
 import { getImageUrl, getRawImageUrl, getFriendlyEpisodeSlug } from "@/app/utils/movieUtils";
 import LazyRow from "@/app/components/UI/Common/LazyRow";
 import Skeleton from "@/app/components/UI/Skeleton/Skeleton";
 
 import SmartImage from "@/app/components/UI/Common/SmartImage";
-import { fetchTotalEpisodesFromTMDB } from "@/app/utils/tmdbUtils";
+import { fetchTotalEpisodesFromTMDB, fetchActorsFromTMDB, TMDBActor } from "@/app/utils/tmdbUtils";
+import { getR2ActorUrl, getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 import { useAuth } from "@/app/components/User/Auth/AuthContext";
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 import { toast } from "react-hot-toast";
 import { MdReplay10, MdForward10 } from "react-icons/md";
 import { renderToStaticMarkup } from "react-dom/server";
@@ -71,6 +73,9 @@ interface WatchClientProps {
         poster_url: string;
         content: string;
         quality: string;
+        year?: number | string;
+        category?: Array<{ id: string; name: string; slug: string }>;
+        country?: Array<{ id: string; name: string; slug: string }>;
         episode_current: string;
         actors: string[];
         tmdb?: {
@@ -125,7 +130,7 @@ export default function WatchClient({
         episodes.forEach(server => {
             let originalName = server.server_name.toLowerCase();
             let cleanName = "Vietsub";
-            
+
             if (originalName.includes('thuyết minh') || originalName.includes(' tm') || originalName === 'tm') {
                 cleanName = 'Thuyết Minh';
             } else if (originalName.includes('lồng tiếng') || originalName.includes(' lt') || originalName === 'lt') {
@@ -178,11 +183,11 @@ export default function WatchClient({
     }, [initialSuggestions]);
     const router = useRouter();
     const { user } = useAuth();
-    
+
     const settings = useSettingsStore();
     const [isMounted, setIsMounted] = useState(false);
     useEffect(() => { setIsMounted(true); }, []);
-    
+
     const isExpanded = isMounted ? settings.theaterMode : false;
     const isTheaterMode = isMounted ? settings.theaterMode : false;
     const isAutoNext = isMounted ? settings.autoNext : true;
@@ -207,6 +212,7 @@ export default function WatchClient({
     const [hasError, setHasError] = useState(false);
     const [showReportModal, setShowReportModal] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
+    const [activeTab, setActiveTab] = useState<"episodes" | "info" | "actors">("episodes");
     const userRef = useRef<any>(null);
 
     useEffect(() => {
@@ -243,6 +249,53 @@ export default function WatchClient({
     const [hasStartedPlaying, setHasStartedPlaying] = useState(false);
     const fullscreenWrapperRef = useRef<HTMLDivElement>(null);
     const [isIframeLoading, setIsIframeLoading] = useState(false);
+    const [tmdbActors, setTmdbActors] = useState<TMDBActor[]>([]);
+    const [isLoadingActors, setIsLoadingActors] = useState(false);
+
+    // Fetch Actors from TMDB or API peoples
+    useEffect(() => {
+        if (!slug) return;
+
+        const getActors = async () => {
+            setIsLoadingActors(true);
+            try {
+                if (movie.tmdb?.id) {
+                    const actors = await fetchActorsFromTMDB(
+                        movie.tmdb.id,
+                        (movie.tmdb.type as 'movie' | 'tv') || 'movie'
+                    );
+                    if (actors.length > 0) {
+                        setTmdbActors(actors);
+                        return;
+                    }
+                }
+
+                // Fallback gọi API peoples của phim nếu TMDB không có hoặc chưa cấu hình tmdb.id
+                const res = await fetch(`/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/phim/${slug}/peoples`)}`);
+                const data = await res.json();
+                if (data.success || data.status === "success") {
+                    const peoples = data.data?.peoples;
+                    if (peoples && Array.isArray(peoples)) {
+                        const mappedActors = peoples.map((actor: any) => ({
+                            id: actor.tmdb_people_id || Math.random(),
+                            name: actor.name,
+                            profile_path: actor.profile_path,
+                            character: actor.character
+                        }));
+                        if (mappedActors.length > 0) {
+                            setTmdbActors(mappedActors);
+                        }
+                    }
+                }
+            } catch (error) {
+                console.error("Failed to fetch actors for Watch:", error);
+            } finally {
+                setIsLoadingActors(false);
+            }
+        };
+
+        getActors();
+    }, [slug, movie.tmdb?.id, movie.tmdb?.type]);
 
     useEffect(() => { showEndOverlayRef.current = showEndOverlay; }, [showEndOverlay]);
     const showEpisodeOverlayRef = useRef(showEpisodeOverlay);
@@ -809,14 +862,14 @@ export default function WatchClient({
             isMounted = false;
             clearTimeout(initTimeout);
             if (artRef.current) {
-                try { 
+                try {
                     const video = artRef.current.video;
                     if (video) {
                         video.pause();
                         video.removeAttribute('src');
                         video.load();
                     }
-                    artRef.current.destroy(true); 
+                    artRef.current.destroy(true);
                 } catch (e) { }
                 artRef.current = null;
                 setArtContainer(null);
@@ -1024,14 +1077,14 @@ export default function WatchClient({
             document.documentElement.classList.remove('fullscreen-scrollbar-fix');
             const orientation = (screen as any).orientation;
             if (orientation && typeof orientation.unlock === 'function') {
-                try { orientation.unlock(); } catch(e) {}
+                try { orientation.unlock(); } catch (e) { }
             }
         }
         return () => {
             document.documentElement.classList.remove('fullscreen-scrollbar-fix');
             const orientation = (screen as any).orientation;
             if (orientation && typeof orientation.unlock === 'function') {
-                try { orientation.unlock(); } catch(e) {}
+                try { orientation.unlock(); } catch (e) { }
             }
         };
     }, [isFullscreenActive]);
@@ -1082,17 +1135,18 @@ export default function WatchClient({
     const portalTarget = isEmbedServer ? containerNode : artContainer;
 
     return (
-        <div className={`pt-27 ${isTheaterMode ? "pb-4 min-h-0" : "pb-12 min-h-screen"} transition-all duration-500 animate-fade-in ${isFullscreenActive ? 'video-fullscreen-active' : ''} xl:-ml-[100px] xl:w-[calc(100%+100px)] xl:pl-[100px] relative`}>
+        <div className={`pt-27 pb-12 min-h-screen transition-all duration-500 animate-fade-in ${isFullscreenActive ? 'video-fullscreen-active' : ''} relative`}>
 
-            {/* Background removed as requested by user */}
-
-            <div className={`transition-all duration-500 ease-in-out ${!isTheaterMode && !isFullscreenActive ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
+            {/* Movie Header / Back Button */}
+            <div className={`transition-all duration-500 ease-in-out ${!isFullscreenActive ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
                 <MovieHeader slug={slug} movieName={movie.name} episodeName={currentEpisode.name} />
             </div>
 
-            <div ref={fullscreenWrapperRef} className={`transition-all duration-500 ease-in-out relative ${isExpanded ? 'w-full' : 'max-w-[1900px] mx-auto px-5 lg:px-12'} ${isFullscreenActive ? '!max-w-none !m-0 !fixed !inset-0 !z-[9999]' : ''}`} style={isFullscreenActive ? { padding: 'env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)', backgroundColor: '#000' } : undefined}>
-                <div ref={containerCallbackRef} className={`aspect-video w-full bg-black/40 border border-white/5 relative overflow-hidden transition-all duration-500 z-10 ${isExpanded ? 'rounded-none border-x-0' : 'rounded-2xl'} ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreenActive ? '!rounded-none !border-0 !h-full' : ''}`}>
-                    <style jsx global>{`
+            {/* === VIDEO PLAYER & CONTROLS SECTION === */}
+            <div className="w-full max-w-[1440px] 2xl:max-w-[1560px] px-3 sm:px-5 lg:px-8 mx-auto">
+                <div ref={fullscreenWrapperRef} className={`transition-all duration-500 ease-in-out relative w-full ${isFullscreenActive ? '!max-w-none !m-0 !fixed !inset-0 !z-[9999]' : ''}`} style={isFullscreenActive ? { padding: 'env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)', backgroundColor: '#000' } : undefined}>
+                    <div ref={containerCallbackRef} className={`aspect-video w-full max-h-[calc(100vh-210px)] max-w-[calc((100vh-210px)*16/9)] mx-auto bg-black/40 border border-white/5 relative overflow-hidden transition-all duration-500 z-10 rounded-2xl ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreenActive ? '!rounded-none !border-0 !h-full' : ''}`}>
+                        <style jsx global>{`
                         .art-video-player .art-bottom {
                             z-index: 50 !important;
                         }
@@ -1250,300 +1304,297 @@ export default function WatchClient({
                         }
                     `}</style>
 
-                    {/* HLS Video Container */}
-                    <div className={`w-full h-full absolute inset-0 z-0 ${isEmbedServer ? 'hidden' : 'block'}`}>
-                        <div ref={artContainerRef} className="w-full h-full"></div>
-                    </div>
+                        {/* HLS Video Container */}
+                        <div className={`w-full h-full absolute inset-0 z-0 ${isEmbedServer ? 'hidden' : 'block'}`}>
+                            <div ref={artContainerRef} className="w-full h-full"></div>
+                        </div>
 
-                    {/* Double-tap visual indicators (mobile/tablet) */}
-                    {!isEmbedServer && (
-                        <>
-                            {/* Tap ripples container */}
-                            <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
-                                {tapState.ripples.map(ripple => (
-                                    <div
-                                        key={ripple.id}
-                                        className="absolute rounded-full bg-white/20 animate-ripple-expand pointer-events-none"
-                                        style={{
-                                            left: ripple.x,
-                                            top: ripple.y,
-                                            transform: 'translate(-50%, -50%)',
-                                            willChange: 'transform, opacity',
-                                        }}
-                                    />
-                                ))}
-                            </div>
+                        {/* Double-tap visual indicators (mobile/tablet) */}
+                        {!isEmbedServer && (
+                            <>
+                                {/* Tap ripples container */}
+                                <div className="absolute inset-0 z-10 pointer-events-none overflow-hidden">
+                                    {tapState.ripples.map(ripple => (
+                                        <div
+                                            key={ripple.id}
+                                            className="absolute rounded-full bg-white/20 animate-ripple-expand pointer-events-none"
+                                            style={{
+                                                left: ripple.x,
+                                                top: ripple.y,
+                                                transform: 'translate(-50%, -50%)',
+                                                willChange: 'transform, opacity',
+                                            }}
+                                        />
+                                    ))}
+                                </div>
 
-                            {/* Left double-tap region (30% width) */}
-                            <div
-                                className="absolute left-0 top-0 w-[30%] h-full z-20 pointer-events-none transition-opacity duration-300"
-                                style={{ opacity: tapState.side === 'left' ? 1 : 0 }}
-                            >
-                                {/* Radial highlight */}
-                                <div className="absolute inset-0 side-overlay-left pointer-events-none" />
+                                {/* Left double-tap region (30% width) */}
+                                <div
+                                    className="absolute left-0 top-0 w-[30%] h-full z-20 pointer-events-none transition-opacity duration-300"
+                                    style={{ opacity: tapState.side === 'left' ? 1 : 0 }}
+                                >
+                                    {/* Radial highlight */}
+                                    <div className="absolute inset-0 side-overlay-left pointer-events-none" />
 
-                                {/* Seek Indicator Overlay */}
-                                {tapState.side === 'left' && (
-                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center animate-bubble-pop-in pointer-events-none">
-                                        <div className="flex items-center gap-0.5 mb-1.5 justify-center">
-                                            <svg className="arrow-left-1" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="15 18 9 12 15 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
-                                            <svg className="arrow-left-2" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="15 18 9 12 15 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
-                                            <svg className="arrow-left-3" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="15 18 9 12 15 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
+                                    {/* Seek Indicator Overlay */}
+                                    {tapState.side === 'left' && (
+                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center animate-bubble-pop-in pointer-events-none">
+                                            <div className="flex items-center gap-0.5 mb-1.5 justify-center">
+                                                <svg className="arrow-left-1" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="15 18 9 12 15 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
+                                                <svg className="arrow-left-2" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="15 18 9 12 15 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
+                                                <svg className="arrow-left-3" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="15 18 9 12 15 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
+                                            </div>
+                                            <div className="text-white text-xs font-semibold tracking-wide" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.6)', fontFamily: '-apple-system, sans-serif' }}>
+                                                -{tapState.accumulated} giây
+                                            </div>
                                         </div>
-                                        <div className="text-white text-xs font-semibold tracking-wide" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.6)', fontFamily: '-apple-system, sans-serif' }}>
-                                            -{tapState.accumulated} giây
+                                    )}
+                                </div>
+
+                                {/* Right double-tap region (30% width) */}
+                                <div
+                                    className="absolute right-0 top-0 w-[30%] h-full z-20 pointer-events-none transition-opacity duration-300"
+                                    style={{ opacity: tapState.side === 'right' ? 1 : 0 }}
+                                >
+                                    {/* Radial highlight */}
+                                    <div className="absolute inset-0 side-overlay-right pointer-events-none" />
+
+                                    {/* Seek Indicator Overlay */}
+                                    {tapState.side === 'right' && (
+                                        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center animate-bubble-pop-in pointer-events-none">
+                                            <div className="flex items-center gap-0.5 mb-1.5 justify-center">
+                                                <svg className="arrow-right-1" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="9 18 15 12 9 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
+                                                <svg className="arrow-right-2" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="9 18 15 12 9 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
+                                                <svg className="arrow-right-3" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="9 18 15 12 9 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
+                                            </div>
+                                            <div className="text-white text-xs font-semibold tracking-wide" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.6)', fontFamily: '-apple-system, sans-serif' }}>
+                                                +{tapState.accumulated} giây
+                                            </div>
                                         </div>
-                                    </div>
-                                )}
-                            </div>
+                                    )}
+                                </div>
+                            </>
+                        )}
 
-                            {/* Right double-tap region (30% width) */}
-                            <div
-                                className="absolute right-0 top-0 w-[30%] h-full z-20 pointer-events-none transition-opacity duration-300"
-                                style={{ opacity: tapState.side === 'right' ? 1 : 0 }}
-                            >
-                                {/* Radial highlight */}
-                                <div className="absolute inset-0 side-overlay-right pointer-events-none" />
-
-                                {/* Seek Indicator Overlay */}
-                                {tapState.side === 'right' && (
-                                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 flex flex-col items-center justify-center animate-bubble-pop-in pointer-events-none">
-                                        <div className="flex items-center gap-0.5 mb-1.5 justify-center">
-                                            <svg className="arrow-right-1" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="9 18 15 12 9 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
-                                            <svg className="arrow-right-2" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="9 18 15 12 9 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
-                                            <svg className="arrow-right-3" width="18" height="18" viewBox="0 0 24 24" fill="white"><polyline points="9 18 15 12 9 6" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" /></svg>
-                                        </div>
-                                        <div className="text-white text-xs font-semibold tracking-wide" style={{ textShadow: '0 1px 4px rgba(0,0,0,0.6)', fontFamily: '-apple-system, sans-serif' }}>
-                                            +{tapState.accumulated} giây
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </>
-                    )}
-
-                    {/* YouTube Trailer Embed */}
-                    {isTrailerMode && trailerEmbedSrc && (
-                        <iframe
-                            src={trailerEmbedSrc}
-                            allowFullScreen
-                            allow="autoplay; encrypted-media"
-                            className="w-full h-full border-0 absolute inset-0 z-[5]"
-                        />
-                    )}
-
-                    {/* Iframe Embed */}
-                    {!isTrailerMode && isEmbedServer && embedSrc && (
-                        <>
+                        {/* YouTube Trailer Embed */}
+                        {isTrailerMode && trailerEmbedSrc && (
                             <iframe
-                                src={embedSrc}
+                                src={trailerEmbedSrc}
                                 allowFullScreen
-                                onLoad={() => setIsIframeLoading(false)}
+                                allow="autoplay; encrypted-media"
                                 className="w-full h-full border-0 absolute inset-0 z-[5]"
                             />
-                            {isIframeLoading && (
-                                <div className="absolute inset-0 z-[200] bg-[#0F1115] flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300">
-                                    <LoadingSpinner size="xl" className="mb-4 md:mb-6" />
-                                    <div className="transition-all duration-500 delay-100">
-                                        <h3 className="text-white text-md md:text-lg lg:text-xl font-bold tracking-tight mb-2">Đang kết nối Server...</h3>
-                                        <p className="text-white/40 text-xs md:text-sm">Vui lòng đợi trong giây lát</p>
+                        )}
+
+                        {/* Iframe Embed */}
+                        {!isTrailerMode && isEmbedServer && embedSrc && (
+                            <>
+                                <iframe
+                                    src={embedSrc}
+                                    allowFullScreen
+                                    onLoad={() => setIsIframeLoading(false)}
+                                    className="w-full h-full border-0 absolute inset-0 z-[5]"
+                                />
+                                {isIframeLoading && (
+                                    <div className="absolute inset-0 z-[200] bg-[#0F1115] flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300">
+                                        <LoadingSpinner size="xl" className="mb-4 md:mb-6" />
+                                        <div className="transition-all duration-500 delay-100">
+                                            <h3 className="text-white text-md md:text-lg lg:text-xl font-bold tracking-tight mb-2">Đang kết nối Server...</h3>
+                                            <p className="text-white/40 text-xs md:text-sm">Vui lòng đợi trong giây lát</p>
+                                        </div>
+                                    </div>
+                                )}
+                            </>
+                        )}
+
+                        {/* Movie Info Overlay (Top Left) */}
+                        {portalTarget && !isEmbedServer && createPortal(
+                            <div className={`watch-top-overlay absolute top-2 left-2 md:top-6 md:left-6 z-[110] pointer-events-none max-w-[55%]  lg:max-w-[70%] transition-all duration-500 ${!showEndOverlay ? 'opacity-100' : 'opacity-0'}`}>
+                                <div className="flex flex-col gap-1">
+                                    <h1 className="text-white text-[13px] md:text-[20px] font-bold [text-shadow:2px_2px_4px_rgba(0,0,0,0.9)] leading-tight line-clamp-1">
+                                        {movie.name}
+                                    </h1>
+                                    <div className="flex items-center gap-2 text-white/70 text-[10px] md:text-[14px] font-medium [text-shadow:1px_1px_2px_rgba(0,0,0,0.9)]">
+                                        {movie.origin_name && <span className="hidden sm:inline opacity-60 font-normal truncate max-w-[150px] md:max-w-xs">{movie.origin_name}</span>}
+                                        {movie.origin_name && <span className="hidden sm:inline opacity-40">•</span>}
+                                        <span className="text-[#D497FF]/90 [text-shadow:none] font-bold">{currentEpisode.name}</span>
                                     </div>
                                 </div>
-                            )}
-                        </>
-                    )}
+                            </div>,
+                            portalTarget
+                        )}
 
-                    {/* Movie Info Overlay (Top Left) */}
-                    {portalTarget && !isEmbedServer && createPortal(
-                        <div className={`watch-top-overlay absolute top-2 left-2 md:top-6 md:left-6 z-[110] pointer-events-none max-w-[55%]  lg:max-w-[70%] transition-all duration-500 ${!showEndOverlay ? 'opacity-100' : 'opacity-0'}`}>
-                            <div className="flex flex-col gap-1">
-                                <h1 className="text-white text-[13px] md:text-[20px] font-bold [text-shadow:2px_2px_4px_rgba(0,0,0,0.9)] leading-tight line-clamp-1">
-                                    {movie.name}
-                                </h1>
-                                <div className="flex items-center gap-2 text-white/70 text-[10px] md:text-[14px] font-medium [text-shadow:1px_1px_2px_rgba(0,0,0,0.9)]">
-                                    {movie.origin_name && <span className="hidden sm:inline opacity-60 font-normal truncate max-w-[150px] md:max-w-xs">{movie.origin_name}</span>}
-                                    {movie.origin_name && <span className="hidden sm:inline opacity-40">•</span>}
-                                    <span className="text-[#D497FF]/90 [text-shadow:none] font-bold">{currentEpisode.name}</span>
-                                </div>
-                            </div>
-                        </div>,
-                        portalTarget
-                    )}
+                        {/* Episode List Trigger Button (Top Right) */}
+                        {portalTarget && createPortal(
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setShowEpisodeOverlay(true);
+                                }}
+                                className={`watch-top-overlay absolute top-3 right-3 md:top-8 md:right-8 z-[110] flex items-center gap-2 md:gap-2.5 bg-black/60 hover:bg-[#D497FF]/20 border border-white/10 hover:border-[#D497FF]/50 py-1.5 md:py-2.5 px-3 md:px-5 rounded-full transition-all duration-300 cursor-pointer group shadow-lg ${!showEpisodeOverlay ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                            >
+                                <List size={14} className="md:w-5 md:h-5 text-white group-hover:text-[#D497FF] transition-colors" />
+                                <span className="text-white text-[10px] md:text-[14px] font-bold tracking-wide group-hover:text-[#D497FF] transition-colors">Danh sách tập</span>
+                            </button>,
+                            portalTarget
+                        )}
 
-                    {/* Episode List Trigger Button (Top Right) */}
-                    {portalTarget && createPortal(
-                        <button
-                            onClick={(e) => {
-                                e.stopPropagation();
-                                setShowEpisodeOverlay(true);
-                            }}
-                            className={`watch-top-overlay absolute top-3 right-3 md:top-8 md:right-8 z-[110] flex items-center gap-2 md:gap-2.5 bg-black/60 hover:bg-[#D497FF]/20 border border-white/10 hover:border-[#D497FF]/50 py-1.5 md:py-2.5 px-3 md:px-5 rounded-full transition-all duration-300 cursor-pointer group shadow-lg ${!showEpisodeOverlay ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                        >
-                            <List size={14} className="md:w-5 md:h-5 text-white group-hover:text-[#D497FF] transition-colors" />
-                            <span className="text-white text-[10px] md:text-[14px] font-bold tracking-wide group-hover:text-[#D497FF] transition-colors">Danh sách tập</span>
-                        </button>,
-                        portalTarget
-                    )}
-
-                    {/* Loading Overlay when switching episodes */}
-                    {portalTarget && createPortal(
-                        <div
-                            className={`absolute inset-0 z-[200] bg-black/60 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300 ${isChangingEpisode ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                        >
-                            <LoadingSpinner size="xl" className="mb-4 md:mb-6" />
-                            <div className={`transition-all duration-500 delay-100 ${isChangingEpisode ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
-                                <h3 className="text-white text-md md:text-lg lg:text-xl font-bold tracking-tight mb-2">Đang chuyển tập...</h3>
-                                <p className="text-white/40 text-xs md:text-sm">Vui lòng đợi trong giây lát</p>
-                            </div>
-                        </div>,
-                        portalTarget
-                    )}
-
-                    {/* Episode List Overlay Panel */}
-                    {portalTarget && createPortal(
-                        <div className={`absolute inset-0 z-[210] ${showEpisodeOverlay ? 'visible' : 'invisible'} [transition-property:visibility] duration-500`}>
-
+                        {/* Loading Overlay when switching episodes */}
+                        {portalTarget && createPortal(
                             <div
-                                onClick={(e) => e.stopPropagation()}
-                                onDoubleClick={(e) => e.stopPropagation()}
-                                onMouseDown={(e) => e.stopPropagation()}
-                                onMouseUp={(e) => e.stopPropagation()}
-                                onTouchStart={(e) => e.stopPropagation()}
-                                onTouchEnd={(e) => e.stopPropagation()}
-                                onTouchMove={(e) => e.stopPropagation()}
-                                className={`absolute top-0 right-0 h-full w-[200px] sm:w-[260px] md:w-[360px] bg-[#0F1115] border-l border-white/5 transition-transform duration-500 ease-out flex flex-col select-none outline-none [backface-visibility:hidden] [will-change:transform] [-webkit-tap-highlight-color:transparent] ${showEpisodeOverlay ? 'translate-x-0' : 'translate-x-full'}`}>
-                                {/* Header */}
-                                <div className="p-2 sm:p-3 lg:p-5 border-b gap-10 border-white/5 flex items-center justify-between bg-white/[0.02]">
-                                    <div className="flex flex-col gap-0.5">
-                                        <h3 className="text-white text-[13px] md:text-[20px] font-bold line-clamp-1">{movie.name}</h3>
-                                        <span className="text-white/40 text-[10px] md:text-xs lg:text-sm">
-                                            Danh sách tập • {processedEpisodes[activeServerIndex]?.server_data?.length || 0} tập
-                                        </span>
+                                className={`absolute inset-0 z-[200] bg-black/60 flex flex-col items-center justify-center p-6 text-center transition-opacity duration-300 ${isChangingEpisode ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                            >
+                                <LoadingSpinner size="xl" className="mb-4 md:mb-6" />
+                                <div className={`transition-all duration-500 delay-100 ${isChangingEpisode ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}>
+                                    <h3 className="text-white text-md md:text-lg lg:text-xl font-bold tracking-tight mb-2">Đang chuyển tập...</h3>
+                                    <p className="text-white/40 text-xs md:text-sm">Vui lòng đợi trong giây lát</p>
+                                </div>
+                            </div>,
+                            portalTarget
+                        )}
+
+                        {/* Episode List Overlay Panel */}
+                        {portalTarget && createPortal(
+                            <div className={`absolute inset-0 z-[210] ${showEpisodeOverlay ? 'visible' : 'invisible'} [transition-property:visibility] duration-500`}>
+
+                                <div
+                                    onClick={(e) => e.stopPropagation()}
+                                    onDoubleClick={(e) => e.stopPropagation()}
+                                    onMouseDown={(e) => e.stopPropagation()}
+                                    onMouseUp={(e) => e.stopPropagation()}
+                                    onTouchStart={(e) => e.stopPropagation()}
+                                    onTouchEnd={(e) => e.stopPropagation()}
+                                    onTouchMove={(e) => e.stopPropagation()}
+                                    className={`absolute top-0 right-0 h-full w-[200px] sm:w-[260px] md:w-[360px] bg-[#0F1115] border-l border-white/5 transition-transform duration-500 ease-out flex flex-col select-none outline-none [backface-visibility:hidden] [will-change:transform] [-webkit-tap-highlight-color:transparent] ${showEpisodeOverlay ? 'translate-x-0' : 'translate-x-full'}`}>
+                                    {/* Header */}
+                                    <div className="p-2 sm:p-3 lg:p-5 border-b gap-10 border-white/5 flex items-center justify-between bg-white/[0.02]">
+                                        <div className="flex flex-col gap-0.5">
+                                            <h3 className="text-white text-[13px] md:text-[20px] font-bold line-clamp-1">{movie.name}</h3>
+                                            <span className="text-white/40 text-[10px] md:text-xs lg:text-sm">
+                                                Danh sách tập • {processedEpisodes[activeServerIndex]?.server_data?.length || 0} tập
+                                            </span>
+                                        </div>
+                                        <button
+                                            onClick={() => setShowEpisodeOverlay(false)}
+                                            className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 flex items-center justify-center text-white/50 hover:text-white transition-colors cursor-pointer"
+                                        >
+                                            <X size={16} className="lg:w-6 lg:h-6" />
+                                        </button>
                                     </div>
+
+                                    {/* List Body */}
+                                    <div id="episode-list-container" className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-1.5 sm:p-3 lg:p-5 flex flex-col gap-1.5 md:gap-2 lg:gap-3">
+                                        {processedEpisodes[activeServerIndex]?.server_data?.map((ep, idx) => {
+                                            const epSlug = getFriendlyEpisodeSlug(ep.slug);
+                                            const isActive = epSlug === currentEpisodeSlug;
+
+                                            return (
+                                                <button
+                                                    key={idx}
+                                                    id={isActive ? 'active-episode' : undefined}
+                                                    onClick={() => {
+                                                        if (!isActive) {
+                                                            setIsChangingEpisode(true);
+                                                            setShowEpisodeOverlay(false);
+                                                            selectEpisode(epSlug);
+                                                        }
+                                                    }}
+                                                    className={`group flex items-center w-full flex-shrink-0 gap-1.5 lg:gap-3 p-1 sm:p-2 lg:p-3 rounded-md lg:rounded-xl transition-all duration-300 relative overflow-hidden cursor-pointer ${isActive ? 'bg-[#D497FF]/10 border border-[#D497FF]/20' : 'hover:bg-white/5 border border-transparent'}`}
+                                                >
+                                                    <div className="relative w-12 sm:w-20 lg:w-28 aspect-video rounded sm:rounded-lg overflow-hidden flex-shrink-0 bg-white/5">
+                                                        <img
+                                                            src={getImageUrl(movie.thumb_url || movie.poster_url, { width: 300, quality: 75 })}
+                                                            alt={ep.name}
+                                                            className={`object-cover w-full h-full transition-transform duration-500 ${isActive ? 'scale-105' : 'group-hover:scale-110'}`}
+                                                        />
+                                                        {isActive && (
+                                                            <div className="absolute inset-0 bg-[#D497FF]/20 flex items-center justify-center">
+                                                                <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 lg:w-2 lg:h-2 rounded-full bg-[#D497FF] animate-ping" />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <div className="flex flex-col gap-0 min-w-0">
+                                                        <h4 className={`text-[9px] sm:text-[11px] lg:text-[13px] font-bold truncate ${isActive ? 'text-[#D497FF]' : 'text-white/80 group-hover:text-white'}`}>
+                                                            {(() => {
+                                                                const rawName = ep.name || "";
+                                                                const displayName = rawName.replace(/Tập\s*/i, "").trim();
+                                                                if (!displayName || /^0+$/.test(displayName) || displayName.toLowerCase() === "trailer") {
+                                                                    return "Trailer";
+                                                                }
+                                                                return ep.name;
+                                                            })()}
+                                                        </h4>
+                                                    </div>
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            </div>,
+                            portalTarget
+                        )}
+
+
+                        {/* Replay/End Overlay */}
+                        {portalTarget && createPortal(
+                            <div
+                                className={`absolute inset-0 z-[150] bg-black/90 flex flex-col items-center justify-center p-3 md:p-6 text-center pointer-events-auto transition-opacity duration-300 ${showEndOverlay ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                            >
+                                <div className="flex items-center justify-center gap-4 md:gap-8 scale-90 md:scale-100">
                                     <button
-                                        onClick={() => setShowEpisodeOverlay(false)}
-                                        className="w-6 h-6 sm:w-8 sm:h-8 lg:w-10 lg:h-10 flex items-center justify-center text-white/50 hover:text-white transition-colors cursor-pointer"
+                                        onClick={() => {
+                                            setShowEndOverlay(false);
+                                            showEndOverlayRef.current = false;
+                                            if (artRef.current) {
+                                                artRef.current.seek = 0;
+                                                artRef.current.play();
+                                            }
+                                        }}
+                                        className={`group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-all duration-500 ${showEndOverlay ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
                                     >
-                                        <X size={16} className="lg:w-6 lg:h-6" />
+                                        <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 group-hover:bg-white/20">
+                                            <RefreshCcw size={20} className="md:w-6 md:h-6" />
+                                        </div>
+                                        <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Xem lại</span>
+                                    </button>
+
+                                    <button
+                                        onClick={() => setShowEpisodeOverlay(true)}
+                                        className={`group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-all duration-500 delay-75 ${showEndOverlay ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
+                                    >
+                                        <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 group-hover:bg-white/20">
+                                            <List size={20} className="md:w-6 md:h-6" />
+                                        </div>
+                                        <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Danh sách tập</span>
                                     </button>
                                 </div>
+                            </div>,
+                            portalTarget
+                        )}
 
-                                {/* List Body */}
-                                <div id="episode-list-container" className="flex-1 min-h-0 overflow-y-auto custom-scrollbar p-1.5 sm:p-3 lg:p-5 flex flex-col gap-1.5 md:gap-2 lg:gap-3">
-                                    {processedEpisodes[activeServerIndex]?.server_data?.map((ep, idx) => {
-                                        const epSlug = getFriendlyEpisodeSlug(ep.slug);
-                                        const isActive = epSlug === currentEpisodeSlug;
 
-                                        return (
-                                            <button
-                                                key={idx}
-                                                id={isActive ? 'active-episode' : undefined}
-                                                onClick={() => {
-                                                    if (!isActive) {
-                                                        setIsChangingEpisode(true);
-                                                        setShowEpisodeOverlay(false);
-                                                        selectEpisode(epSlug);
-                                                    }
-                                                }}
-                                                className={`group flex items-center w-full flex-shrink-0 gap-1.5 lg:gap-3 p-1 sm:p-2 lg:p-3 rounded-md lg:rounded-xl transition-all duration-300 relative overflow-hidden cursor-pointer ${isActive ? 'bg-[#D497FF]/10 border border-[#D497FF]/20' : 'hover:bg-white/5 border border-transparent'}`}
-                                            >
-                                                <div className="relative w-12 sm:w-20 lg:w-28 aspect-video rounded sm:rounded-lg overflow-hidden flex-shrink-0 bg-white/5">
-                                                    <img
-                                                        src={getImageUrl(movie.thumb_url || movie.poster_url, { width: 300, quality: 75 })}
-                                                        alt={ep.name}
-                                                        className={`object-cover w-full h-full transition-transform duration-500 ${isActive ? 'scale-105' : 'group-hover:scale-110'}`}
-                                                    />
-                                                    {isActive && (
-                                                        <div className="absolute inset-0 bg-[#D497FF]/20 flex items-center justify-center">
-                                                            <div className="w-1 h-1 sm:w-1.5 sm:h-1.5 lg:w-2 lg:h-2 rounded-full bg-[#D497FF] animate-ping" />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <div className="flex flex-col gap-0 min-w-0">
-                                                    <h4 className={`text-[9px] sm:text-[11px] lg:text-[13px] font-bold truncate ${isActive ? 'text-[#D497FF]' : 'text-white/80 group-hover:text-white'}`}>
-                                                        {(() => {
-                                                            const rawName = ep.name || "";
-                                                            const displayName = rawName.replace(/Tập\s*/i, "").trim();
-                                                            if (!displayName || /^0+$/.test(displayName) || displayName.toLowerCase() === "trailer") {
-                                                                return "Trailer";
-                                                            }
-                                                            return ep.name;
-                                                        })()}
-                                                    </h4>
-                                                </div>
-                                            </button>
-                                        );
-                                    })}
-                                </div>
-                            </div>
+                    </div>
+
+                    {/* Dual Subtitles — Custom Overlay */}
+                    {portalTarget && !isEmbedServer && (subtitle1Text || subtitle2Text) && createPortal(
+                        <div className="art-subtitle" dir="auto" style={{ pointerEvents: 'none', display: 'block', position: 'absolute', bottom: '60px', left: 0, width: '100%', textAlign: 'center', zIndex: 30 }}>
+                            {subtitle1Text && (
+                                <span className="art-subtitle-track" style={{ display: 'inline-block', width: '100%', textShadow: '0 1px 2px #000, 0 1px 2px #000' }}>
+                                    {subtitle1Text}
+                                </span>
+                            )}
+                            {subtitle2Text && (
+                                <span className="art-subtitle-track" style={{ display: 'inline-block', width: '100%', fontSize: '0.85em', color: '#f59e0b', marginTop: subtitle1Text ? '4px' : '0', textShadow: '0 1px 2px #000, 0 1px 2px #000' }}>
+                                    {subtitle2Text}
+                                </span>
+                            )}
                         </div>,
                         portalTarget
                     )}
-
-
-                    {/* Replay/End Overlay */}
-                    {portalTarget && createPortal(
-                        <div
-                            className={`absolute inset-0 z-[150] bg-black/90 flex flex-col items-center justify-center p-3 md:p-6 text-center pointer-events-auto transition-opacity duration-300 ${showEndOverlay ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
-                        >
-                            <div className="flex items-center justify-center gap-4 md:gap-8 scale-90 md:scale-100">
-                                <button
-                                    onClick={() => {
-                                        setShowEndOverlay(false);
-                                        showEndOverlayRef.current = false;
-                                        if (artRef.current) {
-                                            artRef.current.seek = 0;
-                                            artRef.current.play();
-                                        }
-                                    }}
-                                    className={`group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-all duration-500 ${showEndOverlay ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-                                >
-                                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 group-hover:bg-white/20">
-                                        <RefreshCcw size={20} className="md:w-6 md:h-6" />
-                                    </div>
-                                    <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Xem lại</span>
-                                </button>
-
-                                <button
-                                    onClick={() => setShowEpisodeOverlay(true)}
-                                    className={`group flex cursor-pointer flex-col items-center gap-3 hover:scale-105 transition-all duration-500 delay-75 ${showEndOverlay ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-4'}`}
-                                >
-                                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/10 flex items-center justify-center text-white border border-white/20 group-hover:bg-white/20">
-                                        <List size={20} className="md:w-6 md:h-6" />
-                                    </div>
-                                    <span className="text-white/80 font-bold uppercase tracking-widest text-[8px] md:text-[10px]">Danh sách tập</span>
-                                </button>
-                            </div>
-                        </div>,
-                        portalTarget
-                    )}
-
-
                 </div>
-
-                {/* Dual Subtitles — Custom Overlay */}
-                {portalTarget && !isEmbedServer && (subtitle1Text || subtitle2Text) && createPortal(
-                    <div className="art-subtitle" dir="auto" style={{ pointerEvents: 'none', display: 'block', position: 'absolute', bottom: '60px', left: 0, width: '100%', textAlign: 'center', zIndex: 30 }}>
-                        {subtitle1Text && (
-                            <span className="art-subtitle-track" style={{ display: 'inline-block', width: '100%', textShadow: '0 1px 2px #000, 0 1px 2px #000' }}>
-                                {subtitle1Text}
-                            </span>
-                        )}
-                        {subtitle2Text && (
-                            <span className="art-subtitle-track" style={{ display: 'inline-block', width: '100%', fontSize: '0.85em', color: '#f59e0b', marginTop: subtitle1Text ? '4px' : '0', textShadow: '0 1px 2px #000, 0 1px 2px #000' }}>
-                                {subtitle2Text}
-                            </span>
-                        )}
-                    </div>,
-                    portalTarget
-                )}
 
                 <div className="relative z-20">
                     <PlayerControls
-                        isExpanded={isExpanded}
-                        onToggleExpanded={() => setIsExpanded(!isExpanded)}
-                        isTheaterMode={isTheaterMode}
-                        onToggleTheater={() => setIsTheaterMode(!isTheaterMode)}
                         isAutoNext={isAutoNext}
                         onToggleAutoNext={toggleAutoNext}
                         isFavorited={isFavorited}
@@ -1564,26 +1615,74 @@ export default function WatchClient({
                 </div>
             </div>
 
-            <div
-                className={`overflow-hidden transition-all duration-500 ease-in-out ${!isTheaterMode ? "max-h-[5000px] opacity-100 mt-8" : "max-h-0 opacity-0 mt-0"
-                    }`}
-            >
-                <Container className="wc-main">
-                    <div className="flex flex-col xl:flex-row gap-8">
-                        <div className="flex-1 min-w-0">
-                            {subtitlePortalNode && hasCustomSubtitles && createPortal(
-                                <DualSubtitleMenu
-                                    subtitles={episodeSubtitles}
-                                    subtitleSlot1={slot1}
-                                    subtitleSlot2={slot2}
-                                    onSubtitleSlot1Change={setSlot1}
-                                    onSubtitleSlot2Change={setSlot2}
-                                />,
-                                subtitlePortalNode
-                            )}
+            {/* === MAIN CONTENT (BELOW PLAYER) === */}
+            <div className="overflow-hidden transition-all duration-500 ease-in-out max-h-[8000px] opacity-100 mt-5 sm:mt-6">
+                <div className="w-full max-w-[1440px] 2xl:max-w-[1560px] px-3 sm:px-5 lg:px-8 mx-auto pb-16 space-y-4">
+                    {subtitlePortalNode && hasCustomSubtitles && createPortal(
+                        <DualSubtitleMenu
+                            subtitles={episodeSubtitles}
+                            subtitleSlot1={slot1}
+                            subtitleSlot2={slot2}
+                            onSubtitleSlot1Change={setSlot1}
+                            onSubtitleSlot2Change={setSlot2}
+                        />,
+                        subtitlePortalNode as HTMLElement
+                    )}
 
-                            <div className="flex flex-col gap-6 p-5 md:p-10 bg-white/[0.03] border border-white/10 rounded-3xl">
-                                <MovieInfo slug={slug} movie={movie} episode={currentEpisode} />
+                    {/* 1. INTERACTIVE TAB NAVIGATION BAR (Danh Sách Tập, Thông Tin Phim, Diễn Viên) */}
+                    <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 select-none">
+                        {/* Tab 1: Danh Sách Tập */}
+                        <button
+                            onClick={() => setActiveTab("episodes")}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer border whitespace-nowrap active:scale-95 ${activeTab === "episodes"
+                                ? "bg-[#D497FF] border-[#D497FF] text-black shadow-[0_0_20px_rgba(212,151,255,0.4)]"
+                                : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20"
+                                }`}
+                        >
+                            <List size={15} />
+                            <span>Danh Sách Tập</span>
+                            {processedEpisodes[activeServerIndex]?.server_data?.length ? (
+                                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${activeTab === "episodes" ? "bg-black/20 text-black" : "bg-white/10 text-white/60"}`}>
+                                    {processedEpisodes[activeServerIndex].server_data.length}
+                                </span>
+                            ) : null}
+                        </button>
+
+                        {/* Tab 2: Thông Tin Phim */}
+                        <button
+                            onClick={() => setActiveTab("info")}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer border whitespace-nowrap active:scale-95 ${activeTab === "info"
+                                ? "bg-[#D497FF] border-[#D497FF] text-black shadow-[0_0_20px_rgba(212,151,255,0.4)]"
+                                : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20"
+                                }`}
+                        >
+                            <Info size={15} />
+                            <span>Thông Tin Phim</span>
+                        </button>
+
+                        {/* Tab 3: Diễn Viên */}
+                        <button
+                            onClick={() => setActiveTab("actors")}
+                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer border whitespace-nowrap active:scale-95 ${activeTab === "actors"
+                                ? "bg-[#D497FF] border-[#D497FF] text-black shadow-[0_0_20px_rgba(212,151,255,0.4)]"
+                                : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20"
+                                }`}
+                        >
+                            <Users size={15} />
+                            <span>Diễn Viên</span>
+                            {tmdbActors.length > 0 && (
+                                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${activeTab === "actors" ? "bg-black/20 text-black" : "bg-white/10 text-white/60"}`}>
+                                    {tmdbActors.length}
+                                </span>
+                            )}
+                        </button>
+                    </div>
+
+                    {/* 2. TAB CONTENT PANEL CONTAINER (Tự động co giãn vừa vặn với nội dung) */}
+                    <div className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl transition-all duration-300">
+                        {/* TAB 1: DANH SÁCH TẬP */}
+                        {activeTab === "episodes" && (
+                            <div className="animate-fade-in space-y-4">
                                 <EpisodeList
                                     slug={slug}
                                     movieName={movie.name}
@@ -1594,22 +1693,207 @@ export default function WatchClient({
                                     onEpisodeClick={() => setIsChangingEpisode(true)}
                                     onEpisodeSelect={selectEpisode}
                                 />
-                                <div className="mt-6 pt-6 border-t border-white/5">
-                                    <LazyRow
-                                        id={`comments-${slug}-${getFriendlyEpisodeSlug(currentEpisodeSlug)}`}
-                                        estimatedHeight="200px"
-                                        skeleton={<Skeleton className="h-40" rounded="2xl" />}
-                                    >
-                                        <CommentSection movieSlug={`${slug}/${getFriendlyEpisodeSlug(currentEpisodeSlug)}`} />
-                                    </LazyRow>
-                                </div>
                             </div>
+                        )}
+
+                        {/* TAB 2: THÔNG TIN & CỐT TRUYỆN */}
+                        {activeTab === "info" && (
+                            <div className="animate-fade-in">
+                                <MovieInfo slug={slug} movie={movie} episode={currentEpisode} />
+                            </div>
+                        )}
+
+                        {/* TAB 3: DÀN DIỄN VIÊN */}
+                        {activeTab === "actors" && (
+                            <div className="animate-fade-in space-y-4">
+                                <div className="flex items-center gap-2.5 mb-3">
+                                    <div className="w-1.5 h-5 bg-[#FAD078] rounded-full" />
+                                    <h2 className="text-base sm:text-lg font-extrabold text-white uppercase tracking-wider">
+                                        Dàn Diễn Viên
+                                    </h2>
+                                </div>
+
+                                {isLoadingActors ? (
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+                                        {Array.from({ length: 8 }).map((_, idx) => (
+                                            <div key={idx} className="space-y-2">
+                                                <Skeleton className="aspect-[3/4] w-full" rounded="lg" />
+                                                <Skeleton className="h-3 w-3/4 mx-auto" rounded="md" />
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : tmdbActors.length > 0 ? (
+                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+                                        {tmdbActors.slice(0, 16).map((actor) => (
+                                            <div key={actor.id} className="group flex flex-col items-center text-center space-y-1.5">
+                                                <div className="relative aspect-[3/4] w-full rounded-lg overflow-hidden bg-[#12151C] border border-white/10 group-hover:border-[#D497FF]/50 transition-all duration-300 shadow-md">
+                                                    {actor.profile_path ? (
+                                                        <SmartImage
+                                                            r2Src={getR2ActorUrl(actor.id)}
+                                                            src={getImageUrl(`https://image.tmdb.org/t/p/w200${actor.profile_path}`, { width: 160, quality: 75 })}
+                                                            rawSrc={`https://image.tmdb.org/t/p/w200${actor.profile_path}`}
+                                                            alt={actor.name}
+                                                            fill
+                                                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                            sizes="(max-width: 768px) 30vw, 150px"
+                                                        />
+                                                    ) : (
+                                                        <div className="w-full h-full flex items-center justify-center text-white/20">
+                                                            <User size={32} />
+                                                        </div>
+                                                    )}
+                                                </div>
+                                                <span className="text-xs font-bold text-white/90 group-hover:text-[#D497FF] transition-colors truncate w-full px-1">
+                                                    {actor.name}
+                                                </span>
+                                                {actor.character && (
+                                                    <span className="text-[11px] text-white/40 truncate w-full px-1">
+                                                        {actor.character}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (movie.actors && movie.actors.length > 0 && movie.actors[0] !== "") || ((movie as any).actor && (movie as any).actor.length > 0 && (movie as any).actor[0] !== "") ? (
+                                    <div className="flex flex-wrap gap-2 sm:gap-2.5">
+                                        {((movie as any).actor || movie.actors).map((act: string, i: number) => (
+                                            <div key={i} className="flex items-center gap-2 px-3.5 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs sm:text-sm font-medium text-white/90 transition-colors">
+                                                <User size={13} className="text-[#D497FF]" />
+                                                <span>{act}</span>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : (
+                                    <p className="text-xs sm:text-sm text-white/40 italic py-2">Đang cập nhật danh sách diễn viên...</p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+
+                    {/* 3. TWO-COLUMN LAYOUT: COMMENTS (LEFT - 70%) & GENRE TAGS + RECOMMENDATIONS (RIGHT - 30%) */}
+                    <div className="grid grid-cols-1 lg:grid-cols-10 gap-5 sm:gap-6 items-start pt-4 border-t border-white/5">
+                        {/* LEFT COLUMN: Community Discussion & Comments (70%) */}
+                        <div className="lg:col-span-7 bg-[#12151C]/60 border border-white/10 rounded-2xl p-4 sm:p-6 shadow-xl">
+                            <div className="flex items-center gap-2.5 mb-5">
+                                <div className="w-1.5 h-5 bg-[#D497FF] rounded-full" />
+                                <h2 className="text-base sm:text-lg font-extrabold text-white uppercase tracking-wider">
+                                    Bình Luận & Thảo Luận
+                                </h2>
+                            </div>
+                            <LazyRow
+                                id={`comments-${slug}-${getFriendlyEpisodeSlug(currentEpisodeSlug)}`}
+                                estimatedHeight="200px"
+                                skeleton={<Skeleton className="h-40" rounded="xl" />}
+                            >
+                                <CommentSection movieSlug={`${slug}/${getFriendlyEpisodeSlug(currentEpisodeSlug)}`} />
+                            </LazyRow>
                         </div>
-                        <div className="w-full xl:w-[400px] shrink-0">
-                            <Sidebar movie={movie} suggestedMovies={filteredSuggestions} />
+
+                        {/* RIGHT COLUMN: Movie Genre Tags & Suggested Movies (30%) */}
+                        <div className="lg:col-span-3 space-y-4">
+                            {/* TAGS THỂ LOẠI CỦA PHIM ĐANG XEM */}
+                            {movie.category && movie.category.length > 0 && (
+                                <div className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-4 shadow-xl space-y-2.5">
+                                    <div className="flex items-center gap-2">
+                                        <Tag size={15} className="text-[#D497FF]" />
+                                        <h3 className="text-xs sm:text-sm font-extrabold text-white uppercase tracking-wider">
+                                            Thể Loại
+                                        </h3>
+                                    </div>
+                                    <div className="flex flex-wrap gap-1.5">
+                                        {movie.category.map((cat: { id?: string; name: string; slug: string }) => (
+                                            <TransitionLink
+                                                key={cat.id || cat.slug}
+                                                href={`/the-loai/${cat.slug}`}
+                                                className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 hover:bg-[#D497FF]/15 hover:border-[#D497FF]/30 hover:text-[#D497FF] text-[11px] font-medium text-white/80 transition-all duration-200"
+                                            >
+                                                #{cat.name}
+                                            </TransitionLink>
+                                        ))}
+                                    </div>
+                                </div>
+                            )}
+
+                            {/* CỘT PHIM ĐỀ XUẤT */}
+                            {filteredSuggestions.length > 0 && (
+                                <div className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-4 shadow-xl space-y-3">
+                                    <div className="flex items-center justify-between">
+                                        <div className="flex items-center gap-2">
+                                            <Sparkles size={15} className="text-[#FAD078]" />
+                                            <h3 className="text-xs sm:text-sm font-extrabold text-white uppercase tracking-wider">
+                                                Phim Đề Xuất
+                                            </h3>
+                                        </div>
+                                    </div>
+
+                                    {/* Danh sách phim đề xuất dạng Minimalist Media List */}
+                                    <div className="space-y-2">
+                                        {filteredSuggestions.slice(0, 6).map((sugMovie) => {
+                                            const sugRating = sugMovie.tmdb?.vote_average && sugMovie.tmdb.vote_average > 0
+                                                ? sugMovie.tmdb.vote_average.toFixed(1)
+                                                : null;
+
+                                            return (
+                                                <TransitionLink
+                                                    key={sugMovie.slug}
+                                                    href={`/phim/${sugMovie.slug}`}
+                                                    className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all duration-200 group"
+                                                >
+                                                    {/* Thumbnail Poster rõ ràng, to vừa vặn */}
+                                                    <div className="relative w-16 sm:w-20 aspect-[2/3] rounded-lg overflow-hidden bg-[#12151C] border border-white/10 shrink-0 group-hover:border-[#D497FF]/40 transition-all shadow-md">
+                                                        <SmartImage
+                                                            r2Src={getR2MoviePosterUrl(sugMovie.slug)}
+                                                            src={getImageUrl(sugMovie.poster_url || sugMovie.thumb_url, { width: 160, quality: 80 })}
+                                                            rawSrc={getRawImageUrl(sugMovie.poster_url || sugMovie.thumb_url)}
+                                                            alt={sugMovie.name}
+                                                            fill
+                                                            className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                            sizes="(max-width: 768px) 64px, 80px"
+                                                        />
+                                                    </div>
+
+                                                    {/* Info với typography rõ ràng & title 1 dòng */}
+                                                    <div className="flex-1 min-w-0">
+                                                        <h4 className="text-sm font-bold text-white group-hover:text-[#D497FF] transition-colors truncate">
+                                                            {sugMovie.name}
+                                                        </h4>
+                                                        <p className="text-xs text-white/40 italic truncate mt-0.5">
+                                                            {sugMovie.origin_name}
+                                                        </p>
+
+                                                        {/* Metadata text inline thanh lịch */}
+                                                        <div className="flex items-center gap-1.5 text-xs text-white/50 mt-1.5 font-medium flex-wrap">
+                                                            {sugRating && (
+                                                                <span className="flex items-center gap-0.5 text-[#FAD078] font-bold">
+                                                                    <span>★</span>
+                                                                    <span>{sugRating}</span>
+                                                                </span>
+                                                            )}
+                                                            {sugRating && <span>•</span>}
+                                                            {sugMovie.year && <span>{sugMovie.year}</span>}
+                                                            {sugMovie.quality && (
+                                                                <>
+                                                                    <span>•</span>
+                                                                    <span className="text-[#A7F3D0] font-semibold">{sugMovie.quality}</span>
+                                                                </>
+                                                            )}
+                                                            {sugMovie.episode_current && (
+                                                                <>
+                                                                    <span>•</span>
+                                                                    <span className="text-pink-300 font-semibold truncate max-w-[90px]">{sugMovie.episode_current}</span>
+                                                                </>
+                                                            )}
+                                                        </div>
+                                                    </div>
+                                                </TransitionLink>
+                                            );
+                                        })}
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     </div>
-                </Container>
+                </div>
             </div>
 
             <ReportModal isOpen={showReportModal} onClose={() => setShowReportModal(false)} movieName={movie.name} episodeName={currentEpisode.name} />
@@ -1617,7 +1901,7 @@ export default function WatchClient({
                 isOpen={showShareModal}
                 onClose={() => { setShowShareModal(false); if (user) logActivity(user.id, "share_movie", { movie_slug: slug, movie_name: movie.name }); }}
                 movieName={movie.name}
-                shareUrl={typeof window !== "undefined" ? `${window.location.origin}/phim/${slug}/${currentEpisodeSlug}${user ? `?ref=${user.id}` : ''}` : ''}
+                shareUrl={typeof window !== "undefined" ? `${window.location.origin}/phim/${slug}/${currentEpisodeSlug}${user?.id ? `?ref=${user.id}` : ''}` : ''}
             />
         </div>
     );
