@@ -70,7 +70,12 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
         if (filters.letter) params.set("letter", filters.letter);
         if (isOpen) params.set("filter", "open");
 
-        router.push(`?${params.toString()}`, { scroll: false });
+        // Dùng replaceState để đổi URL mượt mà trên thanh địa chỉ mà KHÔNG bắt Server VPS ở xa render lại cả trang
+        if (typeof window !== "undefined") {
+            const queryStr = params.toString();
+            const newUrl = queryStr ? `${window.location.pathname}?${queryStr}` : window.location.pathname;
+            window.history.replaceState(null, "", newUrl);
+        }
     };
 
     const handlePageChange = (newPage: number) => {

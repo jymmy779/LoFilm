@@ -1,3 +1,4 @@
+import { cache } from "react";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 import { createClient } from "@/app/utils/supabase/server";
 import { MovieDetailResponse } from "@/app/types/movie";
@@ -6,7 +7,7 @@ import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 const detailMemoryCache = new Map<string, { data: MovieDetailResponse | null; expires: number }>();
 
-export const getMovieDetail = async (slug: string, isPreview: boolean = false): Promise<MovieDetailResponse | null> => {
+export const getMovieDetail = cache(async (slug: string, isPreview: boolean = false): Promise<MovieDetailResponse | null> => {
     try {
         const cleanSlug = typeof slug === "string" ? decodeURIComponent(slug).trim() : slug;
         const cacheKey = `${cleanSlug}:${isPreview}`;
