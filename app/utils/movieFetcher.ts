@@ -85,11 +85,10 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                 server_data: dataList
             }));
 
-            // 2. GỘP SERVER: Nếu phim tồn tại trên PhimAPI, Độc quyền ưu tiên nằm trên cùng
-            let finalEpisodes = [...exclusiveServers];
-
+            // 2. GỘP SERVER: KKPhim luôn đứng đầu (để tận dụng ArtPlayer với direct m3u8 và skip intro mượt nhất)
+            let apiEpisodes: any[] = [];
             if (phimApiData && phimApiData.episodes) {
-                const apiEpisodes = phimApiData.episodes.map((epServer: any) => {
+                apiEpisodes = phimApiData.episodes.map((epServer: any) => {
                     let sName = epServer.server_name;
                     if (!sName.includes(' OP') && !sName.includes(' KK') && !sName.includes(' NC') && !sName.includes(' VS')) {
                         const sampleUrl = (epServer.server_data?.[0]?.link_m3u8 || epServer.server_data?.[0]?.link_embed || '').toLowerCase();
@@ -105,7 +104,32 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                     }
                     return { ...epServer, server_name: sName };
                 });
-                finalEpisodes = [...finalEpisodes, ...apiEpisodes];
+            }
+
+            // Phân loại server độc quyền:
+            // - Nếu là bản sub_docquyen tự tải lên (không phải nguồn crawler OP, NC, VS) thì có thể ưu tiên trên cùng
+            // - Mặc định: KKPhim (apiEpisodes) luôn đứng đầu, sau đó đến các server import khác (OP, NC, VS...)
+            const customDocQuyenServers: any[] = [];
+            const otherExclusiveServers: any[] = [];
+
+            exclusiveServers.forEach(srv => {
+                const sName = srv.server_name;
+                const isImportedSource = sName.includes(' OP') || sName.includes(' NC') || sName.includes(' VS') || sName.includes(' KK');
+                if (exclusiveMovie.sub_docquyen && !isImportedSource) {
+                    customDocQuyenServers.push(srv);
+                } else {
+                    otherExclusiveServers.push(srv);
+                }
+            });
+
+            let finalEpisodes = [
+                ...customDocQuyenServers,
+                ...apiEpisodes,
+                ...otherExclusiveServers
+            ];
+
+            if (finalEpisodes.length === 0) {
+                finalEpisodes = [...exclusiveServers];
             }
 
             // Tính số tập lớn nhất giữa tất cả các Server (nội bộ và API ngoài)
