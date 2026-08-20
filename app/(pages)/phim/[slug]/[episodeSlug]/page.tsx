@@ -73,11 +73,13 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         });
 
         if (episode) {
-            currentEpisodeName = ` - Tập ${episode.name}`;
+            const epName = (episode.name || "").trim();
+            const formattedEpName = /^tập\s*/i.test(epName) ? epName : `Tập ${epName}`;
+            currentEpisodeName = ` - ${formattedEpName}`;
         }
     }
 
-    const title = `Xem phim ${movie.name}${currentEpisodeName} Vietsub | LoFilm`;
+    const title = `Xem phim ${movie.name}${currentEpisodeName} Vietsub`;
     const cleanDescription = (movie.content || "").replace(/<[^>]*>/g, '').substring(0, 155);
     const description = cleanDescription
         ? `${cleanDescription}...`
