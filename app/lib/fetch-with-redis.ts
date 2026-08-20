@@ -41,25 +41,26 @@ export const redis =
   (process.env.REDIS_URL
     ? new Redis(process.env.REDIS_URL, {
         maxRetriesPerRequest: 1,
-        connectTimeout: 500,
+        connectTimeout: 2000,
         commandTimeout: 500,
         enableOfflineQueue: false, // DO NOT HANG requests when Redis is unavailable
-        lazyConnect: true,
-        keepAlive: 10000,
+        lazyConnect: false, // Eager connect on boot to avoid cold-start delay
+        keepAlive: 30000,  // 30s keepalive to prevent TCP idle drop
+        retryStrategy: (times) => Math.min(times * 100, 2000), // backoff retry
       })
     : null);
 
 if (redis && !(globalForRedis as any)._redisInitialized) {
   (globalForRedis as any)._redisInitialized = true;
-  redis.on('error', (err) => {
-    // Non-blocking warning only
+  redis.on('error', () => {
+    // Non-blocking: Redis errors are handled per-request with fallback
   });
   redis.on('ready', () => console.log('✓ [REDIS] Connected successfully'));
+  // Kick off connection immediately on module load
+  redis.connect().catch(() => {});
 }
 
-if (process.env.NODE_ENV !== "production") {
-  globalForRedis.redis = redis;
-}
+globalForRedis.redis = redis;
 
 /**
  * fetchWithRedis: Ultra-fast L1 RAM Cache + SWR Strategy

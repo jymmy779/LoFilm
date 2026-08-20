@@ -1,4 +1,3 @@
-import { cache } from "react";
 import { fetchWithRedis } from "@/app/lib/fetch-with-redis";
 import { createClient } from "@/app/utils/supabase/server";
 import { MovieDetailResponse } from "@/app/types/movie";
@@ -7,7 +6,7 @@ import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 const detailMemoryCache = new Map<string, { data: MovieDetailResponse | null; expires: number }>();
 
-export const getMovieDetail = cache(async (slug: string, isPreview: boolean = false): Promise<MovieDetailResponse | null> => {
+export const getMovieDetail = async (slug: string, isPreview: boolean = false): Promise<MovieDetailResponse | null> => {
     try {
         const cleanSlug = typeof slug === "string" ? decodeURIComponent(slug).trim() : slug;
         const cacheKey = `${cleanSlug}:${isPreview}`;
@@ -240,12 +239,16 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                         tmdb: { id: exclusiveMovie.tmdb_id, vote_average: phimApiData?.movie?.tmdb?.vote_average || data.vote_average, vote_count: phimApiData?.movie?.tmdb?.vote_count || data.vote_count, type: tmdbType }
                     };
 
-                    return {
+                    const result = {
                         status: true,
                         msg: "OK",
                         movie: movieObj,
                         episodes: finalEpisodes
                     };
+                    if (!isPreview) {
+                        detailMemoryCache.set(cacheKey, { data: result as any, expires: Date.now() + 60_000 });
+                    }
+                    return result;
                 }
             }
 
@@ -278,12 +281,16 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                 sub_docquyen: exclusiveMovie.sub_docquyen ?? false,
                 is_copyright: true,
             };
-            return {
+            const result = {
                 status: true,
                 msg: "OK",
                 movie: movieObj,
                 episodes: finalEpisodes
             };
+            if (!isPreview) {
+                detailMemoryCache.set(cacheKey, { data: result as any, expires: Date.now() + 60_000 });
+            }
+            return result;
         }
 
         // KỊCH BẢN 2: CHỈ CÓ TRÊN PHIMAPI (Không có bản độc quyền)
@@ -311,16 +318,15 @@ export const getMovieDetail = cache(async (slug: string, isPreview: boolean = fa
                     });
                 }
                 if (!isPreview) {
-                    detailMemoryCache.set(cacheKey, { data: phimApiData, expires: Date.now() + 60000 });
+                    detailMemoryCache.set(cacheKey, { data: phimApiData, expires: Date.now() + 60_000 });
                 }
                 return phimApiData;
             }
 
-    } catch (error) {
+    } catch (error: any) {
         console.error("[getMovieDetail] API unavailable, returning null:", error);
-        // Trả null thay vì throw → page.tsx sẽ gọi notFound() → hiện 404 đẹp thay vì crash 500
         return null;
     }
-    
+
     return null;
-});
+};

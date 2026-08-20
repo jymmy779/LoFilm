@@ -21,8 +21,8 @@ const nextConfig: NextConfig = {
         // Disable Next.js Router Cache: ensures every navigation fetches fresh server data
         // Without this, clicking a link shows stale cached data until hard refresh
         staleTimes: {
-            dynamic: 30, // Hạn chế gọi server khi điều hướng qua lại giữa các trang trong 30s
-            static: 180, // Tăng thời gian cache cho trang tĩnh
+            dynamic: 60,  // Router cache cho dynamic pages: 60s (tăng từ 30s)
+            static: 300,  // Router cache cho static pages: 5 phút (tăng từ 3 phút)
         },
     },
     images: {
@@ -46,8 +46,8 @@ const nextConfig: NextConfig = {
     async headers() {
         return [
             {
-                // Bảo browser không cache HTML — tránh lỗi giao diện sau khi deploy mới
-                // Static assets (/_next/static/) vẫn cache tốt vì đã có content hash trong tên file
+                // Security headers cho toàn bộ pages (trừ static assets)
+                // no-cache: browser phải revalidate, nhưng không cache được lâu → safe khi deploy mới
                 source: '/((?!_next/static|_next/image|favicon.ico).*)',
                 headers: [
                     { key: 'X-Content-Type-Options', value: 'nosniff' },
@@ -55,7 +55,9 @@ const nextConfig: NextConfig = {
                     { key: 'X-XSS-Protection', value: '1; mode=block' },
                     { key: 'Referrer-Policy', value: 'strict-origin-when-cross-origin' },
                     { key: 'Strict-Transport-Security', value: 'max-age=31536000; includeSubDomains; preload' },
-                    { key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' },
+                    // Cho phép Next.js router cache hoạt động (staleTimes config)
+                    // Không dùng no-store vì sẽ block Next.js router cache → chuyển trang chậm
+                    { key: 'Cache-Control', value: 'no-cache' },
                 ],
             },
             {

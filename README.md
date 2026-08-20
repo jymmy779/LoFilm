@@ -15,7 +15,7 @@
   <img src="https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
   <img src="https://img.shields.io/badge/Tailwind_CSS-v4-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white" alt="Tailwind CSS" />
   <img src="https://img.shields.io/badge/Supabase-Database%20%26%20Auth-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
-  <img src="https://img.shields.io/badge/Redis-Upstash%20%26%20ioRedis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
+  <img src="https://img.shields.io/badge/Redis-Local%20%26%20ioRedis-DC382D?style=for-the-badge&logo=redis&logoColor=white" alt="Redis" />
   <img src="https://img.shields.io/badge/Storage-Cloudflare%20R2-F38020?style=for-the-badge&logo=cloudflare" alt="Cloudflare R2" />
 </p>
 
@@ -42,7 +42,7 @@
 - **Tìm kiếm thông minh (Smart Search Engine)**: Hỗ trợ tìm kiếm siêu tốc tiếng Việt có dấu, không dấu, chữ hoa/thường, tên gốc tiếng Anh và slug.
 
 ### 🚀 3. Hiệu năng & Bộ nhớ đệm Đa tầng (Multi-Layer Caching)
-- **Dual-layer Redis Cache**: Kết hợp **Upstash Redis REST** và **ioredis connection pool** cache dữ liệu danh mục với độ trễ dưới 10ms.
+- **Dual-layer Cache**: Kết hợp **RAM L1 Cache** và **Local Redis (ioredis)** để lưu bộ nhớ đệm dữ liệu với độ trễ siêu thấp dưới 1ms.
 - **Smart Image Loader**: Tự động tối ưu hóa hình ảnh WebP kết hợp lưu trữ CDN trên Cloudflare R2.
 
 ### 🎨 4. Giao diện Điện ảnh Hiện đại & Responsive (UI/UX)
@@ -64,7 +64,7 @@
 | **Styling** | [Tailwind CSS v4](https://tailwindcss.com/), [Lucide Icons](https://lucide.dev/) |
 | **Video Player** | [Artplayer](https://artplayer.org/) & [HLS.js](https://github.com/video-dev/hls.js/) |
 | **Cơ sở dữ liệu** | SQLite / PostgreSQL (Prisma), [Supabase](https://supabase.com/) |
-| **Caching Layer** | [Upstash Redis](https://upstash.com/) & [ioredis](https://github.com/redis/ioredis) |
+| **Caching Layer** | [Local Redis](https://redis.io/) & [ioredis](https://github.com/redis/ioredis) |
 | **Lưu trữ CDN** | Cloudflare R2 |
 | **Triển khai & CI/CD** | GitHub Actions, PM2 (Process Manager), Ubuntu VPS |
 

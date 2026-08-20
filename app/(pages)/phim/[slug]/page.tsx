@@ -110,7 +110,7 @@ export default async function MoviePage({
     } else {
         try {
             // Dùng fetch của Nextjs với cache cực lâu
-            const INTERNAL_API_URL = process.env.NEXT_PUBLIC_INTERNAL_API_URL || 'http://localhost:5000/api';
+            const INTERNAL_API_URL = process.env.NEXT_PUBLIC_INTERNAL_API_URL || 'http://127.0.0.1:5000/api';
             const res = await fetch(`${INTERNAL_API_URL}/phim/${slug}/peoples`, { next: { revalidate: 2592000 } });
             const data = await res.json();
             if (data.success || data.status === "success") {

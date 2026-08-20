@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createClient } from "@/app/utils/supabase/server";
-import { redis } from "@/app/lib/fetch-with-redis";
+import { redis, fetchWithRedis } from "@/app/lib/fetch-with-redis";
 import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 export async function GET(request: NextRequest) {
@@ -53,10 +53,9 @@ export async function GET(request: NextRequest) {
             .order('created_at', { ascending: false })
             .limit(limit);
 
-        // 3. Tìm trên Backend nội bộ
+        // 3. Tìm trên Backend nội bộ bằng fetchWithRedis siêu tốc
         searchParams.set("keyword", keyword);
-        const internalApiPromise = fetch(`${INTERNAL_API_URL}/tim-kiem?${searchParams.toString()}`)
-            .then(res => res.json())
+        const internalApiPromise = fetchWithRedis(`${INTERNAL_API_URL}/tim-kiem?${searchParams.toString()}`, { revalidate: 60 })
             .catch(() => null);
 
         // Chạy song song cả 2 (Supabase độc quyền + Backend nội bộ 30k phim)
@@ -65,7 +64,7 @@ export async function GET(request: NextRequest) {
         // 4. Format dữ liệu từ Supabase cho giống PhimAPI
         let exclusiveItems: any[] = [];
         if (supabaseRes.data) {
-            exclusiveItems = supabaseRes.data.map(movie => ({
+            exclusiveItems = supabaseRes.data.map((movie: any) => ({
                 _id: movie.id,
                 name: movie.name || "Phim Độc Quyền",
                 slug: movie.slug,

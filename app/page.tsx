@@ -5,7 +5,7 @@ import HomeClient from "./HomeClient";
 import Loading from "./loading";
 import { prefetchHomePageData } from "./lib/prefetch-home";
 
-export const dynamic = "force-dynamic"; // Tắt Next.js ISR để luôn lấy data mới nhất từ Redis
+export const revalidate = 60; // ISR: rebuild trang chủ mỗi 60s, Redis giữ data fresh
 
 import { SITE_URL, getAbsoluteUrl } from "@/app/config/site";
 
