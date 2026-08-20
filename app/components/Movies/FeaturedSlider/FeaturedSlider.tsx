@@ -178,7 +178,7 @@ function FeaturedSlider({
                                         <div className="flex-1 min-w-0 space-y-0.5 sm:space-y-1">
                                             <TransitionLink
                                                 href={`/phim/${movie.slug}`}
-                                                className="text-[13px] sm:text-base md:text-xl lg:text-2xl font-bold text-white group-hover/card:text-[#D497FF] transition-colors leading-tight block drop-shadow-md"
+                                                className="text-[13px] sm:text-base md:text-xl lg:text-2xl font-bold text-white group-hover/card:text-[#D497FF] transition-colors leading-tight line-clamp-2 drop-shadow-md"
                                                 title={movie.name}
                                             >
                                                 {decodeHtml(movie.name)}
