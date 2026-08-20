@@ -13,11 +13,12 @@ import { Movie } from "@/app/types/movie";
 import { decodeHtml, cleanContent } from "@/app/utils/textUtils";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
 import { getImageUrl, getRawImageUrl, getEpisodeStatus, generateCategorySlug, getMovieWatchUrl } from "@/app/utils/movieUtils";
-import { getR2MovieThumbUrl, getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
+import { getR2MovieThumbUrl, getR2MoviePosterUrl, getR2MovieLogoUrl } from "@/app/utils/r2ImageUrl";
 import Container from "@/app/components/UI/Container";
 import Skeleton from "@/app/components/UI/Skeleton/Skeleton";
 import FavoriteButton from "@/app/components/UI/Common/FavoriteButton";
 import HeroSliderSkeleton from "./HeroSliderSkeleton";
+import { fetchLogoFromTMDB } from "@/app/utils/tmdbUtils";
 
 interface HeroSliderProps {
     initialMovies?: Movie[];
@@ -27,12 +28,78 @@ let cachedHeroMovies: Movie[] = [];
 
 const AUTOPLAY_DELAY = 6500;
 
+const darkLogoMap = new Map<string, boolean>();
+
+function HeroMovieLogo({ logoUrl, alt }: { slug?: string; logoUrl: string; alt: string }) {
+    const [isDark, setIsDark] = useState(() => darkLogoMap.get(logoUrl) ?? false);
+    const [hasError, setHasError] = useState(false);
+
+    useEffect(() => {
+        setIsDark(darkLogoMap.get(logoUrl) ?? false);
+        setHasError(false);
+    }, [logoUrl]);
+
+    const handleLoad = (e: React.SyntheticEvent<HTMLImageElement>) => {
+        if (darkLogoMap.has(logoUrl)) return;
+        try {
+            const img = e.currentTarget;
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d", { willReadFrequently: true });
+            if (!ctx) return;
+
+            const sampleSize = 16;
+            canvas.width = sampleSize;
+            canvas.height = sampleSize;
+            ctx.drawImage(img, 0, 0, sampleSize, sampleSize);
+
+            const imgData = ctx.getImageData(0, 0, sampleSize, sampleSize).data;
+            let totalLuminance = 0;
+            let count = 0;
+
+            for (let i = 0; i < imgData.length; i += 4) {
+                if (imgData[i + 3] > 40) {
+                    totalLuminance += 0.299 * imgData[i] + 0.587 * imgData[i + 1] + 0.114 * imgData[i + 2];
+                    count++;
+                }
+            }
+
+            if (count > 0) {
+                const avgLuminance = totalLuminance / count;
+                const dark = avgLuminance < 60;
+                darkLogoMap.set(logoUrl, dark);
+                if (dark) setIsDark(true);
+            }
+        } catch {
+            // Giữ nguyên nếu lỗi
+        }
+    };
+
+    if (hasError || !logoUrl) return null;
+
+    return (
+        <div className="relative h-16 sm:h-20 md:h-28 lg:h-32 xl:h-36 max-w-[260px] sm:max-w-[340px] md:max-w-[460px] lg:max-w-[540px] xl:max-w-[620px] my-1 sm:my-2">
+            <img
+                src={logoUrl}
+                alt={alt}
+                crossOrigin="anonymous"
+                onLoad={handleLoad}
+                onError={() => setHasError(true)}
+                className={`h-full w-auto object-contain object-left drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)] transition-transform duration-300 group-hover:scale-105 ${
+                    isDark ? "brightness-0 invert" : ""
+                }`}
+                loading="eager"
+            />
+        </div>
+    );
+}
+
 export default function HeroSlider({ initialMovies }: HeroSliderProps) {
     const [movies, setMovies] = useState<Movie[]>(() => {
         if (cachedHeroMovies.length > 0) return cachedHeroMovies;
         return initialMovies && initialMovies.length > 0 ? initialMovies : [];
     });
     const [activeIndex, setActiveIndex] = useState(0);
+    const [logoCache, setLogoCache] = useState<Record<string, string>>({});
     const swiperRef = useRef<SwiperType | null>(null);
 
     useEffect(() => {
@@ -41,6 +108,32 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
             cachedHeroMovies = initialMovies;
         }
     }, [initialMovies]);
+
+    // Preload toàn bộ ảnh logo của tất cả các slide ngay lập tức vào bộ nhớ RAM trình duyệt
+    useEffect(() => {
+        movies.forEach((m) => {
+            if (m.logo_url) {
+                setLogoCache((prev) => (prev[m.slug] === m.logo_url ? prev : { ...prev, [m.slug]: m.logo_url! }));
+                if (typeof window !== "undefined") {
+                    const img = new window.Image();
+                    img.crossOrigin = "anonymous";
+                    img.src = m.logo_url;
+                }
+            } else if (!logoCache[m.slug]) {
+                const tmdbType = m.type === "series" || m.type === "tv" ? "tv" : "movie";
+                fetchLogoFromTMDB(m.tmdb?.id, tmdbType, m.origin_name || m.name, m.year).then((url) => {
+                    if (url) {
+                        setLogoCache((prev) => ({ ...prev, [m.slug]: url }));
+                        if (typeof window !== "undefined") {
+                            const img = new window.Image();
+                            img.crossOrigin = "anonymous";
+                            img.src = url;
+                        }
+                    }
+                });
+            }
+        });
+    }, [movies]);
 
     const handleSelectSlide = useCallback((index: number) => {
         if (swiperRef.current) {
@@ -53,10 +146,11 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
     }
 
     const currentMovie = movies[activeIndex] || movies[0];
+    const activeLogoUrl = currentMovie.logo_url || logoCache[currentMovie.slug];
     const displayMovies = movies.slice(0, 8); // Top 8 movies for progress pills
 
     return (
-        <section id="top_slider" className="w-full relative h-[520px] sm:h-[580px] md:h-[680px] lg:h-[780px] xl:h-[840px] overflow-hidden select-none bg-[#0F1115]">
+        <section id="top_slider" className="w-full relative h-[480px] sm:h-[560px] md:h-[680px] lg:h-[780px] xl:h-[840px] overflow-hidden select-none bg-[#0F1115]">
             {/* === MAIN BACKGROUND SWIPER === */}
             <Swiper
                 modules={[Autoplay, EffectFade]}
@@ -121,7 +215,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                 <Container className="w-full pb-6 sm:pb-8 md:pb-12 xl:pb-14 xl:pl-[100px]">
                     <div
                         key={currentMovie.slug || activeIndex}
-                        className="max-w-2xl lg:max-w-3xl xl:max-w-4xl space-y-3 sm:space-y-4 md:space-y-5 pointer-events-auto"
+                        className="max-w-2xl lg:max-w-3xl xl:max-w-4xl space-y-2.5 sm:space-y-4 md:space-y-5 pointer-events-auto"
                     >
                         
                         {/* 1. Meta Badges & Rating (Synced with FeaturedSlider) */}
@@ -150,21 +244,29 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                             )}
                         </div>
 
-                        {/* 2. Movie Title */}
+                        {/* 2. Movie Title or Official ClearLogo */}
                         <div className="space-y-1 animate-[heroFadeInUp_0.75s_cubic-bezier(0.22,1,0.36,1)_0.08s_both]">
                             <TransitionLink href={`/phim/${currentMovie.slug}`} className="block group">
-                                <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-[1.15] font-montserrat tracking-tight group-hover:text-[#D497FF] transition-colors line-clamp-2 drop-shadow-md">
-                                    {decodeHtml(currentMovie.name)}
-                                </h2>
+                                {activeLogoUrl ? (
+                                    <HeroMovieLogo slug={currentMovie.slug} logoUrl={activeLogoUrl} alt={currentMovie.name} />
+                                ) : (
+                                    <>
+                                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-[1.15] font-montserrat tracking-tight group-hover:text-[#D497FF] transition-colors line-clamp-2 drop-shadow-md">
+                                            {decodeHtml(currentMovie.name)}
+                                        </h2>
+                                        {currentMovie.origin_name && currentMovie.origin_name.trim().toLowerCase() !== (currentMovie.name || "").trim().toLowerCase() && (
+                                            <p className="text-white/50 text-xs sm:text-sm md:text-base font-medium truncate italic mt-1">
+                                                {decodeHtml(currentMovie.origin_name)}
+                                            </p>
+                                        )}
+                                    </>
+                                )}
                             </TransitionLink>
-                            <p className="text-white/50 text-xs sm:text-sm md:text-base font-medium truncate italic">
-                                {decodeHtml(currentMovie.origin_name)}
-                            </p>
                         </div>
 
                         {/* 3. Categories (Tablet & Desktop) */}
                         {currentMovie.category && currentMovie.category.length > 0 && (
-                            <div className="hidden sm:flex flex-wrap gap-1.5 sm:gap-2 animate-[heroFadeInUp_0.8s_cubic-bezier(0.22,1,0.36,1)_0.16s_both]">
+                            <div className="flex flex-wrap gap-1.5 sm:gap-2 animate-[heroFadeInUp_0.8s_cubic-bezier(0.22,1,0.36,1)_0.16s_both]">
                                 {(() => {
                                     const cats = currentMovie.category.slice(0, 4);
                                     const slugs = cats.map(c => generateCategorySlug(c.slug, c.name));
@@ -173,7 +275,7 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                         <TransitionLink
                                             key={slugs[i] || i}
                                             href={`/the-loai/${slugs[i]}`}
-                                            className={`px-2.5 py-1 text-[11px] md:text-xs font-semibold bg-white/5 hover:bg-white/15 border border-white/10 ${styles[i]?.text || 'text-white/80'} rounded-full transition-all`}
+                                            className={`px-2 sm:px-2.5 py-0.5 sm:py-1 text-[10px] sm:text-[11px] md:text-xs font-semibold bg-white/5 hover:bg-white/15 border border-white/10 ${styles[i]?.text || 'text-white/80'} rounded-full transition-all`}
                                         >
                                             {cat.name}
                                         </TransitionLink>

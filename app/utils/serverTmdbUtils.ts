@@ -53,3 +53,96 @@ export async function getServerActorsFromTMDB(tmdbId: string, type: "movie" | "t
         return [];
     }
 }
+
+async function isLogoBright(path: string): Promise<boolean> {
+    try {
+        const url = `https://image.tmdb.org/t/p/w92${path}`;
+        const res = await fetch(url, { signal: AbortSignal.timeout(3000) });
+        if (!res.ok) return true;
+        const arrayBuffer = await res.arrayBuffer();
+        const buf = Buffer.from(arrayBuffer);
+        const sharp = (await import("sharp")).default;
+        const { data, info } = await sharp(buf).raw().toBuffer({ resolveWithObject: true });
+        let totalL = 0, count = 0;
+        for (let j = 0; j < data.length; j += info.channels) {
+            const a = info.channels === 4 ? data[j + 3] : 255;
+            if (a > 40) {
+                totalL += 0.299 * data[j] + 0.587 * data[j + 1] + 0.114 * data[j + 2];
+                count++;
+            }
+        }
+        return count ? (totalL / count) > 80 : true;
+    } catch {
+        return true;
+    }
+}
+
+/**
+ * Lấy logo trong suốt của phim từ TMDB (Movie ClearLogo)
+ * Hỗ trợ: TMDB ID hoặc Tên phim (origin_name / name)
+ * Tự động nén WebP qua wsrv.nl và ưu tiên logo trắng/sáng
+ */
+export async function getServerLogoFromTMDB(
+    tmdbIdOrTitle: string | number | null | undefined,
+    type: "movie" | "tv" = "movie",
+    titleFallback?: string,
+    year?: number
+): Promise<string | null> {
+    let finalId = tmdbIdOrTitle;
+    let finalType = type;
+
+    // Nếu không có TMDB ID (hoặc id là text tiêu đề) -> tự động tìm kiếm theo tên phim trên TMDB
+    if (!finalId || isNaN(Number(finalId))) {
+        const query = titleFallback || (typeof finalId === "string" ? finalId : "");
+        if (!query || query.trim().length === 0) return null;
+
+        try {
+            const searchEndpoint = `${TMDB_BASE_URL}/search/multi?api_key=${getRandomKey()}&query=${encodeURIComponent(query.trim())}${year ? `&year=${year}` : ""}`;
+            const searchRes = await fetchWithRedis(searchEndpoint, { revalidate: 2592000 });
+            const firstResult = searchRes?.results?.[0];
+            if (firstResult?.id) {
+                finalId = firstResult.id;
+                finalType = firstResult.media_type === "tv" ? "tv" : "movie";
+            } else {
+                return null;
+            }
+        } catch {
+            return null;
+        }
+    }
+
+    try {
+        const endpoint = `${TMDB_BASE_URL}/${finalType}/${finalId}/images?api_key=${getRandomKey()}&include_image_language=vi,en,null`;
+        const response = await fetchWithRedis(endpoint, { revalidate: 2592000 }); // Cache 30 ngày
+
+        if (response && Array.isArray(response.logos) && response.logos.length > 0) {
+            // 1. Phân nhóm ưu tiên: Tiếng Việt (vi) -> Tiếng Anh (en) -> Không xác định (null) -> Toàn bộ
+            const viLogos = response.logos.filter((l: any) => l.iso_639_1 === 'vi');
+            const enLogos = response.logos.filter((l: any) => l.iso_639_1 === 'en');
+            const nullLogos = response.logos.filter((l: any) => !l.iso_639_1);
+            
+            const targetLogos = viLogos.length > 0 ? viLogos : (enLogos.length > 0 ? enLogos : (nullLogos.length > 0 ? nullLogos : response.logos));
+
+            // 2. Tìm logo sáng / trắng trong nhóm targetLogos:
+            let chosen = targetLogos[0];
+            if (targetLogos.length > 1) {
+                for (const candidate of targetLogos) {
+                    const isBright = await isLogoBright(candidate.file_path);
+                    if (isBright) {
+                        chosen = candidate;
+                        break;
+                    }
+                }
+            }
+
+            if (chosen?.file_path) {
+                const rawUrl = `https://image.tmdb.org/t/p/w500${chosen.file_path}`;
+                // Tự động nén qua wsrv.nl sang WebP chất lượng cao
+                return `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}&w=600&q=85&output=webp`;
+            }
+        }
+        return null;
+    } catch {
+        return null;
+    }
+}

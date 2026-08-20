@@ -84,3 +84,64 @@ export async function fetchTotalEpisodesFromTMDB(tmdbId: string): Promise<number
         return null;
     }
 }
+
+/**
+ * Fetch logo từ TMDB trên client
+ * Hỗ trợ TMDB ID hoặc Tên phim (origin_name / name)
+ * Nén WebP qua wsrv.nl
+ */
+export async function fetchLogoFromTMDB(
+    tmdbIdOrTitle: string | number | null | undefined,
+    type: "movie" | "tv" = "movie",
+    titleFallback?: string,
+    year?: number
+): Promise<string | null> {
+    let finalId = tmdbIdOrTitle;
+    let finalType = type;
+
+    if (!finalId || isNaN(Number(finalId))) {
+        const query = titleFallback || (typeof finalId === "string" ? finalId : "");
+        if (!query || query.trim().length === 0) return null;
+
+        try {
+            const searchEndpoint = `${TMDB_BASE_URL}/search/multi?api_key=${getRandomKey()}&query=${encodeURIComponent(query.trim())}${year ? `&year=${year}` : ""}`;
+            const proxyUrl = `/api/proxy?url=${encodeURIComponent(searchEndpoint)}&revalidate=2592000`;
+            const searchRes = await axios.get(proxyUrl);
+            const firstResult = searchRes.data?.results?.[0];
+            if (firstResult?.id) {
+                finalId = firstResult.id;
+                finalType = firstResult.media_type === "tv" ? "tv" : "movie";
+            } else {
+                return null;
+            }
+        } catch {
+            return null;
+        }
+    }
+
+    try {
+        const endpoint = `${TMDB_BASE_URL}/${finalType}/${finalId}/images?api_key=${getRandomKey()}&include_image_language=vi,en,null`;
+        const proxyUrl = `/api/proxy?url=${encodeURIComponent(endpoint)}&revalidate=2592000`;
+        const response = await axios.get(proxyUrl);
+
+        if (response.data && Array.isArray(response.data.logos) && response.data.logos.length > 0) {
+            // 1. Phân nhóm ưu tiên: Tiếng Việt (vi) -> Tiếng Anh (en) -> Không xác định (null) -> Toàn bộ
+            const viLogos = response.data.logos.filter((l: any) => l.iso_639_1 === 'vi');
+            const enLogos = response.data.logos.filter((l: any) => l.iso_639_1 === 'en');
+            const nullLogos = response.data.logos.filter((l: any) => !l.iso_639_1);
+            
+            const targetLogos = viLogos.length > 0 ? viLogos : (enLogos.length > 0 ? enLogos : (nullLogos.length > 0 ? nullLogos : response.data.logos));
+
+            // 2. Nếu có nhiều logo trong nhóm (cặp logo đen & trắng), ưu tiên bản thứ 2 (bản trắng/ngang)
+            const chosen = targetLogos.length > 1 ? targetLogos[1] : targetLogos[0];
+
+            if (chosen?.file_path) {
+                const rawUrl = `https://image.tmdb.org/t/p/w500${chosen.file_path}`;
+                return `https://wsrv.nl/?url=${encodeURIComponent(rawUrl)}&w=600&q=85&output=webp`;
+            }
+        }
+        return null;
+    } catch {
+        return null;
+    }
+}

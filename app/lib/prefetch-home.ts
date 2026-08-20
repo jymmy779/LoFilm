@@ -9,6 +9,7 @@ import { fetchWithRedis, redis } from "@/app/lib/fetch-with-redis";
 import { createClient } from "@supabase/supabase-js";
 import { enrichApiDataWithDatabase } from "@/app/utils/movieEnricher";
 import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
+import { getServerLogoFromTMDB } from "@/app/utils/serverTmdbUtils";
 
 // Client Supabase an toàn cho Background jobs (không dính tới cookies Next.js)
 const supabase = createClient(
@@ -129,7 +130,7 @@ async function getStarredMoviesForHero(): Promise<Movie[]> {
             const movieObj: any = {
                 _id: m.id,
                 name: m.name,
-                origin_name: m.name, // Dự phòng
+                origin_name: m.origin_name || "",
                 slug: m.slug,
                 type: m.type || "single",
                 thumb_url: m.thumb_url,
@@ -142,20 +143,18 @@ async function getStarredMoviesForHero(): Promise<Movie[]> {
                 quality: "FHD",
             };
 
-            // Fetch thông tin chi tiết từ PhimAPI
+            // Fetch thông tin chi tiết từ PhimAPI qua fetchPhimJson (có Redis cache & auto fallback KKPhim)
             try {
-                const phimApiRes = await fetch(`${INTERNAL_API_URL}/phim/${m.slug}`, { signal: AbortSignal.timeout(5000) });
-                if (phimApiRes.ok) {
-                    const phimApiData = await phimApiRes.json();
-                    const detail = phimApiData?.movie;
-                    if (detail) {
-                        return {
-                            ...movieObj,
-                            ...detail, // Ghi đè bằng data chuẩn
-                            thumb_url: m.thumb_url, // Vẫn giữ ảnh do mình lưu lúc star (nếu muốn) hoặc dùng ảnh API
-                            poster_url: m.poster_url,
-                        } as Movie;
-                    }
+                const res = await fetchPhimJson(`${INTERNAL_API_URL}/phim/${m.slug}`);
+                const detail = (res as any)?.movie;
+                if (detail) {
+                    return {
+                        ...movieObj,
+                        ...detail, // Ghi đè bằng data chuẩn từ PhimAPI (bao gồm origin_name, content, category...)
+                        origin_name: detail.origin_name || movieObj.origin_name,
+                        thumb_url: m.thumb_url || detail.thumb_url,
+                        poster_url: m.poster_url || detail.poster_url,
+                    } as Movie;
                 }
             } catch {
                 // Ignore
@@ -213,35 +212,33 @@ async function getExclusiveMoviesForHero(): Promise<Movie[]> {
                 trailer_url: m.trailer_url || ""
             };
 
-            // Ưu tiên 1: Lấy data từ PhimAPI (api thứ 3) — tránh bị nhà mạng VN block TMDB
+            // Ưu tiên 1: Lấy data từ PhimAPI (api thứ 3) qua fetchPhimJson — tránh bị nhà mạng VN block TMDB
             try {
-                const phimApiRes = await fetch(`${INTERNAL_API_URL}/phim/${m.slug}`, { signal: AbortSignal.timeout(5000) });
-                if (phimApiRes.ok) {
-                    const phimApiData = await phimApiRes.json();
-                    const detail = phimApiData?.movie;
-                    if (detail) {
-                        movieObj.content = detail.content || "";
-                        // Dùng ảnh W1280 cho Hero Slider nếu có
-                        const thumbPath = detail.thumb_url || "";
-                        const posterPath = detail.poster_url || "";
-                        if (thumbPath) movieObj.thumb_url = thumbPath.startsWith("http") ? thumbPath : `https://phimimg.com/${thumbPath}`;
-                        if (posterPath) movieObj.poster_url = posterPath.startsWith("http") ? posterPath : `https://phimimg.com/${posterPath}`;
-                        movieObj.category = detail.category || [];
-                        movieObj.actor = detail.actor || [];
-                        movieObj.director = detail.director || [];
-                        movieObj.tmdb = detail.tmdb || {};
-                        if (detail.time) movieObj.time = detail.time;
-                        if (detail.episode_total) movieObj.episode_total = detail.episode_total;
-                        
-                        // Quality comparison rank
-                        const qualityRanks: Record<string, number> = { "CAM": 1, "SD": 2, "HD": 3, "FHD": 4, "2K": 5, "4K": 6 };
-                        const getRank = (q: string) => qualityRanks[q?.toUpperCase()] || 0;
-                        if (detail.quality && getRank(detail.quality) > getRank(movieObj.quality)) {
-                            movieObj.quality = detail.quality;
-                        }
-                        
-                        return movieObj as Movie; // Đã có đủ data, không cần fetch TMDB
+                const res = await fetchPhimJson(`${INTERNAL_API_URL}/phim/${m.slug}`);
+                const detail = (res as any)?.movie;
+                if (detail) {
+                    movieObj.content = detail.content || "";
+                    if (detail.origin_name) movieObj.origin_name = detail.origin_name;
+                    // Dùng ảnh W1280 cho Hero Slider nếu có
+                    const thumbPath = detail.thumb_url || "";
+                    const posterPath = detail.poster_url || "";
+                    if (thumbPath) movieObj.thumb_url = thumbPath.startsWith("http") ? thumbPath : `https://phimimg.com/${thumbPath}`;
+                    if (posterPath) movieObj.poster_url = posterPath.startsWith("http") ? posterPath : `https://phimimg.com/${posterPath}`;
+                    movieObj.category = detail.category || [];
+                    movieObj.actor = detail.actor || [];
+                    movieObj.director = detail.director || [];
+                    movieObj.tmdb = detail.tmdb || {};
+                    if (detail.time) movieObj.time = detail.time;
+                    if (detail.episode_total) movieObj.episode_total = detail.episode_total;
+                    
+                    // Quality comparison rank
+                    const qualityRanks: Record<string, number> = { "CAM": 1, "SD": 2, "HD": 3, "FHD": 4, "2K": 5, "4K": 6 };
+                    const getRank = (q: string) => qualityRanks[q?.toUpperCase()] || 0;
+                    if (detail.quality && getRank(detail.quality) > getRank(movieObj.quality)) {
+                        movieObj.quality = detail.quality;
                     }
+                    
+                    return movieObj as Movie; // Đã có đủ data, không cần fetch TMDB
                 }
             } catch {
                 // PhimAPI không có hoặc timeout → fallthrough sang TMDB
@@ -429,7 +426,8 @@ async function enrichMovies(movies: Movie[]): Promise<Movie[]> {
                     tmdb: detail.tmdb,
                     actor: detail.actor,
                     director: detail.director,
-                    duration: detail.time
+                    duration: detail.time,
+                    origin_name: detail.origin_name || m.origin_name
                 } as Movie;
             } catch {
                 return m;
@@ -544,8 +542,21 @@ async function fetchAndCacheBundle(
     // Giữ nguyên số lượng = 8
     finalHero = finalHero.slice(0, 8);
 
+    // Tự động kéo Logo PNG trong suốt từ TMDB cho 8 phim Hero Slider
+    const heroWithLogos = await Promise.all(
+        finalHero.map(async (m) => {
+            if (m.logo_url) return m;
+            const tmdbType = m.type === "series" || m.type === "tv" ? "tv" : "movie";
+            const logoUrl = await getServerLogoFromTMDB(m.tmdb?.id, tmdbType, m.origin_name || m.name, m.year);
+            if (logoUrl) {
+                return { ...m, logo_url: logoUrl };
+            }
+            return m;
+        })
+    );
+
     const result: HomePrefetch = {
-        hero: finalHero,
+        hero: heroWithLogos,
         categories: parseCategories(catRaw),
         movieRowHan: mapMovieRow(parseV1Items(hanRaw)),
         movieRowTrung: mapMovieRow(parseV1Items(trungRaw)),

@@ -32,6 +32,7 @@ export interface Movie {
     actor?: string[];
     director?: string[];
     trailer_url?: string;
+    logo_url?: string;
     chieurap?: boolean;
     sub_docquyen?: boolean;
     is_copyright?: boolean;

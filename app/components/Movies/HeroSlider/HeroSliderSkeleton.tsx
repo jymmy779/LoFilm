@@ -6,7 +6,7 @@ import Container from "@/app/components/UI/Container";
 
 export default function HeroSliderSkeleton() {
     return (
-        <section className="w-full relative h-[520px] sm:h-[580px] md:h-[680px] lg:h-[780px] xl:h-[840px] overflow-hidden bg-[#0F1115]">
+        <section className="w-full relative h-[480px] sm:h-[560px] md:h-[680px] lg:h-[780px] xl:h-[840px] overflow-hidden bg-[#0F1115]">
             {/* Background shimmer */}
             <div className="absolute inset-0">
                 <Skeleton className="w-full h-full" rounded="none" />

@@ -258,7 +258,7 @@ export default function LibraryPage() {
               <div key={item.id} className="w-full">
                 <div className="group/item relative block w-full h-full">
                   <TransitionLink className="block w-full" href={activeTab === 'history' ? `/phim/${item.movie_slug}/${item.episode_slug || 'tap-full'}` : `/phim/${item.movie_slug}`}>
-                    <div className="relative aspect-[2/3] rounded-2xl overflow-hidden mb-3 bg-[#0F1115] z-0 transition-opacity duration-300">
+                    <div className="relative aspect-[2/3] rounded-lg overflow-hidden mb-3 bg-[#0F1115] z-0 transition-opacity duration-300">
                       <SmartImage
                         alt={item.movie_name}
                         className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover/item:scale-110 transform-gpu ${loadedImages.has(item.id) ? 'opacity-100' : 'opacity-0'}`}

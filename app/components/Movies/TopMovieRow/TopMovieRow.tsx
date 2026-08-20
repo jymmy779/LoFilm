@@ -127,19 +127,18 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies, titleGradient 
 
                                         {/* Netflix 3D Layered Rank Number */}
                                         <div
-                                            className={`ranking-number absolute -bottom-2 sm:-bottom-3 -left-1.5 sm:-left-2 z-20 font-black italic select-none pointer-events-none leading-none tracking-tighter ${
-                                                rankNumber >= 10
-                                                    ? "text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
-                                                    : "text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
-                                            }`}
+                                            className={`ranking-number absolute -bottom-2 sm:-bottom-3 -left-1.5 sm:-left-2 z-20 font-black italic select-none pointer-events-none leading-none tracking-tighter ${rankNumber >= 10
+                                                ? "text-4xl sm:text-5xl md:text-6xl lg:text-7xl"
+                                                : "text-5xl sm:text-6xl md:text-7xl lg:text-8xl"
+                                                }`}
                                             style={{
                                                 backgroundImage: rankNumber === 1
                                                     ? 'linear-gradient(180deg, #FFFBEB 0%, #FBBF24 60%, #D97706 100%)'
                                                     : rankNumber === 2
-                                                    ? 'linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 50%, #94A3B8 100%)'
-                                                    : rankNumber === 3
-                                                    ? 'linear-gradient(180deg, #FFF1F2 0%, #FB7185 60%, #E11D48 100%)'
-                                                    : 'linear-gradient(180deg, #FFFFFF 0%, #E9D5FF 50%, #D497FF 100%)',
+                                                        ? 'linear-gradient(180deg, #FFFFFF 0%, #E2E8F0 50%, #94A3B8 100%)'
+                                                        : rankNumber === 3
+                                                            ? 'linear-gradient(180deg, #FFF1F2 0%, #FB7185 60%, #E11D48 100%)'
+                                                            : 'linear-gradient(180deg, #FFFFFF 0%, #E9D5FF 50%, #D497FF 100%)',
                                                 WebkitBackgroundClip: 'text',
                                                 WebkitTextFillColor: 'transparent',
                                                 filter: 'drop-shadow(0 4px 6px rgba(0,0,0,0.9))'
@@ -167,7 +166,7 @@ function TopMovieRow({ title, apiUrl, viewAllLink, initialMovies, titleGradient 
                                             </p>
                                         </div>
 
-                                        <div className="info-line flex flex-wrap items-center gap-1 pt-0.5 h-[16px]">
+                                        <div className="info-line mb-0.5 flex flex-wrap items-center gap-1 pt-0.5 h-[16px]">
                                             {(() => {
                                                 let partNum = "1";
                                                 const nameStr = `${movie.name || ""} ${movie.origin_name || ""}`;

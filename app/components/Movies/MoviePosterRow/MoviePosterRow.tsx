@@ -52,7 +52,7 @@ function MoviePosterRow({ title, apiUrl, viewAllLink, initialMovies, sortByYear 
                     </h2>
                     <TransitionLink
                         href={viewAllLink || "/"}
-                        className="group/more flex items-center justify-center bg-[#0F1115] border border-white/10 rounded-full h-8 w-8 lg:h-10 lg:w-10 transition-[width,border-color,box-shadow] duration-500 hover:border-[#D497FF]/50 hover:w-[110px] lg:hover:w-[130px] overflow-hidden hover:shadow-lg hover:shadow-[#D497FF]/20"
+                        className="group/more flex items-center justify-center bg-[#0F1115] border border-white/10 rounded-full h-8 w-8 lg:h-10 lg:w-10 transition-[width,border-color] duration-500 hover:border-[#D497FF]/50 hover:w-[110px] lg:hover:w-[130px] overflow-hidden"
                     >
                         <span className="max-w-0 overflow-hidden whitespace-nowrap text-[#D497FF] text-[10px] lg:text-xs font-bold transition-[max-width,margin,opacity] duration-500 group-hover/more:max-w-[80px] group-hover/more:mr-2 leading-none opacity-0 group-hover/more:opacity-100">
                             Xem thêm

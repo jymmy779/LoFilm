@@ -33,3 +33,11 @@ export function getR2ActorUrl(tmdbPersonId: number | string): string {
     if (!tmdbPersonId || !R2_URL) return "";
     return `${R2_URL}/images/actors/${tmdbPersonId}.webp`;
 }
+
+/**
+ * Logo phim từ R2 (WebP trong suốt – dùng cho Hero Slider)
+ */
+export function getR2MovieLogoUrl(slug: string): string {
+    if (!slug || !R2_URL) return "";
+    return `${R2_URL}/images/logos/${slug}.webp`;
+}

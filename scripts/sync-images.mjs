@@ -363,11 +363,41 @@ async function processActorImages(movie) {
             `https://api.themoviedb.org/3/${tmdbType}/${tmdb.id}/credits?api_key=${apiKey}&language=vi-VN`,
             { signal: AbortSignal.timeout(8000) }
         );
-        if (!res.ok) return;
-        const data = await res.json();
-        cast = (data.cast || []).filter(a => a.profile_path);
+        if (res.ok) {
+            const data = await res.json();
+            cast = (data.cast || []).filter(a => a.profile_path);
+        }
     } catch {
-        return; // TMDB timeout / lỗi → bỏ qua
+        // Bỏ qua nếu credits lỗi
+    }
+
+    // --- Sync Movie ClearLogo sang R2 (images/logos/{slug}.webp) ---
+    const logoKey = `images/logos/${movie.slug}.webp`;
+    try {
+        if (!(newOnly && await existsOnR2(logoKey))) {
+            const logoRes = await fetch(
+                `https://api.themoviedb.org/3/${tmdbType}/${tmdb.id}/images?api_key=${apiKey}&include_image_language=vi,en,null`,
+                { signal: AbortSignal.timeout(8000) }
+            );
+            if (logoRes.ok) {
+                const logoData = await logoRes.json();
+                const logos = logoData.logos || [];
+                if (logos.length > 0) {
+                    const viLogo = logos.find(l => l.iso_639_1 === 'vi');
+                    const enLogo = logos.find(l => l.iso_639_1 === 'en');
+                    const chosen = viLogo || enLogo || logos[0];
+                    if (chosen?.file_path) {
+                        const imgUrl = `https://image.tmdb.org/t/p/w500${chosen.file_path}`;
+                        await withRetry(async () => {
+                            const buf = await downloadImage(imgUrl);
+                            await convertAndUpload(buf, logoKey, 600, 90);
+                        });
+                    }
+                }
+            }
+        }
+    } catch {
+        // Logo là tùy chọn
     }
 
     for (const actor of cast) {
