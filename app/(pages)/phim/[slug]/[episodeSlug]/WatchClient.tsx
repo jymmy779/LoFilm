@@ -1085,7 +1085,14 @@ export default function WatchClient({
                 try { orientation.unlock(); } catch (e) { }
             }
         }
+        // Gọi resize cho ArtPlayer khi chuyển fullscreen
+        const resizeTimer = setTimeout(() => {
+            if (artRef.current) {
+                try { (artRef.current as any).resize?.(); } catch (e) { }
+            }
+        }, 150);
         return () => {
+            clearTimeout(resizeTimer);
             document.documentElement.classList.remove('fullscreen-scrollbar-fix');
             const orientation = (screen as any).orientation;
             if (orientation && typeof orientation.unlock === 'function') {
@@ -1093,6 +1100,21 @@ export default function WatchClient({
             }
         };
     }, [isFullscreenActive]);
+
+    // Lắng nghe sự kiện xoay màn hình và resize cửa sổ để tự động điều chỉnh ArtPlayer
+    useEffect(() => {
+        const handleScreenResize = () => {
+            if (artRef.current) {
+                try { (artRef.current as any).resize?.(); } catch (e) { }
+            }
+        };
+        window.addEventListener('resize', handleScreenResize);
+        window.addEventListener('orientationchange', handleScreenResize);
+        return () => {
+            window.removeEventListener('resize', handleScreenResize);
+            window.removeEventListener('orientationchange', handleScreenResize);
+        };
+    }, []);
 
     // Handle Escape key để thoát CSS fullscreen (WebView không có native Esc behavior)
     useEffect(() => {
@@ -1140,18 +1162,28 @@ export default function WatchClient({
     const portalTarget = isEmbedServer ? containerNode : artContainer;
 
     return (
-        <div className={`pt-27 pb-12 min-h-screen transition-all duration-500 animate-fade-in ${isFullscreenActive ? 'video-fullscreen-active' : ''} relative`}>
+        <div className={`${isFullscreenActive ? 'fixed inset-0 z-[99999] bg-black p-0 m-0 w-screen h-screen overflow-hidden' : 'pt-27 pb-12 min-h-screen relative'} transition-all duration-300 animate-fade-in`}>
 
             {/* Movie Header / Back Button */}
-            <div className={`transition-all duration-500 ease-in-out ${!isFullscreenActive ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-4 pointer-events-none'}`}>
-                <MovieHeader slug={slug} movieName={movie.name} episodeName={currentEpisode.name} />
-            </div>
+            {!isFullscreenActive && (
+                <div className="transition-all duration-500 ease-in-out opacity-100 translate-y-0">
+                    <MovieHeader slug={slug} movieName={movie.name} episodeName={currentEpisode.name} />
+                </div>
+            )}
 
             {/* === VIDEO PLAYER & CONTROLS SECTION === */}
-            <div className="w-full max-w-[1440px] 2xl:max-w-[1560px] px-3 sm:px-5 lg:px-8 mx-auto">
-                <div ref={fullscreenWrapperRef} className={`transition-all duration-500 ease-in-out relative w-full ${isFullscreenActive ? '!max-w-none !m-0 !fixed !inset-0 !z-[9999]' : ''}`} style={isFullscreenActive ? { padding: 'env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)', backgroundColor: '#000' } : undefined}>
-                    <div ref={containerCallbackRef} className={`aspect-video w-full max-h-[calc(100vh-210px)] max-w-[calc((100vh-210px)*16/9)] mx-auto bg-black/40 border border-white/5 relative overflow-hidden transition-all duration-500 z-10 rounded-2xl ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreenActive ? '!rounded-none !border-0 !h-full' : ''}`}>
+            <div className={`w-full ${isFullscreenActive ? '!max-w-none !p-0 !m-0 !w-full !h-full' : 'max-w-[1440px] 2xl:max-w-[1560px] px-3 sm:px-5 lg:px-8 mx-auto'}`}>
+                <div ref={fullscreenWrapperRef} className={`transition-all duration-300 relative w-full ${isFullscreenActive ? '!max-w-none !m-0 !fixed !inset-0 !z-[99999] !w-full !h-full !p-0 bg-black' : ''}`} style={isFullscreenActive ? { padding: 'env(safe-area-inset-top) env(safe-area-inset-right) env(safe-area-inset-bottom) env(safe-area-inset-left)', backgroundColor: '#000' } : undefined}>
+                    <div ref={containerCallbackRef} className={`watch-player-container w-full bg-black/40 border border-white/5 relative overflow-hidden transition-all duration-300 z-10 ${showEndOverlay ? 'hide-large-play' : ''} [--plyr-color-main:#f59e0b] ${isFullscreenActive ? '!rounded-none !border-0 !w-full !h-full !max-w-none !max-h-none !aspect-auto' : 'aspect-video w-full max-w-full lg:max-h-[calc(100vh-210px)] lg:max-w-[calc((100vh-210px)*16/9)] mx-auto rounded-2xl'}`}>
                         <style jsx global>{`
+                        @media (max-height: 600px) {
+                            .watch-player-container {
+                                max-height: none !important;
+                                max-width: 100% !important;
+                                width: 100% !important;
+                            }
+                        }
+
                         .art-video-player .art-bottom {
                             z-index: 50 !important;
                         }
@@ -1177,9 +1209,19 @@ export default function WatchClient({
                             transition-delay: 0.15s !important;
                         }
                         
-                        /* Ẩn các element xung quanh khi fullscreen (cả native và CSS fallback) */
-                        .video-fullscreen-active > *:not(.relative) {
-                            display: none !important;
+                        /* Native Fullscreen & Custom Fullscreen styles */
+                        :fullscreen,
+                        ::backdrop {
+                            background-color: #000 !important;
+                        }
+                        :fullscreen .art-video-player,
+                        :fullscreen .art-video-player video,
+                        .video-fullscreen-active .art-video-player,
+                        .video-fullscreen-active .art-video-player video {
+                            width: 100% !important;
+                            height: 100% !important;
+                            max-width: none !important;
+                            max-height: none !important;
                         }
                         
                         /* Thêm style cho iOS fullscreen active trên body */
@@ -1598,31 +1640,34 @@ export default function WatchClient({
                     )}
                 </div>
 
-                <div className="relative z-20">
-                    <PlayerControls
-                        isAutoNext={isAutoNext}
-                        onToggleAutoNext={toggleAutoNext}
-                        isFavorited={isFavorited}
-                        onToggleFavorite={toggleFavorite}
-                        isInWatchlist={isInWatchlist}
-                        onToggleWatchlist={toggleWatchlist}
-                        episodes={processedEpisodes}
-                        activeServer={activeServerIndex}
-                        onServerChange={handleServerChange}
-                        onReport={() => setShowReportModal(true)}
-                        onShare={() => setShowShareModal(true)}
-                        subtitles={episodeSubtitles}
-                        subtitleSlot1={slot1}
-                        subtitleSlot2={slot2}
-                        onSubtitleSlot1Change={setSlot1}
-                        onSubtitleSlot2Change={setSlot2}
-                    />
-                </div>
+                {!isFullscreenActive && (
+                    <div className="relative z-20">
+                        <PlayerControls
+                            isAutoNext={isAutoNext}
+                            onToggleAutoNext={toggleAutoNext}
+                            isFavorited={isFavorited}
+                            onToggleFavorite={toggleFavorite}
+                            isInWatchlist={isInWatchlist}
+                            onToggleWatchlist={toggleWatchlist}
+                            episodes={processedEpisodes}
+                            activeServer={activeServerIndex}
+                            onServerChange={handleServerChange}
+                            onReport={() => setShowReportModal(true)}
+                            onShare={() => setShowShareModal(true)}
+                            subtitles={episodeSubtitles}
+                            subtitleSlot1={slot1}
+                            subtitleSlot2={slot2}
+                            onSubtitleSlot1Change={setSlot1}
+                            onSubtitleSlot2Change={setSlot2}
+                        />
+                    </div>
+                )}
             </div>
 
             {/* === MAIN CONTENT (BELOW PLAYER) === */}
-            <div className="overflow-hidden transition-all duration-500 ease-in-out max-h-[8000px] opacity-100 mt-5 sm:mt-6">
-                <div className="w-full max-w-[1440px] 2xl:max-w-[1560px] px-3 sm:px-5 lg:px-8 mx-auto pb-16 space-y-4">
+            {!isFullscreenActive && (
+                <div className="overflow-hidden transition-all duration-500 ease-in-out max-h-[8000px] opacity-100 mt-5 sm:mt-6">
+                    <div className="w-full max-w-[1440px] 2xl:max-w-[1560px] px-3 sm:px-5 lg:px-8 mx-auto pb-16 space-y-4">
                     {subtitlePortalNode && hasCustomSubtitles && createPortal(
                         <DualSubtitleMenu
                             subtitles={episodeSubtitles}
@@ -1920,8 +1965,9 @@ export default function WatchClient({
                     </div>
                 </div>
             </div>
+        )}
 
-            <ReportModal isOpen={showReportModal} onClose={() => setShowReportModal(false)} movieName={movie.name} episodeName={currentEpisode.name} />
+        <ReportModal isOpen={showReportModal} onClose={() => setShowReportModal(false)} movieName={movie.name} episodeName={currentEpisode.name} />
             <ShareModal
                 isOpen={showShareModal}
                 onClose={() => { setShowShareModal(false); if (user) logActivity(user.id, "share_movie", { movie_slug: slug, movie_name: movie.name }); }}
