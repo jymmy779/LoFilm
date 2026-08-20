@@ -84,9 +84,8 @@ function HeroMovieLogo({ logoUrl, alt }: { slug?: string; logoUrl: string; alt: 
                 crossOrigin="anonymous"
                 onLoad={handleLoad}
                 onError={() => setHasError(true)}
-                className={`h-full w-auto object-contain object-left drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)] transition-transform duration-300 group-hover:scale-105 ${
-                    isDark ? "brightness-0 invert" : ""
-                }`}
+                className={`h-full w-auto object-contain object-left drop-shadow-[0_4px_20px_rgba(0,0,0,0.95)] transition-transform duration-300 group-hover:scale-105 ${isDark ? "brightness-0 invert" : ""
+                    }`}
                 loading="eager"
             />
         </div>
@@ -150,51 +149,53 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
     const displayMovies = movies.slice(0, 8); // Top 8 movies for progress pills
 
     return (
-        <section id="top_slider" className="w-full relative h-[480px] sm:h-[560px] md:h-[680px] lg:h-[780px] xl:h-[840px] overflow-hidden select-none bg-[#0F1115]">
-            {/* === MAIN BACKGROUND SWIPER === */}
-            <Swiper
-                modules={[Autoplay, EffectFade]}
-                effect="fade"
-                fadeEffect={{ crossFade: true }}
-                autoplay={{ delay: AUTOPLAY_DELAY, disableOnInteraction: false }}
-                loop
-                speed={1100}
-                onSwiper={(swiper) => (swiperRef.current = swiper)}
-                onSlideChange={(s) => setActiveIndex(s.realIndex)}
-                className="w-full h-full"
-            >
-                {movies.map((movie, index) => (
-                    <SwiperSlide key={movie._id || index}>
-                        <div className="absolute inset-0">
-                            {/* Backdrop Image */}
-                            <SmartImage
-                                r2Src={getR2MovieThumbUrl(movie.slug)}
-                                src={getImageUrl(movie.thumb_url, { width: 1920, quality: 85 })}
-                                rawSrc={getRawImageUrl(movie.thumb_url)}
-                                fallbackSrc={movie.poster_url ? getImageUrl(movie.poster_url, { width: 1200, quality: 75 }) : undefined}
-                                alt={movie.name}
-                                priority={index === 0}
-                                loading={index === 0 ? "eager" : "lazy"}
-                                fetchPriority={index === 0 ? "high" : "auto"}
-                                fill
-                                sizes="100vw"
-                                quality={index === 0 ? 80 : 75}
-                                className="object-cover object-top md:object-center transform-gpu"
-                            />
+        <section id="top_slider" className="w-full relative h-[480px] sm:h-[560px] md:h-[680px] lg:h-[780px] xl:h-[840px] select-none bg-[#0F1115]">
+            {/* === MAIN BACKGROUND SWIPER (Trải rộng ra sau DesktopSidebar trên XL) === */}
+            <div className="absolute inset-0 xl:-left-[100px] xl:w-[calc(100%+100px)] h-full overflow-hidden">
+                <Swiper
+                    modules={[Autoplay, EffectFade]}
+                    effect="fade"
+                    fadeEffect={{ crossFade: true }}
+                    autoplay={{ delay: AUTOPLAY_DELAY, disableOnInteraction: false }}
+                    loop
+                    speed={1100}
+                    onSwiper={(swiper) => (swiperRef.current = swiper)}
+                    onSlideChange={(s) => setActiveIndex(s.realIndex)}
+                    className="w-full h-full"
+                >
+                    {movies.map((movie, index) => (
+                        <SwiperSlide key={movie._id || index}>
+                            <div className="absolute inset-0">
+                                {/* Backdrop Image */}
+                                <SmartImage
+                                    r2Src={getR2MovieThumbUrl(movie.slug)}
+                                    src={getImageUrl(movie.thumb_url, { width: 1920, quality: 85 })}
+                                    rawSrc={getRawImageUrl(movie.thumb_url)}
+                                    fallbackSrc={movie.poster_url ? getImageUrl(movie.poster_url, { width: 1200, quality: 75 }) : undefined}
+                                    alt={movie.name}
+                                    priority={index === 0}
+                                    loading={index === 0 ? "eager" : "lazy"}
+                                    fetchPriority={index === 0 ? "high" : "auto"}
+                                    fill
+                                    sizes="100vw"
+                                    quality={index === 0 ? 80 : 75}
+                                    className="object-cover object-top md:object-center transform-gpu"
+                                />
 
-                            {/* Cinematic Scrim Gradients (Lightweight pure CSS) */}
-                            {/* Bottom Fade: Chỉ phủ phần đáy vừa đủ để đọc chữ, giữ 60% phần ảnh bên trên sáng trong */}
-                            <div className="absolute inset-x-0 bottom-0 h-[65%] sm:h-[60%] md:h-[65%] bg-gradient-to-t from-[#0F1115] via-[#0F1115]/70 to-transparent pointer-events-none z-10" />
+                                {/* Cinematic Scrim Gradients (Lightweight pure CSS) */}
+                                {/* Bottom Fade: Chỉ phủ phần đáy vừa đủ để đọc chữ, giữ 60% phần ảnh bên trên sáng trong */}
+                                <div className="absolute inset-x-0 bottom-0 h-[65%] sm:h-[60%] md:h-[65%] bg-gradient-to-t from-[#0F1115] via-[#0F1115]/70 to-transparent pointer-events-none z-10" />
 
-                            {/* Left Fade: Chỉ hiển thị trên Desktop khi text nằm bên trái, không phủ trên mobile/tablet */}
-                            <div className="hidden md:block absolute inset-y-0 left-0 w-3/5 lg:w-1/2 bg-gradient-to-r from-[#0F1115]/90 via-[#0F1115]/40 to-transparent pointer-events-none z-10" />
+                                {/* Left Fade: Chỉ hiển thị trên Desktop khi text nằm bên trái, không phủ trên mobile/tablet */}
+                                <div className="hidden md:block absolute inset-y-0 left-0 w-3/5 lg:w-1/2 bg-gradient-to-r from-[#0F1115]/90 via-[#0F1115]/40 to-transparent pointer-events-none z-10" />
 
-                            {/* Top Header Fade: Đủ tối và sâu để Header/Menu/Logo luôn nổi rõ ràng trên mọi hình ảnh */}
-                            <div className="absolute inset-x-0 top-0 h-28 md:h-36 bg-gradient-to-b from-[#0F1115]/90 via-[#0F1115]/40 to-transparent pointer-events-none z-10" />
-                        </div>
-                    </SwiperSlide>
-                ))}
-            </Swiper>
+                                {/* Top Header Fade: Đủ tối và sâu để Header/Menu/Logo luôn nổi rõ ràng trên mọi hình ảnh */}
+                                <div className="absolute inset-x-0 top-0 h-28 md:h-36 bg-gradient-to-b from-[#0F1115]/90 via-[#0F1115]/40 to-transparent pointer-events-none z-10" />
+                            </div>
+                        </SwiperSlide>
+                    ))}
+                </Swiper>
+            </div>
 
             {/* Style animations */}
             <style jsx global>{`
@@ -212,12 +213,12 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
 
             {/* === FOREGROUND CONTENT OVERLAY === */}
             <div className="absolute inset-0 z-20 pointer-events-none flex flex-col justify-end">
-                <Container className="w-full pb-6 sm:pb-8 md:pb-12 xl:pb-14 xl:pl-[100px]">
+                <Container className="w-full pb-6 sm:pb-8 md:pb-12 xl:pb-14">
                     <div
                         key={currentMovie.slug || activeIndex}
                         className="max-w-2xl lg:max-w-3xl xl:max-w-4xl space-y-2.5 sm:space-y-4 md:space-y-5 pointer-events-auto"
                     >
-                        
+
                         {/* 1. Meta Badges & Rating (Synced with FeaturedSlider) */}
                         <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 animate-[heroFadeInUp_0.7s_cubic-bezier(0.22,1,0.36,1)_both]">
                             {(currentMovie.tmdb?.vote_average || 0) > 0 && (
@@ -328,18 +329,17 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                     {/* === BOTTOM INTERACTIVE PILLS === */}
                     <div className="mt-5 sm:mt-7 pt-1">
                         {/* Desktop & Tablet: Clean Movie Tabs */}
-                        <div className="hidden sm:flex items-center gap-1.5 md:gap-2 overflow-x-auto no-scrollbar pointer-events-auto">
+                        <div className="hidden sm:flex items-center gap-1.5 md:gap-2 overflow-x-auto no-scrollbar pointer-events-auto max-w-full">
                             {displayMovies.map((movie, idx) => {
                                 const isCurrent = idx === (activeIndex % displayMovies.length);
                                 return (
                                     <button
                                         key={movie._id || idx}
                                         onClick={() => handleSelectSlide(idx)}
-                                        className={`flex items-center gap-1.5 md:gap-2 px-2.5 md:px-3 py-1.5 md:py-2 rounded-lg text-left border transition-all duration-200 cursor-pointer flex-1 min-w-[120px] max-w-[190px] ${
-                                            isCurrent
-                                                ? "bg-white/15 border-[#D497FF]/60 text-white shadow-sm"
-                                                : "bg-black/40 hover:bg-white/10 border-white/10 text-white/60 hover:text-white/90"
-                                        }`}
+                                        className={`flex items-center gap-1.5 md:gap-2 px-2 md:px-2.5 lg:px-3 py-1.5 md:py-2 rounded-lg text-left border transition-all duration-200 cursor-pointer flex-1 min-w-[105px] sm:min-w-[110px] md:min-w-[120px] max-w-[180px] ${isCurrent
+                                            ? "bg-white/15 border-[#D497FF]/60 text-white shadow-sm"
+                                            : "bg-black/40 hover:bg-white/10 border-white/10 text-white/60 hover:text-white/90"
+                                            }`}
                                     >
                                         {/* Slide Number */}
                                         <span className={`text-[11px] font-black italic ${isCurrent ? 'text-[#D497FF]' : 'text-white/40'}`}>
@@ -363,9 +363,8 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                                     <button
                                         key={idx}
                                         onClick={() => handleSelectSlide(idx)}
-                                        className={`h-1.5 rounded-full transition-all duration-300 ${
-                                            isCurrent ? "w-7 bg-[#D497FF]" : "w-2 bg-white/20"
-                                        }`}
+                                        className={`h-1.5 rounded-full transition-all duration-300 ${isCurrent ? "w-7 bg-[#D497FF]" : "w-2 bg-white/20"
+                                            }`}
                                     />
                                 );
                             })}

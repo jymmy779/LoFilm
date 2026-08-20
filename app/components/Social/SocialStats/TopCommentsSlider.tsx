@@ -5,8 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Navigation, Autoplay } from "swiper/modules";
 import "swiper/css";
 import "swiper/css/navigation";
-import { Star, MessageSquare } from "lucide-react";
-import SwiperNavButtons from "@/app/components/UI/Common/SwiperNavButtons";
+import { Star, MessageSquare, ChevronLeft, ChevronRight } from "lucide-react";
 import Skeleton from "@/app/components/UI/Skeleton/Skeleton";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
@@ -64,9 +63,27 @@ export default function TopCommentsSlider() {
 
     return (
         <div className="relative group/comments">
-            <div className="flex items-center gap-1.5 sm:gap-2 mb-4 sm:mb-6">
-                <Star className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFD14E] fill-[#FFD14E]" />
-                <h2 className="text-base sm:text-lg lg:text-xl font-bold uppercase">Top Bình luận</h2>
+            <div className="flex items-center justify-between mb-4 sm:mb-6">
+                <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Star className="w-4 h-4 sm:w-5 sm:h-5 text-[#FFD14E] fill-[#FFD14E]" />
+                    <h2 className="text-base sm:text-lg lg:text-xl font-bold uppercase">Top Bình luận</h2>
+                </div>
+
+                {/* Navigation Buttons placed neatly in Header */}
+                <div className="flex items-center gap-2">
+                    <button
+                        className="btn-prev-top-comments w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#0F1115] hover:bg-[#D497FF] text-white hover:text-black border border-white/10 hover:border-transparent flex items-center justify-center transition-all duration-300 shadow-md cursor-pointer active:scale-90"
+                        aria-label="Previous comment"
+                    >
+                        <ChevronLeft size={16} />
+                    </button>
+                    <button
+                        className="btn-next-top-comments w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#0F1115] hover:bg-[#D497FF] text-white hover:text-black border border-white/10 hover:border-transparent flex items-center justify-center transition-all duration-300 shadow-md cursor-pointer active:scale-90"
+                        aria-label="Next comment"
+                    >
+                        <ChevronRight size={16} />
+                    </button>
+                </div>
             </div>
 
             <div className="relative px-1">

@@ -1,7 +1,6 @@
 import Container from "@/app/components/UI/Container";
 import TopCommentsSlider from "./TopCommentsSlider";
 import StatsGrid from "./StatsGrid";
-import SwiperNavButtons from "@/app/components/UI/Common/SwiperNavButtons";
 import { SocialDataProvider } from "./SocialDataContext";
 
 export default function SocialStatsSection() {
@@ -16,12 +15,6 @@ export default function SocialStatsSection() {
                             <StatsGrid />
                         </div>
                     </div>
-
-                    <SwiperNavButtons
-                        prevClassName="btn-prev-top-comments"
-                        nextClassName="btn-next-top-comments"
-                        className="!w-8 !h-8 md:!w-10 md:!h-10 !top-1/2 md:!top-[182px] !-translate-y-1/2 !bg-[#0F1115] !text-white/40 !border-white/10 hover:!text-white hover:!border-white/20 !absolute !z-50"
-                    />
                 </div>
             </Container>
         </SocialDataProvider>

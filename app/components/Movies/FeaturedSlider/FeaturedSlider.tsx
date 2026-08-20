@@ -85,22 +85,22 @@ function FeaturedSlider({
                 {/* Navigation Buttons */}
                 <div className="flex items-center gap-2">
                     <button
-                        className={`btn-prev-${navId} w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#12151C] hover:bg-[#D497FF] text-white hover:text-black border border-white/10 hover:border-transparent flex items-center justify-center transition-all duration-300 shadow-md cursor-pointer active:scale-90`}
+                        className={`btn-prev-${navId} w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#12151C] hover:bg-[#D497FF] text-white hover:text-black border border-white/10 hover:border-transparent flex items-center justify-center transition-all duration-300 shadow-md cursor-pointer active:scale-90`}
                         aria-label="Previous slide"
                     >
-                        <ChevronLeft size={18} />
+                        <ChevronLeft size={16} />
                     </button>
                     <button
-                        className={`btn-next-${navId} w-9 h-9 sm:w-10 sm:h-10 rounded-full bg-[#12151C] hover:bg-[#D497FF] text-white hover:text-black border border-white/10 hover:border-transparent flex items-center justify-center transition-all duration-300 shadow-md cursor-pointer active:scale-90`}
+                        className={`btn-next-${navId} w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#12151C] hover:bg-[#D497FF] text-white hover:text-black border border-white/10 hover:border-transparent flex items-center justify-center transition-all duration-300 shadow-md cursor-pointer active:scale-90`}
                         aria-label="Next slide"
                     >
-                        <ChevronRight size={18} />
+                        <ChevronRight size={16} />
                     </button>
                 </div>
             </div>
 
             {/* 3D Coverflow Stage */}
-            <div className="relative py-2 sm:py-4">
+            <div className="relative py-2 sm:py-4 overflow-hidden rounded-3xl">
                 <Swiper
                     modules={[EffectCoverflow, Navigation, Autoplay]}
                     effect="coverflow"
@@ -115,17 +115,17 @@ function FeaturedSlider({
                         pauseOnMouseEnter: true
                     }}
                     coverflowEffect={{
-                        rotate: 15,
+                        rotate: 8,
                         stretch: 0,
-                        depth: 120,
-                        modifier: 1.2,
+                        depth: 70,
+                        modifier: 1,
                         slideShadows: false,
                     }}
                     navigation={{
                         nextEl: `.btn-next-${navId}`,
                         prevEl: `.btn-prev-${navId}`,
                     }}
-                    className="featured-coverflow-swiper !overflow-visible"
+                    className="featured-coverflow-swiper"
                 >
                     {movies.map((movie, index) => {
                         const imgUrl = getImageUrl(movie.thumb_url, { width: 1280, quality: index < 3 ? 85 : 80 });
@@ -133,9 +133,9 @@ function FeaturedSlider({
                         return (
                             <SwiperSlide
                                 key={`coverflow-${movie._id || index}`}
-                                className="!w-[82vw] sm:!w-[520px] md:!w-[640px] lg:!w-[760px] xl:!w-[860px] transition-all duration-500"
+                                className="!w-[72vw] sm:!w-[400px] md:!w-[480px] lg:!w-[560px] xl:!w-[640px] 2xl:!w-[720px] transition-all duration-500"
                             >
-                                <div className="group/card relative aspect-[16/9] sm:aspect-[16/9.2] rounded-3xl overflow-hidden bg-[#0F1115] border border-white/10 shadow-2xl transition-all duration-500">
+                                <div className="group/card relative aspect-[16/9] sm:aspect-[16/8.8] md:aspect-[16/8.6] rounded-2xl sm:rounded-3xl overflow-hidden bg-[#0F1115] border border-white/10 shadow-2xl transition-all duration-500">
                                     {/* Backdrop Image */}
                                     <SmartImage
                                         r2Src={getR2MovieThumbUrl(movie.slug)}
@@ -146,7 +146,7 @@ function FeaturedSlider({
                                         fill
                                         priority={index < 2}
                                         loading={index < 2 ? "eager" : "lazy"}
-                                        sizes="(max-width: 640px) 85vw, (max-width: 1024px) 640px, 860px"
+                                        sizes="(max-width: 640px) 75vw, (max-width: 1024px) 560px, 720px"
                                         className="object-cover object-top transition-transform duration-700 group-hover/card:scale-105 transform-gpu"
                                     />
 
@@ -174,11 +174,11 @@ function FeaturedSlider({
                                     </div>
 
                                     {/* Bottom Info Content */}
-                                    <div className="absolute bottom-0 inset-x-0 p-3 sm:p-5 md:p-7 z-20 flex items-end justify-between gap-2.5 sm:gap-4">
+                                    <div className="absolute bottom-0 inset-x-0 p-3 sm:p-4 md:p-5 lg:p-6 z-20 flex items-end justify-between gap-2.5 sm:gap-4">
                                         <div className="flex-1 min-w-0 space-y-0.5 sm:space-y-1">
                                             <TransitionLink
                                                 href={`/phim/${movie.slug}`}
-                                                className="text-[13px] sm:text-lg md:text-2xl lg:text-3xl font-bold text-white group-hover/card:text-[#D497FF] transition-colors leading-tight block drop-shadow-md"
+                                                className="text-[13px] sm:text-base md:text-xl lg:text-2xl font-bold text-white group-hover/card:text-[#D497FF] transition-colors leading-tight block drop-shadow-md"
                                                 title={movie.name}
                                             >
                                                 {decodeHtml(movie.name)}
@@ -195,11 +195,11 @@ function FeaturedSlider({
                                             <FavoriteButton
                                                 movie={movie}
                                                 iconSize={16}
-                                                className="w-8 h-8 sm:w-10 sm:h-10 md:w-11 md:h-11 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white transition-colors cursor-pointer"
+                                                className="w-8 h-8 sm:w-9 sm:h-9 md:w-10 md:h-10 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white transition-colors cursor-pointer"
                                             />
                                             <TransitionLink
                                                 href={getMovieWatchUrl(movie)}
-                                                className="h-8 sm:h-10 md:h-11 px-3 sm:px-5 md:px-6 rounded-full bg-[#D497FF] hover:brightness-110 text-black font-extrabold text-[11px] sm:text-xs md:text-sm flex items-center justify-center gap-1.5 shadow-[0_0_20px_rgba(212,151,255,0.35)] hover:shadow-[0_0_30px_rgba(212,151,255,0.6)] transition-all duration-300 transform-gpu active:scale-95 cursor-pointer flex-shrink-0"
+                                                className="h-8 sm:h-9 md:h-10 px-3 sm:px-4 md:px-5 rounded-full bg-[#D497FF] hover:brightness-110 text-black font-extrabold text-[11px] sm:text-xs md:text-sm flex items-center justify-center gap-1.5 shadow-[0_0_20px_rgba(212,151,255,0.35)] hover:shadow-[0_0_30px_rgba(212,151,255,0.6)] transition-all duration-300 transform-gpu active:scale-95 cursor-pointer flex-shrink-0"
                                             >
                                                 <Play size={13} fill="currentColor" />
                                                 <span>Xem ngay</span>
