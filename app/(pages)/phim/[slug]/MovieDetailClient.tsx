@@ -29,6 +29,7 @@ import EpisodeList from "./[episodeSlug]/EpisodeList";
 import { getR2ActorUrl, getR2MoviePosterUrl, getR2MovieThumbUrl } from "@/app/utils/r2ImageUrl";
 import MoviePosterCard from "@/app/components/Movies/MovieCard/MoviePosterCard";
 import ShareModal from "@/app/components/Movies/Movie/ShareModal";
+import TrailerModal from "@/app/components/Movies/Movie/TrailerModal";
 
 const CommentSection = dynamic(() => import("@/app/components/Social/Comments/CommentSection"), {
     loading: () => <Skeleton className="h-40" rounded="lg" />,
@@ -384,17 +385,46 @@ export default function MovieDetailClient({
             {/* === 2. MAIN CONTENT BODY === */}
             <Container className="mt-6 lg:mt-8 space-y-10 lg:space-y-12">
                 {/* 2.1. EPISODE HUB (Khu vực Chọn tập phim) */}
-                <section className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl">
-                    <EpisodeList
-                        slug={slug}
-                        movieName={movie.name}
-                        currentEpisode=""
-                        episodes={processedEpisodes}
-                        activeServer={activeServerIndex}
-                        onServerChange={handleServerChange}
-                        showServers={true}
-                    />
-                </section>
+                {processedEpisodes && processedEpisodes.length > 0 ? (
+                    <section className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl">
+                        <EpisodeList
+                            slug={slug}
+                            movieName={movie.name}
+                            currentEpisode=""
+                            episodes={processedEpisodes}
+                            activeServer={activeServerIndex}
+                            onServerChange={handleServerChange}
+                            showServers={true}
+                        />
+                    </section>
+                ) : (
+                    <section className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-6 sm:p-8 text-center shadow-xl">
+                        <div className="max-w-md mx-auto space-y-4">
+                            <div className="w-14 h-14 bg-[#D497FF]/10 border border-[#D497FF]/20 rounded-2xl flex items-center justify-center mx-auto text-[#D497FF]">
+                                <Film size={28} />
+                            </div>
+                            <div>
+                                <h3 className="text-lg font-bold text-white uppercase tracking-wider">
+                                    {isTrailerOnly ? "Phim Đang Ở Bản Trailer / Sắp Chiếu" : "Tập Phim Đang Cập Nhật"}
+                                </h3>
+                                <p className="text-sm text-white/50 mt-1">
+                                    {isTrailerOnly 
+                                        ? "Bộ phim hiện đang trong giai đoạn giới thiệu trailer. Các tập phim chính thức sẽ được cập nhật sớm nhất!"
+                                        : "Hệ thống đang đồng bộ và cập nhật các tập phim mới nhất. Bạn vui lòng quay lại sau nhé!"}
+                                </p>
+                            </div>
+                            {movie.trailer_url && (
+                                <button
+                                    onClick={() => setShowTrailerModal(true)}
+                                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#D497FF] hover:bg-[#D497FF]/90 text-black font-bold rounded-xl transition-all shadow-lg text-sm"
+                                >
+                                    <Play size={16} className="fill-black" />
+                                    Xem Trailer Ngay
+                                </button>
+                            )}
+                        </div>
+                    </section>
+                )}
 
                 {/* 2.2. BENTO METADATA & STORY SYNOPSIS */}
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -567,31 +597,12 @@ export default function MovieDetailClient({
             </Container>
 
             {/* === TRAILER POPUP MODAL === */}
-            {showTrailerModal && movie.trailer_url && (
-                <div className="fixed inset-0 z-[9999] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in">
-                    <div className="relative w-full max-w-4xl bg-[#0F1115] border border-white/15 rounded-2xl overflow-hidden shadow-2xl">
-                        <div className="flex items-center justify-between p-4 border-b border-white/10 bg-[#12151C]">
-                            <h3 className="text-sm sm:text-base font-bold text-white truncate">
-                                Trailer: {decodeHtml(movie.name)}
-                            </h3>
-                            <button
-                                onClick={() => setShowTrailerModal(false)}
-                                className="p-1 rounded-full text-white/60 hover:text-white hover:bg-white/10 transition-colors"
-                            >
-                                <X size={20} />
-                            </button>
-                        </div>
-                        <div className="relative aspect-video w-full">
-                            <iframe
-                                src={getYoutubeEmbedUrl(movie.trailer_url)}
-                                className="absolute inset-0 w-full h-full"
-                                allowFullScreen
-                                allow="autoplay; encrypted-media"
-                            />
-                        </div>
-                    </div>
-                </div>
-            )}
+            <TrailerModal
+                isOpen={showTrailerModal}
+                onClose={() => setShowTrailerModal(false)}
+                movieName={movie.name}
+                trailerUrl={movie.trailer_url || ""}
+            />
 
             {/* === SHARE MODAL === */}
             <ShareModal

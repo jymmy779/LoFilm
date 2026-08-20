@@ -216,11 +216,30 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                 <Container className="w-full pb-6 sm:pb-8 md:pb-12 xl:pb-14">
                     <div
                         key={currentMovie.slug || activeIndex}
-                        className="max-w-2xl lg:max-w-3xl xl:max-w-4xl space-y-2.5 sm:space-y-4 md:space-y-5 pointer-events-auto"
+                        className="max-w-2xl lg:max-w-3xl xl:max-w-4xl space-y-3 sm:space-y-3.5 md:space-y-4 pointer-events-auto"
                     >
+                        {/* 1. Movie Title or Official ClearLogo (Đưa lên đầu chuẩn Cinematic) */}
+                        <div className="animate-[heroFadeInUp_0.7s_cubic-bezier(0.22,1,0.36,1)_both]">
+                            <TransitionLink href={`/phim/${currentMovie.slug}`} className="block group">
+                                {activeLogoUrl ? (
+                                    <HeroMovieLogo slug={currentMovie.slug} logoUrl={activeLogoUrl} alt={currentMovie.name} />
+                                ) : (
+                                    <>
+                                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-[1.15] font-montserrat tracking-tight group-hover:text-[#D497FF] transition-colors line-clamp-2 drop-shadow-md">
+                                            {decodeHtml(currentMovie.name)}
+                                        </h2>
+                                        {currentMovie.origin_name && currentMovie.origin_name.trim().toLowerCase() !== (currentMovie.name || "").trim().toLowerCase() && (
+                                            <p className="text-white/50 text-xs sm:text-sm md:text-base font-medium truncate italic mt-1">
+                                                {decodeHtml(currentMovie.origin_name)}
+                                            </p>
+                                        )}
+                                    </>
+                                )}
+                            </TransitionLink>
+                        </div>
 
-                        {/* 1. Meta Badges & Rating (Synced with FeaturedSlider) */}
-                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 animate-[heroFadeInUp_0.7s_cubic-bezier(0.22,1,0.36,1)_both]">
+                        {/* 2. Meta Badges & Rating */}
+                        <div className="flex flex-wrap items-center gap-1.5 sm:gap-2 animate-[heroFadeInUp_0.75s_cubic-bezier(0.22,1,0.36,1)_0.08s_both]">
                             {(currentMovie.tmdb?.vote_average || 0) > 0 && (
                                 <div className="px-2 py-0.5 sm:px-2.5 sm:py-1 text-[10px] sm:text-xs font-black bg-gradient-to-r from-pink-500 to-rose-400 text-white rounded-md shadow-sm flex items-center gap-1 leading-none">
                                     <span>★</span>
@@ -245,29 +264,9 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                             )}
                         </div>
 
-                        {/* 2. Movie Title or Official ClearLogo */}
-                        <div className="space-y-1 animate-[heroFadeInUp_0.75s_cubic-bezier(0.22,1,0.36,1)_0.08s_both]">
-                            <TransitionLink href={`/phim/${currentMovie.slug}`} className="block group">
-                                {activeLogoUrl ? (
-                                    <HeroMovieLogo slug={currentMovie.slug} logoUrl={activeLogoUrl} alt={currentMovie.name} />
-                                ) : (
-                                    <>
-                                        <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-extrabold text-white leading-[1.15] font-montserrat tracking-tight group-hover:text-[#D497FF] transition-colors line-clamp-2 drop-shadow-md">
-                                            {decodeHtml(currentMovie.name)}
-                                        </h2>
-                                        {currentMovie.origin_name && currentMovie.origin_name.trim().toLowerCase() !== (currentMovie.name || "").trim().toLowerCase() && (
-                                            <p className="text-white/50 text-xs sm:text-sm md:text-base font-medium truncate italic mt-1">
-                                                {decodeHtml(currentMovie.origin_name)}
-                                            </p>
-                                        )}
-                                    </>
-                                )}
-                            </TransitionLink>
-                        </div>
-
-                        {/* 3. Categories (Tablet & Desktop) */}
+                        {/* 3. Categories (Đặt ngay bên dưới dải badge) */}
                         {currentMovie.category && currentMovie.category.length > 0 && (
-                            <div className="flex flex-wrap gap-1.5 sm:gap-2 animate-[heroFadeInUp_0.8s_cubic-bezier(0.22,1,0.36,1)_0.16s_both]">
+                            <div className="flex flex-wrap gap-1.5 sm:gap-2 animate-[heroFadeInUp_0.8s_cubic-bezier(0.22,1,0.36,1)_0.12s_both]">
                                 {(() => {
                                     const cats = currentMovie.category.slice(0, 4);
                                     const slugs = cats.map(c => generateCategorySlug(c.slug, c.name));
@@ -286,14 +285,14 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                         )}
 
                         {/* 4. Description (Desktop only) */}
-                        <div className="hidden md:block max-w-xl lg:max-w-2xl animate-[heroFadeInUp_0.85s_cubic-bezier(0.22,1,0.36,1)_0.24s_both]">
+                        <div className="hidden md:block max-w-xl lg:max-w-2xl animate-[heroFadeInUp_0.85s_cubic-bezier(0.22,1,0.36,1)_0.18s_both]">
                             <p className="text-white/70 text-xs sm:text-sm leading-relaxed line-clamp-2 lg:line-clamp-3">
                                 {cleanContent(currentMovie.content) || "Bộ phim hấp dẫn đang được phát sóng với chất lượng cao trên LoFilm..."}
                             </p>
                         </div>
 
-                        {/* 5. CTA Action Buttons */}
-                        <div className="flex items-center gap-2.5 sm:gap-3 pt-1 sm:pt-2 animate-[heroFadeInUp_0.9s_cubic-bezier(0.22,1,0.36,1)_0.32s_both]">
+                        {/* 4. CTA Action Buttons */}
+                        <div className="flex items-center gap-2.5 sm:gap-3 pt-1 sm:pt-1.5 animate-[heroFadeInUp_0.85s_cubic-bezier(0.22,1,0.36,1)_0.24s_both]">
                             {/* Watch Now Button */}
                             <TransitionLink
                                 href={getMovieWatchUrl(currentMovie)}

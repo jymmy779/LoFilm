@@ -61,59 +61,10 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                     </LazyRow>
                 )}
 
-
+                {/* 1. Lịch sử xem tiếp */}
                 <ContinueWatchingRow initialHistory={prefetched.initialHistory} />
 
-                <LazyRow id="random-movie-row" estimatedHeight="410px" skeleton={<RandomMovieRowSkeleton />}>
-                    <RandomMovieRow />
-                </LazyRow>
-
-                <LazyRow id="row-han-quoc" estimatedHeight="370px" skeleton={<MovieRowSkeleton />}>
-                    <MovieRow
-                        title="Vũ trụ Oppa"
-                        apiUrl={`${INTERNAL_API_URL}/quoc-gia/han-quoc?limit=60`}
-                        viewAllLink="/quoc-gia/han-quoc"
-                        initialMovies={prefetched.movieRowHan}
-                        sortByYear={true}
-                        revalidate={120}
-                    />
-                </LazyRow>
-
-                <LazyRow id="row-trung-quoc" estimatedHeight="370px" skeleton={<MovieRowSkeleton />}>
-                    <MovieRow
-                        title="C-Biz chuẩn gu"
-                        apiUrl={`${INTERNAL_API_URL}/quoc-gia/trung-quoc?limit=60`}
-                        viewAllLink="/quoc-gia/trung-quoc"
-                        initialMovies={prefetched.movieRowTrung}
-                        sortByYear={true}
-                        revalidate={120}
-                    />
-                </LazyRow>
-
-                <LazyRow id="row-au-my" estimatedHeight="370px" skeleton={<MovieRowSkeleton />}>
-                    <MovieRow
-                        title="Hollywood cực cháy"
-                        apiUrl={`${INTERNAL_API_URL}/quoc-gia/au-my?limit=60`}
-                        viewAllLink="/quoc-gia/au-my"
-                        initialMovies={prefetched.movieRowAuMy}
-                        sortByYear={true}
-                        revalidate={120}
-                    />
-                </LazyRow>
-
-                <SocialStatsSection />
-
-                <LazyRow id="slider-tv-shows" estimatedHeight="650px" skeleton={<FeaturedSliderSkeleton />}>
-                    <FeaturedSlider
-                        title="Showbiz cực cuốn"
-                        apiUrl={`${INTERNAL_API_URL}/danh-sach/tv-shows?limit=60`}
-                        viewAllLink="/danh-sach/tv-shows"
-                        navId="featured-tv"
-                        initialMovies={prefetched.featuredTv}
-                        titleGradient="from-white via-yellow-200 to-amber-400"
-                    />
-                </LazyRow>
-
+                {/* 2. Phim Chiếu Rạp Mới Nhất */}
                 <LazyRow id="poster-chieu-rap" estimatedHeight="540px" skeleton={<MoviePosterRowSkeleton />}>
                     <MoviePosterRow
                         title="Hội mọt phim rạp"
@@ -126,6 +77,92 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                     />
                 </LazyRow>
 
+                {/* 3. Top Phim Lẻ Đang Lên Xu Hướng */}
+                <LazyRow id="top-phim-le" estimatedHeight="520px" skeleton={<TopMovieRowSkeleton />}>
+                    <TopMovieRow
+                        title="Phim lẻ đang lên xu hướng"
+                        apiUrl={`${INTERNAL_API_URL}/danh-sach/phim-le?limit=60`}
+                        viewAllLink="/danh-sach/phim-le"
+                        initialMovies={prefetched.topPhimLe}
+                        titleGradient="from-white via-rose-200 to-rose-400"
+                    />
+                </LazyRow>
+
+                {/* 4. Top Phim Bộ Cực Hot */}
+                <LazyRow id="top-phim-bo" estimatedHeight="520px" skeleton={<TopMovieRowSkeleton />}>
+                    <TopMovieRow
+                        title="Top phim bộ cực hot"
+                        apiUrl={`${INTERNAL_API_URL}/danh-sach/phim-bo?limit=60`}
+                        viewAllLink="/danh-sach/phim-bo"
+                        initialMovies={prefetched.topPhimBo}
+                        titleGradient="from-white via-emerald-200 to-emerald-400"
+                    />
+                </LazyRow>
+
+                {/* 5. Hôm nay xem gì (Random Wheel) */}
+                <LazyRow id="random-movie-row" estimatedHeight="410px" skeleton={<RandomMovieRowSkeleton />}>
+                    <RandomMovieRow />
+                </LazyRow>
+
+                {/* 6. Featured Slider: TV Shows (Đổi nhịp thị giác) */}
+                <LazyRow id="slider-tv-shows" estimatedHeight="650px" skeleton={<FeaturedSliderSkeleton />}>
+                    <FeaturedSlider
+                        title="Showbiz cực cuốn"
+                        apiUrl={`${INTERNAL_API_URL}/danh-sach/tv-shows?limit=60`}
+                        viewAllLink="/danh-sach/tv-shows"
+                        navId="featured-tv"
+                        initialMovies={prefetched.featuredTv}
+                        titleGradient="from-white via-yellow-200 to-amber-400"
+                    />
+                </LazyRow>
+
+                {/* === CỤM ĐIỆN ẢNH 3 QUỐC GIA (LIỀN MẠCH) === */}
+                {/* 7. Phim Hàn Quốc */}
+                <LazyRow id="row-han-quoc" estimatedHeight="370px" skeleton={<MovieRowSkeleton />}>
+                    <MovieRow
+                        title="Vũ trụ Oppa"
+                        apiUrl={`${INTERNAL_API_URL}/quoc-gia/han-quoc?limit=60`}
+                        viewAllLink="/quoc-gia/han-quoc"
+                        initialMovies={prefetched.movieRowHan}
+                        sortByYear={true}
+                        revalidate={120}
+                    />
+                </LazyRow>
+
+                {/* 8. Phim Trung Quốc */}
+                <LazyRow id="row-trung-quoc" estimatedHeight="370px" skeleton={<MovieRowSkeleton />}>
+                    <MovieRow
+                        title="C-Biz chuẩn gu"
+                        apiUrl={`${INTERNAL_API_URL}/quoc-gia/trung-quoc?limit=60`}
+                        viewAllLink="/quoc-gia/trung-quoc"
+                        initialMovies={prefetched.movieRowTrung}
+                        sortByYear={true}
+                        revalidate={120}
+                    />
+                </LazyRow>
+
+                {/* 9. Phim Âu Mỹ */}
+                <LazyRow id="row-au-my" estimatedHeight="370px" skeleton={<MovieRowSkeleton />}>
+                    <MovieRow
+                        title="Hollywood cực cháy"
+                        apiUrl={`${INTERNAL_API_URL}/quoc-gia/au-my?limit=60`}
+                        viewAllLink="/quoc-gia/au-my"
+                        initialMovies={prefetched.movieRowAuMy}
+                        sortByYear={true}
+                        revalidate={120}
+                    />
+                </LazyRow>
+
+                {/* 10. Editor's Choice */}
+                <LazyRow id="lofilm-nominated" estimatedHeight="460px" skeleton={<EditorChoiceRowSkeleton />}>
+                    <EditorChoiceRow
+                        title="Editor's Choice"
+                        viewAllLink="/danh-sach/phim-moi"
+                        initialMovies={prefetched.nominated}
+                    />
+                </LazyRow>
+
+                {/* 11. Động Phim Bộ */}
                 <LazyRow id="poster-phim-bo" estimatedHeight="540px" skeleton={<MoviePosterRowSkeleton />}>
                     <MoviePosterRow
                         title="Động phim bộ"
@@ -138,34 +175,10 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                     />
                 </LazyRow>
 
-                <LazyRow id="top-phim-le" estimatedHeight="520px" skeleton={<TopMovieRowSkeleton />}>
-                    <TopMovieRow
-                        title="Phim lẻ đang lên xu hướng"
-                        apiUrl={`${INTERNAL_API_URL}/danh-sach/phim-le?limit=60`}
-                        viewAllLink="/danh-sach/phim-le"
-                        initialMovies={prefetched.topPhimLe}
-                        titleGradient="from-white via-rose-200 to-rose-400"
-                    />
-                </LazyRow>
+                {/* 12. Thống kê & Mạng xã hội */}
+                <SocialStatsSection />
 
-                <LazyRow id="top-phim-bo" estimatedHeight="520px" skeleton={<TopMovieRowSkeleton />}>
-                    <TopMovieRow
-                        title="Top phim bộ cực hot"
-                        apiUrl={`${INTERNAL_API_URL}/danh-sach/phim-bo?limit=60`}
-                        viewAllLink="/danh-sach/phim-bo"
-                        initialMovies={prefetched.topPhimBo}
-                        titleGradient="from-white via-emerald-200 to-emerald-400"
-                    />
-                </LazyRow>
-
-                <LazyRow id="lofilm-nominated" estimatedHeight="460px" skeleton={<EditorChoiceRowSkeleton />}>
-                    <EditorChoiceRow
-                        title="Editor's Choice"
-                        viewAllLink="/danh-sach/phim-moi"
-                        initialMovies={prefetched.nominated}
-                    />
-                </LazyRow>
-
+                {/* 13. Featured Slider: Anime (Hệ WeeBoo) */}
                 <LazyRow id="slider-anime" estimatedHeight="650px" skeleton={<FeaturedSliderSkeleton />}>
                     <FeaturedSlider
                         title="Hệ WeeBoo chính hiệu"
@@ -177,6 +190,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                     />
                 </LazyRow>
 
+                {/* 14. Hệ Tâm Linh (Kinh Dị) */}
                 <LazyRow id="poster-kinh-di" estimatedHeight="540px" skeleton={<MoviePosterRowSkeleton />}>
                     <MoviePosterRow
                         title="Hệ tâm linh cực cháy"
@@ -187,6 +201,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                     />
                 </LazyRow>
 
+                {/* 15. Xứ Sở Hoạt Hình */}
                 <LazyRow id="poster-hoat-hinh" estimatedHeight="540px" skeleton={<MoviePosterRowSkeleton />}>
                     <MoviePosterRow
                         title="Xứ sở hoạt hình"
@@ -197,6 +212,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
                     />
                 </LazyRow>
 
+                {/* 16. Phim Ngắn */}
                 <LazyRow id="row-phim-ngan" estimatedHeight="410px" skeleton={<WideMovieRowSkeleton />}>
                     <WideMovieRow
                         title="Phim ngắn siêu cuốn"

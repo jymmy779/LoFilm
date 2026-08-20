@@ -4,7 +4,7 @@ import React, { useState, useEffect, useRef, useMemo, useCallback } from "react"
 
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import LoadingSpinner from "@/app/components/UI/Common/LoadingSpinner";
-import { AlertTriangle, RefreshCcw, List, X, User, MessageSquare, Info, Users, Sparkles, Tag, Play } from "lucide-react";
+import { AlertTriangle, RefreshCcw, List, X, User, MessageSquare, Info, Users, Sparkles, Tag, Play, Film } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import Hls from "hls.js";
@@ -172,6 +172,11 @@ export default function WatchClient({
         });
         return list;
     }, [episodes]);
+
+    const isTrailerOnly = useMemo(() => {
+        return (movie.episode_current || '').toLowerCase().includes('trailer') ||
+            (movie.quality || '').toLowerCase().includes('trailer');
+    }, [movie.episode_current, movie.quality]);
 
     const filteredSuggestions = useMemo(() => {
         const seen = new Set();
@@ -1635,7 +1640,7 @@ export default function WatchClient({
                         <button
                             onClick={() => setActiveTab("episodes")}
                             className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer border whitespace-nowrap active:scale-95 ${activeTab === "episodes"
-                                ? "bg-[#D497FF] border-[#D497FF] text-black shadow-[0_0_20px_rgba(212,151,255,0.4)]"
+                                ? "bg-[#D497FF] border-[#D497FF] text-black"
                                 : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20"
                                 }`}
                         >
@@ -1652,7 +1657,7 @@ export default function WatchClient({
                         <button
                             onClick={() => setActiveTab("info")}
                             className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer border whitespace-nowrap active:scale-95 ${activeTab === "info"
-                                ? "bg-[#D497FF] border-[#D497FF] text-black shadow-[0_0_20px_rgba(212,151,255,0.4)]"
+                                ? "bg-[#D497FF] border-[#D497FF] text-black"
                                 : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20"
                                 }`}
                         >
@@ -1664,7 +1669,7 @@ export default function WatchClient({
                         <button
                             onClick={() => setActiveTab("actors")}
                             className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer border whitespace-nowrap active:scale-95 ${activeTab === "actors"
-                                ? "bg-[#D497FF] border-[#D497FF] text-black shadow-[0_0_20px_rgba(212,151,255,0.4)]"
+                                ? "bg-[#D497FF] border-[#D497FF] text-black"
                                 : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20"
                                 }`}
                         >
@@ -1683,16 +1688,36 @@ export default function WatchClient({
                         {/* TAB 1: DANH SÁCH TẬP */}
                         {activeTab === "episodes" && (
                             <div className="animate-fade-in space-y-4">
-                                <EpisodeList
-                                    slug={slug}
-                                    movieName={movie.name}
-                                    currentEpisode={currentEpisodeSlug}
-                                    episodes={processedEpisodes}
-                                    activeServer={activeServerIndex}
-                                    onServerChange={handleServerChange}
-                                    onEpisodeClick={() => setIsChangingEpisode(true)}
-                                    onEpisodeSelect={selectEpisode}
-                                />
+                                {processedEpisodes && processedEpisodes.length > 0 ? (
+                                    <EpisodeList
+                                        slug={slug}
+                                        movieName={movie.name}
+                                        currentEpisode={currentEpisodeSlug}
+                                        episodes={processedEpisodes}
+                                        activeServer={activeServerIndex}
+                                        onServerChange={handleServerChange}
+                                        onEpisodeClick={() => setIsChangingEpisode(true)}
+                                        onEpisodeSelect={selectEpisode}
+                                    />
+                                ) : (
+                                    <div className="p-6 sm:p-8 text-center">
+                                        <div className="max-w-md mx-auto space-y-4">
+                                            <div className="w-14 h-14 bg-[#D497FF]/10 border border-[#D497FF]/20 rounded-2xl flex items-center justify-center mx-auto text-[#D497FF]">
+                                                <Film size={28} />
+                                            </div>
+                                            <div>
+                                                <h3 className="text-lg font-bold text-white uppercase tracking-wider">
+                                                    {isTrailerOnly ? "Phim Đang Ở Bản Trailer / Sắp Chiếu" : "Tập Phim Đang Cập Nhật"}
+                                                </h3>
+                                                <p className="text-sm text-white/50 mt-1">
+                                                    {isTrailerOnly 
+                                                        ? "Bộ phim hiện đang trong giai đoạn giới thiệu trailer. Các tập phim chính thức sẽ được cập nhật sớm nhất!"
+                                                        : "Hệ thống đang đồng bộ và cập nhật các tập phim mới nhất. Bạn vui lòng quay lại sau nhé!"}
+                                                </p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                )}
                             </div>
                         )}
 

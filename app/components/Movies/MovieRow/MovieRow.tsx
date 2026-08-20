@@ -132,7 +132,7 @@ function MovieRow({
                                 <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> Cập nhật liên tục
                             </span>
                             <span className="flex items-center gap-1.5">
-                                <span className="w-1.5 h-1.5 rounded-full bg-purple-400" /> Vietsub & Thuyết minh
+                                <span className="w-1.5 h-1.5 rounded-full bg-purple-400" /> Vietsub & Thuyết minh & Lồng tiếng
                             </span>
                         </div>
 

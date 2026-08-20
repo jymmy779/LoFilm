@@ -285,11 +285,22 @@ async function WatchData({
         };
     }
 
-    if (!movie || !currentEpisode) {
+    // Fallback 3: Nếu phim chưa có tập nào và cũng không có trailer_url (phim mới thêm/sắp chiếu)
+    if (!currentEpisode) {
+        currentEpisode = {
+            name: "Đang cập nhật",
+            link_m3u8: "",
+            link_embed: "",
+            link_vtt: "",
+            subtitles: []
+        };
+    }
+
+    if (!movie) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-[#0F1115] text-white">
                 <div className="text-center">
-                    <h1 className="text-2xl font-bold mb-4">Không tìm thấy phim hoặc tập phim</h1>
+                    <h1 className="text-2xl font-bold mb-4">Không tìm thấy thông tin phim</h1>
                     <a href="/" className="text-[#D497FF] hover:underline">Về trang chủ</a>
                 </div>
             </div>
