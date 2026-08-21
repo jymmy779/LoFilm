@@ -34,7 +34,6 @@ import ClientToaster from "./components/UI/Common/ClientToaster";
 
 
 import { Suspense } from "react";
-import { GoogleAnalytics } from '@next/third-parties/google';
 
 
 export const viewport: Viewport = {
@@ -254,7 +253,6 @@ export default async function RootLayout({
         <ClientToaster />
         <HideOnAdmin>
           <ScrollToTop />
-          <GoogleAnalytics gaId="G-FCV3H66SFX" />
         </HideOnAdmin>
       </body>
     </html>
