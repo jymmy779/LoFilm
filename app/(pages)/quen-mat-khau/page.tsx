@@ -100,7 +100,7 @@ export default function ForgotPasswordPage() {
           {/* Turnstile Captcha (Invisible) */}
           <Turnstile
             ref={turnstileRef}
-            siteKey="1x00000000000000000000AA"
+            siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
             onSuccess={(token) => setCaptchaToken(token)}
             options={{ size: 'invisible' }}
           />
