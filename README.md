@@ -38,29 +38,29 @@
 
 ```mermaid
 flowchart TD
-    Client[📱 Web Client / Mobile Browser]
+    Client["📱 Web Client / Mobile Browser"]
     
     subgraph Frontend["Frontend Layer (Next.js 16 + React 19)"]
-        RSC[React Server Components / Streaming SSR]
-        ImageOpt[Next Image Optimizer & WebP CDN]
-        AuthModule[Supabase Auth & Session]
+        RSC["React Server Components / Streaming SSR"]
+        ImageOpt["Next Image Optimizer & WebP CDN"]
+        AuthModule["Supabase Auth & Session"]
     end
 
     subgraph CacheLayer["Multi-Layer Caching Engine"]
-        L1[L1: In-Memory RAM Cache]
-        L2[L2: Redis Cache (ioredis / Upstash)]
+        L1["L1: In-Memory RAM Cache"]
+        L2["L2: Redis Cache (ioredis / Upstash)"]
     end
 
     subgraph BackendLayer["Backend & Data Layer"]
-        API[Express.js API Gateway]
-        Prisma[Prisma ORM]
-        DB[(PostgreSQL / SQLite Database)]
-        Worker[Background Sync Worker / Cronjob]
+        API["Express.js API Gateway"]
+        Prisma["Prisma ORM"]
+        DB[("PostgreSQL / SQLite Database")]
+        Worker["Background Sync Worker / Cronjob"]
     end
 
     subgraph Storage["Media & CDN Layer"]
-        R2[Cloudflare R2 Storage]
-        HLS[HLS Video Stream Engine]
+        R2["Cloudflare R2 Storage"]
+        HLS["HLS Video Stream Engine"]
     end
 
     Client --> RSC
