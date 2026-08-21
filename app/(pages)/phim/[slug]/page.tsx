@@ -79,9 +79,23 @@ export async function generateMetadata({
     };
 }
 
+import { Suspense } from "react";
+import MovieDetailLoading from "./loading";
 import { getServerActorsFromTMDB } from "@/app/utils/serverTmdbUtils";
 
-export default async function MoviePage({
+export default function MoviePage({
+    params,
+}: {
+    params: Promise<{ slug: string }>;
+}) {
+    return (
+        <Suspense fallback={<MovieDetailLoading />}>
+            <MovieDataContent params={params} />
+        </Suspense>
+    );
+}
+
+async function MovieDataContent({
     params,
 }: {
     params: Promise<{ slug: string }>;
@@ -112,16 +126,21 @@ export default async function MoviePage({
             // Dùng fetch của Nextjs với cache cực lâu
             const INTERNAL_API_URL = process.env.NEXT_PUBLIC_INTERNAL_API_URL || 'http://127.0.0.1:5000/api';
             const res = await fetch(`${INTERNAL_API_URL}/phim/${slug}/peoples`, { next: { revalidate: 2592000 } });
-            const data = await res.json();
-            if (data.success || data.status === "success") {
-                const peoples = data.data?.peoples;
-                if (peoples && Array.isArray(peoples)) {
-                    initialActors = peoples.map((actor: any) => ({
-                        id: actor.tmdb_people_id || Math.random(),
-                        name: actor.name,
-                        profile_path: actor.profile_path,
-                        character: actor.character
-                    }));
+            if (res.ok) {
+                const contentType = res.headers.get("content-type");
+                if (contentType && contentType.includes("application/json")) {
+                    const data = await res.json();
+                    if (data.success || data.status === "success") {
+                        const peoples = data.data?.peoples;
+                        if (peoples && Array.isArray(peoples)) {
+                            initialActors = peoples.map((actor: any) => ({
+                                id: actor.tmdb_people_id || Math.random(),
+                                name: actor.name,
+                                profile_path: actor.profile_path,
+                                character: actor.character
+                            }));
+                        }
+                    }
                 }
             }
         } catch (error) {

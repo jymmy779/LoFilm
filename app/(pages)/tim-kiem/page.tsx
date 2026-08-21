@@ -37,9 +37,10 @@ export default async function SearchPage({
     searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }) {
     const resolvedParams = await searchParams;
+    const query = (resolvedParams.q as string) || "search-root";
 
     return (
-        <Suspense key={(resolvedParams.q as string) || "search-root"} fallback={<SearchLoading />}>
+        <Suspense key={query} fallback={<SearchLoading />}>
             <SearchData resolvedParams={resolvedParams} />
         </Suspense>
     );

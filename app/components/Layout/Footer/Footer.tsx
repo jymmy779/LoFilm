@@ -102,7 +102,7 @@ export default async function Footer() {
                                 Kho tàng nội dung tại LoFilm được đầu tư và cập nhật liên tục, bao quát đa dạng nền văn hoá: từ làn sóng Hallyu Hàn Quốc, vũ trụ C-Drama, thế giới Anime đa sắc đến các bom tấn kĩ xảo Hollywood. Dù bạn ưu thích sự kịch tính của phim hành động hay chìm đắm trong những thước phim tình cảm sâu lắng, LoFilm luôn sẵn sàng phục vụ bằng định dạng Full HD cực nét, vietsub chuẩn xác và trải nghiệm hoàn toàn phi lợi nhuận.
                             </p>
                             {(settings?.contact_telegram || settings?.contact_telegram_name) && (
-                                <p className="flex items-center gap-2 pt-2">
+                                <div className="flex items-center gap-2 pt-2" suppressHydrationWarning>
                                     <span className="text-white/50 text-[12px]">Liên hệ:</span>
                                     <a
                                         href={settings.contact_telegram || "#"}
@@ -122,7 +122,7 @@ export default async function Footer() {
                                             </span>
                                         </div>
                                     </a>
-                                </p>
+                                </div>
                             )}
                         </div>
 

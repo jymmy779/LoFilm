@@ -44,12 +44,7 @@ export default function NotificationsPage() {
                     setUser(data.user);
                     await fetchNotifications(1, data.user.id);
                 } else {
-                    const { data: sessionData } = await supabase.auth.getSession();
-                    const sessionUser = sessionData?.session?.user || null;
-                    setUser(sessionUser);
-                    if (sessionUser) {
-                        await fetchNotifications(1, sessionUser.id);
-                    }
+                    setUser(null);
                 }
             } catch (error) {
                 console.error('Lỗi khi kiểm tra đăng nhập:', error);

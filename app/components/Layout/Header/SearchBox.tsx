@@ -178,22 +178,29 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                     }}
                     onKeyDown={handleKeyDown}
                 />
-                {searchQuery && (
-                    <button
-                        type="button"
-                        onMouseDown={(e) => {
-                            e.preventDefault(); // Ngăn việc focus làm nhảy layout
-                            e.stopPropagation();
-                            setSearchQuery("");
-                            setShowResults(false);
-                        }}
-                        className="shrink-0 text-white/40 cursor-pointer hover:text-white transition-colors flex items-center"
-                        aria-label="Xóa tìm kiếm"
-                    >
-                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="16" height="16" fill="currentColor">
-                            <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
-                        </svg>
-                    </button>
+                {(searchQuery || (isSwrLoading && debouncedQuery.length >= 2)) && (
+                    <div className="flex items-center gap-2">
+                        {isSwrLoading && debouncedQuery.length >= 2 && (
+                            <div className="w-3.5 h-3.5 border-2 border-white/20 border-t-white/80 rounded-full animate-spin shrink-0" />
+                        )}
+                        {searchQuery && (
+                            <button
+                                type="button"
+                                onMouseDown={(e) => {
+                                    e.preventDefault(); // Ngăn việc focus làm nhảy layout
+                                    e.stopPropagation();
+                                    setSearchQuery("");
+                                    setShowResults(false);
+                                }}
+                                className="shrink-0 text-white/40 cursor-pointer hover:text-white transition-colors flex items-center"
+                                aria-label="Xóa tìm kiếm"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 384 512" width="16" height="16" fill="currentColor">
+                                    <path d="M342.6 150.6c12.5-12.5 12.5-32.8 0-45.3s-32.8-12.5-45.3 0L192 210.7 86.6 105.4c-12.5-12.5-32.8-12.5-45.3 0s-12.5 32.8 0 45.3L146.7 256 41.4 361.4c-12.5 12.5-12.5 32.8 0 45.3s32.8 12.5 45.3 0L192 301.3 297.4 406.6c12.5 12.5 32.8 12.5 45.3 0s12.5-32.8 0-45.3L237.3 256 342.6 150.6z" />
+                                </svg>
+                            </button>
+                        )}
+                    </div>
                 )}
             </div>
 
