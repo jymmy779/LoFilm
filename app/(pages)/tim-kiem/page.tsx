@@ -31,40 +31,10 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 
 import SearchLoading from "./loading";
 
-export default async function SearchPage({
-    searchParams,
-}: {
-    searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
-}) {
-    const resolvedParams = await searchParams;
-    const query = (resolvedParams.q as string) || "search-root";
-
+export default function SearchPage() {
     return (
-        <Suspense key={query} fallback={<SearchLoading />}>
-            <SearchData resolvedParams={resolvedParams} />
+        <Suspense fallback={<SearchLoading />}>
+            <SearchClient />
         </Suspense>
     );
-}
-
-async function SearchData({
-    resolvedParams,
-}: {
-    resolvedParams: { [key: string]: string | string[] | undefined };
-}) {
-    const { fetchSearchData } = await import("@/app/utils/serverFetch");
-    const query = (resolvedParams.q as string) || "";
-    
-    const initialData = await fetchSearchData(
-        query,
-        Number(resolvedParams.page) || 1,
-        48,
-        {
-            category: resolvedParams.cat as string,
-            country: resolvedParams.country as string,
-            year: resolvedParams.year as string,
-            sort: resolvedParams.sort as string
-        }
-    );
-
-    return <SearchClient key={query} initialData={initialData} />;
 }

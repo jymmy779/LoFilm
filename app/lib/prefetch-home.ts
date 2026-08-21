@@ -445,7 +445,7 @@ export async function prefetchHomePageData(): Promise<HomePrefetch> {
     const EMERGENCY_TTL = 86400; // 24 giờ
 
     // 1. Thử lấy từ cache bundle chính trước
-    if (redis) {
+    if (redis && redis.status === 'ready') {
         try {
             const cached = await redis.get(BUNDLE_KEY);
             if (cached) {
