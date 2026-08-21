@@ -143,8 +143,8 @@ export default async function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "WebSite",
-              "name": "LoFilm",
-              "alternateName": ["Lo Film", "LoFilm TV", "Xem Phim LoFilm", "Phim LoFilm", "LoFilm Net"],
+              "name": "CineStream",
+              "alternateName": ["CineStream Showcase", "CineStream App"],
               "url": SITE_URL,
               "potentialAction": {
                 "@type": "SearchAction",
@@ -163,23 +163,8 @@ export default async function RootLayout({
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              "name": "LoFilm",
+              "name": "CineStream",
               "url": SITE_URL,
-              "logo": {
-                "@type": "ImageObject",
-                "url": getAbsoluteUrl("/icon-512.png"),
-                "width": 512,
-                "height": 512
-              },
-              "contactPoint": {
-                "@type": "ContactPoint",
-                "contactType": "customer service",
-                "availableLanguage": ["Vietnamese", "English"]
-              },
-              "sameAs": [
-                "https://t.me/ponpornsec",
-                "https://t.me/+5S1xkPn1SCAxZWZl"
-              ]
             })
           }}
         />
