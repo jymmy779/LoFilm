@@ -16,7 +16,7 @@ function OtpVerificationContent() {
   const [countdown, setCountdown] = useState(0);
   const [captchaToken, setCaptchaToken] = useState("");
   const turnstileRef = useRef<any>(null);
-  
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email");
@@ -43,7 +43,7 @@ function OtpVerificationContent() {
       toast.error("Mã xác thực phải gồm đúng 6 số!");
       return;
     }
-    
+
     setIsLoading(true);
 
     try {
@@ -72,12 +72,12 @@ function OtpVerificationContent() {
 
   const handleResendCode = async () => {
     if (!email || countdown > 0) return;
-    
+
     if (!captchaToken) {
       toast.error("Đang tải Captcha, vui lòng đợi một chút...");
       return;
     }
-    
+
     setIsResending(true);
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
@@ -104,7 +104,7 @@ function OtpVerificationContent() {
   if (!email) return null;
 
   return (
-    <div className="w-full max-w-md bg-[#0F1115]/60 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl animate-fade-in relative z-10">
+    <div className="w-full max-w-md bg-[#0F1115] border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl animate-fade-in relative z-10">
       <div className="text-center mb-8">
         <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Nhập mã xác thực</h1>
       </div>
@@ -159,7 +159,7 @@ function OtpVerificationContent() {
           <ArrowLeft size={16} />
           Đổi Email khác
         </Link>
-        
+
         {/* Turnstile Captcha for Resend (Invisible) */}
         <Turnstile
           ref={turnstileRef}
@@ -181,7 +181,7 @@ export default function OtpVerificationPage() {
       </div>
 
       <Suspense fallback={
-        <div className="w-full max-w-md bg-[#0F1115]/60 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl flex justify-center items-center h-64">
+        <div className="w-full max-w-md bg-[#0F1115] border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl flex justify-center items-center h-64">
           <div className="w-8 h-8 border-4 border-[#D497FF]/20 border-t-[#D497FF] rounded-full animate-spin" />
         </div>
       }>

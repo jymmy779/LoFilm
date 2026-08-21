@@ -62,8 +62,8 @@ export default function MoviePreviewPopup({
     } : null;
 
     const firstEpSlug = swrData?.episodes?.[0]?.server_data?.[0]?.slug;
-    const playUrl = firstEpSlug 
-        ? `/phim/${movie.slug}/${getFriendlyEpisodeSlug(firstEpSlug)}` 
+    const playUrl = firstEpSlug
+        ? `/phim/${movie.slug}/${getFriendlyEpisodeSlug(firstEpSlug)}`
         : `/phim/${movie.slug}/${isMultiEp ? 'tap-01' : 'tap-full'}`;
 
     const detailUrl = `/phim/${movie.slug}`;
@@ -106,16 +106,16 @@ export default function MoviePreviewPopup({
                 left: position.left
             }}
         >
-            <div className="bg-[#12151C]/98 rounded-2xl overflow-hidden border border-white/5">
+            <div className="bg-[#0F1115]/98 rounded-2xl overflow-hidden border border-white/5">
                 {/* Image Container with CSS Masking & Angled Gradient matching Rophim */}
-                <div className="relative aspect-video w-full bg-[#12151C] overflow-hidden [mask-image:linear-gradient(to_top,transparent_0,black_30px)] [-webkit-mask-image:linear-gradient(to_top,transparent_0,black_30px)]">
-                    {/* Layer 1: Blurred Poster Placeholder (Instant) */}
+                <div className="relative aspect-video w-full bg-[#0F1115] overflow-hidden [mask-image:linear-gradient(to_top,transparent_0,black_30px)] [-webkit-mask-image:linear-gradient(to_top,transparent_0,black_30px)]">
+                    {/* Layer 1: Poster Placeholder (Instant) */}
                     {posterUrl && (
                         <Image
                             src={posterUrl}
                             alt=""
                             fill
-                            className="object-cover blur-md opacity-50 scale-110"
+                            className="object-cover opacity-40 scale-105"
                             sizes="100px"
                             priority
                             unoptimized={posterUrl.startsWith('data:')}

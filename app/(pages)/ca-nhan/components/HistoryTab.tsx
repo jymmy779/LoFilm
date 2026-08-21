@@ -58,7 +58,7 @@ export default function HistoryTab({ watchHistory, isHistoryLoading, onDeleteIte
   const maxChartSeconds = Math.max(maxSeconds, 3600);
 
   return (
-    <div className="relative overflow-hidden rounded-2xl bg-white/[0.03] border border-white/5 backdrop-blur-sm p-6 space-y-6">
+    <div className="relative overflow-hidden rounded-2xl bg-zinc-900/80 border border-white/10 p-6 space-y-6 shadow-xl">
       <div className="w-full space-y-8">
         <div className="absolute top-[-20%] left-[-20%] w-[50%] h-[50%] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-orange-600/20 to-transparent rounded-full opacity-60 pointer-events-none"></div>
         <div className="absolute bottom-[-20%] right-[-20%] w-[50%] h-[50%] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-emerald-500/20 to-transparent rounded-full opacity-60 pointer-events-none"></div>

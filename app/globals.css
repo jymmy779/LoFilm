@@ -419,8 +419,7 @@ input:-webkit-autofill:active {
 /* Theater Mode Styles */
 body.theater-mode header,
 body.theater-mode footer {
-  opacity: 0.2 !important;
-  filter: blur(3px) !important;
+  opacity: 0.1 !important;
   pointer-events: auto !important;
   transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1) !important;
   will-change: auto;
@@ -429,13 +428,10 @@ body.theater-mode footer {
 body.theater-mode header:hover,
 body.theater-mode footer:hover {
   opacity: 1 !important;
-  filter: blur(0) !important;
   pointer-events: all !important;
   transition-duration: 0.1s !important;
   z-index: 100 !important;
 }
-
-/* Controlled backdrop-blur for premium glassmorphism effect is handled by framework defaults if needed */
 
 /* Optimize scroll performance */
 * {
@@ -1210,4 +1206,13 @@ body.theater-mode footer:hover {
 }
 .animate-btn-shine {
   animation: btn-shine 3s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+}
+
+/* Ẩn scrollbar nhưng vẫn giữ tính năng scroll ngang/dọc */
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+.no-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
 }

@@ -318,18 +318,20 @@
 }
 
 .text-spoiler {
-  filter: blur(8px);
+  background: #27272a;
+  color: transparent;
+  border-radius: 4px;
+  padding: 0 4px;
   user-select: none;
-  pointer-events: none;
-  opacity: 0.6;
-  transition: all 0.3s ease;
+  cursor: pointer;
+  transition: all 0.2s ease;
 }
 
 .text-spoiler.revealed {
-  filter: blur(0);
-  opacity: 1;
-  pointer-events: auto;
+  background: rgba(255, 255, 255, 0.08);
+  color: inherit;
   user-select: text;
+  cursor: default;
 }
 
 .line-center {

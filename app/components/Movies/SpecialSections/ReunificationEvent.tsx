@@ -60,7 +60,7 @@ export default function ReunificationEvent() {
 
                 {/* Decorative Background Texture */}
                 <div className="absolute inset-0 opacity-[0.03] pointer-events-none" style={{ backgroundImage: "url('https://www.transparenttextures.com/patterns/natural-paper.png')" }}></div>
-                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-600/5 blur-[120px] rounded-full pointer-events-none"></div>
+                <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-[radial-gradient(circle_at_center,rgba(220,38,38,0.05)_0%,transparent_70%)] rounded-full pointer-events-none"></div>
 
                 {/* Banner Content Header */}
                 <div className="relative z-10 flex flex-col md:flex-row items-start items-center justify-between gap-6 mb-10 border-b-2 border-red-200 pb-4 lg:pb-8">

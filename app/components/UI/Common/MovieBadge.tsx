@@ -47,7 +47,7 @@ export function MovieExclusiveBadge({ movie, className = "" }: MovieBadgeProps) 
     };
 
     return (
-        <div className={`${getExclusiveBadgeStyle(movie.lang || "")} backdrop-blur-sm px-1.5 py-0.5 rounded text-[9px] font-bold text-white shadow-md border tracking-wide uppercase flex items-center gap-1 ${className}`}>
+        <div className={`${getExclusiveBadgeStyle(movie.lang || "")} px-1.5 py-0.5 rounded text-[9px] font-bold text-white shadow-md border tracking-wide uppercase flex items-center gap-1 ${className}`}>
             <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"></polygon></svg>
             {movie.lang || "Vietsub Độc Quyền"}
         </div>

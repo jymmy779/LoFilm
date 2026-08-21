@@ -43,7 +43,7 @@ export default function SettingsTab({
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   return (
-    <div className="rounded-2xl bg-white/[0.03] border border-white/5 backdrop-blur-sm p-6 space-y-6">
+    <div className="rounded-2xl bg-zinc-900/80 border border-white/10 p-6 space-y-6 shadow-xl">
       <div className="space-y-10">
         <div className="border-b border-white/5 pb-6">
           <h1 className="text-2xl text-white tracking-tighter uppercase font-bold italic">Cài đặt LoFilm+</h1>

@@ -105,7 +105,7 @@ export default async function Footer() {
                                 <p className="flex items-center gap-2 pt-2">
                                     <span className="text-white/50">Liên hệ:</span>
                                     <a href={settings.contact_telegram || "#"} target="_blank" rel="noopener noreferrer" className="group inline-flex items-center bg-white/5 px-2 py-1 rounded-[15px] border border-white/10 hover:border-white/20 transition-all duration-300">
-                                        <span className="blur-xs group-hover:blur-[0px] transition-all duration-300 text-white/60 text-[12px] font-medium whitespace-nowrap">
+                                        <span className="text-white/60 group-hover:text-white transition-all duration-300 text-[12px] font-medium whitespace-nowrap">
                                             {settings.contact_telegram_name || '@ponpornsec'}
                                         </span>
                                     </a>

@@ -326,7 +326,7 @@ export default function NotificationsPage() {
                                     <div key={notif.id} className="relative group">
                                         <Wrapper
                                             href={targetUrl !== '#' ? targetUrl : undefined}
-                                            className={`flex gap-3 md:gap-5 p-4 md:p-6 transition-colors ${notif.type !== 'system' && !notif.is_read ? 'bg-[#D497FF]/5 hover:bg-[#D497FF]/10' : 'hover:bg-white/5'
+                                            className={`flex gap-3 md:gap-5 p-4 md:p-6 transition-colors ${notif.type !== 'system' && !notif.is_read ? 'bg-[#111419]/5 hover:bg-[#111419]/10' : 'hover:bg-white/5'
                                                 } ${notif.type !== 'system' && notif.movie_slug ? 'cursor-pointer' : 'cursor-default'}`}
                                         >
                                             <div className="shrink-0 mt-1 relative">

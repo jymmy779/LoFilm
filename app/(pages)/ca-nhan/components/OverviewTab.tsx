@@ -23,9 +23,9 @@ interface OverviewTabProps {
   totalWatchTime?: number;
 }
 
-export default function OverviewTab({ 
-  user, 
-  displayName, 
+export default function OverviewTab({
+  user,
+  displayName,
   setShowPremiumModal,
   isEditMode,
   newName,
@@ -51,28 +51,28 @@ export default function OverviewTab({
 
   if (isEditMode) {
     return (
-      <SettingsTab 
+      <SettingsTab
         user={user}
         newName={newName || ""}
-        setNewName={setNewName || (() => {})}
+        setNewName={setNewName || (() => { })}
         isEditingName={isEditingName}
         setIsEditingName={setIsEditingName}
         isUpdating={isUpdating || false}
-        handleUpdateName={handleUpdateName || (() => {})}
+        handleUpdateName={handleUpdateName || (() => { })}
         isChangingPassword={isChangingPassword}
         setIsChangingPassword={setIsChangingPassword}
         password={password || ""}
-        setPassword={setPassword || (() => {})}
+        setPassword={setPassword || (() => { })}
         confirmPassword={confirmPassword || ""}
-        setConfirmPassword={setConfirmPassword || (() => {})}
-        handleDirectUpdatePassword={handleDirectUpdatePassword || (() => {})}
-        handleDeleteAccount={handleDeleteAccount || (() => {})}
+        setConfirmPassword={setConfirmPassword || (() => { })}
+        handleDirectUpdatePassword={handleDirectUpdatePassword || (() => { })}
+        handleDeleteAccount={handleDeleteAccount || (() => { })}
       />
     );
   }
 
   return (
-    <div className="rounded-2xl bg-white/[0.03] border border-white/5 backdrop-blur-sm p-6 space-y-6">
+    <div className="rounded-2xl bg-zinc-900/80 border border-white/10 p-6 space-y-6 shadow-xl">
       <div>
         <p className="text-xs text-zinc-600 uppercase font-bold tracking-widest mb-3">Thông tin cá nhân</p>
         <div className="space-y-4">
@@ -85,7 +85,7 @@ export default function OverviewTab({
               <p className="text-sm text-zinc-200 font-medium">{displayName}</p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-[#D497FF]/10 flex items-center justify-center flex-shrink-0">
               <span className="text-[#D497FF] text-xs font-bold">@</span>
@@ -95,7 +95,7 @@ export default function OverviewTab({
               <p className="text-sm text-zinc-200 font-medium">{user?.email}</p>
             </div>
           </div>
-          
+
           <div className="flex items-center gap-3">
             <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
               <Clock className="w-4 h-4 text-green-400" />
