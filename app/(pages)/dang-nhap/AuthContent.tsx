@@ -272,7 +272,7 @@ export default function AuthContent() {
                       {isLogin ? "Chào mừng trở lại!" : "Tạo tài khoản mới"}
                     </h2>
                     <p className="text-white/40 text-xs md:text-sm">
-                      {isLogin ? "Cùng LoFilm tiếp tục cuộc hành trình điện ảnh của bạn." : "Trở thành thành viên và khám phá kho phim khổng lồ."}
+                      {isLogin ? "Cùng CineStream tiếp tục cuộc hành trình điện ảnh của bạn." : "Trở thành thành viên và khám phá kho phim khổng lồ."}
                     </p>
                   </div>
 
@@ -339,11 +339,11 @@ export default function AuthContent() {
                       </div>
                     )}
 
-                    {/* Turnstile Captcha */}
+                    {/* Turnstile Captcha (Cloudflare Test Key - Always Passes) */}
                     <div className="flex justify-center mt-4">
                       <Turnstile
                         ref={turnstileRef}
-                        siteKey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY || "1x00000000000000000000AA"}
+                        siteKey="1x00000000000000000000AA"
                         onSuccess={(token) => setCaptchaToken(token)}
                         options={{ theme: 'dark' }}
                       />
