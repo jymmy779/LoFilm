@@ -33,22 +33,30 @@ export default function NotificationsPage() {
     const ITEMS_PER_PAGE = 15;
 
     const [user, setUser] = useState<any>(null);
+    const [isCheckingAuth, setIsCheckingAuth] = useState(true);
     const supabase = createClient();
 
     useEffect(() => {
         const checkUser = async () => {
-            const { data } = await supabase.auth.getUser();
-            if (data?.user) {
-                setUser(data.user);
-            } else {
-                const { data: sessionData } = await supabase.auth.getSession();
-                setUser(sessionData?.session?.user || null);
+            try {
+                const { data } = await supabase.auth.getUser();
+                if (data?.user) {
+                    setUser(data.user);
+                } else {
+                    const { data: sessionData } = await supabase.auth.getSession();
+                    setUser(sessionData?.session?.user || null);
+                }
+            } catch (error) {
+                console.error('Lỗi khi kiểm tra đăng nhập:', error);
+            } finally {
+                setIsCheckingAuth(false);
             }
         };
         checkUser();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
             setUser(session?.user || null);
+            setIsCheckingAuth(false);
         });
 
         return () => subscription.unsubscribe();
@@ -271,6 +279,16 @@ export default function NotificationsPage() {
             </div>
         );
     };
+
+    if (isCheckingAuth) {
+        return (
+            <div className="min-h-screen pt-24 pb-10 flex items-center justify-center w-full xl:w-[calc(100%+100px)] xl:-ml-[100px]">
+                <div className="py-20 text-center text-zinc-500 flex flex-col items-center">
+                    <LoadingSpinner size="md" color="default" className="mb-4" />
+                </div>
+            </div>
+        );
+    }
 
     if (!user) {
         return (
