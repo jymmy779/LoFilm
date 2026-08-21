@@ -300,7 +300,7 @@ async function mapNominated(): Promise<Movie[]> {
     const NOMINATED_KEY = "home:nominated";
     const NOMINATED_TTL = 86400; // 24 giờ
 
-    if (redis) {
+    if (redis && redis.status === 'ready') {
         try {
             const cached = await redis.get(NOMINATED_KEY);
             if (cached) {
@@ -395,7 +395,7 @@ async function mapNominated(): Promise<Movie[]> {
     const result = movies.filter(Boolean) as Movie[];
 
     // 3. Lưu cache riêng 24h
-    if (redis && result.length > 0) {
+    if (redis && redis.status === 'ready' && result.length > 0) {
         try {
             await redis.setex(NOMINATED_KEY, NOMINATED_TTL, JSON.stringify(result));
         } catch (err) {
