@@ -200,7 +200,7 @@ export default function HistoryPage() {
   return (
     <div className="min-h-screen pt-0 pb-10 bg-zinc-950 w-full xl:w-[calc(100%+100px)] xl:-ml-[100px]">
       <div className="relative py-10 md:py-20 px-4 xl:pl-[132px] xl:pr-8 -mb-16 overflow-hidden min-h-[250px] md:min-h-[300px] flex items-center justify-center">
-        <div className="absolute inset-0 opacity-40 bg-gradient-to-b from-transparent to-zinc-950" style={{ backgroundColor: '#f97316' }}></div>
+        <div className="absolute inset-0 opacity-40 bg-gradient-to-b from-transparent to-zinc-950" style={{ backgroundColor: '#3b82f6' }}></div>
         <div className="relative z-20 w-full py-2 space-y-0 text-left flex justify-between items-end">
           <div>
             <TransitionLink className="inline-flex items-center text-zinc-400 hover:text-white mb-2 transition-colors" href="/ca-nhan">
@@ -223,7 +223,7 @@ export default function HistoryPage() {
 
       <div className="relative z-20 w-full px-4 xl:pl-[132px] xl:pr-8 -mt-24 py-2 space-y-0">
         {isLoading ? <div className="py-20 flex justify-center items-center">
-          <LoadingSpinner size="md" color="orange" />
+          <LoadingSpinner size="md" color="blue" />
         </div> : watchHistory.length > 0 ? (
           <>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-7 2xl:grid-cols-8 gap-x-2 gap-y-4 md:gap-x-4 md:gap-y-6">
@@ -231,7 +231,7 @@ export default function HistoryPage() {
                 <div key={item.id} className="w-full relative group">
                   <div className="group/item relative block w-full h-full">
                     <TransitionLink className="block w-full" href={`/phim/${item.movie_slug}/${item.episode_slug || 'tap-full'}`}>
-                      <div className="relative aspect-[2/3] rounded-lg overflow-hidden mb-2 md:mb-3 bg-[#0F1115]">
+                      <div className="relative aspect-[2/3] rounded-lg overflow-hidden mb-2 md:mb-3 bg-[#0F1115] border border-white/5 group-hover/item:border-blue-500/50 transition-all duration-300">
                         <SmartImage
                           alt={item.movie_name}
                           className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover/item:scale-110 transform-gpu ${loadedImages.has(item.id) ? 'opacity-100' : 'opacity-0'}`}
@@ -242,9 +242,17 @@ export default function HistoryPage() {
                           sizes="(max-width: 640px) 33vw, (max-width: 1024px) 20vw, 15vw"
                           onLoad={() => markLoaded(item.id)}
                         />
+
+                        {/* Play Icon on Hover */}
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300">
+                          <div className="w-8 h-8 md:w-11 md:h-11 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white scale-75 group-hover/item:scale-100 transition-transform duration-300 shadow-lg">
+                            <Play className="w-3.5 h-3.5 md:w-5 md:h-5 fill-white ml-0.5" />
+                          </div>
+                        </div>
+
                         <div className="absolute bottom-1 left-1 z-10 pointer-events-none">
                           <div className="flex flex-wrap gap-1">
-                            <span className="rounded-[4px] bg-orange-600/90 px-1 py-[2px] text-[8px] md:text-[10px] font-bold text-white shadow-sm border border-white/10 tracking-wide">
+                            <span className="rounded-[4px] bg-blue-600/90 px-1 py-[2px] text-[8px] md:text-[10px] font-bold text-white shadow-sm border border-white/10 tracking-wide">
                               {formatEpisode(item.episode_name)}
                             </span>
                           </div>
@@ -253,7 +261,7 @@ export default function HistoryPage() {
                       </div>
                     </TransitionLink>
                     <div>
-                      <h3 className="truncate text-[11px] md:text-[14px] font-semibold text-white group-hover:text-orange-400 leading-snug transition-colors" title={item.movie_name}>
+                      <h3 className="truncate text-[11px] md:text-[14px] font-semibold text-white group-hover:text-blue-400 leading-snug transition-colors" title={item.movie_name}>
                         {item.movie_name}
                       </h3>
                       <div className="mt-1 md:mt-2 flex flex-col gap-1 md:gap-1.5 opacity-90">
@@ -269,7 +277,7 @@ export default function HistoryPage() {
                   </div>
                   <button
                     onClick={(e) => deleteHistoryItem(item.id, e)}
-                    className="absolute top-2 right-2 p-1 bg-black/60 rounded-full hover:bg-red-600/80 transition-colors opacity-100 z-30 backdrop-blur-sm border border-white/10"
+                    className="absolute top-2 right-2 p-1 bg-black/60 rounded-full hover:bg-red-600/80 transition-colors opacity-100 z-30 border border-white/10"
                     title="Xóa khỏi lịch sử"
                   >
                     <X className="w-3 h-3 md:w-4 md:h-4 text-white" />

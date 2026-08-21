@@ -63,6 +63,7 @@ export default function MovieDetailClient({
     const [showTrailerModal, setShowTrailerModal] = useState(false);
     const [showShareModal, setShowShareModal] = useState(false);
     const [isSynopsisExpanded, setIsSynopsisExpanded] = useState(false);
+    const [activeTab, setActiveTab] = useState<"overview" | "actors" | "related">("overview");
 
     const handleServerChange = useCallback((index: number) => {
         setActiveServerIndex(index);
@@ -382,216 +383,280 @@ export default function MovieDetailClient({
                 </Container>
             </div>
 
-            {/* === 2. MAIN CONTENT BODY === */}
-            <Container className="mt-6 lg:mt-8 space-y-10 lg:space-y-12">
-                {/* 2.1. EPISODE HUB (Khu vực Chọn tập phim) */}
-                {processedEpisodes && processedEpisodes.length > 0 ? (
-                    <section className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl">
-                        <EpisodeList
-                            slug={slug}
-                            movieName={movie.name}
-                            currentEpisode=""
-                            episodes={processedEpisodes}
-                            activeServer={activeServerIndex}
-                            onServerChange={handleServerChange}
-                            showServers={true}
-                        />
-                    </section>
-                ) : (
-                    <section className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-6 sm:p-8 text-center shadow-xl">
-                        <div className="max-w-md mx-auto space-y-4">
-                            <div className="w-14 h-14 bg-[#D497FF]/10 border border-[#D497FF]/20 rounded-2xl flex items-center justify-center mx-auto text-[#D497FF]">
-                                <Film size={28} />
-                            </div>
-                            <div>
-                                <h3 className="text-lg font-bold text-white uppercase tracking-wider">
-                                    {isTrailerOnly ? "Phim Đang Ở Bản Trailer / Sắp Chiếu" : "Tập Phim Đang Cập Nhật"}
-                                </h3>
-                                <p className="text-sm text-white/50 mt-1">
-                                    {isTrailerOnly 
-                                        ? "Bộ phim hiện đang trong giai đoạn giới thiệu trailer. Các tập phim chính thức sẽ được cập nhật sớm nhất!"
-                                        : "Hệ thống đang đồng bộ và cập nhật các tập phim mới nhất. Bạn vui lòng quay lại sau nhé!"}
-                                </p>
-                            </div>
-                            {movie.trailer_url && (
-                                <button
-                                    onClick={() => setShowTrailerModal(true)}
-                                    className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#D497FF] hover:bg-[#D497FF]/90 text-black font-bold rounded-xl transition-all shadow-lg text-sm"
-                                >
-                                    <Play size={16} className="fill-black" />
-                                    Xem Trailer Ngay
-                                </button>
-                            )}
-                        </div>
-                    </section>
-                )}
+            {/* === 2. MAIN CONTENT BODY WITH 3 TABS === */}
+            <Container className="mt-6 lg:mt-8 space-y-6 lg:space-y-8">
+                {/* 2.0. TAB NAVIGATION BAR */}
+                <div className="flex items-center justify-start border-b border-white/10 pb-4">
+                    <div className="bg-[#12151C]/90 backdrop-blur-md border border-white/10 p-1 rounded-2xl flex items-center gap-1 w-full sm:w-auto overflow-x-auto no-scrollbar shadow-xl">
+                        <button
+                            onClick={() => setActiveTab("overview")}
+                            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 sm:px-6 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 cursor-pointer select-none whitespace-nowrap ${activeTab === "overview"
+                                ? "bg-gradient-to-r from-[#D497FF] to-[#c07bf7] text-black shadow-lg shadow-[#D497FF]/20"
+                                : "text-white/60 hover:text-white hover:bg-white/5"
+                                }`}
+                        >
+                            <Film size={16} className={activeTab === "overview" ? "text-black" : "text-[#D497FF]"} />
+                            <span>Tập Phim & Nội Dung</span>
+                        </button>
 
-                {/* 2.2. BENTO METADATA & STORY SYNOPSIS */}
-                <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    {/* Left 2 Cols: Synopsis Story */}
-                    <div className="lg:col-span-2 bg-[#12151C]/60 border border-white/10 rounded-2xl p-5 sm:p-7 flex flex-col justify-between transition-all">
-                        <div className="space-y-3">
-                            {/* Header có toggle trên Mobile & Tablet */}
-                            <div
-                                onClick={() => setIsSynopsisExpanded(!isSynopsisExpanded)}
-                                className="flex items-center justify-between cursor-pointer lg:cursor-default select-none"
-                            >
-                                <div className="flex items-center gap-2">
-                                    <div className="w-1.5 h-4 bg-[#D497FF] rounded-full" />
-                                    <h3 className="text-base font-bold text-white uppercase tracking-wider">
-                                        Nội Dung Phim
-                                    </h3>
-                                </div>
-
-                                {/* Nút bấm mở/thu gọn chỉ hiện trên Mobile & Tablet */}
-                                <div className="flex items-center gap-1 text-xs font-bold text-[#D497FF] lg:hidden">
-                                    <span>{isSynopsisExpanded ? "Thu gọn" : "Xem nội dung"}</span>
-                                    <ChevronRight
-                                        size={16}
-                                        className={`transform transition-transform duration-300 ${isSynopsisExpanded ? "-rotate-90" : "rotate-90"}`}
-                                    />
-                                </div>
-                            </div>
-
-                            {/* Nội dung phim: Desktop luôn hiện full, Mobile/Tablet ẩn hoàn toàn khi đóng và hiện full khi mở */}
-                            <div className={`${isSynopsisExpanded ? "block animate-fade-in" : "hidden lg:block"} pt-1`}>
-                                <p className="text-white/75 text-sm sm:text-base leading-relaxed">
-                                    {cleanContent(movie.content) || "Bộ phim hấp dẫn đang được phát sóng với chất lượng cao trên LoFilm..."}
-                                </p>
-                            </div>
-                        </div>
-                    </div>
-
-                    {/* Right 1 Col: Quick Bento Info */}
-                    <div className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-6 space-y-4">
-                        <div className="flex items-center gap-2 pb-2 border-b border-white/5">
-                            <div className="w-1.5 h-4 bg-[#A7F3D0] rounded-full" />
-                            <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                                Thông Tin Chi Tiết
-                            </h3>
-                        </div>
-
-                        <div className="space-y-3 text-xs sm:text-sm">
-                            <div className="flex items-center justify-between">
-                                <span className="text-white/50 font-medium">Trạng thái:</span>
-                                <span className={`font-bold ${isCompleted ? 'text-emerald-400' : 'text-pink-400'}`}>
-                                    {statusText}
+                        <button
+                            onClick={() => setActiveTab("actors")}
+                            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 sm:px-6 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 cursor-pointer select-none whitespace-nowrap ${activeTab === "actors"
+                                ? "bg-gradient-to-r from-[#D497FF] to-[#c07bf7] text-black shadow-lg shadow-[#D497FF]/20"
+                                : "text-white/60 hover:text-white hover:bg-white/5"
+                                }`}
+                        >
+                            <User size={16} className={activeTab === "actors" ? "text-black" : "text-[#FAD078]"} />
+                            <span>Dàn Diễn Viên</span>
+                            {(tmdbActors.length > 0 || (movie.actor && movie.actor.length > 0)) && (
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold leading-none ${activeTab === "actors" ? "bg-black/20 text-black" : "bg-white/10 text-white/70"
+                                    }`}>
+                                    {tmdbActors.length > 0 ? tmdbActors.length : movie.actor?.length}
                                 </span>
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <span className="text-white/50 font-medium">Thời lượng:</span>
-                                <span className="text-white font-semibold">{movie.time || "Đang cập nhật"}</span>
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <span className="text-white/50 font-medium">Quốc gia:</span>
-                                <div className="flex gap-1.5">
-                                    {movie.country && movie.country.length > 0 ? (
-                                        movie.country.map((c) => (
-                                            <TransitionLink key={c.slug} href={`/quoc-gia/${c.slug}`} className="text-[#D497FF] font-semibold hover:underline">
-                                                {c.name}
-                                            </TransitionLink>
-                                        ))
-                                    ) : (
-                                        <span className="text-white font-semibold">Đang cập nhật</span>
-                                    )}
-                                </div>
-                            </div>
-
-                            {movie.director && movie.director.length > 0 && movie.director[0] !== "" && (
-                                <div className="flex items-start justify-between gap-2 pt-1 border-t border-white/5">
-                                    <span className="text-white/50 font-medium whitespace-nowrap">Đạo diễn:</span>
-                                    <span className="text-white/90 font-semibold text-right">{movie.director.join(", ")}</span>
-                                </div>
                             )}
-                        </div>
+                        </button>
+
+                        <button
+                            onClick={() => setActiveTab("related")}
+                            className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 sm:px-6 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 cursor-pointer select-none whitespace-nowrap ${activeTab === "related"
+                                ? "bg-gradient-to-r from-[#D497FF] to-[#c07bf7] text-black shadow-lg shadow-[#D497FF]/20"
+                                : "text-white/60 hover:text-white hover:bg-white/5"
+                                }`}
+                        >
+                            <Sparkles size={16} className={activeTab === "related" ? "text-black" : "text-[#D497FF]"} />
+                            <span>Phim Tương Tự</span>
+                            {filteredSuggestions.length > 0 && (
+                                <span className={`px-1.5 py-0.5 rounded text-[10px] font-bold leading-none ${activeTab === "related" ? "bg-black/20 text-black" : "bg-white/10 text-white/70"
+                                    }`}>
+                                    {filteredSuggestions.length}
+                                </span>
+                            )}
+                        </button>
                     </div>
                 </div>
 
-                {/* 2.3. CAST & CREW (Dàn Diễn Viên) */}
-                <section className="space-y-4">
-                    <div className="flex items-center gap-2.5">
-                        <div className="w-1.5 h-5 bg-[#FAD078] rounded-full" />
-                        <h2 className="text-lg sm:text-xl font-extrabold text-white uppercase tracking-wider">
-                            Dàn Diễn Viên
-                        </h2>
-                    </div>
+                {/* 2.1. TAB CONTENT PANELS */}
+                <div className="min-h-[280px]">
+                    {/* TAB 1: NỘI DUNG & TẬP PHIM */}
+                    {activeTab === "overview" && (
+                        <div className="space-y-6 sm:space-y-8 animate-fade-in">
+                            {/* BENTO METADATA & STORY SYNOPSIS (Đặt lên trước) */}
+                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                                {/* Left 2 Cols: Synopsis Story */}
+                                <div className="lg:col-span-2 bg-[#12151C]/60 border border-white/10 rounded-2xl p-5 sm:p-7 flex flex-col justify-between transition-all">
+                                    <div className="space-y-3">
+                                        {/* Header có toggle trên Mobile & Tablet */}
+                                        <div
+                                            onClick={() => setIsSynopsisExpanded(!isSynopsisExpanded)}
+                                            className="flex items-center justify-between cursor-pointer lg:cursor-default select-none"
+                                        >
+                                            <div className="flex items-center gap-2">
+                                                <div className="w-1.5 h-4 bg-[#D497FF] rounded-full" />
+                                                <h3 className="text-base font-bold text-white uppercase tracking-wider">
+                                                    Nội Dung Phim
+                                                </h3>
+                                            </div>
 
-                    {isLoadingActors ? (
-                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-                            {Array.from({ length: 8 }).map((_, idx) => (
-                                <div key={idx} className="space-y-2">
-                                    <Skeleton className="aspect-[3/4] w-full" rounded="lg" />
-                                    <Skeleton className="h-3 w-3/4 mx-auto" rounded="md" />
+                                            {/* Nút bấm mở/thu gọn chỉ hiện trên Mobile & Tablet */}
+                                            <div className="flex items-center gap-1 text-xs font-bold text-[#D497FF] lg:hidden">
+                                                <span>{isSynopsisExpanded ? "Thu gọn" : "Xem nội dung"}</span>
+                                                <ChevronRight
+                                                    size={16}
+                                                    className={`transform transition-transform duration-300 ${isSynopsisExpanded ? "-rotate-90" : "rotate-90"}`}
+                                                />
+                                            </div>
+                                        </div>
+
+                                        {/* Nội dung phim */}
+                                        <div className={`${isSynopsisExpanded ? "block animate-fade-in" : "hidden lg:block"} pt-1`}>
+                                            <p className="text-white/75 text-sm sm:text-base leading-relaxed">
+                                                {cleanContent(movie.content) || "Bộ phim hấp dẫn đang được phát sóng với chất lượng cao trên LoFilm..."}
+                                            </p>
+                                        </div>
+                                    </div>
                                 </div>
-                            ))}
-                        </div>
-                    ) : tmdbActors.length > 0 ? (
-                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
-                            {tmdbActors.slice(0, 16).map((actor) => (
-                                <div key={actor.id} className="group flex flex-col items-center text-center space-y-1.5">
-                                    <div className="relative aspect-[3/4] w-full rounded-lg overflow-hidden bg-[#12151C] border border-white/10 group-hover:border-[#D497FF]/50 transition-all duration-300 shadow-md">
-                                        {actor.profile_path ? (
-                                            <SmartImage
-                                                r2Src={getR2ActorUrl(actor.id)}
-                                                src={getImageUrl(`https://image.tmdb.org/t/p/w200${actor.profile_path}`, { width: 160, quality: 75 })}
-                                                rawSrc={`https://image.tmdb.org/t/p/w200${actor.profile_path}`}
-                                                alt={actor.name}
-                                                fill
-                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                                sizes="(max-width: 768px) 30vw, 150px"
-                                            />
-                                        ) : (
-                                            <div className="w-full h-full flex items-center justify-center text-white/20">
-                                                <User size={32} />
+
+                                {/* Right 1 Col: Quick Bento Info */}
+                                <div className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-6 space-y-4">
+                                    <div className="flex items-center gap-2 pb-2 border-b border-white/5">
+                                        <div className="w-1.5 h-4 bg-[#A7F3D0] rounded-full" />
+                                        <h3 className="text-sm font-bold text-white uppercase tracking-wider">
+                                            Thông Tin Chi Tiết
+                                        </h3>
+                                    </div>
+
+                                    <div className="space-y-3 text-xs sm:text-sm">
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-white/50 font-medium">Trạng thái:</span>
+                                            <span className={`font-bold ${isCompleted ? 'text-emerald-400' : 'text-pink-400'}`}>
+                                                {statusText}
+                                            </span>
+                                        </div>
+
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-white/50 font-medium">Thời lượng:</span>
+                                            <span className="text-white font-semibold">{movie.time || "Đang cập nhật"}</span>
+                                        </div>
+
+                                        <div className="flex items-center justify-between">
+                                            <span className="text-white/50 font-medium">Quốc gia:</span>
+                                            <div className="flex gap-1.5">
+                                                {movie.country && movie.country.length > 0 ? (
+                                                    movie.country.map((c) => (
+                                                        <TransitionLink key={c.slug} href={`/quoc-gia/${c.slug}`} className="text-[#D497FF] font-semibold hover:underline">
+                                                            {c.name}
+                                                        </TransitionLink>
+                                                    ))
+                                                ) : (
+                                                    <span className="text-white font-semibold">Đang cập nhật</span>
+                                                )}
+                                            </div>
+                                        </div>
+
+                                        {movie.director && movie.director.length > 0 && movie.director[0] !== "" && (
+                                            <div className="flex items-start justify-between gap-2 pt-1 border-t border-white/5">
+                                                <span className="text-white/50 font-medium whitespace-nowrap">Đạo diễn:</span>
+                                                <span className="text-white/90 font-semibold text-right">{movie.director.join(", ")}</span>
                                             </div>
                                         )}
                                     </div>
-                                    <span className="text-xs font-bold text-white/90 group-hover:text-[#D497FF] transition-colors truncate w-full px-1">
-                                        {actor.name}
-                                    </span>
-                                    {actor.character && (
-                                        <span className="text-[10px] text-white/40 truncate w-full px-1">
-                                            {actor.character}
-                                        </span>
-                                    )}
                                 </div>
-                            ))}
+                            </div>
+
+                            {/* EPISODE HUB */}
+                            {processedEpisodes && processedEpisodes.length > 0 ? (
+                                <section className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl">
+                                    <EpisodeList
+                                        slug={slug}
+                                        movieName={movie.name}
+                                        currentEpisode=""
+                                        episodes={processedEpisodes}
+                                        activeServer={activeServerIndex}
+                                        onServerChange={handleServerChange}
+                                        showServers={true}
+                                    />
+                                </section>
+                            ) : (
+                                <section className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-6 sm:p-8 text-center shadow-xl">
+                                    <div className="max-w-md mx-auto space-y-4">
+                                        <div className="w-14 h-14 bg-[#D497FF]/10 border border-[#D497FF]/20 rounded-2xl flex items-center justify-center mx-auto text-[#D497FF]">
+                                            <Film size={28} />
+                                        </div>
+                                        <div>
+                                            <h3 className="text-lg font-bold text-white uppercase tracking-wider">
+                                                {isTrailerOnly ? "Phim Đang Ở Bản Trailer / Sắp Chiếu" : "Tập Phim Đang Cập Nhật"}
+                                            </h3>
+                                            <p className="text-sm text-white/50 mt-1">
+                                                {isTrailerOnly
+                                                    ? "Bộ phim hiện đang trong giai đoạn giới thiệu trailer. Các tập phim chính thức sẽ được cập nhật sớm nhất!"
+                                                    : "Hệ thống đang đồng bộ và cập nhật các tập phim mới nhất. Bạn vui lòng quay lại sau nhé!"}
+                                            </p>
+                                        </div>
+                                        {movie.trailer_url && (
+                                            <button
+                                                onClick={() => setShowTrailerModal(true)}
+                                                className="inline-flex items-center gap-2 px-6 py-2.5 bg-[#D497FF] hover:bg-[#D497FF]/90 text-black font-bold rounded-xl transition-all shadow-lg text-sm"
+                                            >
+                                                <Play size={16} className="fill-black" />
+                                                Xem Trailer Ngay
+                                            </button>
+                                        )}
+                                    </div>
+                                </section>
+                            )}
                         </div>
-                    ) : movie.actor && movie.actor.length > 0 ? (
-                        <div className="flex flex-wrap gap-2">
-                            {movie.actor.map((act, i) => (
-                                <span key={i} className="px-3 py-1.5 bg-[#12151C] border border-white/10 rounded-lg text-xs font-semibold text-white/80">
-                                    {act}
-                                </span>
-                            ))}
-                        </div>
-                    ) : (
-                        <p className="text-xs text-white/40 italic">Đang cập nhật danh sách diễn viên...</p>
                     )}
-                </section>
 
-                {/* 2.4. RECOMMENDED MOVIES (Phim Cùng Thể Loại) */}
-                {filteredSuggestions.length > 0 && (
-                    <section className="space-y-4 pt-4 border-t border-white/5">
-                        <div className="flex items-center gap-2.5">
-                            <div className="w-1.5 h-5 bg-[#D497FF] rounded-full" />
-                            <h2 className="text-lg sm:text-xl font-extrabold text-white uppercase tracking-wider">
-                                Phim Cùng Thể Loại Có Thể Bạn Thích
-                            </h2>
+                    {/* TAB 2: DÀN DIỄN VIÊN */}
+                    {activeTab === "actors" && (
+                        <div className="space-y-6 animate-fade-in bg-[#12151C]/60 border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-1.5 h-5 bg-[#FAD078] rounded-full" />
+                                <h2 className="text-lg sm:text-xl font-extrabold text-white uppercase tracking-wider">
+                                    Dàn Diễn Viên
+                                </h2>
+                            </div>
+
+                            {isLoadingActors ? (
+                                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3">
+                                    {Array.from({ length: 8 }).map((_, idx) => (
+                                        <div key={idx} className="space-y-2">
+                                            <Skeleton className="aspect-[3/4] w-full" rounded="lg" />
+                                            <Skeleton className="h-3 w-3/4 mx-auto" rounded="md" />
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : tmdbActors.length > 0 ? (
+                                <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+                                    {tmdbActors.map((actor) => (
+                                        <div key={actor.id} className="group flex flex-col items-center text-center space-y-1.5">
+                                            <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-[#12151C] border border-white/10 group-hover:border-[#D497FF]/50 transition-all duration-300 shadow-md">
+                                                {actor.profile_path ? (
+                                                    <SmartImage
+                                                        r2Src={getR2ActorUrl(actor.id)}
+                                                        src={getImageUrl(`https://image.tmdb.org/t/p/w200${actor.profile_path}`, { width: 160, quality: 75 })}
+                                                        rawSrc={`https://image.tmdb.org/t/p/w200${actor.profile_path}`}
+                                                        alt={actor.name}
+                                                        fill
+                                                        className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                        sizes="(max-width: 768px) 30vw, 150px"
+                                                    />
+                                                ) : (
+                                                    <div className="w-full h-full flex items-center justify-center text-white/20">
+                                                        <User size={32} />
+                                                    </div>
+                                                )}
+                                            </div>
+                                            <span className="text-xs font-bold text-white/90 group-hover:text-[#D497FF] transition-colors truncate w-full px-1">
+                                                {actor.name}
+                                            </span>
+                                            {actor.character && (
+                                                <span className="text-[10px] text-white/40 truncate w-full px-1">
+                                                    {actor.character}
+                                                </span>
+                                            )}
+                                        </div>
+                                    ))}
+                                </div>
+                            ) : movie.actor && movie.actor.length > 0 ? (
+                                <div className="flex flex-wrap gap-2">
+                                    {movie.actor.map((act, i) => (
+                                        <span key={i} className="px-3 py-1.5 bg-[#12151C] border border-white/10 rounded-lg text-xs font-semibold text-white/80">
+                                            {act}
+                                        </span>
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-xs text-white/40 italic">Đang cập nhật danh sách diễn viên...</p>
+                            )}
                         </div>
+                    )}
 
-                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3 sm:gap-4">
-                            {filteredSuggestions.slice(0, 7).map((sug) => (
-                                <MoviePosterCard key={sug._id} movie={sug} priority={false} />
-                            ))}
+                    {/* TAB 3: PHIM TƯƠNG TỰ */}
+                    {activeTab === "related" && (
+                        <div className="space-y-6 animate-fade-in bg-[#12151C]/60 border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl">
+                            <div className="flex items-center gap-2.5">
+                                <div className="w-1.5 h-5 bg-[#D497FF] rounded-full" />
+                                <h2 className="text-lg sm:text-xl font-extrabold text-white uppercase tracking-wider">
+                                    Phim Cùng Thể Loại Có Thể Bạn Thích
+                                </h2>
+                            </div>
+
+                            {filteredSuggestions.length > 0 ? (
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7 gap-3 sm:gap-4">
+                                    {filteredSuggestions.map((sug) => (
+                                        <MoviePosterCard key={sug._id} movie={sug} priority={false} />
+                                    ))}
+                                </div>
+                            ) : (
+                                <p className="text-xs text-white/40 italic">Đang cập nhật các bộ phim tương tự...</p>
+                            )}
                         </div>
-                    </section>
-                )}
+                    )}
+                </div>
 
-                {/* 2.5. COMMUNITY COMMENTS (Bình Luận) */}
-                <section id="comment-section" className="pt-4 border-t border-white/5">
+                {/* === 3. COMMUNITY COMMENTS (Bình Luận - Luôn ở dưới cùng) === */}
+                <section id="comment-section" className="pt-6 border-t border-white/10">
                     <CommentSection movieSlug={movie.slug} />
                 </section>
             </Container>

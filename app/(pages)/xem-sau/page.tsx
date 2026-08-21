@@ -125,7 +125,7 @@ export default function WatchlistPage() {
       <div className="relative z-20 w-full px-4 xl:pl-[132px] xl:pr-8 -mt-24 py-2 space-y-0">
           {isLoading ? (
             <div className="py-20 flex justify-center items-center">
-              <LoadingSpinner size="md" color="orange" />
+              <LoadingSpinner size="md" color="emerald" />
             </div>
         ) : watchlist.length > 0 ? (
           <>
@@ -134,7 +134,7 @@ export default function WatchlistPage() {
               <div key={item.id} className="w-full relative group">
                 <div className="group/item relative block w-full h-full">
                   <TransitionLink className="block w-full" href={`/phim/${item.movie_slug}`}>
-                    <div className="relative aspect-[2/3] rounded-lg overflow-hidden mb-3 bg-[#0F1115]">
+                    <div className="relative aspect-[2/3] rounded-lg overflow-hidden mb-3 bg-[#0F1115] border border-white/5 group-hover/item:border-emerald-500/50 transition-all duration-300">
                       <SmartImage 
                         alt={item.movie_name} 
                         className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover/item:scale-110 transform-gpu ${loadedImages.has(item.id) ? 'opacity-100' : 'opacity-0'}`} 
@@ -156,7 +156,7 @@ export default function WatchlistPage() {
                 </div>
                 <button 
                   onClick={(e) => deleteWatchlistItem(item.id, e)}
-                  className="absolute top-2 right-2 p-1 bg-black/60 rounded-full hover:bg-emerald-600/80 transition-colors opacity-100 z-30 backdrop-blur-sm border border-white/10" 
+                  className="absolute top-2 right-2 p-1 bg-black/60 rounded-full hover:bg-emerald-600/80 transition-colors opacity-100 z-30 border border-white/10" 
                   title="Xóa khỏi xem sau"
                 >
                   <Trash2 className="w-3 h-3 md:w-4 md:h-4 text-white" />

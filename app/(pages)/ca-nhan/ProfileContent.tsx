@@ -478,13 +478,11 @@ export default function ProfileContent() {
       if (pendingAvatarBlob) {
         logActivity(user.id, "update_avatar", { avatar_url: newAvatarUrl });
         supabase.from('comments').update({ user_avatar: newAvatarUrl }).eq('user_id', user.id).then();
-        supabase.from('user_notifications').update({ actor_avatar: newAvatarUrl }).eq('user_id', user.id).then();
       }
 
       if (hasNameChanged) {
         logActivity(user.id, "update_name", { old_name: user?.user_metadata?.full_name, new_name: newName });
         supabase.from('comments').update({ user_name: newName }).eq('user_id', user.id).then();
-        supabase.from('user_notifications').update({ actor_name: newName }).eq('user_id', user.id).then();
       }
 
       if (hasPasswordChanged) {
@@ -545,15 +543,6 @@ export default function ProfileContent() {
         .eq('user_id', user.id)
         .then(({ error: updateError }) => {
           if (updateError) console.error("Không thể cập nhật tên trong bình luận cũ:", updateError);
-        });
-
-      // Cập nhật tên trong tất cả thông báo cũ
-      supabase
-        .from('user_notifications')
-        .update({ actor_name: newName })
-        .eq('user_id', user.id)
-        .then(({ error: notifError }) => {
-          if (notifError) console.error("Không thể cập nhật tên trong thông báo cũ:", notifError);
         });
     }
     setIsUpdating(false);
@@ -890,10 +879,10 @@ export default function ProfileContent() {
                         <TransitionLink href="/lich-su" className="bg-white/5 border border-white/5 rounded-xl p-4 flex flex-col justify-between hover:bg-white/10 hover:border-white/10 transition-all duration-300 group">
                           <div className="flex items-center justify-between">
                             <span className="text-[11px] font-bold text-zinc-400 uppercase tracking-wider">Dấu vết</span>
-                            <HistoryIcon className="w-4 h-4 text-orange-400 group-hover:-rotate-12 transition-transform" />
+                            <HistoryIcon className="w-4 h-4 text-blue-400 group-hover:-rotate-12 transition-transform" />
                           </div>
                           <div className="mt-4">
-                            <span className="text-lg font-extrabold text-white tracking-tight group-hover:text-orange-400 transition-colors">Lịch Sử Toàn Diện</span>
+                            <span className="text-lg font-extrabold text-white tracking-tight group-hover:text-blue-400 transition-colors">Lịch Sử Toàn Diện</span>
                             <p className="text-[10px] text-zinc-500 mt-1">Quản lý mọi bộ phim bạn đã xem</p>
                           </div>
                         </TransitionLink>

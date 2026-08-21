@@ -129,18 +129,38 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
         setReactions({ up: newUp, down: newDown, userType: newType });
 
         try {
+            // Xóa reaction cũ trong DB để tránh trùng lặp bản ghi
+            await supabase.from('comment_reactions').delete().eq('comment_id', comment.id).eq('user_id', user.id);
+
             if (newType === null) {
-                await supabase.from('comment_reactions').delete().eq('comment_id', comment.id).eq('user_id', user.id);
+                // Nếu bỏ reaction, xóa thông báo like/dislike cũ
+                if (comment.user_id && comment.user_id !== user.id) {
+                    supabase
+                        .from('user_notifications')
+                        .delete()
+                        .eq('user_id', comment.user_id)
+                        .eq('comment_id', comment.id)
+                        .in('type', ['like', 'dislike'])
+                        .then();
+                }
             } else {
                 logActivity(user.id, type === 'up' ? 'like' : 'dislike', { comment_id: comment.id, movie_slug: comment.movie_slug });
-                await supabase.from('comment_reactions').upsert({
+                await supabase.from('comment_reactions').insert({
                     comment_id: comment.id,
                     user_id: user.id,
                     type: type
                 });
 
-                // Add notification
+                // Cập nhật thông báo
                 if (comment.user_id && comment.user_id !== user.id) {
+                    // Xóa thông báo cũ cùng loại của comment này trước khi tạo mới
+                    await supabase
+                        .from('user_notifications')
+                        .delete()
+                        .eq('user_id', comment.user_id)
+                        .eq('comment_id', comment.id)
+                        .in('type', ['like', 'dislike']);
+
                     supabase.from('user_notifications').insert({
                         user_id: comment.user_id,
                         actor_name: user?.user_metadata?.full_name,

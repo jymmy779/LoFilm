@@ -323,23 +323,27 @@ export default function NotificationBell() {
                                         } ${notif.type !== 'system' && notif.movie_slug ? 'cursor-pointer' : 'cursor-default'}`}
                                     >
                                         <div className="shrink-0 mt-0.5 relative">
-                                            {notif.type !== 'system' && notif.actor_avatar ? (
-                                                <div className="relative w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded-full overflow-hidden border border-white/10">
-                                                    <Image src={notif.actor_avatar} alt="Avatar" fill className="object-cover" />
-                                                </div>
-                                            ) : (
-                                                <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded-full bg-white/5 border border-white/10 flex items-center justify-center">
+                                            {notif.type === 'system' ? (
+                                                <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
                                                     <div className="scale-100 md:scale-110 lg:scale-125">
                                                         {renderIcon(notif.type)}
                                                     </div>
                                                 </div>
-                                            )}
-                                            {notif.type !== 'system' && notif.actor_avatar && (
-                                                <div className="absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 bg-[#0F1115] rounded-full flex items-center justify-center border border-white/10">
-                                                    <div className="scale-75 md:scale-90 lg:scale-100">
-                                                        {renderIcon(notif.type)}
+                                            ) : (
+                                                <>
+                                                    <div className="relative w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded-full overflow-hidden border border-white/10 bg-gradient-to-br from-orange-950 via-zinc-900 to-zinc-950 flex items-center justify-center text-white/90 font-bold text-xs md:text-sm lg:text-base shrink-0">
+                                                        {notif.actor_avatar ? (
+                                                            <Image src={notif.actor_avatar} alt="Avatar" fill className="object-cover" />
+                                                        ) : (
+                                                            (notif.actor_name || "U").charAt(0).toUpperCase()
+                                                        )}
                                                     </div>
-                                                </div>
+                                                    <div className="absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 bg-[#0F1115] rounded-full flex items-center justify-center border border-white/10">
+                                                        <div className="scale-75 md:scale-90 lg:scale-100">
+                                                            {renderIcon(notif.type)}
+                                                        </div>
+                                                    </div>
+                                                </>
                                             )}
                                         </div>
 

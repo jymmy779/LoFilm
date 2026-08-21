@@ -37,8 +37,13 @@ export default function NotificationsPage() {
 
     useEffect(() => {
         const checkUser = async () => {
-            const { data: { session } } = await supabase.auth.getSession();
-            setUser(session?.user || null);
+            const { data } = await supabase.auth.getUser();
+            if (data?.user) {
+                setUser(data.user);
+            } else {
+                const { data: sessionData } = await supabase.auth.getSession();
+                setUser(sessionData?.session?.user || null);
+            }
         };
         checkUser();
 
@@ -137,8 +142,37 @@ export default function NotificationsPage() {
     useEffect(() => {
         if (user?.id) {
             fetchNotifications(currentPage);
+
+            // Realtime for User Notifications
+            const userChannelName = `page_user_notifs_${user.id}_${Math.random().toString(36).substring(7)}`;
+            const userChannel = supabase
+                .channel(userChannelName)
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'user_notifications', filter: `user_id=eq.${user.id}` }, () => {
+                    fetchNotifications(currentPage);
+                })
+                .subscribe();
+
+            // Realtime for Site Notifications
+            const siteChannelName = `page_site_notifs_${Math.random().toString(36).substring(7)}`;
+            const siteChannel = supabase
+                .channel(siteChannelName)
+                .on('postgres_changes', { event: '*', schema: 'public', table: 'site_notifications' }, () => {
+                    fetchNotifications(currentPage);
+                })
+                .subscribe();
+
+            const handleNotificationsUpdated = () => {
+                fetchNotifications(currentPage);
+            };
+            window.addEventListener('notifications_updated', handleNotificationsUpdated);
+
+            return () => {
+                supabase.removeChannel(userChannel);
+                supabase.removeChannel(siteChannel);
+                window.removeEventListener('notifications_updated', handleNotificationsUpdated);
+            };
         }
-    }, [user, currentPage]);
+    }, [user?.id, currentPage]);
 
     const handleDeleteAllConfirm = async () => {
         if (!user?.id) return;
@@ -240,14 +274,14 @@ export default function NotificationsPage() {
 
     if (!user) {
         return (
-            <div className="min-h-screen pt-24 pb-10 flex items-center justify-center">
+            <div className="min-h-screen pt-24 pb-10 flex items-center justify-center w-full xl:w-[calc(100%+100px)] xl:-ml-[100px]">
                 <div className="text-center text-white/50">Vui lòng đăng nhập để xem thông báo.</div>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen pt-20 md:pt-28 pb-20 bg-zinc-950">
+        <div className="min-h-screen pt-20 md:pt-28 pb-20 bg-zinc-950 w-full xl:w-[calc(100%+100px)] xl:-ml-[100px]">
             <div className="max-w-4xl mx-auto px-4 md:px-6">
 
                 {/* Header */}
@@ -296,21 +330,25 @@ export default function NotificationsPage() {
                                                 } ${notif.type !== 'system' && notif.movie_slug ? 'cursor-pointer' : 'cursor-default'}`}
                                         >
                                             <div className="shrink-0 mt-1 relative">
-                                                {notif.type !== 'system' && notif.actor_avatar ? (
-                                                    <div className="relative w-10 h-10 md:w-14 md:h-14 rounded-full overflow-hidden border border-white/10 shadow-lg">
-                                                        <Image src={notif.actor_avatar} alt="Avatar" fill className="object-cover" />
-                                                    </div>
-                                                ) : (
-                                                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-white/5 border border-white/10 flex items-center justify-center shadow-lg">
+                                                {notif.type === 'system' ? (
+                                                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-amber-500/10 border border-amber-500/20 flex items-center justify-center shadow-lg">
                                                         <div className="scale-125 md:scale-150">
                                                             {renderIcon(notif.type)}
                                                         </div>
                                                     </div>
-                                                )}
-                                                {notif.type !== 'system' && notif.actor_avatar && (
-                                                    <div className="absolute -bottom-1 -right-1 w-5 h-5 md:w-6 md:h-6 bg-[#0F1115] rounded-full flex items-center justify-center border border-white/10 shadow-sm">
-                                                        {renderIcon(notif.type)}
-                                                    </div>
+                                                ) : (
+                                                    <>
+                                                        <div className="relative w-10 h-10 md:w-14 md:h-14 rounded-full overflow-hidden border border-white/10 bg-gradient-to-br from-orange-950 via-zinc-900 to-zinc-950 flex items-center justify-center shadow-lg text-white/90 font-bold text-sm md:text-lg shrink-0">
+                                                            {notif.actor_avatar ? (
+                                                                <Image src={notif.actor_avatar} alt="Avatar" fill className="object-cover" />
+                                                            ) : (
+                                                                (notif.actor_name || "U").charAt(0).toUpperCase()
+                                                            )}
+                                                        </div>
+                                                        <div className="absolute -bottom-1 -right-1 w-5 h-5 md:w-6 md:h-6 bg-[#0F1115] rounded-full flex items-center justify-center border border-white/10 shadow-sm">
+                                                            {renderIcon(notif.type)}
+                                                        </div>
+                                                    </>
                                                 )}
                                             </div>
 

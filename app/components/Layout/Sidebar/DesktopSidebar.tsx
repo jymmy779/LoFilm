@@ -45,16 +45,15 @@ export default function DesktopSidebar() {
             <nav className="flex flex-col items-center w-full gap-2 relative pointer-events-auto">
                 {menuItems.map((item, index) => {
                     const Icon = item.icon;
-                    const isActive = item.href 
+                    const isActive = item.href
                         ? (item.href === "/" ? activeRoute === "/" : activeRoute.startsWith(item.href))
                         : false;
 
                     const content = (
-                        <div className={`relative w-[88px] py-3.5 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-colors duration-100 ${
-                            isActive
-                                ? "text-[#D497FF] font-semibold"
-                                : "text-white/70 group-hover:text-white font-medium"
-                        }`}>
+                        <div className={`relative w-[84px] py-3 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-colors duration-100 ${isActive
+                            ? "text-[#D497FF] font-semibold"
+                            : "text-white/70 group-hover:text-white font-medium"
+                            }`}>
                             {/* Pure CSS Hardware-Accelerated Smooth Bubble Pop */}
                             {isActive && (
                                 <div className="absolute inset-0 bg-[#D497FF]/15 rounded-2xl animate-bubble-pop" />
@@ -66,9 +65,8 @@ export default function DesktopSidebar() {
                         </div>
                     );
 
-                    const className = `group flex items-center justify-center transition-colors duration-150 ${
-                        !isActive && "hover:bg-white/5 rounded-2xl"
-                    }`;
+                    const className = `group flex items-center justify-center transition-colors duration-150 ${!isActive && "hover:bg-white/5 rounded-2xl"
+                        }`;
 
                     // Protected items (yêu cầu đăng nhập)
                     if (item.protected && !user) {

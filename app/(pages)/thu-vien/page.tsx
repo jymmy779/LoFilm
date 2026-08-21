@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { ChevronLeft, X, Trash2, History, Bookmark, Heart } from "lucide-react";
+import { ChevronLeft, X, Trash2, History, Bookmark, Heart, Play } from "lucide-react";
 import Image from "next/image";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { createClient } from "@/app/utils/supabase/client";
@@ -258,7 +258,7 @@ export default function LibraryPage() {
               <div key={item.id} className="w-full">
                 <div className="group/item relative block w-full h-full">
                   <TransitionLink className="block w-full" href={activeTab === 'history' ? `/phim/${item.movie_slug}/${item.episode_slug || 'tap-full'}` : `/phim/${item.movie_slug}`}>
-                    <div className="relative aspect-[2/3] rounded-lg overflow-hidden mb-3 bg-[#0F1115] z-0 transition-opacity duration-300">
+                    <div className="relative aspect-[2/3] rounded-lg overflow-hidden mb-3 bg-[#0F1115] border border-white/5 group-hover/item:border-orange-500/50 transition-all duration-300 z-0">
                       <SmartImage
                         alt={item.movie_name}
                         className={`h-full w-full object-cover transition-transform duration-700 ease-out group-hover/item:scale-110 transform-gpu ${loadedImages.has(item.id) ? 'opacity-100' : 'opacity-0'}`}
@@ -269,10 +269,20 @@ export default function LibraryPage() {
                         sizes="(max-width: 640px) 50vw, (max-width: 1024px) 25vw, 15vw"
                         onLoad={() => markLoaded(item.id)}
                       />
+
+                      {/* Play Icon on Hover for History Tab */}
+                      {activeTab === 'history' && (
+                        <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10 opacity-0 group-hover/item:opacity-100 transition-opacity duration-300">
+                          <div className="w-8 h-8 md:w-11 md:h-11 rounded-full bg-black/60 border border-white/20 flex items-center justify-center text-white scale-75 group-hover/item:scale-100 transition-transform duration-300 shadow-lg">
+                            <Play className="w-3.5 h-3.5 md:w-5 md:h-5 fill-white ml-0.5" />
+                          </div>
+                        </div>
+                      )}
+
                       <div className="absolute top-2 right-2 z-20">
                         <button
                           onClick={(e) => deleteItem(item.id, activeTab as any, item.movie_slug, e)}
-                          className="group flex items-center justify-center w-8 h-8 rounded-full bg-black/60 backdrop-blur-sm border border-white/10 text-white hover:bg-rose-500 hover:border-rose-500 transition-all shadow-lg"
+                          className="group flex items-center justify-center w-8 h-8 rounded-full bg-black/60 border border-white/10 text-white hover:bg-rose-500 hover:border-rose-500 transition-all shadow-lg"
                           title="Xóa"
                         >
                           <X className="w-4 h-4" />
@@ -290,7 +300,7 @@ export default function LibraryPage() {
                     </div>
                   </TransitionLink>
                   <div className="mt-2.5 px-0.5">
-                    <h3 className="truncate text-[10px] md:text-[14px] font-semibold text-zinc-100 leading-snug transition-colors" title={item.movie_name}>
+                    <h3 className="truncate text-[10px] md:text-[14px] font-semibold text-zinc-100 group-hover/item:text-orange-400 leading-snug transition-colors" title={item.movie_name}>
                       {item.movie_name}
                     </h3>
                     {activeTab === 'history' && (
