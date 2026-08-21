@@ -5,7 +5,7 @@ import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import * as Icons from "lucide-react";
 import { Flame, Film, Camera, Crown, Ghost, Globe, Sparkles, Gamepad2, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
-import CatalogSkeleton from "@/app/components/Movies/MovieCatalog/CatalogSkeleton";
+import LoadingSpinner from "@/app/components/UI/Common/LoadingSpinner";
 
 export interface TopicItem {
     id: string;
@@ -124,7 +124,11 @@ export default function TopicsClient({ initialTopics }: { initialTopics?: TopicI
     }, [initialTopics]);
 
     if (isLoading) {
-        return <CatalogSkeleton hideSidebar={true} />;
+        return (
+            <div className="w-full min-h-screen bg-[#0F1115] pt-[120px] pb-20 flex items-center justify-center">
+                <LoadingSpinner size="lg" color="default" />
+            </div>
+        );
     }
 
     return (

@@ -50,6 +50,15 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
     const [currentPage, setCurrentPage] = useState(initialPage);
     const [totalPages, setTotalPages] = useState(initialData?.totalPages || 1);
 
+    const [prevKeyword, setPrevKeyword] = useState(keyword);
+    if (keyword !== prevKeyword) {
+        setPrevKeyword(keyword);
+        setCurrentPage(1);
+        setMovies([]);
+        setIsLoading(true);
+        setIsPageLoading(false);
+    }
+
     const [categories, setCategories] = useState<MenuItem[]>(initialData?.categories || []);
     const [countries, setCountries] = useState<MenuItem[]>(initialData?.countries || []);
     const [activeFilters, setActiveFilters] = useState<FilterState>(initialFilters);
@@ -113,10 +122,15 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
                 setIsLoading(false);
                 setIsPageLoading(true);
             } else {
-                // Nếu chưa có trong cache, xóa dữ liệu cũ và hiện Skeleton ngay lập tức
+                // Nếu chưa có trong cache: Nếu là đổi trang thì hiện Skeleton (isPageLoading), nếu là từ khóa mới thì setIsLoading
                 setMovies([]);
-                setIsLoading(true);
-                setIsPageLoading(false);
+                if (currentPage > 1) {
+                    setIsPageLoading(true);
+                    setIsLoading(false);
+                } else {
+                    setIsLoading(true);
+                    setIsPageLoading(false);
+                }
             }
 
             try {
@@ -265,6 +279,7 @@ function SearchContent({ initialData }: { initialData?: CatalogInitialData }) {
             title={`Tìm kiếm phim: ${keyword}`}
             isLoading={isLoading}
             isPageLoading={isPageLoading}
+            loadingType={isLoading ? "spinner" : "skeleton"}
             movies={movies}
             currentPage={currentPage}
             totalPages={totalPages}

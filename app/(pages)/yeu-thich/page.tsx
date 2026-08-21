@@ -7,6 +7,7 @@ import { createClient } from "@/app/utils/supabase/client";
 import useSWR, { mutate } from "swr";
 import { useAuth } from "@/app/components/User/Auth/AuthContext";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
+import MovieCardSkeleton from "@/app/components/Movies/MovieCard/MovieCardSkeleton";
 import LoadingSpinner from "@/app/components/UI/Common/LoadingSpinner";
 import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
@@ -124,10 +125,12 @@ export default function FavoritesPage() {
       
       <div className="relative z-20 w-full px-4 xl:pl-[132px] xl:pr-8 -mt-24 py-2 space-y-0">
           {isLoading ? (
-          <div className="py-20 flex justify-center items-center">
-            <LoadingSpinner size="md" color="red" />
-          </div>
-        ) : favorites.length > 0 ? (
+            <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-x-3 gap-y-3">
+              {[...Array(16)].map((_, i) => (
+                <MovieCardSkeleton key={i} />
+              ))}
+            </div>
+          ) : favorites.length > 0 ? (
           <>
             <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-5 lg:grid-cols-6 xl:grid-cols-8 gap-x-3 gap-y-3">
               {favorites.slice(0, displayLimit).map((item) => (

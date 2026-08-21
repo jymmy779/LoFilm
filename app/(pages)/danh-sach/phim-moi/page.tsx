@@ -1,11 +1,10 @@
-import Loading from "@/app/loading";
 import { Metadata } from "next";
 import { Suspense } from "react";
 import NewMoviesClient from "./NewMoviesClient";
 import CatalogSkeleton from "@/app/components/Movies/MovieCatalog/CatalogSkeleton";
 import { fetchCatalogData } from "@/app/utils/serverFetch";
-
 import { getAbsoluteUrl } from "@/app/config/site";
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
@@ -24,13 +23,11 @@ export const metadata: Metadata = {
 
 export default function NewMoviesPage() {
     return (
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<CatalogSkeleton />}>
             <NewMoviesData />
         </Suspense>
     );
 }
-
-import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 async function NewMoviesData() {
     const initialData = await fetchCatalogData(

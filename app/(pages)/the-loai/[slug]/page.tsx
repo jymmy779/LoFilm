@@ -1,4 +1,3 @@
-import Loading from "@/app/loading";
 import { Metadata } from "next";
 import { notFound } from "next/navigation";
 import { getAbsoluteUrl } from "@/app/config/site";
@@ -53,7 +52,7 @@ export default async function CategoryPage({ params }: Props) {
     const { slug } = await params;
     
     return (
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<CatalogSkeleton />}>
             <CategoryData slug={slug} />
         </Suspense>
     );
@@ -91,4 +90,3 @@ async function CategoryData({ slug }: { slug: string }) {
         <CategoryClient slug={slug} title={`Danh sách phim ${categoryName}`} initialData={initialData} />
     );
 }
-

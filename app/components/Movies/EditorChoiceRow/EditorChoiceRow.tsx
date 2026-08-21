@@ -60,16 +60,6 @@ function EditorChoiceRow({
                             </h2>
                         </div>
                     </div>
-
-                    <TransitionLink
-                        href={viewAllLink || "/"}
-                        className="group/more flex items-center justify-center bg-[#0F1115] border border-amber-500/20 rounded-full h-8 w-8 lg:h-9 lg:w-9 transition-[width,border-color] duration-300 hover:border-amber-400/60 hover:w-[110px] lg:hover:w-[125px] overflow-hidden"
-                    >
-                        <span className="max-w-0 overflow-hidden whitespace-nowrap text-amber-300 text-[10px] lg:text-xs font-bold transition-[max-width,margin,opacity] duration-300 group-hover/more:max-w-[75px] group-hover/more:mr-1.5 leading-none opacity-0 group-hover/more:opacity-100">
-                            Xem thêm
-                        </span>
-                        <ChevronRight size={14} className="text-amber-300 transform transition-transform duration-300 group-hover/more:translate-x-0.5 flex-shrink-0" />
-                    </TransitionLink>
                 </div>
             </div>
 

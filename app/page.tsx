@@ -53,9 +53,11 @@ export async function generateMetadata(): Promise<Metadata> {
     };
 }
 
+import HomeSkeleton from "./HomeSkeleton";
+
 export default async function Home() {
     return (
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<HomeSkeleton />}>
             <HomeData />
         </Suspense>
     );

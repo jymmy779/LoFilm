@@ -1,7 +1,8 @@
-import Loading from "@/app/loading";
 import { Metadata } from "next";
 import { getAbsoluteUrl } from "@/app/config/site";
 import SearchClient from "@/app/SearchClient";
+import CatalogSkeleton from "@/app/components/Movies/MovieCatalog/CatalogSkeleton";
+import { Suspense } from "react";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,6 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     };
 }
 
-import { Suspense } from "react";
 import SearchLoading from "./loading";
 
 export default async function SearchPage({
@@ -39,7 +39,7 @@ export default async function SearchPage({
     const resolvedParams = await searchParams;
 
     return (
-        <Suspense fallback={<Loading />}>
+        <Suspense key={(resolvedParams.q as string) || "search-root"} fallback={<SearchLoading />}>
             <SearchData resolvedParams={resolvedParams} />
         </Suspense>
     );
@@ -65,5 +65,5 @@ async function SearchData({
         }
     );
 
-    return <SearchClient initialData={initialData} />;
+    return <SearchClient key={query} initialData={initialData} />;
 }

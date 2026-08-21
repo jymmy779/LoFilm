@@ -103,11 +103,24 @@ export default async function Footer() {
                             </p>
                             {(settings?.contact_telegram || settings?.contact_telegram_name) && (
                                 <p className="flex items-center gap-2 pt-2">
-                                    <span className="text-white/50">Liên hệ:</span>
-                                    <a href={settings.contact_telegram || "#"} target="_blank" rel="noopener noreferrer" className="group inline-flex items-center bg-white/5 px-2 py-1 rounded-[15px] border border-white/10 hover:border-white/20 transition-all duration-300">
-                                        <span className="text-white/60 group-hover:text-white transition-all duration-300 text-[12px] font-medium whitespace-nowrap">
+                                    <span className="text-white/50 text-[12px]">Liên hệ:</span>
+                                    <a
+                                        href={settings.contact_telegram || "#"}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="group relative inline-flex items-center gap-2 bg-white/5 hover:bg-[#D497FF]/10 px-3 py-1 rounded-full border border-white/10 hover:border-[#D497FF]/40 transition-all duration-300 overflow-hidden cursor-pointer shadow-sm"
+                                    >
+                                        {/* Tên liên hệ thật */}
+                                        <span className="text-white/70 group-hover:text-white transition-all duration-300 text-[12px] font-medium whitespace-nowrap">
                                             {settings.contact_telegram_name || '@ponpornsec'}
                                         </span>
+
+                                        {/* Lớp che Spoiler mềm mại */}
+                                        <div className="absolute inset-0 bg-[#161920] group-hover:opacity-0 group-hover:pointer-events-none transition-all duration-300 flex items-center justify-center px-3">
+                                            <span className="text-[10px] text-white/40 group-hover:text-transparent font-mono tracking-widest uppercase select-none">
+                                                ••••••••
+                                            </span>
+                                        </div>
                                     </a>
                                 </p>
                             )}

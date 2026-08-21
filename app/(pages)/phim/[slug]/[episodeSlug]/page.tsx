@@ -136,7 +136,7 @@ export default async function WatchPage({ params, searchParams }: Props) {
     const preview = resolvedParams.preview;
 
     return (
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<WatchLoading />}>
             <WatchData slug={slug} episodeSlug={episodeSlug} preview={preview} />
         </Suspense>
     );

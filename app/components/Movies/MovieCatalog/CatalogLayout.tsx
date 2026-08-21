@@ -8,7 +8,7 @@ import Pagination from "@/app/components/UI/Common/Pagination";
 import CatalogHeader from "@/app/components/Movies/MovieCatalog/CatalogHeader";
 import MovieFilter, { FilterState } from "@/app/components/Movies/MovieCatalog/MovieFilter";
 import { MenuItem } from "@/app/components/Layout/Header/types";
-
+import LoadingSpinner from "@/app/components/UI/Common/LoadingSpinner";
 import Sidebar from "@/app/components/Layout/Sidebar/Sidebar";
 
 
@@ -30,6 +30,7 @@ interface CatalogLayoutProps {
     isPageLoading?: boolean;
     hideSidebar?: boolean;
     hideFilter?: boolean;
+    loadingType?: 'skeleton' | 'spinner';
     sidebarProps?: {
         weeklyLimit?: number;
         seriesLimit?: number;
@@ -53,10 +54,11 @@ export default function CatalogLayout({
     isPageLoading = false,
     hideSidebar = false,
     hideFilter = false,
+    loadingType = 'skeleton',
     sidebarProps
 }: CatalogLayoutProps) {
     return (
-        <main className="pt-27 pb-12 min-h-screen">
+        <main className="pt-24 md:pt-28 pb-12 min-h-screen">
             <Container>
                 <div className="catalog-page">
                     <CatalogHeader title={title} />
@@ -79,16 +81,22 @@ export default function CatalogLayout({
                                 <div>
                                     <div className="w-full">
                                         {isLoading || isPageLoading ? (
-                                            <div
-                                                className={`grid gap-x-2.5 gap-y-6 sm:gap-x-3 sm:gap-y-8 md:gap-x-3.5 md:gap-y-10 ${hideSidebar
-                                                    ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7"
-                                                    : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
-                                                    }`}
-                                            >
-                                                {[...Array(21)].map((_, i) => (
-                                                    <MovieCardSkeleton key={i} />
-                                                ))}
-                                            </div>
+                                            loadingType === 'spinner' ? (
+                                                <div className="py-24 flex items-center justify-center min-h-[350px]">
+                                                    <LoadingSpinner size="lg" color="default" />
+                                                </div>
+                                            ) : (
+                                                <div
+                                                    className={`grid gap-x-2.5 gap-y-6 sm:gap-x-3 sm:gap-y-8 md:gap-x-3.5 md:gap-y-10 ${hideSidebar
+                                                        ? "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6 2xl:grid-cols-7"
+                                                        : "grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 xl:grid-cols-5 2xl:grid-cols-6"
+                                                        }`}
+                                                >
+                                                    {[...Array(21)].map((_, i) => (
+                                                        <MovieCardSkeleton key={i} />
+                                                    ))}
+                                                </div>
+                                            )
                                         ) : (
                                             <div key="content" className="animate-fade-in">
                                                 {movies.length > 0 ? (

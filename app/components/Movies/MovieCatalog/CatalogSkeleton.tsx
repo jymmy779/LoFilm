@@ -4,7 +4,7 @@ import Skeleton from "@/app/components/UI/Skeleton/Skeleton";
 
 export default function CatalogSkeleton({ hideSidebar = false }: { hideSidebar?: boolean }) {
     return (
-        <main className="pt-27pb-12 min-h-screen">
+        <main className="pt-24 md:pt-28 pb-12 min-h-screen">
             <Container>
                 <div className="catalog-page">
                     {/* Header */}
@@ -16,13 +16,9 @@ export default function CatalogSkeleton({ hideSidebar = false }: { hideSidebar?:
                         <div className="h-1 w-20 bg-white/5 rounded-full mt-2" />
                     </div>
 
-                    {/* Filter */}
-                    <div className="mb-8 p-4 bg-white/[0.02] rounded-2xl border border-white/5">
-                        <div className="flex flex-wrap gap-4">
-                            {[...Array(4)].map((_, i) => (
-                                <Skeleton key={i} className="w-[120px] h-9" rounded="full" />
-                            ))}
-                        </div>
+                    {/* Filter Button Skeleton */}
+                    <div className="mb-8">
+                        <Skeleton className="w-[110px] h-[42px]" rounded="full" />
                     </div>
 
                     <div className="flex flex-col lg:flex-row gap-8 lg:gap-10 mt-8">

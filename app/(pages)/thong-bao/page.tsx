@@ -8,7 +8,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { toast } from "react-hot-toast";
 import CommonModal from "@/app/components/UI/Modals/CommonModal";
-import LoadingSpinner from "@/app/components/UI/Common/LoadingSpinner";
+import NotificationLoading from "./loading";
 
 interface UnifiedNotification {
     id: string;
@@ -42,9 +42,14 @@ export default function NotificationsPage() {
                 const { data } = await supabase.auth.getUser();
                 if (data?.user) {
                     setUser(data.user);
+                    await fetchNotifications(1, data.user.id);
                 } else {
                     const { data: sessionData } = await supabase.auth.getSession();
-                    setUser(sessionData?.session?.user || null);
+                    const sessionUser = sessionData?.session?.user || null;
+                    setUser(sessionUser);
+                    if (sessionUser) {
+                        await fetchNotifications(1, sessionUser.id);
+                    }
                 }
             } catch (error) {
                 console.error('Lỗi khi kiểm tra đăng nhập:', error);
@@ -55,15 +60,19 @@ export default function NotificationsPage() {
         checkUser();
 
         const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-            setUser(session?.user || null);
-            setIsCheckingAuth(false);
+            const sessionUser = session?.user || null;
+            setUser(sessionUser);
+            if (!sessionUser) {
+                setIsCheckingAuth(false);
+            }
         });
 
         return () => subscription.unsubscribe();
     }, [supabase]);
 
-    const fetchNotifications = async (page: number) => {
-        if (!user?.id) return;
+    const fetchNotifications = async (page: number, userId?: string) => {
+        const targetUserId = userId || user?.id;
+        if (!targetUserId) return;
         setIsLoading(true);
 
         try {
@@ -89,7 +98,7 @@ export default function NotificationsPage() {
             const { data: userData, count } = await supabase
                 .from('user_notifications')
                 .select('*', { count: 'exact' })
-                .eq('user_id', user.id)
+                .eq('user_id', targetUserId)
                 .order('created_at', { ascending: false })
                 .range(from, to);
 
@@ -129,7 +138,7 @@ export default function NotificationsPage() {
                     supabase
                         .from('user_notifications')
                         .update({ is_read: true })
-                        .eq('user_id', user.id)
+                        .eq('user_id', targetUserId)
                         .eq('is_read', false)
                         .then(() => {
                             setNotifications(prev => prev.map(n => ({ ...n, is_read: true })));
@@ -281,13 +290,7 @@ export default function NotificationsPage() {
     };
 
     if (isCheckingAuth) {
-        return (
-            <div className="min-h-screen pt-24 pb-10 flex items-center justify-center w-full xl:w-[calc(100%+100px)] xl:-ml-[100px]">
-                <div className="py-20 text-center text-zinc-500 flex flex-col items-center">
-                    <LoadingSpinner size="md" color="default" className="mb-4" />
-                </div>
-            </div>
-        );
+        return <NotificationLoading />;
     }
 
     if (!user) {
@@ -327,9 +330,17 @@ export default function NotificationsPage() {
                 {/* Danh sách thông báo */}
                 <div className="bg-[#0F1115] border border-white/5 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl">
                     {isLoading ? (
-                        <div className="py-20 text-center text-zinc-500 flex flex-col items-center">
-                            <LoadingSpinner size="md" color="default" className="mb-4" />
-                            Đang tải thông báo...
+                        <div className="p-4 md:p-6 space-y-4">
+                            {[...Array(6)].map((_, i) => (
+                                <div key={i} className="flex gap-4 p-4 rounded-xl bg-white/[0.01] border border-white/5 animate-pulse">
+                                    <div className="w-10 h-10 rounded-full bg-white/10 shrink-0" />
+                                    <div className="flex-1 space-y-2.5">
+                                        <div className="h-4 w-40 bg-white/10 rounded" />
+                                        <div className="h-4 w-full bg-white/5 rounded" />
+                                        <div className="h-3 w-24 bg-white/5 rounded" />
+                                    </div>
+                                </div>
+                            ))}
                         </div>
                     ) : notifications.length > 0 ? (
                         <div className="divide-y divide-white/5">

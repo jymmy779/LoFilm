@@ -1,5 +1,5 @@
 import CatalogSkeleton from "@/app/components/Movies/MovieCatalog/CatalogSkeleton";
 
-export default function RootLoading() {
+export default function ActorLoading() {
     return <CatalogSkeleton />;
 }
