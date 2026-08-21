@@ -11,11 +11,13 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: 'URL parameter is missing' }, { status: 400 });
   }
 
-  // Tự động chuyển hướng từ phimapi.com sang Backend nội bộ
-  if (targetUrl.startsWith('https://phimapi.com/v1/api') || targetUrl.startsWith('https://phimapi.com')) {
-    targetUrl = targetUrl
-      .replace('https://phimapi.com/v1/api', INTERNAL_API_URL)
-      .replace('https://phimapi.com', INTERNAL_API_URL);
+  // Tự động chuyển hướng từ phimapi.com sang Backend nội bộ nếu có
+  if (!INTERNAL_API_URL.includes('phimapi.com')) {
+    if (targetUrl.startsWith('https://phimapi.com/v1/api')) {
+      targetUrl = targetUrl.replace('https://phimapi.com/v1/api', INTERNAL_API_URL);
+    } else if (targetUrl.startsWith('https://phimapi.com')) {
+      targetUrl = targetUrl.replace('https://phimapi.com', INTERNAL_API_URL);
+    }
   }
 
   try {

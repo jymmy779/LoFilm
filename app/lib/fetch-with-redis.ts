@@ -1,6 +1,7 @@
 import { cache } from 'react';
 import Redis from 'ioredis';
 import axios from 'axios';
+import { mapToPhimApiUrl } from '@/app/utils/apiConfig';
 
 const DEFAULT_REVALIDATE_SEC = 60;
 
@@ -127,12 +128,7 @@ export const fetchWithRedis = cache(async (url: string, options?: RequestInit & 
       // Fallback: Nếu gọi Backend nội bộ thất bại, tự động thử lại với KKPhim API trực tiếp
       if (url.includes('localhost:5000') || url.includes('127.0.0.1:5000') || url.includes('/api/v1')) {
         try {
-          const fallbackUrl = url
-            .replace(/http:\/\/127\.0\.0\.1:5000\/api\/v1/g, 'https://phimapi.com/v1/api')
-            .replace(/http:\/\/localhost:5000\/api\/v1/g, 'https://phimapi.com/v1/api')
-            .replace(/http:\/\/127\.0\.0\.1:5000\/v1\/api/g, 'https://phimapi.com/v1/api')
-            .replace(/http:\/\/localhost:5000\/v1\/api/g, 'https://phimapi.com/v1/api')
-            .replace('https://phimapi.com/v1/api/phim/', 'https://phimapi.com/phim/');
+          const fallbackUrl = mapToPhimApiUrl(url);
 
           const fbResponse = await axios.get(fallbackUrl, {
             timeout: 5000,

@@ -37,12 +37,14 @@ export async function fetchCatalogData(
     }
 ): Promise<CatalogInitialData> {
     try {
-        // Chuẩn hóa URL sang Backend nội bộ nếu đang trỏ tới phimapi.com
+        // Chuẩn hóa URL sang Backend nội bộ nếu đang trỏ tới phimapi.com và có backend nội bộ riêng
         let targetApiUrl = apiUrl;
-        if (targetApiUrl.startsWith("https://phimapi.com/v1/api") || targetApiUrl.startsWith("https://phimapi.com")) {
-            targetApiUrl = targetApiUrl
-                .replace("https://phimapi.com/v1/api", INTERNAL_API_URL)
-                .replace("https://phimapi.com", INTERNAL_API_URL);
+        if (!INTERNAL_API_URL.includes("phimapi.com")) {
+            if (targetApiUrl.startsWith("https://phimapi.com/v1/api")) {
+                targetApiUrl = targetApiUrl.replace("https://phimapi.com/v1/api", INTERNAL_API_URL);
+            } else if (targetApiUrl.startsWith("https://phimapi.com")) {
+                targetApiUrl = targetApiUrl.replace("https://phimapi.com", INTERNAL_API_URL);
+            }
         }
 
         // Build URL with params
