@@ -1,11 +1,10 @@
-import Loading from "@/app/loading";
 import { Metadata } from "next";
 import { Suspense } from "react";
 import AnimeClient from "./AnimeClient";
 import CatalogSkeleton from "@/app/components/Movies/MovieCatalog/CatalogSkeleton";
 import { fetchCatalogData } from "@/app/utils/serverFetch";
-
 import { getAbsoluteUrl } from "@/app/config/site";
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
@@ -34,13 +33,11 @@ export default async function AnimePage({ searchParams }: { searchParams: Promis
     const isAnime = params.country === 'nhat-ban';
     
     return (
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<CatalogSkeleton />}>
             <AnimeData isAnime={isAnime} />
         </Suspense>
     );
 }
-
-import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 async function AnimeData({ isAnime }: { isAnime: boolean }) {
     const initialData = await fetchCatalogData(
@@ -54,4 +51,3 @@ async function AnimeData({ isAnime }: { isAnime: boolean }) {
 
     return <AnimeClient initialData={initialData} />;
 }
-

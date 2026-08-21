@@ -205,15 +205,15 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
                         value={searchKeyword}
                         onChange={(e) => setSearchKeyword(e.target.value)}
                         placeholder="Nhập tên phim cần tìm (VD: Mai, Đào Phở...)"
-                        className="flex-1 bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-amber-500 border border-white/10"
+                        className="flex-1 bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-amber-500 border border-white/10 min-w-0"
                     />
                     <button
                         type="submit"
                         disabled={isSearching}
-                        className="bg-amber-500 hover:bg-amber-600 text-[#0F1115] px-6 py-2 rounded font-bold transition-colors disabled:opacity-50"
+                        className="bg-amber-500 hover:bg-amber-600 text-[#0F1115] px-4 sm:px-6 py-2 rounded font-bold transition-colors disabled:opacity-50 shrink-0 whitespace-nowrap flex items-center justify-center gap-2"
                     >
                         {isSearching ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-search"></i>}
-                        Tìm kiếm
+                        <span className="hidden sm:inline">Tìm kiếm</span>
                     </button>
                 </form>
 
@@ -260,8 +260,8 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
 
             {/* List Section */}
             <div className="bg-[#0F1115] rounded-lg p-6 border border-white/5">
-                <div className="flex justify-between items-end mb-4">
-                    <h3 className="text-xl font-semibold">Phim đang được ưu tiên ({starredMovies.length}/8)</h3>
+                <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-4">
+                    <h3 className="text-xl font-semibold leading-tight">Phim đang được ưu tiên ({starredMovies.length}/8)</h3>
                     <p className="text-sm text-white/50">Phim hết hạn sẽ tự động biến mất</p>
                 </div>
                 
@@ -270,13 +270,13 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
                         Chưa có phim nào được đánh dấu.
                     </div>
                 ) : (
-                    <div className="space-y-3">
+                    <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2 custom-scrollbar">
                         {starredMovies.map((movie) => (
-                            <div key={movie.id} className="flex items-center gap-4 bg-[#0F1115] p-3 rounded-lg border border-white/5">
+                            <div key={movie.id} className="flex flex-col sm:flex-row sm:items-center gap-4 bg-[#0F1115] p-3 rounded-lg border border-white/5">
 
                                 <div className="flex-1 min-w-0">
                                     <p className="font-medium truncate text-amber-400">{movie.name}</p>
-                                    <div className="text-xs text-white/50 truncate flex items-center gap-2 mt-1">
+                                    <div className="text-xs text-white/50 truncate flex flex-wrap items-center gap-2 mt-1">
                                         <span>Hết hạn: {movie.expires_at ? new Date(movie.expires_at).toLocaleDateString('vi-VN') : 'Vô hạn'}</span>
                                         {movie.expires_at && (
                                             <span className="bg-amber-500/20 text-amber-400 px-1.5 py-0.5 rounded text-[10px] font-medium">
@@ -285,8 +285,8 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
                                         )}
                                     </div>
                                 </div>
-                                    <div className="flex items-center gap-2 shrink-0">
-                                        <div className="flex flex-col gap-1 mr-2">
+                                <div className="flex items-center gap-2 flex-wrap sm:flex-nowrap shrink-0 border-t sm:border-t-0 border-white/5 pt-3 sm:pt-0">
+                                        <div className="flex flex-col gap-1 mr-1 sm:mr-2">
                                             <button onClick={() => handleMovePriority(movie.id, movie.priority, 'up')} className="text-white/40 hover:text-white p-1" title="Tăng ưu tiên (Lên trên)">
                                                 <i className="fa-solid fa-chevron-up"></i>
                                             </button>
@@ -296,7 +296,7 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
                                         </div>
                                         <button 
                                             onClick={() => handleManualEditPriority(movie)}
-                                            className="text-xs bg-black/40 hover:bg-black/60 transition-colors px-2 py-1 flex items-center gap-1.5 rounded text-white/70 mr-2" 
+                                            className="text-xs bg-black/40 hover:bg-black/60 transition-colors px-2 py-1 flex items-center gap-1.5 rounded text-white/70 mr-1 sm:mr-2 shrink-0" 
                                             title="Bấm để sửa vị trí"
                                         >
                                             Vị trí: {movie.priority}
@@ -304,7 +304,7 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
                                         </button>
                                         <button
                                             onClick={() => handleEditExpiry(movie)}
-                                            className="text-xs bg-black/40 hover:bg-black/60 transition-colors px-2 py-1 flex items-center gap-1.5 rounded text-white/70 mr-2"
+                                            className="text-xs bg-black/40 hover:bg-black/60 transition-colors px-2 py-1 flex items-center gap-1.5 rounded text-white/70 mr-1 sm:mr-2 shrink-0"
                                             title="Bấm để sửa thời gian hết hạn"
                                         >
                                             {movie.expires_at
@@ -315,7 +315,7 @@ export default function HeroSliderTab({ initialStarredMovies }: { initialStarred
                                         <button
                                             onClick={() => handleRemove(movie.id)}
                                             disabled={isPending}
-                                        className="text-red-400 hover:text-red-300 bg-red-400/10 hover:bg-red-400/20 p-2 rounded transition"
+                                        className="text-red-400 hover:text-red-300 bg-red-400/10 hover:bg-red-400/20 p-2 rounded transition ml-auto sm:ml-0"
                                         title="Bỏ đánh dấu"
                                     >
                                         <i className="fa-solid fa-times"></i>

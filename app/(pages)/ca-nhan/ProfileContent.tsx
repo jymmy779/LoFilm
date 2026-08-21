@@ -52,7 +52,7 @@ export default function ProfileContent() {
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
-  
+
   const supabase = createClient();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -636,7 +636,7 @@ export default function ProfileContent() {
 
         {/* Nút Upload Cover Image (Chỉ hiện khi isEditMode = true) */}
         {isEditMode && (
-          <label className="absolute top-1/3 md:top-1/4 right-4 md:right-8 -translate-y-1/2 z-20 cursor-pointer flex items-center gap-2 rounded-full bg-black/50 px-4 py-2 text-sm font-medium text-white hover:bg-black/70 transition-all backdrop-blur-md border border-white/10">
+          <label className="absolute top-1/3 md:top-1/4 right-4 md:right-8 -translate-y-1/2 z-20 cursor-pointer flex items-center gap-2 rounded-full bg-black/80 px-4 py-2 text-sm font-medium text-white hover:bg-black/90 transition-all border border-white/20 shadow-lg">
             {isUpdatingCover ? (
               <>
                 <LoadingSpinner size="xs" color="white" />
@@ -664,7 +664,7 @@ export default function ProfileContent() {
           {/* Profile Header (Avatar, Name, Actions) */}
           <div className="flex flex-col md:flex-row items-center md:items-end gap-6 md:gap-8">
             <div className="relative group flex-shrink-0">
-              <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-amber-400 via-orange-500 to-rose-600 opacity-70 blur-sm group-hover:opacity-100 transition-opacity duration-300"></div>
+              <div className="absolute -inset-1 rounded-full bg-gradient-to-br from-amber-400 via-orange-500 to-rose-600 opacity-70 group-hover:opacity-100 shadow-[0_0_15px_rgba(249,115,22,0.5)] transition-all duration-300"></div>
               <div className="relative h-36 w-36 md:h-44 md:w-44 rounded-full border-4 border-[#0a0a0f] bg-zinc-900 overflow-hidden shadow-2xl flex items-center justify-center text-5xl font-bold text-zinc-500">
                 {isUpdatingAvatar ? (
                   <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-[#0a0a0f]/80 z-[15]">
@@ -715,7 +715,7 @@ export default function ProfileContent() {
                 <>
                   <button
                     onClick={handleCancelChanges}
-                    className="flex items-center gap-2 px-5 py-2.5 rounded-full backdrop-blur-sm border text-sm font-semibold transition-all cursor-pointer bg-white/10 hover:bg-white/20 border-white/10 text-white"
+                    className="flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-semibold transition-all cursor-pointer bg-white/10 hover:bg-white/20 border-white/10 text-white"
                   >
                     Hủy
                   </button>
@@ -735,7 +735,7 @@ export default function ProfileContent() {
                     setIsEditMode(true);
                     setActiveTab('overview');
                   }}
-                  className="flex items-center gap-2 px-5 py-2.5 rounded-full backdrop-blur-sm border text-sm font-semibold transition-all cursor-pointer bg-white/10 hover:bg-white/20 border-white/10 text-white"
+                  className="flex items-center gap-2 px-5 py-2.5 rounded-full border text-sm font-semibold transition-all cursor-pointer bg-white/10 hover:bg-white/20 border-white/10 text-white"
                 >
                   <User size={16} /> Chỉnh sửa
                 </button>

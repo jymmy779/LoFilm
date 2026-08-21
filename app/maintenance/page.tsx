@@ -42,9 +42,9 @@ export default function MaintenancePage() {
   return (
     <div className="fixed inset-0 z-[9999] bg-[#0f1115] w-full h-[100dvh] flex items-center justify-center overflow-hidden touch-none">
       {/* Background Cinematic Effects */}
-      <div className="absolute inset-0 z-0">
-        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[#D497FF]/20 rounded-full blur-[120px]" />
-        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-red-600/10 rounded-full blur-[120px]" />
+      <div className="absolute inset-0 z-0 pointer-events-none">
+        <div className="absolute top-[-10%] left-[-10%] w-[60%] h-[60%] bg-[radial-gradient(circle_at_center,rgba(212,151,255,0.15)_0%,transparent_70%)] rounded-full" />
+        <div className="absolute bottom-[-10%] right-[-10%] w-[60%] h-[60%] bg-[radial-gradient(circle_at_center,rgba(220,38,38,0.08)_0%,transparent_70%)] rounded-full" />
       </div>
 
       <div
@@ -53,7 +53,7 @@ export default function MaintenancePage() {
         {/* Logo/Icon Area */}
         <div className="relative mb-8 md:mb-12 flex justify-center">
           <div
-            className="p-6 md:p-8 rounded-2xl md:rounded-3xl bg-white/5 border border-white/10 backdrop-blur-2xl shadow-2xl relative overflow-hidden animate-pulse"
+            className="p-6 md:p-8 rounded-2xl md:rounded-3xl bg-[#0F1115] border border-white/10 shadow-2xl relative overflow-hidden animate-pulse"
           >
             {/* Glow overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-[#D497FF]/10 to-transparent pointer-events-none" />
@@ -63,16 +63,16 @@ export default function MaintenancePage() {
 
           {/* Floating extra elements */}
           <div
-            className="absolute -top-2 -right-1 md:-top-4 md:-right-2 p-2 md:p-3 rounded-full bg-[#D497FF]/20 backdrop-blur-md border border-[#D497FF]/30 animate-bounce"
+            className="absolute -top-2 -right-1 md:-top-4 md:-right-2 p-2 md:p-3 rounded-full bg-[#D497FF]/20 border border-[#D497FF]/30 shadow-lg animate-bounce"
           >
             <Sparkles className="w-4 h-4 md:w-5 md:h-5 text-[#D497FF]" />
           </div>
 
           <div
-            className="absolute -bottom-2 -left-1 md:-bottom-4 md:-left-2 p-2 md:p-3 rounded-full bg-white/5 backdrop-blur-md border border-white/10 animate-bounce"
+            className="absolute -bottom-2 -left-1 md:-bottom-4 md:-left-2 p-2 md:p-3 rounded-full bg-white/10 border border-white/15 shadow-lg animate-bounce"
             style={{ animationDelay: '0.5s' }}
           >
-            <Clock className="w-4 h-4 md:w-5 md:h-5 text-white/60" />
+            <Clock className="w-4 h-4 md:w-5 md:h-5 text-white/80" />
           </div>
         </div>
 

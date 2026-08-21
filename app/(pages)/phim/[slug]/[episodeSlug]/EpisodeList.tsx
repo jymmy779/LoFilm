@@ -221,11 +221,10 @@ const EpisodeList = ({
                   setActiveRangeIndex(0);
                   setSearchQuery("");
                 }}
-                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer whitespace-nowrap border ${
-                  isServerActive
-                    ? "bg-[#D497FF] border-[#D497FF] text-black shadow-[0_0_15px_rgba(212,151,255,0.3)] scale-102"
-                    : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10 hover:text-white"
-                }`}
+                className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold tracking-wide transition-all cursor-pointer whitespace-nowrap border ${isServerActive
+                  ? "bg-[#D497FF] border-[#D497FF] text-black shadow-[0_0_15px_rgba(212,151,255,0.3)] scale-102"
+                  : "bg-white/5 text-white/60 border-white/10 hover:bg-white/10 hover:text-white"
+                  }`}
               >
                 <Server size={13} />
                 <span>{cleanName}</span>
@@ -237,7 +236,7 @@ const EpisodeList = ({
 
       {/* Latest Episode Alert Link */}
       {latestEpisode && !searchQuery.trim() && (
-        <div className="mb-4 px-3.5 py-2.5 rounded-xl bg-white/[0.03] border border-white/5 flex items-center justify-between text-xs sm:text-sm text-white/60">
+        <div className="mb-4 px-3.5 py-2.5 rounded-xl bg-white/[0.03] border border-white/5 inline-block text-xs sm:text-sm text-white/60">
           <div className="flex items-center gap-2 truncate">
             <span className="text-[#D497FF]">⚡</span>
             <span>Xem tập mới nhất:</span>
@@ -258,11 +257,10 @@ const EpisodeList = ({
             <button
               key={idx}
               onClick={() => setActiveRangeIndex(idx)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${
-                activeRangeIndex === idx
-                  ? 'bg-[#D497FF]/20 text-[#D497FF] border-[#D497FF]/50 shadow-sm'
-                  : 'bg-white/5 text-white/60 border-white/10 hover:bg-white/10 hover:text-white'
-              }`}
+              className={`px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all cursor-pointer border ${activeRangeIndex === idx
+                ? 'bg-[#D497FF]/20 text-[#D497FF] border-[#D497FF]/50 shadow-sm'
+                : 'bg-white/5 text-white/60 border-white/10 hover:bg-white/10 hover:text-white'
+                }`}
             >
               {range.label}
             </button>

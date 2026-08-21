@@ -318,9 +318,11 @@ export default function HeroSlider({ initialMovies }: HeroSliderProps) {
                             </TransitionLink>
 
                             {/* Favorite Button */}
-                            <div className="h-10 sm:h-12 w-10 sm:w-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center transition-all">
-                                <FavoriteButton movie={currentMovie} iconSize={18} />
-                            </div>
+                            <FavoriteButton
+                                movie={currentMovie}
+                                iconSize={18}
+                                className="h-10 sm:h-12 w-10 sm:w-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center text-white/80 hover:text-white transition-all cursor-pointer"
+                            />
                         </div>
 
                     </div>

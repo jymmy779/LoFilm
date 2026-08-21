@@ -123,7 +123,7 @@ export default function Header() {
 
     return (
         <>
-            <header className={`w-full fixed top-0 left-0 z-[100] py-2 xl:px-5 [@supports(-webkit-touch-callout:none)]:pt-[max(env(safe-area-inset-top),12px)] border-none ${isMenuOpen ? "" : "transition-all duration-300"} border-b ${showBackground ? "bg-[#0F1115]/90 backdrop-blur-md" : "bg-transparent border-transparent"}`}>
+            <header className={`w-full fixed top-0 left-0 z-[100] py-2 xl:px-5 [@supports(-webkit-touch-callout:none)]:pt-[max(env(safe-area-inset-top),12px)] border-none ${isMenuOpen ? "" : "transition-all duration-300"} border-b ${showBackground ? "bg-[#0F1115]/95 border-white/10 shadow-[0_4px_24px_rgba(0,0,0,0.6)]" : "bg-transparent border-transparent"}`}>
                 <div className="flex items-center justify-between h-[54px] md:h-[64px] w-full max-w-[1900px] mx-auto px-4 xl:px-0 gap-4 md:gap-8">
                     <div className="flex xl:hidden items-center justify-between w-full h-full gap-3">
                         <div className="relative flex-1 h-full flex items-center">

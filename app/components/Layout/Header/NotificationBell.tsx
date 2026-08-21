@@ -145,7 +145,7 @@ export default function NotificationBell() {
         setIsOpen(!isOpen);
         if (!isOpen && notifications.length > 0) {
             setHasNew(false);
-            
+
             // Mark system as read in localStorage
             const systemNotifs = notifications.filter(n => n.type === 'system');
             if (systemNotifs.length > 0) {
@@ -161,7 +161,7 @@ export default function NotificationBell() {
                         .update({ is_read: true })
                         .eq('user_id', userId)
                         .eq('is_read', false);
-                    
+
                     setNotifications(prev => prev.map(n => n.type !== 'system' ? { ...n, is_read: true } : n));
                 }
             }
@@ -249,11 +249,10 @@ export default function NotificationBell() {
             </button>
 
             <div
-                className={`absolute right-[-10px] md:right-0 mt-3 w-[280px] sm:w-[320px] md:w-[360px] lg:w-[420px] xl:w-[460px] bg-[#0F1115] border border-white/10 rounded-2xl overflow-hidden z-[100] transition-all duration-200 origin-top-right shadow-xl ${
-                    isOpen
+                className={`absolute right-[-10px] md:right-0 mt-3 w-[280px] sm:w-[320px] md:w-[360px] lg:w-[420px] xl:w-[460px] bg-[#0F1115] border border-white/10 rounded-2xl overflow-hidden z-[100] transition-all duration-200 origin-top-right shadow-xl ${isOpen
                     ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
                     : "opacity-0 translate-y-2 scale-[0.98] pointer-events-none"
-                }`}
+                    }`}
             >
                 <div className="px-4 py-3 md:px-5 md:py-4 lg:py-5 border-b border-white/5 bg-white/5 flex justify-between items-center">
                     <h3 className="text-[13px] md:text-[15px] lg:text-base font-bold text-white flex items-center gap-2">
@@ -266,15 +265,15 @@ export default function NotificationBell() {
                         <div className="divide-y divide-white/5">
                             {notifications.map((notif) => {
                                 const isTargetPage = notif.movie_slug && pathname === `/phim/${notif.movie_slug}`;
-                                const targetUrl = notif.type !== 'system' && notif.movie_slug 
-                                    ? `/phim/${notif.movie_slug}${notif.comment_id ? `#comment-${notif.comment_id}` : ''}` 
+                                const targetUrl = notif.type !== 'system' && notif.movie_slug
+                                    ? `/phim/${notif.movie_slug}${notif.comment_id ? `#comment-${notif.comment_id}` : ''}`
                                     : '#';
-                                    
+
                                 const Wrapper = (notif.type !== 'system' && notif.movie_slug ? Link : "div") as any;
-                                
+
                                 const handleNotifClick = (e: React.MouseEvent) => {
                                     setIsOpen(false);
-                                    
+
                                     // Đánh dấu đã đọc nếu chưa đọc
                                     if (notif.type !== 'system' && !notif.is_read && userId) {
                                         supabase
@@ -283,7 +282,7 @@ export default function NotificationBell() {
                                             .eq('id', notif.id)
                                             .eq('user_id', userId)
                                             .then(() => {
-                                                setNotifications(prev => prev.map(n => 
+                                                setNotifications(prev => prev.map(n =>
                                                     n.id === notif.id ? { ...n, is_read: true } : n
                                                 ));
                                                 // Kiểm tra lại xem còn thông báo nào chưa đọc không
@@ -310,17 +309,16 @@ export default function NotificationBell() {
                                     }
                                 };
 
-                                const wrapperProps = notif.type !== 'system' && notif.movie_slug 
-                                    ? { href: targetUrl, onClick: handleNotifClick } 
+                                const wrapperProps = notif.type !== 'system' && notif.movie_slug
+                                    ? { href: targetUrl, onClick: handleNotifClick }
                                     : {};
 
                                 return (
                                     <Wrapper
                                         key={notif.id}
                                         {...wrapperProps}
-                                        className={`flex gap-3 p-3 md:p-4 hover:bg-white/5 transition-colors group ${
-                                            notif.type !== 'system' && !notif.is_read ? 'bg-[#D497FF]/5' : ''
-                                        } ${notif.type !== 'system' && notif.movie_slug ? 'cursor-pointer' : 'cursor-default'}`}
+                                        className={`flex gap-3 p-3 md:p-4 hover:bg-white/5 transition-colors group ${notif.type !== 'system' && !notif.is_read ? 'bg-[#D497FF]/5' : ''
+                                            } ${notif.type !== 'system' && notif.movie_slug ? 'cursor-pointer' : 'cursor-default'}`}
                                     >
                                         <div className="shrink-0 mt-0.5 relative">
                                             {notif.type === 'system' ? (
@@ -373,10 +371,10 @@ export default function NotificationBell() {
                     )}
                 </div>
 
-                <Link 
-                    href="/thong-bao" 
+                <Link
+                    href="/thong-bao"
                     onClick={() => setIsOpen(false)}
-                    className="block w-full py-2.5 md:py-3 border-t border-white/5 bg-[#0a0a0f] hover:bg-white/5 text-[11px] md:text-xs text-white/50 hover:text-white transition-all text-center font-medium"
+                    className="block w-full py-2.5 md:py-3 border-t border-white/5 bg-[#12151C]/60 hover:bg-white/5 text-[11px] md:text-xs text-white/50 hover:text-white transition-all text-center font-medium"
                 >
                     Xem tất cả
                 </Link>

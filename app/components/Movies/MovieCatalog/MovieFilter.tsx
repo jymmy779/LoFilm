@@ -50,20 +50,19 @@ const DropdownSelect = React.memo(({ label, value, options, onChange, placeholde
 
     return (
         <div ref={dropdownRef} className="relative select-none flex-grow sm:flex-grow-0 min-w-[140px]">
-            <div 
-                onClick={() => setIsOpen(!isOpen)} 
-                className={`flex items-center justify-between gap-2 bg-[#0F1115]/80 hover:bg-white/5 border text-xs md:text-sm rounded-xl px-4 py-2.5 cursor-pointer transition-all duration-200 ${
-                    isOpen ? 'border-[#D497FF] shadow-[0_0_10px_rgba(212,151,255,0.1)]' : 'border-white/10'
-                }`}
+            <div
+                onClick={() => setIsOpen(!isOpen)}
+                className={`flex items-center justify-between gap-2 bg-[#0F1115]/80 hover:bg-white/5 border text-xs md:text-sm rounded-xl px-4 py-2.5 cursor-pointer transition-all duration-200 ${isOpen ? 'border-[#D497FF] shadow-[0_0_10px_rgba(212,151,255,0.1)]' : 'border-white/10'
+                    }`}
             >
                 <div className="flex items-center gap-1.5 overflow-hidden">
                     <span className="text-white/40 shrink-0">{label}</span>
                     <span className="text-white font-medium truncate">{displayLabel}</span>
                 </div>
-                <svg 
+                <svg
                     className={`w-3 h-3 text-white/40 shrink-0 transition-transform duration-300 ${isOpen ? 'rotate-180 text-[#D497FF]' : ''}`}
-                    fill="none" 
-                    stroke="currentColor" 
+                    fill="none"
+                    stroke="currentColor"
                     viewBox="0 0 24 24"
                 >
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 9l-7 7-7-7" />
@@ -82,11 +81,10 @@ const DropdownSelect = React.memo(({ label, value, options, onChange, placeholde
                                     onChange(opt.value);
                                     setIsOpen(false);
                                 }}
-                                className={`px-3 py-2 text-xs md:text-sm rounded-lg transition-colors cursor-pointer ${
-                                    isActive 
-                                    ? "bg-[#D497FF] text-black font-bold" 
+                                className={`px-3 py-2 text-xs md:text-sm rounded-lg transition-colors cursor-pointer ${isActive
+                                    ? "bg-[#D497FF] text-black font-bold"
                                     : "text-white/70 hover:bg-white/5 hover:text-white"
-                                }`}
+                                    }`}
                             >
                                 {opt.label}
                             </div>
@@ -252,60 +250,60 @@ export default function MovieFilter({
             >
                 <div className="overflow-hidden bg-[#0F1115] border border-white/10 rounded-3xl">
                     <div className="p-5 md:p-8 space-y-6">
-                        
+
                         {/* TIÊU CHÍ LỌC */}
                         <div>
                             <h3 className="text-white/40 text-[11px] md:text-xs font-bold uppercase tracking-widest mb-3">Tiêu chí lọc</h3>
                             <div className="flex flex-wrap gap-3">
-                                <DropdownSelect 
-                                    label="Chủ đề" 
-                                    value={filters.category} 
-                                    options={categoryOptions} 
-                                    onChange={(val) => handleSelect("category", val)} 
+                                <DropdownSelect
+                                    label="Chủ đề"
+                                    value={filters.category}
+                                    options={categoryOptions}
+                                    onChange={(val) => handleSelect("category", val)}
                                 />
-                                <DropdownSelect 
-                                    label="Quốc gia" 
-                                    value={filters.country} 
-                                    options={countryOptions} 
-                                    onChange={(val) => handleSelect("country", val)} 
+                                <DropdownSelect
+                                    label="Quốc gia"
+                                    value={filters.country}
+                                    options={countryOptions}
+                                    onChange={(val) => handleSelect("country", val)}
                                 />
                                 {filters.type !== "single" && (
-                                    <DropdownSelect 
-                                        label="Trạng thái" 
-                                        value={filters.status} 
-                                        options={statusOptions} 
-                                        onChange={(val) => handleSelect("status", val)} 
+                                    <DropdownSelect
+                                        label="Trạng thái"
+                                        value={filters.status}
+                                        options={statusOptions}
+                                        onChange={(val) => handleSelect("status", val)}
                                     />
                                 )}
-                                <DropdownSelect 
-                                    label="Năm" 
-                                    value={filters.year} 
-                                    options={yearOptions} 
-                                    onChange={(val) => handleSelect("year", val)} 
+                                <DropdownSelect
+                                    label="Năm"
+                                    value={filters.year}
+                                    options={yearOptions}
+                                    onChange={(val) => handleSelect("year", val)}
                                 />
-                                <DropdownSelect 
-                                    label="Ngôn ngữ" 
-                                    value={filters.lang} 
-                                    options={langOptions} 
-                                    onChange={(val) => handleSelect("lang", val)} 
+                                <DropdownSelect
+                                    label="Ngôn ngữ"
+                                    value={filters.lang}
+                                    options={langOptions}
+                                    onChange={(val) => handleSelect("lang", val)}
                                 />
-                                <DropdownSelect 
-                                    label="Sắp xếp" 
-                                    value={filters.sort} 
-                                    options={sortOptions} 
-                                    onChange={(val) => handleSelect("sort", val)} 
+                                <DropdownSelect
+                                    label="Sắp xếp"
+                                    value={filters.sort}
+                                    options={sortOptions}
+                                    onChange={(val) => handleSelect("sort", val)}
                                 />
-                                <DropdownSelect 
-                                    label="Thứ tự" 
-                                    value={filters.sortType} 
-                                    options={sortTypeOptions} 
-                                    onChange={(val) => handleSelect("sortType", val)} 
+                                <DropdownSelect
+                                    label="Thứ tự"
+                                    value={filters.sortType}
+                                    options={sortTypeOptions}
+                                    onChange={(val) => handleSelect("sortType", val)}
                                 />
-                                <DropdownSelect 
-                                    label="Loại phim" 
-                                    value={filters.type} 
-                                    options={typeOptions} 
-                                    onChange={(val) => handleSelect("type", val)} 
+                                <DropdownSelect
+                                    label="Loại phim"
+                                    value={filters.type}
+                                    options={typeOptions}
+                                    onChange={(val) => handleSelect("type", val)}
                                 />
                             </div>
                         </div>
@@ -321,13 +319,11 @@ export default function MovieFilter({
                                         <button
                                             key={letter}
                                             onClick={() => handleSelect("letter", letter)}
-                                            className={`h-8 rounded-lg flex items-center justify-center text-xs font-semibold uppercase tracking-wider transition-all duration-200 cursor-pointer border ${
-                                                isSpecial ? "px-3" : "w-8"
-                                            } ${
-                                                isActive
-                                                ? "bg-[#D497FF] border-[#D497FF] text-black"
-                                                : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-[#D497FF]/30"
-                                            }`}
+                                            className={`h-8 rounded-lg flex items-center justify-center text-xs font-semibold uppercase tracking-wider transition-all duration-200 cursor-pointer border ${isSpecial ? "px-3" : "w-8"
+                                                } ${isActive
+                                                    ? "bg-[#D497FF] border-[#D497FF] text-black"
+                                                    : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-[#D497FF]/30"
+                                                }`}
                                         >
                                             {letter}
                                         </button>
@@ -342,11 +338,10 @@ export default function MovieFilter({
                             <div className="flex flex-wrap gap-2">
                                 <button
                                     onClick={() => handleSelect("category", "")}
-                                    className={`px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 cursor-pointer ${
-                                        filters.category === ""
+                                    className={`px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 cursor-pointer ${filters.category === ""
                                         ? "bg-[#D497FF] border-[#D497FF] text-black font-bold"
                                         : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-[#D497FF]/30"
-                                    }`}
+                                        }`}
                                 >
                                     Tất cả
                                 </button>
@@ -357,11 +352,10 @@ export default function MovieFilter({
                                         <button
                                             key={val}
                                             onClick={() => handleSelect("category", val)}
-                                            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 cursor-pointer ${
-                                                isActive
+                                            className={`px-3.5 py-1.5 rounded-lg text-xs font-medium border transition-all duration-200 cursor-pointer ${isActive
                                                 ? "bg-[#D497FF] border-[#D497FF] text-black font-bold"
                                                 : "bg-white/5 border-white/10 text-white/60 hover:text-white hover:bg-white/10 hover:border-[#D497FF]/30"
-                                            }`}
+                                                }`}
                                         >
                                             {c.name}
                                         </button>
@@ -376,10 +370,7 @@ export default function MovieFilter({
                                 onClick={handleApply}
                                 className="md:px-7 px-5 py-2.5 md:py-3 rounded-full bg-[#D497FF] text-black font-bold text-xs md:text-sm flex items-center gap-2 hover:opacity-90 transition-opacity cursor-pointer shadow-lg shadow-[0_0_15px_rgba(212,151,255,0.4)]"
                             >
-                                <span>Tìm Kiếm</span>
-                                <svg stroke="currentColor" fill="currentColor" strokeWidth="0" viewBox="0 0 512 512" height="1em" width="1em" xmlns="http://www.w3.org/2000/svg">
-                                    <path d="M416 208c0 45.9-14.9 88.3-40 122.7L502.6 457.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0L330.7 376c-34.4 25.2-76.8 40-122.7 40C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208zM208 352a144 144 0 1 0 0-288 144 144 0 1 0 0 288z"></path>
-                                </svg>
+                                <span>Lọc</span>
                             </button>
                             <button
                                 onClick={handleReset}

@@ -5,7 +5,7 @@ import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import * as Icons from "lucide-react";
 import { Flame, Film, Camera, Crown, Ghost, Globe, Sparkles, Gamepad2, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
-import CatalogSkeleton from "@/app/components/Movies/MovieCatalog/CatalogSkeleton";
+import LoadingSpinner from "@/app/components/UI/Common/LoadingSpinner";
 
 export interface TopicItem {
     id: string;
@@ -124,7 +124,11 @@ export default function TopicsClient({ initialTopics }: { initialTopics?: TopicI
     }, [initialTopics]);
 
     if (isLoading) {
-        return <CatalogSkeleton hideSidebar={true} />;
+        return (
+            <div className="w-full min-h-screen bg-[#0F1115] pt-[120px] pb-20 flex items-center justify-center">
+                <LoadingSpinner size="lg" color="default" />
+            </div>
+        );
     }
 
     return (
@@ -148,7 +152,7 @@ export default function TopicsClient({ initialTopics }: { initialTopics?: TopicI
                             >
                                 {/* Nửa bên trái: Thông tin */}
                                 <div className="absolute inset-0 z-10 p-5 md:p-6 flex flex-col justify-between h-full w-[65%]">
-                                    <div className={`w-8 h-8 md:w-9 md:h-9 rounded-lg bg-black/20 border border-white/10 flex items-center justify-center group-hover:scale-110 transition-transform backdrop-blur-sm shadow-sm`}>
+                                    <div className={`w-8 h-8 md:w-9 md:h-9 rounded-lg bg-black/30 border border-white/15 flex items-center justify-center group-hover:scale-110 transition-transform shadow-sm`}>
                                         <Icon size={18} strokeWidth={2.5} className="text-white/90" />
                                     </div>
                                     <div className="mt-auto">

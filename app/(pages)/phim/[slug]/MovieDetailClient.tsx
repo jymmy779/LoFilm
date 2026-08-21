@@ -256,7 +256,7 @@ export default function MovieDetailClient({
                 <Container className="relative z-20 w-full pt-36 sm:pt-40 md:pt-32 lg:pt-36 pb-8 lg:pb-12 xl:pl-[120px]">
                     <div className="flex flex-col md:flex-row gap-6 lg:gap-8 items-center md:items-end">
                         {/* Poster Card */}
-                        <div className="flex-shrink-0 w-[140px] sm:w-[180px] md:w-[200px] lg:w-[230px] aspect-[2/3] rounded-lg overflow-hidden border border-white/15 shadow-[0_12px_40px_rgba(0,0,0,0.8)] bg-[#12151C] relative group">
+                        <div className="flex-shrink-0 w-[140px] sm:w-[180px] md:w-[200px] lg:w-[230px] aspect-[2/3] rounded-lg overflow-hidden border border-white/15 shadow-[0_12px_40px_rgba(0,0,0,0.8)] bg-[#111419] relative group">
                             <SmartImage
                                 r2Src={getR2MoviePosterUrl(movie.slug)}
                                 src={getImageUrl(movie.poster_url || movie.thumb_url, { width: 380, quality: 85 })}
@@ -348,14 +348,18 @@ export default function MovieDetailClient({
                                 )}
                                 <div className="flex items-center gap-3">
                                     {/* Favorite Button */}
-                                    <div className="h-11 sm:h-12 w-11 sm:w-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center transition-all">
-                                        <FavoriteButton movie={movie} iconSize={18} />
-                                    </div>
+                                    <FavoriteButton
+                                        movie={movie}
+                                        iconSize={18}
+                                        className="h-11 sm:h-12 w-11 sm:w-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white/80 hover:text-white transition-all cursor-pointer"
+                                    />
 
                                     {/* Watchlist Button */}
-                                    <div className="h-11 sm:h-12 w-11 sm:w-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 flex items-center justify-center transition-all">
-                                        <WatchlistButton movie={movie} iconSize={18} />
-                                    </div>
+                                    <WatchlistButton
+                                        movie={movie}
+                                        iconSize={18}
+                                        className="h-11 sm:h-12 w-11 sm:w-12 rounded-full bg-white/10 hover:bg-white/20 border border-white/15 text-white/80 hover:text-white transition-all cursor-pointer"
+                                    />
 
                                     {/* Share Button */}
                                     <button
@@ -386,12 +390,12 @@ export default function MovieDetailClient({
             {/* === 2. MAIN CONTENT BODY WITH 3 TABS === */}
             <Container className="mt-6 lg:mt-8 space-y-6 lg:space-y-8">
                 {/* 2.0. TAB NAVIGATION BAR */}
-                <div className="flex items-center justify-start border-b border-white/10 pb-4">
-                    <div className="bg-[#12151C]/90 backdrop-blur-md border border-white/10 p-1 rounded-2xl flex items-center gap-1 w-full sm:w-auto overflow-x-auto no-scrollbar shadow-xl">
+                <div className="flex items-center justify-start border-b border-white/10 pb-4 overflow-x-auto no-scrollbar">
+                    <div className="bg-[#0F1115] border border-white/10 p-1 rounded-2xl flex items-center gap-1 w-full sm:w-auto overflow-x-auto no-scrollbar shadow-xl shrink-0">
                         <button
                             onClick={() => setActiveTab("overview")}
                             className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 sm:px-6 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 cursor-pointer select-none whitespace-nowrap ${activeTab === "overview"
-                                ? "bg-gradient-to-r from-[#D497FF] to-[#c07bf7] text-black shadow-lg shadow-[#D497FF]/20"
+                                ? "bg-gradient-to-r from-[#D497FF] to-[#c07bf7] text-black "
                                 : "text-white/60 hover:text-white hover:bg-white/5"
                                 }`}
                         >
@@ -402,7 +406,7 @@ export default function MovieDetailClient({
                         <button
                             onClick={() => setActiveTab("actors")}
                             className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 sm:px-6 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 cursor-pointer select-none whitespace-nowrap ${activeTab === "actors"
-                                ? "bg-gradient-to-r from-[#D497FF] to-[#c07bf7] text-black shadow-lg shadow-[#D497FF]/20"
+                                ? "bg-gradient-to-r from-[#D497FF] to-[#c07bf7] text-black "
                                 : "text-white/60 hover:text-white hover:bg-white/5"
                                 }`}
                         >
@@ -419,7 +423,7 @@ export default function MovieDetailClient({
                         <button
                             onClick={() => setActiveTab("related")}
                             className={`flex-1 sm:flex-initial flex items-center justify-center gap-2 px-4 py-2.5 sm:px-6 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold transition-all duration-300 cursor-pointer select-none whitespace-nowrap ${activeTab === "related"
-                                ? "bg-gradient-to-r from-[#D497FF] to-[#c07bf7] text-black shadow-lg shadow-[#D497FF]/20"
+                                ? "bg-gradient-to-r from-[#D497FF] to-[#c07bf7] text-black "
                                 : "text-white/60 hover:text-white hover:bg-white/5"
                                 }`}
                         >
@@ -440,92 +444,86 @@ export default function MovieDetailClient({
                     {/* TAB 1: NỘI DUNG & TẬP PHIM */}
                     {activeTab === "overview" && (
                         <div className="space-y-6 sm:space-y-8 animate-fade-in">
-                            {/* BENTO METADATA & STORY SYNOPSIS (Đặt lên trước) */}
-                            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                                {/* Left 2 Cols: Synopsis Story */}
-                                <div className="lg:col-span-2 bg-[#12151C]/60 border border-white/10 rounded-2xl p-5 sm:p-7 flex flex-col justify-between transition-all">
-                                    <div className="space-y-3">
-                                        {/* Header có toggle trên Mobile & Tablet */}
-                                        <div
-                                            onClick={() => setIsSynopsisExpanded(!isSynopsisExpanded)}
-                                            className="flex items-center justify-between cursor-pointer lg:cursor-default select-none"
-                                        >
-                                            <div className="flex items-center gap-2">
-                                                <div className="w-1.5 h-4 bg-[#D497FF] rounded-full" />
-                                                <h3 className="text-base font-bold text-white uppercase tracking-wider">
-                                                    Nội Dung Phim
-                                                </h3>
-                                            </div>
+                            {/* BENTO METADATA & STORY SYNOPSIS (Gộp chung 1 Card) */}
+                            <div className="bg-[#0F1115] border border-white/10 rounded-2xl p-5 sm:p-7 transition-all shadow-xl">
+                                {/* Header Bar: Tiêu đề + Nút thu gọn/mở rộng trên Mobile */}
+                                <div
+                                    onClick={() => setIsSynopsisExpanded(!isSynopsisExpanded)}
+                                    className="flex items-center justify-between cursor-pointer lg:cursor-default select-none gap-3"
+                                >
+                                    <div className="flex items-center gap-2 min-w-0">
+                                        <div className="w-1.5 h-4 bg-[#D497FF] rounded-full shrink-0" />
+                                        <h3 className="text-sm sm:text-base font-bold text-white uppercase tracking-wider truncate">
+                                            <span className="sm:hidden">Thông Tin Phim</span>
+                                            <span className="hidden sm:inline">Nội Dung & Thông Tin Phim</span>
+                                        </h3>
+                                    </div>
 
-                                            {/* Nút bấm mở/thu gọn chỉ hiện trên Mobile & Tablet */}
-                                            <div className="flex items-center gap-1 text-xs font-bold text-[#D497FF] lg:hidden">
-                                                <span>{isSynopsisExpanded ? "Thu gọn" : "Xem nội dung"}</span>
-                                                <ChevronRight
-                                                    size={16}
-                                                    className={`transform transition-transform duration-300 ${isSynopsisExpanded ? "-rotate-90" : "rotate-90"}`}
-                                                />
-                                            </div>
-                                        </div>
+                                    {/* Nút bấm mở/thu gọn chỉ hiện trên Mobile & Tablet */}
+                                    <div className="flex items-center gap-1.5 text-xs font-semibold text-[#D497FF] lg:hidden px-2.5 py-1 rounded-full bg-[#D497FF]/10 hover:bg-[#D497FF]/20 border border-[#D497FF]/20 shrink-0 whitespace-nowrap transition-all">
+                                        <span>{isSynopsisExpanded ? "Thu gọn" : "Chi tiết"}</span>
+                                        <ChevronRight
+                                            size={14}
+                                            className={`transform transition-transform duration-300 shrink-0 ${isSynopsisExpanded ? "-rotate-90" : "rotate-90"}`}
+                                        />
+                                    </div>
+                                </div>
 
-                                        {/* Nội dung phim */}
-                                        <div className={`${isSynopsisExpanded ? "block animate-fade-in" : "hidden lg:block"} pt-1`}>
+                                {/* Body Content: Trên mobile ẩn/hiện theo isSynopsisExpanded, trên desktop luôn hiện */}
+                                <div className={`${isSynopsisExpanded ? "block animate-fade-in pt-4" : "hidden lg:block"} lg:pt-5`}>
+                                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 lg:border-t lg:border-white/5 lg:pt-5">
+                                        {/* Left 2 Cols: Synopsis Story */}
+                                        <div className="lg:col-span-2 space-y-3">
                                             <p className="text-white/75 text-sm sm:text-base leading-relaxed">
                                                 {cleanContent(movie.content) || "Bộ phim hấp dẫn đang được phát sóng với chất lượng cao trên LoFilm..."}
                                             </p>
                                         </div>
-                                    </div>
-                                </div>
 
-                                {/* Right 1 Col: Quick Bento Info */}
-                                <div className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-6 space-y-4">
-                                    <div className="flex items-center gap-2 pb-2 border-b border-white/5">
-                                        <div className="w-1.5 h-4 bg-[#A7F3D0] rounded-full" />
-                                        <h3 className="text-sm font-bold text-white uppercase tracking-wider">
-                                            Thông Tin Chi Tiết
-                                        </h3>
-                                    </div>
+                                        {/* Right 1 Col: Quick Bento Info */}
+                                        <div className="bg-white/5 border border-white/10 rounded-xl p-4 sm:p-5 space-y-3">
+                                            <div className="space-y-3 text-xs sm:text-sm">
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-white/50 font-medium">Trạng thái:</span>
+                                                    <span className={`font-bold ${isCompleted ? 'text-emerald-400' : 'text-pink-400'}`}>
+                                                        {statusText}
+                                                    </span>
+                                                </div>
 
-                                    <div className="space-y-3 text-xs sm:text-sm">
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-white/50 font-medium">Trạng thái:</span>
-                                            <span className={`font-bold ${isCompleted ? 'text-emerald-400' : 'text-pink-400'}`}>
-                                                {statusText}
-                                            </span>
-                                        </div>
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-white/50 font-medium">Thời lượng:</span>
+                                                    <span className="text-white font-semibold">{movie.time || "Đang cập nhật"}</span>
+                                                </div>
 
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-white/50 font-medium">Thời lượng:</span>
-                                            <span className="text-white font-semibold">{movie.time || "Đang cập nhật"}</span>
-                                        </div>
+                                                <div className="flex items-center justify-between">
+                                                    <span className="text-white/50 font-medium">Quốc gia:</span>
+                                                    <div className="flex gap-1.5">
+                                                        {movie.country && movie.country.length > 0 ? (
+                                                            movie.country.map((c) => (
+                                                                <TransitionLink key={c.slug} href={`/quoc-gia/${c.slug}`} className="text-[#D497FF] font-semibold hover:underline">
+                                                                    {c.name}
+                                                                </TransitionLink>
+                                                            ))
+                                                        ) : (
+                                                            <span className="text-white font-semibold">Đang cập nhật</span>
+                                                        )}
+                                                    </div>
+                                                </div>
 
-                                        <div className="flex items-center justify-between">
-                                            <span className="text-white/50 font-medium">Quốc gia:</span>
-                                            <div className="flex gap-1.5">
-                                                {movie.country && movie.country.length > 0 ? (
-                                                    movie.country.map((c) => (
-                                                        <TransitionLink key={c.slug} href={`/quoc-gia/${c.slug}`} className="text-[#D497FF] font-semibold hover:underline">
-                                                            {c.name}
-                                                        </TransitionLink>
-                                                    ))
-                                                ) : (
-                                                    <span className="text-white font-semibold">Đang cập nhật</span>
+                                                {movie.director && movie.director.length > 0 && movie.director[0] !== "" && (
+                                                    <div className="flex items-start justify-between gap-2 pt-2 border-t border-white/5">
+                                                        <span className="text-white/50 font-medium whitespace-nowrap">Đạo diễn:</span>
+                                                        <span className="text-white/90 font-semibold text-right">{movie.director.join(", ")}</span>
+                                                    </div>
                                                 )}
                                             </div>
                                         </div>
-
-                                        {movie.director && movie.director.length > 0 && movie.director[0] !== "" && (
-                                            <div className="flex items-start justify-between gap-2 pt-1 border-t border-white/5">
-                                                <span className="text-white/50 font-medium whitespace-nowrap">Đạo diễn:</span>
-                                                <span className="text-white/90 font-semibold text-right">{movie.director.join(", ")}</span>
-                                            </div>
-                                        )}
                                     </div>
                                 </div>
                             </div>
 
                             {/* EPISODE HUB */}
                             {processedEpisodes && processedEpisodes.length > 0 ? (
-                                <section className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl">
+                                <section className="bg-[#0F1115] border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl">
                                     <EpisodeList
                                         slug={slug}
                                         movieName={movie.name}
@@ -537,7 +535,7 @@ export default function MovieDetailClient({
                                     />
                                 </section>
                             ) : (
-                                <section className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-6 sm:p-8 text-center shadow-xl">
+                                <section className="bg-[#0F1115] border border-white/10 rounded-2xl p-6 sm:p-8 text-center shadow-xl">
                                     <div className="max-w-md mx-auto space-y-4">
                                         <div className="w-14 h-14 bg-[#D497FF]/10 border border-[#D497FF]/20 rounded-2xl flex items-center justify-center mx-auto text-[#D497FF]">
                                             <Film size={28} />
@@ -569,7 +567,7 @@ export default function MovieDetailClient({
 
                     {/* TAB 2: DÀN DIỄN VIÊN */}
                     {activeTab === "actors" && (
-                        <div className="space-y-6 animate-fade-in bg-[#12151C]/60 border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl">
+                        <div className="space-y-6 animate-fade-in bg-[#0F1115] border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl">
                             <div className="flex items-center gap-2.5">
                                 <div className="w-1.5 h-5 bg-[#FAD078] rounded-full" />
                                 <h2 className="text-lg sm:text-xl font-extrabold text-white uppercase tracking-wider">
@@ -590,7 +588,7 @@ export default function MovieDetailClient({
                                 <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
                                     {tmdbActors.map((actor) => (
                                         <div key={actor.id} className="group flex flex-col items-center text-center space-y-1.5">
-                                            <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-[#12151C] border border-white/10 group-hover:border-[#D497FF]/50 transition-all duration-300 shadow-md">
+                                            <div className="relative aspect-[3/4] w-full rounded-xl overflow-hidden bg-[#0F1115] border border-white/10 group-hover:border-[#D497FF]/50 transition-all duration-300 shadow-md">
                                                 {actor.profile_path ? (
                                                     <SmartImage
                                                         r2Src={getR2ActorUrl(actor.id)}
@@ -621,7 +619,7 @@ export default function MovieDetailClient({
                             ) : movie.actor && movie.actor.length > 0 ? (
                                 <div className="flex flex-wrap gap-2">
                                     {movie.actor.map((act, i) => (
-                                        <span key={i} className="px-3 py-1.5 bg-[#12151C] border border-white/10 rounded-lg text-xs font-semibold text-white/80">
+                                        <span key={i} className="px-3 py-1.5 bg-[#0F1115] border border-white/10 rounded-lg text-xs font-semibold text-white/80">
                                             {act}
                                         </span>
                                     ))}
@@ -634,7 +632,7 @@ export default function MovieDetailClient({
 
                     {/* TAB 3: PHIM TƯƠNG TỰ */}
                     {activeTab === "related" && (
-                        <div className="space-y-6 animate-fade-in bg-[#12151C]/60 border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl">
+                        <div className="space-y-6 animate-fade-in bg-[#0F1115] border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl">
                             <div className="flex items-center gap-2.5">
                                 <div className="w-1.5 h-5 bg-[#D497FF] rounded-full" />
                                 <h2 className="text-lg sm:text-xl font-extrabold text-white uppercase tracking-wider">

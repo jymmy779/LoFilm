@@ -61,7 +61,7 @@ export default function ForgotPasswordPage() {
         <div className="absolute bottom-[20%] right-[10%] w-[25vw] h-[25vw] bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-[#D497FF]/10 to-transparent rounded-full opacity-60 pointer-events-none" />
       </div>
 
-      <div className="w-full max-w-md bg-[#0F1115]/60 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl animate-fade-in relative z-10">
+      <div className="w-full max-w-md bg-[#0F1115] border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl animate-fade-in relative z-10">
         <div className="text-center mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Quên mật khẩu</h1>
           <p className="text-white/40 text-sm">Nhập email của bạn để nhận mã xác thực.</p>

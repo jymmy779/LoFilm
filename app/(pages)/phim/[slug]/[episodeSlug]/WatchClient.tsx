@@ -1206,22 +1206,17 @@ export default function WatchClient({
                             z-index: 40 !important;
                         }
                         .watch-top-overlay {
-                            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
-                            transition-delay: 0s !important;
+                            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
                         }
                         .art-hide-cursor .watch-top-overlay {
                             opacity: 0 !important;
                             pointer-events: none !important;
                             transform: translateY(-10px) !important;
-                            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-                            transition-delay: 0s !important;
                         }
                         .art-video-player:not(.art-hide-cursor) .watch-top-overlay {
                             opacity: 1 !important;
                             transform: translateY(0) !important;
                             pointer-events: auto !important;
-                            transition: opacity 0.3s ease, transform 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-                            transition-delay: 0.15s !important;
                         }
                         
                         /* Native Fullscreen & Custom Fullscreen styles */
@@ -1493,10 +1488,10 @@ export default function WatchClient({
                                     e.stopPropagation();
                                     setShowEpisodeOverlay(true);
                                 }}
-                                className={`watch-top-overlay absolute top-3 right-3 md:top-8 md:right-8 z-[110] flex items-center gap-2 md:gap-2.5 bg-black/60 hover:bg-[#D497FF]/20 border border-white/10 hover:border-[#D497FF]/50 py-1.5 md:py-2.5 px-3 md:px-5 rounded-full transition-all duration-300 cursor-pointer group shadow-lg ${!showEpisodeOverlay ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
+                                className={`watch-top-overlay absolute top-3 right-3 md:top-8 md:right-8 z-[110] flex items-center gap-2 md:gap-2.5 bg-black/60 hover:bg-[#D497FF]/20 border border-white/10 hover:border-[#D497FF]/50 py-1.5 md:py-2.5 px-3 md:px-5 rounded-full transition-all duration-300 active:scale-95 cursor-pointer group shadow-lg ${!showEpisodeOverlay ? 'opacity-100' : 'opacity-0 pointer-events-none'}`}
                             >
-                                <List size={14} className="md:w-5 md:h-5 text-white group-hover:text-[#D497FF] transition-colors" />
-                                <span className="text-white text-[10px] md:text-[14px] font-bold tracking-wide group-hover:text-[#D497FF] transition-colors">Danh sách tập</span>
+                                <List size={14} className="md:w-5 md:h-5 text-white group-hover:text-[#D497FF] transition-colors duration-300" />
+                                <span className="text-white text-[10px] md:text-[14px] font-bold tracking-wide group-hover:text-[#D497FF] transition-colors duration-300">Danh sách tập</span>
                             </button>,
                             portalTarget
                         )}
@@ -1527,7 +1522,7 @@ export default function WatchClient({
                                     onTouchStart={(e) => e.stopPropagation()}
                                     onTouchEnd={(e) => e.stopPropagation()}
                                     onTouchMove={(e) => e.stopPropagation()}
-                                    className={`absolute top-0 right-0 h-full w-[200px] sm:w-[260px] md:w-[360px] bg-[#0F1115] border-l border-white/5 transition-transform duration-500 ease-out flex flex-col select-none outline-none [backface-visibility:hidden] [will-change:transform] [-webkit-tap-highlight-color:transparent] ${showEpisodeOverlay ? 'translate-x-0' : 'translate-x-full'}`}>
+                                    className={`absolute top-0 right-0 h-full w-[200px] sm:w-[260px] md:w-[360px] bg-[#111419] border-l border-white/5 transition-transform duration-500 ease-out flex flex-col select-none outline-none [backface-visibility:hidden] [will-change:transform] [-webkit-tap-highlight-color:transparent] ${showEpisodeOverlay ? 'translate-x-0' : 'translate-x-full'}`}>
                                     {/* Header */}
                                     <div className="p-2 sm:p-3 lg:p-5 border-b gap-10 border-white/5 flex items-center justify-between bg-white/[0.02]">
                                         <div className="flex flex-col gap-0.5">
@@ -1689,306 +1684,306 @@ export default function WatchClient({
             {!isFullscreenActive && (
                 <div className="overflow-hidden transition-all duration-500 ease-in-out max-h-[8000px] opacity-100 mt-5 sm:mt-6">
                     <div className="w-full max-w-[1440px] 2xl:max-w-[1560px] px-3 sm:px-5 lg:px-8 mx-auto pb-16 space-y-4">
-                    {subtitlePortalNode && hasCustomSubtitles && createPortal(
-                        <DualSubtitleMenu
-                            subtitles={episodeSubtitles}
-                            subtitleSlot1={slot1}
-                            subtitleSlot2={slot2}
-                            onSubtitleSlot1Change={setSlot1}
-                            onSubtitleSlot2Change={setSlot2}
-                        />,
-                        subtitlePortalNode as HTMLElement
-                    )}
-
-                    {/* 1. INTERACTIVE TAB NAVIGATION BAR (Danh Sách Tập, Thông Tin Phim, Diễn Viên) */}
-                    <div className="flex items-center gap-2 overflow-x-auto custom-scrollbar pb-1 select-none">
-                        {/* Tab 1: Danh Sách Tập */}
-                        <button
-                            onClick={() => setActiveTab("episodes")}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer border whitespace-nowrap active:scale-95 ${activeTab === "episodes"
-                                ? "bg-[#D497FF] border-[#D497FF] text-black"
-                                : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20"
-                                }`}
-                        >
-                            <List size={15} />
-                            <span>Danh Sách Tập</span>
-                            {processedEpisodes[activeServerIndex]?.server_data?.length ? (
-                                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${activeTab === "episodes" ? "bg-black/20 text-black" : "bg-white/10 text-white/60"}`}>
-                                    {processedEpisodes[activeServerIndex].server_data.length}
-                                </span>
-                            ) : null}
-                        </button>
-
-                        {/* Tab 2: Thông Tin Phim */}
-                        <button
-                            onClick={() => setActiveTab("info")}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer border whitespace-nowrap active:scale-95 ${activeTab === "info"
-                                ? "bg-[#D497FF] border-[#D497FF] text-black"
-                                : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20"
-                                }`}
-                        >
-                            <Info size={15} />
-                            <span>Thông Tin Phim</span>
-                        </button>
-
-                        {/* Tab 3: Diễn Viên */}
-                        <button
-                            onClick={() => setActiveTab("actors")}
-                            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer border whitespace-nowrap active:scale-95 ${activeTab === "actors"
-                                ? "bg-[#D497FF] border-[#D497FF] text-black"
-                                : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20"
-                                }`}
-                        >
-                            <Users size={15} />
-                            <span>Diễn Viên</span>
-                            {tmdbActors.length > 0 && (
-                                <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${activeTab === "actors" ? "bg-black/20 text-black" : "bg-white/10 text-white/60"}`}>
-                                    {tmdbActors.length}
-                                </span>
-                            )}
-                        </button>
-                    </div>
-
-                    {/* 2. TAB CONTENT PANEL CONTAINER (Tự động co giãn vừa vặn với nội dung) */}
-                    <div className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl transition-all duration-300">
-                        {/* TAB 1: DANH SÁCH TẬP */}
-                        {activeTab === "episodes" && (
-                            <div className="animate-fade-in space-y-4">
-                                {processedEpisodes && processedEpisodes.length > 0 ? (
-                                    <EpisodeList
-                                        slug={slug}
-                                        movieName={movie.name}
-                                        currentEpisode={currentEpisodeSlug}
-                                        episodes={processedEpisodes}
-                                        activeServer={activeServerIndex}
-                                        onServerChange={handleServerChange}
-                                        onEpisodeClick={() => setIsChangingEpisode(true)}
-                                        onEpisodeSelect={selectEpisode}
-                                    />
-                                ) : (
-                                    <div className="p-6 sm:p-8 text-center">
-                                        <div className="max-w-md mx-auto space-y-4">
-                                            <div className="w-14 h-14 bg-[#D497FF]/10 border border-[#D497FF]/20 rounded-2xl flex items-center justify-center mx-auto text-[#D497FF]">
-                                                <Film size={28} />
-                                            </div>
-                                            <div>
-                                                <h3 className="text-lg font-bold text-white uppercase tracking-wider">
-                                                    {isTrailerOnly ? "Phim Đang Ở Bản Trailer / Sắp Chiếu" : "Tập Phim Đang Cập Nhật"}
-                                                </h3>
-                                                <p className="text-sm text-white/50 mt-1">
-                                                    {isTrailerOnly 
-                                                        ? "Bộ phim hiện đang trong giai đoạn giới thiệu trailer. Các tập phim chính thức sẽ được cập nhật sớm nhất!"
-                                                        : "Hệ thống đang đồng bộ và cập nhật các tập phim mới nhất. Bạn vui lòng quay lại sau nhé!"}
-                                                </p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
+                        {subtitlePortalNode && hasCustomSubtitles && createPortal(
+                            <DualSubtitleMenu
+                                subtitles={episodeSubtitles}
+                                subtitleSlot1={slot1}
+                                subtitleSlot2={slot2}
+                                onSubtitleSlot1Change={setSlot1}
+                                onSubtitleSlot2Change={setSlot2}
+                            />,
+                            subtitlePortalNode as HTMLElement
                         )}
 
-                        {/* TAB 2: THÔNG TIN & CỐT TRUYỆN */}
-                        {activeTab === "info" && (
-                            <div className="animate-fade-in">
-                                <MovieInfo slug={slug} movie={movie} episode={currentEpisode} />
-                            </div>
-                        )}
-
-                        {/* TAB 3: DÀN DIỄN VIÊN */}
-                        {activeTab === "actors" && (
-                            <div className="animate-fade-in space-y-4">
-                                <div className="flex items-center gap-2.5 mb-3">
-                                    <div className="w-1.5 h-5 bg-[#FAD078] rounded-full" />
-                                    <h2 className="text-base sm:text-lg font-extrabold text-white uppercase tracking-wider">
-                                        Dàn Diễn Viên
-                                    </h2>
-                                </div>
-
-                                {isLoadingActors ? (
-                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
-                                        {Array.from({ length: 8 }).map((_, idx) => (
-                                            <div key={idx} className="space-y-2">
-                                                <Skeleton className="aspect-[3/4] w-full" rounded="lg" />
-                                                <Skeleton className="h-3 w-3/4 mx-auto" rounded="md" />
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : tmdbActors.length > 0 ? (
-                                    <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
-                                        {tmdbActors.slice(0, 16).map((actor) => (
-                                            <div key={actor.id} className="group flex flex-col items-center text-center space-y-1.5">
-                                                <div className="relative aspect-[3/4] w-full rounded-lg overflow-hidden bg-[#12151C] border border-white/10 group-hover:border-[#D497FF]/50 transition-all duration-300 shadow-md">
-                                                    {actor.profile_path ? (
-                                                        <SmartImage
-                                                            r2Src={getR2ActorUrl(actor.id)}
-                                                            src={getImageUrl(`https://image.tmdb.org/t/p/w200${actor.profile_path}`, { width: 160, quality: 75 })}
-                                                            rawSrc={`https://image.tmdb.org/t/p/w200${actor.profile_path}`}
-                                                            alt={actor.name}
-                                                            fill
-                                                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                                            sizes="(max-width: 768px) 30vw, 150px"
-                                                        />
-                                                    ) : (
-                                                        <div className="w-full h-full flex items-center justify-center text-white/20">
-                                                            <User size={32} />
-                                                        </div>
-                                                    )}
-                                                </div>
-                                                <span className="text-xs font-bold text-white/90 group-hover:text-[#D497FF] transition-colors truncate w-full px-1">
-                                                    {actor.name}
-                                                </span>
-                                                {actor.character && (
-                                                    <span className="text-[11px] text-white/40 truncate w-full px-1">
-                                                        {actor.character}
-                                                    </span>
-                                                )}
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (movie.actors && movie.actors.length > 0 && movie.actors[0] !== "") || ((movie as any).actor && (movie as any).actor.length > 0 && (movie as any).actor[0] !== "") ? (
-                                    <div className="flex flex-wrap gap-2 sm:gap-2.5">
-                                        {((movie as any).actor || movie.actors).map((act: string, i: number) => (
-                                            <div key={i} className="flex items-center gap-2 px-3.5 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs sm:text-sm font-medium text-white/90 transition-colors">
-                                                <User size={13} className="text-[#D497FF]" />
-                                                <span>{act}</span>
-                                            </div>
-                                        ))}
-                                    </div>
-                                ) : (
-                                    <p className="text-xs sm:text-sm text-white/40 italic py-2">Đang cập nhật danh sách diễn viên...</p>
-                                )}
-                            </div>
-                        )}
-                    </div>
-
-                    {/* 3. TWO-COLUMN LAYOUT: COMMENTS (LEFT - 70%) & GENRE TAGS + RECOMMENDATIONS (RIGHT - 30%) */}
-                    <div className="grid grid-cols-1 lg:grid-cols-10 gap-5 sm:gap-6 items-start pt-4 border-t border-white/5">
-                        {/* LEFT COLUMN: Community Discussion & Comments (70%) */}
-                        <div className="lg:col-span-7 bg-[#12151C]/60 border border-white/10 rounded-2xl p-4 sm:p-6 shadow-xl">
-                            <div className="flex items-center gap-2.5 mb-5">
-                                <div className="w-1.5 h-5 bg-[#D497FF] rounded-full" />
-                                <h2 className="text-base sm:text-lg font-extrabold text-white uppercase tracking-wider">
-                                    Bình Luận & Thảo Luận
-                                </h2>
-                            </div>
-                            <LazyRow
-                                id={`comments-${slug}-${getFriendlyEpisodeSlug(currentEpisodeSlug)}`}
-                                estimatedHeight="200px"
-                                skeleton={<Skeleton className="h-40" rounded="xl" />}
+                        {/* 1. INTERACTIVE TAB NAVIGATION BAR (Danh Sách Tập, Thông Tin Phim, Diễn Viên) */}
+                        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 select-none">
+                            {/* Tab 1: Danh Sách Tập */}
+                            <button
+                                onClick={() => setActiveTab("episodes")}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer border whitespace-nowrap active:scale-95 ${activeTab === "episodes"
+                                    ? "bg-[#D497FF] border-[#D497FF] text-black"
+                                    : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20"
+                                    }`}
                             >
-                                <CommentSection movieSlug={`${slug}/${getFriendlyEpisodeSlug(currentEpisodeSlug)}`} />
-                            </LazyRow>
+                                <List size={15} />
+                                <span>Danh Sách Tập</span>
+                                {processedEpisodes[activeServerIndex]?.server_data?.length ? (
+                                    <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${activeTab === "episodes" ? "bg-black/20 text-black" : "bg-white/10 text-white/60"}`}>
+                                        {processedEpisodes[activeServerIndex].server_data.length}
+                                    </span>
+                                ) : null}
+                            </button>
+
+                            {/* Tab 2: Thông Tin Phim */}
+                            <button
+                                onClick={() => setActiveTab("info")}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer border whitespace-nowrap active:scale-95 ${activeTab === "info"
+                                    ? "bg-[#D497FF] border-[#D497FF] text-black"
+                                    : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20"
+                                    }`}
+                            >
+                                <Info size={15} />
+                                <span>Thông Tin Phim</span>
+                            </button>
+
+                            {/* Tab 3: Diễn Viên */}
+                            <button
+                                onClick={() => setActiveTab("actors")}
+                                className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs sm:text-sm font-bold transition-all cursor-pointer border whitespace-nowrap active:scale-95 ${activeTab === "actors"
+                                    ? "bg-[#D497FF] border-[#D497FF] text-black"
+                                    : "bg-white/5 border-white/10 text-white/70 hover:bg-white/10 hover:text-white hover:border-white/20"
+                                    }`}
+                            >
+                                <Users size={15} />
+                                <span>Diễn Viên</span>
+                                {tmdbActors.length > 0 && (
+                                    <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-extrabold ${activeTab === "actors" ? "bg-black/20 text-black" : "bg-white/10 text-white/60"}`}>
+                                        {tmdbActors.length}
+                                    </span>
+                                )}
+                            </button>
                         </div>
 
-                        {/* RIGHT COLUMN: Movie Genre Tags & Suggested Movies (30%) */}
-                        <div className="lg:col-span-3 space-y-4">
-                            {/* TAGS THỂ LOẠI CỦA PHIM ĐANG XEM */}
-                            {movie.category && movie.category.length > 0 && (
-                                <div className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-4 shadow-xl space-y-2.5">
-                                    <div className="flex items-center gap-2">
-                                        <Tag size={15} className="text-[#D497FF]" />
-                                        <h3 className="text-xs sm:text-sm font-extrabold text-white uppercase tracking-wider">
-                                            Thể Loại
-                                        </h3>
-                                    </div>
-                                    <div className="flex flex-wrap gap-1.5">
-                                        {movie.category.map((cat: { id?: string; name: string; slug: string }) => (
-                                            <TransitionLink
-                                                key={cat.id || cat.slug}
-                                                href={`/the-loai/${cat.slug}`}
-                                                className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 hover:bg-[#D497FF]/15 hover:border-[#D497FF]/30 hover:text-[#D497FF] text-[11px] font-medium text-white/80 transition-all duration-200"
-                                            >
-                                                #{cat.name}
-                                            </TransitionLink>
-                                        ))}
-                                    </div>
+                        {/* 2. TAB CONTENT PANEL CONTAINER (Tự động co giãn vừa vặn với nội dung) */}
+                        <div className="bg-[#0F1115] border border-white/10 rounded-2xl p-5 sm:p-7 shadow-xl transition-all duration-300">
+                            {/* TAB 1: DANH SÁCH TẬP */}
+                            {activeTab === "episodes" && (
+                                <div className="animate-fade-in space-y-4">
+                                    {processedEpisodes && processedEpisodes.length > 0 ? (
+                                        <EpisodeList
+                                            slug={slug}
+                                            movieName={movie.name}
+                                            currentEpisode={currentEpisodeSlug}
+                                            episodes={processedEpisodes}
+                                            activeServer={activeServerIndex}
+                                            onServerChange={handleServerChange}
+                                            onEpisodeClick={() => setIsChangingEpisode(true)}
+                                            onEpisodeSelect={selectEpisode}
+                                        />
+                                    ) : (
+                                        <div className="p-6 sm:p-8 text-center">
+                                            <div className="max-w-md mx-auto space-y-4">
+                                                <div className="w-14 h-14 bg-[#D497FF]/10 border border-[#D497FF]/20 rounded-2xl flex items-center justify-center mx-auto text-[#D497FF]">
+                                                    <Film size={28} />
+                                                </div>
+                                                <div>
+                                                    <h3 className="text-lg font-bold text-white uppercase tracking-wider">
+                                                        {isTrailerOnly ? "Phim Đang Ở Bản Trailer / Sắp Chiếu" : "Tập Phim Đang Cập Nhật"}
+                                                    </h3>
+                                                    <p className="text-sm text-white/50 mt-1">
+                                                        {isTrailerOnly
+                                                            ? "Bộ phim hiện đang trong giai đoạn giới thiệu trailer. Các tập phim chính thức sẽ được cập nhật sớm nhất!"
+                                                            : "Hệ thống đang đồng bộ và cập nhật các tập phim mới nhất. Bạn vui lòng quay lại sau nhé!"}
+                                                    </p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    )}
                                 </div>
                             )}
 
-                            {/* CỘT PHIM ĐỀ XUẤT */}
-                            {filteredSuggestions.length > 0 && (
-                                <div className="bg-[#12151C]/60 border border-white/10 rounded-2xl p-4 shadow-xl space-y-3">
-                                    <div className="flex items-center justify-between">
+                            {/* TAB 2: THÔNG TIN & CỐT TRUYỆN */}
+                            {activeTab === "info" && (
+                                <div className="animate-fade-in">
+                                    <MovieInfo slug={slug} movie={movie} episode={currentEpisode} />
+                                </div>
+                            )}
+
+                            {/* TAB 3: DÀN DIỄN VIÊN */}
+                            {activeTab === "actors" && (
+                                <div className="animate-fade-in space-y-4">
+                                    <div className="flex items-center gap-2.5 mb-3">
+                                        <div className="w-1.5 h-5 bg-[#FAD078] rounded-full" />
+                                        <h2 className="text-base sm:text-lg font-extrabold text-white uppercase tracking-wider">
+                                            Dàn Diễn Viên
+                                        </h2>
+                                    </div>
+
+                                    {isLoadingActors ? (
+                                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+                                            {Array.from({ length: 8 }).map((_, idx) => (
+                                                <div key={idx} className="space-y-2">
+                                                    <Skeleton className="aspect-[3/4] w-full" rounded="lg" />
+                                                    <Skeleton className="h-3 w-3/4 mx-auto" rounded="md" />
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : tmdbActors.length > 0 ? (
+                                        <div className="grid grid-cols-3 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 gap-3 sm:gap-4">
+                                            {tmdbActors.slice(0, 16).map((actor) => (
+                                                <div key={actor.id} className="group flex flex-col items-center text-center space-y-1.5">
+                                                    <div className="relative aspect-[3/4] w-full rounded-lg overflow-hidden bg-[#0F1115] border border-white/10 group-hover:border-[#D497FF]/50 transition-all duration-300 shadow-md">
+                                                        {actor.profile_path ? (
+                                                            <SmartImage
+                                                                r2Src={getR2ActorUrl(actor.id)}
+                                                                src={getImageUrl(`https://image.tmdb.org/t/p/w200${actor.profile_path}`, { width: 160, quality: 75 })}
+                                                                rawSrc={`https://image.tmdb.org/t/p/w200${actor.profile_path}`}
+                                                                alt={actor.name}
+                                                                fill
+                                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                                sizes="(max-width: 768px) 30vw, 150px"
+                                                            />
+                                                        ) : (
+                                                            <div className="w-full h-full flex items-center justify-center text-white/20">
+                                                                <User size={32} />
+                                                            </div>
+                                                        )}
+                                                    </div>
+                                                    <span className="text-xs font-bold text-white/90 group-hover:text-[#D497FF] transition-colors truncate w-full px-1">
+                                                        {actor.name}
+                                                    </span>
+                                                    {actor.character && (
+                                                        <span className="text-[11px] text-white/40 truncate w-full px-1">
+                                                            {actor.character}
+                                                        </span>
+                                                    )}
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (movie.actors && movie.actors.length > 0 && movie.actors[0] !== "") || ((movie as any).actor && (movie as any).actor.length > 0 && (movie as any).actor[0] !== "") ? (
+                                        <div className="flex flex-wrap gap-2 sm:gap-2.5">
+                                            {((movie as any).actor || movie.actors).map((act: string, i: number) => (
+                                                <div key={i} className="flex items-center gap-2 px-3.5 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-xl text-xs sm:text-sm font-medium text-white/90 transition-colors">
+                                                    <User size={13} className="text-[#D497FF]" />
+                                                    <span>{act}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    ) : (
+                                        <p className="text-xs sm:text-sm text-white/40 italic py-2">Đang cập nhật danh sách diễn viên...</p>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+
+                        {/* 3. TWO-COLUMN LAYOUT: COMMENTS (LEFT - 70%) & GENRE TAGS + RECOMMENDATIONS (RIGHT - 30%) */}
+                        <div className="grid grid-cols-1 lg:grid-cols-10 gap-5 sm:gap-6 items-start pt-4 border-t border-white/5">
+                            {/* LEFT COLUMN: Community Discussion & Comments (70%) */}
+                            <div className="lg:col-span-7 bg-[#0F1115] border border-white/10 rounded-2xl p-4 sm:p-6 shadow-xl">
+                                <div className="flex items-center gap-2.5 mb-5">
+                                    <div className="w-1.5 h-5 bg-[#D497FF] rounded-full" />
+                                    <h2 className="text-base sm:text-lg font-extrabold text-white uppercase tracking-wider">
+                                        Bình Luận & Thảo Luận
+                                    </h2>
+                                </div>
+                                <LazyRow
+                                    id={`comments-${slug}-${getFriendlyEpisodeSlug(currentEpisodeSlug)}`}
+                                    estimatedHeight="200px"
+                                    skeleton={<Skeleton className="h-40" rounded="xl" />}
+                                >
+                                    <CommentSection movieSlug={`${slug}/${getFriendlyEpisodeSlug(currentEpisodeSlug)}`} />
+                                </LazyRow>
+                            </div>
+
+                            {/* RIGHT COLUMN: Movie Genre Tags & Suggested Movies (30%) */}
+                            <div className="lg:col-span-3 space-y-4">
+                                {/* TAGS THỂ LOẠI CỦA PHIM ĐANG XEM */}
+                                {movie.category && movie.category.length > 0 && (
+                                    <div className="bg-[#0F1115] border border-white/10 rounded-2xl p-4 shadow-xl space-y-2.5">
                                         <div className="flex items-center gap-2">
-                                            <Sparkles size={15} className="text-[#FAD078]" />
+                                            <Tag size={15} className="text-[#D497FF]" />
                                             <h3 className="text-xs sm:text-sm font-extrabold text-white uppercase tracking-wider">
-                                                Phim Đề Xuất
+                                                Thể Loại
                                             </h3>
                                         </div>
-                                    </div>
-
-                                    {/* Danh sách phim đề xuất dạng Minimalist Media List */}
-                                    <div className="space-y-2">
-                                        {filteredSuggestions.slice(0, 6).map((sugMovie) => {
-                                            const sugRating = sugMovie.tmdb?.vote_average && sugMovie.tmdb.vote_average > 0
-                                                ? sugMovie.tmdb.vote_average.toFixed(1)
-                                                : null;
-
-                                            return (
+                                        <div className="flex flex-wrap gap-1.5">
+                                            {movie.category.map((cat: { id?: string; name: string; slug: string }) => (
                                                 <TransitionLink
-                                                    key={sugMovie.slug}
-                                                    href={`/phim/${sugMovie.slug}`}
-                                                    className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all duration-200 group"
+                                                    key={cat.id || cat.slug}
+                                                    href={`/the-loai/${cat.slug}`}
+                                                    className="px-2.5 py-1 rounded-lg bg-white/5 border border-white/10 hover:bg-[#D497FF]/15 hover:border-[#D497FF]/30 hover:text-[#D497FF] text-[11px] font-medium text-white/80 transition-all duration-200"
                                                 >
-                                                    {/* Thumbnail Poster rõ ràng, to vừa vặn */}
-                                                    <div className="relative w-16 sm:w-20 aspect-[2/3] rounded-lg overflow-hidden bg-[#12151C] border border-white/10 shrink-0 group-hover:border-[#D497FF]/40 transition-all shadow-md">
-                                                        <SmartImage
-                                                            r2Src={getR2MoviePosterUrl(sugMovie.slug)}
-                                                            src={getImageUrl(sugMovie.poster_url || sugMovie.thumb_url, { width: 160, quality: 80 })}
-                                                            rawSrc={getRawImageUrl(sugMovie.poster_url || sugMovie.thumb_url)}
-                                                            alt={sugMovie.name}
-                                                            fill
-                                                            className="object-cover group-hover:scale-105 transition-transform duration-500"
-                                                            sizes="(max-width: 768px) 64px, 80px"
-                                                        />
-                                                    </div>
-
-                                                    {/* Info với typography rõ ràng & title 1 dòng */}
-                                                    <div className="flex-1 min-w-0">
-                                                        <h4 className="text-sm font-bold text-white group-hover:text-[#D497FF] transition-colors truncate">
-                                                            {sugMovie.name}
-                                                        </h4>
-                                                        <p className="text-xs text-white/40 italic truncate mt-0.5">
-                                                            {sugMovie.origin_name}
-                                                        </p>
-
-                                                        {/* Metadata text inline thanh lịch */}
-                                                        <div className="flex items-center gap-1.5 text-xs text-white/50 mt-1.5 font-medium flex-wrap">
-                                                            {sugRating && (
-                                                                <span className="flex items-center gap-0.5 text-[#FAD078] font-bold">
-                                                                    <span>★</span>
-                                                                    <span>{sugRating}</span>
-                                                                </span>
-                                                            )}
-                                                            {sugRating && <span>•</span>}
-                                                            {sugMovie.year && <span>{sugMovie.year}</span>}
-                                                            {sugMovie.quality && (
-                                                                <>
-                                                                    <span>•</span>
-                                                                    <span className="text-[#A7F3D0] font-semibold">{sugMovie.quality}</span>
-                                                                </>
-                                                            )}
-                                                            {sugMovie.episode_current && (
-                                                                <>
-                                                                    <span>•</span>
-                                                                    <span className="text-pink-300 font-semibold truncate max-w-[90px]">{sugMovie.episode_current}</span>
-                                                                </>
-                                                            )}
-                                                        </div>
-                                                    </div>
+                                                    #{cat.name}
                                                 </TransitionLink>
-                                            );
-                                        })}
+                                            ))}
+                                        </div>
                                     </div>
-                                </div>
-                            )}
+                                )}
+
+                                {/* CỘT PHIM ĐỀ XUẤT */}
+                                {filteredSuggestions.length > 0 && (
+                                    <div className="bg-[#0F1115] border border-white/10 rounded-2xl p-4 shadow-xl space-y-3">
+                                        <div className="flex items-center justify-between">
+                                            <div className="flex items-center gap-2">
+                                                <Sparkles size={15} className="text-[#FAD078]" />
+                                                <h3 className="text-xs sm:text-sm font-extrabold text-white uppercase tracking-wider">
+                                                    Phim Đề Xuất
+                                                </h3>
+                                            </div>
+                                        </div>
+
+                                        {/* Danh sách phim đề xuất dạng Minimalist Media List */}
+                                        <div className="space-y-2">
+                                            {filteredSuggestions.slice(0, 6).map((sugMovie) => {
+                                                const sugRating = sugMovie.tmdb?.vote_average && sugMovie.tmdb.vote_average > 0
+                                                    ? sugMovie.tmdb.vote_average.toFixed(1)
+                                                    : null;
+
+                                                return (
+                                                    <TransitionLink
+                                                        key={sugMovie.slug}
+                                                        href={`/phim/${sugMovie.slug}`}
+                                                        className="flex items-center gap-3 p-2 rounded-xl hover:bg-white/5 border border-transparent hover:border-white/10 transition-all duration-200 group"
+                                                    >
+                                                        {/* Thumbnail Poster rõ ràng, to vừa vặn */}
+                                                        <div className="relative w-16 sm:w-20 aspect-[2/3] rounded-lg overflow-hidden bg-[#0F1115] border border-white/10 shrink-0 group-hover:border-[#D497FF]/40 transition-all shadow-md">
+                                                            <SmartImage
+                                                                r2Src={getR2MoviePosterUrl(sugMovie.slug)}
+                                                                src={getImageUrl(sugMovie.poster_url || sugMovie.thumb_url, { width: 160, quality: 80 })}
+                                                                rawSrc={getRawImageUrl(sugMovie.poster_url || sugMovie.thumb_url)}
+                                                                alt={sugMovie.name}
+                                                                fill
+                                                                className="object-cover group-hover:scale-105 transition-transform duration-500"
+                                                                sizes="(max-width: 768px) 64px, 80px"
+                                                            />
+                                                        </div>
+
+                                                        {/* Info với typography rõ ràng & title 1 dòng */}
+                                                        <div className="flex-1 min-w-0">
+                                                            <h4 className="text-sm font-bold text-white group-hover:text-[#D497FF] transition-colors truncate">
+                                                                {sugMovie.name}
+                                                            </h4>
+                                                            <p className="text-xs text-white/40 italic truncate mt-0.5">
+                                                                {sugMovie.origin_name}
+                                                            </p>
+
+                                                            {/* Metadata text inline thanh lịch */}
+                                                            <div className="flex items-center gap-1.5 text-xs text-white/50 mt-1.5 font-medium flex-wrap">
+                                                                {sugRating && (
+                                                                    <span className="flex items-center gap-0.5 text-[#FAD078] font-bold">
+                                                                        <span>★</span>
+                                                                        <span>{sugRating}</span>
+                                                                    </span>
+                                                                )}
+                                                                {sugRating && <span>•</span>}
+                                                                {sugMovie.year && <span>{sugMovie.year}</span>}
+                                                                {sugMovie.quality && (
+                                                                    <>
+                                                                        <span>•</span>
+                                                                        <span className="text-[#A7F3D0] font-semibold">{sugMovie.quality}</span>
+                                                                    </>
+                                                                )}
+                                                                {sugMovie.episode_current && (
+                                                                    <>
+                                                                        <span>•</span>
+                                                                        <span className="text-pink-300 font-semibold truncate max-w-[90px]">{sugMovie.episode_current}</span>
+                                                                    </>
+                                                                )}
+                                                            </div>
+                                                        </div>
+                                                    </TransitionLink>
+                                                );
+                                            })}
+                                        </div>
+                                    </div>
+                                )}
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
-        )}
+            )}
 
-        <ReportModal isOpen={showReportModal} onClose={() => setShowReportModal(false)} movieName={movie.name} episodeName={currentEpisode.name} />
+            <ReportModal isOpen={showReportModal} onClose={() => setShowReportModal(false)} movieName={movie.name} episodeName={currentEpisode.name} />
             <ShareModal
                 isOpen={showShareModal}
                 onClose={() => { setShowShareModal(false); if (user) logActivity(user.id, "share_movie", { movie_slug: slug, movie_name: movie.name }); }}

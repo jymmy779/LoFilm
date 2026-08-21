@@ -1,9 +1,5 @@
-import LoadingSpinner from "@/app/components/UI/Common/LoadingSpinner";
+import CatalogSkeleton from "@/app/components/Movies/MovieCatalog/CatalogSkeleton";
 
-export default function Loading() {
-    return (
-        <main className="min-h-[80vh] flex items-center justify-center">
-            <LoadingSpinner size="lg" />
-        </main>
-    );
+export default function RootLoading() {
+    return <CatalogSkeleton />;
 }

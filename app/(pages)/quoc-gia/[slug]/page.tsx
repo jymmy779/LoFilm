@@ -1,4 +1,3 @@
-import Loading from "@/app/loading";
 import { Metadata } from "next";
 import { getAbsoluteUrl } from "@/app/config/site";
 import { Suspense } from "react";
@@ -52,7 +51,7 @@ export default async function CountryPage({ params }: Props) {
     const { slug } = await params;
     
     return (
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<CatalogSkeleton />}>
             <CountryData slug={slug} />
         </Suspense>
     );
@@ -81,4 +80,3 @@ async function CountryData({ slug }: { slug: string }) {
         <CountryClient slug={slug} title={`Danh sách phim ${countryName}`} initialData={initialData} />
     );
 }
-

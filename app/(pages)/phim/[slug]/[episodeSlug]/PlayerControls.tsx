@@ -50,7 +50,7 @@ const PlayerControls = ({
   const [showServers, setShowServers] = useState(false);
 
   return (
-    <div className="w-full bg-[#12151C]/60 backdrop-blur-md border border-white/10 p-2.5 sm:p-3 mt-3 sm:mt-4 rounded-2xl transition-all duration-300 shadow-xl">
+    <div className="w-full bg-[#0F1115] border border-white/10 p-2.5 sm:p-3 mt-3 sm:mt-4 rounded-2xl transition-all duration-300 shadow-xl">
       <div className="flex flex-wrap items-center justify-between gap-3 sm:gap-5 w-full px-1 sm:px-2">
 
         {/* Left Side: Server Selection & Auto Next */}
@@ -61,8 +61,8 @@ const PlayerControls = ({
               <button
                 onClick={() => setShowServers(!showServers)}
                 className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs sm:text-sm font-semibold transition-all cursor-pointer border ${showServers
-                    ? "bg-[#D497FF]/20 border-[#D497FF] text-[#D497FF]"
-                    : "bg-white/5 border-white/10 text-white/90 hover:bg-white/10 hover:border-white/20"
+                  ? "bg-[#D497FF]/20 border-[#D497FF] text-[#D497FF]"
+                  : "bg-white/5 border-white/10 text-white/90 hover:bg-white/10 hover:border-white/20"
                   }`}
               >
                 <Server size={14} className="text-[#D497FF]" />
@@ -76,9 +76,9 @@ const PlayerControls = ({
 
               {/* Server Dropdown */}
               <div
-                className={`absolute bottom-full left-0 mb-3 min-w-[13rem] bg-[#12151C] border border-white/15 rounded-xl p-1.5 z-50 shadow-2xl backdrop-blur-xl transition-all duration-200 ease-out ${showServers
-                    ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
-                    : "opacity-0 translate-y-2 scale-95 pointer-events-none"
+                className={`absolute bottom-full left-0 mb-3 min-w-[13rem] bg-[#0F1115] border border-white/15 rounded-xl p-1.5 z-50 shadow-2xl transition-all duration-200 ease-out ${showServers
+                  ? "opacity-100 translate-y-0 scale-100 pointer-events-auto"
+                  : "opacity-0 translate-y-2 scale-95 pointer-events-none"
                   }`}
               >
                 <div className="px-2.5 py-1.5 text-[11px] font-bold text-white/40 uppercase tracking-wider border-b border-white/5 mb-1">
@@ -98,8 +98,8 @@ const PlayerControls = ({
                         setShowServers(false);
                       }}
                       className={`w-full flex items-center justify-between px-3 py-2 text-xs sm:text-sm rounded-lg transition-all text-left cursor-pointer ${isActive
-                          ? "bg-[#D497FF]/15 border border-[#D497FF]/30 text-[#D497FF] font-bold"
-                          : "text-white/70 hover:bg-white/5 hover:text-white"
+                        ? "bg-[#D497FF]/15 border border-[#D497FF]/30 text-[#D497FF] font-bold"
+                        : "text-white/70 hover:bg-white/5 hover:text-white"
                         }`}
                     >
                       <div className="flex items-center gap-2.5">
@@ -140,8 +140,8 @@ const PlayerControls = ({
           <button
             onClick={onToggleFavorite}
             className={`w-8 sm:w-9 h-8 sm:h-9 flex items-center justify-center rounded-full border transition-all cursor-pointer hover:scale-105 active:scale-95 ${isFavorited
-                ? "bg-rose-500 border-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]"
-                : "bg-white/5 border-white/10 text-white/60 hover:text-rose-400 hover:border-rose-400/40 hover:bg-rose-500/10"
+              ? "bg-rose-500 border-rose-500 text-white shadow-[0_0_15px_rgba(244,63,94,0.4)]"
+              : "bg-white/5 border-white/10 text-white/60 hover:text-rose-400 hover:border-rose-400/40 hover:bg-rose-500/10"
               }`}
             title={isFavorited ? "Xóa khỏi yêu thích" : "Yêu thích phim này"}
           >
@@ -152,8 +152,8 @@ const PlayerControls = ({
           <button
             onClick={onToggleWatchlist}
             className={`w-8 sm:w-9 h-8 sm:h-9 flex items-center justify-center rounded-full border transition-all cursor-pointer hover:scale-105 active:scale-95 ${isInWatchlist
-                ? "bg-[#D497FF] border-[#D497FF] text-black shadow-[0_0_15px_rgba(212,151,255,0.4)]"
-                : "bg-white/5 border-white/10 text-white/60 hover:text-[#D497FF] hover:border-[#D497FF]/40 hover:bg-[#D497FF]/10"
+              ? "bg-emerald-500 border-emerald-500 text-black shadow-[0_0_15px_rgba(16,185,129,0.4)]"
+              : "bg-white/5 border-white/10 text-white/60 hover:text-emerald-400 hover:border-emerald-500/40 hover:bg-emerald-500/10"
               }`}
             title={isInWatchlist ? "Xóa khỏi danh sách xem sau" : "Lưu vào danh sách xem sau"}
           >

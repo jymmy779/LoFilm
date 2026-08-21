@@ -1,11 +1,10 @@
-import Loading from "@/app/loading";
 import { Metadata } from "next";
 import { Suspense } from "react";
 import SeriesClient from "./SeriesClient";
 import CatalogSkeleton from "@/app/components/Movies/MovieCatalog/CatalogSkeleton";
 import { fetchCatalogData } from "@/app/utils/serverFetch";
-
 import { getAbsoluteUrl } from "@/app/config/site";
+import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
 export const revalidate = 60; // Đồng bộ 60 giây toàn hệ thống
 
@@ -22,11 +21,9 @@ export const metadata: Metadata = {
     },
 };
 
-import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
-
 export default function SeriesPage() {
     return (
-        <Suspense fallback={<Loading />}>
+        <Suspense fallback={<CatalogSkeleton />}>
             <SeriesData />
         </Suspense>
     );
@@ -41,4 +38,3 @@ async function SeriesData() {
 
     return <SeriesClient initialData={initialData} />;
 }
-

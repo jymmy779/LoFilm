@@ -59,21 +59,20 @@ export default function TrailerModal({ isOpen, onClose, movieName, trailerUrl }:
     return createPortal(
         <div className={`fixed inset-0 z-[1000] flex items-center justify-center p-3 sm:p-6 ${isClosing ? 'pointer-events-none' : ''}`}>
             {/* Backdrop Overlay */}
-            <div 
-                className={`absolute inset-0 bg-black/80 backdrop-blur-sm ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
+            <div
+                className={`absolute inset-0 bg-black/80 ${isClosing ? 'animate-fade-out' : 'animate-fade-in'}`}
                 style={{ animationDuration: '0.25s' }}
                 onClick={onClose}
             />
 
             {/* Modal Box */}
-            <div 
-                className={`relative w-full max-w-4xl bg-[#0F1115] border border-white/15 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl ${
-                    isClosing ? 'animate-pop-out' : 'animate-pop-in'
-                }`}
+            <div
+                className={`relative w-full max-w-4xl bg-[#0F1115] border border-white/15 rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl ${isClosing ? 'animate-pop-out' : 'animate-pop-in'
+                    }`}
                 style={{ animationDuration: '0.25s' }}
             >
                 {/* Header */}
-                <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-white/10 bg-[#12151C]/90">
+                <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4 border-b border-white/10 bg-[#0F1115]/90">
                     <div className="flex items-center gap-2.5 min-w-0 pr-2">
                         <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#D497FF]/10 flex items-center justify-center border border-[#D497FF]/20 shrink-0">
                             <Play className="text-[#D497FF] fill-[#D497FF] w-3.5 h-3.5" />

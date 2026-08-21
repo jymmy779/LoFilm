@@ -45,14 +45,14 @@ export default function WatchlistButton({ movie, className = "", iconSize = 18 }
                 e.stopPropagation();
                 toggleWatchlist();
             }}
-            className={`cursor-pointer transition-all duration-300 flex items-center justify-center ${className}`}
+            className={`cursor-pointer transition-all duration-300 flex items-center justify-center ${className || "w-full h-full"}`}
             aria-label={isInWatchlist ? "Xóa khỏi danh sách xem sau" : "Thêm vào danh sách xem sau"}
             title={isInWatchlist ? "Xóa khỏi danh sách xem sau" : "Thêm vào danh sách xem sau"}
         >
             <Bookmark
                 size={iconSize}
-                fill={isInWatchlist ? "#f59e0b" : "none"}
-                className={`${isInWatchlist ? "text-amber-500 drop-shadow-[0_0_8px_rgba(245,158,11,0.5)]" : "text-white/60 group-hover:text-amber-400"} transition-all duration-300 transform active:scale-95`}
+                fill={isInWatchlist ? "#10b981" : "none"}
+                className={`${isInWatchlist ? "text-emerald-500 drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" : "text-white/60 group-hover:text-emerald-400"} transition-all duration-300 transform active:scale-95 pointer-events-none`}
             />
         </button>
     );

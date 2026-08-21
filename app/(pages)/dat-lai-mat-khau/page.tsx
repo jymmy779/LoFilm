@@ -95,7 +95,7 @@ export default function ResetPasswordPage() {
       </div>
 
       <div
-        className="w-full max-w-md bg-[#0F1115]/60 backdrop-blur-xl border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl animate-fade-in"
+        className="w-full max-w-md bg-[#0F1115] border border-white/10 rounded-[32px] p-8 md:p-10 shadow-2xl animate-fade-in"
       >
         <div className="text-center mb-8">
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2">Đặt lại mật khẩu</h1>
