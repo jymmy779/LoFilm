@@ -32,35 +32,26 @@ export default async function AdminPage() {
     const starredMovies = starredRes.data || [];
 
     return (
-        <div className="bg-[#0F1115] min-h-screen text-white">
-            <header className="bg-[#0F1115] border-b border-white/10 top-0 z-10">
-                <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-                    <div className="flex items-center gap-4">
-                        <Link href="/">
-                            <img src="/images/lofilm_logo.webp" alt="LoFilm Logo" className="h-8" />
-                        </Link>
-                        <span className="text-gray-400 font-medium border-l border-white/20 pl-4">Admin Dashboard</span>
-                    </div>
-                    <div className="flex items-center gap-4">
-                        <Link href="/" className="text-sm text-gray-400 hover:text-white transition">Về trang chủ</Link>
-                        <form action={logoutAdmin}>
-                            <button type="submit" className="text-sm bg-red-600/10 text-red-500 hover:bg-red-600 hover:text-white px-3 py-1.5 rounded transition">
-                                Đăng xuất
-                            </button>
-                        </form>
-                    </div>
+        <div className="space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-gray-900/50 p-4 rounded-xl border border-gray-800">
+                <h1 className="text-2xl font-bold text-white">Tổng quan Dashboard</h1>
+                <div className="flex items-center gap-4">
+                    <Link href="/" className="text-sm font-medium text-gray-400 hover:text-white transition">Về trang chủ</Link>
+                    <form action={logoutAdmin}>
+                        <button type="submit" className="text-sm bg-red-600/10 text-red-500 font-medium hover:bg-red-600 hover:text-white px-4 py-2 rounded-lg transition">
+                            Đăng xuất
+                        </button>
+                    </form>
                 </div>
-            </header>
+            </div>
 
-            <main className="container mx-auto px-4 py-8">
-                {error ? (
-                    <div className="bg-red-500/10 border border-red-500/50 p-4 rounded text-red-500 mb-6">
-                        <strong>Lỗi kết nối CSDL: </strong> {error.message}. <br />
-                        <em>Vui lòng chắc chắn rằng bạn đã chạy đoạn mã SQL tạo bảng trong Supabase Dashboard.</em>
-                    </div>
-                ) : null}
-                <AdminDashboard initialStats={stats} initialSettings={settings} initialStarredMovies={starredMovies} />
-            </main>
+            {error ? (
+                <div className="bg-red-500/10 border border-red-500/50 p-4 rounded text-red-500 mb-6">
+                    <strong>Lỗi kết nối CSDL: </strong> {error.message}. <br />
+                    <em>Vui lòng chắc chắn rằng bạn đã chạy đoạn mã SQL tạo bảng trong Supabase Dashboard.</em>
+                </div>
+            ) : null}
+            <AdminDashboard initialStats={stats} initialSettings={settings} initialStarredMovies={starredMovies} />
         </div>
     );
 }

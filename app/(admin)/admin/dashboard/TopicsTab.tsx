@@ -181,25 +181,26 @@ export default function TopicsTab({ initialTopics }: { initialTopics?: any[] }) 
             {/* Left/Middle Column: List of Topics */}
             <div className="xl:col-span-2 space-y-6">
                 <div className="bg-[#0F1115] rounded-lg p-6 border border-white/5">
-                    <div className="flex justify-between items-center mb-6">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                         <div>
                             <h3 className="text-xl font-bold">Danh sách Chủ đề ({topics.length})</h3>
                             <p className="text-sm text-gray-400 mt-1">Sắp xếp, thêm hoặc xóa các danh mục hiển thị ở trang chủ</p>
                         </div>
-                        <div className="flex gap-3">
+                        <div className="flex gap-3 shrink-0">
                             <button
                                 onClick={startAdd}
-                                className="bg-[#D497FF]/10 text-[#D497FF] border border-[#D497FF]/20 hover:bg-[#D497FF] hover:text-black px-4 py-2 rounded-lg font-medium transition flex items-center gap-2 text-sm"
+                                className="bg-[#D497FF]/10 text-[#D497FF] border border-[#D497FF]/20 hover:bg-[#D497FF] hover:text-black px-4 py-2 rounded-lg font-medium transition flex items-center justify-center gap-2 text-sm flex-1 sm:flex-none whitespace-nowrap"
                             >
                                 <Plus size={16} /> Thêm mới
                             </button>
                             <button
                                 onClick={handleSaveToDb}
                                 disabled={isPending}
-                                className="bg-[#D497FF] hover:bg-[#D497FF] text-black px-5 py-2 rounded-lg font-bold transition disabled:opacity-50 flex items-center gap-2 text-sm"
+                                className="bg-[#D497FF] hover:bg-[#D497FF] text-black px-4 sm:px-5 py-2 rounded-lg font-bold transition disabled:opacity-50 flex items-center justify-center gap-2 text-sm flex-1 sm:flex-none whitespace-nowrap"
                             >
                                 {isPending ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-cloud-arrow-up"></i>}
-                                Lưu cấu hình DB
+                                <span className="hidden sm:inline">Lưu cấu hình DB</span>
+                                <span className="sm:hidden">Lưu DB</span>
                             </button>
                         </div>
                     </div>

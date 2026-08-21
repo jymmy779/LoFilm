@@ -79,12 +79,12 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
     return (
         <div className="space-y-8">
             <div className="bg-[#0F1115] rounded-lg p-6 border border-white/5">
-                <div className="flex items-center justify-between mb-6">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
                     <h3 className="text-xl font-semibold">Cấu hình Editor's Choices</h3>
                     <button
                         onClick={handleSave}
                         disabled={isPending}
-                        className="bg-[#D497FF] hover:bg-[#D497FF] text-black px-6 py-2 rounded font-bold transition-colors disabled:opacity-50 flex items-center gap-2"
+                        className="bg-[#D497FF] hover:bg-[#D497FF] text-black px-6 py-2 rounded font-bold transition-colors disabled:opacity-50 flex items-center justify-center gap-2 shrink-0 whitespace-nowrap"
                     >
                         {isPending ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-save"></i>}
                         Lưu Cấu Hình
@@ -110,13 +110,13 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
                             onChange={() => setConfig({ ...config, mode: 'auto' })}
                             className="w-5 h-5 accent-blue-500"
                         />
-                        <span className="font-medium">Tự động (Lấy phim nhiều lượt xem nhất)</span>
+                        <span className="font-medium leading-tight">Tự động (Lấy phim nhiều lượt xem nhất)</span>
                     </label>
                 </div>
 
                 {config.mode === 'auto' && (
-                    <div className="p-4 bg-[#0F1115] rounded-lg border border-white/10 flex items-center gap-4">
-                        <label className="font-medium">Số lượng phim muốn hiển thị:</label>
+                    <div className="p-4 bg-[#0F1115] rounded-lg border border-white/10 flex flex-col sm:flex-row sm:items-center gap-4">
+                        <label className="font-medium whitespace-nowrap">Số lượng phim hiển thị:</label>
                         <input
                             type="number"
                             min="1"
@@ -125,7 +125,7 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
                             onChange={(e) => setConfig({ ...config, autoCount: parseInt(e.target.value) || 10 })}
                             className="bg-[#0F1115] text-white rounded p-2 focus:outline-none focus:ring-2 focus:ring-[#D497FF] border border-white/10 w-24 text-center"
                         />
-                        <span className="text-sm text-gray-400">Hệ thống sẽ lấy danh sách từ bảng movie_views</span>
+                        <span className="text-sm text-gray-400">Lấy từ bảng movie_views</span>
                     </div>
                 )}
             </div>
@@ -141,15 +141,15 @@ export default function EditorChoicesTab({ initialConfig }: { initialConfig: any
                                 value={searchKeyword}
                                 onChange={(e) => setSearchKeyword(e.target.value)}
                                 placeholder="Nhập tên phim cần tìm..."
-                                className="flex-1 bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF] border border-white/10"
+                                className="flex-1 bg-[#0F1115] text-white rounded p-3 focus:outline-none focus:ring-2 focus:ring-[#D497FF] border border-white/10 min-w-0"
                             />
                             <button
                                 type="submit"
                                 disabled={isSearching}
-                                className="bg-[#D497FF] hover:bg-[#D497FF] text-black px-6 py-2 rounded font-bold transition-colors disabled:opacity-50"
+                                className="bg-[#D497FF] hover:bg-[#D497FF] text-black px-4 sm:px-6 py-2 rounded font-bold transition-colors disabled:opacity-50 shrink-0 whitespace-nowrap flex items-center gap-2"
                             >
                                 {isSearching ? <i className="fa-solid fa-spinner fa-spin"></i> : <i className="fa-solid fa-search"></i>}
-                                Tìm kiếm
+                                <span className="hidden sm:inline">Tìm kiếm</span>
                             </button>
                         </form>
 
