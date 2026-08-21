@@ -55,7 +55,12 @@ export default function Header() {
         axios.get<MenuItem[]>(`/api/proxy?url=${encodeURIComponent(`${INTERNAL_API_URL}/the-loai`)}&revalidate=86400`)
             .then((res) => {
                 const items = (res.data as any).data?.items || (res.data as any).items || res.data;
-                setCategories(Array.isArray(items) ? items : []);
+                const list: MenuItem[] = Array.isArray(items) ? [...items] : [];
+                if (!list.some(i => i.slug === "hoat-hinh")) {
+                    list.push({ _id: "hoat-hinh", name: "Hoạt hình", slug: "hoat-hinh" });
+                    list.sort((a, b) => a.name.localeCompare(b.name, "vi"));
+                }
+                setCategories(list);
             })
             .catch((err) => console.error("Lỗi fetch thể loại:", err));
 
@@ -97,7 +102,6 @@ export default function Header() {
     ];
 
     const extraCategories: MenuItem[] = [
-        { _id: "hoat-hinh", name: "Hoạt hình", slug: "hoat-hinh" },
         { _id: "tv-shows", name: "TV Shows", slug: "tv-shows" },
         { _id: "phim-chieu-rap", name: "Phim chiếu rạp", slug: "phim-chieu-rap" },
     ];
@@ -295,9 +299,13 @@ export default function Header() {
                     <button
                         onClick={(e) => {
                             if (isPlaylistActive) { e.preventDefault(); return; }
-                            setOptimisticTab('/thu-vien');
-                            if (user) router.push('/thu-vien');
-                            else { setLoginPromptSource("playlist"); setShowLoginPrompt(true); }
+                            if (user) {
+                                setOptimisticTab('/thu-vien');
+                                router.push('/thu-vien');
+                            } else {
+                                setLoginPromptSource("playlist");
+                                setShowLoginPrompt(true);
+                            }
                         }}
                         className={`relative h-[42px] md:h-[46px] rounded-full flex items-center justify-center transition-all duration-200 ease-out active:scale-90 ${isPlaylistActive
                             ? "bg-[#D497FF]/15 text-[#D497FF] px-3.5 md:px-4 gap-2 md:gap-2.5"
@@ -334,9 +342,13 @@ export default function Header() {
                     <button
                         onClick={(e) => {
                             if (isCaNhanActive) { e.preventDefault(); return; }
-                            setOptimisticTab('/ca-nhan');
-                            if (user) router.push('/ca-nhan');
-                            else { setLoginPromptSource("account"); setShowLoginPrompt(true); }
+                            if (user) {
+                                setOptimisticTab('/ca-nhan');
+                                router.push('/ca-nhan');
+                            } else {
+                                setLoginPromptSource("account");
+                                setShowLoginPrompt(true);
+                            }
                         }}
                         className={`relative h-[42px] md:h-[46px] rounded-full flex items-center justify-center transition-all duration-200 ease-out active:scale-90 ${isCaNhanActive
                             ? "bg-[#D497FF]/15 text-[#D497FF] px-3.5 md:px-4 gap-2 md:gap-2.5"
@@ -365,7 +377,10 @@ export default function Header() {
             </div>
             <LoginPromptModal
                 isOpen={showLoginPrompt}
-                onClose={() => setShowLoginPrompt(false)}
+                onClose={() => {
+                    setOptimisticTab(null);
+                    setShowLoginPrompt(false);
+                }}
             />
         </>
     );

@@ -158,7 +158,12 @@ export function useMovieCatalog({ baseApiUrl, itemsPerPage = 32, slug, initialDa
                     if (data?.data && Array.isArray(data.data)) return data.data;
                     return [];
                 };
-                setCategories(extractArray(catRes.data));
+                let catList = extractArray(catRes.data);
+                if (catList.length > 0 && !catList.some((i: any) => i.slug === "hoat-hinh")) {
+                    catList = [...catList, { _id: "hoat-hinh", name: "Hoạt hình", slug: "hoat-hinh" }];
+                    catList.sort((a: any, b: any) => a.name.localeCompare(b.name, "vi"));
+                }
+                setCategories(catList);
                 setCountries(extractArray(counRes.data));
             } catch (err) {
                 console.error("Lỗi fetch dữ liệu bộ lọc:", err);

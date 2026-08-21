@@ -81,11 +81,17 @@ export async function fetchCatalogData(
             return [];
         };
 
+        let parsedCategories = parseList(categoriesData);
+        if (parsedCategories.length > 0 && !parsedCategories.some(i => i.slug === "hoat-hinh")) {
+            parsedCategories = [...parsedCategories, { _id: "hoat-hinh", name: "Hoạt hình", slug: "hoat-hinh" }];
+            parsedCategories.sort((a, b) => a.name.localeCompare(b.name, "vi"));
+        }
+
         return {
             movies: items,
             totalPages: Math.ceil(totalItems / limit) || 1,
             pageTitle,
-            categories: parseList(categoriesData),
+            categories: parsedCategories,
             countries: parseList(countriesData),
         };
     } catch (error) {

@@ -211,10 +211,6 @@ export default function MobileBottomSheet({ isOpen, onClose, categories, countri
                                 <div className="w-1.5 h-1.5 rounded-full bg-[#D497FF]/50 mr-3" />
                                 <span className="text-[15px]">Phim Chiếu Rạp</span>
                             </TransitionLink>
-                            <TransitionLink href="/danh-sach/hoat-hinh" onClick={() => handleLinkClick("/danh-sach/hoat-hinh")} className="flex items-center p-3 hover:bg-white/5 rounded-xl text-white/80 hover:text-[#D497FF] transition-colors">
-                                <div className="w-1.5 h-1.5 rounded-full bg-[#D497FF]/50 mr-3" />
-                                <span className="text-[15px]">Hoạt Hình</span>
-                            </TransitionLink>
                             <TransitionLink href="/danh-sach/tv-shows" onClick={() => handleLinkClick("/danh-sach/tv-shows")} className="flex items-center p-3 hover:bg-white/5 rounded-xl text-white/80 hover:text-[#D497FF] transition-colors">
                                 <div className="w-1.5 h-1.5 rounded-full bg-[#D497FF]/50 mr-3" />
                                 <span className="text-[15px]">TV Shows</span>

@@ -76,8 +76,6 @@ export default function DesktopSidebar() {
                             <button
                                 key={index}
                                 onClick={() => {
-                                    if (isActive) return;
-                                    setOptimisticTab(item.href);
                                     setShowLoginPrompt(true);
                                 }}
                                 className={className}
@@ -102,7 +100,13 @@ export default function DesktopSidebar() {
                     );
                 })}
             </nav>
-            <LoginPromptModal isOpen={showLoginPrompt} onClose={() => setShowLoginPrompt(false)} />
+            <LoginPromptModal
+                isOpen={showLoginPrompt}
+                onClose={() => {
+                    setOptimisticTab(null);
+                    setShowLoginPrompt(false);
+                }}
+            />
         </aside>
     );
 }
