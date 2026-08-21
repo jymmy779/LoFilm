@@ -34,8 +34,7 @@ import ClientToaster from "./components/UI/Common/ClientToaster";
 
 
 import { Suspense } from "react";
-import { GoogleAnalytics } from '@next/third-parties/google'
-import AdsterraSocialBar from "./components/Layout/Ads/AdsterraSocialBar";
+import { GoogleAnalytics } from '@next/third-parties/google';
 
 
 export const viewport: Viewport = {
@@ -55,28 +54,17 @@ import { SITE_URL, getAbsoluteUrl } from "./config/site";
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),
   title: {
-    default: "LoFilm - Xem Phim Online Chất Lượng Cao | Phim 4K Vietsub Miễn Phí",
-    template: "%s | LoFilm"
+    default: "CineStream - Modern Movie Streaming & Discovery Platform",
+    template: "%s | CineStream"
   },
-  description: "LoFilm - Trang xem phim online chất lượng cao 4K, Vietsub, thuyết minh hoàn toàn miễn phí. Kho phim lẻ, phim bộ, anime, phim chiếu rạp mới nhất 2025-2026. Trải nghiệm xem phim LoFilm không quảng cáo, tốc độ tải cực nhanh, giao diện hiện đại.",
-  applicationName: 'LoFilm',
-  authors: [{ name: 'LoFilm Team' }],
+  description: "CineStream - Nền tảng xem phim và khám phá điện ảnh hiện đại với hiệu năng vượt trội, xây dựng trên Next.js 16, React 19 và kiến trúc Multi-Layer Caching.",
+  applicationName: 'CineStream',
+  authors: [{ name: 'CineStream Showcase' }],
   generator: 'Next.js',
   manifest: '/manifest.json',
-  keywords: [
-    "LoFilm", "lofilm", "lo film", "lofilmtv", "lofilm net", "lofilm me", "lofilm chill", "lofilm phim",
-    "xem phim lofilm", "xem phim lo film", "trang phim lofilm", "web phim lofilm", "lofilm xem phim",
-    "lofilm phim hay", "lofilm vietsub", "lofilm 4k", "phim moi", "phim hay 2026", "xem phim online",
-    "phim vietsub", "phim bo moi", "phim le hay", "phim chieu rap", "phim thuyet minh", "phim long tieng",
-    "xem phim hd", "phim online mien phi", "phim nhanh", "phim khong quang cao", "kho phim hay",
-    "phim hanh dong", "phim tinh cam", "phim hai", "phim co trang", "phim ma", "phim kinh di",
-    "phim hoat hinh", "anime vietsub", "phim trung quoc", "phim han quoc", "phim au my", "phim thai lan",
-    "phim nhat ban", "phim viet nam", "phim moi nhat", "xem phim nhanh", "phim chat luong cao",
-    "phim 1080p", "phim bluray", "phim netflix", "phim hulu", "phim disney", "phim hay moi ngay"
-  ],
   referrer: 'origin-when-cross-origin',
-  creator: 'LoFilm',
-  publisher: 'LoFilm',
+  creator: 'CineStream',
+  publisher: 'CineStream',
   formatDetection: {
     email: false,
     address: false,
@@ -85,51 +73,30 @@ export const metadata: Metadata = {
   appleWebApp: {
     capable: true,
     statusBarStyle: 'default',
-    title: 'LoFilm',
+    title: 'CineStream',
   },
   icons: {
     icon: [
       { url: '/favicon.ico', sizes: 'any', type: 'image/x-icon' },
-      { url: '/icon-48.png', sizes: '48x48', type: 'image/png' },
-      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
-    ],
-    apple: [
-      { url: '/icon-192.png', sizes: '192x192', type: 'image/png' },
-      { url: '/icon-512.png', sizes: '512x512', type: 'image/png' },
     ],
     shortcut: '/favicon.ico',
   },
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-      'max-video-preview': -1,
-    },
   },
   openGraph: {
-    title: "LoFilm - Kho Phim Giải Trí Đỉnh Cao , Xem Phim Online 4K , Vietsub",
-    description: "Trải nghiệm xem phim chất lượng cao 4K, Vietsub, thuyết minh hoàn toàn miễn phí tại LoFilm. Kho phim mới cập nhật mỗi ngày, không quảng cáo khó chịu.",
+    title: "CineStream - Nền Tảng Xem Phim Full-Stack Hiện Đại",
+    description: "Trải nghiệm điện ảnh đỉnh cao với hiệu năng vượt trội, giao diện tinh tế và kiến trúc Streaming SSR tối ưu.",
     url: SITE_URL,
-    siteName: "LoFilm",
+    siteName: "CineStream",
     locale: "vi_VN",
     type: "website",
-    images: [{
-      url: getAbsoluteUrl('/images/lofilm_logo.webp'),
-      width: 1200,
-      height: 630,
-      alt: "LoFilm - Xem Phim Online Chất Lượng Cao",
-    }],
   },
   twitter: {
-    card: 'summary_large_image',
-    title: 'LoFilm - Xem Phim Online Chất Lượng Cao',
-    description: 'Xem phim LoFilm miễn phí, chất lượng 4K, Vietsub. Kho phim mới cập nhật mỗi ngày.',
-    images: [getAbsoluteUrl('/images/lofilm_logo.webp')],
+    card: "summary_large_image",
+    title: "CineStream - Nền Tảng Xem Phim Full-Stack Hiện Đại",
+    description: "Trải nghiệm điện ảnh đỉnh cao với hiệu năng vượt trội, giao diện tinh tế và kiến trúc Streaming SSR tối ưu.",
   },
   alternates: {
     canonical: SITE_URL,
@@ -301,8 +268,6 @@ export default async function RootLayout({
         <HideOnAdmin>
           <ScrollToTop />
           <GoogleAnalytics gaId="G-FCV3H66SFX" />
-          {/* Adsterra Social Bar - 4 hours cooldown */}
-          <AdsterraSocialBar />
         </HideOnAdmin>
       </body>
     </html>

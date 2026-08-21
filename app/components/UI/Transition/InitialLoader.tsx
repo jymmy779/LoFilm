@@ -56,14 +56,14 @@ export default function InitialLoader() {
       >
         <div className="lofilm-loader-content">
           <div className="lofilm-loader-text">
-            LoFilm
+            Cine<span style={{ color: '#D497FF' }}>Stream</span>
           </div>
 
           <div className="lofilm-loader-bar-container">
             <div className="lofilm-loader-bar-fill"></div>
           </div>
           <div className="vn-copyright">
-            Thế giới phim ảnh trong tầm tay
+            Modern Full-Stack Streaming Platform
           </div>
         </div>
       </div>
