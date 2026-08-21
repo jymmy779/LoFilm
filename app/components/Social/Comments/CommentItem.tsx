@@ -385,15 +385,26 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                                 <CommentInput
                                     isEdit={true}
                                     initialContent={commentContent}
+                                    initialIsSpoiler={comment.is_spoiler}
                                     onSubmit={handleUpdate}
                                     onCancel={() => setIsEditing(false)}
                                 />
                             )}
                         </div>
                         {!isEditing && (
-                            <div className={`${comment.is_spoiler && !showSpoiler ? "text-spoiler" : "text-spoiler revealed"} animate-fade-in`}>
-                                {commentContent}
-                            </div>
+                            comment.is_spoiler ? (
+                                <div
+                                    onClick={() => !showSpoiler && setShowSpoiler(true)}
+                                    className={`${!showSpoiler ? "text-spoiler" : "text-spoiler revealed"} animate-fade-in`}
+                                    title={!showSpoiler ? "Nhấp để xem nội dung ẩn" : undefined}
+                                >
+                                    {commentContent}
+                                </div>
+                            ) : (
+                                <div className="animate-fade-in break-words whitespace-pre-wrap">
+                                    {commentContent}
+                                </div>
+                            )
                         )}
                     </div>
 
@@ -437,7 +448,8 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                             >
                                 {comment.is_spoiler && (
                                     <button className="dropdown-item text-[#D497FF]" onClick={() => { setShowSpoiler(!showSpoiler); setIsMenuOpen(false); }}>
-                                        <Eye size={14} /> <span>Tiết lộ nội dung này</span>
+                                        {showSpoiler ? <EyeOff size={14} /> : <Eye size={14} />}
+                                        <span>{showSpoiler ? "Ẩn nội dung này" : "Tiết lộ nội dung này"}</span>
                                     </button>
                                 )}
                                 <button className="dropdown-item" onClick={reportComment}>
@@ -458,21 +470,23 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
 
 
                     </div>
+                </div>
+            </div>
 
-                    <div className="reply-form-wrap">
-                        <div
-                            className={`overflow-hidden transition-all duration-300 ease-in-out ${showReplyForm ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}
-                        >
-                            {showReplyForm && (
-                                <CommentInput
-                                    isReply={true}
-                                    placeholder={`Trả lời ${displayName}...`}
-                                    onSubmit={handleAddReply}
-                                    onCancel={() => setShowReplyForm(false)}
-                                />
-                            )}
+            <div className="reply-form-wrap">
+                <div
+                    className={`overflow-hidden transition-all duration-300 ease-in-out ${showReplyForm ? 'max-h-[500px] opacity-100 mt-2.5' : 'max-h-0 opacity-0'}`}
+                >
+                    {showReplyForm && (
+                        <div className="pl-3 sm:pl-8">
+                            <CommentInput
+                                isReply={true}
+                                placeholder={`Trả lời ${displayName}...`}
+                                onSubmit={handleAddReply}
+                                onCancel={() => setShowReplyForm(false)}
+                            />
                         </div>
-                    </div>
+                    )}
                 </div>
             </div>
 

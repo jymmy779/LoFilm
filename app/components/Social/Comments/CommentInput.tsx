@@ -9,6 +9,7 @@ interface CommentInputProps {
     isReply?: boolean;
     isEdit?: boolean;
     initialContent?: string;
+    initialIsSpoiler?: boolean;
     hasCommented?: boolean;
     userCommentId?: string;
     onCancel?: () => void;
@@ -20,41 +21,14 @@ export default function CommentInput({
     isReply = false, 
     isEdit = false, 
     initialContent = "",
+    initialIsSpoiler = false,
     hasCommented = false,
     userCommentId,
     onCancel 
 }: CommentInputProps) {
     const [content, setContent] = useState(initialContent);
-    const [isSpoiler, setIsSpoiler] = useState(false);
+    const [isSpoiler, setIsSpoiler] = useState(initialIsSpoiler);
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Tự động nhận diện từ khóa Spoiler
-    const spoilerKeywords = [
-        // Sống chết / Số phận
-        "chết", "ngủm", "bay màu", "hẹo", "hi sinh", "tử nạn", "sống sót", "hồi sinh", "bị giết", "tự sát", "tự tử",
-        // Thân phận / Phản diện
-        "hung thủ", "thủ phạm", "là trùm", "trùm cuối", "boss cuối", "là kẻ", "kẻ đứng sau", "chủ mưu", "gián điệp", "nội gián", "phản bội", "hắc hóa",
-        // Plot twist
-        "bí mật là", "sự thật là", "thực chất là", "thì ra là", "hóa ra là", "té ra", "cú lừa", "lật kèo", "plot twist", "quay xe",
-        // Kết thúc
-        "kết thúc", "kết cục", "cuối cùng thì", "cuối cùng cũng", "kết phim", "đoạn cuối", "khúc cuối", "cảnh cuối", "tập cuối", "after credit",
-        // Từ lóng
-        "spoil", "spoiler", "xì poi", "xì poil", "spoi"
-    ];
-
-    useEffect(() => {
-        if (!content.trim()) {
-            setIsSpoiler(false);
-            return;
-        }
-        
-        const lowerContent = content.toLowerCase();
-        // Dùng includes để kiểm tra từng từ khóa trong nội dung
-        const hasSpoiler = spoilerKeywords.some(keyword => lowerContent.includes(keyword.toLowerCase()));
-        
-        // Tự động bật/tắt checkbox dựa trên nội dung
-        setIsSpoiler(hasSpoiler);
-    }, [content]);
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -114,7 +88,7 @@ export default function CommentInput({
     }
 
     return (
-        <form onSubmit={handleSubmit} className={`comment-form-container ${isReply || isEdit ? 'mt-4 border-l-2 border-[#D497FF]/20' : ''}`}>
+        <form onSubmit={handleSubmit} className={`comment-form-container ${isReply || isEdit ? 'is-nested mt-3 border-l-2 border-[#D497FF]/30' : ''}`}>
             <textarea
                 className="comment-textarea"
                 placeholder={isEdit ? "Chỉnh sửa bình luận..." : placeholder}
@@ -123,26 +97,35 @@ export default function CommentInput({
                 autoFocus={isEdit}
                 disabled={isSubmitting}
             />
-            <div className="form-footer flex justify-end items-center w-full">
-                <div className="flex items-center gap-3">
+            <div className="form-footer">
+                <button
+                    type="button"
+                    onClick={() => setIsSpoiler(!isSpoiler)}
+                    className={`btn-spoil-toggle ${isSpoiler ? 'active' : ''}`}
+                >
+                    <EyeOff size={13} className={isSpoiler ? 'text-[#D497FF]' : 'opacity-50'} />
+                    <span>Làm mờ</span>
+                </button>
+
+                <div className="flex items-center gap-2">
                     {(isReply || isEdit) && onCancel && (
                         <button
                             type="button"
                             onClick={onCancel}
-                            className="px-4 py-2 text-xs text-white/40 hover:text-white transition-all cursor-pointer"
+                            className="px-2.5 py-1 text-xs text-white/40 hover:text-white transition-all cursor-pointer"
                         >
                             Hủy
                         </button>
                     )}
                     <button
                         type="submit"
-                        className="btn-submit flex items-center gap-2"
-                        disabled={(!content.trim() || isSubmitting) || (isEdit && content === initialContent)}
+                        className="btn-submit flex items-center gap-1.5"
+                        disabled={(!content.trim() || isSubmitting) || (isEdit && content === initialContent && isSpoiler === initialIsSpoiler)}
                     >
                         {isSubmitting ? (
-                            <div className="w-4 h-4 border-2 border-black/20 border-t-black rounded-full animate-spin" />
+                            <div className="w-3.5 h-3.5 border-2 border-black/20 border-t-black rounded-full animate-spin" />
                         ) : (
-                            <Send size={14} />
+                            <Send size={13} />
                         )}
                         <span>{isEdit ? "Cập nhật" : (isReply ? "Trả lời" : "Gửi")}</span>
                     </button>
