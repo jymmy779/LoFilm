@@ -1,13 +1,11 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React from "react";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
-import { getImageUrl, getRawImageUrl, generateCategorySlug } from "@/app/utils/movieUtils";
-import { getCategoryStyles } from "@/app/utils/uiUtils";
+import { getImageUrl, getRawImageUrl } from "@/app/utils/movieUtils";
 import SmartImage from "@/app/components/UI/Common/SmartImage";
 import { getR2MoviePosterUrl } from "@/app/utils/r2ImageUrl";
 import { cleanContent } from "@/app/utils/textUtils";
-import { ChevronRight } from "lucide-react";
 
 interface MovieInfoProps {
   slug: string;
@@ -19,18 +17,6 @@ interface MovieInfoProps {
     content: string;
     quality: string;
     year?: number | string;
-    time?: string;
-    director?: string[];
-    country?: Array<{
-      id?: string;
-      name: string;
-      slug: string;
-    }>;
-    category?: Array<{
-      id?: string;
-      name: string;
-      slug: string;
-    }>;
     episode_current?: string;
     status?: string;
     tmdb?: {
@@ -45,16 +31,9 @@ interface MovieInfoProps {
 }
 
 const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
-  const [isExpanded, setIsExpanded] = useState(false);
-
   const rating = movie.tmdb?.vote_average && movie.tmdb.vote_average > 0
     ? movie.tmdb.vote_average.toFixed(1)
     : null;
-
-  const categoryStyles = useMemo(() => {
-    if (!movie.category || movie.category.length === 0) return [];
-    return getCategoryStyles(movie.category.map((c) => c.slug));
-  }, [movie.category]);
 
   const cleanedContent = cleanContent(movie.content);
 
@@ -105,87 +84,25 @@ const MovieInfo = ({ slug, movie, episode }: MovieInfoProps) => {
                 {movie.name}
               </TransitionLink>
             </h1>
-            <p className="text-xs sm:text-sm text-white/40 font-medium italic mb-2.5">
+            <p className="text-xs sm:text-sm text-white/40 font-medium italic">
               {movie.origin_name}
             </p>
-
-            {/* Categories */}
-            {movie.category && movie.category.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 pt-1">
-                {movie.category.map((cat, idx) => {
-                  const finalSlug = generateCategorySlug(cat.slug, cat.name);
-                  return (
-                    <TransitionLink
-                      key={finalSlug || idx}
-                      href={`/the-loai/${finalSlug}`}
-                      className={`px-2.5 py-0.5 text-xs font-medium bg-white/5 hover:bg-white/10 border border-white/10 ${categoryStyles[idx]?.text || 'text-white/80'} rounded-md transition-all`}
-                    >
-                      {cat.name}
-                    </TransitionLink>
-                  );
-                })}
-              </div>
-            )}
           </div>
         </div>
       </div>
 
-      {/* Unified Bento: Nội Dung & Thông Tin Chi Tiết */}
+      {/* Nội Dung Phim - Full Width & Luôn hiển thị */}
       <div className="border-t border-white/5 pt-4">
-        {/* Toggle header on Mobile */}
-        <div
-          onClick={() => setIsExpanded(!isExpanded)}
-          className="flex items-center justify-between cursor-pointer sm:cursor-default select-none pb-2 sm:pb-3"
-        >
-          <div className="flex items-center gap-2">
-            <div className="w-1.5 h-3.5 bg-[#D497FF] rounded-full shrink-0" />
-            <h3 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider">
-              Nội Dung & Chi Tiết
-            </h3>
-          </div>
-
-          <div className="flex items-center gap-1 text-xs font-semibold text-[#D497FF] sm:hidden px-2.5 py-1 rounded-full bg-[#D497FF]/10 border border-[#D497FF]/20 shrink-0 whitespace-nowrap">
-            <span>{isExpanded ? "Thu gọn" : "Chi tiết"}</span>
-            <ChevronRight
-              size={13}
-              className={`transform transition-transform duration-300 ${isExpanded ? "-rotate-90" : "rotate-90"}`}
-            />
-          </div>
+        <div className="flex items-center gap-2 mb-2 sm:mb-2.5">
+          <div className="w-1.5 h-3.5 bg-[#D497FF] rounded-full shrink-0" />
+          <h3 className="text-xs sm:text-sm font-bold text-white uppercase tracking-wider">
+            Nội Dung Phim
+          </h3>
         </div>
 
-        {/* Content Body: Toggleable on mobile, always visible on tablet/desktop */}
-        <div className={`${isExpanded ? "block animate-fade-in" : "hidden sm:block"}`}>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-1">
-            {/* Synopsis */}
-            <div className="md:col-span-2">
-              <p className="text-xs sm:text-sm text-white/70 leading-relaxed font-light">
-                {cleanedContent || "Bộ phim hấp dẫn đang được phát sóng với chất lượng cao trên LoFilm..."}
-              </p>
-            </div>
-
-            {/* Quick Details */}
-            <div className="bg-white/5 border border-white/5 rounded-xl p-3.5 space-y-2 text-xs">
-              {movie.time && (
-                <div className="flex items-center justify-between">
-                  <span className="text-white/40">Thời lượng:</span>
-                  <span className="text-white font-medium">{movie.time}</span>
-                </div>
-              )}
-              {movie.country && movie.country.length > 0 && (
-                <div className="flex items-center justify-between">
-                  <span className="text-white/40">Quốc gia:</span>
-                  <span className="text-[#D497FF] font-medium">{movie.country.map(c => c.name).join(", ")}</span>
-                </div>
-              )}
-              {movie.director && movie.director.length > 0 && movie.director[0] !== "" && (
-                <div className="flex items-start justify-between gap-2 pt-1 border-t border-white/5">
-                  <span className="text-white/40 whitespace-nowrap">Đạo diễn:</span>
-                  <span className="text-white/80 font-medium text-right">{movie.director.join(", ")}</span>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
+        <p className="text-xs sm:text-sm text-white/70 leading-relaxed font-light">
+          {cleanedContent || "Bộ phim hấp dẫn đang được phát sóng với chất lượng cao trên LoFilm..."}
+        </p>
       </div>
     </div>
   );
