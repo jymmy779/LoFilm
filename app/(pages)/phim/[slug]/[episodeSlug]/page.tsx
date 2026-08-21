@@ -79,11 +79,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         }
     }
 
-    const title = `Xem phim ${movie.name}${currentEpisodeName} Vietsub`;
+    const title = `Xem phim ${movie.name}${currentEpisodeName} Vietsub | CineStream`;
     const cleanDescription = (movie.content || "").replace(/<[^>]*>/g, '').substring(0, 155);
     const description = cleanDescription
         ? `${cleanDescription}...`
-        : `Xem phim ${movie.name} (${movie.origin_name})${currentEpisodeName} vietsub, thuyết minh chất lượng HD tại LoFilm. Miễn phí, không quảng cáo.`;
+        : `Xem phim ${movie.name} (${movie.origin_name})${currentEpisodeName} vietsub chất lượng HD tại CineStream.`;
 
     const keywords = [
         movie.name,
@@ -92,10 +92,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         `${movie.name} vietsub`,
         `${movie.name} thuyet minh`,
         `${movie.name} full hd`,
-        `xem ${movie.name} lofilm`,
         ...(movie.category?.map((c: any) => c.name) || []),
         ...(movie.actor?.slice(0, 5) || []),
-        "lofilm", "xem phim online mien phi", "phim hay 2026"
+        "CineStream", "xem phim online mien phi", "phim hay 2026"
     ].filter(Boolean);
 
     return {
@@ -109,14 +108,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             title,
             description,
             url: getAbsoluteUrl(`/phim/${slug}/${episodeSlug}`),
-            siteName: 'LoFilm',
+            siteName: 'CineStream',
             locale: 'vi_VN',
             type: 'video.movie',
             images: [{
                 url: movie.poster_url || movie.thumb_url,
                 width: 1200,
                 height: 675,
-                alt: `${movie.name} - LoFilm`,
+                alt: `${movie.name} - CineStream`,
             }],
         },
         twitter: {

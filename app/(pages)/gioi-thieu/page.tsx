@@ -4,8 +4,8 @@ import { Mail, Send } from 'lucide-react';
 import { getAbsoluteUrl } from '@/app/config/site';
 
 export const metadata: Metadata = {
-  title: 'Giới Thiệu | LoFilm - Xem Phim Online Chất Lượng Cao',
-  description: 'Tìm hiểu về LoFilm - Nền tảng xem phim trực tuyến miễn phí, chất lượng cao cực nét. Khám phá sứ mệnh và tầm nhìn của chúng tôi.',
+  title: 'Giới Thiệu | CineStream',
+  description: 'Tìm hiểu về CineStream - Nền tảng xem phim và khám phá điện ảnh hiện đại.',
   alternates: {
     canonical: getAbsoluteUrl('/gioi-thieu'),
   },
@@ -15,18 +15,17 @@ export default function AboutContact() {
   return (
     <div className="min-h-screen bg-gradient-to-b from-[#0F1115] to-[#0F1115] text-white/80 pt-32 pb-20 md:pt-40 md:pb-32 px-4">
       <div className="max-w-4xl mx-auto bg-[#12151C] border border-white/5 rounded-2xl md:rounded-[32px] overflow-hidden shadow-2xl">
-        <div className="bg-amber-400 p-6 md:p-12 text-black">
-          <h1 className="text-2xl md:text-3xl font-extrabold mb-2 md:mb-3 italic tracking-tighter">LoFilm.</h1>
-          <p className="text-[10px] md:text-sm font-medium opacity-60 leading-relaxed uppercase tracking-[0.12em] md:tracking-[0.15em]">Khám phá thế giới điện ảnh không giới hạn</p>
+        <div className="bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 p-6 md:p-12 text-white">
+          <h1 className="text-2xl md:text-3xl font-extrabold mb-2 md:mb-3 italic tracking-tighter">CineStream.</h1>
+          <p className="text-[10px] md:text-sm font-medium opacity-80 leading-relaxed uppercase tracking-[0.12em] md:tracking-[0.15em]">Khám phá thế giới điện ảnh không giới hạn</p>
         </div>
 
         <div className="p-6 md:p-12 space-y-6 md:space-y-10">
           <section>
-            <h2 className="text-sm md:text-base font-bold text-white mb-3 md:mb-4 underline decoration-amber-400/20 underline-offset-8 uppercase tracking-widest">Giới thiệu về chúng tôi</h2>
+            <h2 className="text-sm md:text-base font-bold text-white mb-3 md:mb-4 underline decoration-purple-400/20 underline-offset-8 uppercase tracking-widest">Giới thiệu về dự án</h2>
             <div className="space-y-4 leading-relaxed text-xs md:text-sm opacity-60">
-              <p>LoFilm ra đời với sứ mệnh mang lại trải nghiệm xem phim trực tuyến hiện đại, mượt mà và hoàn toàn miễn phí cho cộng đồng yêu phim Việt Nam.</p>
-              <p>Với kho nội dung phim đồ sộ, đa dạng thể loại và được cập nhật liên tục mỗi ngày, chúng tôi luôn nỗ lực để trở thành điểm dừng chân yêu thích của mọi tín đồ điện ảnh.</p>
-              <p>Nền tảng của chúng tôi được tối ưu hóa với hệ thống máy chủ tốc độ cao và giao diện tương thích đa nền tảng, giúp bạn tận hưởng những thước phim chất lượng mượt mà nhất trên mọi thiết bị.</p>
+              <p>CineStream ra đời như một sản phẩm nghiên cứu và chứng minh năng lực kỹ thuật Full-Stack Web Development, tối ưu hóa trải nghiệm người dùng với Next.js và React 19.</p>
+              <p>Với kho nội dung phong phú và giao diện Dark Cinema mượt mà, dự án chú trọng vào hiệu năng, tối ưu hóa Core Web Vitals và kiến trúc hệ thống hiện đại.</p>
             </div>
           </section>
 

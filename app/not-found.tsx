@@ -3,7 +3,7 @@ import Image from 'next/image';
 import './not-found.css';
 
 export const metadata = {
-    title: '404 - Không tìm thấy trang | LoFilm',
+    title: '404 - Không tìm thấy trang | CineStream',
 };
 
 export default function NotFound() {
@@ -12,10 +12,10 @@ export default function NotFound() {
             <div className="not-found-content">
                 <div className="not-found-image-container">
                     <Image 
-                        src="/images/404_lofilm.webp" 
-                        alt="404 LoFilm" 
-                        width={200} 
-                        height={130} 
+                        src="/icon.svg" 
+                        alt="404 CineStream" 
+                        width={100} 
+                        height={100} 
                         className="not-found-image"
                         priority
                     />

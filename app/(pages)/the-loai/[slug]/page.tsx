@@ -31,8 +31,8 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     }
 
     return {
-        title: `Phim ${title} | LoFilm - Xem phim online chất lượng cao`,
-        description: `Danh sách phim thuộc thể loại ${title} mới nhất, cập nhật liên tục mỗi ngày trên LoFilm. Xem phim ${title} vietsub, thuyet minh 4K.`,
+        title: `Phim ${title} | CineStream`,
+        description: `Danh sách phim thuộc thể loại ${title} mới nhất tại CineStream. Xem phim ${title} vietsub chất lượng cao.`,
         keywords: [
             `phim ${title}`,
             `xem phim ${title}`,
@@ -40,7 +40,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
             `phim ${title} hay`,
             `phim ${title} vietsub`,
             `phim ${title} thuyet minh`,
-            "lofilm",
+            "CineStream",
             "xem phim online"
         ],
         alternates: {

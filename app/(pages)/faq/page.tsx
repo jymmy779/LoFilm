@@ -3,8 +3,8 @@ import type { Metadata } from 'next';
 import { getAbsoluteUrl } from '@/app/config/site';
 
 export const metadata: Metadata = {
-  title: 'Câu Hỏi Thường Gặp (FAQ) | LoFilm',
-  description: 'Giải đáp những thắc mắc thường gặp khi xem phim tại LoFilm. Tìm hiểu quy trình xem phim miễn phí, đăng ký tài khoản nhanh chóng.',
+  title: 'Câu Hỏi Thường Gặp (FAQ) | CineStream',
+  description: 'Giải đáp những thắc mắc thường gặp tại CineStream.',
   alternates: {
     canonical: getAbsoluteUrl('/faq'),
   },
@@ -13,7 +13,7 @@ export const metadata: Metadata = {
 export default function FAQ() {
   const faqs = [
     {
-      q: "Làm thế nào để đăng ký tài khoản trên LoFilm?",
+      q: "Làm thế nào để đăng ký tài khoản trên CineStream?",
       a: "Bạn chỉ cần nhấn vào nút Đăng nhập ở góc trên bên phải, chọn mục Đăng ký, nhập Email và Họ tên là có thể tạo tài khoản ngay lập tức."
     },
     {
@@ -21,17 +21,9 @@ export default function FAQ() {
       a: "Vui lòng kiểm tra lại kết nối mạng của bạn. Nếu phim không tải được, hãy thử F5 (làm mới trang) hoặc chọn một tập phim/server khác nếu có."
     },
     {
-      q: "Xem phim trên LoFilm có mất phí không?",
-      a: "LoFilm hoàn toàn miễn phí, chúng tôi cung cấp nội dung phim từ các API công khai để chia sẻ đam mê điện ảnh với cộng đồng."
+      q: "Trải nghiệm trên CineStream có mất phí không?",
+      a: "CineStream hoàn toàn miễn phí phục vụ mục đích nghiên cứu và trình diễn công nghệ Web Streaming."
     },
-    {
-      q: "Tôi có thể yêu cầu phim mới không?",
-      a: "Được, bạn có thể liên hệ với chúng tôi thông qua email hoặc trang giới thiệu để đề xuất những bộ phim bạn mong muốn."
-    },
-    {
-      q: "Làm thế nào để báo lỗi phim hỏng?",
-      a: "Mỗi trang xem phim đều có nút Báo lỗi (Report). Bạn hãy nhấn vào đó và chọn loại lỗi thích hợp để chúng tôi xử lý nhanh nhất."
-    }
   ];
 
   return (

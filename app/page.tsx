@@ -25,29 +25,29 @@ export async function generateMetadata(): Promise<Metadata> {
     }
 
     return {
-        title: "LoFilm - Xem Phim Online Chất Lượng Cao, Phim 4K, Vietsub",
-        description: "Trải nghiệm xem phim online chất lượng cao 4K, Vietsub tại LoFilm. Kho phim lẻ, phim bộ, anime mới nhất 2026 cập nhật mỗi ngày với tốc độ cực nhanh và không quảng cáo!",
+        title: "CineStream - Modern Movie Streaming & Discovery Platform",
+        description: "Khám phá thế giới điện ảnh đỉnh cao với hiệu năng vượt trội, xây dựng trên Next.js 16, React 19 và kiến trúc Multi-Layer Caching hiện đại.",
         alternates: {
             canonical: SITE_URL,
         },
         openGraph: {
-            title: "LoFilm - Kho Phim Giải Trí Đỉnh Cao, Xem Phim Online 4K, Vietsub",
-            description: "Trải nghiệm xem phim chất lượng cao 4K, Vietsub, thuyết minh hoàn toàn miễn phí tại LoFilm.",
+            title: "CineStream - Modern Movie Streaming Platform",
+            description: "Trải nghiệm điện ảnh đỉnh cao với hiệu năng vượt trội tại CineStream.",
             url: SITE_URL,
-            siteName: "LoFilm",
+            siteName: "CineStream",
             locale: "vi_VN",
             type: "website",
             images: [{
                 url: ogImage,
                 width: 1200,
                 height: 630,
-                alt: "LoFilm - Xem Phim Online Chất Lượng Cao",
+                alt: "CineStream - Movie Streaming Platform",
             }],
         },
         twitter: {
             card: 'summary_large_image',
-            title: 'LoFilm - Xem Phim Online Chất Lượng Cao',
-            description: 'Xem phim LoFilm miễn phí, chất lượng 4K, Vietsub.',
+            title: 'CineStream - Modern Movie Streaming Platform',
+            description: 'Khám phá thế giới điện ảnh đỉnh cao tại CineStream.',
             images: [ogImage],
         },
     };

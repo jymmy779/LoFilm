@@ -33,15 +33,9 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
     useEffect(() => {
         const params = new URLSearchParams(window.location.search);
         if (params.get('status') === 'verified') {
-            toast.success("Xác thực thành công! Chào mừng bạn đến với thế giới điện ảnh LoFilm! ✨🎬", {
-                duration: 5000,
-                icon: '🎬',
-                style: {
-                    borderRadius: '16px',
-                    background: '#0F1115',
-                    color: '#fff',
-                    border: '1px solid rgba(251, 191, 36, 0.2)'
-                }
+            toast.success("Xác thực thành công! Chào mừng bạn đến với CineStream! ✨🎬", {
+                duration: 4000,
+                position: 'top-center',
             });
             window.history.replaceState({}, '', window.location.pathname);
         }
@@ -49,7 +43,7 @@ export default function HomeClient({ prefetched, activeEvent, initialTopics }: {
 
     return (
         <>
-            <h1 className="sr-only">LoFilm - Xem Phim Online Chất Lượng Cao 4K, Vietsub Miễn Phí</h1>
+            <h1 className="sr-only">CineStream - Modern Movie Streaming & Discovery Platform</h1>
             <HeroSlider initialMovies={prefetched.hero} />
 
             <div className="flex flex-col gap-6 md:gap-[50px] pb-20">

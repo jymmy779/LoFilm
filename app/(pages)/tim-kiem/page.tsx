@@ -11,8 +11,8 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
 
     if (query) {
         return {
-            title: `Tìm kiếm: ${query} | LoFilm`,
-            description: `Kết quả tìm kiếm cho từ khóa "${query}" trên LoFilm. Khám phá kho phim đa dạng, chất lượng cao ngay tại đây.`,
+            title: `Tìm kiếm: ${query} | CineStream`,
+            description: `Kết quả tìm kiếm cho từ khóa "${query}" trên CineStream. Khám phá kho phim đa dạng, chất lượng cao ngay tại đây.`,
             alternates: {
                 canonical: getAbsoluteUrl(`/tim-kiem?q=${encodeURIComponent(query)}`),
             },
@@ -20,8 +20,8 @@ export async function generateMetadata({ searchParams }: { searchParams: Promise
     }
 
     return {
-        title: "Tìm kiếm phim | LoFilm",
-        description: "Tìm kiếm phim, anime, show truyền hình yêu thích của bạn tại LoFilm.",
+        title: "Tìm kiếm phim | CineStream",
+        description: "Tìm kiếm phim, anime, show truyền hình yêu thích của bạn tại CineStream.",
         alternates: {
             canonical: getAbsoluteUrl(`/tim-kiem`),
         },

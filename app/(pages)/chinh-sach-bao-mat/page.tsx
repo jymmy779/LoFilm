@@ -3,8 +3,8 @@ import type { Metadata } from 'next';
 import { getAbsoluteUrl } from '@/app/config/site';
 
 export const metadata: Metadata = {
-  title: 'Chính Sách Bảo Mật | LoFilm',
-  description: 'Đọc chi tiết chính sách bảo mật thông tin người dùng của LoFilm. Chúng tôi cam kết an toàn cho mọi thông tin cá nhân của bạn.',
+  title: 'Chính Sách Bảo Mật | CineStream',
+  description: 'Chính sách bảo mật thông tin của CineStream.',
   alternates: {
     canonical: getAbsoluteUrl('/chinh-sach-bao-mat'),
   },
@@ -18,12 +18,12 @@ export default function PrivacyPolicy() {
 
         <div className="space-y-6 md:space-y-10">
           <section>
-            <h2 className="text-sm md:text-base font-semibold text-amber-400 mb-2 md:mb-3 flex items-center gap-2">
-              <span className="w-1 h-4 md:h-5 bg-amber-400 rounded-full inline-block"></span>
+            <h2 className="text-sm md:text-base font-semibold text-purple-400 mb-2 md:mb-3 flex items-center gap-2">
+              <span className="w-1 h-4 md:h-5 bg-purple-400 rounded-full inline-block"></span>
               1. Thu thập thông tin cá nhân
             </h2>
             <p className="leading-relaxed text-xs md:text-sm opacity-60">
-              Khi bạn đăng ký tài khoản tại LoFilm, chúng tôi thu thập các thông tin cơ bản bao gồm: Email và Họ tên. Những thông tin này được sử dụng để định danh người dùng và cung cấp các tính năng cá nhân hóa như danh sách yêu thích, lịch sử xem phim.
+              Khi bạn đăng ký tài khoản tại CineStream, chúng tôi thu thập các thông tin cơ bản bao gồm: Email và Họ tên. Những thông tin này được sử dụng để định danh người dùng và cung cấp các tính năng cá nhân hóa như danh sách yêu thích, lịch sử xem phim.
             </p>
           </section>
 

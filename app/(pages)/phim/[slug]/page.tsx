@@ -25,13 +25,13 @@ export async function generateMetadata({
     const detail = await getMovieDetail(slug);
 
     if (!detail) {
-        return { title: "Phim không tìm thấy - LoFilm" };
+        return { title: "Phim không tìm thấy - CineStream" };
     }
 
     const movie = detail.movie;
     const description = movie.content
         ? movie.content.replace(/<[^>]*>/g, '').substring(0, 160)
-        : `Xem phim ${movie.name} (${movie.origin_name}) vietsub chất lượng cao tại LoFilm`;
+        : `Xem phim ${movie.name} (${movie.origin_name}) vietsub chất lượng cao tại CineStream`;
 
     // Tạo danh sách keywords động
     const dynamicKeywords = [
@@ -41,35 +41,34 @@ export async function generateMetadata({
         `${movie.name} vietsub`,
         `${movie.name} thuyet minh`,
         `${movie.name} full hd`,
-        `${movie.name} lofilm`,
         ...(movie.category?.map(c => c.name) || []),
         ...(movie.category?.map(c => `phim ${c.name}`) || []),
         ...(movie.actor || []),
         ...(movie.director || []),
-        "LoFilm", "xem phim online", "phim moi"
+        "CineStream", "xem phim online", "phim moi"
     ].filter(Boolean);
 
     return {
-        title: `${movie.name} (${movie.origin_name}) - LoFilm`,
+        title: `${movie.name} (${movie.origin_name}) - CineStream`,
         description,
         keywords: dynamicKeywords,
         openGraph: {
-            title: `${movie.name} (${movie.origin_name}) - Xem Phim Vietsub HD | LoFilm`,
+            title: `${movie.name} (${movie.origin_name}) - Xem Phim Vietsub HD | CineStream`,
             description,
             type: 'video.movie',
-            siteName: 'LoFilm',
+            siteName: 'CineStream',
             locale: 'vi_VN',
             url: getAbsoluteUrl(`/phim/${slug}`),
             images: [{
                 url: movie.thumb_url,
                 width: 800,
                 height: 1200,
-                alt: `Xem phim ${movie.name} (${movie.origin_name}) vietsub HD - LoFilm`,
+                alt: `Xem phim ${movie.name} (${movie.origin_name}) vietsub HD - CineStream`,
             }],
         },
         twitter: {
             card: 'summary_large_image',
-            title: `${movie.name} - Xem Vietsub HD | LoFilm`,
+            title: `${movie.name} - Xem Vietsub HD | CineStream`,
             description,
             images: [movie.poster_url],
         },
