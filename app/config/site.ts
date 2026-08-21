@@ -3,16 +3,16 @@
  * Sử dụng duy nhất biến môi trường NEXT_PUBLIC_SITE_URL làm nguồn chuẩn.
  */
 
-export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://www.munos.store').replace(/\/$/, '');
+export const SITE_URL = (process.env.NEXT_PUBLIC_SITE_URL || 'https://cinestream-demo.vercel.app').replace(/\/$/, '');
 
 /**
- * Tự động lấy tên miền Hostname không chứa protocol hay www (ví dụ: 'munos.store')
+ * Tự động lấy tên miền Hostname không chứa protocol hay www (ví dụ: 'cinestream-demo.vercel.app')
  */
 export const SITE_DOMAIN = ((): string => {
     try {
         return new URL(SITE_URL).hostname.replace(/^www\./, '');
     } catch {
-        return 'munos.store';
+        return 'cinestream-demo.vercel.app';
     }
 })();
 
