@@ -66,7 +66,8 @@ globalForRedis.redis = redis;
 /**
  * fetchWithRedis: Ultra-fast L1 RAM Cache + SWR Strategy
  */
-export const fetchWithRedis = cache(async (url: string, options?: RequestInit & { revalidate?: number | false }): Promise<any> => {
+export const fetchWithRedis = cache(async (rawUrl: string, options?: RequestInit & { revalidate?: number | false }): Promise<any> => {
+  const url = mapToPhimApiUrl(rawUrl);
   const rawRevalidate = options?.revalidate ?? (options as any)?.next?.revalidate ?? DEFAULT_REVALIDATE_SEC;
   const revalidate = typeof rawRevalidate === 'number' ? rawRevalidate : DEFAULT_REVALIDATE_SEC;
   const cacheKey = `swr:${url}`;
