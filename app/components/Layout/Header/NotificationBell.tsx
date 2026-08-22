@@ -6,6 +6,7 @@ import { createClient } from "@/app/utils/supabase/client";
 import Link from "next/link";
 import Image from "next/image";
 import { usePathname } from "next/navigation";
+import { getUserAvatarUrl } from "@/app/utils/avatar-helper";
 
 interface UnifiedNotification {
     id: string;
@@ -207,18 +208,28 @@ export default function NotificationBell() {
             );
         }
 
-        let actionText = "";
-        if (notif.type === 'reply') actionText = "đã trả lời bình luận của bạn";
-        if (notif.type === 'like') actionText = "đã thích bình luận của bạn";
-        if (notif.type === 'dislike') actionText = "không thích bình luận của bạn";
+        if (notif.type === 'like') {
+            return (
+                <div className="mt-1 md:mt-1.5">
+                    <p className="text-[12px] md:text-sm lg:text-[14px] text-white/90 leading-relaxed">
+                        Ai đó đã thích bình luận của bạn
+                    </p>
+                    {notif.comment_content && (
+                        <div className="mt-1.5 md:mt-2 p-2 md:p-2.5 bg-black/20 rounded border border-white/5 border-l-2 border-l-rose-500/40 text-white/50 text-[11px] md:text-[13px] lg:text-sm line-clamp-2 italic">
+                            "{notif.comment_content}"
+                        </div>
+                    )}
+                </div>
+            );
+        }
 
         return (
             <div className="mt-1 md:mt-1.5">
                 <p className="text-[12px] md:text-sm lg:text-[15px] text-white/90 leading-relaxed">
-                    <span className="font-bold text-white">{notif.actor_name}</span> {actionText}
+                    <span className="font-bold text-white">{notif.actor_name}</span> đã trả lời bình luận của bạn
                 </p>
                 {notif.comment_content && (
-                    <div className="mt-1.5 md:mt-2 p-2 md:p-2.5 bg-black/20 rounded border border-white/5 border-l-2 border-l-white/20 text-white/50 text-[11px] md:text-[13px] lg:text-sm line-clamp-2 italic">
+                    <div className="mt-1.5 md:mt-2 p-2 md:p-2.5 bg-black/20 rounded border border-white/5 border-l-2 border-l-[#D497FF]/40 text-white/50 text-[11px] md:text-[13px] lg:text-sm line-clamp-2 italic">
                         "{notif.comment_content}"
                     </div>
                 )}
@@ -260,7 +271,7 @@ export default function NotificationBell() {
                     </h3>
                 </div>
 
-                <div className="max-h-[350px] md:max-h-[450px] lg:max-h-[500px] overflow-y-auto custom-scrollbar">
+                <div className="max-h-[350px] md:max-h-[450px] lg:max-h-[500px] overflow-y-auto no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
                     {notifications.length > 0 ? (
                         <div className="divide-y divide-white/5">
                             {notifications.map((notif) => {
@@ -327,14 +338,19 @@ export default function NotificationBell() {
                                                         {renderIcon(notif.type)}
                                                     </div>
                                                 </div>
+                                            ) : notif.type === 'like' ? (
+                                                <div className="w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded-full bg-gradient-to-br from-rose-500/20 via-purple-500/15 to-[#D497FF]/20 border border-rose-500/30 flex items-center justify-center shadow-lg text-rose-400 shrink-0">
+                                                    <Heart className="w-4 h-4 md:w-5 md:h-5 fill-rose-500 text-rose-500" />
+                                                </div>
                                             ) : (
                                                 <>
-                                                    <div className="relative w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded-full overflow-hidden border border-white/10 bg-gradient-to-br from-orange-950 via-zinc-900 to-zinc-950 flex items-center justify-center text-white/90 font-bold text-xs md:text-sm lg:text-base shrink-0">
-                                                        {notif.actor_avatar ? (
-                                                            <Image src={notif.actor_avatar} alt="Avatar" fill className="object-cover" />
-                                                        ) : (
-                                                            (notif.actor_name || "U").charAt(0).toUpperCase()
-                                                        )}
+                                                    <div className="relative w-8 h-8 md:w-10 md:h-10 lg:w-12 lg:h-12 rounded-full overflow-hidden border border-white/10 shrink-0">
+                                                        <Image
+                                                            src={notif.actor_avatar || getUserAvatarUrl(undefined, notif.actor_name || notif.id)}
+                                                            alt="Avatar"
+                                                            fill
+                                                            className="object-cover"
+                                                        />
                                                     </div>
                                                     <div className="absolute -bottom-1 -right-1 w-4 h-4 md:w-5 md:h-5 lg:w-6 lg:h-6 bg-[#0F1115] rounded-full flex items-center justify-center border border-white/10">
                                                         <div className="scale-75 md:scale-90 lg:scale-100">

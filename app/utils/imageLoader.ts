@@ -4,12 +4,12 @@ export default function imageLoader({ src, width, quality }: { src: string, widt
     return src;
   }
 
-  // 2. Nếu là R2 URL của mình -> serve thẳng, không cần proxy
+  // 2. Nếu là R2 URL của mình hoặc Dicebear -> serve thẳng, không cần proxy
   const r2PublicUrl = process.env.NEXT_PUBLIC_R2_PUBLIC_URL || '';
   if (r2PublicUrl && src.startsWith(r2PublicUrl)) {
     return src;
   }
-  if (src.includes('.r2.dev/') || src.includes('r2.cloudflarestorage.com')) {
+  if (src.includes('.r2.dev/') || src.includes('r2.cloudflarestorage.com') || src.includes('api.dicebear.com')) {
     return src;
   }
 

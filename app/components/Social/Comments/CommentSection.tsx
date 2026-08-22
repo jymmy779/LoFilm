@@ -10,6 +10,7 @@ import AuthPrompt from "./AuthPrompt";
 import { toast } from "react-hot-toast";
 import MovieInteractions from "../../../(pages)/phim/[slug]/[episodeSlug]/MovieInteractions";
 import { logActivity } from "@/app/utils/log-activity";
+import { getUserAvatarUrl } from "@/app/utils/avatar-helper";
 import "./Comments.css";
 
 interface CommentSectionProps {
@@ -114,8 +115,8 @@ function CommentSection({ movieSlug }: CommentSectionProps) {
             .from('comments')
             .insert({
                 user_id: user.id,
-                user_name: user?.user_metadata?.full_name,
-                user_avatar: user?.user_metadata?.avatar_url || null,
+                user_name: user?.user_metadata?.full_name || user?.email?.split('@')[0],
+                user_avatar: getUserAvatarUrl(user),
                 movie_slug: movieSlug,
                 content: content,
                 is_spoiler: isSpoiler

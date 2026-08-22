@@ -5,6 +5,8 @@ import { Zap, Play } from "lucide-react";
 import TransitionLink from "@/app/components/UI/Transition/TransitionLink";
 import { useSocialData } from "./SocialDataContext";
 
+import { getUserAvatarUrl, normalizeDicebearAvatar } from "@/app/utils/avatar-helper";
+
 interface TickerComment {
     id: string;
     user: string;
@@ -17,26 +19,17 @@ interface TickerComment {
 
 function TickerAvatar({ avatar, name }: { avatar: string | null; name: string }) {
     const [imgError, setImgError] = useState(false);
-    const hasAvatar = avatar && !imgError;
+    const cleanedAvatar = normalizeDicebearAvatar(avatar);
+    const avatarSrc = (!imgError && cleanedAvatar) ? cleanedAvatar : getUserAvatarUrl(undefined, name);
 
     return (
-        <div className="w-6 h-6 rounded-full flex items-center justify-center overflow-hidden shrink-0 relative">
-            {hasAvatar ? (
-                <img
-                    src={avatar!}
-                    alt=""
-                    className="w-full h-full object-cover"
-                    onError={() => setImgError(true)}
-                />
-            ) : null}
-            <div
-                className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-950 via-zinc-900 to-zinc-950 border border-white/20 rounded-full absolute inset-0"
-                style={{ display: hasAvatar ? 'none' : 'flex' }}
-            >
-                <span className="text-[10px] font-bold text-white/90">
-                    {name.charAt(0).toUpperCase()}
-                </span>
-            </div>
+        <div className="w-6 h-6 rounded-full flex items-center justify-center overflow-hidden shrink-0 relative border border-white/20">
+            <img
+                src={avatarSrc}
+                alt={name}
+                className="w-full h-full object-cover"
+                onError={() => setImgError(true)}
+            />
         </div>
     );
 }

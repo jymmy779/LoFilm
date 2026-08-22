@@ -124,14 +124,27 @@
   color: rgba(255, 255, 255, 0.6);
 }
 
-.item-up:hover {
-  background: rgba(46, 204, 113, 0.15);
-  color: #2ecc71;
+@media (hover: hover) and (pointer: fine) {
+  .item-up:hover {
+    background: rgba(46, 204, 113, 0.15);
+    color: #2ecc71;
+  }
+
+  .item-down:hover {
+    background: rgba(231, 76, 60, 0.15);
+    color: #e74c3c;
+  }
+
+  .btn-comment:hover,
+  .btn-menu:hover {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+  }
 }
 
-.item-down:hover {
-  background: rgba(231, 76, 60, 0.15);
-  color: #e74c3c;
+.item-up:active,
+.item-down:active {
+  transform: scale(0.92);
 }
 
 .item-up.active {
@@ -159,12 +172,6 @@
   cursor: pointer;
   transition: all 0.2s ease;
   flex-shrink: 0;
-}
-
-.btn-comment:hover,
-.btn-menu:hover {
-  background: rgba(255, 255, 255, 0.1);
-  color: #fff;
 }
 
 .comment-menu {
@@ -364,21 +371,42 @@
   border-color: rgba(212,151,255, 0.5);
 }
 
+@keyframes spoiler-dust {
+  0% {
+    background-position: 0px 0px, 0px 0px;
+  }
+  100% {
+    background-position: 60px 30px, -40px 20px;
+  }
+}
+
 .text-spoiler {
-  display: inline-block;
-  max-width: 100%;
-  background: #27272a;
-  color: transparent;
-  border-radius: 4px;
-  padding: 0 6px;
+  position: relative;
+  display: inline;
+  color: transparent !important;
   user-select: none;
   cursor: pointer;
-  transition: all 0.2s ease;
+  border-radius: 4px;
+  padding: 1px 6px;
+  background-color: #27272a;
+  /* Lớp hạt cát mịn đơn sắc trắng/xám mờ tối giản chuẩn Telegram/Reddit */
+  background-image: 
+    radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.22) 1px, transparent 0),
+    radial-gradient(circle at 5px 5px, rgba(255, 255, 255, 0.12) 0.8px, transparent 0);
+  background-size: 8px 8px, 12px 12px;
+  animation: spoiler-dust 12s linear infinite;
+  transition: background-color 0.2s ease;
+}
+
+.text-spoiler:hover {
+  background-color: #333338;
 }
 
 .text-spoiler.revealed {
   background: rgba(255, 255, 255, 0.06);
-  color: inherit;
+  background-image: none;
+  animation: none;
+  color: inherit !important;
   user-select: text;
   cursor: default;
 }

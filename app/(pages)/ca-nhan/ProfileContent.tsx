@@ -42,6 +42,7 @@ import FavoritesTab from "./components/FavoritesTab";
 import WatchlistTab from "./components/WatchlistTab";
 import SettingsTab from "./components/SettingsTab";
 import ActivityTab from "./components/ActivityTab";
+import { getUserAvatarUrl } from "@/app/utils/avatar-helper";
 
 import ProfileSkeleton from "./components/ProfileSkeleton";
 
@@ -670,17 +671,15 @@ export default function ProfileContent() {
                   <div className="absolute inset-0 w-full h-full flex items-center justify-center bg-[#0a0a0f]/80 z-[15]">
                     <LoadingSpinner size="md" color="orange" />
                   </div>
-                ) : pendingAvatarSrc || user?.user_metadata?.avatar_url ? (
+                ) : (
                   <Image
-                    key={pendingAvatarSrc || user.user_metadata.avatar_url}
-                    src={pendingAvatarSrc || user.user_metadata.avatar_url}
+                    key={pendingAvatarSrc || user?.user_metadata?.avatar_url || user?.id}
+                    src={pendingAvatarSrc || getUserAvatarUrl(user)}
                     alt={displayName}
                     fill
                     className={`object-cover transition-opacity duration-500 ease-in-out ${isAvatarLoaded ? 'opacity-100' : 'opacity-0'}`}
                     onLoad={() => setIsAvatarLoaded(true)}
                   />
-                ) : (
-                  <span>{userAvatar}</span>
                 )}
               </div>
 

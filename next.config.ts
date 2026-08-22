@@ -39,6 +39,8 @@ const nextConfig: NextConfig = {
             { protocol: "https", hostname: "*.ophim.live" },
             { protocol: "https", hostname: "*.ophim1.com" },
             { protocol: "https", hostname: "*.nflxso.net" },
+            // Dicebear Avatars
+            { protocol: "https", hostname: "api.dicebear.com" },
             // Cloudflare R2 – self-hosted images
             { protocol: "https", hostname: "pub-2a7f4f3fc8d74800bc2deccab434bd65.r2.dev" },
         ],

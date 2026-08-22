@@ -9,6 +9,7 @@ import Image from "next/image";
 import { toast } from "react-hot-toast";
 import CommonModal from "@/app/components/UI/Modals/CommonModal";
 import NotificationLoading from "./loading";
+import { getUserAvatarUrl } from "@/app/utils/avatar-helper";
 
 interface UnifiedNotification {
     id: string;
@@ -268,15 +269,28 @@ export default function NotificationsPage() {
             return <p className="text-sm md:text-base text-white/90 mt-1 line-clamp-3">{notif.message}</p>;
         }
 
-        const actionText = notif.type === 'like' ? 'thích' : notif.type === 'dislike' ? 'không thích' : 'trả lời';
+        if (notif.type === 'like') {
+            return (
+                <div className="mt-1.5 md:mt-2">
+                    <p className="text-xs md:text-sm text-white/80 leading-relaxed font-medium">
+                        Ai đó đã thích bình luận của bạn.
+                    </p>
+                    {notif.comment_content && (
+                        <div className="mt-2 pl-3 border-l-2 border-rose-500/30 text-xs md:text-sm text-white/50 italic line-clamp-2">
+                            "{notif.comment_content}"
+                        </div>
+                    )}
+                </div>
+            );
+        }
 
         return (
             <div className="mt-1.5 md:mt-2">
                 <p className="text-xs md:text-sm text-white/70 leading-relaxed">
-                    <span className="font-bold text-white">{notif.actor_name}</span> đã {actionText} bình luận của bạn.
+                    <span className="font-bold text-white">{notif.actor_name}</span> đã phản hồi bình luận của bạn.
                 </p>
                 {notif.comment_content && (
-                    <div className="mt-2 pl-3 border-l-2 border-white/10 text-xs md:text-sm text-white/50 italic line-clamp-2">
+                    <div className="mt-2 pl-3 border-l-2 border-[#D497FF]/30 text-xs md:text-sm text-white/50 italic line-clamp-2">
                         "{notif.comment_content}"
                     </div>
                 )}
@@ -360,14 +374,19 @@ export default function NotificationsPage() {
                                                             {renderIcon(notif.type)}
                                                         </div>
                                                     </div>
+                                                ) : notif.type === 'like' ? (
+                                                    <div className="w-10 h-10 md:w-14 md:h-14 rounded-full bg-gradient-to-br from-rose-500/20 via-purple-500/15 to-[#D497FF]/20 border border-rose-500/30 flex items-center justify-center shadow-lg text-rose-400 shrink-0">
+                                                        <Heart className="w-5 h-5 md:w-7 md:h-7 fill-rose-500 text-rose-500" />
+                                                    </div>
                                                 ) : (
                                                     <>
-                                                        <div className="relative w-10 h-10 md:w-14 md:h-14 rounded-full overflow-hidden border border-white/10 bg-gradient-to-br from-orange-950 via-zinc-900 to-zinc-950 flex items-center justify-center shadow-lg text-white/90 font-bold text-sm md:text-lg shrink-0">
-                                                            {notif.actor_avatar ? (
-                                                                <Image src={notif.actor_avatar} alt="Avatar" fill className="object-cover" />
-                                                            ) : (
-                                                                (notif.actor_name || "U").charAt(0).toUpperCase()
-                                                            )}
+                                                        <div className="relative w-10 h-10 md:w-14 md:h-14 rounded-full overflow-hidden border border-white/10 shrink-0 shadow-lg">
+                                                            <Image
+                                                                src={notif.actor_avatar || getUserAvatarUrl(undefined, notif.actor_name || notif.id)}
+                                                                alt="Avatar"
+                                                                fill
+                                                                className="object-cover"
+                                                            />
                                                         </div>
                                                         <div className="absolute -bottom-1 -right-1 w-5 h-5 md:w-6 md:h-6 bg-[#0F1115] rounded-full flex items-center justify-center border border-white/10 shadow-sm">
                                                             {renderIcon(notif.type)}

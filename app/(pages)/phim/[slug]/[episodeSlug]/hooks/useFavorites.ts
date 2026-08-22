@@ -31,11 +31,16 @@ export const useFavorites = (movieSlug: string, movieName: string, moviePoster: 
         checkFavorite();
     }, [movieSlug, user?.id]);
 
+    const [isProcessing, setIsProcessing] = useState(false);
+
     const toggleFavorite = async () => {
         if (!user) {
             toast.error("Vui lòng đăng nhập để lưu phim yêu thích!");
             return;
         }
+
+        if (isProcessing) return;
+        setIsProcessing(true);
 
         const prevStatus = isFavorited;
         setIsFavorited(!isFavorited);
@@ -58,7 +63,12 @@ export const useFavorites = (movieSlug: string, movieName: string, moviePoster: 
             }
         } catch (err: any) {
             setIsFavorited(prevStatus);
-            toast.error("Lỗi: " + err.message);
+            // Bỏ qua lỗi duplicate nếu do spam nhanh
+            if (!err?.message?.includes("duplicate key")) {
+                toast.error("Lỗi: " + err.message);
+            }
+        } finally {
+            setIsProcessing(false);
         }
     };
 

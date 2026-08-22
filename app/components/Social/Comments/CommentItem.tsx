@@ -9,9 +9,12 @@ import { createClient } from "@/app/utils/supabase/client";
 import CommentInput from "./CommentInput";
 import { toast } from "react-hot-toast";
 import CommonModal from "@/app/components/UI/Modals/CommonModal";
+import ReportCommentModal from "./ReportCommentModal";
 import { reportCommentToTelegram } from "@/app/actions/reportActions";
 import { isOwner } from "@/app/utils/owner-utils";
 import { logActivity } from "@/app/utils/log-activity";
+import { getUserAvatarUrl } from "@/app/utils/avatar-helper";
+import { sendLikeNotification } from "@/app/actions/notificationActions";
 
 interface CommentItemProps {
     comment: any;
@@ -33,6 +36,8 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
     const [showSpoiler, setShowSpoiler] = useState(false);
     const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isReportModalOpen, setIsReportModalOpen] = useState(false);
+    const [isReporting, setIsReporting] = useState(false);
     const [isEditing, setIsEditing] = useState(false);
     const [commentContent, setCommentContent] = useState(comment.content);
     const supabase = createClient();
@@ -54,8 +59,8 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
         };
     }, [isMenuOpen]);
 
-    const displayName = comment.user_name;
-    const avatarUrl = comment.user_avatar;
+    const displayName = comment.user_name || "Thành viên";
+    const avatarUrl = comment.user_avatar || getUserAvatarUrl(undefined, displayName);
 
     const isDetailMoviePage = movieSlug && !movieSlug.includes('/');
     const commentHasEpisode = comment.movie_slug && comment.movie_slug.includes('/');
@@ -90,6 +95,10 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
         return date.toLocaleDateString('vi-VN');
     };
 
+    const debounceTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+    const persistedReactionTypeRef = useRef<string | null>(null);
+    const latestReactionTypeRef = useRef<string | null>(null);
+
     useEffect(() => {
         // Initial reactions calculation
         const upCount = comment.reactions?.filter((r: any) => r.type === 'up').length || 0;
@@ -97,9 +106,56 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
         const userReaction = comment.reactions?.find((r: any) => r.user_id === user?.id)?.type || null;
 
         setReactions({ up: upCount, down: downCount, userType: userReaction });
+        persistedReactionTypeRef.current = userReaction;
+        latestReactionTypeRef.current = userReaction;
     }, [comment.reactions, user?.id]);
 
-    const handleReact = async (type: 'up' | 'down') => {
+    useEffect(() => {
+        return () => {
+            if (debounceTimerRef.current) {
+                clearTimeout(debounceTimerRef.current);
+            }
+        };
+    }, []);
+
+    const syncReactionToDatabase = async (finalType: string | null) => {
+        if (!user || finalType === persistedReactionTypeRef.current) return;
+        persistedReactionTypeRef.current = finalType;
+
+        try {
+            // 1. Cập nhật bảng reactions
+            await supabase.from('comment_reactions').delete().eq('comment_id', comment.id).eq('user_id', user.id);
+
+            if (finalType !== null) {
+                logActivity(user.id, finalType === 'up' ? 'like' : 'dislike', { comment_id: comment.id, movie_slug: comment.movie_slug });
+                await supabase.from('comment_reactions').insert({
+                    comment_id: comment.id,
+                    user_id: user.id,
+                    type: finalType
+                });
+            }
+
+            // 2. Xử lý thông báo chuẩn YouTube:
+            // - Tuyệt đối KHÔNG gửi thông báo khi Dislike.
+            // - CHỈ gửi thông báo khi Like (upvote).
+            // - Gắn cờ kiểm tra trên server: Người này chỉ tạo tối đa 1 thông báo Like duy nhất cho bình luận này.
+            if (finalType === 'up' && comment.user_id && comment.user_id !== user.id) {
+                const actorName = user?.user_metadata?.full_name || user?.email?.split('@')[0] || 'Thành viên';
+                await sendLikeNotification({
+                    recipientUserId: comment.user_id,
+                    actorName: actorName,
+                    actorAvatar: getUserAvatarUrl(user),
+                    commentId: comment.id,
+                    movieSlug: comment.movie_slug,
+                    content: comment.content || ''
+                });
+            }
+        } catch (error) {
+            console.error("Error syncing comment reaction:", error);
+        }
+    };
+
+    const handleReact = (type: 'up' | 'down') => {
         if (!user) {
             toast.error("Vui lòng đăng nhập để thực hiện bình luận!");
             return;
@@ -126,58 +182,17 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
             }
         }
 
+        // 1. Cập nhật Optimistic UI tức thì (0ms) cho cảm giác mượt mà
         setReactions({ up: newUp, down: newDown, userType: newType });
+        latestReactionTypeRef.current = newType;
 
-        try {
-            // Xóa reaction cũ trong DB để tránh trùng lặp bản ghi
-            await supabase.from('comment_reactions').delete().eq('comment_id', comment.id).eq('user_id', user.id);
-
-            if (newType === null) {
-                // Nếu bỏ reaction, xóa thông báo like/dislike cũ
-                if (comment.user_id && comment.user_id !== user.id) {
-                    supabase
-                        .from('user_notifications')
-                        .delete()
-                        .eq('user_id', comment.user_id)
-                        .eq('comment_id', comment.id)
-                        .in('type', ['like', 'dislike'])
-                        .then();
-                }
-            } else {
-                logActivity(user.id, type === 'up' ? 'like' : 'dislike', { comment_id: comment.id, movie_slug: comment.movie_slug });
-                await supabase.from('comment_reactions').insert({
-                    comment_id: comment.id,
-                    user_id: user.id,
-                    type: type
-                });
-
-                // Cập nhật thông báo
-                if (comment.user_id && comment.user_id !== user.id) {
-                    // Xóa thông báo cũ cùng loại của comment này trước khi tạo mới
-                    await supabase
-                        .from('user_notifications')
-                        .delete()
-                        .eq('user_id', comment.user_id)
-                        .eq('comment_id', comment.id)
-                        .in('type', ['like', 'dislike']);
-
-                    supabase.from('user_notifications').insert({
-                        user_id: comment.user_id,
-                        actor_name: user?.user_metadata?.full_name,
-                        actor_avatar: user?.user_metadata?.avatar_url || null,
-                        type: type === 'up' ? 'like' : 'dislike',
-                        comment_id: comment.id,
-                        movie_slug: comment.movie_slug,
-                        content: comment.content?.substring(0, 50) + (comment.content?.length > 50 ? '...' : '')
-                    }).then(({ error }) => {
-                        if (error) console.error("Notification error:", error);
-                    });
-                }
-            }
-        } catch (error) {
-            console.error("Error reacting to comment:", error);
-            // Rollback on error if needed
+        // 2. Debounce 350ms chuẩn mạng xã hội trước khi gửi lên Server/Database
+        if (debounceTimerRef.current) {
+            clearTimeout(debounceTimerRef.current);
         }
+        debounceTimerRef.current = setTimeout(() => {
+            syncReactionToDatabase(latestReactionTypeRef.current);
+        }, 350);
     };
 
     const handleFetchReplies = async () => {
@@ -218,8 +233,8 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
             .from('comments')
             .insert({
                 user_id: user.id,
-                user_name: user?.user_metadata?.full_name,
-                user_avatar: user?.user_metadata?.avatar_url || null,
+                user_name: user?.user_metadata?.full_name || user?.email?.split('@')[0],
+                user_avatar: getUserAvatarUrl(user),
                 movie_slug: comment.movie_slug,
                 content: content,
                 parent_id: targetParentId,
@@ -252,8 +267,8 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
             if (comment.user_id && comment.user_id !== user.id) {
                 supabase.from('user_notifications').insert({
                     user_id: comment.user_id,
-                    actor_name: user?.user_metadata?.full_name,
-                    actor_avatar: user?.user_metadata?.avatar_url || null,
+                    actor_name: user?.user_metadata?.full_name || user?.email?.split('@')[0],
+                    actor_avatar: getUserAvatarUrl(user),
                     type: 'reply',
                     comment_id: comment.id,
                     movie_slug: comment.movie_slug,
@@ -278,30 +293,42 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
         setIsMenuOpen(false);
     };
 
-    const reportComment = async () => {
+    const handleOpenReportModal = () => {
         if (!user) {
             toast.error("Bạn cần đăng nhập để báo cáo!");
             return;
         }
-
-        // Báo thành công và đóng menu ngay lập tức cho mượt
-        toast.success("Báo cáo của bạn đã được gởi tới ban quản trị!");
+        if (user.id === comment.user_id) {
+            toast.error("Bạn không thể báo cáo bình luận của chính mình!");
+            return;
+        }
+        setIsReportModalOpen(true);
         setIsMenuOpen(false);
+    };
 
+    const handleConfirmReport = async (reason: string) => {
+        setIsReporting(true);
         try {
-            // 1. Cập nhật vào DB (Chạy ngầm)
+            // 1. Cập nhật vào DB
             await supabase.from('comments').update({ is_reported: true }).eq('id', comment.id);
 
-            // 2. Gởi về Telegram (Chạy ngầm, không await để tránh delay UI)
+            // 2. Gửi về Telegram kèm lý do
             reportCommentToTelegram({
                 author: displayName,
                 content: comment.content,
                 commentId: comment.id,
                 movieSlug: movieSlug,
-                reportedBy: user.email || user.id
+                reportedBy: user.email || user.id,
+                reason: reason
             });
+
+            toast.success("Báo cáo của bạn đã được gửi tới ban quản trị!");
+            setIsReportModalOpen(false);
         } catch (error) {
-            console.error("Lỗi khi gởi báo cáo:", error);
+            console.error("Lỗi khi gửi báo cáo:", error);
+            toast.error("Không thể gửi báo cáo, vui lòng thử lại sau.");
+        } finally {
+            setIsReporting(false);
         }
     };
 
@@ -359,14 +386,8 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
     return (
         <div className={`comment-item-wrap ${isReply ? 'is-reply' : ''} ${isMenuOpen ? 'relative z-[100]' : ''}`}>
             <div className="d-item" id={`comment-${comment.id}`}>
-                <div className="user-avatar">
-                    {avatarUrl ? (
-                        <Image src={avatarUrl} alt={displayName} width={40} height={40} className="rounded-full object-cover" />
-                    ) : (
-                        <div className="avatar-fallback">
-                            <span className="text-sm font-bold">{displayName ? displayName.charAt(0).toUpperCase() : '?'}</span>
-                        </div>
-                    )}
+                <div className="user-avatar overflow-hidden rounded-full shrink-0">
+                    <Image src={avatarUrl} alt={displayName} width={40} height={40} className="w-full h-full object-cover" />
                 </div>
                 <div className="info">
                     <div className="comment-header flex items-center">
@@ -452,9 +473,11 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                                         <span>{showSpoiler ? "Ẩn nội dung này" : "Tiết lộ nội dung này"}</span>
                                     </button>
                                 )}
-                                <button className="dropdown-item" onClick={reportComment}>
-                                    <Flag size={14} /> <span>Báo xấu</span>
-                                </button>
+                                {user?.id !== comment.user_id && (
+                                    <button className="dropdown-item text-amber-400/90 hover:text-amber-400" onClick={handleOpenReportModal}>
+                                        <Flag size={14} /> <span>Báo xấu</span>
+                                    </button>
+                                )}
                                 {user?.id === comment.user_id && (
                                     <>
                                         <button className="dropdown-item text-[#D497FF]/80" onClick={handleEdit}>
@@ -540,6 +563,15 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                 confirmText="Vẫn xóa"
                 icon={Trash2}
                 variant="danger"
+            />
+
+            <ReportCommentModal
+                isOpen={isReportModalOpen}
+                onClose={() => setIsReportModalOpen(false)}
+                onSubmit={handleConfirmReport}
+                commentContent={comment.content}
+                authorName={displayName}
+                isLoading={isReporting}
             />
         </div>
     );

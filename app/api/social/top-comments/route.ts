@@ -143,7 +143,12 @@ export async function GET() {
                 if (!meta || !meta.isValid) return null;
 
                 let userAvatar = comment.user_avatar;
-                if (userAvatar && userAvatar.startsWith("http") && !userAvatar.includes("wsrv.nl")) {
+                if (userAvatar && userAvatar.includes("api.dicebear.com")) {
+                    if (!userAvatar.includes("backgroundColor=")) {
+                        const joinChar = userAvatar.includes('?') ? '&' : '?';
+                        userAvatar = `${userAvatar}${joinChar}backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf,c1f4c5,fde2e4,e2ece9,dfccf1,fbe4d8,d6e4ff,e0f2fe,fef08a,fed7aa,fbcfe8&backgroundType=solid`;
+                    }
+                } else if (userAvatar && userAvatar.startsWith("http") && !userAvatar.includes("wsrv.nl")) {
                     userAvatar = `https://wsrv.nl/?url=${encodeURIComponent(userAvatar)}&w=50&q=75&output=webp`;
                 }
 
