@@ -75,7 +75,7 @@ export default function ClientToaster() {
       boxShadow: "0 12px 30px -8px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(255, 255, 255, 0.05)",
       backdropFilter: "blur(12px)",
       padding: "8px 12px",
-      fontSize: "13px",
+      fontSize: "14px",
       fontWeight: "500",
       maxWidth: "calc(100vw - 32px)",
       minHeight: "40px",
@@ -156,7 +156,7 @@ export default function ClientToaster() {
                   </div>
 
                   {/* Message: Responsive, sắc nét, tự co giãn mượt mà */}
-                  <div className="flex-1 text-[12.5px] sm:text-[13.5px] font-medium leading-snug break-words sm:whitespace-nowrap overflow-hidden select-none text-white/95 text-left max-w-[calc(100vw-110px)] sm:max-w-[420px]">
+                  <div className="flex-1 text-[13px] sm:text-[14px] font-medium leading-snug break-words sm:whitespace-nowrap overflow-hidden select-none text-white/95 text-left max-w-[calc(100vw-110px)] sm:max-w-[420px]">
                     {message}
                   </div>
 
