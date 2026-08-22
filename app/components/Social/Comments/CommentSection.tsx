@@ -185,7 +185,7 @@ function CommentSection({ movieSlug }: CommentSectionProps) {
                             ))}
                         </div>
 
-                        {(comments.length > visibleCount || visibleCount > 5) && (
+                        {(comments.length > visibleCount) && (
                             <div className="flex justify-center items-center gap-4 mt-6">
                                 {comments.length > visibleCount && (
                                     <button
@@ -197,18 +197,7 @@ function CommentSection({ movieSlug }: CommentSectionProps) {
                                     </button>
                                 )}
 
-                                {visibleCount > 5 && (
-                                    <button
-                                        onClick={() => {
-                                            setVisibleCount(5);
-                                            document.querySelector('.comment-section')?.scrollIntoView({ behavior: 'instant', block: 'start' });
-                                        }}
-                                        className="group text-[12px] md:text-[13px] text-white/30 hover:text-red-400 font-semibold transition-colors duration-300 cursor-pointer flex items-center gap-1.5 py-2 px-4"
-                                    >
-                                        <span>Thu gọn</span>
-                                        <i className="fa-solid fa-chevron-up text-[10px] group-hover:-translate-y-0.5 transition-transform duration-300"></i>
-                                    </button>
-                                )}
+
                             </div>
                         )}
                     </>

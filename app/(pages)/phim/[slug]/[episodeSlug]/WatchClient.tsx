@@ -1696,7 +1696,7 @@ export default function WatchClient({
                         )}
 
                         {/* 1. INTERACTIVE TAB NAVIGATION BAR (Danh Sách Tập, Thông Tin Phim, Diễn Viên) */}
-                        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 select-none">
+                        <div className="flex items-center gap-2 overflow-x-auto no-scrollbar pb-1 select-none scroll-indicator-x">
                             {/* Tab 1: Danh Sách Tập */}
                             <button
                                 onClick={() => setActiveTab("episodes")}

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Send, EyeOff, CheckCircle2 } from "lucide-react";
+import { Send, ShieldAlert, CheckCircle2 } from "lucide-react";
 
 interface CommentInputProps {
     onSubmit: (content: string, isSpoiler: boolean) => Promise<void>;
@@ -15,16 +15,16 @@ interface CommentInputProps {
     onCancel?: () => void;
 }
 
-export default function CommentInput({ 
-    onSubmit, 
-    placeholder = "Viết bình luận của bạn...", 
-    isReply = false, 
-    isEdit = false, 
+export default function CommentInput({
+    onSubmit,
+    placeholder = "Viết bình luận của bạn...",
+    isReply = false,
+    isEdit = false,
     initialContent = "",
     initialIsSpoiler = false,
     hasCommented = false,
     userCommentId,
-    onCancel 
+    onCancel
 }: CommentInputProps) {
     const [content, setContent] = useState(initialContent);
     const [isSpoiler, setIsSpoiler] = useState(initialIsSpoiler);
@@ -51,12 +51,12 @@ export default function CommentInput({
         const targetComment = document.getElementById(`comment-${userCommentId}`);
         if (targetComment) {
             targetComment.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            
+
             // Highlight hiệu ứng nháy nhẹ
             targetComment.style.transition = 'all 0.5s ease-in-out';
             targetComment.style.backgroundColor = 'rgba(212,151,255, 0.1)';
             targetComment.style.transform = 'scale(1.02)';
-            
+
             setTimeout(() => {
                 targetComment.style.backgroundColor = '';
                 targetComment.style.transform = '';
@@ -97,14 +97,20 @@ export default function CommentInput({
                 autoFocus={isEdit}
                 disabled={isSubmitting}
             />
-            <div className="form-footer">
+            <div className="form-footer flex items-center justify-between flex-wrap gap-2">
                 <button
                     type="button"
                     onClick={() => setIsSpoiler(!isSpoiler)}
-                    className={`btn-spoil-toggle ${isSpoiler ? 'active' : ''}`}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full transition-all duration-300 cursor-pointer border shrink-0 ${isSpoiler
+                        ? 'bg-[#D497FF]/10 border-[#D497FF]/30 text-[#D497FF]'
+                        : 'bg-white/5 border-transparent text-white/50 hover:text-white hover:bg-white/10'}`}
                 >
-                    <EyeOff size={13} className={isSpoiler ? 'text-[#D497FF]' : 'opacity-50'} />
-                    <span>Làm mờ</span>
+                    <span className="text-[11px] sm:text-xs font-semibold select-none whitespace-nowrap">Làm mờ</span>
+
+                    {/* Toggle Switch */}
+                    <div className={`relative w-6 h-3.5 rounded-full transition-colors duration-300 shrink-0 ${isSpoiler ? 'bg-[#D497FF]' : 'bg-white/20'}`}>
+                        <div className={`absolute top-[2px] left-[2px] w-2.5 h-2.5 bg-white rounded-full transition-transform duration-300 shadow-sm ${isSpoiler ? 'translate-x-[10px]' : 'translate-x-0'}`} />
+                    </div>
                 </button>
 
                 <div className="flex items-center gap-2">

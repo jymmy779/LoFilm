@@ -78,7 +78,7 @@
 .user-name {
   font-weight: 700;
   font-size: 0.85rem;
-  color: #D497FF;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .c-time {
@@ -388,6 +388,8 @@
   cursor: pointer;
   border-radius: 4px;
   padding: 1px 6px;
+  -webkit-box-decoration-break: clone;
+  box-decoration-break: clone;
   background-color: #27272a;
   /* Lớp hạt cát mịn đơn sắc trắng/xám mờ tối giản chuẩn Telegram/Reddit */
   background-image: 

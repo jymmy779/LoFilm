@@ -87,6 +87,8 @@ export function getDeterministicAvatar(identifier: string): string {
  */
 export function normalizeDicebearAvatar(url?: string | null): string | null {
   if (!url) return null;
+  
+
   if (url.includes('api.dicebear.com')) {
     if (!url.includes('backgroundColor=')) {
       const joinChar = url.includes('?') ? '&' : '?';
