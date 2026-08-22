@@ -13,7 +13,7 @@ import ReportCommentModal from "./ReportCommentModal";
 import { reportCommentToTelegram } from "@/app/actions/reportActions";
 import { isOwner } from "@/app/utils/owner-utils";
 import { logActivity } from "@/app/utils/log-activity";
-import { getUserAvatarUrl } from "@/app/utils/avatar-helper";
+import { getUserAvatarUrl, normalizeDicebearAvatar } from "@/app/utils/avatar-helper";
 import { sendLikeNotification } from "@/app/actions/notificationActions";
 
 interface CommentItemProps {
@@ -60,7 +60,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
     }, [isMenuOpen]);
 
     const displayName = comment.user_name || "Thành viên";
-    const avatarUrl = comment.user_avatar || getUserAvatarUrl(undefined, displayName);
+    const avatarUrl = normalizeDicebearAvatar(comment.user_avatar) || getUserAvatarUrl(undefined, displayName);
 
     const isDetailMoviePage = movieSlug && !movieSlug.includes('/');
     const commentHasEpisode = comment.movie_slug && comment.movie_slug.includes('/');
@@ -76,7 +76,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
             epText = numMatch ? `Tập ${parseInt(numMatch[0])}` : rawEp;
         }
         episodeBadge = (
-            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-[#D497FF]/10 text-[#D497FF] border border-[#D497FF]/20 ml-2 select-none animate-fade-in">
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded-md text-[10px] font-bold bg-[#D497FF]/10 text-[#D497FF] border border-[#D497FF]/20 select-none animate-fade-in whitespace-nowrap shrink-0">
                 {epText}
             </span>
         );
@@ -390,12 +390,12 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                     <Image src={avatarUrl} alt={displayName} width={40} height={40} className="w-full h-full object-cover" />
                 </div>
                 <div className="info">
-                    <div className="comment-header flex items-center">
-                        <div className={`user-name line-center ${isOwner(comment.user_id) ? 'rgb-text' : ''}`}>{displayName}</div>
-                        {episodeBadge}
-                        <div className="ch-logs">
-                            <div className="c-time">{getTimeAgo(comment.created_at)}</div>
+                    <div className="flex flex-col gap-0.5 mb-1.5">
+                        <div className="flex items-center gap-2">
+                            <div className={`user-name break-words ${isOwner(comment.user_id) ? 'rgb-text' : ''}`} title={displayName}>{displayName}</div>
+                            {episodeBadge}
                         </div>
+                        <div className="c-time text-[11px] text-white/40">{getTimeAgo(comment.created_at)}</div>
                     </div>
 
                     <div className="text text-sm overflow-hidden">
@@ -429,7 +429,7 @@ export default function CommentItem({ comment, user, onReplyAdded, onDelete, isR
                         )}
                     </div>
 
-                    <div className="comment-bottom line-center d-flex">
+                    <div className="comment-bottom flex items-center gap-3 flex-wrap mt-1">
                         <div className="group-react line-center">
                             <div
                                 className={`item item-up line-center ${reactions.userType === 'up' ? 'active' : ''}`}
