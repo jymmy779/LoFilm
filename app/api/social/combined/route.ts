@@ -34,7 +34,15 @@ function extractBaseSlug(slug: string): string {
 }
 
 function normalizeAvatar(avatar: string | null): string | null {
-    if (avatar && avatar.startsWith('http') && !avatar.includes('wsrv.nl')) {
+    if (!avatar) return null;
+    if (avatar.includes('api.dicebear.com')) {
+        if (!avatar.includes('backgroundColor=')) {
+            const joinChar = avatar.includes('?') ? '&' : '?';
+            return `${avatar}${joinChar}backgroundColor=b6e3f4,c0aede,d1d4f9,ffd5dc,ffdfbf,c1f4c5,fde2e4,e2ece9,dfccf1,fbe4d8,d6e4ff,e0f2fe,fef08a,fed7aa,fbcfe8&backgroundType=solid`;
+        }
+        return avatar;
+    }
+    if (avatar.startsWith('http') && !avatar.includes('wsrv.nl')) {
         return `https://wsrv.nl/?url=${encodeURIComponent(avatar)}&w=50&q=75&output=webp`;
     }
     return avatar;

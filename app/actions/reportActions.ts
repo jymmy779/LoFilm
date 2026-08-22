@@ -6,6 +6,7 @@ export async function reportCommentToTelegram(data: {
     commentId: string;
     movieSlug?: string;
     reportedBy?: string;
+    reason?: string;
 }) {
     const token = process.env.TELEGRAM_BOT_TOKEN;
     const chatId = process.env.TELEGRAM_CHAT_ID;
@@ -16,15 +17,16 @@ export async function reportCommentToTelegram(data: {
     }
 
     const message = `
-⚠️ [BÁO CÁO BÌNH LUẬN]
+⚠️ *[BÁO CÁO BÌNH LUẬN]*
 
-👤 Tác giả: ${data.author}
-💬 Nội dung: "${data.content}"
-🎬 Phim: ${data.movieSlug || "Không xác định"}
-🆔 Comment ID: ${data.commentId}
+👤 *Tác giả:* ${data.author}
+💬 *Nội dung:* "${data.content}"
+🚨 *Lý do vi phạm:* ${data.reason || "Nội dung không phù hợp"}
+🎬 *Phim:* ${data.movieSlug || "Không xác định"}
+🆔 *Comment ID:* ${data.commentId}
 
-🚨 Người báo cáo: ${data.reportedBy || "Ẩn danh"}
-🔗 Link: [Nhấn để xem](https://lofilm.vn/phim/${data.movieSlug || ""})
+👤 *Người báo cáo:* ${data.reportedBy || "Ẩn danh"}
+🔗 *Link:* [Nhấn để xem](https://lofilm.vn/phim/${data.movieSlug || ""})
     `.trim();
 
     try {
@@ -45,6 +47,6 @@ export async function reportCommentToTelegram(data: {
         return { success: true };
     } catch (error) {
         console.error("Error sending Telegram report:", error);
-        return { success: false, error: "Không thể gởi báo cáo về Telegram." };
+        return { success: false, error: "Không thể gửi báo cáo về Telegram." };
     }
 }

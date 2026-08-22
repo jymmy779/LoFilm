@@ -13,6 +13,7 @@ import { usePageTransition } from "@/app/components/UI/Transition/PageTransition
 import CatalogHeader from "../../components/Movies/MovieCatalog/CatalogHeader";
 import Container from "../../components/UI/Container";
 import Link from "next/link";
+import { getRandomDicebearAvatar } from "@/app/utils/avatar-helper";
 
 // Import Sidebar từ đúng thư mục
 import SidebarComp from "@/app/components/Layout/Sidebar/Sidebar";
@@ -196,6 +197,9 @@ export default function AuthContent() {
           return;
         }
 
+        // Sinh ngẫu nhiên avatar Dicebear độc nhất cho tài khoản mới
+        const randomAvatarUrl = getRandomDicebearAvatar();
+
         // Handle Sign Up
         const { data, error } = await supabase.auth.signUp({
           email: formEmail,
@@ -204,6 +208,7 @@ export default function AuthContent() {
             captchaToken,
             data: {
               full_name: formFullName,
+              avatar_url: randomAvatarUrl,
             }
           },
         });

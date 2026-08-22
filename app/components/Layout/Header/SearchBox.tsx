@@ -217,13 +217,13 @@ function SearchBoxInner({ autoFocus }: SearchBoxProps) {
                         Kết quả tìm kiếm
                     </div>
 
-                    <div className="space-y-1 overflow-y-auto max-h-[60vh] md:max-h-[70vh] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden pr-1">
+                    <div className="space-y-1.5 overflow-y-auto max-h-[60vh] md:max-h-[70vh] no-scrollbar [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden p-1">
                         {results.length > 0 ? (
                             results.map((movie: Movie, index: number) => (
                                 <div key={movie._id}>
                                     <TransitionLink
                                         href={`/phim/${movie.slug}`}
-                                        className={`group flex gap-2.5 md:gap-3 p-1.5 md:p-2 rounded-xl transition-all duration-300 ${activeIndex === index ? 'bg-white/10 ring-1 ring-[#D497FF]/30' : 'hover:bg-white/5'}`}
+                                        className={`group flex gap-2.5 md:gap-3 p-1.5 md:p-2 rounded-xl transition-all duration-200 border ${activeIndex === index ? 'bg-white/10 border-[#D497FF]/40 shadow-sm' : 'border-transparent hover:bg-white/5'}`}
                                         onMouseEnter={() => setActiveIndex(index)}
                                     >
                                         <div className="w-10 h-14 md:w-12 md:h-16 shrink-0 rounded-lg overflow-hidden relative border border-white/5 bg-white/5">

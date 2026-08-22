@@ -28,11 +28,16 @@ export const useWatchlist = (user: any, movieSlug: string, movieName: string, mo
         checkWatchlist();
     }, [movieSlug, user?.id]);
 
+    const [isProcessing, setIsProcessing] = useState(false);
+
     const toggleWatchlist = async () => {
         if (!user) {
             toast.error("Vui lòng đăng nhập để thêm vào danh sách xem sau!");
             return;
         }
+
+        if (isProcessing) return;
+        setIsProcessing(true);
 
         const prevStatus = isInWatchlist;
         setIsInWatchlist(!isInWatchlist);
@@ -55,7 +60,11 @@ export const useWatchlist = (user: any, movieSlug: string, movieName: string, mo
             }
         } catch (err: any) {
             setIsInWatchlist(prevStatus);
-            toast.error("Lỗi: " + err.message);
+            if (!err?.message?.includes("duplicate key")) {
+                toast.error("Lỗi: " + err.message);
+            }
+        } finally {
+            setIsProcessing(false);
         }
     };
 

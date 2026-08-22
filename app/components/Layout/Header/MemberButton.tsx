@@ -12,6 +12,7 @@ import ComingSoonModal from "@/app/components/UI/Modals/ComingSoonModal";
 import { Crown } from "lucide-react";
 import Skeleton from "@/app/components/UI/Skeleton/Skeleton";
 import { isOwner } from "@/app/utils/owner-utils";
+import { getUserAvatarUrl } from "@/app/utils/avatar-helper";
 
 interface MemberButtonProps {
     flatten?: boolean;
@@ -187,6 +188,7 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
     }
 
     const displayName = user.user_metadata?.full_name || user.email?.split("@")[0];
+    const avatarUrl = getUserAvatarUrl(user);
 
     // Using centralized LogoutModal...
 
@@ -196,17 +198,13 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                 <div className="w-full flex flex-col gap-3">
                     <div className="flex items-center gap-3 px-1 py-1 rounded-full bg-white/5 border border-white/10 w-max mx-auto animate-fade-in">
                         <div className="w-9 h-9 rounded-full bg-gradient-to-br from-orange-950 via-zinc-900 to-zinc-950 flex items-center justify-center text-white/90 font-bold text-sm border border-white/20 overflow-hidden shrink-0">
-                            {user?.user_metadata?.avatar_url ? (
-                                <Image
-                                    src={user.user_metadata.avatar_url}
-                                    alt={displayName}
-                                    width={36}
-                                    height={36}
-                                    className="w-full h-full object-cover"
-                                />
-                            ) : (
-                                displayName.charAt(0).toUpperCase()
-                            )}
+                            <Image
+                                src={avatarUrl}
+                                alt={displayName}
+                                width={36}
+                                height={36}
+                                className="w-full h-full object-cover"
+                            />
                         </div>
                         <span className={`text-xs font-bold pr-3 ${isOwner(user?.id) ? 'rgb-text' : 'text-white/90'}`}>{displayName}</span>
                     </div>
@@ -265,17 +263,13 @@ export default function MemberButton({ flatten = false, onClick }: MemberButtonP
                 className="flex items-center cursor-pointer gap-2 pr-1 pl-1 py-1 rounded-full bg-white/5 border border-white/10 hover:bg-white/10 transition-all duration-300 group"
             >
                 <div className="w-8 h-8 md:w-9 md:h-9 rounded-full bg-gradient-to-br from-orange-950 via-zinc-900 to-zinc-950 flex items-center justify-center text-white/90 font-bold text-sm transition-all overflow-hidden border border-white/20 shrink-0">
-                    {user?.user_metadata?.avatar_url ? (
-                        <Image
-                            src={user.user_metadata.avatar_url}
-                            alt={displayName}
-                            width={36}
-                            height={36}
-                            className="w-full h-full object-cover"
-                        />
-                    ) : (
-                        displayName.charAt(0).toUpperCase()
-                    )}
+                    <Image
+                        src={avatarUrl}
+                        alt={displayName}
+                        width={36}
+                        height={36}
+                        className="w-full h-full object-cover"
+                    />
                 </div>
                 <span className={`hidden md:block text-base font-semibold max-w-fit truncate pr-2 ${isOwner(user?.id) ? 'rgb-text' : 'text-white/80'}`}>
                     {displayName}

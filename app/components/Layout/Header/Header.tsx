@@ -16,6 +16,7 @@ import NotificationBell from "./NotificationBell";
 import MobileBottomSheet from "./MobileBottomSheet";
 import { useAuth } from "@/app/components/User/Auth/AuthContext";
 import LoginPromptModal from "@/app/components/UI/Modals/LoginPromptModal";
+import { getUserAvatarUrl } from "@/app/utils/avatar-helper";
 
 import { INTERNAL_API_URL } from "@/app/utils/apiConfig";
 
@@ -356,15 +357,9 @@ export default function Header() {
                             }`}
                     >
                         {isMounted && user ? (
-                            user?.user_metadata?.avatar_url ? (
-                                <div className={`shrink-0 w-[21px] h-[21px] md:w-[23px] md:h-[23px] rounded-full overflow-hidden border ${isCaNhanActive ? 'border-[#D497FF]' : 'border-white/40'}`}>
-                                    <Image src={user.user_metadata.avatar_url} alt="Avatar" width={23} height={23} className="w-full h-full object-cover" />
-                                </div>
-                            ) : (
-                                <div className={`shrink-0 w-[21px] h-[21px] md:w-[23px] md:h-[23px] rounded-full overflow-hidden border ${isCaNhanActive ? 'border-[#D497FF]' : 'border-white/20'} bg-gradient-to-br from-orange-950 via-zinc-900 to-zinc-950 flex items-center justify-center text-white/90 text-[10px] md:text-[11px] font-bold`}>
-                                    {(user.user_metadata?.full_name || user.email || "U").charAt(0).toUpperCase()}
-                                </div>
-                            )
+                            <div className={`shrink-0 w-[21px] h-[21px] md:w-[23px] md:h-[23px] rounded-full overflow-hidden border ${isCaNhanActive ? 'border-[#D497FF]' : 'border-white/40'}`}>
+                                <Image src={getUserAvatarUrl(user)} alt="Avatar" width={23} height={23} className="w-full h-full object-cover" />
+                            </div>
                         ) : (
                             <svg className="shrink-0 transition-transform duration-200 w-[21px] h-[21px] md:w-[23px] md:h-[23px]" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={isCaNhanActive ? "2.3" : "1.8"} strokeLinecap="round" strokeLinejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" /><circle cx="12" cy="7" r="4" /></svg>
                         )}

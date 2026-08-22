@@ -31,26 +31,21 @@ interface DisplayComment {
     replies: number;
 }
 
+import { getUserAvatarUrl, normalizeDicebearAvatar } from "@/app/utils/avatar-helper";
+
 function AvatarCell({ avatar, name }: { avatar: string | null; name: string }) {
     const [imgError, setImgError] = useState(false);
-    const hasAvatar = avatar && !imgError;
+    const cleanedAvatar = normalizeDicebearAvatar(avatar);
+    const avatarSrc = (!imgError && cleanedAvatar) ? cleanedAvatar : getUserAvatarUrl(undefined, name);
 
     return (
-        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center overflow-hidden relative">
-            {hasAvatar ? (
-                <img
-                    src={avatar!}
-                    alt=""
-                    className="w-full h-full object-cover"
-                    onError={() => setImgError(true)}
-                />
-            ) : null}
-            <div
-                className="w-full h-full flex items-center justify-center bg-gradient-to-br from-orange-950 via-zinc-900 to-zinc-950 border border-white/20 rounded-full absolute inset-0"
-                style={{ display: hasAvatar ? 'none' : 'flex' }}
-            >
-                <span className="text-[10px] sm:text-xs font-bold text-white/90">{name.charAt(0).toUpperCase()}</span>
-            </div>
+        <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center overflow-hidden relative shrink-0 border border-white/20">
+            <img
+                src={avatarSrc}
+                alt={name}
+                className="w-full h-full object-cover"
+                onError={() => setImgError(true)}
+            />
         </div>
     );
 }
